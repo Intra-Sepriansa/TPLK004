@@ -1,0 +1,12 @@
+train: train/images
+val: train/images
+
+nc: 1
+names: ['INTRA SEPRIANSA']
+
+roboflow:
+  workspace: intra-sepriansa-ouxgp
+  project: tplk004
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/intra-sepriansa-ouxgp/tplk004/dataset/1

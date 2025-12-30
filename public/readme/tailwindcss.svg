@@ -1,0 +1,12 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tailwind CSS">
+  <rect width="48" height="48" fill="none" />
+  <path
+    d="M4 18c6-6 12-9 20-9 8 0 14 3 20 9-4-4-8-6-12-6-5 0-9 3-12 6-3 3-6 6-16 6z"
+    fill="#38BDF8"
+  />
+  <path
+    d="M4 30c6-6 12-9 20-9 8 0 14 3 20 9-4-4-8-6-12-6-5 0-9 3-12 6-3 3-6 6-16 6z"
+    fill="#38BDF8"
+    opacity="0.85"
+  />
+</svg>
