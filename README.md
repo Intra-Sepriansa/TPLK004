@@ -21,7 +21,6 @@
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" alt="MySQL" height="48" />
 </p>
 
-![divider](./public/readme/divider.svg)
 
 ## Ringkasan
 TPLK004 adalah sistem absensi mahasiswa berbasis web dengan validasi lokasi (geofence) dan
@@ -36,7 +35,6 @@ deteksi kamera untuk membantu absensi lebih akurat. Backend memakai Laravel, fro
 - Mahasiswa: absensi dengan kamera + lokasi otomatis (tanpa input manual).
 - Rekap dan bukti masuk di sisi mahasiswa.
 
-![divider](./public/readme/divider.svg)
 
 ## Stack dan Tools
 - Backend: Laravel, PHP, MySQL
@@ -146,19 +144,15 @@ flowchart LR
   />
 </p>
 
-![divider](./public/readme/divider.svg)
 
 ## Dokumentasi Lengkap
 Lihat `docs/DOKUMENTASI.md` untuk panduan lengkap (alur, modul, konfigurasi, dan troubleshooting).
 
-![divider](./public/readme/divider.svg)
 
 ## Legal & Kepatuhan
 - Kebijakan privasi tersedia di `/privacy` (lihat `resources/js/pages/privacy.tsx`).
 - Persetujuan penggunaan kamera/lokasi ditampilkan sebelum scan.
 - Penghapusan data dilakukan melalui admin kampus setelah verifikasi.
-
-![divider](./public/readme/divider.svg)
 
 ## Setup Lokal (Singkat)
 ### 1) Backend (Laravel)
@@ -204,7 +198,6 @@ YOLO_MAINTENANCE_MODE=true
 - Vite: `http://127.0.0.1:5173`
 - YOLO Service: `http://127.0.0.1:9001`
 
-![divider](./public/readme/divider.svg)
 
 ## SOP Admin
 <p align="left">
