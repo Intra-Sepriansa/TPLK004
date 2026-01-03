@@ -424,3 +424,4 @@ YOLO_MAINTENANCE_MODE=true
 
 ## Referensi Layanan AI
 - <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> Lihat `TPLK004-service/README.md` untuk detail service YOLO, endpoint, dan konfigurasi.
+# tplk004-new
