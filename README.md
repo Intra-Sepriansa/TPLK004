@@ -420,6 +420,10 @@ YOLO_MAINTENANCE_MODE=true
 - <img src="./public/readme/icons/shield-check.svg" alt="Consent" height="18" /> Persetujuan penggunaan kamera dan lokasi ditampilkan sebelum scan.
 - <img src="./public/readme/icons/shield-check.svg" alt="Deletion" height="18" /> Penghapusan data dilakukan melalui admin kampus setelah verifikasi.
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/platane/snk/output/github-contribution-grid-snake.svg" alt="Animated footer" />
+</div>
+
 ![divider](./public/readme/divider.svg)
 
 ## Referensi Layanan AI
