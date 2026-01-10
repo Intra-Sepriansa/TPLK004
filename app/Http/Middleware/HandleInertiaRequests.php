@@ -38,6 +38,20 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        // Get dosen if authenticated via dosen guard
+        $dosen = null;
+        if (auth()->guard('dosen')->check()) {
+            $dosenUser = auth()->guard('dosen')->user();
+            $dosen = [
+                'id' => $dosenUser->id,
+                'nama' => $dosenUser->nama,
+                'nidn' => $dosenUser->nidn,
+                'email' => $dosenUser->email,
+                'avatar_url' => $dosenUser->avatar_url,
+                'initials' => $dosenUser->initials,
+            ];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -45,6 +59,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'dosen' => $dosen,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
