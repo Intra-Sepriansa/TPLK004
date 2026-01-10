@@ -22,6 +22,402 @@ use Throwable;
 
 class AbsensiController extends Controller
 {
+    public function dashboard(): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        // Get attendance logs
+        $logs = AttendanceLog::query()
+            ->with(['session.course'])
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->get();
+
+        // Calculate stats
+        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
+        $totalSessions = $logs->count();
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
+
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $currentStreak = 0;
+        $longestStreak = 0;
+        $tempStreak = 0;
+        $lastDate = null;
+
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $logDate = $log->scanned_at?->format('Y-m-d');
+                if ($lastDate === null || $lastDate === $logDate) {
+                    $tempStreak++;
+                } elseif ($lastDate && Carbon::parse($lastDate)->subDay()->format('Y-m-d') === $logDate) {
+                    $tempStreak++;
+                } else {
+                    $longestStreak = max($longestStreak, $tempStreak);
+                    $tempStreak = 1;
+                }
+                $lastDate = $logDate;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+                $lastDate = null;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+        $currentStreak = $tempStreak;
+
+        // On-time rate
+        $presentCount = $logs->where('status', 'present')->count();
+        $onTimeRate = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0;
+
+        // This week stats
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
+        $thisWeekLogs = $logs->filter(function ($log) use ($startOfWeek, $endOfWeek) {
+            return $log->scanned_at && $log->scanned_at->between($startOfWeek, $endOfWeek);
+        });
+        $thisWeekAttendance = $thisWeekLogs->whereIn('status', ['present', 'late'])->count();
+        $thisWeekTotal = $thisWeekLogs->count();
+
+        // Recent activity
+        $recentActivity = $logs->take(5)->map(function ($log) {
+            $status = match ($log->status) {
+                'present' => 'success',
+                'late' => 'warning',
+                default => 'error',
+            };
+            $message = match ($log->status) {
+                'present' => 'Hadir di ' . ($log->session?->course?->nama ?? 'Sesi'),
+                'late' => 'Terlambat di ' . ($log->session?->course?->nama ?? 'Sesi'),
+                'rejected' => 'Ditolak: ' . ($log->note ?? 'Tidak valid'),
+                default => 'Absen di ' . ($log->session?->course?->nama ?? 'Sesi'),
+            };
+
+            return [
+                'id' => $log->id,
+                'type' => 'attendance',
+                'message' => $message,
+                'time' => $log->scanned_at?->diffForHumans(),
+                'status' => $status,
+            ];
+        })->values()->toArray();
+
+        // Upcoming sessions (placeholder - would need actual session scheduling)
+        $upcomingSessions = [];
+
+        // Achievements
+        $achievements = [
+            ['type' => 'streak', 'value' => $currentStreak, 'unlocked' => $currentStreak >= 3],
+            ['type' => 'perfect', 'unlocked' => $attendanceRate === 100],
+            ['type' => 'early', 'unlocked' => $onTimeRate >= 90],
+            ['type' => 'consistent', 'unlocked' => $attendanceRate >= 80],
+            ['type' => 'champion', 'unlocked' => false],
+            ['type' => 'legend', 'unlocked' => false],
+        ];
+
+        // Weekly chart data (last 4 weeks)
+        $weeklyChartData = [];
+        for ($i = 3; $i >= 0; $i--) {
+            $weekStart = now()->subWeeks($i)->startOfWeek();
+            $weekEnd = now()->subWeeks($i)->endOfWeek();
+            $weekLabel = 'Minggu ' . (4 - $i);
+
+            $weekLogs = $logs->filter(function ($log) use ($weekStart, $weekEnd) {
+                return $log->scanned_at && $log->scanned_at->between($weekStart, $weekEnd);
+            });
+
+            $weeklyChartData[] = [
+                'label' => $weekLabel,
+                'present' => $weekLogs->where('status', 'present')->count(),
+                'late' => $weekLogs->where('status', 'late')->count(),
+                'absent' => $weekLogs->whereNotIn('status', ['present', 'late'])->count(),
+            ];
+        }
+
+        // Monthly chart data (last 6 months)
+        $monthlyChartData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = now()->subMonths($i)->startOfMonth();
+            $monthEnd = now()->subMonths($i)->endOfMonth();
+            $monthLabel = $monthStart->translatedFormat('M');
+
+            $monthLogs = $logs->filter(function ($log) use ($monthStart, $monthEnd) {
+                return $log->scanned_at && $log->scanned_at->between($monthStart, $monthEnd);
+            });
+
+            $monthlyChartData[] = [
+                'label' => $monthLabel,
+                'present' => $monthLogs->where('status', 'present')->count(),
+                'late' => $monthLogs->where('status', 'late')->count(),
+                'absent' => $monthLogs->whereNotIn('status', ['present', 'late'])->count(),
+                'total' => $monthLogs->count(),
+            ];
+        }
+
+        // Daily attendance for current week
+        $dailyChartData = [];
+        $dayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        for ($i = 0; $i < 7; $i++) {
+            $day = now()->startOfWeek()->addDays($i);
+            $dayLogs = $logs->filter(function ($log) use ($day) {
+                return $log->scanned_at && $log->scanned_at->isSameDay($day);
+            });
+
+            $dailyChartData[] = [
+                'label' => $dayNames[$i],
+                'present' => $dayLogs->where('status', 'present')->count(),
+                'late' => $dayLogs->where('status', 'late')->count(),
+                'absent' => $dayLogs->whereNotIn('status', ['present', 'late'])->count(),
+            ];
+        }
+
+        // Attendance distribution for pie chart
+        $distributionData = [
+            ['label' => 'Hadir', 'value' => $logs->where('status', 'present')->count()],
+            ['label' => 'Terlambat', 'value' => $logs->where('status', 'late')->count()],
+            ['label' => 'Tidak Hadir', 'value' => $logs->whereNotIn('status', ['present', 'late'])->count()],
+        ];
+
+        return Inertia::render('user/dashboard', [
+            'mahasiswa' => [
+                'id' => $mahasiswa?->id,
+                'nama' => $mahasiswa?->nama,
+                'nim' => $mahasiswa?->nim,
+            ],
+            'stats' => [
+                'totalAttendance' => $totalAttendance,
+                'totalSessions' => $totalSessions,
+                'attendanceRate' => $attendanceRate,
+                'currentStreak' => $currentStreak,
+                'longestStreak' => $longestStreak,
+                'onTimeRate' => $onTimeRate,
+                'thisWeekAttendance' => $thisWeekAttendance,
+                'thisWeekTotal' => $thisWeekTotal,
+            ],
+            'upcomingSessions' => $upcomingSessions,
+            'recentActivity' => $recentActivity,
+            'achievements' => $achievements,
+            'notifications' => ['unread' => 0],
+            'chartData' => [
+                'weekly' => $weeklyChartData,
+                'monthly' => $monthlyChartData,
+                'daily' => $dailyChartData,
+                'distribution' => $distributionData,
+            ],
+        ]);
+    }
+
+    public function history(): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $logs = AttendanceLog::query()
+            ->with(['session.course'])
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->latest('scanned_at')
+            ->get();
+
+        $records = $logs->map(function ($log) {
+            $selfieUrl = null;
+            if ($log->selfie_path) {
+                $selfieUrl = asset('storage/' . ltrim($log->selfie_path, '/'));
+            }
+
+            return [
+                'id' => $log->id,
+                'date' => $log->scanned_at?->toIso8601String(),
+                'course' => $log->session?->course?->nama ?? 'Unknown',
+                'courseId' => $log->session?->course?->id ?? 0,
+                'meetingNumber' => $log->session?->meeting_number ?? 1,
+                'status' => $log->status,
+                'checkInTime' => $log->scanned_at?->format('H:i'),
+                'distance' => $log->distance_m,
+                'selfieUrl' => $selfieUrl,
+                'note' => $log->note,
+                'location' => $log->latitude && $log->longitude ? [
+                    'lat' => (float) $log->latitude,
+                    'lng' => (float) $log->longitude,
+                ] : null,
+            ];
+        })->values()->toArray();
+
+        // Get unique courses
+        $courses = $logs->map(function ($log) {
+            return [
+                'id' => $log->session?->course?->id,
+                'name' => $log->session?->course?->nama,
+            ];
+        })->filter(fn($c) => $c['id'] !== null)->unique('id')->values()->toArray();
+
+        // Calculate stats
+        $present = $logs->where('status', 'present')->count();
+        $absent = $logs->where('status', 'rejected')->count();
+        $late = $logs->where('status', 'late')->count();
+        $pending = $logs->where('status', 'pending')->count();
+        $total = $logs->count();
+
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $streak = 0;
+        $longestStreak = 0;
+        $tempStreak = 0;
+
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $tempStreak++;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+        $streak = $tempStreak;
+
+        return Inertia::render('user/history', [
+            'mahasiswa' => [
+                'id' => $mahasiswa?->id,
+                'nama' => $mahasiswa?->nama,
+                'nim' => $mahasiswa?->nim,
+            ],
+            'records' => $records,
+            'courses' => $courses,
+            'stats' => [
+                'present' => $present,
+                'absent' => $absent,
+                'late' => $late,
+                'pending' => $pending,
+                'total' => $total,
+                'streak' => $streak,
+                'longestStreak' => $longestStreak,
+            ],
+        ]);
+    }
+
+    public function achievements(): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $logs = AttendanceLog::query()
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->get();
+
+        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
+        $totalSessions = $logs->count();
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
+        $presentCount = $logs->where('status', 'present')->count();
+        $onTimeRate = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0;
+
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $currentStreak = 0;
+        $longestStreak = 0;
+        $tempStreak = 0;
+
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $tempStreak++;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+        $currentStreak = $tempStreak;
+
+        // Calculate points
+        $points = ($totalAttendance * 10) + ($currentStreak * 5) + ($presentCount * 2);
+        $level = (int) floor($points / 100) + 1;
+        $nextLevelPoints = 100;
+
+        // Define achievements
+        $achievements = [
+            [
+                'type' => 'streak',
+                'name' => 'Streak Master',
+                'description' => 'Hadir berturut-turut tanpa absen',
+                'requirement' => 'Hadir 7 hari berturut-turut',
+                'progress' => min($currentStreak, 7),
+                'target' => 7,
+                'unlocked' => $currentStreak >= 7,
+                'unlockedAt' => $currentStreak >= 7 ? now()->toIso8601String() : null,
+                'points' => 100,
+            ],
+            [
+                'type' => 'perfect',
+                'name' => 'Perfect Attendance',
+                'description' => 'Kehadiran sempurna dalam satu bulan',
+                'requirement' => '100% kehadiran selama 1 bulan',
+                'progress' => $attendanceRate,
+                'target' => 100,
+                'unlocked' => $attendanceRate === 100 && $totalSessions >= 10,
+                'unlockedAt' => null,
+                'points' => 200,
+            ],
+            [
+                'type' => 'early',
+                'name' => 'Early Bird',
+                'description' => 'Selalu hadir tepat waktu',
+                'requirement' => 'Tidak pernah terlambat dalam 10 sesi',
+                'progress' => min($presentCount, 10),
+                'target' => 10,
+                'unlocked' => $presentCount >= 10,
+                'unlockedAt' => $presentCount >= 10 ? now()->toIso8601String() : null,
+                'points' => 150,
+            ],
+            [
+                'type' => 'consistent',
+                'name' => 'Consistent',
+                'description' => 'Kehadiran konsisten di atas 80%',
+                'requirement' => 'Pertahankan kehadiran >80% selama semester',
+                'progress' => $attendanceRate,
+                'target' => 80,
+                'unlocked' => $attendanceRate >= 80 && $totalSessions >= 5,
+                'unlockedAt' => $attendanceRate >= 80 ? now()->toIso8601String() : null,
+                'points' => 250,
+            ],
+            [
+                'type' => 'champion',
+                'name' => 'Champion',
+                'description' => 'Top 10 kehadiran di kelas',
+                'requirement' => 'Masuk 10 besar kehadiran tertinggi',
+                'progress' => 0,
+                'target' => 1,
+                'unlocked' => false,
+                'unlockedAt' => null,
+                'points' => 300,
+            ],
+            [
+                'type' => 'legend',
+                'name' => 'Legend',
+                'description' => 'Pencapaian tertinggi',
+                'requirement' => 'Unlock semua achievement lainnya',
+                'progress' => collect([
+                    $currentStreak >= 7,
+                    $attendanceRate === 100 && $totalSessions >= 10,
+                    $presentCount >= 10,
+                    $attendanceRate >= 80 && $totalSessions >= 5,
+                    false, // champion
+                ])->filter()->count(),
+                'target' => 5,
+                'unlocked' => false,
+                'unlockedAt' => null,
+                'points' => 500,
+            ],
+        ];
+
+        return Inertia::render('user/achievements', [
+            'mahasiswa' => [
+                'nama' => $mahasiswa?->nama,
+                'nim' => $mahasiswa?->nim,
+            ],
+            'achievements' => $achievements,
+            'totalPoints' => $points,
+            'level' => $level,
+            'nextLevelPoints' => $nextLevelPoints,
+            'rank' => null,
+            'totalStudents' => null,
+        ]);
+    }
+
     public function create(): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
