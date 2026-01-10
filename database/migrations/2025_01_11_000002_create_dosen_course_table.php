@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::create('dosen_course', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dosen_id')->constrained('dosen')->cascadeOnDelete();
-            $table->foreignId('course_id')->constrained('mata_kuliah')->cascadeOnDelete();
+            $table->integer('dosen_id');
+            $table->unsignedBigInteger('course_id');
             $table->enum('role', ['pengampu', 'asisten'])->default('pengampu');
             $table->timestamp('assigned_at')->nullable();
             $table->timestamps();
 
+            $table->index('dosen_id');
+            $table->index('course_id');
             $table->unique(['dosen_id', 'course_id']);
         });
     }

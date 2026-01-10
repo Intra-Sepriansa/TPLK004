@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::table('attendance_sessions', function (Blueprint $table) {
             if (!Schema::hasColumn('attendance_sessions', 'created_by_dosen_id')) {
-                $table->foreignId('created_by_dosen_id')->nullable()->after('course_id')->constrained('dosen')->nullOnDelete();
+                $table->integer('created_by_dosen_id')->nullable()->after('course_id');
+                $table->index('created_by_dosen_id');
             }
         });
     }
@@ -18,7 +19,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('attendance_sessions', function (Blueprint $table) {
-            $table->dropForeign(['created_by_dosen_id']);
+            $table->dropIndex(['created_by_dosen_id']);
             $table->dropColumn('created_by_dosen_id');
         });
     }
