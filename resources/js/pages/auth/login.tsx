@@ -21,12 +21,18 @@ export default function Login({
     status,
     canResetPassword,
 }: LoginProps) {
-    const [mode, setMode] = useState<'admin' | 'mahasiswa'>('admin');
+    const [mode, setMode] = useState<'admin' | 'mahasiswa' | 'dosen'>('admin');
     const [showAdminPassword, setShowAdminPassword] = useState(false);
     const [showMahasiswaPassword, setShowMahasiswaPassword] = useState(false);
+    const [showDosenPassword, setShowDosenPassword] = useState(false);
     const mahasiswaForm = useForm({
         nim: '',
         password: '',
+    });
+    const dosenForm = useForm({
+        nidn: '',
+        password: '',
+        remember: false,
     });
 
     const submitMahasiswa = (event: FormEvent) => {
@@ -36,11 +42,20 @@ export default function Login({
         });
     };
 
+    const submitDosen = (event: FormEvent) => {
+        event.preventDefault();
+        dosenForm.post('/dosen/login', {
+            onFinish: () => dosenForm.reset('password'),
+        });
+    };
+
     const title =
-        mode === 'admin' ? 'Log in admin' : 'Log in mahasiswa';
+        mode === 'admin' ? 'Log in admin' : mode === 'dosen' ? 'Log in dosen' : 'Log in mahasiswa';
     const description =
         mode === 'admin'
             ? 'Masuk dengan email admin dan password.'
+            : mode === 'dosen'
+            ? 'Masuk dengan NIDN dan password.'
             : 'Masuk dengan NIM dan password awal.';
 
     return (
@@ -58,6 +73,17 @@ export default function Login({
                     }`}
                 >
                     Admin
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setMode('dosen')}
+                    className={`flex-1 rounded-full px-3 py-1.5 transition ${
+                        mode === 'dosen'
+                            ? 'bg-white text-slate-900 shadow-sm'
+                            : 'text-muted-foreground'
+                    }`}
+                >
+                    Dosen
                 </button>
                 <button
                     type="button"
@@ -176,6 +202,104 @@ export default function Login({
                         </>
                     )}
                 </Form>
+            ) : mode === 'dosen' ? (
+                <form
+                    className="flex flex-col gap-6"
+                    onSubmit={submitDosen}
+                >
+                    <div className="grid gap-6">
+                        <div className="grid gap-2">
+                            <Label htmlFor="nidn">NIDN</Label>
+                            <Input
+                                id="nidn"
+                                name="nidn"
+                                required
+                                autoFocus
+                                value={dosenForm.data.nidn}
+                                onChange={(event) =>
+                                    dosenForm.setData(
+                                        'nidn',
+                                        event.target.value,
+                                    )
+                                }
+                                placeholder="0412018901"
+                            />
+                            <InputError message={dosenForm.errors.nidn} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="dosen-password">
+                                Password
+                            </Label>
+                            <div className="relative">
+                                <Input
+                                    id="dosen-password"
+                                    type={
+                                        showDosenPassword
+                                            ? 'text'
+                                            : 'password'
+                                    }
+                                    name="password"
+                                    required
+                                    value={dosenForm.data.password}
+                                    onChange={(event) =>
+                                        dosenForm.setData(
+                                            'password',
+                                            event.target.value,
+                                        )
+                                    }
+                                    placeholder="Password"
+                                    className="pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    onClick={() =>
+                                        setShowDosenPassword(
+                                            (prev) => !prev,
+                                        )
+                                    }
+                                    aria-label={
+                                        showDosenPassword
+                                            ? 'Sembunyikan password'
+                                            : 'Tampilkan password'
+                                    }
+                                >
+                                    {showDosenPassword ? (
+                                        <EyeOff className="h-4 w-4" />
+                                    ) : (
+                                        <Eye className="h-4 w-4" />
+                                    )}
+                                </button>
+                            </div>
+                            <InputError
+                                message={dosenForm.errors.password}
+                            />
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                            <Checkbox
+                                id="remember-dosen"
+                                checked={dosenForm.data.remember}
+                                onCheckedChange={(checked) =>
+                                    dosenForm.setData('remember', checked as boolean)
+                                }
+                            />
+                            <Label htmlFor="remember-dosen">
+                                Remember me
+                            </Label>
+                        </div>
+
+                        <Button
+                            type="submit"
+                            className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700"
+                            disabled={dosenForm.processing}
+                        >
+                            {dosenForm.processing && <Spinner />}
+                            Log in dosen
+                        </Button>
+                    </div>
+                </form>
             ) : (
                 <form
                     className="flex flex-col gap-6"
