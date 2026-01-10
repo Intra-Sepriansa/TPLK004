@@ -696,26 +696,84 @@ class AbsensiController extends Controller
             ->with(['session.course'])
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->latest('scanned_at')
-            ->get()
-            ->map(static function (AttendanceLog $log) {
+            ->get();
+
+        // Overall stats
+        $totalSessions = $logs->count();
+        $presentCount = $logs->where('status', 'present')->count();
+        $lateCount = $logs->where('status', 'late')->count();
+        $rejectedCount = $logs->where('status', 'rejected')->count();
+        $totalAttendance = $presentCount + $lateCount;
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
+        $onTimeRate = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0;
+
+        // This month stats
+        $thisMonthLogs = $logs->filter(fn($log) => $log->scanned_at && $log->scanned_at->isCurrentMonth());
+        $thisMonthTotal = $thisMonthLogs->count();
+        $thisMonthPresent = $thisMonthLogs->whereIn('status', ['present', 'late'])->count();
+
+        // Course summary (agregat per mata kuliah)
+        $courseSummary = $logs->groupBy(fn($log) => $log->session?->course?->id ?? 0)
+            ->map(function ($courseLogs, $courseId) {
+                $first = $courseLogs->first();
+                $courseName = $first->session?->course?->nama ?? 'Unknown';
+                $total = $courseLogs->count();
+                $present = $courseLogs->where('status', 'present')->count();
+                $late = $courseLogs->where('status', 'late')->count();
+                $rejected = $courseLogs->whereNotIn('status', ['present', 'late'])->count();
+                $attended = $present + $late;
+                $rate = $total > 0 ? round(($attended / $total) * 100) : 0;
+
                 return [
-                    'id' => $log->id,
-                    'status' => $log->status,
-                    'note' => $log->note,
-                    'distance_m' => $log->distance_m !== null
-                        ? (float) $log->distance_m
-                        : null,
-                    'scanned_at' => $log->scanned_at?->toIso8601String(),
-                    'session' => [
-                        'title' => $log->session?->title,
-                        'meeting_number' => $log->session?->meeting_number,
-                        'start_at' => $log->session?->start_at?->toIso8601String(),
-                        'course' => [
-                            'name' => $log->session?->course?->nama,
-                        ],
-                    ],
+                    'courseId' => $courseId,
+                    'courseName' => $courseName,
+                    'total' => $total,
+                    'present' => $present,
+                    'late' => $late,
+                    'rejected' => $rejected,
+                    'attended' => $attended,
+                    'rate' => $rate,
                 ];
-            });
+            })
+            ->filter(fn($item) => $item['courseId'] !== 0)
+            ->values()
+            ->toArray();
+
+        // Monthly trend (last 6 months)
+        $monthlyTrend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = now()->subMonths($i)->startOfMonth();
+            $monthEnd = now()->subMonths($i)->endOfMonth();
+            $monthLabel = $monthStart->translatedFormat('M Y');
+
+            $monthLogs = $logs->filter(fn($log) => $log->scanned_at && $log->scanned_at->between($monthStart, $monthEnd));
+            $monthTotal = $monthLogs->count();
+            $monthAttended = $monthLogs->whereIn('status', ['present', 'late'])->count();
+
+            $monthlyTrend[] = [
+                'month' => $monthLabel,
+                'total' => $monthTotal,
+                'attended' => $monthAttended,
+                'rate' => $monthTotal > 0 ? round(($monthAttended / $monthTotal) * 100) : 0,
+            ];
+        }
+
+        // Distribution for pie chart
+        $distribution = [
+            ['name' => 'Hadir', 'value' => $presentCount, 'color' => '#10b981'],
+            ['name' => 'Terlambat', 'value' => $lateCount, 'color' => '#f59e0b'],
+            ['name' => 'Ditolak', 'value' => $rejectedCount, 'color' => '#f43f5e'],
+        ];
+
+        // Recent logs (last 5)
+        $recentLogs = $logs->take(5)->map(fn($log) => [
+            'id' => $log->id,
+            'status' => $log->status,
+            'courseName' => $log->session?->course?->nama ?? 'Unknown',
+            'meetingNumber' => $log->session?->meeting_number ?? 1,
+            'scannedAt' => $log->scanned_at?->toIso8601String(),
+            'scannedAtFormatted' => $log->scanned_at?->translatedFormat('d M Y, H:i'),
+        ])->values()->toArray();
 
         return Inertia::render('user/rekapan', [
             'mahasiswa' => [
@@ -723,7 +781,21 @@ class AbsensiController extends Controller
                 'nama' => $mahasiswa?->nama,
                 'nim' => $mahasiswa?->nim,
             ],
-            'logs' => $logs,
+            'stats' => [
+                'totalSessions' => $totalSessions,
+                'presentCount' => $presentCount,
+                'lateCount' => $lateCount,
+                'rejectedCount' => $rejectedCount,
+                'totalAttendance' => $totalAttendance,
+                'attendanceRate' => $attendanceRate,
+                'onTimeRate' => $onTimeRate,
+                'thisMonthTotal' => $thisMonthTotal,
+                'thisMonthPresent' => $thisMonthPresent,
+            ],
+            'courseSummary' => $courseSummary,
+            'monthlyTrend' => $monthlyTrend,
+            'distribution' => $distribution,
+            'recentLogs' => $recentLogs,
         ]);
     }
 
