@@ -14,8 +14,11 @@ import { type SharedData, type NavItem } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
 import {
+    Award,
     BadgeCheck,
     FileText,
+    History,
+    Home,
     KeyRound,
     LogOut,
     QrCode,
@@ -23,6 +26,11 @@ import {
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/user',
+        icon: Home,
+    },
     {
         title: 'Absen',
         href: '/user/absen',
@@ -32,6 +40,16 @@ const studentNavItems: NavItem[] = [
         title: 'Rekapan',
         href: '/user/rekapan',
         icon: FileText,
+    },
+    {
+        title: 'Riwayat',
+        href: '/user/history',
+        icon: History,
+    },
+    {
+        title: 'Pencapaian',
+        href: '/user/achievements',
+        icon: Award,
     },
     {
         title: 'Bukti Masuk',

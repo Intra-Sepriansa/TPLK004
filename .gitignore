@@ -34,3 +34,6 @@ yarn-error.log
 /TPLK004-service/runs
 /tplk004-hosting.zip
 /zip1wa3O
+
+# Local Netlify folder
+.netlify

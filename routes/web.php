@@ -27,6 +27,7 @@ Route::get('privacy', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
     Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
     Route::post('attendance-sessions', [AttendanceSessionController::class, 'store'])->name('attendance-sessions.store');
     Route::patch('attendance-sessions/{attendanceSession}', [AttendanceSessionController::class, 'update'])->name('attendance-sessions.update');
@@ -51,10 +52,14 @@ Route::post('login/mahasiswa', [MahasiswaAuthController::class, 'store'])->name(
 Route::post('logout/mahasiswa', [MahasiswaAuthController::class, 'destroy'])->name('mahasiswa.logout');
 
 Route::middleware(['auth:mahasiswa'])->group(function () {
+    Route::get('user', [AbsensiController::class, 'dashboard'])->name('user.dashboard');
+    Route::get('user/dashboard', [AbsensiController::class, 'dashboard'])->name('user.dashboard.alt');
     Route::get('user/absen', [AbsensiController::class, 'create'])->name('user.absen');
     Route::post('user/absen', [AbsensiController::class, 'store'])->name('user.absen.store');
     Route::get('user/rekapan', [AbsensiController::class, 'rekapan'])->name('user.rekapan');
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');
+    Route::get('user/history', [AbsensiController::class, 'history'])->name('user.history');
+    Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
     Route::get('user/profile', [ProfileController::class, 'edit'])->name('user.profile');
     Route::patch('user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
     Route::get('user/password', [PasswordController::class, 'edit'])->name('user.password');
