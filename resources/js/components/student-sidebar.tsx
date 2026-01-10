@@ -15,11 +15,9 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
 import {
     Award,
-    BadgeCheck,
     FileText,
     History,
     Home,
-    KeyRound,
     LogOut,
     QrCode,
     UserCircle,
@@ -52,19 +50,9 @@ const studentNavItems: NavItem[] = [
         icon: Award,
     },
     {
-        title: 'Bukti Masuk',
-        href: '/user/bukti-masuk',
-        icon: BadgeCheck,
-    },
-    {
         title: 'Profil',
         href: '/user/profile',
         icon: UserCircle,
-    },
-    {
-        title: 'Ganti Password',
-        href: '/user/password',
-        icon: KeyRound,
     },
 ];
 
