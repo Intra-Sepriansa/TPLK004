@@ -67,3 +67,4 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+require __DIR__.'/dosen.php';

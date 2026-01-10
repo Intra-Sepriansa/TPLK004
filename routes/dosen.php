@@ -1,0 +1,44 @@
+<?php
+
+use App\Http\Controllers\Auth\DosenAuthController;
+use App\Http\Controllers\Dosen\CourseController;
+use App\Http\Controllers\Dosen\DashboardController;
+use App\Http\Controllers\Dosen\ProfileController;
+use App\Http\Controllers\Dosen\SessionController;
+use App\Http\Controllers\Dosen\VerificationController;
+use Illuminate\Support\Facades\Route;
+
+// Dosen Auth Routes
+Route::get('dosen/login', [DosenAuthController::class, 'create'])->name('dosen.login');
+Route::post('dosen/login', [DosenAuthController::class, 'store']);
+Route::post('dosen/logout', [DosenAuthController::class, 'destroy'])->name('dosen.logout');
+
+// Dosen Protected Routes
+Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.alt');
+
+    // Courses
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses');
+    Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('courses.students');
+    Route::get('/courses/{course}/students/{mahasiswa}', [CourseController::class, 'studentDetail'])->name('courses.student-detail');
+
+    // Sessions
+    Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+    Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
+    Route::patch('/sessions/{session}/activate', [SessionController::class, 'activate'])->name('sessions.activate');
+    Route::patch('/sessions/{session}/close', [SessionController::class, 'close'])->name('sessions.close');
+    Route::patch('/sessions/{session}/regenerate-qr', [SessionController::class, 'regenerateQr'])->name('sessions.regenerate-qr');
+
+    // Verification
+    Route::get('/verify', [VerificationController::class, 'index'])->name('verify');
+    Route::patch('/verify/{verification}/approve', [VerificationController::class, 'approve'])->name('verify.approve');
+    Route::patch('/verify/{verification}/reject', [VerificationController::class, 'reject'])->name('verify.reject');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+});

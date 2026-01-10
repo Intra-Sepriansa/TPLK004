@@ -3,14 +3,68 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Dosen extends Model
+class Dosen extends Authenticatable
 {
+    use Notifiable;
+
     protected $table = 'dosen';
 
-    public $timestamps = false;
-
     protected $fillable = [
+        'user_id',
         'nama',
+        'nidn',
+        'email',
+        'phone',
+        'avatar_url',
+        'password',
+        'is_active',
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+        'password' => 'hashed',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function courses(): BelongsToMany
+    {
+        return $this->belongsToMany(MataKuliah::class, 'dosen_course', 'dosen_id', 'course_id')
+            ->withPivot('role', 'assigned_at')
+            ->withTimestamps();
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(AttendanceSession::class, 'created_by_dosen_id');
+    }
+
+    public function selfieVerifications()
+    {
+        return $this->hasMany(SelfieVerification::class, 'verified_by')
+            ->where('verified_by_type', 'dosen');
+    }
+
+    public function getInitialsAttribute(): string
+    {
+        $words = explode(' ', $this->nama);
+        $initials = '';
+        foreach (array_slice($words, 0, 2) as $word) {
+            $initials .= strtoupper(substr($word, 0, 1));
+        }
+        return $initials;
+    }
 }
