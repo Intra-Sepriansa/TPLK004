@@ -9,6 +9,18 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PDFGenerator } from '@/components/export/pdf-generator';
 import {
+    BarChart,
+    Bar,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Legend,
+} from 'recharts';
+import {
     Search,
     Filter,
     Calendar as CalendarIcon,
@@ -20,6 +32,8 @@ import {
     X,
     Flame,
     Download,
+    BarChart3,
+    TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -62,6 +76,32 @@ const statusConfig = {
     absent: { label: 'Tidak Hadir', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
     late: { label: 'Terlambat', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
     pending: { label: 'Pending', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
+};
+
+const CHART_COLORS = {
+    present: '#10b981',
+    late: '#f59e0b',
+    absent: '#f43f5e',
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
+
+    return (
+        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-950">
+            <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
+            {payload.map((entry: any, index: number) => (
+                <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
+                    <span className="font-medium text-slate-900 dark:text-white">{entry.value}</span>
+                </div>
+            ))}
+        </div>
+    );
 };
 
 export default function AttendanceHistory() {
@@ -127,6 +167,61 @@ export default function AttendanceHistory() {
 
     const hasActiveFilters = searchQuery || statusFilter !== 'all' || courseFilter !== 'all' || selectedDate;
 
+    // Generate course-based chart data
+    const courseChartData = useMemo(() => {
+        const courseStats: Record<string, { present: number; late: number; absent: number }> = {};
+        
+        records.forEach(record => {
+            if (!courseStats[record.course]) {
+                courseStats[record.course] = { present: 0, late: 0, absent: 0 };
+            }
+            if (record.status === 'present') {
+                courseStats[record.course].present++;
+            } else if (record.status === 'late') {
+                courseStats[record.course].late++;
+            } else {
+                courseStats[record.course].absent++;
+            }
+        });
+
+        return Object.entries(courseStats).map(([course, data]) => ({
+            name: course.length > 15 ? course.substring(0, 15) + '...' : course,
+            Hadir: data.present,
+            Terlambat: data.late,
+            'Tidak Hadir': data.absent,
+        }));
+    }, [records]);
+
+    // Generate monthly trend data
+    const monthlyTrendData = useMemo(() => {
+        const monthStats: Record<string, { present: number; late: number; absent: number }> = {};
+        
+        records.forEach(record => {
+            const date = new Date(record.date);
+            const monthKey = date.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+            
+            if (!monthStats[monthKey]) {
+                monthStats[monthKey] = { present: 0, late: 0, absent: 0 };
+            }
+            if (record.status === 'present') {
+                monthStats[monthKey].present++;
+            } else if (record.status === 'late') {
+                monthStats[monthKey].late++;
+            } else {
+                monthStats[monthKey].absent++;
+            }
+        });
+
+        return Object.entries(monthStats)
+            .slice(-6)
+            .map(([month, data]) => ({
+                name: month,
+                Hadir: data.present,
+                Terlambat: data.late,
+                'Tidak Hadir': data.absent,
+            }));
+    }, [records]);
+
     return (
         <StudentLayout>
             <Head title="Riwayat Kehadiran" />
@@ -184,6 +279,59 @@ export default function AttendanceHistory() {
                             />
                         </div>
                     </div>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Course Attendance Chart */}
+                    {courseChartData.length > 0 && (
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="flex items-center gap-2 mb-4">
+                                <BarChart3 className="h-5 w-5 text-indigo-600" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    Kehadiran per Mata Kuliah
+                                </h2>
+                            </div>
+
+                            <ResponsiveContainer width="100%" height={250}>
+                                <BarChart data={courseChartData} layout="vertical">
+                                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                    <XAxis type="number" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <YAxis dataKey="name" type="category" tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Bar dataKey="Hadir" fill={CHART_COLORS.present} stackId="a" />
+                                    <Bar dataKey="Terlambat" fill={CHART_COLORS.late} stackId="a" />
+                                    <Bar dataKey="Tidak Hadir" fill={CHART_COLORS.absent} stackId="a" />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+                    {/* Monthly Trend Chart */}
+                    {monthlyTrendData.length > 0 && (
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="flex items-center gap-2 mb-4">
+                                <TrendingUp className="h-5 w-5 text-emerald-600" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    Tren Kehadiran Bulanan
+                                </h2>
+                            </div>
+
+                            <ResponsiveContainer width="100%" height={250}>
+                                <LineChart data={monthlyTrendData}>
+                                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="Hadir" stroke={CHART_COLORS.present} strokeWidth={2} dot={{ r: 4 }} />
+                                    <Line type="monotone" dataKey="Terlambat" stroke={CHART_COLORS.late} strokeWidth={2} dot={{ r: 4 }} />
+                                    <Line type="monotone" dataKey="Tidak Hadir" stroke={CHART_COLORS.absent} strokeWidth={2} dot={{ r: 4 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
                 </div>
 
                 {/* Filters & View Toggle */}
