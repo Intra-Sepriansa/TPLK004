@@ -334,15 +334,6 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                 {behindGlowEnabled && <div className="pc-behind" />}
                 <div ref={shellRef} className="pc-card-shell">
                     <section className="pc-card">
-                        {/* Floating </> icons - symmetric layout */}
-                        <div className="pc-floating-icons">
-                            <span className="pc-icon pc-icon-1">&lt;/&gt;</span>
-                            <span className="pc-icon pc-icon-2">&lt;/&gt;</span>
-                            <span className="pc-icon pc-icon-3">&lt;/&gt;</span>
-                            <span className="pc-icon pc-icon-4">&lt;/&gt;</span>
-                            <span className="pc-icon pc-icon-5">&lt;/&gt;</span>
-                            <span className="pc-icon pc-icon-6">&lt;/&gt;</span>
-                        </div>
                         <div className="pc-inside">
                             <div className="pc-shine" />
                             <div className="pc-glare" />
