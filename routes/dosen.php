@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\DosenAuthController;
 use App\Http\Controllers\Dosen\CourseController;
 use App\Http\Controllers\Dosen\DashboardController;
 use App\Http\Controllers\Dosen\ProfileController;
+use App\Http\Controllers\Dosen\RekapanController;
 use App\Http\Controllers\Dosen\SessionController;
 use App\Http\Controllers\Dosen\VerificationController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::get('/verify', [VerificationController::class, 'index'])->name('verify');
     Route::patch('/verify/{verification}/approve', [VerificationController::class, 'approve'])->name('verify.approve');
     Route::patch('/verify/{verification}/reject', [VerificationController::class, 'reject'])->name('verify.reject');
+
+    // Rekapan
+    Route::get('/rekapan', [RekapanController::class, 'index'])->name('rekapan');
+    Route::get('/rekapan/pdf', [RekapanController::class, 'exportPdf'])->name('rekapan.pdf');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');

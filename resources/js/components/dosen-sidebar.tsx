@@ -16,6 +16,7 @@ import AppLogoIcon from './app-logo-icon';
 import {
     BookOpen,
     CheckCircle,
+    ClipboardList,
     Home,
     LogOut,
     UserCircle,
@@ -36,6 +37,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Verifikasi',
         href: '/dosen/verify',
         icon: CheckCircle,
+    },
+    {
+        title: 'Rekapan',
+        href: '/dosen/rekapan',
+        icon: ClipboardList,
     },
     {
         title: 'Profil',
