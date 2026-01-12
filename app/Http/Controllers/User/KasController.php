@@ -25,8 +25,8 @@ class KasController extends Controller
                 'id' => $k->id,
                 'amount' => $k->amount,
                 'status' => $k->status,
-                'period_date' => $k->period_date->format('d M Y'),
-                'period_month' => $k->period_date->format('F Y'),
+                'period_date' => $k->period_date->format('Y-m-d'),
+                'period_display' => $k->period_date->translatedFormat('l, d F Y'),
                 'description' => $k->description,
                 'category' => $k->category,
             ]);
@@ -57,25 +57,17 @@ class KasController extends Controller
 
         // Recent expenses (class expenses)
         $recentExpenses = Kas::where('type', 'expense')
-            ->latest()
-            ->take(5)
+            ->orderBy('period_date', 'desc')
+            ->take(10)
             ->get()
             ->map(fn($k) => [
                 'id' => $k->id,
                 'amount' => $k->amount,
                 'description' => $k->description,
-                'period_date' => $k->period_date->format('d M Y'),
+                'period_date' => $k->period_date->format('Y-m-d'),
+                'period_display' => $k->period_date->translatedFormat('l, d F Y'),
+                'category' => $k->category,
             ]);
-
-        // Monthly breakdown
-        $monthlyBreakdown = $kasRecords->groupBy('period_month')->map(function ($records, $month) {
-            return [
-                'month' => $month,
-                'total' => $records->sum('amount'),
-                'paid' => $records->where('status', 'paid')->sum('amount'),
-                'unpaid' => $records->where('status', 'unpaid')->sum('amount'),
-            ];
-        })->values();
 
         return Inertia::render('user/kas', [
             'mahasiswa' => [
@@ -96,7 +88,6 @@ class KasController extends Controller
                 'total_expense' => $summary->total_expense,
             ],
             'recentExpenses' => $recentExpenses,
-            'monthlyBreakdown' => $monthlyBreakdown,
         ]);
     }
 }
