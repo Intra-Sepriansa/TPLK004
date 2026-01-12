@@ -34,6 +34,11 @@ const dosenNavItems: NavItem[] = [
         icon: BookOpen,
     },
     {
+        title: 'Informasi Tugas',
+        href: '/dosen/tugas',
+        icon: ClipboardList,
+    },
+    {
         title: 'Verifikasi',
         href: '/dosen/verify',
         icon: CheckCircle,

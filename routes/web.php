@@ -129,6 +129,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Leaderboard
     Route::get('admin/leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('admin.leaderboard');
     
+    // Admin Tugas
+    Route::get('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'index'])->name('admin.tugas');
+    Route::post('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'store'])->name('admin.tugas.store');
+    Route::get('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'show'])->name('admin.tugas.show');
+    Route::patch('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'update'])->name('admin.tugas.update');
+    Route::delete('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'destroy'])->name('admin.tugas.destroy');
+    Route::post('admin/tugas/{tuga}/message', [\App\Http\Controllers\Admin\TugasController::class, 'sendMessage'])->name('admin.tugas.message');
+    Route::patch('admin/tugas/diskusi/{diskusi}/pin', [\App\Http\Controllers\Admin\TugasController::class, 'togglePin'])->name('admin.tugas.diskusi.pin');
+    Route::delete('admin/tugas/diskusi/{diskusi}', [\App\Http\Controllers\Admin\TugasController::class, 'deleteMessage'])->name('admin.tugas.diskusi.delete');
+    
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
     Route::delete('mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
@@ -148,6 +158,9 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
     Route::get('user/leaderboard', [\App\Http\Controllers\User\LeaderboardController::class, 'index'])->name('user.leaderboard');
     Route::get('user/kas', [\App\Http\Controllers\User\KasController::class, 'index'])->name('user.kas');
+    Route::get('user/tugas', [\App\Http\Controllers\User\TugasController::class, 'index'])->name('user.tugas');
+    Route::get('user/tugas/{tuga}', [\App\Http\Controllers\User\TugasController::class, 'show'])->name('user.tugas.show');
+    Route::post('user/tugas/{tuga}/message', [\App\Http\Controllers\User\TugasController::class, 'sendMessage'])->name('user.tugas.message');
     Route::get('user/profile', [ProfileController::class, 'edit'])->name('user.profile');
     Route::patch('user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
     Route::post('user/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('user.profile.avatar');

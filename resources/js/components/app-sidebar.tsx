@@ -16,6 +16,7 @@ import { Link } from '@inertiajs/react';
 import {
     Camera,
     CalendarCheck,
+    ClipboardList,
     Clock,
     FileBarChart,
     LifeBuoy,
@@ -87,6 +88,11 @@ const managementNavItems: NavItem[] = [
         title: 'Jadwal',
         href: '/admin/jadwal',
         icon: Clock,
+    },
+    {
+        title: 'Informasi Tugas',
+        href: '/admin/tugas',
+        icon: ClipboardList,
     },
     {
         title: 'Uang Kas',
