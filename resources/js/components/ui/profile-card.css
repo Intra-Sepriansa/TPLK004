@@ -113,19 +113,6 @@
 }
 
 .pc-shine {
-    mask-image: var(--icon);
-    mask-mode: luminance;
-    mask-repeat: no-repeat;
-    mask-size: 100% 100%;
-    mask-position:
-        calc(50% + (var(--pointer-from-left) - 0.5) * 18px)
-        calc(50% + (var(--pointer-from-top) - 0.5) * 18px);
-    -webkit-mask-image: var(--icon);
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-size: 100% 100%;
-    -webkit-mask-position:
-        calc(50% + (var(--pointer-from-left) - 0.5) * 18px)
-        calc(50% + (var(--pointer-from-top) - 0.5) * 18px);
     transition: filter 0.8s ease;
     filter: brightness(0.8) contrast(1.5) saturate(1.2);
     opacity: 0.85;
