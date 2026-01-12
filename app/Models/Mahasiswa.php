@@ -16,6 +16,7 @@ class Mahasiswa extends Authenticatable
         'nama',
         'nim',
         'password',
+        'avatar_url',
         'remember_token',
     ];
 

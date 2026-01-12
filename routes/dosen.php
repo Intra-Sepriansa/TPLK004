@@ -40,5 +40,6 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
     Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 });

@@ -42,7 +42,8 @@ class DosenAuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dosen.dashboard'));
+        // Force redirect to dosen dashboard
+        return redirect('/dosen');
     }
 
     public function destroy(Request $request): \Illuminate\Http\RedirectResponse

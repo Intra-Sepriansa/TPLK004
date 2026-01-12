@@ -62,6 +62,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
     Route::get('user/profile', [ProfileController::class, 'edit'])->name('user.profile');
     Route::patch('user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
+    Route::post('user/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('user.profile.avatar');
     Route::get('user/password', [PasswordController::class, 'edit'])->name('user.password');
     Route::patch('user/password', [PasswordController::class, 'update'])->name('user.password.update');
 });

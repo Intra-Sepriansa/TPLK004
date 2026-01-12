@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { send } from '@/routes/verification';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -10,9 +11,11 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ProfileCard from '@/components/ui/profile-card';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
+import { Sparkles, X } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -29,17 +32,81 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<SharedData>().props;
+    const [showProfileCard, setShowProfileCard] = useState(false);
+
+    // Default avatar using UI Avatars
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />
 
+            {/* Profile Card Modal */}
+            {showProfileCard && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <button
+                        onClick={() => setShowProfileCard(false)}
+                        className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+                    <ProfileCard
+                        name={auth.user.name}
+                        title="Administrator"
+                        handle={auth.user.email.split('@')[0]}
+                        status="Online"
+                        avatarUrl={avatarUrl}
+                        editable
+                        contactText="Edit Profile"
+                        showUserInfo={true}
+                        enableTilt={true}
+                        behindGlowColor="rgba(59, 130, 246, 0.6)"
+                        innerGradient="linear-gradient(145deg, #3b82f644 0%, #8b5cf644 100%)"
+                        onContactClick={() => setShowProfileCard(false)}
+                    />
+                </div>
+            )}
+
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall
-                        title="Profile information"
-                        description="Update your name and email address"
-                    />
+                    {/* Profile Card Preview Button */}
+                    <div className="flex items-center justify-between">
+                        <HeadingSmall
+                            title="Profile information"
+                            description="Update your name and email address"
+                        />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowProfileCard(true)}
+                            className="flex items-center gap-2"
+                        >
+                            <Sparkles className="h-4 w-4" />
+                            Lihat Kartu Profil
+                        </Button>
+                    </div>
+
+                    {/* Avatar Preview */}
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50">
+                        <button
+                            onClick={() => setShowProfileCard(true)}
+                            className="group relative h-16 w-16 rounded-xl overflow-hidden transition-transform hover:scale-105"
+                        >
+                            <img
+                                src={avatarUrl}
+                                alt={auth.user.name}
+                                className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Sparkles className="h-5 w-5 text-white" />
+                            </div>
+                        </button>
+                        <div>
+                            <p className="font-semibold text-slate-900 dark:text-white">{auth.user.name}</p>
+                            <p className="text-sm text-slate-500">{auth.user.email}</p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Administrator</p>
+                        </div>
+                    </div>
 
                     <Form
                         {...ProfileController.update.form()}
