@@ -59,6 +59,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
     
+    // Admin Mahasiswa
+    Route::get('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'index'])->name('admin.mahasiswa');
+    Route::post('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
+    Route::patch('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
+    Route::delete('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
+    Route::post('admin/mahasiswa/{mahasiswa}/reset-password', [\App\Http\Controllers\Admin\MahasiswaController::class, 'resetPassword'])->name('admin.mahasiswa.reset-password');
+    Route::get('admin/mahasiswa/pdf', [\App\Http\Controllers\Admin\MahasiswaController::class, 'exportPdf'])->name('admin.mahasiswa.pdf');
+    
+    // Admin Jadwal
+    Route::get('admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal');
+    Route::post('admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
+    Route::patch('admin/jadwal/{session}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
+    Route::delete('admin/jadwal/{session}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
+    Route::patch('admin/jadwal/{session}/activate', [\App\Http\Controllers\Admin\JadwalController::class, 'activate'])->name('admin.jadwal.activate');
+    Route::patch('admin/jadwal/{session}/deactivate', [\App\Http\Controllers\Admin\JadwalController::class, 'deactivate'])->name('admin.jadwal.deactivate');
+    Route::get('admin/jadwal/pdf', [\App\Http\Controllers\Admin\JadwalController::class, 'exportPdf'])->name('admin.jadwal.pdf');
+    
+    // Admin Perangkat
+    Route::get('admin/perangkat', [\App\Http\Controllers\Admin\PerangkatController::class, 'index'])->name('admin.perangkat');
+    Route::get('admin/perangkat/pdf', [\App\Http\Controllers\Admin\PerangkatController::class, 'exportPdf'])->name('admin.perangkat.pdf');
+    
+    // Admin Pengaturan
+    Route::get('admin/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'index'])->name('admin.pengaturan');
+    Route::patch('admin/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'update'])->name('admin.pengaturan.update');
+    Route::patch('admin/pengaturan/geofence', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateGeofence'])->name('admin.pengaturan.geofence');
+    Route::patch('admin/pengaturan/notifications', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateNotifications'])->name('admin.pengaturan.notifications');
+    Route::post('admin/pengaturan/clear-cache', [\App\Http\Controllers\Admin\PengaturanController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
+    
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
     Route::delete('mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
