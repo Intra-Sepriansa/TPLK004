@@ -321,9 +321,14 @@ class KasController extends Controller
 
     public function exportPdf(Request $request): Response
     {
-        $type = $request->get('type', 'pertemuan'); // pertemuan or keseluruhan
+        $type = $request->get('type', 'pertemuan'); // pertemuan, keseluruhan, or matrix
         $date = $request->get('date'); // For pertemuan
         $month = $request->get('month'); // For monthly
+
+        // Matrix-style report (Excel-like)
+        if ($type === 'matrix') {
+            return $this->exportMatrixPdf($month);
+        }
 
         if ($type === 'pertemuan' && $date) {
             // Export single pertemuan
@@ -397,6 +402,109 @@ class KasController extends Controller
 
         $pdf = Pdf::loadView('pdf.kas-report', $data);
         $filename = 'laporan-kas-' . ($date ?? $month ?? 'keseluruhan') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    private function exportMatrixPdf(?string $month = null): Response
+    {
+        // Get all pertemuan dates
+        $pertemuanQuery = Kas::where('type', 'income')
+            ->select('period_date')
+            ->distinct()
+            ->orderBy('period_date', 'asc');
+
+        if ($month) {
+            $monthStart = \Carbon\Carbon::parse($month)->startOfMonth();
+            $monthEnd = \Carbon\Carbon::parse($month)->endOfMonth();
+            $pertemuanQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
+            $subtitle = \Carbon\Carbon::parse($month)->translatedFormat('F Y');
+        } else {
+            $subtitle = 'Semua Periode';
+        }
+
+        $pertemuanDates = $pertemuanQuery->pluck('period_date')
+            ->map(fn($d) => $d->format('Y-m-d'))
+            ->toArray();
+
+        // Get all mahasiswa with their payment status per date
+        $mahasiswaList = Mahasiswa::orderBy('nama')->get();
+        
+        $mahasiswaMatrix = [];
+        $totalPaid = 0;
+        $totalUnpaid = 0;
+        $dateTotals = [];
+
+        foreach ($pertemuanDates as $date) {
+            $dateTotals[$date] = 0;
+        }
+
+        foreach ($mahasiswaList as $mhs) {
+            $payments = [];
+            $mhsTotalPaid = 0;
+            $mhsTunggakan = 0;
+
+            foreach ($pertemuanDates as $date) {
+                $kasRecord = Kas::where('mahasiswa_id', $mhs->id)
+                    ->where('type', 'income')
+                    ->whereDate('period_date', $date)
+                    ->first();
+
+                if ($kasRecord) {
+                    $payments[$date] = $kasRecord->status;
+                    if ($kasRecord->status === 'paid') {
+                        $mhsTotalPaid += $kasRecord->amount;
+                        $dateTotals[$date]++;
+                    } else {
+                        $mhsTunggakan += $kasRecord->amount;
+                    }
+                }
+            }
+
+            $totalPaid += $mhsTotalPaid;
+            $totalUnpaid += $mhsTunggakan;
+
+            $mahasiswaMatrix[] = [
+                'id' => $mhs->id,
+                'nama' => $mhs->nama,
+                'nim' => $mhs->nim,
+                'payments' => $payments,
+                'total_paid' => $mhsTotalPaid,
+                'tunggakan' => $mhsTunggakan,
+            ];
+        }
+
+        // Get expenses
+        $expenseQuery = Kas::where('type', 'expense')->orderBy('period_date', 'desc');
+        if ($month) {
+            $expenseQuery->whereBetween('period_date', [$monthStart, $monthEnd]);
+        }
+        $expenses = $expenseQuery->get();
+        $totalExpense = $expenses->sum('amount');
+
+        // Calculate saldo
+        $saldoKas = $totalPaid - $totalExpense;
+
+        $data = [
+            'subtitle' => $subtitle,
+            'pertemuanDates' => $pertemuanDates,
+            'mahasiswaMatrix' => $mahasiswaMatrix,
+            'dateTotals' => $dateTotals,
+            'totalPaid' => $totalPaid,
+            'totalUnpaid' => $totalUnpaid,
+            'totalExpense' => $totalExpense,
+            'saldoKas' => $saldoKas,
+            'expenses' => $expenses,
+            'kasAmount' => self::KAS_AMOUNT,
+            'tempat' => 'Tangerang Selatan',
+            'tanggal' => now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
+            'logoUnpam' => public_path('images/logo-unpam.png'),
+            'logoSasmita' => public_path('images/logo-sasmita.png'),
+        ];
+
+        $pdf = Pdf::loadView('pdf.kas-matrix', $data);
+        $pdf->setPaper('A4', 'landscape');
+        $filename = 'laporan-kas-matrix-' . ($month ?? 'keseluruhan') . '.pdf';
 
         return $pdf->download($filename);
     }

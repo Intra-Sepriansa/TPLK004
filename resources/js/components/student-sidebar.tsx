@@ -24,6 +24,8 @@ import {
     Trophy,
     UserCircle,
     Wallet,
+    FileCheck,
+    Vote,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -53,6 +55,11 @@ const studentNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
+        title: 'Izin/Sakit',
+        href: '/user/permit',
+        icon: FileCheck,
+    },
+    {
         title: 'Pencapaian',
         href: '/user/achievements',
         icon: Award,
@@ -66,6 +73,11 @@ const studentNavItems: NavItem[] = [
         title: 'Uang Kas',
         href: '/user/kas',
         icon: Wallet,
+    },
+    {
+        title: 'Voting Kas',
+        href: '/user/kas-voting',
+        icon: Vote,
     },
     {
         title: 'Profil',

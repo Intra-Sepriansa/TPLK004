@@ -129,6 +129,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Leaderboard
     Route::get('admin/leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('admin.leaderboard');
     
+    // Admin Analytics
+    Route::get('admin/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics');
+    
+    // Admin Activity Log
+    Route::get('admin/activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-log');
+    
+    // Admin Panduan & Help Center
+    Route::get('admin/panduan', function () {
+        return \Inertia\Inertia::render('admin/panduan');
+    })->name('admin.panduan');
+    Route::get('admin/help-center', function () {
+        return \Inertia\Inertia::render('admin/help-center');
+    })->name('admin.help-center');
+    
     // Admin Tugas
     Route::get('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'index'])->name('admin.tugas');
     Route::post('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'store'])->name('admin.tugas.store');
@@ -161,6 +175,20 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/tugas', [\App\Http\Controllers\User\TugasController::class, 'index'])->name('user.tugas');
     Route::get('user/tugas/{tuga}', [\App\Http\Controllers\User\TugasController::class, 'show'])->name('user.tugas.show');
     Route::post('user/tugas/{tuga}/message', [\App\Http\Controllers\User\TugasController::class, 'sendMessage'])->name('user.tugas.message');
+    
+    // User Permit (Izin/Sakit)
+    Route::get('user/permit', [\App\Http\Controllers\User\PermitController::class, 'index'])->name('user.permit');
+    Route::post('user/permit', [\App\Http\Controllers\User\PermitController::class, 'store'])->name('user.permit.store');
+    Route::delete('user/permit/{permit}', [\App\Http\Controllers\User\PermitController::class, 'destroy'])->name('user.permit.destroy');
+    
+    // User Kas Voting
+    Route::get('user/kas-voting', [\App\Http\Controllers\User\KasVotingController::class, 'index'])->name('user.kas-voting');
+    Route::post('user/kas-voting', [\App\Http\Controllers\User\KasVotingController::class, 'store'])->name('user.kas-voting.store');
+    Route::post('user/kas-voting/{voting}/vote', [\App\Http\Controllers\User\KasVotingController::class, 'vote'])->name('user.kas-voting.vote');
+    
+    // User Tugas Submission
+    Route::post('user/tugas/{tuga}/submit', [\App\Http\Controllers\User\TugasSubmissionController::class, 'store'])->name('user.tugas.submit');
+    
     Route::get('user/profile', [ProfileController::class, 'edit'])->name('user.profile');
     Route::patch('user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
     Route::post('user/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('user.profile.avatar');

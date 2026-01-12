@@ -1,430 +1,1029 @@
 <p align="center">
-  <img src="./public/image.png" alt="UNPAM" height="96" />
+  <img src="./public/image.png" alt="UNPAM" height="120" />
 </p>
 
-<h1 align="center">TPLK004 - Sistem Absensi AI</h1>
+<h1 align="center">🎓 TPLK004 - Sistem Absensi Cerdas Berbasis AI</h1>
+<h3 align="center">Universitas Pamulang • Fakultas Ilmu Komputer • Teknik Informatika</h3>
 
 <p align="center">
-  <img src="./public/readme/radar.svg" alt="Animated radar" height="140" />
-</p>
-
-<p align="center">
-  <img
-    src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3200&pause=600&color=6B7280&width=900&lines=Absensi+mahasiswa+berbasis+AI+%2B+geofence;Laravel+12+%2B+React+19+%2B+FastAPI+YOLO;Admin+dashboard+%2B+selfie+verification+%2B+live+scan"
-    alt="Animated intro"
-  />
-</p>
-<p align="center">
-  <img
-    src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&duration=2600&pause=400&color=9CA3AF&width=900&lines=Live+camera+scan+for+attendance;Geofence+validation+%2B+anti-fraud+checks;Audit+trail+untuk+rekap+dan+verifikasi"
-    alt="Animated highlights"
-  />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3200&pause=600&color=10B981&center=true&vCenter=true&width=900&lines=🤖+AI-Powered+Attendance+System;📍+Geofence+%2B+Face+Verification;🔒+Anti-Fraud+%26+Real-time+Monitoring;📊+Advanced+Analytics+%26+Gamification" alt="Animated intro" />
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/laravel/laravel-original.svg" alt="Laravel" height="42" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" alt="React" height="42" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python" height="42" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vitejs/vitejs-original.svg" alt="Vite" height="42" />
-  <img src="./public/readme/tailwindcss.svg" alt="Tailwind CSS" height="42" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" alt="MySQL" height="42" />
+  <a href="#-fitur-utama"><img src="https://img.shields.io/badge/Features-40+-10B981?style=for-the-badge" alt="Features" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/React-19.x-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
+  <a href="#-tech-stack"><img src="https://img.shields.io/badge/YOLO-v8-00FFFF?style=for-the-badge" alt="YOLO" /></a>
+  <a href="#-instalasi"><img src="https://img.shields.io/badge/Status-Production_Ready-success?style=for-the-badge" alt="Status" /></a>
 </p>
 
-![divider](./public/readme/divider.svg)
-
-## Daftar Isi
-- [Ringkasan](#ringkasan)
-- [Tujuan Proyek](#tujuan-proyek)
-- [Fitur Utama](#fitur-utama)
-- [Tech Stack Detail](#tech-stack-detail)
-- [Struktur Sistem dan Modul](#struktur-sistem-dan-modul)
-- [Diagram UML dan Arsitektur](#diagram-uml-dan-arsitektur)
-- [Dokumentasi Lengkap](#dokumentasi-lengkap)
-- [Konfigurasi Kunci](#konfigurasi-kunci)
-- [Setup Lokal](#setup-lokal)
-- [Port Default](#port-default)
-- [SOP Admin](#sop-admin)
-- [SOP Mahasiswa](#sop-mahasiswa)
-- [Flow Troubleshooting](#flow-troubleshooting)
-- [Catatan Hosting](#catatan-hosting)
-- [Legal dan Kepatuhan](#legal-dan-kepatuhan)
-- [Referensi Layanan AI](#referensi-layanan-ai)
-
-![divider](./public/readme/divider.svg)
-
-## Ringkasan
-- <img src="./public/readme/icons/info.svg" alt="Info" height="18" /> TPLK004 adalah sistem absensi mahasiswa berbasis web yang menggabungkan geofence dan verifikasi kamera (AI + selfie) agar kehadiran valid.
-- <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> Backend Laravel bertugas mengorkestrasi proses: menerima request, validasi lokasi, memanggil AI Service, lalu mencatat hasil.
-- <img src="./public/readme/icons/map-pin.svg" alt="Geofence" height="18" /> Geofence memastikan mahasiswa berada di radius yang ditentukan sebelum absensi diterima.
-- <img src="./public/readme/icons/database.svg" alt="Audit" height="18" /> Semua aktivitas tersimpan sebagai audit trail (waktu, lokasi, selfie, status) untuk rekap dan verifikasi.
-
-![divider](./public/readme/divider.svg)
-
-## Tujuan Proyek
-- <img src="./public/readme/icons/target.svg" alt="Target" height="18" /> Mengurangi kecurangan absensi melalui kombinasi lokasi dan verifikasi visual.
-- <img src="./public/readme/icons/layout-dashboard.svg" alt="Dashboard" height="18" /> Menyediakan dashboard admin yang ringkas dan mudah diaudit.
-- <img src="./public/readme/icons/users.svg" alt="Users" height="18" /> Menjaga pengalaman mahasiswa tetap sederhana tanpa input manual berulang.
-
-![divider](./public/readme/divider.svg)
-
-## Fitur Utama
-- <img src="./public/readme/icons/layout-dashboard.svg" alt="Dashboard" height="18" /> Dashboard admin untuk memonitor sesi, rekap, dan status absensi.
-- <img src="./public/readme/icons/map-pin.svg" alt="Geofence" height="18" /> Geofence dinamis: admin dapat menetapkan titik pusat dan radius absensi.
-- <img src="./public/readme/icons/camera.svg" alt="Selfie" height="18" /> Verifikasi selfie untuk approval atau penolakan oleh admin.
-- <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> Absen AI: deteksi kamera admin untuk mencatat absensi otomatis.
-- <img src="./public/readme/icons/user-check.svg" alt="Mahasiswa" height="18" /> Mahasiswa melakukan absen dengan kamera + lokasi otomatis.
-- <img src="./public/readme/icons/database.svg" alt="Rekap" height="18" /> Rekap absensi dan bukti masuk tersedia di sisi mahasiswa.
-
-![divider](./public/readme/divider.svg)
-
-## Tech Stack Detail
-- <img src="./public/readme/icons/info.svg" alt="Info" height="18" /> Versi di bawah mengikuti dependensi yang tercatat pada repository ini.
-
-### Frontend Core
-<p>
-  <img src="https://img.shields.io/badge/React-19.2.0-38bdf8?style=flat-square&logo=react&logoColor=white&labelColor=0f172a" alt="React" />
-  <img src="https://img.shields.io/badge/Inertia-2.1.4-6366f1?style=flat-square&labelColor=0f172a" alt="Inertia" />
-  <img src="https://img.shields.io/badge/Vite-7.0.4-646CFF?style=flat-square&logo=vite&logoColor=white&labelColor=0f172a" alt="Vite" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-4.0.0-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white&labelColor=0f172a" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7.2-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=0f172a" alt="TypeScript" />
+<p align="center">
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/laravel/laravel-original.svg" alt="Laravel" height="50" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" alt="React" height="50" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" alt="TypeScript" height="50" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python" height="50" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" alt="MySQL" height="50" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind" height="50" />
 </p>
 
-### UI dan Utilities
-<p>
-  <img src="https://img.shields.io/badge/Radix%20UI-1.1.x-9333EA?style=flat-square&logo=radixui&logoColor=white&labelColor=0f172a" alt="Radix UI" />
-  <img src="https://img.shields.io/badge/Headless%20UI-2.2.0-111827?style=flat-square&logo=headlessui&logoColor=white&labelColor=0f172a" alt="Headless UI" />
-  <img src="https://img.shields.io/badge/Lucide-0.475.0-22c55e?style=flat-square&logo=lucide&logoColor=white&labelColor=0f172a" alt="Lucide" />
-  <img src="https://img.shields.io/badge/Leaflet-1.9.4-199900?style=flat-square&logo=leaflet&logoColor=white&labelColor=0f172a" alt="Leaflet" />
-  <img src="https://img.shields.io/badge/Recharts-3.6.0-06b6d4?style=flat-square&labelColor=0f172a" alt="Recharts" />
-  <img src="https://img.shields.io/badge/Lottie-0.17.12-0ea5e9?style=flat-square&labelColor=0f172a" alt="Lottie" />
-  <img src="https://img.shields.io/badge/QRCode-1.5.4-64748b?style=flat-square&labelColor=0f172a" alt="QRCode" />
-</p>
+---
+
+## 📑 Daftar Isi
+
+<details open>
+<summary>Klik untuk melihat daftar isi lengkap</summary>
+
+- [🎯 Tentang Project](#-tentang-project)
+- [✨ Fitur Utama](#-fitur-utama)
+- [🏗️ Arsitektur Sistem](#️-arsitektur-sistem)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📁 Struktur Project](#-struktur-project)
+- [⚙️ Instalasi](#️-instalasi)
+- [🔧 Konfigurasi](#-konfigurasi)
+- [👥 Multi-Role System](#-multi-role-system)
+- [📱 Fitur per Role](#-fitur-per-role)
+- [🎮 Sistem Gamifikasi](#-sistem-gamifikasi)
+- [📊 Analytics & Reporting](#-analytics--reporting)
+- [🔐 Keamanan](#-keamanan)
+- [🌐 Deployment](#-deployment)
+- [📖 API Documentation](#-api-documentation)
+- [🧪 Testing](#-testing)
+- [🤝 Kontribusi](#-kontribusi)
+- [📄 Lisensi](#-lisensi)
+- [👨‍💻 Tim Pengembang](#-tim-pengembang)
+
+</details>
+
+---
+
+## 🎯 Tentang Project
+
+**TPLK004** adalah sistem absensi mahasiswa berbasis web yang mengintegrasikan teknologi **Artificial Intelligence (AI)**, **Geofencing**, dan **Face Verification** untuk memastikan kehadiran yang valid dan mencegah kecurangan.
+
+### 🎓 Informasi Akademik
+
+| Informasi | Detail |
+|-----------|--------|
+| **Universitas** | Universitas Pamulang (UNPAM) |
+| **Fakultas** | Fakultas Ilmu Komputer |
+| **Program Studi** | Teknik Informatika |
+| **Kelas** | 06TPLK004 |
+| **Tahun** | 2024/2025 |
+
+### 📋 Latar Belakang
+
+Sistem absensi konvensional memiliki beberapa kelemahan:
+- ❌ Mudah dimanipulasi (titip absen)
+- ❌ Tidak ada validasi lokasi
+- ❌ Proses manual yang memakan waktu
+- ❌ Sulit melacak kehadiran real-time
+
+**TPLK004** hadir sebagai solusi dengan:
+- ✅ Verifikasi wajah menggunakan AI
+- ✅ Validasi lokasi dengan Geofencing
+- ✅ QR Code dinamis yang berubah setiap sesi
+- ✅ Dashboard real-time untuk monitoring
+- ✅ Sistem gamifikasi untuk meningkatkan engagement
+
+### 🏆 Keunggulan Sistem
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    TPLK004 ADVANTAGES                           │
+├─────────────────────────────────────────────────────────────────┤
+│  🤖 AI-Powered      │ Deteksi wajah otomatis dengan YOLO v8    │
+│  📍 Geofencing      │ Validasi lokasi dalam radius tertentu    │
+│  🔄 Real-time       │ Monitoring kehadiran secara langsung     │
+│  🎮 Gamification    │ Badge, level, streak untuk engagement    │
+│  📊 Analytics       │ Laporan dan statistik komprehensif       │
+│  🔒 Anti-Fraud      │ Mencegah kecurangan absensi              │
+│  📱 PWA Ready       │ Dapat diinstall seperti aplikasi native  │
+│  🌙 Dark Mode       │ Tampilan nyaman untuk mata               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ✨ Fitur Utama
+
+### 🎯 Core Features
+
+<table>
+<tr>
+<td width="50%">
+
+#### 📸 Absensi Berbasis AI
+- Face detection dengan YOLO v8
+- Selfie verification
+- Anti-spoofing detection
+- Real-time camera scanning
+
+#### 📍 Geofencing System
+- Radius validasi dinamis
+- GPS tracking
+- Location sampling
+- Anti-GPS spoofing
+
+#### 🔐 QR Code Dinamis
+- Token berubah setiap sesi
+- Expiry time otomatis
+- One-time use validation
+- Regenerate on demand
+
+</td>
+<td width="50%">
+
+#### 👥 Multi-Role Management
+- Admin (Super Admin)
+- Dosen (Lecturer)
+- Mahasiswa (Student)
+- Role-based permissions
+
+#### 📊 Advanced Analytics
+- Attendance trends
+- Risk analysis
+- Performance metrics
+- Export to PDF/Excel
+
+#### 🎮 Gamification
+- Badge system
+- Level progression
+- Attendance streaks
+- Leaderboard
+
+</td>
+</tr>
+</table>
+
+### 📋 Fitur Lengkap
+
+<details>
+<summary><b>🔹 Modul Admin (15+ Fitur)</b></summary>
+
+| No | Fitur | Deskripsi |
+|----|-------|-----------|
+| 1 | Dashboard Analytics | Statistik kehadiran, grafik tren, risk analysis |
+| 2 | Manajemen Mahasiswa | CRUD data mahasiswa, import/export |
+| 3 | Manajemen Dosen | CRUD data dosen, assign mata kuliah |
+| 4 | Manajemen Mata Kuliah | CRUD courses, jadwal, ruangan |
+| 5 | Geofence Settings | Set lokasi dan radius absensi |
+| 6 | Verifikasi Selfie | Approve/reject selfie mahasiswa |
+| 7 | Absen AI | Scan kamera untuk deteksi otomatis |
+| 8 | Rekap Kehadiran | Laporan per kelas, mata kuliah, periode |
+| 9 | Export Data | PDF, Excel, CSV |
+| 10 | Activity Log | Audit trail semua aktivitas |
+| 11 | Kas Management | Kelola uang kas kelas |
+| 12 | Tugas Management | Kelola tugas dan deadline |
+| 13 | Pengumuman | Broadcast ke mahasiswa |
+| 14 | Settings | Konfigurasi sistem |
+| 15 | Help Center | Panduan dan FAQ |
+
+</details>
+
+<details>
+<summary><b>🔹 Modul Dosen (10+ Fitur)</b></summary>
+
+| No | Fitur | Deskripsi |
+|----|-------|-----------|
+| 1 | Dashboard | Overview kelas dan kehadiran |
+| 2 | Mata Kuliah | Lihat dan kelola mata kuliah |
+| 3 | Buat Sesi Absensi | Generate QR code untuk absensi |
+| 4 | Monitoring Real-time | Lihat siapa yang sudah absen |
+| 5 | Verifikasi Manual | Approve/reject absensi pending |
+| 6 | Rekap Kehadiran | Laporan per mahasiswa |
+| 7 | Persetujuan Izin | Approve izin/sakit mahasiswa |
+| 8 | Tugas & Grading | Buat tugas dan nilai |
+| 9 | Diskusi | Forum diskusi dengan mahasiswa |
+| 10 | Profile | Kelola profil dosen |
+
+</details>
+
+<details>
+<summary><b>🔹 Modul Mahasiswa (12+ Fitur)</b></summary>
+
+| No | Fitur | Deskripsi |
+|----|-------|-----------|
+| 1 | Dashboard | Overview kehadiran dan statistik |
+| 2 | Scan QR Absensi | Absen dengan scan QR + lokasi |
+| 3 | Selfie Verification | Upload selfie untuk verifikasi |
+| 4 | Riwayat Kehadiran | History absensi lengkap |
+| 5 | Rekapan | Statistik kehadiran per mata kuliah |
+| 6 | Pengajuan Izin | Submit izin/sakit dengan bukti |
+| 7 | Informasi Tugas | Lihat tugas dan deadline |
+| 8 | Submit Tugas | Upload tugas dengan attachment |
+| 9 | Pencapaian | Badge dan achievement |
+| 10 | Leaderboard | Ranking kehadiran |
+| 11 | Uang Kas | Lihat status pembayaran kas |
+| 12 | Voting Kas | Vote untuk penggunaan kas |
+| 13 | Profile | Kelola profil mahasiswa |
+
+</details>
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+### High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           CLIENT LAYER                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
+│  │   Admin UI   │  │   Dosen UI   │  │ Mahasiswa UI │                   │
+│  │   (React)    │  │   (React)    │  │   (React)    │                   │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘                   │
+│         │                 │                 │                            │
+│         └─────────────────┼─────────────────┘                            │
+│                           │                                              │
+│                    ┌──────▼──────┐                                       │
+│                    │   Inertia   │                                       │
+│                    │    Bridge   │                                       │
+│                    └──────┬──────┘                                       │
+└──────────────────────────┼──────────────────────────────────────────────┘
+                           │
+┌──────────────────────────▼──────────────────────────────────────────────┐
+│                         APPLICATION LAYER                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────────────────┐    │
+│  │                      Laravel 12 Backend                          │    │
+│  ├─────────────────────────────────────────────────────────────────┤    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │    │
+│  │  │ Controllers │  │   Models    │  │  Services   │              │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘              │    │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │    │
+│  │  │ Middleware  │  │   Guards    │  │   Events    │              │    │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘              │    │
+│  └─────────────────────────────────────────────────────────────────┘    │
+└──────────────────────────┬──────────────────────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+┌─────────▼─────────┐ ┌────▼────┐ ┌─────────▼─────────┐
+│   AI SERVICE      │ │ MySQL   │ │   FILE STORAGE    │
+├───────────────────┤ │ Database│ ├───────────────────┤
+│  FastAPI + YOLO   │ └─────────┘ │  Selfies, Docs    │
+│  Face Detection   │             │  Attachments      │
+│  Object Detection │             │  QR Codes         │
+└───────────────────┘             └───────────────────┘
+```
+
+### Database Schema (Simplified)
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│     users       │     │    mahasiswa    │     │      dosen      │
+├─────────────────┤     ├─────────────────┤     ├─────────────────┤
+│ id              │     │ id              │     │ id              │
+│ name            │     │ nim             │     │ nidn            │
+│ email           │     │ nama            │     │ nama            │
+│ password        │     │ email           │     │ email           │
+│ role            │     │ kelas           │     │ password        │
+└─────────────────┘     │ password        │     └────────┬────────┘
+                        └────────┬────────┘              │
+                                 │                       │
+                        ┌────────▼────────┐     ┌────────▼────────┐
+                        │ attendance_logs │     │   mata_kuliah   │
+                        ├─────────────────┤     ├─────────────────┤
+                        │ id              │     │ id              │
+                        │ mahasiswa_id    │◄────┤ dosen_id        │
+                        │ session_id      │     │ nama            │
+                        │ status          │     │ kode            │
+                        │ check_in_at     │     │ sks             │
+                        │ selfie_path     │     └─────────────────┘
+                        │ location        │
+                        └─────────────────┘
+```
+
+### Request Flow
+
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  Client  │───▶│  Nginx   │───▶│ Laravel  │───▶│   AI     │───▶│ Database │
+│ (React)  │    │ (Proxy)  │    │ Backend  │    │ Service  │    │ (MySQL)  │
+└──────────┘    └──────────┘    └──────────┘    └──────────┘    └──────────┘
+     │                               │                               │
+     │         1. Scan QR            │                               │
+     │──────────────────────────────▶│                               │
+     │                               │      2. Validate Token        │
+     │                               │──────────────────────────────▶│
+     │                               │◀──────────────────────────────│
+     │                               │                               │
+     │                               │      3. Check Geofence        │
+     │                               │──────────────────────────────▶│
+     │                               │◀──────────────────────────────│
+     │                               │                               │
+     │         4. Request Selfie     │                               │
+     │◀──────────────────────────────│                               │
+     │                               │                               │
+     │         5. Upload Selfie      │                               │
+     │──────────────────────────────▶│      6. AI Verification       │
+     │                               │──────────────────────────────▶│
+     │                               │◀──────────────────────────────│
+     │                               │                               │
+     │                               │      7. Save Attendance       │
+     │                               │──────────────────────────────▶│
+     │         8. Success Response   │◀──────────────────────────────│
+     │◀──────────────────────────────│                               │
+     │                               │                               │
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI Library |
+| TypeScript | 5.7.x | Type Safety |
+| Inertia.js | 2.x | SPA Bridge |
+| Tailwind CSS | 4.x | Styling |
+| Radix UI | 1.x | Headless Components |
+| Lucide Icons | 0.475.x | Icons |
+| Recharts | 3.x | Charts & Graphs |
+| Leaflet | 1.9.x | Maps |
+| React Webcam | 7.x | Camera Access |
+| QRCode.react | 4.x | QR Generation |
 
 ### Backend
-<p>
-  <img src="https://img.shields.io/badge/Laravel-12.x-F55247?style=flat-square&logo=laravel&logoColor=white&labelColor=0f172a" alt="Laravel" />
-  <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=flat-square&logo=php&logoColor=white&labelColor=0f172a" alt="PHP" />
-  <img src="https://img.shields.io/badge/Inertia%20Laravel-2.0-6366f1?style=flat-square&labelColor=0f172a" alt="Inertia Laravel" />
-  <img src="https://img.shields.io/badge/Fortify-1.30-F55247?style=flat-square&labelColor=0f172a" alt="Fortify" />
-  <img src="https://img.shields.io/badge/MySQL-DB-4479A1?style=flat-square&logo=mysql&logoColor=white&labelColor=0f172a" alt="MySQL" />
-</p>
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Laravel | 12.x | PHP Framework |
+| PHP | 8.2+ | Server Language |
+| MySQL | 8.x | Database |
+| Laravel Fortify | 1.x | Authentication |
+| Inertia Laravel | 2.x | SPA Integration |
+| Laravel Sanctum | 4.x | API Auth |
 
 ### AI Service
-<p>
-  <img src="https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white&labelColor=0f172a" alt="Python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.111.0-009688?style=flat-square&logo=fastapi&logoColor=white&labelColor=0f172a" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Uvicorn-0.30.3-0ea5e9?style=flat-square&labelColor=0f172a" alt="Uvicorn" />
-  <img src="https://img.shields.io/badge/Ultralytics%20YOLO-8.2%2B-111827?style=flat-square&labelColor=0f172a" alt="Ultralytics YOLO" />
-  <img src="https://img.shields.io/badge/PyTorch-2.1%2B-EE4C2C?style=flat-square&logo=pytorch&logoColor=white&labelColor=0f172a" alt="PyTorch" />
-  <img src="https://img.shields.io/badge/Torchvision-0.16%2B-64748b?style=flat-square&labelColor=0f172a" alt="Torchvision" />
-</p>
 
-### Dev Tools
-<p>
-  <img src="https://img.shields.io/badge/ESLint-9.17.0-4B32C3?style=flat-square&logo=eslint&logoColor=white&labelColor=0f172a" alt="ESLint" />
-  <img src="https://img.shields.io/badge/Prettier-3.4.2-F7B93E?style=flat-square&logo=prettier&logoColor=white&labelColor=0f172a" alt="Prettier" />
-  <img src="https://img.shields.io/badge/Pest-4.2-7c3aed?style=flat-square&labelColor=0f172a" alt="Pest" />
-</p>
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Python | 3.11+ | Language |
+| FastAPI | 0.111.x | API Framework |
+| Ultralytics YOLO | 8.x | Object Detection |
+| PyTorch | 2.x | Deep Learning |
+| OpenCV | 4.x | Image Processing |
 
-![divider](./public/readme/divider.svg)
+### DevOps & Tools
 
-## Struktur Sistem dan Modul
-- <img src="./public/readme/icons/info.svg" alt="Info" height="18" /> Aplikasi dibagi menjadi frontend, backend, dan AI service agar proses absensi terukur dan mudah dipelihara.
+| Technology | Purpose |
+|------------|---------|
+| Vite | Build Tool |
+| ESLint | Linting |
+| Prettier | Code Formatting |
+| Pest | PHP Testing |
+| Git | Version Control |
 
-### Peran Pengguna
-- <img src="./public/readme/icons/layout-dashboard.svg" alt="Admin" height="18" /> Admin: kelola geofence, verifikasi selfie, jalankan absen AI, dan kelola data mahasiswa.
-- <img src="./public/readme/icons/user-check.svg" alt="Mahasiswa" height="18" /> Mahasiswa: absen dengan kamera + lokasi otomatis dan melihat rekap.
+---
 
-### Modul Admin
-- <img src="./public/readme/icons/layout-dashboard.svg" alt="Dashboard" height="18" /> Dashboard ringkas untuk status sesi, statistik, dan rekap.
-- <img src="./public/readme/icons/map-pin.svg" alt="Geofence" height="18" /> Zona 100 Meter untuk mengatur titik dan radius absensi.
-- <img src="./public/readme/icons/camera.svg" alt="Selfie" height="18" /> Verifikasi selfie mahasiswa (approve/reject) dengan catatan.
-- <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> Absen AI untuk deteksi kamera admin dan auto-record ke database.
+## 📁 Struktur Project
 
-### Modul Mahasiswa
-- <img src="./public/readme/icons/user-check.svg" alt="Absen" height="18" /> Absensi berbasis kamera + lokasi tanpa input manual.
-- <img src="./public/readme/icons/database.svg" alt="Rekap" height="18" /> Rekap dan bukti masuk tersimpan untuk audit dan histori.
-
-### Modul AI Service
-- <img src="./public/readme/icons/cpu.svg" alt="Inference" height="18" /> Endpoint inference YOLO untuk deteksi objek/wajah sesuai kebutuhan.
-- <img src="./public/readme/icons/server.svg" alt="Server" height="18" /> Dipanggil melalui backend sebagai proxy untuk menghindari CORS.
-- <img src="./public/readme/icons/shield-check.svg" alt="Security" height="18" /> Mendukung API key dan batasan payload untuk keamanan.
-
-![divider](./public/readme/divider.svg)
-
-## Diagram UML dan Arsitektur
-- <img src="./public/readme/icons/info.svg" alt="Info" height="18" /> Diagram berikut merangkum alur utama, struktur data, dan hubungan antar modul.
-
-### Use Case Diagram (Umum)
-```mermaid
-flowchart LR
-    Mahasiswa([Mahasiswa]) --> UC1((Absen))
-    Mahasiswa --> UC2((Lihat Rekap))
-    Mahasiswa --> UC3((Kirim Selfie))
-    Admin([Admin]) --> UC4((Kelola Geofence))
-    Admin --> UC5((Verifikasi Selfie))
-    Admin --> UC6((Absen AI))
-    Admin --> UC7((Kelola Mahasiswa))
+```
+TPLK004/
+├── 📂 app/
+│   ├── 📂 Actions/           # Business logic actions
+│   ├── 📂 Http/
+│   │   ├── 📂 Controllers/
+│   │   │   ├── 📂 Admin/     # Admin controllers
+│   │   │   ├── 📂 Dosen/     # Dosen controllers
+│   │   │   ├── 📂 User/      # Mahasiswa controllers
+│   │   │   └── 📂 Auth/      # Authentication
+│   │   └── 📂 Middleware/    # Custom middleware
+│   ├── 📂 Models/            # Eloquent models
+│   └── 📂 Providers/         # Service providers
+│
+├── 📂 database/
+│   ├── 📂 migrations/        # Database migrations
+│   ├── 📂 seeders/           # Data seeders
+│   └── 📂 factories/         # Model factories
+│
+├── 📂 resources/
+│   ├── 📂 js/
+│   │   ├── 📂 components/    # React components
+│   │   │   ├── 📂 ui/        # UI primitives
+│   │   │   ├── 📂 analytics/ # Analytics components
+│   │   │   └── 📂 qr/        # QR components
+│   │   ├── 📂 pages/         # Page components
+│   │   │   ├── 📂 admin/     # Admin pages
+│   │   │   ├── 📂 dosen/     # Dosen pages
+│   │   │   ├── 📂 user/      # Mahasiswa pages
+│   │   │   └── 📂 auth/      # Auth pages
+│   │   ├── 📂 layouts/       # Layout components
+│   │   ├── 📂 hooks/         # Custom React hooks
+│   │   ├── 📂 lib/           # Utilities
+│   │   └── 📂 types/         # TypeScript types
+│   ├── 📂 css/               # Stylesheets
+│   └── 📂 views/             # Blade templates
+│
+├── 📂 routes/
+│   ├── 📄 web.php            # Web routes
+│   ├── 📄 dosen.php          # Dosen routes
+│   └── 📄 api.php            # API routes
+│
+├── 📂 public/
+│   ├── 📂 build/             # Compiled assets
+│   └── 📄 manifest.json      # PWA manifest
+│
+├── 📂 config/                # Configuration files
+├── 📂 storage/               # File storage
+├── 📂 tests/                 # Test files
+├── 📂 docs/                  # Documentation
+│
+├── 📄 .env.example           # Environment template
+├── 📄 composer.json          # PHP dependencies
+├── 📄 package.json           # Node dependencies
+├── 📄 vite.config.ts         # Vite configuration
+└── 📄 README.md              # This file
 ```
 
-### Activity Diagram (Absensi Mahasiswa)
-```mermaid
-flowchart TD
-    Start([Mulai]) --> Open[Masuk halaman Absen]
-    Open --> Permission{Izin kamera & lokasi?}
-    Permission -- Tidak --> Denied[Notifikasi izin]
-    Denied --> End([Selesai])
-    Permission -- Ya --> Capture[Ambil lokasi + kamera]
-    Capture --> InRange{Dalam geofence?}
-    InRange -- Tidak --> Reject[Ditolak, tampilkan alasan]
-    InRange -- Ya --> Detect[Deteksi AI / selfie]
-    Detect --> Match{Valid?}
-    Match -- Tidak --> Retry[Ulangi scan]
-    Match -- Ya --> Record[Catat absensi]
-    Record --> End
+---
+
+## ⚙️ Instalasi
+
+### Prerequisites
+
+Pastikan sistem Anda memiliki:
+
+- **PHP** >= 8.2
+- **Composer** >= 2.x
+- **Node.js** >= 18.x
+- **MySQL** >= 8.x
+- **Git**
+
+### Step-by-Step Installation
+
+
+#### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/your-username/TPLK004.git
+cd TPLK004
 ```
 
-### Class Diagram (High Level)
-```mermaid
-classDiagram
-    class User {
-        +id
-        +name
-        +email
-        +role
-    }
-    class Admin
-    class Mahasiswa {
-        +nim
-    }
-    User <|-- Admin
-    User <|-- Mahasiswa
+#### 2️⃣ Install PHP Dependencies
 
-    class AttendanceSession {
-        +id
-        +title
-        +date
-        +status
-    }
-    class AttendanceRecord {
-        +id
-        +status
-        +check_in_at
-    }
-    class Geofence {
-        +lat
-        +lng
-        +radius_m
-    }
-    class Selfie {
-        +path
-        +status
-    }
-    class AiInference {
-        +label
-        +confidence
-    }
-
-    AttendanceSession "1" --> "many" AttendanceRecord
-    Mahasiswa "1" --> "many" AttendanceRecord
-    AttendanceSession "1" --> "1" Geofence
-    AttendanceRecord "0..1" --> Selfie
-    AttendanceRecord "0..1" --> AiInference
-```
-
-### Diagram Konseptual / High-Level Architecture
-```mermaid
-flowchart LR
-    subgraph Clients
-        A[Mahasiswa Web]
-        C[Admin Web]
-    end
-    subgraph App
-        B[Laravel Backend]
-        D[AI Service]
-    end
-    A -->|Scan + GPS| B
-    C -->|Absen AI| B
-    B -->|Call inference| D
-    B --> E[(Database)]
-    B --> F[(Storage)]
-```
-- <img src="./public/readme/icons/server.svg" alt="Server" height="18" /> Backend menjadi penghubung utama antara UI, database, storage, dan AI service.
-- <img src="./public/readme/icons/database.svg" alt="Database" height="18" /> Data absensi, selfie, dan metadata disimpan terpusat untuk audit.
-- <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> AI service hanya menangani inference agar proses inti tetap cepat dan terisolasi.
-
-
-## Dokumentasi Lengkap
-- <img src="./public/readme/icons/info.svg" alt="Docs" height="18" /> Lihat `docs/DOKUMENTASI.md` untuk detail alur, modul, konfigurasi, dan troubleshooting.
-
-
-## Konfigurasi Kunci
-### Laravel (.env)
-- <img src="./public/readme/icons/server.svg" alt="Service" height="18" /> `YOLO_SERVICE_URL` mengarah ke AI service yang menerima request inference.
-- <img src="./public/readme/icons/shield-check.svg" alt="Security" height="18" /> `YOLO_API_KEY` dipakai jika endpoint inference dilindungi.
-- <img src="./public/readme/icons/cpu.svg" alt="Threshold" height="18" /> `YOLO_MIN_CONF` menentukan batas confidence minimal.
-- <img src="./public/readme/icons/map-pin.svg" alt="Location" height="18" /> `LOCATION_*` mengatur sampling lokasi dan anti-spoofing.
-```
-YOLO_SERVICE_URL=http://127.0.0.1:9001
-YOLO_API_KEY=
-YOLO_MIN_CONF=0.6
-YOLO_TARGET_LABEL=
-YOLO_MAINTENANCE_MODE=true
-
-LOCATION_SAMPLE_COUNT=3
-LOCATION_SAMPLE_WINDOW_SECONDS=20
-LOCATION_SAMPLE_MAX_AGE_SECONDS=60
-LOCATION_MAX_SPEED_MPS=35
-LOCATION_MAX_JUMP_M=150
-LOCATION_MAX_SPREAD_M=100
-```
-
-### AI Service (.env)
-- <img src="./public/readme/icons/cpu.svg" alt="Model" height="18" /> `MODEL_PATH` menentukan model YOLO yang dipakai.
-- <img src="./public/readme/icons/server.svg" alt="Runtime" height="18" /> `DEVICE`, `CONF`, dan `IMGSZ` mengatur performa inference.
-- <img src="./public/readme/icons/shield-check.svg" alt="Security" height="18" /> `API_KEY` opsional untuk mengamankan endpoint.
-```
-MODEL_PATH=models/yolov8m.pt
-DEVICE=auto
-CONF=0.25
-IOU=0.45
-IMGSZ=640
-API_KEY=
-INFER_CONCURRENCY=1
-MAX_IMAGE_BYTES=8388608
-```
-
-![divider](./public/readme/divider.svg)
-
-## Setup Lokal
-### 1) Backend (Laravel)
-- <img src="./public/readme/icons/wrench.svg" alt="Setup" height="18" /> Menyiapkan dependensi PHP, key aplikasi, migrasi, dan storage link.
 ```bash
 composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-php artisan storage:link
-php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-### 2) Frontend (Vite)
-- <img src="./public/readme/icons/wrench.svg" alt="Setup" height="18" /> Menjalankan bundler Vite untuk UI React.
+#### 3️⃣ Install Node Dependencies
+
 ```bash
 npm install
+```
+
+#### 4️⃣ Environment Setup
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+#### 5️⃣ Database Setup
+
+```bash
+# Create database
+mysql -u root -p -e "CREATE DATABASE tplk004"
+
+# Run migrations
+php artisan migrate
+
+# Seed initial data
+php artisan db:seed
+```
+
+#### 6️⃣ Storage Link
+
+```bash
+php artisan storage:link
+```
+
+#### 7️⃣ Build Assets
+
+```bash
+# Development
+npm run dev
+
+# Production
+npm run build
+```
+
+#### 8️⃣ Start Server
+
+```bash
+# Laravel server
+php artisan serve
+
+# Vite dev server (separate terminal)
 npm run dev
 ```
 
-### 3) AI Service (YOLO)
-- <img src="./public/readme/icons/wrench.svg" alt="Setup" height="18" /> Menjalankan FastAPI + YOLO pada port 9001.
+### 🐳 Docker Installation (Optional)
+
 ```bash
-cd TPLK004-service
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export DEVICE=mps
-export MODEL_PATH=models/yolov8m.pt
-export PYTORCH_ENABLE_MPS_FALLBACK=1
-uvicorn app:app --host 127.0.0.1 --port 9001
+# Build and start containers
+docker-compose up -d
+
+# Run migrations
+docker-compose exec app php artisan migrate --seed
 ```
 
-### 4) Env untuk integrasi AI (Laravel)
-- <img src="./public/readme/icons/cpu.svg" alt="Integration" height="18" /> Pastikan Laravel mengarah ke AI service yang aktif.
-```
+---
+
+## 🔧 Konfigurasi
+
+### Environment Variables
+
+```env
+# Application
+APP_NAME="TPLK004 Absensi"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+# Database
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tplk004
+DB_USERNAME=root
+DB_PASSWORD=
+
+# AI Service
 YOLO_SERVICE_URL=http://127.0.0.1:9001
 YOLO_API_KEY=
 YOLO_MIN_CONF=0.6
-YOLO_TARGET_LABEL=
-YOLO_MAINTENANCE_MODE=true
+YOLO_MAINTENANCE_MODE=false
+
+# Geofence Settings
+LOCATION_SAMPLE_COUNT=3
+LOCATION_SAMPLE_WINDOW_SECONDS=20
+LOCATION_MAX_SPEED_MPS=35
+LOCATION_MAX_JUMP_M=150
+
+# Mail (for notifications)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=
+MAIL_PASSWORD=
 ```
 
-![divider](./public/readme/divider.svg)
+### Geofence Configuration
 
-## Port Default
-- <img src="./public/readme/icons/server.svg" alt="Port" height="18" /> Laravel: `http://127.0.0.1:8000`
-- <img src="./public/readme/icons/server.svg" alt="Port" height="18" /> Vite: `http://127.0.0.1:5173`
-- <img src="./public/readme/icons/server.svg" alt="Port" height="18" /> YOLO Service: `http://127.0.0.1:9001`
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LOCATION_SAMPLE_COUNT` | 3 | Jumlah sample lokasi |
+| `LOCATION_SAMPLE_WINDOW_SECONDS` | 20 | Window waktu sampling |
+| `LOCATION_MAX_SPEED_MPS` | 35 | Kecepatan maksimal (m/s) |
+| `LOCATION_MAX_JUMP_M` | 150 | Jarak lompatan maksimal |
+| `LOCATION_MAX_SPREAD_M` | 100 | Spread maksimal |
 
+### AI Service Configuration
 
-## SOP Admin
-### A. Set Geofence (Zona 100 Meter)
-1. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Login sebagai admin.
-2. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Buka menu `Zona 100 Meter`.
-3. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Klik `Pindai lokasi saat ini` atau geser pin di peta.
-4. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Atur radius (mis. 100m).
-5. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Klik `Simpan geofence`.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MODEL_PATH` | models/yolov8m.pt | Path ke model YOLO |
+| `DEVICE` | auto | Device (cpu/cuda/mps) |
+| `CONF` | 0.25 | Confidence threshold |
+| `IOU` | 0.45 | IOU threshold |
+| `IMGSZ` | 640 | Image size |
 
-### B. Validasi Selfie
-1. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Buka menu `Verifikasi Selfie`.
-2. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Pilih data mahasiswa yang pending.
-3. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Cek foto selfie dan detail absensi.
-4. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Klik `Approve` atau `Reject` lalu simpan catatan.
+---
 
-### C. Absen AI (Admin Kamera)
-1. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Buka menu `Absen AI`.
-2. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Pilih mahasiswa target (jika tersedia).
-3. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Klik `Mulai kamera`.
-4. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Tunggu hasil deteksi, lalu klik `Scan sekali` jika perlu.
+## 👥 Multi-Role System
 
-![divider](./public/readme/divider.svg)
+### Role Hierarchy
 
-## SOP Mahasiswa (Cara Scan)
-1. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Login sebagai mahasiswa.
-2. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Buka halaman `Absen`.
-3. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Izinkan akses kamera dan lokasi.
-4. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Pastikan berada di dalam radius geofence.
-5. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Tampilkan wajah di kamera hingga status terverifikasi.
-6. <img src="./public/readme/icons/circle-check.svg" alt="Step" height="18" /> Jika diminta selfie, ambil foto sesuai instruksi.
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      ADMIN (Super Admin)                     │
+│  • Full system access                                        │
+│  • Manage all users                                          │
+│  • System configuration                                      │
+│  • Analytics & reports                                       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+┌─────────────────────────┐     ┌─────────────────────────┐
+│         DOSEN           │     │       MAHASISWA         │
+│  • Manage own courses   │     │  • Attendance only      │
+│  • Create sessions      │     │  • View own records     │
+│  • Verify attendance    │     │  • Submit permits       │
+│  • Grade assignments    │     │  • View achievements    │
+└─────────────────────────┘     └─────────────────────────┘
+```
 
-![divider](./public/readme/divider.svg)
+### Authentication Guards
 
-## Flow Troubleshooting
-### 1) Web tidak bisa dibuka
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan `php artisan serve` berjalan.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Cek URL yang benar (localhost atau domain hosting).
+| Guard | Model | Purpose |
+|-------|-------|---------|
+| `web` | User | Admin authentication |
+| `dosen` | Dosen | Dosen authentication |
+| `mahasiswa` | Mahasiswa | Student authentication |
 
-### 2) Kamera tidak muncul
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan izin kamera di browser aktif.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Gunakan HTTPS di hosting (kamera butuh HTTPS).
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Tutup aplikasi lain yang memakai kamera.
+### Login URLs
 
-### 3) Lokasi ditolak / di luar radius
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Aktifkan GPS di browser.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Cek geofence di menu `Zona 100 Meter`.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan radius tidak terlalu kecil.
+| Role | URL | Credentials |
+|------|-----|-------------|
+| Admin | `/login` | Email + Password |
+| Dosen | `/dosen/login` | NIDN + Password |
+| Mahasiswa | `/mahasiswa/login` | NIM + Password |
 
-### 4) Absen AI tidak mendeteksi
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan YOLO service hidup di port 9001.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Cek `YOLO_SERVICE_URL` di `.env`.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Periksa apakah `YOLO_API_KEY` cocok (jika dipakai).
+---
 
-### 5) Foto selfie tidak tampil di admin
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Jalankan `php artisan storage:link`.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan folder `storage/app/public` dapat diakses.
+## 📱 Fitur per Role
 
-### 6) CSS/JS tidak muncul di hosting
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Jalankan `npm run build` sebelum upload.
-- <img src="./public/readme/icons/bug.svg" alt="Issue" height="18" /> Pastikan folder `public/build` ikut ter-upload.
+### 🔴 Admin Features
 
-![divider](./public/readme/divider.svg)
+<details>
+<summary>Lihat detail fitur Admin</summary>
 
-## Catatan Hosting
-- <img src="./public/readme/icons/server.svg" alt="Hosting" height="18" /> Gunakan `.env` produksi terpisah.
-- <img src="./public/readme/icons/server.svg" alt="Hosting" height="18" /> Pastikan `APP_URL` sesuai domain.
-- <img src="./public/readme/icons/shield-check.svg" alt="Hosting" height="18" /> Gunakan SSL agar kamera dan lokasi berjalan.
+#### Dashboard
+- Total mahasiswa, dosen, mata kuliah
+- Statistik kehadiran hari ini
+- Grafik tren kehadiran mingguan
+- Risk analysis (mahasiswa berisiko)
+- Recent activities
 
-![divider](./public/readme/divider.svg)
+#### Manajemen Data
+- CRUD Mahasiswa (import Excel)
+- CRUD Dosen
+- CRUD Mata Kuliah
+- CRUD Kelas
 
-## Legal dan Kepatuhan
-- <img src="./public/readme/icons/shield-check.svg" alt="Privacy" height="18" /> Kebijakan privasi tersedia di `/privacy` (lihat `resources/js/pages/privacy.tsx`).
-- <img src="./public/readme/icons/shield-check.svg" alt="Consent" height="18" /> Persetujuan penggunaan kamera dan lokasi ditampilkan sebelum scan.
-- <img src="./public/readme/icons/shield-check.svg" alt="Deletion" height="18" /> Penghapusan data dilakukan melalui admin kampus setelah verifikasi.
+#### Absensi
+- Geofence settings (peta interaktif)
+- Verifikasi selfie
+- Absen AI (kamera admin)
+- Rekap kehadiran
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/platane/snk/output/github-contribution-grid-snake.svg" alt="Animated footer" />
-</div>
+#### Keuangan
+- Manajemen uang kas
+- Laporan keuangan
+- Voting kas
 
-![divider](./public/readme/divider.svg)
+#### Sistem
+- Activity log
+- Settings
+- Help center
+- Panduan admin
 
-## Referensi Layanan AI
-- <img src="./public/readme/icons/cpu.svg" alt="AI" height="18" /> Lihat `TPLK004-service/README.md` untuk detail service YOLO, endpoint, dan konfigurasi.
+</details>
+
+### 🟢 Dosen Features
+
+<details>
+<summary>Lihat detail fitur Dosen</summary>
+
+#### Dashboard
+- Overview mata kuliah
+- Statistik kehadiran per kelas
+- Sesi aktif
+
+#### Mata Kuliah
+- Lihat daftar mata kuliah
+- Detail mahasiswa per kelas
+- Statistik per mahasiswa
+
+#### Sesi Absensi
+- Buat sesi baru
+- Generate QR code
+- Monitoring real-time
+- Tutup sesi
+
+#### Verifikasi
+- Approve/reject absensi pending
+- Lihat selfie mahasiswa
+- Catatan verifikasi
+
+#### Izin & Tugas
+- Persetujuan izin/sakit
+- Buat tugas
+- Grading tugas
+- Diskusi
+
+</details>
+
+### 🔵 Mahasiswa Features
+
+<details>
+<summary>Lihat detail fitur Mahasiswa</summary>
+
+#### Dashboard
+- Status kehadiran
+- Statistik personal
+- Upcoming deadlines
+- Achievements
+
+#### Absensi
+- Scan QR code
+- Validasi lokasi
+- Upload selfie
+- Riwayat kehadiran
+
+#### Akademik
+- Rekapan per mata kuliah
+- Informasi tugas
+- Submit tugas
+- Diskusi
+
+#### Izin
+- Pengajuan izin/sakit
+- Upload bukti
+- Status pengajuan
+
+#### Gamifikasi
+- Badge collection
+- Level progress
+- Attendance streak
+- Leaderboard
+
+#### Keuangan
+- Status kas
+- Riwayat pembayaran
+- Voting kas
+
+</details>
+
+---
+
+## 🎮 Sistem Gamifikasi
+
+### 🏅 Badge System
+
+| Badge | Requirement | Points |
+|-------|-------------|--------|
+| 🌟 First Timer | Absen pertama kali | 10 |
+| 🔥 On Fire | 7 hari berturut-turut | 50 |
+| 💪 Consistent | 30 hari berturut-turut | 200 |
+| 🏆 Perfect Month | 100% kehadiran sebulan | 500 |
+| 👑 Semester Champion | Tertinggi di semester | 1000 |
+| ⚡ Early Bird | Absen 5 menit pertama | 25 |
+| 📚 Bookworm | Submit semua tugas | 100 |
+
+### 📊 Level System
+
+| Level | Points Required | Title |
+|-------|-----------------|-------|
+| 1 | 0 | Newbie |
+| 2 | 100 | Beginner |
+| 3 | 300 | Regular |
+| 4 | 600 | Committed |
+| 5 | 1000 | Dedicated |
+| 6 | 1500 | Expert |
+| 7 | 2100 | Master |
+| 8 | 2800 | Legend |
+| 9 | 3600 | Champion |
+| 10 | 4500 | Ultimate |
+
+### 🔥 Streak System
+
+- **Daily Streak**: Absen setiap hari
+- **Weekly Streak**: Absen setiap minggu
+- **Streak Multiplier**: Bonus points untuk streak panjang
+
+---
+
+## 📊 Analytics & Reporting
+
+### Available Reports
+
+| Report | Format | Description |
+|--------|--------|-------------|
+| Rekap Harian | PDF | Kehadiran per hari |
+| Rekap Mingguan | PDF/Excel | Summary mingguan |
+| Rekap Bulanan | PDF/Excel | Summary bulanan |
+| Per Mahasiswa | PDF | Detail per mahasiswa |
+| Per Mata Kuliah | PDF/Excel | Detail per course |
+| Risk Analysis | Dashboard | Mahasiswa berisiko |
+
+### Risk Categories
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    RISK ANALYSIS                             │
+├─────────────────────────────────────────────────────────────┤
+│  🟢 SAFE      │ Kehadiran > 80%                             │
+│  🟡 WARNING   │ Kehadiran 60-80%                            │
+│  🔴 DANGER    │ Kehadiran < 60% (tidak bisa UAS)            │
+└─────────────────────────────────────────────────────────────┘
+
+⚠️ Aturan UNPAM: 3x Alpha = Tidak bisa mengikuti UAS
+```
+
+---
+
+## 🔐 Keamanan
+
+### Security Features
+
+| Feature | Description |
+|---------|-------------|
+| 🔒 Password Hashing | Bcrypt dengan cost factor 12 |
+| 🛡️ CSRF Protection | Token validation |
+| 🔑 Session Security | Encrypted sessions |
+| 📍 Geofence Validation | Anti-GPS spoofing |
+| 📸 Selfie Verification | AI-powered face detection |
+| 📝 Audit Trail | Complete activity logging |
+| 🚫 Rate Limiting | Prevent brute force |
+| 🔐 2FA Support | Two-factor authentication |
+
+### Anti-Fraud Measures
+
+1. **Location Sampling**: Multiple GPS samples untuk validasi
+2. **Speed Check**: Deteksi perpindahan tidak wajar
+3. **Selfie Verification**: Wajah harus terdeteksi
+4. **QR Expiry**: Token kadaluarsa otomatis
+5. **One-Time Use**: QR hanya bisa dipakai sekali
+6. **Device Fingerprint**: Identifikasi device
+
+---
+
+## 🌐 Deployment
+
+### Supported Platforms
+
+| Platform | Recommended | Notes |
+|----------|-------------|-------|
+| Railway | ⭐⭐⭐⭐⭐ | Easiest, auto-deploy |
+| Render | ⭐⭐⭐⭐ | Good free tier |
+| Vercel | ⭐⭐⭐ | Frontend only |
+| DigitalOcean | ⭐⭐⭐⭐ | Full control |
+| AWS | ⭐⭐⭐⭐⭐ | Enterprise |
+| Shared Hosting | ⭐⭐ | Limited features |
+
+### Quick Deploy to Railway
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template)
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login
+railway login
+
+# Initialize project
+railway init
+
+# Deploy
+railway up
+```
+
+### Production Checklist
+
+- [ ] Set `APP_ENV=production`
+- [ ] Set `APP_DEBUG=false`
+- [ ] Configure proper `APP_URL`
+- [ ] Set up SSL certificate
+- [ ] Configure database
+- [ ] Set up file storage
+- [ ] Configure mail service
+- [ ] Set up monitoring
+- [ ] Configure backups
+
+---
+
+## 📖 API Documentation
+
+### Authentication Endpoints
+
+```http
+POST /login                 # Admin login
+POST /dosen/login          # Dosen login
+POST /mahasiswa/login      # Mahasiswa login
+POST /logout               # Logout
+```
+
+### Attendance Endpoints
+
+```http
+GET  /user/absen           # Get attendance page
+POST /user/absen/scan      # Submit attendance
+GET  /user/history         # Get attendance history
+GET  /user/rekapan         # Get attendance summary
+```
+
+### Permit Endpoints
+
+```http
+GET  /user/permit          # Get permits list
+POST /user/permit          # Submit permit
+DELETE /user/permit/{id}   # Cancel permit
+```
+
+### Admin Endpoints
+
+```http
+GET  /dashboard            # Admin dashboard
+GET  /mahasiswa            # List mahasiswa
+GET  /dosen                # List dosen
+GET  /mata-kuliah          # List courses
+GET  /analytics            # Analytics data
+```
+
+---
+
+## 🧪 Testing
+
+### Run Tests
+
+```bash
+# Run all tests
+php artisan test
+
+# Run with coverage
+php artisan test --coverage
+
+# Run specific test
+php artisan test --filter=AttendanceTest
+```
+
+### Test Categories
+
+| Category | Description |
+|----------|-------------|
+| Unit | Model & service tests |
+| Feature | HTTP & integration tests |
+| Browser | Dusk browser tests |
+
+---
+
+## 🤝 Kontribusi
+
+### How to Contribute
+
+1. Fork repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+### Code Style
+
+- Follow PSR-12 for PHP
+- Use ESLint & Prettier for TypeScript
+- Write meaningful commit messages
+- Add tests for new features
+
+---
+
+## 📄 Lisensi
+
+Project ini dilisensikan di bawah [MIT License](LICENSE).
+
+```
+MIT License
+
+Copyright (c) 2024 TPLK004 Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
+
+---
+
+## 👨‍💻 Tim Pengembang
+
+<table>
+<tr>
+<td align="center">
+<b>TPLK004 Team</b><br>
+Universitas Pamulang<br>
+Fakultas Ilmu Komputer<br>
+Teknik Informatika<br>
+Kelas 06TPLK004
+</td>
+</tr>
+</table>
+
+---
+
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&duration=3000&pause=1000&color=6B7280&center=true&vCenter=true&width=600&lines=Made+with+❤️+by+TPLK004+Team;Universitas+Pamulang+•+2024" alt="Footer" />
+</p>
+
+<p align="center">
+  <a href="#-tplk004---sistem-absensi-cerdas-berbasis-ai">⬆️ Back to Top</a>
+</p>

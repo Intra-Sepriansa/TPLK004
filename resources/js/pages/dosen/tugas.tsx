@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
-    AlertTriangle, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
+    AlertTriangle, Award, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
     MoreHorizontal, Pencil, Plus, Search, Trash2, Sparkles,
 } from 'lucide-react';
 
@@ -246,6 +246,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => router.visit(`/dosen/tugas/${tugas.id}`)}><Eye className="mr-2 h-4 w-4 text-blue-500" /> Lihat Detail</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)}><Award className="mr-2 h-4 w-4 text-purple-500" /> Penilaian</DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => openEdit(tugas)}><Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit</DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handleDelete(tugas.id)} className="text-red-600"><Trash2 className="mr-2 h-4 w-4" /> Hapus</DropdownMenuItem>
                                         </DropdownMenuContent>

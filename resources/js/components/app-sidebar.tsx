@@ -32,6 +32,8 @@ import {
     Trophy,
     Users,
     Wallet,
+    BarChart3,
+    ScrollText,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -118,21 +120,31 @@ const reportNavItems: NavItem[] = [
         icon: FileBarChart,
     },
     {
+        title: 'Analytics & Prediksi',
+        href: '/admin/analytics',
+        icon: BarChart3,
+    },
+    {
         title: 'Audit Keamanan',
         href: '/admin/audit',
         icon: ShieldCheck,
+    },
+    {
+        title: 'Log Aktivitas',
+        href: '/admin/activity-log',
+        icon: ScrollText,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
         title: 'Panduan Admin',
-        href: dashboard({ query: { section: 'admin-guide' } }),
+        href: '/admin/panduan',
         icon: BookOpen,
     },
     {
         title: 'Help Center',
-        href: dashboard({ query: { section: 'help-center' } }),
+        href: '/admin/help-center',
         icon: LifeBuoy,
     },
 ];

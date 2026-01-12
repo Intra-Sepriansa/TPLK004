@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: tplk004-attendance
+    env: php
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tplk004-db
+          property: connectionString
+
+databases:
+  - name: tplk004-db
+    databaseName: tplk004
+    user: tplk004_user
+    plan: free

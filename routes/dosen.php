@@ -57,4 +57,15 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::post('/tugas/{tuga}/message', [\App\Http\Controllers\Dosen\TugasController::class, 'sendMessage'])->name('tugas.message');
     Route::patch('/tugas/diskusi/{diskusi}/pin', [\App\Http\Controllers\Dosen\TugasController::class, 'togglePin'])->name('tugas.diskusi.pin');
     Route::delete('/tugas/diskusi/{diskusi}', [\App\Http\Controllers\Dosen\TugasController::class, 'deleteMessage'])->name('tugas.diskusi.delete');
+
+    // Tugas Grading
+    Route::get('/tugas/{tuga}/grading', [\App\Http\Controllers\Dosen\TugasGradingController::class, 'index'])->name('tugas.grading');
+    Route::patch('/tugas/submission/{submission}/grade', [\App\Http\Controllers\Dosen\TugasGradingController::class, 'grade'])->name('tugas.submission.grade');
+    Route::post('/tugas/{tuga}/bulk-grade', [\App\Http\Controllers\Dosen\TugasGradingController::class, 'bulkGrade'])->name('tugas.bulk-grade');
+
+    // Permits (Izin/Sakit)
+    Route::get('/permits', [\App\Http\Controllers\Dosen\PermitController::class, 'index'])->name('permits');
+    Route::patch('/permits/{permit}/approve', [\App\Http\Controllers\Dosen\PermitController::class, 'approve'])->name('permits.approve');
+    Route::patch('/permits/{permit}/reject', [\App\Http\Controllers\Dosen\PermitController::class, 'reject'])->name('permits.reject');
+    Route::post('/permits/bulk-approve', [\App\Http\Controllers\Dosen\PermitController::class, 'bulkApprove'])->name('permits.bulk-approve');
 });

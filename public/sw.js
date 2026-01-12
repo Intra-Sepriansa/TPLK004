@@ -1,20 +1,20 @@
 const CACHE_NAME = 'tplk004-v1';
-const STATIC_CACHE = 'tplk004-static-v1';
-const DYNAMIC_CACHE = 'tplk004-dynamic-v1';
+const OFFLINE_URL = '/offline.html';
 
 // Assets to cache immediately
-const STATIC_ASSETS = [
+const PRECACHE_ASSETS = [
     '/',
-    '/manifest.json',
     '/offline.html',
+    '/manifest.json',
+    '/images/logo-unpam.png',
 ];
 
-// Install event - cache static assets
+// Install event - cache essential assets
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(STATIC_CACHE).then((cache) => {
-            console.log('Caching static assets');
-            return cache.addAll(STATIC_ASSETS);
+        caches.open(CACHE_NAME).then((cache) => {
+            console.log('Caching essential assets');
+            return cache.addAll(PRECACHE_ASSETS);
         })
     );
     self.skipWaiting();
@@ -23,149 +23,99 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((keys) => {
+        caches.keys().then((cacheNames) => {
             return Promise.all(
-                keys
-                    .filter((key) => key !== STATIC_CACHE && key !== DYNAMIC_CACHE)
-                    .map((key) => caches.delete(key))
+                cacheNames
+                    .filter((name) => name !== CACHE_NAME)
+                    .map((name) => caches.delete(name))
             );
         })
     );
     self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-    const { request } = event;
-    const url = new URL(request.url);
-
     // Skip non-GET requests
-    if (request.method !== 'GET') return;
+    if (event.request.method !== 'GET') return;
 
-    // Skip API requests and external resources
-    if (url.pathname.startsWith('/api') || url.origin !== location.origin) {
-        return;
-    }
-
-    // Network-first strategy for HTML pages
-    if (request.headers.get('accept')?.includes('text/html')) {
+    // Skip API requests and form submissions
+    const url = new URL(event.request.url);
+    if (url.pathname.startsWith('/api') || 
+        url.pathname.includes('/login') ||
+        url.pathname.includes('/logout') ||
+        event.request.headers.get('accept')?.includes('text/html')) {
+        
+        // For HTML pages, try network first
         event.respondWith(
-            fetch(request)
+            fetch(event.request)
                 .then((response) => {
-                    const clone = response.clone();
-                    caches.open(DYNAMIC_CACHE).then((cache) => {
-                        cache.put(request, clone);
-                    });
+                    // Cache successful responses
+                    if (response.ok) {
+                        const responseClone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseClone);
+                        });
+                    }
                     return response;
                 })
                 .catch(() => {
-                    return caches.match(request).then((cached) => {
-                        return cached || caches.match('/offline.html');
+                    // Return cached version or offline page
+                    return caches.match(event.request).then((cached) => {
+                        return cached || caches.match(OFFLINE_URL);
                     });
                 })
         );
         return;
     }
 
-    // Cache-first strategy for static assets
-    if (
-        url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/)
-    ) {
-        event.respondWith(
-            caches.match(request).then((cached) => {
-                if (cached) return cached;
-
-                return fetch(request).then((response) => {
-                    const clone = response.clone();
-                    caches.open(STATIC_CACHE).then((cache) => {
-                        cache.put(request, clone);
-                    });
-                    return response;
-                });
-            })
-        );
-        return;
-    }
-
-    // Network-first for everything else
+    // For static assets, cache first
     event.respondWith(
-        fetch(request)
-            .then((response) => {
-                const clone = response.clone();
-                caches.open(DYNAMIC_CACHE).then((cache) => {
-                    cache.put(request, clone);
+        caches.match(event.request).then((cached) => {
+            if (cached) {
+                // Return cached and update in background
+                fetch(event.request).then((response) => {
+                    if (response.ok) {
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, response);
+                        });
+                    }
                 });
+                return cached;
+            }
+
+            // Not in cache, fetch from network
+            return fetch(event.request).then((response) => {
+                if (response.ok) {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                }
                 return response;
-            })
-            .catch(() => caches.match(request))
+            });
+        })
     );
 });
 
-// Background sync for offline attendance
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'sync-attendance') {
-        event.waitUntil(syncAttendance());
-    }
-});
-
-async function syncAttendance() {
-    const db = await openDB();
-    const pendingAttendance = await db.getAll('pending-attendance');
-
-    for (const attendance of pendingAttendance) {
-        try {
-            const response = await fetch('/user/absen', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(attendance.data),
-            });
-
-            if (response.ok) {
-                await db.delete('pending-attendance', attendance.id);
-            }
-        } catch (error) {
-            console.error('Failed to sync attendance:', error);
-        }
-    }
-}
-
-// Push notifications
+// Handle push notifications (for future use)
 self.addEventListener('push', (event) => {
-    const data = event.data?.json() || {};
-    
+    const data = event.data?.json() ?? {};
+    const title = data.title || 'TPLK004';
     const options = {
         body: data.body || 'Ada notifikasi baru',
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/icon-72x72.png',
-        vibrate: [100, 50, 100],
-        data: {
-            url: data.url || '/',
-        },
-        actions: [
-            {
-                action: 'open',
-                title: 'Buka',
-            },
-            {
-                action: 'close',
-                title: 'Tutup',
-            },
-        ],
+        icon: '/images/icon-192x192.png',
+        badge: '/images/icon-72x72.png',
+        data: data.url || '/',
     };
 
-    event.waitUntil(
-        self.registration.showNotification(data.title || 'TPLK004', options)
-    );
+    event.waitUntil(self.registration.showNotification(title, options));
 });
 
+// Handle notification click
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-
-    if (event.action === 'open' || !event.action) {
-        event.waitUntil(
-            clients.openWindow(event.notification.data.url)
-        );
-    }
+    event.waitUntil(
+        clients.openWindow(event.notification.data)
+    );
 });

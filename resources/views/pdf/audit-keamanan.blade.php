@@ -54,10 +54,11 @@
             </div>
             <div class="header-text">
                 <div class="university-name">Universitas Pamulang</div>
-                <div class="faculty-name">Fakultas Teknik</div>
+                <div class="faculty-name">Fakultas Ilmu Komputer</div>
+                <div style="font-size: 10px; font-weight: bold;">Jurusan Teknik Informatika</div>
                 <div class="address">
                     Jl. Surya Kencana No.1, Pamulang, Tangerang Selatan, Banten 15417<br>
-                    Telp: (021) 7412566 | Email: ft@unpam.ac.id
+                    Telp: (021) 7412566 | Email: fikom@unpam.ac.id
                 </div>
             </div>
             <div class="header-logo-right">
