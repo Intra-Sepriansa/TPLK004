@@ -73,22 +73,22 @@ const attendanceNavItems: NavItem[] = [
 const managementNavItems: NavItem[] = [
     {
         title: 'Mahasiswa',
-        href: dashboard({ query: { section: 'students' } }),
+        href: '/admin/mahasiswa',
         icon: Users,
     },
     {
         title: 'Perangkat',
-        href: dashboard({ query: { section: 'devices' } }),
+        href: '/admin/perangkat',
         icon: TabletSmartphone,
     },
     {
         title: 'Jadwal',
-        href: dashboard({ query: { section: 'schedule' } }),
+        href: '/admin/jadwal',
         icon: Clock,
     },
     {
         title: 'Pengaturan',
-        href: dashboard({ query: { section: 'settings' } }),
+        href: '/admin/pengaturan',
         icon: Settings,
     },
 ];
