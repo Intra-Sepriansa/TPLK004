@@ -55,4 +55,6 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::patch('/tugas/{tuga}', [\App\Http\Controllers\Dosen\TugasController::class, 'update'])->name('tugas.update');
     Route::delete('/tugas/{tuga}', [\App\Http\Controllers\Dosen\TugasController::class, 'destroy'])->name('tugas.destroy');
     Route::post('/tugas/{tuga}/message', [\App\Http\Controllers\Dosen\TugasController::class, 'sendMessage'])->name('tugas.message');
+    Route::patch('/tugas/diskusi/{diskusi}/pin', [\App\Http\Controllers\Dosen\TugasController::class, 'togglePin'])->name('tugas.diskusi.pin');
+    Route::delete('/tugas/diskusi/{diskusi}', [\App\Http\Controllers\Dosen\TugasController::class, 'deleteMessage'])->name('tugas.diskusi.delete');
 });

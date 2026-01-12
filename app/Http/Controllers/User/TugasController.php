@@ -122,7 +122,8 @@ class TugasController extends Controller
         ]);
 
         // Get diskusi - public messages or private messages involving this mahasiswa
-        $diskusi = TugasDiskusi::where('tugas_id', $tugas->id)
+        $diskusi = TugasDiskusi::with('replyTo')
+            ->where('tugas_id', $tugas->id)
             ->where(function ($q) use ($mahasiswa) {
                 $q->where('visibility', 'public')
                   ->orWhere(function ($q2) use ($mahasiswa) {
@@ -148,6 +149,10 @@ class TugasController extends Controller
                 'is_pinned' => $d->is_pinned,
                 'is_mine' => $d->sender_type === 'mahasiswa' && $d->sender_id === $mahasiswa->id,
                 'reply_to_id' => $d->reply_to_id,
+                'reply_to' => $d->replyTo ? [
+                    'sender_name' => $d->replyTo->sender_name,
+                    'pesan' => $d->replyTo->pesan,
+                ] : null,
                 'created_at' => $d->created_at->format('d M Y H:i'),
                 'time_ago' => $d->created_at->diffForHumans(),
             ]);

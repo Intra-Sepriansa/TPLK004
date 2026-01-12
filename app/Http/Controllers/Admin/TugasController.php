@@ -122,7 +122,8 @@ class TugasController extends Controller
         $tugas = $tuga->load(['course.dosen']);
 
         // Get diskusi with public visibility or where admin is involved
-        $diskusi = TugasDiskusi::where('tugas_id', $tugas->id)
+        $diskusi = TugasDiskusi::with('replyTo')
+            ->where('tugas_id', $tugas->id)
             ->where(function ($q) {
                 $q->where('visibility', 'public')
                   ->orWhere(function ($q2) {
@@ -147,6 +148,10 @@ class TugasController extends Controller
                 'recipient_name' => $d->recipient_name,
                 'is_pinned' => $d->is_pinned,
                 'reply_to_id' => $d->reply_to_id,
+                'reply_to' => $d->replyTo ? [
+                    'sender_name' => $d->replyTo->sender_name,
+                    'pesan' => $d->replyTo->pesan,
+                ] : null,
                 'created_at' => $d->created_at->format('d M Y H:i'),
                 'time_ago' => $d->created_at->diffForHumans(),
             ]);

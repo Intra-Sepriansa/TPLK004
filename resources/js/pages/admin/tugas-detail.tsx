@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    ArrowLeft, BookOpen, Calendar, Clock, MessageSquare, Pin, Send, Trash2, User, Sparkles, Zap,
+    ArrowLeft, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap,
 } from 'lucide-react';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
     pesan: string; visibility: string; recipient_name: string | null; is_pinned: boolean;
-    reply_to_id: number | null; created_at: string; time_ago: string;
+    reply_to_id: number | null; reply_to?: { sender_name: string; pesan: string } | null;
+    created_at: string; time_ago: string;
 };
 type Tugas = {
     id: number; judul: string; deskripsi: string; instruksi: string | null; jenis: string;
@@ -27,20 +28,28 @@ type Props = { tugas: Tugas; diskusi: Diskusi[] };
 export default function AdminTugasDetail({ tugas, diskusi }: Props) {
     const [message, setMessage] = useState('');
     const [visibility, setVisibility] = useState('public');
+    const [replyTo, setReplyTo] = useState<Diskusi | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
 
-    useEffect(() => {
-        setIsLoaded(true);
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [diskusi]);
+    useEffect(() => { setIsLoaded(true); chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [diskusi]);
 
     const sendMessage = () => {
         if (!message.trim()) return;
-        router.post(`/admin/tugas/${tugas.id}/message`, { pesan: message, visibility }, {
-            onSuccess: () => setMessage(''),
+        router.post(`/admin/tugas/${tugas.id}/message`, { 
+            pesan: message, 
+            visibility,
+            reply_to_id: replyTo?.id || null,
+        }, {
+            onSuccess: () => { setMessage(''); setReplyTo(null); },
             preserveScroll: true,
         });
+    };
+
+    const handleReply = (d: Diskusi) => {
+        setReplyTo(d);
+        inputRef.current?.focus();
     };
 
     const togglePin = (id: number) => router.patch(`/admin/tugas/diskusi/${id}/pin`, {}, { preserveScroll: true });
@@ -63,6 +72,12 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
         dosen: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
         mahasiswa: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white',
     }[type] || 'bg-gray-100 text-gray-700');
+
+    // Find reply target for each message
+    const getReplyTarget = (replyId: number | null) => {
+        if (!replyId) return null;
+        return diskusi.find(d => d.id === replyId);
+    };
 
     return (
         <AppLayout>
@@ -128,7 +143,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                             <MessageSquare className="h-5 w-5 text-purple-500" /> Diskusi ({diskusi.length})
                         </h2>
                     </div>
-                    <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto">
+                    <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
                         {diskusi.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="relative mx-auto w-20 h-20 mb-4">
@@ -140,38 +155,71 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                                 <p className="text-muted-foreground">Belum ada diskusi</p>
                             </div>
                         ) : (
-                            diskusi.map((d, i) => (
-                                <div
-                                    key={d.id}
-                                    className={`flex gap-3 p-3 rounded-xl transition-all duration-300 hover:bg-muted/30 ${d.is_pinned ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border border-amber-200 dark:border-amber-800' : ''}`}
-                                    style={{ animationDelay: `${i * 50}ms` }}
-                                >
-                                    <Avatar className="h-10 w-10 ring-2 ring-white shadow-lg">
-                                        <AvatarFallback className={getSenderStyle(d.sender_type)}>{d.sender_name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-semibold text-sm">{d.sender_name}</span>
-                                            <Badge variant="outline" className="text-xs capitalize">{d.sender_type}</Badge>
-                                            {d.visibility === 'private' && <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs">🔒 Private</Badge>}
-                                            {d.is_pinned && <Pin className="h-3 w-3 text-amber-500" />}
-                                            <span className="text-xs text-muted-foreground">{d.time_ago}</span>
-                                        </div>
-                                        <p className="text-sm mt-2 leading-relaxed">{d.pesan}</p>
-                                        <div className="flex gap-2 mt-2">
-                                            <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-7 text-xs hover:bg-amber-100 dark:hover:bg-amber-900/30">
-                                                <Pin className="h-3 w-3 mr-1" /> {d.is_pinned ? 'Unpin' : 'Pin'}
-                                            </Button>
-                                            <Button variant="ghost" size="sm" onClick={() => deleteMessage(d.id)} className="h-7 text-xs text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
-                                                <Trash2 className="h-3 w-3 mr-1" /> Hapus
-                                            </Button>
+                            diskusi.map((d, i) => {
+                                const replyTarget = getReplyTarget(d.reply_to_id);
+                                return (
+                                    <div
+                                        key={d.id}
+                                        className={`relative transition-all duration-300 hover:bg-muted/20 rounded-xl ${d.is_pinned ? 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border border-amber-200 dark:border-amber-800' : ''}`}
+                                    >
+                                        {/* Reply Thread Line */}
+                                        {replyTarget && (
+                                            <div className="ml-5 mb-2 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-2">
+                                                    <CornerDownRight className="h-3 w-3 text-purple-500" />
+                                                    <span className="font-medium text-purple-600 dark:text-purple-400">Membalas {replyTarget.sender_name}:</span>
+                                                    <span className="truncate max-w-[300px]">"{replyTarget.pesan}"</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex gap-3 p-3">
+                                            <Avatar className="h-10 w-10 ring-2 ring-white shadow-lg flex-shrink-0">
+                                                <AvatarFallback className={getSenderStyle(d.sender_type)}>{d.sender_name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="font-semibold text-sm">{d.sender_name}</span>
+                                                    <Badge variant="outline" className="text-xs capitalize">{d.sender_type}</Badge>
+                                                    {d.visibility === 'private' && <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs">🔒 Private</Badge>}
+                                                    {d.is_pinned && <Pin className="h-3 w-3 text-amber-500" />}
+                                                    <span className="text-xs text-muted-foreground">{d.time_ago}</span>
+                                                </div>
+                                                <p className="text-sm mt-2 leading-relaxed">{d.pesan}</p>
+                                                <div className="flex gap-1 mt-2">
+                                                    <Button variant="ghost" size="sm" onClick={() => handleReply(d)} className="h-7 text-xs hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600">
+                                                        <Reply className="h-3 w-3 mr-1" /> Balas
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-7 text-xs hover:bg-amber-100 dark:hover:bg-amber-900/30">
+                                                        <Pin className="h-3 w-3 mr-1" /> {d.is_pinned ? 'Unpin' : 'Pin'}
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" onClick={() => deleteMessage(d.id)} className="h-7 text-xs text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
+                                                        <Trash2 className="h-3 w-3 mr-1" /> Hapus
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                         <div ref={chatEndRef} />
                     </div>
+                    
+                    {/* Reply Indicator */}
+                    {replyTo && (
+                        <div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 border-t border-purple-200 dark:border-purple-800 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm">
+                                <Reply className="h-4 w-4 text-purple-500" />
+                                <span className="text-purple-600 dark:text-purple-400">Membalas <span className="font-semibold">{replyTo.sender_name}</span>:</span>
+                                <span className="text-muted-foreground truncate max-w-[300px]">"{replyTo.pesan}"</span>
+                            </div>
+                            <Button variant="ghost" size="sm" onClick={() => setReplyTo(null)} className="h-6 w-6 p-0 hover:bg-purple-200 dark:hover:bg-purple-800">
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                    
                     <div className="p-4 border-t bg-muted/20">
                         <div className="flex gap-2 mb-3">
                             <Select value={visibility} onValueChange={setVisibility}>
@@ -184,7 +232,15 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                             <span className="text-xs text-muted-foreground self-center">{visibility === 'public' ? 'Semua orang bisa melihat' : 'Hanya penerima yang bisa melihat'}</span>
                         </div>
                         <div className="flex gap-2">
-                            <Textarea placeholder="Tulis pesan..." value={message} onChange={(e) => setMessage(e.target.value)} rows={2} className="flex-1 transition-all duration-200 focus:ring-2 focus:ring-purple-500" onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} />
+                            <Textarea 
+                                ref={inputRef}
+                                placeholder={replyTo ? `Balas ke ${replyTo.sender_name}...` : "Tulis pesan..."} 
+                                value={message} 
+                                onChange={(e) => setMessage(e.target.value)} 
+                                rows={2} 
+                                className="flex-1 transition-all duration-200 focus:ring-2 focus:ring-purple-500" 
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} 
+                            />
                             <Button onClick={sendMessage} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105">
                                 <Send className="h-4 w-4" />
                             </Button>

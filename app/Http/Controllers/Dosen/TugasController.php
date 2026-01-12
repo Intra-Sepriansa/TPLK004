@@ -138,7 +138,8 @@ class TugasController extends Controller
         }
 
         // Get diskusi
-        $diskusi = TugasDiskusi::where('tugas_id', $tugas->id)
+        $diskusi = TugasDiskusi::with('replyTo')
+            ->where('tugas_id', $tugas->id)
             ->where(function ($q) use ($dosen) {
                 $q->where('visibility', 'public')
                   ->orWhere(function ($q2) use ($dosen) {
@@ -163,6 +164,10 @@ class TugasController extends Controller
                 'recipient_name' => $d->recipient_name,
                 'is_pinned' => $d->is_pinned,
                 'reply_to_id' => $d->reply_to_id,
+                'reply_to' => $d->replyTo ? [
+                    'sender_name' => $d->replyTo->sender_name,
+                    'pesan' => $d->replyTo->pesan,
+                ] : null,
                 'created_at' => $d->created_at->format('d M Y H:i'),
                 'time_ago' => $d->created_at->diffForHumans(),
             ]);
@@ -265,5 +270,31 @@ class TugasController extends Controller
         ]);
 
         return back()->with('success', 'Pesan berhasil dikirim.');
+    }
+
+    public function togglePin(TugasDiskusi $diskusi): RedirectResponse
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        // Verify dosen owns the course of this tugas
+        if ($diskusi->tugas->course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        $diskusi->update(['is_pinned' => !$diskusi->is_pinned]);
+        return back()->with('success', $diskusi->is_pinned ? 'Pesan di-pin.' : 'Pin dihapus.');
+    }
+
+    public function deleteMessage(TugasDiskusi $diskusi): RedirectResponse
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        // Verify dosen owns the course of this tugas
+        if ($diskusi->tugas->course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        $diskusi->delete();
+        return back()->with('success', 'Pesan berhasil dihapus.');
     }
 }
