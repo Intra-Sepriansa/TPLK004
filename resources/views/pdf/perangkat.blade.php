@@ -185,7 +185,7 @@
 
         <div class="footer">
             <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi UNPAM</p>
-            <p>Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} WIB</p>
         </div>
     </div>
 </body>

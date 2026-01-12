@@ -160,7 +160,7 @@ class JadwalController extends Controller
             'stats' => $stats,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
-            'tanggal' => now()->format('d F Y'),
+            'tanggal' => now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
             'tempat' => 'Tangerang Selatan',
             'logoUnpam' => public_path('logo-unpam.png'),
             'logoSasmita' => public_path('sasmita.png'),

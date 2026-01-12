@@ -40,7 +40,7 @@
         <div class="header">
             <h1>{{ $title }}</h1>
             <p>{{ $subtitle }}</p>
-            <p style="margin-top: 5px;">Dicetak: {{ now()->translatedFormat('d F Y H:i') }}</p>
+            <p style="margin-top: 5px;">Dicetak: {{ now()->timezone('Asia/Jakarta')->translatedFormat('d F Y H:i') }} WIB</p>
         </div>
 
         @if($type === 'pertemuan')
