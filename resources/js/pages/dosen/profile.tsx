@@ -83,7 +83,7 @@ export default function DosenProfile() {
         profileForm.patch('/dosen/profile', {
             onSuccess: () => {
                 setSuccessMessage('Profil berhasil diperbarui!');
-                setTimeout(() => setSuccessMessage(null), 3000);
+                setTimeout(() => setSuccessMessage(null), 2000);
             },
         });
     };
@@ -94,7 +94,7 @@ export default function DosenProfile() {
             onSuccess: () => {
                 passwordForm.reset('current_password', 'password', 'password_confirmation');
                 setSuccessMessage('Password berhasil diubah!');
-                setTimeout(() => setSuccessMessage(null), 3000);
+                setTimeout(() => setSuccessMessage(null), 2000);
             },
         });
     };
@@ -119,7 +119,7 @@ export default function DosenProfile() {
                 setSuccessMessage('Foto profil berhasil diperbarui!');
                 setAvatarPreview(null);
                 if (avatarInputRef.current) avatarInputRef.current.value = '';
-                setTimeout(() => setSuccessMessage(null), 3000);
+                setTimeout(() => setSuccessMessage(null), 2000);
             },
             onFinish: () => setIsUploadingAvatar(false),
         });

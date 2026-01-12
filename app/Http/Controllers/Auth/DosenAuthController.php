@@ -53,6 +53,6 @@ class DosenAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('dosen.login');
+        return redirect('/');
     }
 }
