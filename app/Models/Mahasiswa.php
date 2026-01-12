@@ -15,6 +15,11 @@ class Mahasiswa extends Authenticatable
     protected $fillable = [
         'nama',
         'nim',
+        'fakultas',
+        'prodi',
+        'kelas',
+        'jenis_reguler',
+        'semester',
         'password',
         'avatar_url',
         'remember_token',

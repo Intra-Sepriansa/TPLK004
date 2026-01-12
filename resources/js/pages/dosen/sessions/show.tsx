@@ -17,7 +17,7 @@ import {
     BadgeCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface DosenInfo {
     id: number;
@@ -178,7 +178,7 @@ export default function SessionShow({ dosen, session, logs, stats }: PageProps) 
                         </div>
 
                         <div className="flex justify-center p-4 bg-white rounded-xl">
-                            <QRCode value={qrValue} size={200} level="H" includeMargin />
+                            <QRCodeSVG value={qrValue} size={200} level="H" includeMargin />
                         </div>
 
                         <p className="text-center text-sm text-slate-500 mt-4">
