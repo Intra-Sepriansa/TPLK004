@@ -5,7 +5,6 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -19,6 +18,9 @@ import {
     AlertCircle,
     Lock,
     Phone,
+    BookOpen,
+    Calendar,
+    BadgeCheck,
     Camera,
     Upload,
 } from 'lucide-react';
@@ -45,14 +47,14 @@ interface PageProps {
     stats: Stats;
 }
 
-type TabType = 'card' | 'profile' | 'security';
+type TabType = 'profile' | 'security';
 
 export default function DosenProfile() {
     const { props } = usePage<{ props: PageProps; flash?: { success?: string } }>();
     const { dosen, flash } = props as unknown as PageProps & { flash?: { success?: string } };
     const stats = (props as unknown as PageProps).stats ?? { totalCourses: 0, totalSessions: 0, totalVerifications: 0 };
 
-    const [activeTab, setActiveTab] = useState<TabType>('card');
+    const [activeTab, setActiveTab] = useState<TabType>('profile');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -122,28 +124,78 @@ export default function DosenProfile() {
     };
 
     const tabs = [
-        { key: 'card' as TabType, label: 'Kartu Profil', icon: Sparkles },
-        { key: 'profile' as TabType, label: 'Edit Profil', icon: User },
+        { key: 'profile' as TabType, label: 'Profil', icon: User },
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
     const avatarUrl = avatarPreview || dosen.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dosen.nama)}&background=6366f1&color=fff&size=400&bold=true`;
-    const displayAvatarUrl = dosen.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dosen.nama)}&background=6366f1&color=fff&size=400&bold=true`;
 
     return (
         <DosenLayout>
             <Head title="Profil Dosen" />
 
             <div className="p-6 space-y-6">
+                {/* Success Toast */}
                 {(successMessage || flash?.success) && (
                     <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
                         <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                         <div>
                             <p className="font-semibold">Berhasil!</p>
-                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successMessage || flash?.success}</p>
+                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                                {successMessage || flash?.success}
+                            </p>
                         </div>
                     </div>
                 )}
+
+                {/* Header Card */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+
+                    <div className="relative">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden">
+                                    <img src={avatarUrl} alt={dosen.nama} className="h-full w-full rounded-2xl object-cover" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-indigo-100">Profil Dosen</p>
+                                    <h1 className="text-2xl font-bold">{dosen.nama}</h1>
+                                    <p className="text-sm text-indigo-100">NIDN: {dosen.nidn}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                                <CheckCircle2 className="h-4 w-4" />
+                                <span className="text-sm">Akun Aktif</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 grid grid-cols-3 gap-4">
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
+                                    <BookOpen className="h-4 w-4" />
+                                    <span className="text-xs">Mata Kuliah</span>
+                                </div>
+                                <p className="text-2xl font-bold">{stats.totalCourses}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
+                                    <Calendar className="h-4 w-4" />
+                                    <span className="text-xs">Total Sesi</span>
+                                </div>
+                                <p className="text-2xl font-bold">{stats.totalSessions}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
+                                    <BadgeCheck className="h-4 w-4" />
+                                    <span className="text-xs">Verifikasi</span>
+                                </div>
+                                <p className="text-2xl font-bold">{stats.totalVerifications}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Tab Navigation */}
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
@@ -169,26 +221,7 @@ export default function DosenProfile() {
                     </div>
                 </div>
 
-                {/* Profile Card Tab - Langsung tampil */}
-                {activeTab === 'card' && (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <ProfileCard
-                            name={dosen.nama}
-                            title="Dosen"
-                            handle={dosen.nidn}
-                            status="Aktif"
-                            avatarUrl={displayAvatarUrl}
-                            contactText="Edit Profil"
-                            showUserInfo={true}
-                            enableTilt={true}
-                            behindGlowColor="rgba(99, 102, 241, 0.6)"
-                            innerGradient="linear-gradient(145deg, #6366f144 0%, #a855f744 100%)"
-                            onContactClick={() => setActiveTab('profile')}
-                        />
-                    </div>
-                )}
-
-                {/* Edit Profile Tab */}
+                {/* Tab Content */}
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
@@ -207,7 +240,12 @@ export default function DosenProfile() {
                                     <Label htmlFor="nama">Nama Lengkap</Label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="nama" value={profileForm.data.nama} onChange={e => profileForm.setData('nama', e.target.value)} className="pl-10" />
+                                        <Input
+                                            id="nama"
+                                            value={profileForm.data.nama}
+                                            onChange={e => profileForm.setData('nama', e.target.value)}
+                                            className="pl-10"
+                                        />
                                     </div>
                                     <InputError message={profileForm.errors.nama} />
                                 </div>
@@ -225,7 +263,13 @@ export default function DosenProfile() {
                                     <Label htmlFor="email">Email</Label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="email" type="email" value={profileForm.data.email} onChange={e => profileForm.setData('email', e.target.value)} className="pl-10" />
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={profileForm.data.email}
+                                            onChange={e => profileForm.setData('email', e.target.value)}
+                                            className="pl-10"
+                                        />
                                     </div>
                                     <InputError message={profileForm.errors.email} />
                                 </div>
@@ -234,7 +278,13 @@ export default function DosenProfile() {
                                     <Label htmlFor="phone">No. Telepon</Label>
                                     <div className="relative">
                                         <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="phone" value={profileForm.data.phone} onChange={e => profileForm.setData('phone', e.target.value)} className="pl-10" placeholder="08xxxxxxxxxx" />
+                                        <Input
+                                            id="phone"
+                                            value={profileForm.data.phone}
+                                            onChange={e => profileForm.setData('phone', e.target.value)}
+                                            className="pl-10"
+                                            placeholder="08xxxxxxxxxx"
+                                        />
                                     </div>
                                     <InputError message={profileForm.errors.phone} />
                                 </div>
@@ -275,39 +325,41 @@ export default function DosenProfile() {
                             </form>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
-                                    <IdCard className="h-5 w-5" />
+                        <div className="space-y-6">
+                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
+                                        <IdCard className="h-5 w-5" />
+                                    </div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
                                 </div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
-                                    <span className="text-sm text-slate-500">Nama</span>
-                                    <span className="font-medium text-slate-900 dark:text-white">{dosen.nama}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
-                                    <span className="text-sm text-slate-500">NIDN</span>
-                                    <span className="font-medium text-slate-900 dark:text-white">{dosen.nidn}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
-                                    <span className="text-sm text-slate-500">Email</span>
-                                    <span className="font-medium text-slate-900 dark:text-white">{dosen.email}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
-                                    <span className="text-sm text-slate-500">Status</span>
-                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                        <CheckCircle2 className="h-4 w-4" />
-                                        <span className="font-medium">Aktif</span>
-                                    </span>
+
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                        <span className="text-sm text-slate-500">Nama</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.nama}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                        <span className="text-sm text-slate-500">NIDN</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.nidn}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                        <span className="text-sm text-slate-500">Email</span>
+                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.email}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                        <span className="text-sm text-slate-500">Status</span>
+                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                            <CheckCircle2 className="h-4 w-4" />
+                                            <span className="font-medium">Aktif</span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Security Tab */}
                 {activeTab === 'security' && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
@@ -326,7 +378,14 @@ export default function DosenProfile() {
                                     <Label htmlFor="current_password">Password Saat Ini</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="current_password" type={showCurrent ? 'text' : 'password'} value={passwordForm.data.current_password} onChange={e => passwordForm.setData('current_password', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
+                                        <Input
+                                            id="current_password"
+                                            type={showCurrent ? 'text' : 'password'}
+                                            value={passwordForm.data.current_password}
+                                            onChange={e => passwordForm.setData('current_password', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
                                         <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
@@ -338,7 +397,14 @@ export default function DosenProfile() {
                                     <Label htmlFor="password">Password Baru</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="password" type={showNew ? 'text' : 'password'} value={passwordForm.data.password} onChange={e => passwordForm.setData('password', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
+                                        <Input
+                                            id="password"
+                                            type={showNew ? 'text' : 'password'}
+                                            value={passwordForm.data.password}
+                                            onChange={e => passwordForm.setData('password', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
                                         <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
@@ -350,7 +416,14 @@ export default function DosenProfile() {
                                     <Label htmlFor="password_confirmation">Konfirmasi Password Baru</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="password_confirmation" type={showConfirm ? 'text' : 'password'} value={passwordForm.data.password_confirmation} onChange={e => passwordForm.setData('password_confirmation', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
+                                        <Input
+                                            id="password_confirmation"
+                                            type={showConfirm ? 'text' : 'password'}
+                                            value={passwordForm.data.password_confirmation}
+                                            onChange={e => passwordForm.setData('password_confirmation', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
                                         <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
@@ -372,6 +445,7 @@ export default function DosenProfile() {
                                     </div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Tips Keamanan</h2>
                                 </div>
+
                                 <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                                     <li className="flex items-start gap-2">
                                         <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
@@ -401,7 +475,9 @@ export default function DosenProfile() {
                                     <CheckCircle2 className="h-5 w-5" />
                                     <span className="font-medium">Akun Terlindungi</span>
                                 </div>
-                                <p className="text-sm text-indigo-100">Pertimbangkan untuk mengubah password secara berkala untuk keamanan optimal.</p>
+                                <p className="text-sm text-indigo-100">
+                                    Pertimbangkan untuk mengubah password secara berkala untuk keamanan optimal.
+                                </p>
                             </div>
                         </div>
                     </div>

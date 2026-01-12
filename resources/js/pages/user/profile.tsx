@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -45,21 +44,34 @@ interface PageProps {
     stats?: Stats;
 }
 
-type TabType = 'card' | 'profile' | 'security';
+type TabType = 'profile' | 'security';
 
 export default function StudentProfile() {
     const { props } = usePage<{ props: PageProps; flash?: { success?: string } }>();
     const { mahasiswa, flash } = props as unknown as PageProps & { flash?: { success?: string } };
-    const stats = (props as unknown as PageProps).stats ?? { totalAttendance: 0, attendanceRate: 0, currentStreak: 0 };
+    const stats = (props as unknown as PageProps).stats ?? {
+        totalAttendance: 0,
+        attendanceRate: 0,
+        currentStreak: 0,
+    };
 
-    const [activeTab, setActiveTab] = useState<TabType>('card');
+    const [activeTab, setActiveTab] = useState<TabType>('profile');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
 
-    const profileForm = useForm({ nama: mahasiswa.nama ?? '' });
-    const passwordForm = useForm({ current_password: '', password: '', password_confirmation: '' });
+    // Profile form
+    const profileForm = useForm({
+        nama: mahasiswa.nama ?? '',
+    });
+
+    // Password form
+    const passwordForm = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
 
     const [showCurrent, setShowCurrent] = useState(false);
     const [showNew, setShowNew] = useState(false);
@@ -112,29 +124,86 @@ export default function StudentProfile() {
         });
     };
 
+    // Get initials for avatar
+    const getInitials = (name: string) => {
+        return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
+    };
+
     const tabs = [
-        { key: 'card' as TabType, label: 'Kartu Profil', icon: Sparkles },
-        { key: 'profile' as TabType, label: 'Edit Profil', icon: User },
+        { key: 'profile' as TabType, label: 'Profil', icon: User },
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
     const avatarUrl = avatarPreview || mahasiswa.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mahasiswa.nama)}&background=10b981&color=fff&size=400&bold=true`;
-    const displayAvatarUrl = mahasiswa.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mahasiswa.nama)}&background=10b981&color=fff&size=400&bold=true`;
 
     return (
         <StudentLayout>
             <Head title="Profil" />
 
             <div className="p-6 space-y-6">
+                {/* Success Toast */}
                 {(successMessage || flash?.success) && (
                     <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
                         <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                         <div>
                             <p className="font-semibold">Berhasil!</p>
-                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successMessage || flash?.success}</p>
+                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                                {successMessage || flash?.success}
+                            </p>
                         </div>
                     </div>
                 )}
+
+                {/* Header Card */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+
+                    <div className="relative">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                {/* Avatar */}
+                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden">
+                                    <img
+                                        src={avatarUrl}
+                                        alt={mahasiswa.nama}
+                                        className="h-full w-full rounded-2xl object-cover"
+                                    />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-emerald-100">Profil Mahasiswa</p>
+                                    <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
+                                    <p className="text-sm text-emerald-100">NIM: {mahasiswa.nim}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                                <CheckCircle2 className="h-4 w-4" />
+                                <span className="text-sm">Akun Aktif</span>
+                            </div>
+                        </div>
+
+                        {/* Quick Stats */}
+                        <div className="mt-6 grid grid-cols-3 gap-4">
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-xs text-emerald-100">Total Kehadiran</p>
+                                <p className="text-2xl font-bold">{stats.totalAttendance}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-xs text-emerald-100">Rata-rata</p>
+                                <p className="text-2xl font-bold">{stats.attendanceRate}%</p>
+                            </div>
+                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-xs text-emerald-100">Streak</p>
+                                <p className="text-2xl font-bold">{stats.currentStreak} hari</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Tab Navigation */}
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
@@ -160,28 +229,10 @@ export default function StudentProfile() {
                     </div>
                 </div>
 
-                {/* Profile Card Tab - Langsung tampil */}
-                {activeTab === 'card' && (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <ProfileCard
-                            name={mahasiswa.nama}
-                            title="Mahasiswa"
-                            handle={mahasiswa.nim}
-                            status="Aktif"
-                            avatarUrl={displayAvatarUrl}
-                            contactText="Edit Profil"
-                            showUserInfo={true}
-                            enableTilt={true}
-                            behindGlowColor="rgba(16, 185, 129, 0.6)"
-                            innerGradient="linear-gradient(145deg, #10b98144 0%, #14b8a644 100%)"
-                            onContactClick={() => setActiveTab('profile')}
-                        />
-                    </div>
-                )}
-
-                {/* Edit Profile Tab */}
+                {/* Tab Content */}
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
+                        {/* Edit Profile Form */}
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -195,35 +246,57 @@ export default function StudentProfile() {
 
                             <form onSubmit={handleProfileSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="nama">Nama Lengkap</Label>
+                                    <Label htmlFor="nama" className="text-slate-700 dark:text-white">
+                                        Nama Lengkap
+                                    </Label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="nama" value={profileForm.data.nama} onChange={e => profileForm.setData('nama', e.target.value)} className="pl-10" placeholder="Nama lengkap" />
+                                        <Input
+                                            id="nama"
+                                            value={profileForm.data.nama}
+                                            onChange={e => profileForm.setData('nama', e.target.value)}
+                                            className="pl-10"
+                                            placeholder="Nama lengkap"
+                                        />
                                     </div>
                                     <InputError message={profileForm.errors.nama} />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="nim">NIM</Label>
+                                    <Label htmlFor="nim" className="text-slate-700 dark:text-white">
+                                        NIM
+                                    </Label>
                                     <div className="relative">
                                         <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="nim" value={mahasiswa.nim} disabled className="pl-10 bg-slate-50 dark:bg-slate-900" />
+                                        <Input
+                                            id="nim"
+                                            value={mahasiswa.nim}
+                                            disabled
+                                            className="pl-10 bg-slate-50 dark:bg-slate-900"
+                                        />
                                     </div>
                                     <p className="text-xs text-slate-500">NIM tidak dapat diubah</p>
                                 </div>
 
                                 {mahasiswa.email && (
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <Label htmlFor="email" className="text-slate-700 dark:text-white">
+                                            Email
+                                        </Label>
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                            <Input id="email" value={mahasiswa.email} disabled className="pl-10 bg-slate-50 dark:bg-slate-900" />
+                                            <Input
+                                                id="email"
+                                                value={mahasiswa.email}
+                                                disabled
+                                                className="pl-10 bg-slate-50 dark:bg-slate-900"
+                                            />
                                         </div>
                                     </div>
                                 )}
 
                                 <div className="space-y-2">
-                                    <Label>Foto Profil</Label>
+                                    <Label className="text-slate-700 dark:text-white">Foto Profil</Label>
                                     <div className="flex items-center gap-4">
                                         <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
                                             <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
@@ -252,12 +325,17 @@ export default function StudentProfile() {
                                     </div>
                                 </div>
 
-                                <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" disabled={profileForm.processing}>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    disabled={profileForm.processing}
+                                >
                                     {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                                 </Button>
                             </form>
                         </div>
 
+                        {/* Account Info Card */}
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -266,6 +344,7 @@ export default function StudentProfile() {
                                     </div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
                                 </div>
+
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
                                         <span className="text-sm text-slate-500">Nama</span>
@@ -285,25 +364,30 @@ export default function StudentProfile() {
                                 </div>
                             </div>
 
+                            {/* Stats Card */}
                             <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
                                 <div className="flex items-center gap-2 mb-4">
                                     <TrendingUp className="h-5 w-5 text-emerald-400" />
                                     <h2 className="font-semibold">Statistik Kehadiran</h2>
                                 </div>
                                 <div className="flex items-end gap-2">
-                                    <span className="text-4xl font-bold"><AnimatedCounter value={stats.attendanceRate} suffix="%" /></span>
+                                    <span className="text-4xl font-bold">
+                                        <AnimatedCounter value={stats.attendanceRate} suffix="%" />
+                                    </span>
                                     <span className="text-slate-400 mb-1">rata-rata</span>
                                 </div>
                                 <Progress value={stats.attendanceRate} className="mt-4 h-2 bg-slate-700" />
-                                <p className="text-xs text-slate-400 mt-2">{stats.totalAttendance} total kehadiran • {stats.currentStreak} hari streak</p>
+                                <p className="text-xs text-slate-400 mt-2">
+                                    {stats.totalAttendance} total kehadiran • {stats.currentStreak} hari streak
+                                </p>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Security Tab */}
                 {activeTab === 'security' && (
                     <div className="grid gap-6 lg:grid-cols-2">
+                        {/* Change Password Form */}
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
@@ -317,11 +401,24 @@ export default function StudentProfile() {
 
                             <form onSubmit={handlePasswordSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="current_password">Password Saat Ini</Label>
+                                    <Label htmlFor="current_password" className="text-slate-700 dark:text-white">
+                                        Password Saat Ini
+                                    </Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="current_password" type={showCurrent ? 'text' : 'password'} value={passwordForm.data.current_password} onChange={e => passwordForm.setData('current_password', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
-                                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                        <Input
+                                            id="current_password"
+                                            type={showCurrent ? 'text' : 'password'}
+                                            value={passwordForm.data.current_password}
+                                            onChange={e => passwordForm.setData('current_password', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrent(!showCurrent)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        >
                                             {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
@@ -329,11 +426,24 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="password">Password Baru</Label>
+                                    <Label htmlFor="password" className="text-slate-700 dark:text-white">
+                                        Password Baru
+                                    </Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="password" type={showNew ? 'text' : 'password'} value={passwordForm.data.password} onChange={e => passwordForm.setData('password', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
-                                        <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                        <Input
+                                            id="password"
+                                            type={showNew ? 'text' : 'password'}
+                                            value={passwordForm.data.password}
+                                            onChange={e => passwordForm.setData('password', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNew(!showNew)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        >
                                             {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
@@ -341,23 +451,41 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="password_confirmation">Konfirmasi Password Baru</Label>
+                                    <Label htmlFor="password_confirmation" className="text-slate-700 dark:text-white">
+                                        Konfirmasi Password Baru
+                                    </Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="password_confirmation" type={showConfirm ? 'text' : 'password'} value={passwordForm.data.password_confirmation} onChange={e => passwordForm.setData('password_confirmation', e.target.value)} className="pl-10 pr-10" placeholder="••••••••" />
-                                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                        <Input
+                                            id="password_confirmation"
+                                            type={showConfirm ? 'text' : 'password'}
+                                            value={passwordForm.data.password_confirmation}
+                                            onChange={e => passwordForm.setData('password_confirmation', e.target.value)}
+                                            className="pl-10 pr-10"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirm(!showConfirm)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        >
                                             {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
                                     <InputError message={passwordForm.errors.password_confirmation} />
                                 </div>
 
-                                <Button type="submit" className="w-full bg-violet-500 hover:bg-violet-600 text-white" disabled={passwordForm.processing}>
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-violet-500 hover:bg-violet-600 text-white"
+                                    disabled={passwordForm.processing}
+                                >
                                     {passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
                                 </Button>
                             </form>
                         </div>
 
+                        {/* Security Tips */}
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -366,6 +494,7 @@ export default function StudentProfile() {
                                     </div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Tips Keamanan</h2>
                                 </div>
+
                                 <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                                     <li className="flex items-start gap-2">
                                         <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
@@ -386,6 +515,7 @@ export default function StudentProfile() {
                                 </ul>
                             </div>
 
+                            {/* Account Security Status */}
                             <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-sm">
                                 <div className="flex items-center gap-3 mb-4">
                                     <Shield className="h-6 w-6" />
@@ -395,7 +525,9 @@ export default function StudentProfile() {
                                     <CheckCircle2 className="h-5 w-5" />
                                     <span className="font-medium">Akun Terlindungi</span>
                                 </div>
-                                <p className="text-sm text-emerald-100">Pertimbangkan untuk mengubah password secara berkala untuk keamanan optimal.</p>
+                                <p className="text-sm text-emerald-100">
+                                    Password terakhir diubah lebih dari 30 hari yang lalu. Pertimbangkan untuk mengubahnya secara berkala.
+                                </p>
                             </div>
                         </div>
                     </div>
