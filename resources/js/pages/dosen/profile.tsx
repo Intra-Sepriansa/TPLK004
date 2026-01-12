@@ -149,17 +149,21 @@ export default function DosenProfile() {
 
             <div className="p-6 space-y-6">
                 {/* Success Toast */}
-                {(successMessage || (showFlash && flash?.success)) && (
-                    <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
-                        <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
-                        <div>
-                            <p className="font-semibold">Berhasil!</p>
-                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
-                                {successMessage || flash?.success}
-                            </p>
-                        </div>
+                <div 
+                    className={`fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100 transition-all duration-300 ease-out ${
+                        (successMessage || (showFlash && flash?.success))
+                            ? 'translate-x-0 opacity-100'
+                            : 'translate-x-full opacity-0 pointer-events-none'
+                    }`}
+                >
+                    <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
+                    <div>
+                        <p className="font-semibold">Berhasil!</p>
+                        <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                            {successMessage || flash?.success || ''}
+                        </p>
                     </div>
-                )}
+                </div>
 
                 {/* Header Card */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
