@@ -1,10 +1,11 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
     Select,
     SelectContent,
@@ -25,7 +26,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import {
     AlertTriangle,
     BookOpen,
@@ -40,7 +40,9 @@ import {
     Plus,
     Search,
     Trash2,
-    XCircle,
+    Sparkles,
+    TrendingUp,
+    Zap,
 } from 'lucide-react';
 
 type Course = { id: number; nama: string; dosen: string | null };
@@ -76,6 +78,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
     const [showCreate, setShowCreate] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     const [editTugas, setEditTugas] = useState<Tugas | null>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [form, setForm] = useState({
         course_id: '',
         judul: '',
@@ -87,9 +90,9 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
         status: 'draft',
     });
 
-    const applyFilters = () => {
-        router.get('/admin/tugas', { search, course_id: courseId, status }, { preserveState: true });
-    };
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
 
     const handleCreate = () => {
         router.post('/admin/tugas', form, {
@@ -103,10 +106,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
     const handleEdit = () => {
         if (!editTugas) return;
         router.patch(`/admin/tugas/${editTugas.id}`, form, {
-            onSuccess: () => {
-                setShowEdit(false);
-                setEditTugas(null);
-            },
+            onSuccess: () => { setShowEdit(false); setEditTugas(null); },
         });
     };
 
@@ -132,75 +132,72 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
     };
 
     const getPriorityBadge = (prioritas: string) => {
-        const colors: Record<string, string> = {
-            tinggi: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-            sedang: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-            rendah: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+        const styles: Record<string, string> = {
+            tinggi: 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25',
+            sedang: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25',
+            rendah: 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg shadow-emerald-500/25',
         };
-        return <Badge className={colors[prioritas]}>{prioritas}</Badge>;
+        return <Badge className={`${styles[prioritas]} animate-pulse`}>{prioritas}</Badge>;
     };
 
     const getStatusBadge = (status: string) => {
-        const colors: Record<string, string> = {
-            published: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-            draft: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
-            closed: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+        const styles: Record<string, string> = {
+            published: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white',
+            draft: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white',
+            closed: 'bg-gradient-to-r from-red-500 to-pink-500 text-white',
         };
-        return <Badge className={colors[status]}>{status}</Badge>;
+        return <Badge className={styles[status]}>{status}</Badge>;
     };
 
     const getJenisBadge = (jenis: string) => {
-        const colors: Record<string, string> = {
-            tugas: 'bg-blue-100 text-blue-700',
-            quiz: 'bg-purple-100 text-purple-700',
-            project: 'bg-indigo-100 text-indigo-700',
-            presentasi: 'bg-pink-100 text-pink-700',
-            lainnya: 'bg-gray-100 text-gray-700',
+        const styles: Record<string, string> = {
+            tugas: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white',
+            quiz: 'bg-gradient-to-r from-purple-500 to-violet-500 text-white',
+            project: 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white',
+            presentasi: 'bg-gradient-to-r from-pink-500 to-rose-500 text-white',
+            lainnya: 'bg-gradient-to-r from-gray-500 to-slate-500 text-white',
         };
-        return <Badge className={colors[jenis]}>{jenis}</Badge>;
+        return <Badge className={styles[jenis]}>{jenis}</Badge>;
     };
 
     return (
         <AppLayout>
             <Head title="Informasi Tugas" />
             <div className="space-y-6 p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
+                {/* Header with Animation */}
+                <div className={`flex items-center justify-between transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
                     <div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+                            <Sparkles className="h-8 w-8 text-purple-500 animate-spin" style={{ animationDuration: '3s' }} />
                             Informasi Tugas
                         </h1>
-                        <p className="text-muted-foreground">Kelola tugas dan informasi untuk mahasiswa</p>
+                        <p className="text-muted-foreground mt-1">Kelola tugas dan informasi untuk mahasiswa</p>
                     </div>
                     <Dialog open={showCreate} onOpenChange={setShowCreate}>
                         <DialogTrigger asChild>
-                            <Button className="bg-gradient-to-r from-blue-500 to-purple-600">
+                            <Button className="bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 hover:from-blue-600 hover:via-purple-600 hover:to-indigo-600 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:scale-105 hover:shadow-xl">
                                 <Plus className="mr-2 h-4 w-4" /> Tambah Tugas
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-lg">
                             <DialogHeader>
-                                <DialogTitle>Tambah Tugas Baru</DialogTitle>
+                                <DialogTitle className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tambah Tugas Baru</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
                                 <div>
                                     <Label>Mata Kuliah</Label>
                                     <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
-                                        <SelectTrigger><SelectValue placeholder="Pilih mata kuliah" /></SelectTrigger>
-                                        <SelectContent>
-                                            {courses.map((c) => (
-                                                <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>
-                                            ))}
-                                        </SelectContent>
+                                        <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-purple-500"><SelectValue placeholder="Pilih mata kuliah" /></SelectTrigger>
+                                        <SelectContent>{courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}</SelectContent>
                                     </Select>
                                 </div>
                                 <div>
                                     <Label>Judul</Label>
-                                    <Input value={form.judul} onChange={(e) => setForm({ ...form, judul: e.target.value })} />
+                                    <Input value={form.judul} onChange={(e) => setForm({ ...form, judul: e.target.value })} className="transition-all duration-200 focus:ring-2 focus:ring-purple-500" />
                                 </div>
                                 <div>
                                     <Label>Deskripsi</Label>
-                                    <Textarea value={form.deskripsi} onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} rows={3} />
+                                    <Textarea value={form.deskripsi} onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} rows={3} className="transition-all duration-200 focus:ring-2 focus:ring-purple-500" />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
@@ -208,11 +205,11 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                         <Select value={form.jenis} onValueChange={(v) => setForm({ ...form, jenis: v })}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="tugas">Tugas</SelectItem>
-                                                <SelectItem value="quiz">Quiz</SelectItem>
-                                                <SelectItem value="project">Project</SelectItem>
-                                                <SelectItem value="presentasi">Presentasi</SelectItem>
-                                                <SelectItem value="lainnya">Lainnya</SelectItem>
+                                                <SelectItem value="tugas">📝 Tugas</SelectItem>
+                                                <SelectItem value="quiz">❓ Quiz</SelectItem>
+                                                <SelectItem value="project">🚀 Project</SelectItem>
+                                                <SelectItem value="presentasi">🎤 Presentasi</SelectItem>
+                                                <SelectItem value="lainnya">📌 Lainnya</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -221,9 +218,9 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                         <Select value={form.prioritas} onValueChange={(v) => setForm({ ...form, prioritas: v })}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="rendah">Rendah</SelectItem>
-                                                <SelectItem value="sedang">Sedang</SelectItem>
-                                                <SelectItem value="tinggi">Tinggi</SelectItem>
+                                                <SelectItem value="rendah">🟢 Rendah</SelectItem>
+                                                <SelectItem value="sedang">🟡 Sedang</SelectItem>
+                                                <SelectItem value="tinggi">🔴 Tinggi</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -238,85 +235,61 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                         <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="draft">Draft</SelectItem>
-                                                <SelectItem value="published">Published</SelectItem>
+                                                <SelectItem value="draft">📋 Draft</SelectItem>
+                                                <SelectItem value="published">✅ Published</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
-                                <Button onClick={handleCreate} className="w-full bg-gradient-to-r from-blue-500 to-purple-600">Simpan</Button>
+                                <Button onClick={handleCreate} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300">Simpan</Button>
                             </div>
                         </DialogContent>
                     </Dialog>
                 </div>
 
-                {/* Stats */}
+                {/* Stats with Animation */}
                 <div className="grid grid-cols-4 gap-4">
-                    <div className="rounded-xl border bg-card p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-                                <FileText className="h-5 w-5 text-blue-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold">{stats.total}</p>
-                                <p className="text-sm text-muted-foreground">Total Tugas</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border bg-card p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                                <CheckCircle className="h-5 w-5 text-emerald-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold">{stats.published}</p>
-                                <p className="text-sm text-muted-foreground">Published</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border bg-card p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-gray-100 p-2 dark:bg-gray-900/30">
-                                <Clock className="h-5 w-5 text-gray-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold">{stats.draft}</p>
-                                <p className="text-sm text-muted-foreground">Draft</p>
+                    {[
+                        { icon: FileText, label: 'Total Tugas', value: stats.total, color: 'from-blue-500 to-indigo-500', delay: '0ms' },
+                        { icon: CheckCircle, label: 'Published', value: stats.published, color: 'from-emerald-500 to-teal-500', delay: '100ms' },
+                        { icon: Clock, label: 'Draft', value: stats.draft, color: 'from-gray-500 to-slate-500', delay: '200ms' },
+                        { icon: AlertTriangle, label: 'Overdue', value: stats.overdue, color: 'from-red-500 to-rose-500', delay: '300ms' },
+                    ].map((stat, i) => (
+                        <div
+                            key={i}
+                            className={`rounded-2xl border bg-card p-5 transition-all duration-500 hover:scale-105 hover:shadow-xl cursor-pointer group ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                            style={{ transitionDelay: stat.delay }}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-3 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                                    <stat.icon className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">{stat.value}</p>
+                                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border bg-card p-4">
-                        <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-red-100 p-2 dark:bg-red-900/30">
-                                <AlertTriangle className="h-5 w-5 text-red-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold">{stats.overdue}</p>
-                                <p className="text-sm text-muted-foreground">Overdue</p>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Filters */}
-                <div className="flex gap-4">
+                <div className={`flex gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Cari tugas..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-                            className="pl-10"
+                            onKeyDown={(e) => e.key === 'Enter' && router.get('/admin/tugas', { search, course_id: courseId, status }, { preserveState: true })}
+                            className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-purple-500"
                         />
                     </div>
                     <Select value={courseId} onValueChange={(v) => { setCourseId(v); router.get('/admin/tugas', { search, course_id: v, status }, { preserveState: true }); }}>
                         <SelectTrigger className="w-48"><SelectValue placeholder="Semua Mata Kuliah" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                            {courses.map((c) => (
-                                <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>
-                            ))}
+                            {courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}
                         </SelectContent>
                     </Select>
                     <Select value={status} onValueChange={(v) => { setStatus(v); router.get('/admin/tugas', { search, course_id: courseId, status: v }, { preserveState: true }); }}>
@@ -330,50 +303,66 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                     </Select>
                 </div>
 
-                {/* Tugas List */}
+                {/* Tugas List with Animation */}
                 <div className="space-y-4">
                     {tugasList.length === 0 ? (
-                        <div className="rounded-xl border bg-card p-12 text-center">
-                            <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                            <p className="mt-4 text-muted-foreground">Belum ada tugas</p>
+                        <div className={`rounded-2xl border bg-card p-16 text-center transition-all duration-500 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                            <div className="relative mx-auto w-24 h-24 mb-6">
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20 animate-ping" />
+                                <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+                                    <FileText className="h-12 w-12 text-white" />
+                                </div>
+                            </div>
+                            <p className="text-xl font-semibold text-muted-foreground">Belum ada tugas</p>
+                            <p className="text-sm text-muted-foreground mt-2">Klik tombol "Tambah Tugas" untuk membuat tugas baru</p>
                         </div>
                     ) : (
-                        tugasList.map((tugas) => (
-                            <div key={tugas.id} className={`rounded-xl border bg-card p-4 transition-all hover:shadow-md ${tugas.is_overdue ? 'border-red-200 dark:border-red-900/50' : ''}`}>
+                        tugasList.map((tugas, index) => (
+                            <div
+                                key={tugas.id}
+                                className={`rounded-2xl border bg-card p-5 transition-all duration-500 hover:shadow-xl hover:scale-[1.01] cursor-pointer group ${tugas.is_overdue ? 'border-red-300 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/10' : ''} ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+                                style={{ transitionDelay: `${500 + index * 100}ms` }}
+                            >
                                 <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
+                                    <div className="flex-1" onClick={() => router.visit(`/admin/tugas/${tugas.id}`)}>
+                                        <div className="flex items-center gap-2 mb-3 flex-wrap">
                                             {getJenisBadge(tugas.jenis)}
                                             {getPriorityBadge(tugas.prioritas)}
                                             {getStatusBadge(tugas.status)}
-                                            {tugas.is_overdue && <Badge className="bg-red-500 text-white">Overdue</Badge>}
+                                            {tugas.is_overdue && (
+                                                <Badge className="bg-gradient-to-r from-red-600 to-rose-600 text-white animate-pulse">
+                                                    <AlertTriangle className="h-3 w-3 mr-1" /> Overdue
+                                                </Badge>
+                                            )}
                                         </div>
-                                        <h3 className="font-semibold text-lg">{tugas.judul}</h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{tugas.deskripsi}</p>
-                                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-                                            <span className="flex items-center gap-1">
-                                                <BookOpen className="h-4 w-4" /> {tugas.course.nama}
+                                        <h3 className="font-bold text-lg group-hover:text-purple-600 transition-colors duration-200">{tugas.judul}</h3>
+                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{tugas.deskripsi}</p>
+                                        <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
+                                                <BookOpen className="h-4 w-4 text-blue-500" /> {tugas.course.nama}
                                             </span>
-                                            <span className="flex items-center gap-1">
-                                                <Calendar className="h-4 w-4" /> {tugas.deadline_display}
+                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
+                                                <Calendar className="h-4 w-4 text-purple-500" /> {tugas.deadline_display}
                                             </span>
-                                            <span className="flex items-center gap-1">
-                                                <MessageSquare className="h-4 w-4" /> {tugas.diskusi_count} diskusi
+                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
+                                                <MessageSquare className="h-4 w-4 text-emerald-500" /> {tugas.diskusi_count} diskusi
                                             </span>
                                         </div>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => router.visit(`/admin/tugas/${tugas.id}`)}>
-                                                <Eye className="mr-2 h-4 w-4" /> Lihat Detail
+                                        <DropdownMenuContent align="end" className="w-48">
+                                            <DropdownMenuItem onClick={() => router.visit(`/admin/tugas/${tugas.id}`)} className="cursor-pointer">
+                                                <Eye className="mr-2 h-4 w-4 text-blue-500" /> Lihat Detail
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => openEdit(tugas)}>
-                                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                                            <DropdownMenuItem onClick={() => openEdit(tugas)} className="cursor-pointer">
+                                                <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleDelete(tugas.id)} className="text-red-600">
+                                            <DropdownMenuItem onClick={() => handleDelete(tugas.id)} className="cursor-pointer text-red-600">
                                                 <Trash2 className="mr-2 h-4 w-4" /> Hapus
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -388,7 +377,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                 <Dialog open={showEdit} onOpenChange={setShowEdit}>
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
-                            <DialogTitle>Edit Tugas</DialogTitle>
+                            <DialogTitle className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Edit Tugas</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                             <div>
@@ -405,11 +394,11 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                     <Select value={form.jenis} onValueChange={(v) => setForm({ ...form, jenis: v })}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="tugas">Tugas</SelectItem>
-                                            <SelectItem value="quiz">Quiz</SelectItem>
-                                            <SelectItem value="project">Project</SelectItem>
-                                            <SelectItem value="presentasi">Presentasi</SelectItem>
-                                            <SelectItem value="lainnya">Lainnya</SelectItem>
+                                            <SelectItem value="tugas">📝 Tugas</SelectItem>
+                                            <SelectItem value="quiz">❓ Quiz</SelectItem>
+                                            <SelectItem value="project">🚀 Project</SelectItem>
+                                            <SelectItem value="presentasi">🎤 Presentasi</SelectItem>
+                                            <SelectItem value="lainnya">📌 Lainnya</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -418,9 +407,9 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                     <Select value={form.prioritas} onValueChange={(v) => setForm({ ...form, prioritas: v })}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="rendah">Rendah</SelectItem>
-                                            <SelectItem value="sedang">Sedang</SelectItem>
-                                            <SelectItem value="tinggi">Tinggi</SelectItem>
+                                            <SelectItem value="rendah">🟢 Rendah</SelectItem>
+                                            <SelectItem value="sedang">🟡 Sedang</SelectItem>
+                                            <SelectItem value="tinggi">🔴 Tinggi</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -435,14 +424,16 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                     <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="draft">Draft</SelectItem>
-                                            <SelectItem value="published">Published</SelectItem>
-                                            <SelectItem value="closed">Closed</SelectItem>
+                                            <SelectItem value="draft">📋 Draft</SelectItem>
+                                            <SelectItem value="published">✅ Published</SelectItem>
+                                            <SelectItem value="closed">🔒 Closed</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                            <Button onClick={handleEdit} className="w-full bg-gradient-to-r from-blue-500 to-purple-600">Simpan Perubahan</Button>
+                            <Button onClick={handleEdit} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                                Simpan Perubahan
+                            </Button>
                         </div>
                     </DialogContent>
                 </Dialog>
