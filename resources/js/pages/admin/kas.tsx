@@ -84,19 +84,25 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
     };
 
     const handleMarkPaid = (mahasiswaId: number) => {
-        const periodDate = filters.pertemuan !== 'all' ? filters.pertemuan : new Date().toISOString().split('T')[0];
+        if (filters.pertemuan === 'all') {
+            alert('Silakan pilih pertemuan terlebih dahulu untuk menandai lunas');
+            return;
+        }
         router.post('/admin/kas/mark-paid', {
             mahasiswa_id: mahasiswaId,
-            period_date: periodDate,
+            period_date: filters.pertemuan,
         });
     };
 
     const handleBulkMarkPaid = () => {
         if (selectedMahasiswa.length === 0) return;
-        const periodDate = filters.pertemuan !== 'all' ? filters.pertemuan : new Date().toISOString().split('T')[0];
+        if (filters.pertemuan === 'all') {
+            alert('Silakan pilih pertemuan terlebih dahulu untuk menandai lunas');
+            return;
+        }
         router.post('/admin/kas/bulk-mark-paid', {
             mahasiswa_ids: selectedMahasiswa,
-            period_date: periodDate,
+            period_date: filters.pertemuan,
         }, {
             onSuccess: () => setSelectedMahasiswa([]),
         });
@@ -145,12 +151,14 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
     };
 
-    const exportPdf = (type: 'pertemuan' | 'bulanan' | 'keseluruhan') => {
+    const exportPdf = (type: 'pertemuan' | 'bulanan' | 'keseluruhan' | 'matrix') => {
         let url = '/admin/kas/pdf?type=';
         if (type === 'pertemuan' && filters.pertemuan !== 'all') {
             url += `pertemuan&date=${filters.pertemuan}`;
         } else if (type === 'bulanan') {
             url += `keseluruhan&month=${filters.month}`;
+        } else if (type === 'matrix') {
+            url += `matrix&month=${filters.month}`;
         } else {
             url += 'keseluruhan';
         }
@@ -275,12 +283,19 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                     ))}
                                 </select>
                                 <input type="month" value={filters.month} onChange={e => handleFilter('month', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
-                                {selectedMahasiswa.length > 0 && (
+                                {selectedMahasiswa.length > 0 && filters.pertemuan !== 'all' && (
                                     <button onClick={handleBulkMarkPaid} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700">
                                         <Check className="h-4 w-4" />Tandai {selectedMahasiswa.length} Lunas
                                     </button>
                                 )}
                             </div>
+                            {filters.pertemuan === 'all' && (
+                                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                                        <strong>Info:</strong> Pilih pertemuan terlebih dahulu untuk menandai pembayaran lunas.
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Mahasiswa List */}
@@ -322,10 +337,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center justify-end gap-1">
-                                                        {m.status !== 'paid' && (
+                                                        {m.status !== 'paid' && filters.pertemuan !== 'all' && (
                                                             <button onClick={() => handleMarkPaid(m.id)} className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600" title="Tandai Lunas">
                                                                 <CheckCircle className="h-4 w-4" />
                                                             </button>
+                                                        )}
+                                                        {m.status !== 'paid' && filters.pertemuan === 'all' && (
+                                                            <span className="text-xs text-slate-400" title="Pilih pertemuan untuk menandai lunas">-</span>
                                                         )}
                                                     </div>
                                                 </td>
@@ -528,6 +546,15 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                     <div>
                                         <p className="font-medium text-slate-900 dark:text-white">Laporan Keseluruhan</p>
                                         <p className="text-xs text-slate-500">Export semua transaksi dari awal sampai sekarang</p>
+                                    </div>
+                                </button>
+                                <button onClick={() => exportPdf('matrix')} className="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-blue-500 bg-blue-50 hover:bg-blue-100 dark:border-blue-600 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 transition-colors text-left">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+                                        <FileText className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-blue-700 dark:text-blue-300">📊 Laporan Matrix (Excel-style)</p>
+                                        <p className="text-xs text-blue-600 dark:text-blue-400">Tabel pembayaran per mahasiswa dengan ✓ dan ✗</p>
                                     </div>
                                 </button>
                             </div>

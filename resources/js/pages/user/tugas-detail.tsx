@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import StudentLayout from '@/layouts/student-layout';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, X, Sparkles, Zap } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, BookOpen, Calendar, CheckCircle, Clock, CornerDownRight, Download, FileText, MessageSquare, Pin, Reply, Send, Upload, X, Sparkles, Zap, AlertTriangle, Award } from 'lucide-react';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
@@ -14,26 +16,50 @@ type Diskusi = {
     is_mine: boolean; reply_to_id: number | null; reply_to?: { sender_name: string; pesan: string } | null;
     created_at: string; time_ago: string;
 };
+type Submission = {
+    id: number; content: string | null; file_path: string | null; file_name: string | null;
+    status: string; grade: number | null; grade_letter: string | null; feedback: string | null;
+    submitted_at: string | null; graded_at: string | null;
+};
 type Tugas = {
     id: number; judul: string; deskripsi: string; instruksi: string | null; jenis: string;
     deadline: string; deadline_display: string; prioritas: string;
+    allow_late_submission: boolean; late_penalty_percent: number; max_grade: number;
     course: { id: number; nama: string; dosen: string | null; dosen_id: number | null };
     created_by: string; is_overdue: boolean; days_until_deadline: number; created_at: string;
 };
 type Props = {
     mahasiswa: { id: number; nama: string; nim: string };
-    tugas: Tugas; diskusi: Diskusi[];
+    tugas: Tugas; diskusi: Diskusi[]; submission: Submission | null;
 };
 
-export default function UserTugasDetail({ mahasiswa, tugas, diskusi }: Props) {
+export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission }: Props) {
     const [message, setMessage] = useState('');
     const [visibility, setVisibility] = useState('public');
     const [replyTo, setReplyTo] = useState<Diskusi | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [showSubmitForm, setShowSubmitForm] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const submitForm = useForm({
+        content: submission?.content || '',
+        file: null as File | null,
+    });
 
     useEffect(() => { setIsLoaded(true); chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [diskusi]);
+
+    const handleSubmit = () => {
+        const formData = new FormData();
+        if (submitForm.data.content) formData.append('content', submitForm.data.content);
+        if (submitForm.data.file) formData.append('file', submitForm.data.file);
+
+        router.post(`/user/tugas/${tugas.id}/submit`, formData, {
+            forceFormData: true,
+            onSuccess: () => setShowSubmitForm(false),
+        });
+    };
 
     const sendMessage = () => {
         if (!message.trim()) return;
@@ -117,8 +143,162 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi }: Props) {
                                         {tugas.is_overdue ? '❌ Sudah lewat' : `⏰ ${tugas.days_until_deadline} hari`}
                                     </span>
                                 </div>
+                                {tugas.late_penalty_percent > 0 && (
+                                    <div className="flex justify-between items-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                                        <span className="text-amber-700 dark:text-amber-400">Penalti Terlambat</span>
+                                        <span className="font-bold text-amber-600">-{tugas.late_penalty_percent}%</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
+
+                        {/* Submission Status */}
+                        <div className="rounded-2xl border bg-card p-5 shadow-lg">
+                            <h3 className="font-semibold mb-4 flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-emerald-500" /> Status Pengumpulan
+                            </h3>
+                            {submission ? (
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        {submission.status === 'graded' ? (
+                                            <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">✓ Dinilai</Badge>
+                                        ) : submission.status === 'late' ? (
+                                            <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white">⚠️ Terlambat</Badge>
+                                        ) : (
+                                            <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">📤 Dikumpulkan</Badge>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3 inline mr-1" />
+                                        Dikumpulkan: {submission.submitted_at}
+                                    </p>
+                                    {submission.file_name && (
+                                        <a
+                                            href={submission.file_path || '#'}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm hover:bg-emerald-100 transition-colors"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            <span className="truncate">{submission.file_name}</span>
+                                        </a>
+                                    )}
+                                    {submission.grade !== null && (
+                                        <div className="p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm font-medium">Nilai:</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-2xl font-bold text-indigo-600">{submission.grade}</span>
+                                                    {submission.grade_letter && (
+                                                        <span className="px-2 py-1 rounded-full bg-indigo-600 text-white text-sm font-bold">
+                                                            {submission.grade_letter}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {submission.feedback && (
+                                                <div className="mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-800">
+                                                    <p className="text-xs text-muted-foreground">Feedback:</p>
+                                                    <p className="text-sm mt-1">{submission.feedback}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {submission.status !== 'graded' && (
+                                        <Button
+                                            onClick={() => setShowSubmitForm(true)}
+                                            variant="outline"
+                                            className="w-full"
+                                        >
+                                            <Upload className="h-4 w-4 mr-2" /> Update Submission
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <p className="text-sm text-muted-foreground">Belum mengumpulkan tugas</p>
+                                    {(!tugas.is_overdue || tugas.allow_late_submission) && (
+                                        <Button
+                                            onClick={() => setShowSubmitForm(true)}
+                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                                        >
+                                            <Upload className="h-4 w-4 mr-2" /> Kumpulkan Tugas
+                                        </Button>
+                                    )}
+                                    {tugas.is_overdue && !tugas.allow_late_submission && (
+                                        <p className="text-xs text-red-500 flex items-center gap-1">
+                                            <AlertTriangle className="h-3 w-3" />
+                                            Deadline sudah lewat, tidak dapat mengumpulkan
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Submit Form Dialog */}
+                        {showSubmitForm && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                                <div className="bg-card rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                                            <Upload className="h-5 w-5 text-emerald-500" />
+                                            {submission ? 'Update Submission' : 'Kumpulkan Tugas'}
+                                        </h3>
+                                        <Button variant="ghost" size="sm" onClick={() => setShowSubmitForm(false)}>
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    {tugas.is_overdue && (
+                                        <div className="mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-sm flex items-center gap-2">
+                                            <AlertTriangle className="h-4 w-4" />
+                                            Deadline sudah lewat. Nilai akan dikurangi {tugas.late_penalty_percent}%.
+                                        </div>
+                                    )}
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Jawaban (Opsional)</Label>
+                                            <Textarea
+                                                value={submitForm.data.content}
+                                                onChange={(e) => submitForm.setData('content', e.target.value)}
+                                                placeholder="Tulis jawaban atau catatan..."
+                                                rows={5}
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label>Upload File (Opsional)</Label>
+                                            <div className="mt-2">
+                                                <input
+                                                    ref={fileInputRef}
+                                                    type="file"
+                                                    accept=".pdf,.doc,.docx,.zip,.rar"
+                                                    onChange={(e) => submitForm.setData('file', e.target.files?.[0] || null)}
+                                                    className="hidden"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="w-full"
+                                                >
+                                                    <Upload className="h-4 w-4 mr-2" />
+                                                    {submitForm.data.file ? submitForm.data.file.name : 'Pilih File'}
+                                                </Button>
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    Format: PDF, DOC, DOCX, ZIP, RAR (Max 10MB)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            onClick={handleSubmit}
+                                            disabled={!submitForm.data.content && !submitForm.data.file}
+                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                                        >
+                                            <CheckCircle className="h-4 w-4 mr-2" /> Kirim
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

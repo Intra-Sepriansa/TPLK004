@@ -213,7 +213,7 @@
         @endif
 
         <div class="footer">
-            <p>Laporan Keuangan Kas Kelas - TPLK004</p>
+            <p>Laporan Keuangan Kas Kelas 06TPLK004 - Fakultas Ilmu Komputer - Teknik Informatika</p>
             <p>Dokumen ini digenerate secara otomatis oleh sistem</p>
         </div>
     </div>

@@ -121,6 +121,11 @@ class TugasController extends Controller
             'read_at' => now(),
         ]);
 
+        // Get submission if exists
+        $submission = \App\Models\TugasSubmission::where('tugas_id', $tugas->id)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->first();
+
         // Get diskusi - public messages or private messages involving this mahasiswa
         $diskusi = TugasDiskusi::with('replyTo')
             ->where('tugas_id', $tugas->id)
@@ -172,6 +177,9 @@ class TugasController extends Controller
                 'deadline' => $tugas->deadline->format('Y-m-d H:i'),
                 'deadline_display' => $tugas->deadline->translatedFormat('l, d F Y H:i'),
                 'prioritas' => $tugas->prioritas,
+                'allow_late_submission' => $tugas->allow_late_submission ?? true,
+                'late_penalty_percent' => $tugas->late_penalty_percent ?? 0,
+                'max_grade' => $tugas->max_grade ?? 100,
                 'course' => [
                     'id' => $tugas->course->id,
                     'nama' => $tugas->course->nama,
@@ -183,6 +191,18 @@ class TugasController extends Controller
                 'days_until_deadline' => $tugas->days_until_deadline,
                 'created_at' => $tugas->created_at->format('d M Y H:i'),
             ],
+            'submission' => $submission ? [
+                'id' => $submission->id,
+                'content' => $submission->content,
+                'file_path' => $submission->file_path ? \Storage::url($submission->file_path) : null,
+                'file_name' => $submission->file_name,
+                'status' => $submission->status,
+                'grade' => $submission->grade,
+                'grade_letter' => $submission->grade_letter,
+                'feedback' => $submission->feedback,
+                'submitted_at' => $submission->submitted_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+                'graded_at' => $submission->graded_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            ] : null,
             'diskusi' => $diskusi,
         ]);
     }

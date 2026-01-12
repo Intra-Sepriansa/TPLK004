@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, Award, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap } from 'lucide-react';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
@@ -126,6 +126,12 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                     </span>
                                 </div>
                             </div>
+                            <Button
+                                onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)}
+                                className="w-full mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg"
+                            >
+                                <Award className="h-4 w-4 mr-2" /> Penilaian Submission
+                            </Button>
                         </div>
                     </div>
                 </div>

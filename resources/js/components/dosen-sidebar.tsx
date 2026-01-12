@@ -20,6 +20,7 @@ import {
     Home,
     LogOut,
     UserCircle,
+    FileCheck,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -37,6 +38,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Informasi Tugas',
         href: '/dosen/tugas',
         icon: ClipboardList,
+    },
+    {
+        title: 'Persetujuan Izin',
+        href: '/dosen/permits',
+        icon: FileCheck,
     },
     {
         title: 'Verifikasi',
