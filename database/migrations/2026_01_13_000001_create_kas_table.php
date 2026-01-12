@@ -10,17 +10,18 @@ return new class extends Migration
     {
         Schema::create('kas', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->integer('mahasiswa_id')->nullable(); // null for expense
             $table->enum('type', ['income', 'expense'])->default('income');
             $table->decimal('amount', 12, 2);
             $table->string('description')->nullable();
-            $table->string('category')->default('kas_mingguan'); // kas_mingguan, denda, lainnya
-            $table->date('period_date'); // tanggal periode kas
-            $table->enum('status', ['paid', 'unpaid', 'partial'])->default('unpaid');
+            $table->string('category')->default('kas_mingguan'); // kas_mingguan, pengeluaran, kegiatan, perlengkapan, lainnya
+            $table->date('period_date'); // tanggal pertemuan (Kamis)
+            $table->enum('status', ['paid', 'unpaid'])->default('unpaid');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             
-            $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
+            $table->index(['mahasiswa_id', 'period_date']);
+            $table->index(['type', 'period_date']);
         });
 
         // Tabel untuk saldo kas keseluruhan

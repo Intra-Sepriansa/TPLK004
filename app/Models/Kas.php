@@ -23,6 +23,7 @@ class Kas extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'period_date' => 'date',
+        'mahasiswa_id' => 'integer',
     ];
 
     public function mahasiswa(): BelongsTo
