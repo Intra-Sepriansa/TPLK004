@@ -87,6 +87,47 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('admin/pengaturan/notifications', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateNotifications'])->name('admin.pengaturan.notifications');
     Route::post('admin/pengaturan/clear-cache', [\App\Http\Controllers\Admin\PengaturanController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
     
+    // Admin QR Builder
+    Route::get('admin/qr-builder', [\App\Http\Controllers\Admin\QrBuilderController::class, 'index'])->name('admin.qr-builder');
+    
+    // Admin Live Monitor
+    Route::get('admin/live-monitor', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'index'])->name('admin.live-monitor');
+    Route::get('admin/live-monitor/logs', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'logs'])->name('admin.live-monitor.logs');
+    
+    // Admin Verifikasi Selfie
+    Route::get('admin/verifikasi-selfie', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'index'])->name('admin.verifikasi-selfie');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/approve', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
+    Route::post('admin/verifikasi-selfie/bulk-approve', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkApprove'])->name('admin.verifikasi-selfie.bulk-approve');
+    Route::post('admin/verifikasi-selfie/bulk-reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkReject'])->name('admin.verifikasi-selfie.bulk-reject');
+    
+    // Admin Zona
+    Route::get('admin/zona', [\App\Http\Controllers\Admin\ZonaController::class, 'index'])->name('admin.zona');
+    Route::patch('admin/zona', [\App\Http\Controllers\Admin\ZonaController::class, 'update'])->name('admin.zona.update');
+    
+    // Admin Sesi Absen
+    Route::get('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'index'])->name('admin.sesi-absen');
+    Route::post('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'store'])->name('admin.sesi-absen.store');
+    Route::get('admin/sesi-absen/pdf', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'exportPdf'])->name('admin.sesi-absen.pdf');
+    Route::get('admin/sesi-absen/{session}', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'show'])->name('admin.sesi-absen.show');
+    Route::patch('admin/sesi-absen/{session}', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'update'])->name('admin.sesi-absen.update');
+    Route::delete('admin/sesi-absen/{session}', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'destroy'])->name('admin.sesi-absen.destroy');
+    Route::patch('admin/sesi-absen/{session}/activate', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'activate'])->name('admin.sesi-absen.activate');
+    Route::patch('admin/sesi-absen/{session}/deactivate', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'deactivate'])->name('admin.sesi-absen.deactivate');
+    Route::post('admin/sesi-absen/{session}/duplicate', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'duplicate'])->name('admin.sesi-absen.duplicate');
+    
+    // Admin Kas
+    Route::get('admin/kas', [\App\Http\Controllers\Admin\KasController::class, 'index'])->name('admin.kas');
+    Route::post('admin/kas', [\App\Http\Controllers\Admin\KasController::class, 'store'])->name('admin.kas.store');
+    Route::patch('admin/kas/{ka}', [\App\Http\Controllers\Admin\KasController::class, 'update'])->name('admin.kas.update');
+    Route::delete('admin/kas/{ka}', [\App\Http\Controllers\Admin\KasController::class, 'destroy'])->name('admin.kas.destroy');
+    Route::post('admin/kas/mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'markPaid'])->name('admin.kas.mark-paid');
+    Route::post('admin/kas/expense', [\App\Http\Controllers\Admin\KasController::class, 'addExpense'])->name('admin.kas.expense');
+    Route::post('admin/kas/bulk-mark-paid', [\App\Http\Controllers\Admin\KasController::class, 'bulkMarkPaid'])->name('admin.kas.bulk-mark-paid');
+    
+    // Admin Leaderboard
+    Route::get('admin/leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('admin.leaderboard');
+    
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
     Route::delete('mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
@@ -104,6 +145,8 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');
     Route::get('user/history', [AbsensiController::class, 'history'])->name('user.history');
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
+    Route::get('user/leaderboard', [\App\Http\Controllers\User\LeaderboardController::class, 'index'])->name('user.leaderboard');
+    Route::get('user/kas', [\App\Http\Controllers\User\KasController::class, 'index'])->name('user.kas');
     Route::get('user/profile', [ProfileController::class, 'edit'])->name('user.profile');
     Route::patch('user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
     Route::post('user/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('user.profile.avatar');
