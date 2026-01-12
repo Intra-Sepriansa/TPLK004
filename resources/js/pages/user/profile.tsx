@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -22,6 +23,7 @@ import {
     TrendingUp,
     Camera,
     Upload,
+    CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -44,7 +46,7 @@ interface PageProps {
     stats?: Stats;
 }
 
-type TabType = 'profile' | 'security';
+type TabType = 'card' | 'profile' | 'security';
 
 export default function StudentProfile() {
     const { props } = usePage<{ props: PageProps; flash?: { success?: string } }>();
@@ -55,7 +57,7 @@ export default function StudentProfile() {
         currentStreak: 0,
     };
 
-    const [activeTab, setActiveTab] = useState<TabType>('profile');
+    const [activeTab, setActiveTab] = useState<TabType>('card');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -135,7 +137,8 @@ export default function StudentProfile() {
     };
 
     const tabs = [
-        { key: 'profile' as TabType, label: 'Profil', icon: User },
+        { key: 'card' as TabType, label: 'Kartu Profil', icon: CreditCard },
+        { key: 'profile' as TabType, label: 'Edit Profil', icon: User },
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
@@ -230,6 +233,24 @@ export default function StudentProfile() {
                 </div>
 
                 {/* Tab Content */}
+                {activeTab === 'card' && (
+                    <div className="flex flex-col items-center justify-center py-8">
+                        <ProfileCard
+                            name={mahasiswa.nama}
+                            title="Mahasiswa"
+                            handle={mahasiswa.nim}
+                            status="Aktif"
+                            avatarUrl={avatarUrl}
+                            contactText="Edit Profil"
+                            showUserInfo={true}
+                            enableTilt={true}
+                            behindGlowColor="rgba(16, 185, 129, 0.6)"
+                            innerGradient="linear-gradient(145deg, #10b98144 0%, #14b8a644 100%)"
+                            onContactClick={() => setActiveTab('profile')}
+                        />
+                    </div>
+                )}
+
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         {/* Edit Profile Form */}

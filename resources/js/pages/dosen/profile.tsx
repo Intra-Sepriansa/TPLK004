@@ -5,6 +5,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -23,6 +24,7 @@ import {
     BadgeCheck,
     Camera,
     Upload,
+    CreditCard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,14 +49,14 @@ interface PageProps {
     stats: Stats;
 }
 
-type TabType = 'profile' | 'security';
+type TabType = 'card' | 'profile' | 'security';
 
 export default function DosenProfile() {
     const { props } = usePage<{ props: PageProps; flash?: { success?: string } }>();
     const { dosen, flash } = props as unknown as PageProps & { flash?: { success?: string } };
     const stats = (props as unknown as PageProps).stats ?? { totalCourses: 0, totalSessions: 0, totalVerifications: 0 };
 
-    const [activeTab, setActiveTab] = useState<TabType>('profile');
+    const [activeTab, setActiveTab] = useState<TabType>('card');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -124,7 +126,8 @@ export default function DosenProfile() {
     };
 
     const tabs = [
-        { key: 'profile' as TabType, label: 'Profil', icon: User },
+        { key: 'card' as TabType, label: 'Kartu Profil', icon: CreditCard },
+        { key: 'profile' as TabType, label: 'Edit Profil', icon: User },
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
@@ -222,6 +225,24 @@ export default function DosenProfile() {
                 </div>
 
                 {/* Tab Content */}
+                {activeTab === 'card' && (
+                    <div className="flex flex-col items-center justify-center py-8">
+                        <ProfileCard
+                            name={dosen.nama}
+                            title="Dosen"
+                            handle={dosen.nidn}
+                            status="Aktif"
+                            avatarUrl={avatarUrl}
+                            contactText="Edit Profil"
+                            showUserInfo={true}
+                            enableTilt={true}
+                            behindGlowColor="rgba(99, 102, 241, 0.6)"
+                            innerGradient="linear-gradient(145deg, #6366f144 0%, #a855f744 100%)"
+                            onContactClick={() => setActiveTab('profile')}
+                        />
+                    </div>
+                )}
+
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
