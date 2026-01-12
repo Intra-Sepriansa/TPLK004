@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useState, useRef } from 'react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -20,7 +21,9 @@ import {
     AlertCircle,
     Lock,
     TrendingUp,
-    Calendar,
+    X,
+    Camera,
+    Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,13 +59,15 @@ export default function StudentProfile() {
 
     const [activeTab, setActiveTab] = useState<TabType>('profile');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [showProfileCard, setShowProfileCard] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
-    // Profile form
     const profileForm = useForm({
         nama: mahasiswa.nama ?? '',
     });
 
-    // Password form
     const passwordForm = useForm({
         current_password: '',
         password: '',
@@ -94,14 +99,35 @@ export default function StudentProfile() {
         });
     };
 
-    // Get initials for avatar
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setAvatarPreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleAvatarUpload = () => {
+        const file = avatarInputRef.current?.files?.[0];
+        if (!file) return;
+
+        setIsUploadingAvatar(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        router.post('/user/profile/avatar', formData, {
+            forceFormData: true,
+            onSuccess: () => {
+                setSuccessMessage('Foto profil berhasil diperbarui!');
+                setAvatarPreview(null);
+                if (avatarInputRef.current) avatarInputRef.current.value = '';
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+            onFinish: () => setIsUploadingAvatar(false),
+        });
     };
 
     const tabs = [
@@ -109,12 +135,38 @@ export default function StudentProfile() {
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
+    const avatarUrl = avatarPreview || mahasiswa.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mahasiswa.nama)}&background=10b981&color=fff&size=400&bold=true`;
+    const displayAvatarUrl = mahasiswa.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(mahasiswa.nama)}&background=10b981&color=fff&size=400&bold=true`;
+
     return (
         <StudentLayout>
             <Head title="Profil" />
 
+            {showProfileCard && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <button
+                        onClick={() => setShowProfileCard(false)}
+                        className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+                    <ProfileCard
+                        name={mahasiswa.nama}
+                        title="Mahasiswa"
+                        handle={mahasiswa.nim}
+                        status="Aktif"
+                        avatarUrl={displayAvatarUrl}
+                        contactText="Tutup"
+                        showUserInfo={true}
+                        enableTilt={true}
+                        behindGlowColor="rgba(16, 185, 129, 0.6)"
+                        innerGradient="linear-gradient(145deg, #10b98144 0%, #14b8a644 100%)"
+                        onContactClick={() => setShowProfileCard(false)}
+                    />
+                </div>
+            )}
+
             <div className="p-6 space-y-6">
-                {/* Success Toast */}
                 {(successMessage || flash?.success) && (
                     <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
                         <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
@@ -127,7 +179,6 @@ export default function StudentProfile() {
                     </div>
                 )}
 
-                {/* Header Card */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
@@ -135,31 +186,30 @@ export default function StudentProfile() {
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                {/* Avatar */}
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold">
-                                    {mahasiswa.avatar_url ? (
-                                        <img
-                                            src={mahasiswa.avatar_url}
-                                            alt={mahasiswa.nama}
-                                            className="h-full w-full rounded-2xl object-cover"
-                                        />
-                                    ) : (
-                                        getInitials(mahasiswa.nama)
-                                    )}
-                                </div>
+                                <button
+                                    onClick={() => setShowProfileCard(true)}
+                                    className="group relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden transition-transform hover:scale-105"
+                                >
+                                    <img src={avatarUrl} alt={mahasiswa.nama} className="h-full w-full rounded-2xl object-cover" />
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
+                                        <Sparkles className="h-6 w-6" />
+                                    </div>
+                                </button>
                                 <div>
                                     <p className="text-sm text-emerald-100">Profil Mahasiswa</p>
                                     <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
                                     <p className="text-sm text-emerald-100">NIM: {mahasiswa.nim}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
-                                <CheckCircle2 className="h-4 w-4" />
-                                <span className="text-sm">Akun Aktif</span>
-                            </div>
+                            <button
+                                onClick={() => setShowProfileCard(true)}
+                                className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur hover:bg-white/30 transition-colors"
+                            >
+                                <Sparkles className="h-4 w-4" />
+                                <span className="text-sm">Lihat Kartu Profil</span>
+                            </button>
                         </div>
 
-                        {/* Quick Stats */}
                         <div className="mt-6 grid grid-cols-3 gap-4">
                             <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
                                 <p className="text-xs text-emerald-100">Total Kehadiran</p>
@@ -177,7 +227,6 @@ export default function StudentProfile() {
                     </div>
                 </div>
 
-                {/* Tab Navigation */}
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                     <div className="flex gap-2">
                         {tabs.map(tab => {
@@ -201,10 +250,8 @@ export default function StudentProfile() {
                     </div>
                 </div>
 
-                {/* Tab Content */}
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
-                        {/* Edit Profile Form */}
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -218,9 +265,7 @@ export default function StudentProfile() {
 
                             <form onSubmit={handleProfileSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="nama" className="text-slate-700 dark:text-white">
-                                        Nama Lengkap
-                                    </Label>
+                                    <Label htmlFor="nama" className="text-slate-700 dark:text-white">Nama Lengkap</Label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                         <Input
@@ -235,49 +280,80 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="nim" className="text-slate-700 dark:text-white">
-                                        NIM
-                                    </Label>
+                                    <Label htmlFor="nim" className="text-slate-700 dark:text-white">NIM</Label>
                                     <div className="relative">
                                         <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="nim"
-                                            value={mahasiswa.nim}
-                                            disabled
-                                            className="pl-10 bg-slate-50 dark:bg-slate-900"
-                                        />
+                                        <Input id="nim" value={mahasiswa.nim} disabled className="pl-10 bg-slate-50 dark:bg-slate-900" />
                                     </div>
                                     <p className="text-xs text-slate-500">NIM tidak dapat diubah</p>
                                 </div>
 
                                 {mahasiswa.email && (
                                     <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-slate-700 dark:text-white">
-                                            Email
-                                        </Label>
+                                        <Label htmlFor="email" className="text-slate-700 dark:text-white">Email</Label>
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                            <Input
-                                                id="email"
-                                                value={mahasiswa.email}
-                                                disabled
-                                                className="pl-10 bg-slate-50 dark:bg-slate-900"
-                                            />
+                                            <Input id="email" value={mahasiswa.email} disabled className="pl-10 bg-slate-50 dark:bg-slate-900" />
                                         </div>
                                     </div>
                                 )}
 
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
-                                    disabled={profileForm.processing}
-                                >
+                                {/* Avatar Upload Section */}
+                                <div className="space-y-2">
+                                    <Label>Foto Profil</Label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                            <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
+                                            {avatarPreview && (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
+                                                    <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 space-y-2">
+                                            <input
+                                                ref={avatarInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleAvatarChange}
+                                                className="hidden"
+                                                id="avatar-upload"
+                                            />
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => avatarInputRef.current?.click()}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Camera className="h-4 w-4" />
+                                                    Pilih Foto
+                                                </Button>
+                                                {avatarPreview && (
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={handleAvatarUpload}
+                                                        disabled={isUploadingAvatar}
+                                                        className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600"
+                                                    >
+                                                        <Upload className="h-4 w-4" />
+                                                        {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-slate-500">PNG, JPG max 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" disabled={profileForm.processing}>
                                     {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                                 </Button>
                             </form>
                         </div>
 
-                        {/* Account Info Card */}
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -286,7 +362,6 @@ export default function StudentProfile() {
                                     </div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
                                 </div>
-
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
                                         <span className="text-sm text-slate-500">Nama</span>
@@ -306,7 +381,6 @@ export default function StudentProfile() {
                                 </div>
                             </div>
 
-                            {/* Stats Card */}
                             <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
                                 <div className="flex items-center gap-2 mb-4">
                                     <TrendingUp className="h-5 w-5 text-emerald-400" />
@@ -329,7 +403,6 @@ export default function StudentProfile() {
 
                 {activeTab === 'security' && (
                     <div className="grid gap-6 lg:grid-cols-2">
-                        {/* Change Password Form */}
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
@@ -343,9 +416,7 @@ export default function StudentProfile() {
 
                             <form onSubmit={handlePasswordSubmit} className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="current_password" className="text-slate-700 dark:text-white">
-                                        Password Saat Ini
-                                    </Label>
+                                    <Label htmlFor="current_password" className="text-slate-700 dark:text-white">Password Saat Ini</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                         <Input
@@ -356,11 +427,7 @@ export default function StudentProfile() {
                                             className="pl-10 pr-10"
                                             placeholder="••••••••"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowCurrent(!showCurrent)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                        >
+                                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
@@ -368,9 +435,7 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="password" className="text-slate-700 dark:text-white">
-                                        Password Baru
-                                    </Label>
+                                    <Label htmlFor="password" className="text-slate-700 dark:text-white">Password Baru</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                         <Input
@@ -381,11 +446,7 @@ export default function StudentProfile() {
                                             className="pl-10 pr-10"
                                             placeholder="••••••••"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowNew(!showNew)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                        >
+                                        <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
@@ -393,9 +454,7 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="password_confirmation" className="text-slate-700 dark:text-white">
-                                        Konfirmasi Password Baru
-                                    </Label>
+                                    <Label htmlFor="password_confirmation" className="text-slate-700 dark:text-white">Konfirmasi Password Baru</Label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                         <Input
@@ -406,28 +465,19 @@ export default function StudentProfile() {
                                             className="pl-10 pr-10"
                                             placeholder="••••••••"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirm(!showConfirm)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                                        >
+                                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                                             {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </button>
                                     </div>
                                     <InputError message={passwordForm.errors.password_confirmation} />
                                 </div>
 
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-violet-500 hover:bg-violet-600 text-white"
-                                    disabled={passwordForm.processing}
-                                >
+                                <Button type="submit" className="w-full bg-violet-500 hover:bg-violet-600 text-white" disabled={passwordForm.processing}>
                                     {passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
                                 </Button>
                             </form>
                         </div>
 
-                        {/* Security Tips */}
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -436,7 +486,6 @@ export default function StudentProfile() {
                                     </div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Tips Keamanan</h2>
                                 </div>
-
                                 <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                                     <li className="flex items-start gap-2">
                                         <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
@@ -457,7 +506,6 @@ export default function StudentProfile() {
                                 </ul>
                             </div>
 
-                            {/* Account Security Status */}
                             <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-sm">
                                 <div className="flex items-center gap-3 mb-4">
                                     <Shield className="h-6 w-6" />
@@ -468,7 +516,7 @@ export default function StudentProfile() {
                                     <span className="font-medium">Akun Terlindungi</span>
                                 </div>
                                 <p className="text-sm text-emerald-100">
-                                    Password terakhir diubah lebih dari 30 hari yang lalu. Pertimbangkan untuk mengubahnya secara berkala.
+                                    Pertimbangkan untuk mengubah password secara berkala untuk keamanan optimal.
                                 </p>
                             </div>
                         </div>

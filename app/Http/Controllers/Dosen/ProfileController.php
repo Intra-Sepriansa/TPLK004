@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,6 +50,29 @@ class ProfileController extends Controller
         $dosen->update($validated);
 
         return back()->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    public function updateAvatar(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+        ]);
+
+        // Delete old avatar if exists
+        if ($dosen->avatar_url && Storage::disk('public')->exists(str_replace('/storage/', '', $dosen->avatar_url))) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $dosen->avatar_url));
+        }
+
+        // Store new avatar
+        $path = $request->file('avatar')->store('avatars/dosen', 'public');
+
+        $dosen->update([
+            'avatar_url' => '/storage/' . $path,
+        ]);
+
+        return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
 
     public function updatePassword(Request $request): \Illuminate\Http\RedirectResponse

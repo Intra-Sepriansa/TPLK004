@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useState, useRef } from 'react';
+import { Head, useForm, usePage, router } from '@inertiajs/react';
 import DosenLayout from '@/layouts/dosen-layout';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ProfileCard from '@/components/ui/profile-card';
 import {
     User,
     Shield,
@@ -21,6 +22,9 @@ import {
     BookOpen,
     Calendar,
     BadgeCheck,
+    X,
+    Camera,
+    Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,6 +58,10 @@ export default function DosenProfile() {
 
     const [activeTab, setActiveTab] = useState<TabType>('profile');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [showProfileCard, setShowProfileCard] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     const profileForm = useForm({
         nama: dosen.nama ?? '',
@@ -92,14 +100,75 @@ export default function DosenProfile() {
         });
     };
 
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setAvatarPreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleAvatarUpload = () => {
+        const file = avatarInputRef.current?.files?.[0];
+        if (!file) return;
+
+        setIsUploadingAvatar(true);
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        router.post('/dosen/profile/avatar', formData, {
+            forceFormData: true,
+            onSuccess: () => {
+                setSuccessMessage('Foto profil berhasil diperbarui!');
+                setAvatarPreview(null);
+                if (avatarInputRef.current) avatarInputRef.current.value = '';
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+            onFinish: () => setIsUploadingAvatar(false),
+        });
+    };
+
     const tabs = [
         { key: 'profile' as TabType, label: 'Profil', icon: User },
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield },
     ];
 
+    // Default avatar if none provided
+    const avatarUrl = avatarPreview || dosen.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dosen.nama)}&background=6366f1&color=fff&size=400&bold=true`;
+    const displayAvatarUrl = dosen.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dosen.nama)}&background=6366f1&color=fff&size=400&bold=true`;
+
     return (
         <DosenLayout>
             <Head title="Profil Dosen" />
+
+            {/* Profile Card Modal */}
+            {showProfileCard && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <button
+                        onClick={() => setShowProfileCard(false)}
+                        className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+                    <ProfileCard
+                        name={dosen.nama}
+                        title="Dosen"
+                        handle={dosen.nidn}
+                        status="Aktif"
+                        avatarUrl={displayAvatarUrl}
+                        contactText="Tutup"
+                        showUserInfo={true}
+                        enableTilt={true}
+                        behindGlowColor="rgba(99, 102, 241, 0.6)"
+                        innerGradient="linear-gradient(145deg, #6366f144 0%, #a855f744 100%)"
+                        onContactClick={() => setShowProfileCard(false)}
+                    />
+                </div>
+            )}
 
             <div className="p-6 space-y-6">
                 {/* Success Toast */}
@@ -123,22 +192,34 @@ export default function DosenProfile() {
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold">
+                                {/* Clickable Avatar */}
+                                <button
+                                    onClick={() => setShowProfileCard(true)}
+                                    className="group relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden transition-transform hover:scale-105"
+                                >
                                     {dosen.avatar_url ? (
                                         <img src={dosen.avatar_url} alt={dosen.nama} className="h-full w-full rounded-2xl object-cover" />
                                     ) : (
-                                        dosen.initials
+                                        <img src={avatarUrl} alt={dosen.nama} className="h-full w-full rounded-2xl object-cover" />
                                     )}
-                                </div>
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
+                                        <Sparkles className="h-6 w-6" />
+                                    </div>
+                                </button>
                                 <div>
                                     <p className="text-sm text-indigo-100">Profil Dosen</p>
                                     <h1 className="text-2xl font-bold">{dosen.nama}</h1>
                                     <p className="text-sm text-indigo-100">NIDN: {dosen.nidn}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
-                                <CheckCircle2 className="h-4 w-4" />
-                                <span className="text-sm">Akun Aktif</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowProfileCard(true)}
+                                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur hover:bg-white/30 transition-colors"
+                                >
+                                    <Sparkles className="h-4 w-4" />
+                                    <span className="text-sm">Lihat Kartu Profil</span>
+                                </button>
                             </div>
                         </div>
 
@@ -258,6 +339,60 @@ export default function DosenProfile() {
                                         />
                                     </div>
                                     <InputError message={profileForm.errors.phone} />
+                                </div>
+
+                                {/* Avatar Upload Section */}
+                                <div className="space-y-2">
+                                    <Label>Foto Profil</Label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                            <img
+                                                src={avatarUrl}
+                                                alt="Preview"
+                                                className="h-full w-full object-cover"
+                                            />
+                                            {avatarPreview && (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-indigo-500/20">
+                                                    <CheckCircle2 className="h-6 w-6 text-indigo-500" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 space-y-2">
+                                            <input
+                                                ref={avatarInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleAvatarChange}
+                                                className="hidden"
+                                                id="avatar-upload"
+                                            />
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => avatarInputRef.current?.click()}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Camera className="h-4 w-4" />
+                                                    Pilih Foto
+                                                </Button>
+                                                {avatarPreview && (
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={handleAvatarUpload}
+                                                        disabled={isUploadingAvatar}
+                                                        className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600"
+                                                    >
+                                                        <Upload className="h-4 w-4" />
+                                                        {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-slate-500">PNG, JPG max 2MB</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <Button type="submit" className="w-full bg-indigo-500 hover:bg-indigo-600" disabled={profileForm.processing}>
