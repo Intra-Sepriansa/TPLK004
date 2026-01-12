@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\AttendanceLogController;
 use App\Http\Controllers\Admin\AttendanceSessionController;
 use App\Http\Controllers\Admin\AttendanceTokenController;
 use App\Http\Controllers\Admin\AiAttendanceController;
+use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\RekapKehadiranController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SelfieVerificationController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -50,6 +52,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('settings/geofence', [SettingsController::class, 'updateGeofence'])->name('settings.geofence');
     Route::get('reports/attendance.csv', [ReportController::class, 'export'])->name('reports.export');
     Route::get('reports/audit.csv', [ReportController::class, 'exportAudit'])->name('reports.audit');
+    
+    // Advanced Audit & Rekap
+    Route::get('admin/audit', [AuditController::class, 'index'])->name('admin.audit');
+    Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
+    Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
+    Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
+    
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
     Route::delete('mahasiswa/{mahasiswa}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');

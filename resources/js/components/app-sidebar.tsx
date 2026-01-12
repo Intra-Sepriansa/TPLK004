@@ -96,12 +96,12 @@ const managementNavItems: NavItem[] = [
 const reportNavItems: NavItem[] = [
     {
         title: 'Rekap Kehadiran',
-        href: dashboard({ query: { section: 'reports' } }),
+        href: '/admin/rekap-kehadiran',
         icon: FileBarChart,
     },
     {
         title: 'Audit Keamanan',
-        href: dashboard({ query: { section: 'audit' } }),
+        href: '/admin/audit',
         icon: ShieldCheck,
     },
 ];

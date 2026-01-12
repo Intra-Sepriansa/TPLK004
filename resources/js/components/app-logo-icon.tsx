@@ -13,7 +13,7 @@ export default function AppLogoIcon({
 
     return (
         <img
-            src="/image.png"
+            src="/logo-unpam.png"
             alt={alt}
             className={resolvedClassName}
             {...props}
