@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Head, useForm, usePage, router } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import InputError from '@/components/input-error';
@@ -59,9 +59,19 @@ export default function StudentProfile() {
 
     const [activeTab, setActiveTab] = useState<TabType>('card');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [showFlash, setShowFlash] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // Auto-hide flash message after 2 seconds
+    useEffect(() => {
+        if (flash?.success) {
+            setShowFlash(true);
+            const timer = setTimeout(() => setShowFlash(false), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success]);
 
     // Profile form
     const profileForm = useForm({
@@ -84,7 +94,7 @@ export default function StudentProfile() {
         profileForm.patch('/user/profile', {
             onSuccess: () => {
                 setSuccessMessage('Profil berhasil diperbarui!');
-                setTimeout(() => setSuccessMessage(null), 2000);
+                setTimeout(() => setSuccessMessage(null), 200);
             },
         });
     };
@@ -150,7 +160,7 @@ export default function StudentProfile() {
 
             <div className="p-6 space-y-6">
                 {/* Success Toast */}
-                {(successMessage || flash?.success) && (
+                {(successMessage || (showFlash && flash?.success)) && (
                     <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
                         <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                         <div>
