@@ -28,6 +28,13 @@ Route::get('privacy', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
+    
+    // Admin Profile
+    Route::get('admin/profile', function () {
+        return Inertia::render('admin/profile');
+    })->name('admin.profile');
+    Route::post('admin/profile/avatar', [\App\Http\Controllers\Settings\ProfileController::class, 'updateAvatar'])->name('admin.profile.avatar');
+    
     Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
     Route::post('attendance-sessions', [AttendanceSessionController::class, 'store'])->name('attendance-sessions.store');
     Route::patch('attendance-sessions/{attendanceSession}', [AttendanceSessionController::class, 'update'])->name('attendance-sessions.update');
