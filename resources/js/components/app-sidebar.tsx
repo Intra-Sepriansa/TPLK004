@@ -28,7 +28,9 @@ import {
     Settings,
     ShieldCheck,
     TabletSmartphone,
+    Trophy,
     Users,
+    Wallet,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -40,17 +42,17 @@ const attendanceNavItems: NavItem[] = [
     },
     {
         title: 'Sesi Absen',
-        href: dashboard({ query: { section: 'sessions' } }),
+        href: '/admin/sesi-absen',
         icon: CalendarCheck,
     },
     {
         title: 'QR Builder',
-        href: dashboard({ query: { section: 'qr' } }),
+        href: '/admin/qr-builder',
         icon: QrCode,
     },
     {
         title: 'Live Monitor',
-        href: dashboard({ query: { section: 'monitor' } }),
+        href: '/admin/live-monitor',
         icon: Radar,
     },
     {
@@ -60,12 +62,12 @@ const attendanceNavItems: NavItem[] = [
     },
     {
         title: 'Verifikasi Selfie',
-        href: dashboard({ query: { section: 'selfie' } }),
+        href: '/admin/verifikasi-selfie',
         icon: ScanFace,
     },
     {
         title: 'Zona',
-        href: dashboard({ query: { section: 'geofence' } }),
+        href: '/admin/zona',
         icon: MapPin,
     },
 ];
@@ -85,6 +87,16 @@ const managementNavItems: NavItem[] = [
         title: 'Jadwal',
         href: '/admin/jadwal',
         icon: Clock,
+    },
+    {
+        title: 'Uang Kas',
+        href: '/admin/kas',
+        icon: Wallet,
+    },
+    {
+        title: 'Leaderboard',
+        href: '/admin/leaderboard',
+        icon: Trophy,
     },
     {
         title: 'Pengaturan',

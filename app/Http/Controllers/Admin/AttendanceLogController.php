@@ -25,7 +25,7 @@ class AttendanceLogController extends Controller
             return [
                 'id' => $log->id,
                 'name' => $log->mahasiswa?->nama ?? 'Mahasiswa',
-                'time' => $this->formatDisplayTime($log->scanned_at, 'H:i') ?? '-',
+                'time' => $log->scanned_at?->format('H:i') ?? '-',
                 'status' => $log->status,
                 'distance_m' => $log->distance_m,
                 'selfie_status' => $log->selfieVerification?->status,

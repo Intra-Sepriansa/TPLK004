@@ -20,7 +20,9 @@ import {
     Home,
     LogOut,
     QrCode,
+    Trophy,
     UserCircle,
+    Wallet,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -48,6 +50,16 @@ const studentNavItems: NavItem[] = [
         title: 'Pencapaian',
         href: '/user/achievements',
         icon: Award,
+    },
+    {
+        title: 'Leaderboard',
+        href: '/user/leaderboard',
+        icon: Trophy,
+    },
+    {
+        title: 'Uang Kas',
+        href: '/user/kas',
+        icon: Wallet,
     },
     {
         title: 'Profil',
