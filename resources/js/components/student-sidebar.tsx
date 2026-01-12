@@ -15,6 +15,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
 import {
     Award,
+    ClipboardList,
     FileText,
     History,
     Home,
@@ -45,6 +46,11 @@ const studentNavItems: NavItem[] = [
         title: 'Riwayat',
         href: '/user/history',
         icon: History,
+    },
+    {
+        title: 'Informasi Tugas',
+        href: '/user/tugas',
+        icon: ClipboardList,
     },
     {
         title: 'Pencapaian',
