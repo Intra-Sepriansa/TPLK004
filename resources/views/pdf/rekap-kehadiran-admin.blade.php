@@ -161,7 +161,7 @@
                 @forelse($attendanceLogs as $index => $log)
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
-                    <td>{{ $log->scanned_at?->format('d/m H:i') }}</td>
+                    <td>{{ $log->scanned_at?->timezone('Asia/Jakarta')->format('d/m H:i') }}</td>
                     <td>{{ $log->mahasiswa?->nama ?? '-' }}</td>
                     <td>{{ $log->mahasiswa?->nim ?? '-' }}</td>
                     <td>{{ $log->session?->course?->nama ?? '-' }}</td>
@@ -192,7 +192,7 @@
 
         <div class="footer">
             <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi UNPAM</p>
-            <p>Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} WIB</p>
         </div>
     </div>
 </body>

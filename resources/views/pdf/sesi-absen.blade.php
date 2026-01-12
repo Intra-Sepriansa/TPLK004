@@ -72,8 +72,8 @@
                     <td>{{ $s->course?->nama ?? '-' }}</td>
                     <td>{{ $s->course?->dosen?->nama ?? '-' }}</td>
                     <td style="text-align: center;">{{ $s->meeting_number }}</td>
-                    <td>{{ $s->start_at?->format('d/m/Y H:i') }}</td>
-                    <td>{{ $s->end_at?->format('d/m/Y H:i') }}</td>
+                    <td>{{ $s->start_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                    <td>{{ $s->end_at?->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
                     <td style="text-align: center;" class="{{ $s->is_active ? 'status-active' : 'status-inactive' }}">
                         {{ $s->is_active ? 'Aktif' : 'Selesai' }}
                     </td>
@@ -98,7 +98,7 @@
 
         <div class="footer">
             <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi UNPAM</p>
-            <p>Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} WIB</p>
         </div>
     </div>
 </body>

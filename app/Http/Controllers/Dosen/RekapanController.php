@@ -124,7 +124,7 @@ class RekapanController extends Controller
             'session' => $session,
             'course' => $session->course,
             'attendanceLogs' => $attendanceLogs,
-            'tanggal' => $session->start_at?->format('d F Y') ?? now()->format('d F Y'),
+            'tanggal' => $session->start_at?->timezone('Asia/Jakarta')->translatedFormat('d F Y') ?? now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
             'tempat' => 'Tangerang Selatan',
             'logoUnpam' => public_path('logo-unpam.png'),
             'logoSasmita' => public_path('sasmita.png'),

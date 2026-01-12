@@ -124,7 +124,7 @@
                 @forelse($auditLogs as $index => $log)
                 <tr>
                     <td style="text-align: center;">{{ $index + 1 }}</td>
-                    <td>{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $log->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
                     <td>
                         <span class="event-badge 
                             @if($log->event_type == 'token_expired') event-expired
@@ -159,7 +159,7 @@
 
         <div class="footer">
             <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi UNPAM</p>
-            <p>Dicetak pada: {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} WIB</p>
         </div>
     </div>
 </body>

@@ -287,7 +287,7 @@ class SesiAbsenController extends Controller
 
         $data = [
             'sessions' => $sessions,
-            'tanggal' => now()->format('d F Y'),
+            'tanggal' => now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
             'tempat' => 'Tangerang Selatan',
         ];
 
