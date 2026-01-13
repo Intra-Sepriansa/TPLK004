@@ -5,6 +5,7 @@ use App\Http\Controllers\Dosen\CourseController;
 use App\Http\Controllers\Dosen\DashboardController;
 use App\Http\Controllers\Dosen\ProfileController;
 use App\Http\Controllers\Dosen\RekapanController;
+use App\Http\Controllers\Dosen\SesiAbsenController;
 use App\Http\Controllers\Dosen\SessionController;
 use App\Http\Controllers\Dosen\VerificationController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,9 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.alt');
 
+    // Sesi Absen
+    Route::get('/sesi-absen', [SesiAbsenController::class, 'index'])->name('sesi-absen');
+
     // Courses
     Route::get('/courses', [CourseController::class, 'index'])->name('courses');
     Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
@@ -28,10 +32,13 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
 
     // Sessions
     Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+    Route::post('/attendance-sessions', [SessionController::class, 'store'])->name('attendance-sessions.store.dosen');
     Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
     Route::patch('/sessions/{session}/activate', [SessionController::class, 'activate'])->name('sessions.activate');
     Route::patch('/sessions/{session}/close', [SessionController::class, 'close'])->name('sessions.close');
     Route::patch('/sessions/{session}/regenerate-qr', [SessionController::class, 'regenerateQr'])->name('sessions.regenerate-qr');
+    Route::patch('/attendance-sessions/{session}/activate', [SessionController::class, 'activate'])->name('attendance-sessions.activate.dosen');
+    Route::patch('/attendance-sessions/{session}/close', [SessionController::class, 'close'])->name('attendance-sessions.close.dosen');
 
     // Verification
     Route::get('/verify', [VerificationController::class, 'index'])->name('verify');

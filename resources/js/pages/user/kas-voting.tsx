@@ -64,7 +64,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        post(route('user.kas-voting.store'), {
+        post('/user/kas-voting', {
             onSuccess: () => {
                 reset();
                 setShowForm(false);
@@ -73,7 +73,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
     };
 
     const handleVote = (votingId: number, vote: 'approve' | 'reject') => {
-        router.post(route('user.kas-voting.vote', votingId), { vote });
+        router.post(`/user/kas-voting/${votingId}/vote`, { vote });
     };
 
     const getStatusBadge = (status: string) => {
@@ -203,7 +203,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue={filters.status} onValueChange={(v) => router.get(route('user.kas-voting'), { status: v }, { preserveState: true })}>
+                        <Tabs defaultValue={filters.status} onValueChange={(v) => router.get('/user/kas-voting', { status: v }, { preserveState: true })}>
                             <TabsList className="mb-4">
                                 <TabsTrigger value="open">Sedang Voting</TabsTrigger>
                                 <TabsTrigger value="approved">Disetujui</TabsTrigger>

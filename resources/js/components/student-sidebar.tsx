@@ -15,11 +15,15 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
 import {
     Award,
+    BookOpen,
+    CalendarCheck,
     ClipboardList,
     FileText,
+    GraduationCap,
     History,
     Home,
     LogOut,
+    NotebookPen,
     QrCode,
     Trophy,
     UserCircle,
@@ -58,6 +62,11 @@ const studentNavItems: NavItem[] = [
         title: 'Izin/Sakit',
         href: '/user/permit',
         icon: FileCheck,
+    },
+    {
+        title: 'Akademik',
+        href: '/user/akademik',
+        icon: GraduationCap,
     },
     {
         title: 'Pencapaian',

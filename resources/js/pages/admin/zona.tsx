@@ -1,6 +1,6 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity } from 'lucide-react';
+import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity, CheckCircle, XCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import L from 'leaflet';
@@ -69,16 +69,48 @@ const ensureLeafletIcons = (() => {
 
 
 export default function Zona({ geofence, violationStats, distanceDistribution, recentViolations, trendData, recentLocations }: PageProps) {
+    const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
+    const flash = props.flash;
+    
     const form = useForm({ geofence_lat: geofence.lat, geofence_lng: geofence.lng, geofence_radius_m: geofence.radius_m });
     const [mapReady, setMapReady] = useState(false);
     const [locationStatus, setLocationStatus] = useState<string | null>(null);
     const [locationLoading, setLocationLoading] = useState(false);
+    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
     const circleRef = useRef<L.Circle | null>(null);
 
-    const submit = (e: React.FormEvent) => { e.preventDefault(); form.patch('/admin/zona', { preserveScroll: true }); };
+    // Show flash message as toast
+    useEffect(() => {
+        if (flash?.success) {
+            setToast({ type: 'success', message: flash.success });
+            const timer = setTimeout(() => setToast(null), 3000);
+            return () => clearTimeout(timer);
+        }
+        if (flash?.error) {
+            setToast({ type: 'error', message: flash.error });
+            const timer = setTimeout(() => setToast(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success, flash?.error]);
+
+    const submit = (e: React.FormEvent) => { 
+        e.preventDefault(); 
+        form.patch('/admin/zona', { 
+            preserveScroll: true,
+            onSuccess: () => {
+                setToast({ type: 'success', message: 'Zona geofence berhasil disimpan!' });
+                setTimeout(() => setToast(null), 3000);
+            },
+            onError: (errors) => {
+                const errorMsg = Object.values(errors).flat().join(', ') || 'Gagal menyimpan zona';
+                setToast({ type: 'error', message: errorMsg });
+                setTimeout(() => setToast(null), 3000);
+            }
+        }); 
+    };
 
     const useCurrentLocation = () => {
         if (!navigator.geolocation) { setLocationStatus('GPS tidak didukung'); return; }
@@ -132,6 +164,18 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
         <AppLayout>
             <Head title="Zona Geofence" />
             <div className="p-6 space-y-6">
+                {/* Toast Notification */}
+                {toast && (
+                    <div className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg transition-all duration-300 ${
+                        toast.type === 'success' 
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
+                            : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                    }`}>
+                        {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        <span className="text-sm font-medium">{toast.message}</span>
+                    </div>
+                )}
+
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />

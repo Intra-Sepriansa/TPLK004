@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
+import { Head, useForm, usePage, router, Link } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,9 @@ import {
     Camera,
     Upload,
     CreditCard,
+    Award,
+    Trophy,
+    ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,12 +44,54 @@ interface Stats {
     currentStreak: number;
 }
 
+interface Badge {
+    id: number;
+    type: string;
+    name: string;
+    level: number;
+    maxLevel: number;
+    icon: string;
+    unlocked: boolean;
+    progress: number;
+    target: number;
+}
+
 interface PageProps {
     mahasiswa: MahasiswaInfo;
     stats?: Stats;
+    badges?: Badge[];
 }
 
 type TabType = 'card' | 'profile' | 'security';
+
+// Helper function to get badge image path
+const getBadgeImagePath = (type: string, level: number): string => {
+    const suffix = level > 1 ? `_${level}` : '';
+    return `/images/badges/${type}${suffix}.png`;
+};
+
+// Badge Image component for profile
+const BadgeImageProfile = ({ type, level }: { type: string; level: number }) => {
+    const [imageError, setImageError] = useState(false);
+    const imagePath = getBadgeImagePath(type, level);
+
+    if (imageError) {
+        return (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500">
+                <Award className="h-5 w-5 text-white" />
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={imagePath}
+            alt={type}
+            className="h-full w-full object-cover"
+            onError={() => setImageError(true)}
+        />
+    );
+};
 
 export default function StudentProfile() {
     const { props } = usePage<{ props: PageProps; flash?: { success?: string } }>();
@@ -56,6 +101,7 @@ export default function StudentProfile() {
         attendanceRate: 0,
         currentStreak: 0,
     };
+    const badges = (props as unknown as PageProps).badges ?? [];
 
     const [activeTab, setActiveTab] = useState<TabType>('card');
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -219,6 +265,70 @@ export default function StudentProfile() {
                                 <p className="text-2xl font-bold">{stats.currentStreak} hari</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Badges Section - GitHub Style */}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                <Trophy className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Pencapaian</h2>
+                                <p className="text-sm text-slate-500">{badges.filter(b => b.unlocked).length} dari {badges.length} badge terbuka</p>
+                            </div>
+                        </div>
+                        <Link 
+                            href="/user/achievements" 
+                            className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                        >
+                            Lihat Semua
+                            <ChevronRight className="h-4 w-4" />
+                        </Link>
+                    </div>
+
+                    {/* Badges Grid - GitHub Style */}
+                    <div className="flex flex-wrap gap-3">
+                        {badges.map((badge) => {
+                            const isCompleted = badge.progress >= badge.target;
+                            const shouldShow = badge.unlocked || isCompleted;
+                            
+                            return (
+                                <div
+                                    key={badge.id}
+                                    onClick={() => router.get(`/user/achievements/${badge.type}`)}
+                                    className={cn(
+                                        'group relative cursor-pointer',
+                                        !shouldShow && 'opacity-40 grayscale'
+                                    )}
+                                    title={`${badge.name} - Lv ${badge.level}/${badge.maxLevel}`}
+                                >
+                                    <div className={cn(
+                                        'h-12 w-12 rounded-full overflow-hidden transition-transform hover:scale-110',
+                                        shouldShow ? 'ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900' : ''
+                                    )}>
+                                        {shouldShow ? (
+                                            <BadgeImageProfile 
+                                                type={badge.type} 
+                                                level={badge.level}
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center bg-slate-200 dark:bg-slate-700">
+                                                <Lock className="h-4 w-4 text-slate-400" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    {/* Tooltip */}
+                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        <div className="bg-slate-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                            {badge.name}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
