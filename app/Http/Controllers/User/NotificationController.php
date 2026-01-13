@@ -11,7 +11,7 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $mahasiswa = Auth::guard('web')->user();
 
         $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
             ->orderByDesc('created_at')
@@ -29,7 +29,7 @@ class NotificationController extends Controller
 
     public function markAsRead(AppNotification $notification)
     {
-        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $mahasiswa = Auth::guard('web')->user();
 
         if ($notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id) {
             $notification->update(['read_at' => now()]);
@@ -40,7 +40,7 @@ class NotificationController extends Controller
 
     public function markAllAsRead()
     {
-        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $mahasiswa = Auth::guard('web')->user();
 
         AppNotification::forUser('mahasiswa', $mahasiswa->id)
             ->unread()
