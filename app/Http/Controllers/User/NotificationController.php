@@ -11,7 +11,11 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $mahasiswa = Auth::guard('web')->user();
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
 
         $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
             ->orderByDesc('created_at')
@@ -29,7 +33,11 @@ class NotificationController extends Controller
 
     public function markAsRead(AppNotification $notification)
     {
-        $mahasiswa = Auth::guard('web')->user();
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
 
         if ($notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id) {
             $notification->update(['read_at' => now()]);
@@ -40,7 +48,11 @@ class NotificationController extends Controller
 
     public function markAllAsRead()
     {
-        $mahasiswa = Auth::guard('web')->user();
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
 
         AppNotification::forUser('mahasiswa', $mahasiswa->id)
             ->unread()
