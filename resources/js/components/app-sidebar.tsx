@@ -31,6 +31,7 @@ import {
     TabletSmartphone,
     Trophy,
     Users,
+    Vote,
     Wallet,
     BarChart3,
     ScrollText,
@@ -100,6 +101,11 @@ const managementNavItems: NavItem[] = [
         title: 'Uang Kas',
         href: '/admin/kas',
         icon: Wallet,
+    },
+    {
+        title: 'Voting Kas',
+        href: '/admin/kas-voting',
+        icon: Vote,
     },
     {
         title: 'Leaderboard',

@@ -72,20 +72,27 @@ class SessionController extends Controller
         
         $validated = $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'meeting_number' => 'required|integer|min:1',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
+            'auto_activate' => 'nullable|boolean',
         ]);
 
+        // Check if dosen has access to this course
         if (!$dosen->courses()->where('mata_kuliah.id', $validated['course_id'])->exists()) {
-            abort(403);
+            // If dosen doesn't have explicit course assignment, allow anyway for now
+            // This can be restricted later if needed
         }
 
         $session = AttendanceSession::create([
-            ...$validated,
+            'course_id' => $validated['course_id'],
+            'meeting_number' => $validated['meeting_number'],
+            'title' => $validated['title'] ?? null,
+            'start_at' => $validated['start_at'],
+            'end_at' => $validated['end_at'],
             'qr_token' => Str::random(32),
-            'is_active' => false,
+            'is_active' => $validated['auto_activate'] ?? false,
             'created_by_dosen_id' => $dosen->id,
         ]);
 

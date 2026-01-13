@@ -17,6 +17,9 @@ class Badge extends Model
         'points',
         'criteria',
         'is_active',
+        'badge_level',
+        'requirement_type',
+        'requirement_value',
     ];
 
     protected $casts = [

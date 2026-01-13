@@ -58,6 +58,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
+});
+
+// Routes accessible by both admin (auth) and dosen (auth:dosen)
+Route::middleware(['auth:web,dosen'])->group(function () {
+    Route::post('attendance-sessions/create', [AttendanceSessionController::class, 'store'])->name('attendance-sessions.create');
+    Route::patch('attendance-sessions/{attendanceSession}/toggle', [AttendanceSessionController::class, 'activate'])->name('attendance-sessions.toggle');
+    Route::patch('attendance-sessions/{attendanceSession}/deactivate', [AttendanceSessionController::class, 'close'])->name('attendance-sessions.deactivate');
     
     // Admin Mahasiswa
     Route::get('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'index'])->name('admin.mahasiswa');
@@ -126,6 +133,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('admin/kas/create-pertemuan', [\App\Http\Controllers\Admin\KasController::class, 'createPertemuan'])->name('admin.kas.create-pertemuan');
     Route::get('admin/kas/pdf', [\App\Http\Controllers\Admin\KasController::class, 'exportPdf'])->name('admin.kas.pdf');
     
+    // Admin Kas Voting
+    Route::get('admin/kas-voting', [\App\Http\Controllers\Admin\KasVotingController::class, 'index'])->name('admin.kas-voting');
+    Route::post('admin/kas-voting/{voting}/approve', [\App\Http\Controllers\Admin\KasVotingController::class, 'approve'])->name('admin.kas-voting.approve');
+    Route::post('admin/kas-voting/{voting}/reject', [\App\Http\Controllers\Admin\KasVotingController::class, 'reject'])->name('admin.kas-voting.reject');
+    Route::post('admin/kas-voting/{voting}/close', [\App\Http\Controllers\Admin\KasVotingController::class, 'close'])->name('admin.kas-voting.close');
+    Route::post('admin/kas-voting/{voting}/finalize', [\App\Http\Controllers\Admin\KasVotingController::class, 'finalize'])->name('admin.kas-voting.finalize');
+    
     // Admin Leaderboard
     Route::get('admin/leaderboard', [\App\Http\Controllers\Admin\LeaderboardController::class, 'index'])->name('admin.leaderboard');
     
@@ -170,6 +184,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');
     Route::get('user/history', [AbsensiController::class, 'history'])->name('user.history');
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
+    Route::get('user/achievements/{badge}', [AbsensiController::class, 'badgeDetail'])->name('user.badge-detail');
     Route::get('user/leaderboard', [\App\Http\Controllers\User\LeaderboardController::class, 'index'])->name('user.leaderboard');
     Route::get('user/kas', [\App\Http\Controllers\User\KasController::class, 'index'])->name('user.kas');
     Route::get('user/tugas', [\App\Http\Controllers\User\TugasController::class, 'index'])->name('user.tugas');
@@ -194,6 +209,31 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::post('user/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('user.profile.avatar');
     Route::get('user/password', [PasswordController::class, 'edit'])->name('user.password');
     Route::patch('user/password', [PasswordController::class, 'update'])->name('user.password.update');
+    
+    // Akademik (Jadwal & Pengingat)
+    Route::get('user/akademik', [\App\Http\Controllers\User\AcademicScheduleController::class, 'dashboard'])->name('user.akademik');
+    Route::get('user/akademik/jadwal', [\App\Http\Controllers\User\AcademicScheduleController::class, 'schedule'])->name('user.akademik.jadwal');
+    Route::get('user/akademik/ujian', [\App\Http\Controllers\User\AcademicScheduleController::class, 'exams'])->name('user.akademik.ujian');
+    
+    // Akademik - Mata Kuliah
+    Route::get('user/akademik/matkul', [\App\Http\Controllers\User\AcademicCourseController::class, 'index'])->name('user.akademik.matkul');
+    Route::post('user/akademik/matkul', [\App\Http\Controllers\User\AcademicCourseController::class, 'store'])->name('user.akademik.matkul.store');
+    Route::patch('user/akademik/matkul/{id}', [\App\Http\Controllers\User\AcademicCourseController::class, 'update'])->name('user.akademik.matkul.update');
+    Route::delete('user/akademik/matkul/{id}', [\App\Http\Controllers\User\AcademicCourseController::class, 'destroy'])->name('user.akademik.matkul.destroy');
+    Route::post('user/akademik/matkul/{courseId}/meeting/{meetingNumber}/complete', [\App\Http\Controllers\User\AcademicCourseController::class, 'markMeetingComplete'])->name('user.akademik.matkul.meeting.complete');
+    
+    // Akademik - Tugas
+    Route::get('user/akademik/tugas', [\App\Http\Controllers\User\AcademicTaskController::class, 'index'])->name('user.akademik.tugas');
+    Route::post('user/akademik/tugas', [\App\Http\Controllers\User\AcademicTaskController::class, 'store'])->name('user.akademik.tugas.store');
+    Route::patch('user/akademik/tugas/{id}', [\App\Http\Controllers\User\AcademicTaskController::class, 'update'])->name('user.akademik.tugas.update');
+    Route::delete('user/akademik/tugas/{id}', [\App\Http\Controllers\User\AcademicTaskController::class, 'destroy'])->name('user.akademik.tugas.destroy');
+    Route::post('user/akademik/tugas/{id}/toggle', [\App\Http\Controllers\User\AcademicTaskController::class, 'toggleStatus'])->name('user.akademik.tugas.toggle');
+    
+    // Akademik - Catatan
+    Route::get('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'index'])->name('user.akademik.catatan');
+    Route::post('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'store'])->name('user.akademik.catatan.store');
+    Route::patch('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'update'])->name('user.akademik.catatan.update');
+    Route::delete('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'destroy'])->name('user.akademik.catatan.destroy');
 });
 
 require __DIR__.'/settings.php';

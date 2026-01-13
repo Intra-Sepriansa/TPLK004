@@ -98,6 +98,7 @@ export default function UserAbsensi() {
     const [selfieStatus, setSelfieStatus] = useState('');
     const [successToast, setSuccessToast] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitMessage, setSubmitMessage] = useState<string | null>(null);
     const [consentAccepted, setConsentAccepted] = useState(false);
     const [consentError, setConsentError] = useState<string | null>(null);
@@ -285,6 +286,29 @@ export default function UserAbsensi() {
         return best;
     }, samples[0]);
 
+    // Calculate distance from geofence center (Haversine formula)
+    const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+        const R = 6371000; // Earth's radius in meters
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    };
+
+    // Get current distance from geofence
+    const currentDistance = useMemo(() => {
+        if (!form.data.latitude || !form.data.longitude) return null;
+        const lat = parseFloat(form.data.latitude);
+        const lng = parseFloat(form.data.longitude);
+        if (isNaN(lat) || isNaN(lng)) return null;
+        return Math.round(calculateDistance(lat, lng, geofence.lat, geofence.lng));
+    }, [form.data.latitude, form.data.longitude, geofence.lat, geofence.lng]);
+
+    const isInsideZone = currentDistance !== null && currentDistance <= geofence.radius_m;
+
     const requestLocation = async () => {
         if (!consentAccepted) { setConsentError('Setujui persetujuan lokasi sebelum memulai.'); setLocationStatus('Setujui penggunaan lokasi terlebih dulu.'); return; }
         if (!navigator.geolocation) { setLocationStatus('GPS tidak didukung browser.'); return; }
@@ -335,7 +359,13 @@ export default function UserAbsensi() {
         if (bestSample.accuracy_m > accuracyThreshold) {
             setLocationStatus(`Akurasi GPS terlalu rendah (${bestSample.accuracy_m}m). Coba ulangi.`);
         } else {
-            setLocationStatus(`Lokasi berhasil! Akurasi: ${bestSample.accuracy_m}m`);
+            // Calculate distance from geofence
+            const dist = Math.round(calculateDistance(bestSample.latitude, bestSample.longitude, geofence.lat, geofence.lng));
+            if (dist <= geofence.radius_m) {
+                setLocationStatus(`✓ Dalam zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`);
+            } else {
+                setLocationStatus(`⚠ Di luar zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`);
+            }
         }
     };
 
@@ -358,14 +388,29 @@ export default function UserAbsensi() {
         setSelfieStatus(''); setScanStatus(''); setLocationStatus('');
         setConsentError(null); setPreviewUrl(null);
         setSubmitSuccess(false); setSubmitMessage(null); setSuccessToast(null);
+        setSubmitError(null);
     };
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
         if (!submitReady || submitSuccess) return;
+        setSubmitError(null);
         form.post('/user/absen', {
             forceFormData: true,
-            onSuccess: () => { stopSelfie(); setSelfieStatus(''); stopScan(); setScanning(false); setSubmitSuccess(true); },
+            onSuccess: () => { 
+                stopSelfie(); 
+                setSelfieStatus(''); 
+                stopScan(); 
+                setScanning(false); 
+                setSubmitSuccess(true); 
+                setSubmitError(null);
+            },
+            onError: (errors) => {
+                // Get the first error message to display
+                const errorMessages = Object.values(errors);
+                const firstError = errorMessages.length > 0 ? String(errorMessages[0]) : 'Gagal mengirim absensi. Coba lagi.';
+                setSubmitError(firstError);
+            },
         });
     };
 
@@ -706,13 +751,44 @@ export default function UserAbsensi() {
                                             {accuracyValue !== null ? `${Math.round(accuracyValue)}m` : '-'} <span className="font-normal text-slate-400">(maks {accuracyThreshold}m)</span>
                                         </span>
                                     </div>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-sm text-slate-500">Jarak dari Zona</span>
+                                        <span className={cn(
+                                            'font-semibold text-sm',
+                                            isInsideZone ? 'text-emerald-600' : 'text-red-600'
+                                        )}>
+                                            {currentDistance !== null ? `${currentDistance}m` : '-'} <span className="font-normal text-slate-400">(maks {geofence.radius_m}m)</span>
+                                        </span>
+                                    </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-slate-500">Sampel</span>
                                         <span className="text-sm text-slate-900 dark:text-white">{sampleCount}/{locationSampleCount}</span>
                                     </div>
                                 </div>
 
-                                {locationStatus && (
+                                {/* Zone Status Alert */}
+                                {currentDistance !== null && (
+                                    <div className={cn(
+                                        'mt-3 flex items-center gap-2 rounded-xl p-3 text-sm',
+                                        isInsideZone 
+                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
+                                            : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800'
+                                    )}>
+                                        {isInsideZone ? (
+                                            <>
+                                                <CheckCircle2 className="h-4 w-4" />
+                                                <span>✓ Kamu berada dalam zona absensi ({currentDistance}m dari titik pusat)</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <AlertCircle className="h-4 w-4" />
+                                                <span>⚠ Kamu di luar zona absensi! Jarak {currentDistance}m, maksimal {geofence.radius_m}m</span>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+
+                                {locationStatus && !currentDistance && (
                                     <div className={cn(
                                         'mt-3 flex items-center gap-2 rounded-xl p-3 text-sm',
                                         locationDone ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
@@ -791,6 +867,16 @@ export default function UserAbsensi() {
                             </div>
                         ) : (
                             <div className="mt-4 space-y-3">
+                                {/* Error Alert */}
+                                {submitError && (
+                                    <div className="flex items-start gap-3 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800">
+                                        <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                                        <div>
+                                            <p className="font-semibold">Absensi Gagal!</p>
+                                            <p className="text-sm">{submitError}</p>
+                                        </div>
+                                    </div>
+                                )}
                                 <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" disabled={form.processing || !canSubmit}>
                                     {form.processing ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengirim...</> : <><Zap className="h-4 w-4" /> Kirim Absensi</>}
                                 </Button>

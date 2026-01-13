@@ -15,6 +15,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
 import {
     BookOpen,
+    Calendar,
     CheckCircle,
     ClipboardList,
     Home,
@@ -28,6 +29,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dosen',
         icon: Home,
+    },
+    {
+        title: 'Sesi Absen',
+        href: '/dosen/sesi-absen',
+        icon: Calendar,
     },
     {
         title: 'Mata Kuliah',

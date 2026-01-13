@@ -7,6 +7,7 @@ use App\Models\AttendanceSession;
 use App\Models\MataKuliah;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
@@ -39,11 +40,28 @@ class AttendanceSessionController extends Controller
             'title' => ['nullable', 'string', 'max:255'],
             'start_at' => ['required', 'date'],
             'end_at' => ['required', 'date', 'after:start_at'],
+            'auto_activate' => ['nullable', 'boolean'],
         ]);
 
-        AttendanceSession::create([
-            ...$validated,
-            'created_by' => $request->user()->id,
+        // Determine who is creating the session
+        $createdBy = null;
+        $createdByDosenId = null;
+
+        if (Auth::guard('dosen')->check()) {
+            $createdByDosenId = Auth::guard('dosen')->id();
+        } elseif (Auth::guard('web')->check()) {
+            $createdBy = Auth::guard('web')->id();
+        }
+
+        $session = AttendanceSession::create([
+            'course_id' => $validated['course_id'],
+            'meeting_number' => $validated['meeting_number'],
+            'title' => $validated['title'] ?? null,
+            'start_at' => $validated['start_at'],
+            'end_at' => $validated['end_at'],
+            'is_active' => $validated['auto_activate'] ?? false,
+            'created_by' => $createdBy,
+            'created_by_dosen_id' => $createdByDosenId,
         ]);
 
         return back()->with('success', 'Sesi absen dibuat.');

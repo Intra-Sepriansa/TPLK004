@@ -323,86 +323,76 @@ class AbsensiController extends Controller
         $longestStreak = max($longestStreak, $tempStreak);
         $currentStreak = $tempStreak;
 
+        // Get user's earned badges
+        $earnedBadges = \DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->pluck('badge_id')
+            ->toArray();
+
+        // Get all badges from database grouped by base name (without level suffix)
+        $allBadges = \App\Models\Badge::where('is_active', true)
+            ->orderBy('badge_level')
+            ->get();
+
+        // Group badges by their base code (e.g., streak_master_1, streak_master_2 -> streak_master)
+        $badgeGroups = $allBadges->groupBy(function ($badge) {
+            return preg_replace('/_[0-9]+$/', '', $badge->code);
+        });
+
+        // Calculate progress for each badge type
+        $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
+
+        // Build achievements array - show only the current level for each badge type
+        $achievements = [];
+        foreach ($badgeGroups as $baseCode => $badges) {
+            // Find the highest unlocked level or the next level to unlock
+            $currentBadge = null;
+            $isUnlocked = false;
+            
+            foreach ($badges as $badge) {
+                if (in_array($badge->id, $earnedBadges)) {
+                    $currentBadge = $badge;
+                    $isUnlocked = true;
+                } elseif (!$isUnlocked && !$currentBadge) {
+                    $currentBadge = $badge;
+                }
+            }
+
+            // If all levels unlocked, show the highest level
+            if (!$currentBadge) {
+                $currentBadge = $badges->last();
+                $isUnlocked = true;
+            }
+
+            // Get progress for this badge type
+            $progress = $progressData[$baseCode] ?? ['current' => 0, 'target' => $currentBadge->requirement_value];
+
+            $achievements[] = [
+                'id' => $currentBadge->id,
+                'type' => $baseCode,
+                'name' => $currentBadge->name,
+                'description' => $currentBadge->description,
+                'requirement' => $this->formatRequirement($currentBadge),
+                'progress' => $progress['current'],
+                'target' => $currentBadge->requirement_value,
+                'unlocked' => $isUnlocked,
+                'unlockedAt' => $isUnlocked ? now()->toIso8601String() : null,
+                'points' => $currentBadge->points,
+                'level' => $currentBadge->badge_level,
+                'maxLevel' => $badges->count(),
+                'icon' => $currentBadge->icon,
+                'color' => $currentBadge->color,
+            ];
+        }
+
         // Calculate points
-        $points = ($totalAttendance * 10) + ($currentStreak * 5) + ($presentCount * 2);
-        $level = (int) floor($points / 100) + 1;
+        $points = $mahasiswa?->total_points ?? (($totalAttendance * 10) + ($currentStreak * 5) + ($presentCount * 2));
+        $level = $mahasiswa?->current_level ?? ((int) floor($points / 100) + 1);
         $nextLevelPoints = 100;
 
-        // Define achievements
-        $achievements = [
-            [
-                'type' => 'streak',
-                'name' => 'Streak Master',
-                'description' => 'Hadir berturut-turut tanpa absen',
-                'requirement' => 'Hadir 7 hari berturut-turut',
-                'progress' => min($currentStreak, 7),
-                'target' => 7,
-                'unlocked' => $currentStreak >= 7,
-                'unlockedAt' => $currentStreak >= 7 ? now()->toIso8601String() : null,
-                'points' => 100,
-            ],
-            [
-                'type' => 'perfect',
-                'name' => 'Perfect Attendance',
-                'description' => 'Kehadiran sempurna dalam satu bulan',
-                'requirement' => '100% kehadiran selama 1 bulan',
-                'progress' => $attendanceRate,
-                'target' => 100,
-                'unlocked' => $attendanceRate === 100 && $totalSessions >= 10,
-                'unlockedAt' => null,
-                'points' => 200,
-            ],
-            [
-                'type' => 'early',
-                'name' => 'Early Bird',
-                'description' => 'Selalu hadir tepat waktu',
-                'requirement' => 'Tidak pernah terlambat dalam 10 sesi',
-                'progress' => min($presentCount, 10),
-                'target' => 10,
-                'unlocked' => $presentCount >= 10,
-                'unlockedAt' => $presentCount >= 10 ? now()->toIso8601String() : null,
-                'points' => 150,
-            ],
-            [
-                'type' => 'consistent',
-                'name' => 'Consistent',
-                'description' => 'Kehadiran konsisten di atas 80%',
-                'requirement' => 'Pertahankan kehadiran >80% selama semester',
-                'progress' => $attendanceRate,
-                'target' => 80,
-                'unlocked' => $attendanceRate >= 80 && $totalSessions >= 5,
-                'unlockedAt' => $attendanceRate >= 80 ? now()->toIso8601String() : null,
-                'points' => 250,
-            ],
-            [
-                'type' => 'champion',
-                'name' => 'Champion',
-                'description' => 'Top 10 kehadiran di kelas',
-                'requirement' => 'Masuk 10 besar kehadiran tertinggi',
-                'progress' => 0,
-                'target' => 1,
-                'unlocked' => false,
-                'unlockedAt' => null,
-                'points' => 300,
-            ],
-            [
-                'type' => 'legend',
-                'name' => 'Legend',
-                'description' => 'Pencapaian tertinggi',
-                'requirement' => 'Unlock semua achievement lainnya',
-                'progress' => collect([
-                    $currentStreak >= 7,
-                    $attendanceRate === 100 && $totalSessions >= 10,
-                    $presentCount >= 10,
-                    $attendanceRate >= 80 && $totalSessions >= 5,
-                    false, // champion
-                ])->filter()->count(),
-                'target' => 5,
-                'unlocked' => false,
-                'unlockedAt' => null,
-                'points' => 500,
-            ],
-        ];
+        // Get rank
+        $rank = \App\Models\Mahasiswa::where('total_points', '>', $mahasiswa?->total_points ?? 0)->count() + 1;
+        $totalStudents = \App\Models\Mahasiswa::count();
 
         return Inertia::render('user/achievements', [
             'mahasiswa' => [
@@ -413,9 +403,378 @@ class AbsensiController extends Controller
             'totalPoints' => $points,
             'level' => $level,
             'nextLevelPoints' => $nextLevelPoints,
-            'rank' => null,
-            'totalStudents' => null,
+            'rank' => $rank,
+            'totalStudents' => $totalStudents,
         ]);
+    }
+
+    /**
+     * Calculate progress for each badge type
+     */
+    private function calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance): array
+    {
+        $earnedBadgesCount = \DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->count();
+
+        return [
+            'streak_master' => ['current' => $currentStreak, 'target' => 7],
+            'perfect_attendance' => ['current' => $attendanceRate, 'target' => 100],
+            'early_bird' => ['current' => $presentCount, 'target' => 10],
+            'consistent' => ['current' => $attendanceRate, 'target' => 80],
+            'champion' => ['current' => 0, 'target' => 10], // Placeholder - needs leaderboard calculation
+            'legend' => ['current' => $earnedBadgesCount, 'target' => 3],
+            'first_step' => ['current' => $totalAttendance, 'target' => 1],
+            'ai_verified' => ['current' => $logs->where('selfie_path', '!=', null)->count(), 'target' => 10],
+            'kas_hero' => ['current' => 0, 'target' => 4], // Placeholder - needs kas calculation
+            'task_master' => ['current' => 0, 'target' => 5], // Placeholder - needs task calculation
+            'social_star' => ['current' => 0, 'target' => 5], // Placeholder - needs voting calculation
+            'speed_demon' => ['current' => 0, 'target' => 5], // Placeholder - needs fast attendance calculation
+        ];
+    }
+
+    /**
+     * Format requirement text for display
+     */
+    private function formatRequirement(\App\Models\Badge $badge): string
+    {
+        $value = $badge->requirement_value;
+        
+        return match($badge->requirement_type) {
+            'streak_days' => "Hadir {$value} hari berturut-turut",
+            'attendance_percentage' => "Kehadiran {$value}% dalam 1 minggu",
+            'attendance_percentage_month' => "Kehadiran {$value}% dalam 1 bulan",
+            'attendance_percentage_semester' => "Kehadiran {$value}% dalam 1 semester",
+            'on_time_sessions' => "Tidak terlambat dalam {$value} sesi",
+            'consistent_month' => "Kehadiran >{$value}% selama 1 bulan",
+            'consistent_quarter' => "Kehadiran >{$value}% selama 3 bulan",
+            'consistent_semester' => "Kehadiran >{$value}% selama 1 semester",
+            'leaderboard_rank' => $value == 1 ? "Peringkat #1 di kelas" : "Masuk top {$value} di kelas",
+            'total_badges' => "Unlock {$value} achievement lainnya",
+            'total_attendance' => "Absen sebanyak {$value} kali",
+            'ai_verification' => "Lolos verifikasi AI {$value} kali",
+            'kas_on_time' => "Bayar kas tepat waktu {$value} minggu",
+            'task_on_time' => "Kumpulkan {$value} tugas tepat waktu",
+            'voting_participation' => "Ikut voting kas {$value} kali",
+            'fast_attendance' => "Absen dalam 1 menit pertama {$value} kali",
+            default => $badge->description,
+        };
+    }
+
+    /**
+     * Show badge detail page
+     */
+    public function badgeDetail(string $badge): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        // Get base badge type (remove level suffix like _1, _2, _3)
+        $baseType = preg_replace('/_[0-9]+$/', '', $badge);
+        
+        // Get all badges of this type (all levels)
+        $allBadges = \App\Models\Badge::where('code', 'like', $baseType . '%')
+            ->where('is_active', true)
+            ->orderBy('badge_level')
+            ->get();
+        
+        if ($allBadges->isEmpty()) {
+            abort(404, 'Badge tidak ditemukan');
+        }
+        
+        // Get user's earned badges
+        $earnedBadgeIds = \DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->pluck('badge_id')
+            ->toArray();
+        
+        // Get attendance logs for progress calculation
+        $logs = AttendanceLog::query()
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->get();
+        
+        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
+        $totalSessions = $logs->count();
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
+        $presentCount = $logs->where('status', 'present')->count();
+        
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $currentStreak = 0;
+        $tempStreak = 0;
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $tempStreak++;
+            } else {
+                break;
+            }
+        }
+        $currentStreak = $tempStreak;
+        
+        // Get progress data
+        $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
+        $progress = $progressData[$baseType] ?? ['current' => 0, 'target' => 1];
+        
+        // Build badge levels data
+        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $progress) {
+            $isUnlocked = in_array($b->id, $earnedBadgeIds);
+            $isCompleted = $progress['current'] >= $b->requirement_value;
+            
+            return [
+                'id' => $b->id,
+                'level' => $b->badge_level,
+                'name' => $b->name,
+                'description' => $b->description,
+                'requirement' => $this->formatRequirement($b),
+                'requirementValue' => $b->requirement_value,
+                'points' => $b->points,
+                'unlocked' => $isUnlocked || $isCompleted,
+                'icon' => $b->icon,
+                'color' => $b->color,
+            ];
+        })->toArray();
+        
+        // Get current/next level badge
+        $currentBadge = null;
+        $nextBadge = null;
+        foreach ($allBadges as $b) {
+            $isUnlocked = in_array($b->id, $earnedBadgeIds) || $progress['current'] >= $b->requirement_value;
+            if ($isUnlocked) {
+                $currentBadge = $b;
+            } elseif (!$nextBadge) {
+                $nextBadge = $b;
+            }
+        }
+        
+        // If no current badge, use first level
+        if (!$currentBadge) {
+            $currentBadge = $allBadges->first();
+        }
+        
+        // Get tips for this badge type
+        $tips = $this->getBadgeTips($baseType);
+        
+        // Get how to earn steps
+        $howToEarn = $this->getHowToEarn($baseType);
+        
+        // Get related badges (other badge types)
+        $relatedBadges = \App\Models\Badge::where('badge_level', 1)
+            ->where('is_active', true)
+            ->where('code', 'not like', $baseType . '%')
+            ->inRandomOrder()
+            ->limit(4)
+            ->get()
+            ->map(function ($b) use ($earnedBadgeIds) {
+                $baseCode = preg_replace('/_[0-9]+$/', '', $b->code);
+                return [
+                    'type' => $baseCode,
+                    'name' => preg_replace('/ I$/', '', $b->name),
+                    'icon' => $b->icon,
+                    'color' => $b->color,
+                    'unlocked' => in_array($b->id, $earnedBadgeIds),
+                ];
+            })->toArray();
+        
+        return Inertia::render('user/badge-detail', [
+            'mahasiswa' => [
+                'nama' => $mahasiswa?->nama,
+                'nim' => $mahasiswa?->nim,
+            ],
+            'badge' => [
+                'type' => $baseType,
+                'name' => preg_replace('/ I+$/', '', $currentBadge->name),
+                'description' => $currentBadge->description,
+                'icon' => $currentBadge->icon,
+                'color' => $currentBadge->color,
+                'category' => $currentBadge->category,
+                'currentLevel' => $currentBadge->badge_level,
+                'maxLevel' => $allBadges->count(),
+            ],
+            'levels' => $badgeLevels,
+            'progress' => [
+                'current' => $progress['current'],
+                'target' => $nextBadge ? $nextBadge->requirement_value : $currentBadge->requirement_value,
+                'percentage' => $nextBadge 
+                    ? min(100, round(($progress['current'] / $nextBadge->requirement_value) * 100))
+                    : 100,
+            ],
+            'tips' => $tips,
+            'howToEarn' => $howToEarn,
+            'relatedBadges' => $relatedBadges,
+        ]);
+    }
+    
+    /**
+     * Get tips for badge type
+     */
+    private function getBadgeTips(string $type): array
+    {
+        return match($type) {
+            'streak_master' => [
+                'Hadir setiap hari tanpa bolos untuk membangun streak',
+                'Set alarm reminder 30 menit sebelum kelas dimulai',
+                'Jika sakit, ajukan izin agar streak tidak terputus',
+                'Cek jadwal kuliah setiap malam sebelum tidur',
+            ],
+            'perfect_attendance' => [
+                'Pastikan hadir di semua sesi kuliah tanpa terkecuali',
+                'Datang lebih awal untuk menghindari keterlambatan',
+                'Siapkan perangkat dan koneksi internet yang stabil',
+                'Koordinasi dengan teman untuk saling mengingatkan',
+            ],
+            'early_bird' => [
+                'Datang 10-15 menit sebelum sesi dimulai',
+                'Siapkan semua keperluan kuliah malam sebelumnya',
+                'Hindari begadang agar bisa bangun pagi dengan segar',
+                'Gunakan alarm dengan nada yang membangunkan',
+            ],
+            'consistent' => [
+                'Buat jadwal belajar yang konsisten setiap minggu',
+                'Prioritaskan kehadiran di atas kegiatan lain',
+                'Jaga kesehatan agar tidak sering sakit',
+                'Komunikasikan dengan dosen jika ada kendala',
+            ],
+            'champion' => [
+                'Tingkatkan kehadiran dan ketepatan waktu',
+                'Kumpulkan poin sebanyak mungkin dari berbagai aktivitas',
+                'Pantau posisi di leaderboard secara berkala',
+                'Ajak teman berkompetisi secara sehat',
+            ],
+            'legend' => [
+                'Fokus unlock badge lain terlebih dahulu',
+                'Seimbangkan antara kehadiran, tugas, dan aktivitas lain',
+                'Konsisten dalam jangka panjang',
+                'Jadilah role model bagi teman sekelas',
+            ],
+            'first_step' => [
+                'Mulai dengan langkah kecil - hadir di sesi pertama',
+                'Biasakan diri dengan sistem absensi',
+                'Jangan takut untuk mencoba fitur-fitur baru',
+                'Setiap perjalanan dimulai dari langkah pertama',
+            ],
+            'ai_verified' => [
+                'Pastikan wajah terlihat jelas saat foto selfie',
+                'Gunakan pencahayaan yang cukup',
+                'Hindari menggunakan masker atau kacamata hitam',
+                'Posisikan wajah di tengah frame kamera',
+            ],
+            'kas_hero' => [
+                'Set reminder untuk pembayaran kas mingguan',
+                'Siapkan uang kas di awal minggu',
+                'Bayar tepat waktu untuk menghindari denda',
+                'Gunakan fitur pembayaran digital jika tersedia',
+            ],
+            'task_master' => [
+                'Catat semua deadline tugas di kalender',
+                'Kerjakan tugas jauh sebelum deadline',
+                'Bagi tugas besar menjadi bagian-bagian kecil',
+                'Minta bantuan teman atau dosen jika kesulitan',
+            ],
+            'social_star' => [
+                'Aktif berpartisipasi dalam voting kas',
+                'Berikan pendapat yang konstruktif',
+                'Bantu teman yang kesulitan',
+                'Jadilah anggota kelas yang aktif dan positif',
+            ],
+            'speed_demon' => [
+                'Buka aplikasi absensi sebelum sesi dimulai',
+                'Pastikan GPS dan kamera sudah siap',
+                'Posisikan diri di lokasi dengan sinyal bagus',
+                'Latih kecepatan dalam proses absensi',
+            ],
+            default => [
+                'Konsisten dalam kehadiran',
+                'Ikuti semua aturan yang berlaku',
+                'Jaga semangat belajar',
+                'Bantu sesama teman',
+            ],
+        };
+    }
+    
+    /**
+     * Get how to earn steps for badge type
+     */
+    private function getHowToEarn(string $type): array
+    {
+        return match($type) {
+            'streak_master' => [
+                ['step' => 1, 'title' => 'Hadir Setiap Hari', 'description' => 'Pastikan kamu hadir di setiap sesi kuliah yang dijadwalkan'],
+                ['step' => 2, 'title' => 'Jangan Putus Streak', 'description' => 'Hindari absen tanpa izin yang akan memutus streak kamu'],
+                ['step' => 3, 'title' => 'Ajukan Izin Jika Perlu', 'description' => 'Jika tidak bisa hadir, ajukan izin agar streak tetap terjaga'],
+                ['step' => 4, 'title' => 'Capai Target Hari', 'description' => 'Level 1: 7 hari, Level 2: 14 hari, Level 3: 30 hari berturut-turut'],
+            ],
+            'perfect_attendance' => [
+                ['step' => 1, 'title' => 'Hadir 100%', 'description' => 'Tidak boleh ada absen sama sekali dalam periode tertentu'],
+                ['step' => 2, 'title' => 'Tepat Waktu', 'description' => 'Datang sebelum sesi dimulai untuk menghindari status terlambat'],
+                ['step' => 3, 'title' => 'Verifikasi Berhasil', 'description' => 'Pastikan selfie dan lokasi terverifikasi dengan benar'],
+                ['step' => 4, 'title' => 'Pertahankan Periode', 'description' => 'Level 1: 1 minggu, Level 2: 1 bulan, Level 3: 1 semester'],
+            ],
+            'early_bird' => [
+                ['step' => 1, 'title' => 'Datang Lebih Awal', 'description' => 'Hadir sebelum waktu toleransi keterlambatan'],
+                ['step' => 2, 'title' => 'Absen Tepat Waktu', 'description' => 'Lakukan absensi segera setelah sesi dibuka'],
+                ['step' => 3, 'title' => 'Konsisten', 'description' => 'Pertahankan kebiasaan datang tepat waktu'],
+                ['step' => 4, 'title' => 'Capai Target Sesi', 'description' => 'Level 1: 10 sesi, Level 2: 30 sesi, Level 3: 100 sesi tanpa terlambat'],
+            ],
+            'consistent' => [
+                ['step' => 1, 'title' => 'Jaga Kehadiran >80%', 'description' => 'Minimal hadir di 80% dari total sesi'],
+                ['step' => 2, 'title' => 'Pertahankan Konsistensi', 'description' => 'Jangan biarkan kehadiran turun di bawah target'],
+                ['step' => 3, 'title' => 'Monitor Progress', 'description' => 'Cek statistik kehadiran secara berkala'],
+                ['step' => 4, 'title' => 'Capai Durasi', 'description' => 'Level 1: 1 bulan, Level 2: 3 bulan, Level 3: 1 semester'],
+            ],
+            'champion' => [
+                ['step' => 1, 'title' => 'Kumpulkan Poin', 'description' => 'Hadir, tepat waktu, dan selesaikan tugas untuk mendapat poin'],
+                ['step' => 2, 'title' => 'Naik Peringkat', 'description' => 'Bersaing dengan teman sekelas untuk posisi teratas'],
+                ['step' => 3, 'title' => 'Pertahankan Posisi', 'description' => 'Jaga konsistensi agar tidak turun peringkat'],
+                ['step' => 4, 'title' => 'Capai Target Rank', 'description' => 'Level 1: Top 10, Level 2: Top 5, Level 3: Peringkat #1'],
+            ],
+            'legend' => [
+                ['step' => 1, 'title' => 'Unlock Badge Lain', 'description' => 'Fokus mendapatkan badge dari berbagai kategori'],
+                ['step' => 2, 'title' => 'Diversifikasi', 'description' => 'Jangan hanya fokus pada satu jenis achievement'],
+                ['step' => 3, 'title' => 'Konsisten Jangka Panjang', 'description' => 'Badge ini membutuhkan dedikasi tinggi'],
+                ['step' => 4, 'title' => 'Capai Target Badge', 'description' => 'Level 1: 3 badge, Level 2: 6 badge, Level 3: Semua badge'],
+            ],
+            'first_step' => [
+                ['step' => 1, 'title' => 'Buka Aplikasi', 'description' => 'Login ke sistem absensi dengan akun mahasiswa'],
+                ['step' => 2, 'title' => 'Scan QR Code', 'description' => 'Scan QR code yang ditampilkan di kelas'],
+                ['step' => 3, 'title' => 'Ambil Selfie', 'description' => 'Foto selfie untuk verifikasi kehadiran'],
+                ['step' => 4, 'title' => 'Selesai!', 'description' => 'Absensi pertama kamu berhasil tercatat'],
+            ],
+            'ai_verified' => [
+                ['step' => 1, 'title' => 'Foto Selfie', 'description' => 'Ambil foto selfie saat proses absensi'],
+                ['step' => 2, 'title' => 'Verifikasi AI', 'description' => 'Sistem AI akan memverifikasi wajah kamu'],
+                ['step' => 3, 'title' => 'Lolos Verifikasi', 'description' => 'Pastikan foto jelas dan wajah terlihat'],
+                ['step' => 4, 'title' => 'Capai Target', 'description' => 'Level 1: 10x, Level 2: 50x, Level 3: 100x lolos verifikasi'],
+            ],
+            'kas_hero' => [
+                ['step' => 1, 'title' => 'Cek Tagihan Kas', 'description' => 'Lihat tagihan kas mingguan di menu Uang Kas'],
+                ['step' => 2, 'title' => 'Bayar Tepat Waktu', 'description' => 'Lakukan pembayaran sebelum deadline'],
+                ['step' => 3, 'title' => 'Konfirmasi Pembayaran', 'description' => 'Pastikan pembayaran tercatat di sistem'],
+                ['step' => 4, 'title' => 'Pertahankan Streak', 'description' => 'Level 1: 4 minggu, Level 2: 12 minggu, Level 3: 24 minggu'],
+            ],
+            'task_master' => [
+                ['step' => 1, 'title' => 'Lihat Tugas', 'description' => 'Cek daftar tugas di menu Informasi Tugas'],
+                ['step' => 2, 'title' => 'Kerjakan Tugas', 'description' => 'Selesaikan tugas sesuai instruksi'],
+                ['step' => 3, 'title' => 'Submit Sebelum Deadline', 'description' => 'Kumpulkan tugas tepat waktu'],
+                ['step' => 4, 'title' => 'Capai Target', 'description' => 'Level 1: 5 tugas, Level 2: 15 tugas, Level 3: 30 tugas tepat waktu'],
+            ],
+            'social_star' => [
+                ['step' => 1, 'title' => 'Buka Voting Kas', 'description' => 'Akses menu Voting Kas untuk melihat voting aktif'],
+                ['step' => 2, 'title' => 'Berikan Suara', 'description' => 'Vote untuk proposal yang kamu setujui'],
+                ['step' => 3, 'title' => 'Aktif Berpartisipasi', 'description' => 'Ikuti setiap voting yang diadakan'],
+                ['step' => 4, 'title' => 'Capai Target', 'description' => 'Level 1: 5x, Level 2: 15x, Level 3: 30x voting'],
+            ],
+            'speed_demon' => [
+                ['step' => 1, 'title' => 'Siap Sebelum Sesi', 'description' => 'Buka aplikasi sebelum sesi dimulai'],
+                ['step' => 2, 'title' => 'Absen Secepat Mungkin', 'description' => 'Lakukan absensi dalam 1 menit pertama'],
+                ['step' => 3, 'title' => 'Pastikan Sukses', 'description' => 'Verifikasi bahwa absensi berhasil tercatat'],
+                ['step' => 4, 'title' => 'Capai Target', 'description' => 'Level 1: 5x, Level 2: 15x, Level 3: 30x absen cepat'],
+            ],
+            default => [
+                ['step' => 1, 'title' => 'Mulai', 'description' => 'Ikuti instruksi untuk mendapatkan badge ini'],
+                ['step' => 2, 'title' => 'Progress', 'description' => 'Lakukan aktivitas yang diperlukan'],
+                ['step' => 3, 'title' => 'Konsisten', 'description' => 'Pertahankan progress kamu'],
+                ['step' => 4, 'title' => 'Selesai', 'description' => 'Badge akan otomatis terbuka saat target tercapai'],
+            ],
+        };
     }
 
     public function create(): Response
