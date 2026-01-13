@@ -424,7 +424,10 @@ class PersonalAnalyticsController extends Controller
                 'id' => $mb->id,
                 'name' => $mb->badge?->name ?? 'Unknown Badge',
                 'description' => $mb->badge?->description ?? '',
-                'image' => $mb->badge?->icon,
+                'icon' => $mb->badge?->icon,
+                'color' => $mb->badge?->color ?? 'gray',
+                'category' => $mb->badge?->category ?? 'achievement',
+                'points' => $mb->badge?->points ?? 0,
                 'earned_at' => $mb->earned_at?->format('d M Y'),
             ])
             ->toArray();
