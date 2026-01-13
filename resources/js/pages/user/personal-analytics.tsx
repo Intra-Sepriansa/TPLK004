@@ -3,10 +3,23 @@ import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
     BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar,
-    CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users
+    CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users,
+    BookOpen, FileText, GraduationCap
 } from 'lucide-react';
+
+interface ActivityDay {
+    date: string;
+    count: number;
+    level: number;
+    types: string[];
+    dayOfWeek: number;
+    week: number;
+    month: number;
+    monthName: string;
+}
 
 interface Props {
     mahasiswa: { id: number; nama: string; nim: string };
@@ -42,14 +55,15 @@ interface Props {
         status: string;
         time: string | null;
     }>;
-    monthlyCalendar: Array<{
-        date: string;
-        day: number;
-        dayOfWeek: number;
-        status: string | null;
-        isToday: boolean;
-        isPast: boolean;
-    }>;
+    activityGraph: {
+        activities: ActivityDay[];
+        weeks: ActivityDay[][];
+        months: Array<{ month: number; name: string }>;
+        totalActivities: number;
+        activeDays: number;
+        longestStreak: number;
+        currentStreak: number;
+    };
     comparison: {
         my_rate: number;
         class_average: number;
@@ -75,7 +89,7 @@ interface Props {
 
 export default function PersonalAnalytics({
     mahasiswa, overview, streakData, courseBreakdown, weeklyTrend,
-    monthlyCalendar, comparison, badges, tips
+    activityGraph, comparison, badges, tips
 }: Props) {
     const getStatusColor = (status: string | null) => {
         switch (status) {
@@ -105,6 +119,35 @@ export default function PersonalAnalytics({
         }
     };
 
+    const getActivityColor = (level: number) => {
+        switch (level) {
+            case 0: return 'bg-gray-100 dark:bg-gray-800';
+            case 1: return 'bg-emerald-200 dark:bg-emerald-900';
+            case 2: return 'bg-emerald-400 dark:bg-emerald-700';
+            case 3: return 'bg-emerald-500 dark:bg-emerald-600';
+            case 4: return 'bg-emerald-600 dark:bg-emerald-500';
+            default: return 'bg-gray-100 dark:bg-gray-800';
+        }
+    };
+
+    const formatActivityDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    };
+
+    const getActivityTypeLabel = (types: string[]) => {
+        const labels: string[] = [];
+        if (types.includes('attendance')) labels.push('Absensi');
+        if (types.includes('task')) labels.push('Tugas');
+        if (types.includes('note')) labels.push('Catatan');
+        return labels.join(', ');
+    };
+
     return (
         <StudentLayout>
             <Head title="Personal Analytics" />
@@ -116,7 +159,7 @@ export default function PersonalAnalytics({
                         <BarChart3 className="h-6 w-6" />
                         Personal Analytics
                     </h1>
-                    <p className="text-muted-foreground">Analisis kehadiran pribadi kamu</p>
+                    <p className="text-muted-foreground">Analisis aktivitas akademik kamu</p>
                 </div>
 
                 {/* Overview Cards */}
@@ -143,13 +186,13 @@ export default function PersonalAnalytics({
                         <CardContent className="pt-6">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm text-muted-foreground">Streak</p>
-                                    <p className="text-2xl font-bold">{streakData.current_streak} hari</p>
+                                    <p className="text-sm text-muted-foreground">Streak Aktivitas</p>
+                                    <p className="text-2xl font-bold">{activityGraph.currentStreak} hari</p>
                                 </div>
-                                <Flame className={`h-5 w-5 ${streakData.current_streak > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+                                <Flame className={`h-5 w-5 ${activityGraph.currentStreak > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                Terpanjang: {streakData.longest_streak} hari
+                                Terpanjang: {activityGraph.longestStreak} hari
                             </p>
                         </CardContent>
                     </Card>
@@ -157,13 +200,13 @@ export default function PersonalAnalytics({
                         <CardContent className="pt-6">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-sm text-muted-foreground">Tepat Waktu</p>
-                                    <p className="text-2xl font-bold">{overview.on_time_rate}%</p>
+                                    <p className="text-sm text-muted-foreground">Total Aktivitas</p>
+                                    <p className="text-2xl font-bold">{activityGraph.totalActivities}</p>
                                 </div>
-                                <Clock className="h-5 w-5 text-blue-500" />
+                                <Calendar className="h-5 w-5 text-blue-500" />
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {overview.present} dari {overview.present + overview.late} kehadiran
+                                {activityGraph.activeDays} hari aktif
                             </p>
                         </CardContent>
                     </Card>
@@ -182,6 +225,112 @@ export default function PersonalAnalytics({
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* GitHub-style Activity Graph */}
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                            <Calendar className="h-5 w-5" />
+                            Aktivitas Setahun Terakhir
+                        </CardTitle>
+                        <CardDescription>
+                            {activityGraph.totalActivities} aktivitas dalam setahun terakhir
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="overflow-x-auto pb-2">
+                            {/* Month labels */}
+                            <div className="flex mb-1 ml-8">
+                                {activityGraph.months.map((m, i) => (
+                                    <div 
+                                        key={i} 
+                                        className="text-xs text-muted-foreground"
+                                        style={{ width: `${100 / activityGraph.months.length}%`, minWidth: '30px' }}
+                                    >
+                                        {m.name}
+                                    </div>
+                                ))}
+                            </div>
+                            
+                            {/* Activity grid */}
+                            <div className="flex gap-[2px]">
+                                {/* Day labels */}
+                                <div className="flex flex-col gap-[2px] mr-1 text-xs text-muted-foreground">
+                                    <div className="h-[10px]"></div>
+                                    <div className="h-[10px] flex items-center">Sen</div>
+                                    <div className="h-[10px]"></div>
+                                    <div className="h-[10px] flex items-center">Rab</div>
+                                    <div className="h-[10px]"></div>
+                                    <div className="h-[10px] flex items-center">Jum</div>
+                                    <div className="h-[10px]"></div>
+                                </div>
+                                
+                                {/* Weeks */}
+                                <TooltipProvider>
+                                    <div className="flex gap-[2px]">
+                                        {activityGraph.weeks.map((week, weekIndex) => (
+                                            <div key={weekIndex} className="flex flex-col gap-[2px]">
+                                                {[0, 1, 2, 3, 4, 5, 6].map(dayOfWeek => {
+                                                    const day = week.find(d => d.dayOfWeek === dayOfWeek);
+                                                    if (!day) {
+                                                        return <div key={dayOfWeek} className="w-[10px] h-[10px]" />;
+                                                    }
+                                                    return (
+                                                        <Tooltip key={dayOfWeek}>
+                                                            <TooltipTrigger asChild>
+                                                                <div 
+                                                                    className={`w-[10px] h-[10px] rounded-sm ${getActivityColor(day.level)} cursor-pointer hover:ring-1 hover:ring-gray-400`}
+                                                                />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent side="top" className="text-xs">
+                                                                <p className="font-medium">{formatActivityDate(day.date)}</p>
+                                                                {day.count > 0 ? (
+                                                                    <>
+                                                                        <p>{day.count} aktivitas</p>
+                                                                        <p className="text-muted-foreground">{getActivityTypeLabel(day.types)}</p>
+                                                                    </>
+                                                                ) : (
+                                                                    <p className="text-muted-foreground">Tidak ada aktivitas</p>
+                                                                )}
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </TooltipProvider>
+                            </div>
+                            
+                            {/* Legend */}
+                            <div className="flex items-center justify-end gap-2 mt-3 text-xs text-muted-foreground">
+                                <span>Sedikit</span>
+                                <div className="flex gap-[2px]">
+                                    {[0, 1, 2, 3, 4].map(level => (
+                                        <div key={level} className={`w-[10px] h-[10px] rounded-sm ${getActivityColor(level)}`} />
+                                    ))}
+                                </div>
+                                <span>Banyak</span>
+                            </div>
+                            
+                            {/* Activity type legend */}
+                            <div className="flex items-center justify-center gap-4 mt-3 text-xs">
+                                <div className="flex items-center gap-1">
+                                    <CheckCircle className="h-3 w-3 text-green-500" />
+                                    <span>Absensi</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <FileText className="h-3 w-3 text-blue-500" />
+                                    <span>Tugas</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <BookOpen className="h-3 w-3 text-purple-500" />
+                                    <span>Catatan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Weekly Trend */}
@@ -224,7 +373,7 @@ export default function PersonalAnalytics({
                             </div>
                             <Progress value={comparison.class_average} className="h-3 bg-muted" />
                             <div className={`p-3 rounded-lg ${comparison.status === 'above' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
-                                <p className={`text-sm font-medium ${comparison.status === 'above' ? 'text-green-700' : 'text-red-700'}`}>
+                                <p className={`text-sm font-medium ${comparison.status === 'above' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
                                     {comparison.status === 'above' 
                                         ? `🎉 Kamu ${comparison.difference}% di atas rata-rata!`
                                         : `📈 Kamu ${Math.abs(comparison.difference)}% di bawah rata-rata`
@@ -265,55 +414,12 @@ export default function PersonalAnalytics({
                                     <Progress value={course.rate} className="h-2" />
                                 </div>
                             ))}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Monthly Calendar */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5" />
-                            Kalender Bulan Ini
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                            {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
-                                <div key={d} className="text-muted-foreground font-medium py-1">{d}</div>
-                            ))}
-                        </div>
-                        <div className="grid grid-cols-7 gap-1">
-                            {/* Empty cells for days before month starts */}
-                            {monthlyCalendar[0] && Array.from({ length: monthlyCalendar[0].dayOfWeek }, (_, i) => (
-                                <div key={`empty-${i}`} />
-                            ))}
-                            {monthlyCalendar.map(day => (
-                                <div
-                                    key={day.date}
-                                    className={`aspect-square flex items-center justify-center rounded-lg text-sm ${
-                                        day.isToday ? 'ring-2 ring-primary' : ''
-                                    } ${getStatusColor(day.status)} ${
-                                        day.status ? 'text-white' : ''
-                                    }`}
-                                >
-                                    {day.day}
+                            {courseBreakdown.length === 0 && (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <GraduationCap className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                    <p>Belum ada data kehadiran</p>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="flex justify-center gap-4 mt-4 text-xs">
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded bg-green-500" /> Hadir
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded bg-yellow-500" /> Terlambat
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded bg-red-500" /> Absen
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded bg-blue-500" /> Izin/Sakit
-                            </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -332,11 +438,9 @@ export default function PersonalAnalytics({
                                 <div className="grid grid-cols-3 gap-4">
                                     {badges.map(badge => (
                                         <div key={badge.id} className="text-center">
-                                            <img
-                                                src={badge.image || '/images/badges/default.png'}
-                                                alt={badge.name}
-                                                className="w-16 h-16 mx-auto"
-                                            />
+                                            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 rounded-full flex items-center justify-center text-2xl">
+                                                {badge.image || '🏆'}
+                                            </div>
                                             <p className="text-xs font-medium mt-2">{badge.name}</p>
                                             <p className="text-xs text-muted-foreground">{badge.earned_at}</p>
                                         </div>
@@ -346,7 +450,7 @@ export default function PersonalAnalytics({
                                 <div className="text-center py-8 text-muted-foreground">
                                     <Award className="h-12 w-12 mx-auto mb-2 opacity-50" />
                                     <p>Belum ada badge</p>
-                                    <p className="text-xs">Terus tingkatkan kehadiran untuk mendapatkan badge!</p>
+                                    <p className="text-xs">Terus tingkatkan aktivitas untuk mendapatkan badge!</p>
                                 </div>
                             )}
                         </CardContent>
