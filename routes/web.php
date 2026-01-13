@@ -149,6 +149,30 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Admin Activity Log
     Route::get('admin/activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-log');
     
+    // Admin Advanced Analytics
+    Route::get('admin/advanced-analytics', [\App\Http\Controllers\Admin\AdvancedAnalyticsController::class, 'index'])->name('admin.advanced-analytics');
+    
+    // Admin Fraud Detection
+    Route::get('admin/fraud-detection', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'index'])->name('admin.fraud-detection');
+    Route::get('admin/fraud-detection/{alert}', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'show'])->name('admin.fraud-detection.show');
+    Route::patch('admin/fraud-detection/{alert}/review', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'review'])->name('admin.fraud-detection.review');
+    Route::post('admin/fraud-detection/scan', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'runScan'])->name('admin.fraud-detection.scan');
+    Route::post('admin/fraud-detection/bulk-action', [\App\Http\Controllers\Admin\FraudDetectionController::class, 'bulkAction'])->name('admin.fraud-detection.bulk-action');
+    
+    // Admin Notification Center
+    Route::get('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'index'])->name('admin.notification-center');
+    Route::post('admin/notification-center', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'store'])->name('admin.notification-center.store');
+    Route::delete('admin/notification-center/{notification}', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'destroy'])->name('admin.notification-center.destroy');
+    Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
+    Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
+    
+    // Admin Bulk Import
+    Route::get('admin/bulk-import', [\App\Http\Controllers\Admin\BulkImportController::class, 'index'])->name('admin.bulk-import');
+    Route::post('admin/bulk-import/preview', [\App\Http\Controllers\Admin\BulkImportController::class, 'preview'])->name('admin.bulk-import.preview');
+    Route::post('admin/bulk-import', [\App\Http\Controllers\Admin\BulkImportController::class, 'import'])->name('admin.bulk-import.import');
+    Route::get('admin/bulk-import/template/{type}', [\App\Http\Controllers\Admin\BulkImportController::class, 'downloadTemplate'])->name('admin.bulk-import.template');
+    Route::get('admin/bulk-import/log/{log}', [\App\Http\Controllers\Admin\BulkImportController::class, 'showLog'])->name('admin.bulk-import.log');
+    
     // Admin Panduan & Help Center
     Route::get('admin/panduan', function () {
         return \Inertia\Inertia::render('admin/panduan');
@@ -234,6 +258,14 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::post('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'store'])->name('user.akademik.catatan.store');
     Route::patch('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'update'])->name('user.akademik.catatan.update');
     Route::delete('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'destroy'])->name('user.akademik.catatan.destroy');
+    
+    // Personal Analytics
+    Route::get('user/personal-analytics', [\App\Http\Controllers\User\PersonalAnalyticsController::class, 'index'])->name('user.personal-analytics');
+    
+    // Notifications
+    Route::get('user/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('user.notifications');
+    Route::post('user/notifications/{notification}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
+    Route::post('user/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
 });
 
 require __DIR__.'/settings.php';

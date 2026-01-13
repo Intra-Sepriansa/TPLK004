@@ -75,4 +75,21 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::patch('/permits/{permit}/approve', [\App\Http\Controllers\Dosen\PermitController::class, 'approve'])->name('permits.approve');
     Route::patch('/permits/{permit}/reject', [\App\Http\Controllers\Dosen\PermitController::class, 'reject'])->name('permits.reject');
     Route::post('/permits/bulk-approve', [\App\Http\Controllers\Dosen\PermitController::class, 'bulkApprove'])->name('permits.bulk-approve');
+    
+    // Grading
+    Route::get('/grading', [\App\Http\Controllers\Dosen\GradingController::class, 'index'])->name('grading');
+    Route::get('/grading/export/{courseId}', [\App\Http\Controllers\Dosen\GradingController::class, 'export'])->name('grading.export');
+    Route::get('/grading/student/{mahasiswaId}', [\App\Http\Controllers\Dosen\GradingController::class, 'studentReport'])->name('grading.student');
+    Route::post('/grading/override', [\App\Http\Controllers\Dosen\GradingController::class, 'override'])->name('grading.override');
+    
+    // Class Insights
+    Route::get('/class-insights', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'index'])->name('class-insights');
+    
+    // Session Templates
+    Route::get('/session-templates', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'index'])->name('session-templates');
+    Route::post('/session-templates', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'store'])->name('session-templates.store');
+    Route::patch('/session-templates/{template}', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'update'])->name('session-templates.update');
+    Route::delete('/session-templates/{template}', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'destroy'])->name('session-templates.destroy');
+    Route::post('/session-templates/{template}/generate', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'generateSessions'])->name('session-templates.generate');
+    Route::post('/session-templates/{template}/create-session', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'createFromTemplate'])->name('session-templates.create-session');
 });

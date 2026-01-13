@@ -30,6 +30,8 @@ import {
     Wallet,
     FileCheck,
     Vote,
+    BarChart3,
+    Bell,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -69,6 +71,11 @@ const studentNavItems: NavItem[] = [
         icon: GraduationCap,
     },
     {
+        title: 'Personal Analytics',
+        href: '/user/personal-analytics',
+        icon: BarChart3,
+    },
+    {
         title: 'Pencapaian',
         href: '/user/achievements',
         icon: Award,
@@ -77,6 +84,11 @@ const studentNavItems: NavItem[] = [
         title: 'Leaderboard',
         href: '/user/leaderboard',
         icon: Trophy,
+    },
+    {
+        title: 'Notifikasi',
+        href: '/user/notifications',
+        icon: Bell,
     },
     {
         title: 'Uang Kas',

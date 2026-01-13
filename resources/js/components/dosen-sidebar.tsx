@@ -22,6 +22,9 @@ import {
     LogOut,
     UserCircle,
     FileCheck,
+    GraduationCap,
+    BarChart3,
+    FileTemplate,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -59,6 +62,21 @@ const dosenNavItems: NavItem[] = [
         title: 'Rekapan',
         href: '/dosen/rekapan',
         icon: ClipboardList,
+    },
+    {
+        title: 'Penilaian',
+        href: '/dosen/grading',
+        icon: GraduationCap,
+    },
+    {
+        title: 'Class Insights',
+        href: '/dosen/class-insights',
+        icon: BarChart3,
+    },
+    {
+        title: 'Session Templates',
+        href: '/dosen/session-templates',
+        icon: FileTemplate,
     },
     {
         title: 'Profil',
