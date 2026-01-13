@@ -23,7 +23,7 @@ class SessionController extends Controller
             abort(403, 'Anda tidak memiliki akses ke sesi ini.');
         }
 
-        $logs = AttendanceLog::where('session_id', $session->id)
+        $logs = AttendanceLog::where('attendance_session_id', $session->id)
             ->with(['mahasiswa', 'selfieVerification'])
             ->orderByDesc('scanned_at')
             ->get()
