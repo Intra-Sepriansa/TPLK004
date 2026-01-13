@@ -268,14 +268,15 @@ class PersonalAnalyticsController extends Controller
     private function getBadges(int $mahasiswaId): array
     {
         return MahasiswaBadge::where('mahasiswa_id', $mahasiswaId)
+            ->with('badge')
             ->orderByDesc('earned_at')
             ->get()
-            ->map(fn($badge) => [
-                'id' => $badge->id,
-                'name' => $badge->badge_name,
-                'description' => $badge->badge_description,
-                'image' => $badge->badge_image,
-                'earned_at' => $badge->earned_at?->format('d M Y'),
+            ->map(fn($mb) => [
+                'id' => $mb->id,
+                'name' => $mb->badge?->name ?? 'Unknown Badge',
+                'description' => $mb->badge?->description ?? '',
+                'image' => $mb->badge?->icon,
+                'earned_at' => $mb->earned_at?->format('d M Y'),
             ])
             ->toArray();
     }
