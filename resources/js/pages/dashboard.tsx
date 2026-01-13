@@ -1,3 +1,4 @@
+import DashboardOverview from '@/components/admin/dashboard-overview';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,12 +12,17 @@ import {
     AlertTriangle,
     ArrowDownRight,
     ArrowUpRight,
+    Award,
     BarChart3,
+    BookOpen,
     CalendarCheck,
     Camera,
+    CheckCircle2,
+    ChevronRight,
     Clock,
     FileBarChart,
     Fingerprint,
+    Flame,
     Lock,
     MapPin,
     Pencil,
@@ -26,17 +32,28 @@ import {
     ScanBarcode,
     ScanFace,
     RefreshCcw,
+    Settings,
     ShieldCheck,
+    Smartphone,
     Sparkles,
     Timer,
     Trash2,
+    TrendingUp,
     Users,
     UserCheck,
+    XCircle,
 } from 'lucide-react';
 import {
+    Area,
+    AreaChart,
     Bar,
     BarChart,
     CartesianGrid,
+    Cell,
+    Pie,
+    PieChart as RechartsPie,
+    RadialBar,
+    RadialBarChart,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -124,6 +141,33 @@ type DeviceDistribution = {
     total: number;
 };
 
+type WeeklyDetailedData = {
+    day: string;
+    hadir: number;
+    terlambat: number;
+    tidakHadir: number;
+};
+
+type HourlyData = {
+    hour: string;
+    count: number;
+};
+
+type TopStudent = {
+    id: number;
+    name: string;
+    nim: string;
+    attendance: number;
+    streak: number;
+};
+
+type CourseStats = {
+    name: string;
+    hadir: number;
+    terlambat: number;
+    tidakHadir: number;
+};
+
 type ActiveSession = {
     id: number;
     title: string | null;
@@ -194,6 +238,11 @@ type DashboardPageProps = {
     stats?: StatCard[];
     activity?: ActivityLog[];
     weekly?: WeeklyData;
+    weeklyDetailed?: WeeklyDetailedData[];
+    hourlyData?: HourlyData[];
+    topStudents?: TopStudent[];
+    courseStats?: CourseStats[];
+    attendanceRate?: number;
     upcomingSessions?: AttendanceSession[];
     deviceDistribution?: DeviceDistribution[];
     securitySummary?: {
@@ -3220,6 +3269,11 @@ function OverviewSection({
     stats,
     activity,
     weekly,
+    weeklyDetailed,
+    hourlyData,
+    topStudents,
+    courseStats,
+    attendanceRate,
     upcomingSessions,
     deviceDistribution,
     activeSession,
@@ -3230,6 +3284,11 @@ function OverviewSection({
     stats: StatCard[];
     activity: ActivityLog[];
     weekly: WeeklyData;
+    weeklyDetailed?: WeeklyDetailedData[];
+    hourlyData?: HourlyData[];
+    topStudents?: TopStudent[];
+    courseStats?: CourseStats[];
+    attendanceRate?: number;
     upcomingSessions: AttendanceSession[];
     deviceDistribution: DeviceDistribution[];
     activeSession?: ActiveSession | null;
@@ -3237,6 +3296,13 @@ function OverviewSection({
     activeStats?: DashboardPageProps['activeStats'];
     securitySummary?: DashboardPageProps['securitySummary'];
 }) {
+    const [currentTime, setCurrentTime] = useState(new Date());
+    
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     const statIcons = [UserCheck, AlertTriangle, ScanFace, Users];
     const chartData = useMemo(
         () =>
@@ -3247,6 +3313,13 @@ function OverviewSection({
         [weekly],
     );
     const chartMax = Math.max(1, ...chartData.map((item) => item.total));
+
+    const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
+        present: { label: 'Hadir', color: 'text-emerald-600', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+        late: { label: 'Terlambat', color: 'text-amber-600', bg: 'bg-amber-100 dark:bg-amber-900/30' },
+        rejected: { label: 'Ditolak', color: 'text-rose-600', bg: 'bg-rose-100 dark:bg-rose-900/30' },
+        pending: { label: 'Pending', color: 'text-sky-600', bg: 'bg-sky-100 dark:bg-sky-900/30' },
+    };
 
     return (
         <>
@@ -3877,6 +3950,222 @@ function OverviewSection({
                     </div>
                 </div>
             </section>
+
+            {/* New: Top Students & Course Stats Section */}
+            <section className="grid gap-6 lg:grid-cols-2">
+                {/* Top Students Leaderboard */}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:300ms]">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Leaderboard
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Top Mahasiswa
+                            </h2>
+                        </div>
+                        <Award className="h-5 w-5 text-amber-500" />
+                    </div>
+                    <div className="space-y-3">
+                        {(topStudents ?? []).length === 0 ? (
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                Belum ada data mahasiswa.
+                            </div>
+                        ) : (
+                            (topStudents ?? []).map((student, index) => (
+                                <div key={student.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
+                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
+                                        index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                                        index === 1 ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' :
+                                        index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
+                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                                    }`}>
+                                        {index + 1}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{student.name}</p>
+                                        <p className="text-xs text-slate-500">{student.nim}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-semibold text-emerald-600 text-sm">{student.attendance}%</p>
+                                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                                            <Flame className="h-3 w-3" />
+                                            {student.streak} hari
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* Course Stats */}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:330ms]">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Per Mata Kuliah
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Statistik Kehadiran
+                            </h2>
+                        </div>
+                        <BookOpen className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <div className="h-64">
+                        {(courseStats ?? []).length === 0 ? (
+                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                Belum ada data mata kuliah.
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={courseStats} layout="vertical">
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                                    <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
+                                    <YAxis dataKey="name" type="category" tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                    <Tooltip
+                                        content={({ active, payload, label }) => {
+                                            if (!active || !payload?.length) return null;
+                                            return (
+                                                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                                                    <p className="font-semibold text-slate-900 dark:text-white mb-1">{label}</p>
+                                                    {payload.map((entry: any, index: number) => (
+                                                        <div key={index} className="flex items-center gap-2">
+                                                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                                                            <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
+                                                            <span className="font-semibold text-slate-900 dark:text-white">{entry.value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        }}
+                                    />
+                                    <Bar dataKey="hadir" name="Hadir" fill="#10b981" stackId="a" />
+                                    <Bar dataKey="terlambat" name="Terlambat" fill="#f59e0b" stackId="a" />
+                                    <Bar dataKey="tidakHadir" name="Tidak Hadir" fill="#ef4444" stackId="a" radius={[0, 4, 4, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* New: Attendance Rate & Hourly Distribution */}
+            <section className="grid gap-6 lg:grid-cols-3">
+                {/* Attendance Rate Gauge */}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:360ms]">
+                    <div className="flex items-center justify-between mb-2">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Keseluruhan
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Tingkat Kehadiran
+                            </h2>
+                        </div>
+                        <TrendingUp className="h-5 w-5 text-emerald-500" />
+                    </div>
+                    <div className="h-44 flex items-center justify-center">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="90%" data={[{ value: attendanceRate ?? 0, fill: '#10b981' }]} startAngle={180} endAngle={0}>
+                                <RadialBar background dataKey="value" cornerRadius={10} />
+                            </RadialBarChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="text-center -mt-6">
+                        <p className="text-4xl font-bold text-slate-900 dark:text-white">{attendanceRate ?? 0}%</p>
+                        <p className="text-sm text-slate-500">Rata-rata kehadiran</p>
+                    </div>
+                </div>
+
+                {/* Hourly Distribution */}
+                <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:390ms]">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Hari Ini
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Distribusi Jam Absen
+                            </h2>
+                        </div>
+                        <Clock className="h-5 w-5 text-indigo-500" />
+                    </div>
+                    <div className="h-40">
+                        {(hourlyData ?? []).length === 0 ? (
+                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                Belum ada data hari ini.
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={hourlyData}>
+                                    <XAxis dataKey="hour" tick={{ fill: '#64748b', fontSize: 10 }} />
+                                    <YAxis hide />
+                                    <Tooltip
+                                        content={({ active, payload, label }) => {
+                                            if (!active || !payload?.length) return null;
+                                            return (
+                                                <div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                                                    <p className="font-semibold text-slate-900 dark:text-white">{label}</p>
+                                                    <p className="text-slate-600 dark:text-slate-400">{payload[0].value} absen</p>
+                                                </div>
+                                            );
+                                        }}
+                                    />
+                                    <Bar dataKey="count" name="Absen" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* Quick Actions */}
+            <section className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:420ms]">
+                <h2 className="font-display text-xl text-slate-900 dark:text-white mb-4">Aksi Cepat</h2>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <a href="/admin/qr-builder" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 transition-transform group-hover:scale-110">
+                            <QrCode className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold text-slate-900 dark:text-white">QR Builder</p>
+                            <p className="text-sm text-slate-500">Buat QR code absensi</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
+                    </a>
+                    <a href="/admin/mahasiswa" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 transition-transform group-hover:scale-110">
+                            <Users className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold text-slate-900 dark:text-white">Mahasiswa</p>
+                            <p className="text-sm text-slate-500">Kelola data mahasiswa</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
+                    </a>
+                    <a href="/admin/sesi-absen" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 transition-transform group-hover:scale-110">
+                            <CalendarCheck className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold text-slate-900 dark:text-white">Sesi Absen</p>
+                            <p className="text-sm text-slate-500">Kelola sesi absensi</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
+                    </a>
+                    <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 transition-transform group-hover:scale-110">
+                            <FileBarChart className="h-6 w-6" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold text-slate-900 dark:text-white">Rekap</p>
+                            <p className="text-sm text-slate-500">Lihat rekap kehadiran</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
+                    </a>
+                </div>
+            </section>
         </>
     );
 }
@@ -3984,12 +4273,17 @@ export default function Dashboard() {
                 return <HelpCenterSection />;
             default:
                 return (
-                    <OverviewSection
+                    <DashboardOverview
                         stats={props.stats ?? []}
                         activity={props.activity ?? []}
                         weekly={
                             props.weekly ?? { labels: [], values: [] }
                         }
+                        weeklyDetailed={props.weeklyDetailed}
+                        hourlyData={props.hourlyData}
+                        topStudents={props.topStudents}
+                        courseStats={props.courseStats}
+                        attendanceRate={props.attendanceRate}
                         upcomingSessions={props.upcomingSessions ?? []}
                         deviceDistribution={props.deviceDistribution ?? []}
                         activeSession={props.activeSession}
