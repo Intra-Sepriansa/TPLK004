@@ -128,7 +128,10 @@ class ProfileController extends Controller
         $presentCount = $logs->where('status', 'present')->count();
         $currentStreak = $this->calculateStreak($mahasiswa);
 
-        // Get earned badges
+        // Check and award any new badges (this won't remove existing badges)
+        \App\Services\BadgeService::checkAndAwardBadges($mahasiswa->id);
+
+        // Get earned badges from database (permanent)
         $earnedBadges = \DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->pluck('badge_id')
@@ -143,7 +146,7 @@ class ProfileController extends Controller
             return preg_replace('/_[0-9]+$/', '', $badge->code);
         });
 
-        // Calculate progress for each badge type
+        // Calculate progress for each badge type (for display only)
         $earnedBadgesCount = count($earnedBadges);
         $progressData = [
             'streak_master' => ['current' => $currentStreak, 'target' => 7],
@@ -166,6 +169,7 @@ class ProfileController extends Controller
             $isUnlocked = false;
 
             foreach ($badgeGroup as $badge) {
+                // Only check database for unlocked status - badges are permanent
                 if (in_array($badge->id, $earnedBadges)) {
                     $currentBadge = $badge;
                     $isUnlocked = true;
@@ -176,11 +180,10 @@ class ProfileController extends Controller
 
             if (!$currentBadge) {
                 $currentBadge = $badgeGroup->last();
-                $isUnlocked = true;
+                $isUnlocked = in_array($currentBadge->id, $earnedBadges);
             }
 
             $progress = $progressData[$baseCode] ?? ['current' => 0, 'target' => $currentBadge->requirement_value];
-            $isCompleted = $progress['current'] >= $currentBadge->requirement_value;
 
             $badges[] = [
                 'id' => $currentBadge->id,
@@ -189,7 +192,7 @@ class ProfileController extends Controller
                 'level' => $currentBadge->badge_level,
                 'maxLevel' => $badgeGroup->count(),
                 'icon' => $currentBadge->icon,
-                'unlocked' => $isUnlocked || $isCompleted,
+                'unlocked' => $isUnlocked, // Only from database, not calculated
                 'progress' => $progress['current'],
                 'target' => $currentBadge->requirement_value,
             ];

@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
+use App\Services\BadgeService;
 
 class AbsensiController extends Controller
 {
@@ -323,11 +324,14 @@ class AbsensiController extends Controller
         $longestStreak = max($longestStreak, $tempStreak);
         $currentStreak = $tempStreak;
 
-        // Get user's earned badges
+        // Check and award any new badges (this won't remove existing badges)
+        BadgeService::checkAndAwardBadges($mahasiswa?->id);
+
+        // Get user's earned badges from database (permanent, won't be removed)
         $earnedBadges = \DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
-            ->pluck('badge_id')
-            ->toArray();
+            ->get()
+            ->keyBy('badge_id');
 
         // Get all badges from database grouped by base name (without level suffix)
         $allBadges = \App\Models\Badge::where('is_active', true)
@@ -345,15 +349,19 @@ class AbsensiController extends Controller
         // Build achievements array - show only the current level for each badge type
         $achievements = [];
         foreach ($badgeGroups as $baseCode => $badges) {
-            // Find the highest unlocked level or the next level to unlock
+            // Find the highest unlocked level (from database) or the next level to unlock
             $currentBadge = null;
             $isUnlocked = false;
+            $unlockedAt = null;
             
             foreach ($badges as $badge) {
-                if (in_array($badge->id, $earnedBadges)) {
+                // Check if badge is earned (stored in database - permanent)
+                if (isset($earnedBadges[$badge->id])) {
                     $currentBadge = $badge;
                     $isUnlocked = true;
+                    $unlockedAt = $earnedBadges[$badge->id]->earned_at;
                 } elseif (!$isUnlocked && !$currentBadge) {
+                    // First badge not yet earned - show as next target
                     $currentBadge = $badge;
                 }
             }
@@ -361,7 +369,8 @@ class AbsensiController extends Controller
             // If all levels unlocked, show the highest level
             if (!$currentBadge) {
                 $currentBadge = $badges->last();
-                $isUnlocked = true;
+                $isUnlocked = isset($earnedBadges[$currentBadge->id]);
+                $unlockedAt = $isUnlocked ? $earnedBadges[$currentBadge->id]->earned_at : null;
             }
 
             // Get progress for this badge type
@@ -376,7 +385,7 @@ class AbsensiController extends Controller
                 'progress' => $progress['current'],
                 'target' => $currentBadge->requirement_value,
                 'unlocked' => $isUnlocked,
-                'unlockedAt' => $isUnlocked ? now()->toIso8601String() : null,
+                'unlockedAt' => $unlockedAt,
                 'points' => $currentBadge->points,
                 'level' => $currentBadge->badge_level,
                 'maxLevel' => $badges->count(),
@@ -481,7 +490,7 @@ class AbsensiController extends Controller
             abort(404, 'Badge tidak ditemukan');
         }
         
-        // Get user's earned badges
+        // Get user's earned badges from database (permanent)
         $earnedBadgeIds = \DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->pluck('badge_id')
@@ -514,10 +523,10 @@ class AbsensiController extends Controller
         $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
         $progress = $progressData[$baseType] ?? ['current' => 0, 'target' => 1];
         
-        // Build badge levels data
-        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $progress) {
+        // Build badge levels data - use database for unlocked status (permanent)
+        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds) {
+            // Only check database for unlocked status - badges are permanent once earned
             $isUnlocked = in_array($b->id, $earnedBadgeIds);
-            $isCompleted = $progress['current'] >= $b->requirement_value;
             
             return [
                 'id' => $b->id,
@@ -527,17 +536,18 @@ class AbsensiController extends Controller
                 'requirement' => $this->formatRequirement($b),
                 'requirementValue' => $b->requirement_value,
                 'points' => $b->points,
-                'unlocked' => $isUnlocked || $isCompleted,
+                'unlocked' => $isUnlocked,
                 'icon' => $b->icon,
                 'color' => $b->color,
             ];
         })->toArray();
         
-        // Get current/next level badge
+        // Get current/next level badge - based on database (permanent)
         $currentBadge = null;
         $nextBadge = null;
         foreach ($allBadges as $b) {
-            $isUnlocked = in_array($b->id, $earnedBadgeIds) || $progress['current'] >= $b->requirement_value;
+            // Only check database for unlocked status
+            $isUnlocked = in_array($b->id, $earnedBadgeIds);
             if ($isUnlocked) {
                 $currentBadge = $b;
             } elseif (!$nextBadge) {
@@ -1040,6 +1050,9 @@ class AbsensiController extends Controller
         }
 
         $statusLabel = $status === 'late' ? 'Terlambat' : 'Hadir';
+
+        // Check and award badges after successful attendance
+        BadgeService::checkAndAwardBadges($mahasiswa->id);
 
         return back()->with(
             'success',

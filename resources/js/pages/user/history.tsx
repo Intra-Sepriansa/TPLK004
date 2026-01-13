@@ -45,7 +45,7 @@ interface AttendanceRecord {
     course: string;
     courseId: number;
     meetingNumber: number;
-    status: 'present' | 'absent' | 'late' | 'pending';
+    status: 'present' | 'absent' | 'late' | 'pending' | 'rejected';
     checkInTime: string | null;
     distance: number | null;
     selfieUrl: string | null;
@@ -77,6 +77,7 @@ interface PageProps {
 const statusConfig = {
     present: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
     absent: { label: 'Tidak Hadir', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: XCircle },
+    rejected: { label: 'Ditolak', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: XCircle },
     late: { label: 'Terlambat', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock },
     pending: { label: 'Pending', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400', icon: AlertCircle },
 };

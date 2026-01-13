@@ -263,6 +263,11 @@ class DashboardController extends Controller
             ],
             'activity' => $activity,
             'weekly' => $weekly,
+            'weeklyDetailed' => $this->getWeeklyDetailedData(),
+            'hourlyData' => $this->getHourlyData(),
+            'topStudents' => $this->getTopStudents(),
+            'courseStats' => $this->getCourseStats(),
+            'attendanceRate' => $this->getAttendanceRate(),
             'upcomingSessions' => $upcomingSessions,
             'deviceDistribution' => $deviceDistribution,
             'activeStats' => $activeStats,
@@ -272,6 +277,145 @@ class DashboardController extends Controller
                 'selfie_rate' => $selfieRate,
             ],
         ];
+    }
+
+    private function getWeeklyDetailedData(): array
+    {
+        $start = now()->subDays(6)->startOfDay();
+        $dayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        $result = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $date = $start->copy()->addDays($i);
+            $dateStr = $date->toDateString();
+            
+            $hadir = AttendanceLog::whereDate('scanned_at', $dateStr)
+                ->where('status', 'present')->count();
+            $terlambat = AttendanceLog::whereDate('scanned_at', $dateStr)
+                ->where('status', 'late')->count();
+            $tidakHadir = AttendanceLog::whereDate('scanned_at', $dateStr)
+                ->where('status', 'rejected')->count();
+
+            $result[] = [
+                'day' => $dayLabels[$date->dayOfWeek],
+                'hadir' => $hadir,
+                'terlambat' => $terlambat,
+                'tidakHadir' => $tidakHadir,
+            ];
+        }
+
+        return $result;
+    }
+
+    private function getHourlyData(): array
+    {
+        $today = now()->toDateString();
+        $result = [];
+
+        for ($hour = 7; $hour <= 17; $hour++) {
+            $count = AttendanceLog::whereDate('scanned_at', $today)
+                ->whereRaw('HOUR(scanned_at) = ?', [$hour])
+                ->count();
+
+            $result[] = [
+                'hour' => sprintf('%02d:00', $hour),
+                'count' => $count,
+            ];
+        }
+
+        return $result;
+    }
+
+    private function getTopStudents(): array
+    {
+        $students = Mahasiswa::withCount([
+            'attendanceLogs as total_attendance' => function ($query) {
+                $query->whereIn('status', ['present', 'late']);
+            },
+            'attendanceLogs as total_logs',
+        ])
+        ->having('total_logs', '>', 0)
+        ->orderByDesc('total_attendance')
+        ->take(5)
+        ->get();
+
+        return $students->map(function ($student) {
+            $rate = $student->total_logs > 0 
+                ? round(($student->total_attendance / $student->total_logs) * 100, 1) 
+                : 0;
+            
+            $streak = $this->calculateStreak($student->id);
+
+            return [
+                'id' => $student->id,
+                'name' => $student->nama,
+                'nim' => $student->nim,
+                'attendance' => $rate,
+                'streak' => $streak,
+            ];
+        })->toArray();
+    }
+
+    private function calculateStreak(int $mahasiswaId): int
+    {
+        $logs = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
+            ->whereIn('status', ['present', 'late'])
+            ->orderByDesc('scanned_at')
+            ->pluck('scanned_at')
+            ->map(fn($date) => $date->toDateString())
+            ->unique()
+            ->values();
+
+        if ($logs->isEmpty()) {
+            return 0;
+        }
+
+        $streak = 1;
+        $prevDate = $logs->first();
+
+        foreach ($logs->skip(1) as $date) {
+            $diff = now()->parse($prevDate)->diffInDays(now()->parse($date));
+            if ($diff === 1) {
+                $streak++;
+                $prevDate = $date;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    private function getCourseStats(): array
+    {
+        $courses = MataKuliah::take(5)->get();
+
+        return $courses->map(function ($course) {
+            $sessionIds = AttendanceSession::where('course_id', $course->id)->pluck('id');
+            
+            $hadir = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
+                ->where('status', 'present')->count();
+            $terlambat = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
+                ->where('status', 'late')->count();
+            $tidakHadir = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
+                ->where('status', 'rejected')->count();
+
+            return [
+                'name' => strlen($course->nama) > 20 
+                    ? substr($course->nama, 0, 17) . '...' 
+                    : $course->nama,
+                'hadir' => $hadir,
+                'terlambat' => $terlambat,
+                'tidakHadir' => $tidakHadir,
+            ];
+        })->toArray();
+    }
+
+    private function getAttendanceRate(): float
+    {
+        $totalLogs = AttendanceLog::count();
+        $totalHadir = AttendanceLog::whereIn('status', ['present', 'late'])->count();
+        return $totalLogs > 0 ? round(($totalHadir / $totalLogs) * 100, 1) : 0;
     }
 
     private function weeklyAttendance(): array
