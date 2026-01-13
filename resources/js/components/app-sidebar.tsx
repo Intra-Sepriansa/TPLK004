@@ -35,6 +35,10 @@ import {
     Wallet,
     BarChart3,
     ScrollText,
+    Shield,
+    Bell,
+    Upload,
+    TrendingUp,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -129,6 +133,26 @@ const reportNavItems: NavItem[] = [
         title: 'Analytics & Prediksi',
         href: '/admin/analytics',
         icon: BarChart3,
+    },
+    {
+        title: 'Advanced Analytics',
+        href: '/admin/advanced-analytics',
+        icon: TrendingUp,
+    },
+    {
+        title: 'Fraud Detection',
+        href: '/admin/fraud-detection',
+        icon: Shield,
+    },
+    {
+        title: 'Notification Center',
+        href: '/admin/notification-center',
+        icon: Bell,
+    },
+    {
+        title: 'Bulk Import',
+        href: '/admin/bulk-import',
+        icon: Upload,
     },
     {
         title: 'Audit Keamanan',
