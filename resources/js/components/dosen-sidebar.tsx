@@ -24,7 +24,7 @@ import {
     FileCheck,
     GraduationCap,
     BarChart3,
-    FileTemplate,
+    FileText,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -76,7 +76,7 @@ const dosenNavItems: NavItem[] = [
     {
         title: 'Session Templates',
         href: '/dosen/session-templates',
-        icon: FileTemplate,
+        icon: FileText,
     },
     {
         title: 'Profil',

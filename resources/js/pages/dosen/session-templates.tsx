@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
-    FileTemplate, Plus, Edit, Trash2, Calendar, Clock, Play
+    FileText, Plus, Edit, Trash2, Calendar, Clock, Play
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -122,7 +122,7 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold flex items-center gap-2">
-                            <FileTemplate className="h-6 w-6" />
+                            <FileText className="h-6 w-6" />
                             Session Templates
                         </h1>
                         <p className="text-muted-foreground">Buat template untuk generate sesi otomatis</p>
@@ -193,7 +193,7 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
                     {templates.length === 0 && (
                         <Card className="col-span-full">
                             <CardContent className="py-12 text-center">
-                                <FileTemplate className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                                 <p className="text-muted-foreground">Belum ada template</p>
                                 <Button className="mt-4" onClick={() => setCreateModal(true)}>
                                     <Plus className="h-4 w-4 mr-2" />

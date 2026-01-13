@@ -1,4 +1,4 @@
-import UserLayout from '@/layouts/user-layout';
+import StudentLayout from '@/layouts/student-layout';
 import { Head, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -83,7 +83,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
     };
 
     return (
-        <UserLayout>
+        <StudentLayout>
             <Head title="Notifikasi" />
             
             <div className="space-y-6">
@@ -173,6 +173,6 @@ export default function Notifications({ notifications, unreadCount }: Props) {
                     </div>
                 )}
             </div>
-        </UserLayout>
+        </StudentLayout>
     );
 }

@@ -1,4 +1,4 @@
-import UserLayout from '@/layouts/user-layout';
+import StudentLayout from '@/layouts/student-layout';
 import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -106,7 +106,7 @@ export default function PersonalAnalytics({
     };
 
     return (
-        <UserLayout>
+        <StudentLayout>
             <Head title="Personal Analytics" />
             
             <div className="space-y-6">
@@ -378,6 +378,6 @@ export default function PersonalAnalytics({
                     </Card>
                 </div>
             </div>
-        </UserLayout>
+        </StudentLayout>
     );
 }

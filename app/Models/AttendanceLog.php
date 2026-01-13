@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttendanceLog extends Model
 {
@@ -41,5 +42,10 @@ class AttendanceLog extends Model
     public function selfieVerification(): HasOne
     {
         return $this->hasOne(SelfieVerification::class);
+    }
+
+    public function fraudAlerts(): HasMany
+    {
+        return $this->hasMany(FraudAlert::class, 'attendance_log_id');
     }
 }

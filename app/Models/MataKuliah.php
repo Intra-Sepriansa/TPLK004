@@ -27,4 +27,12 @@ class MataKuliah extends Model
     {
         return $this->hasMany(AttendanceSession::class, 'course_id');
     }
+
+    /**
+     * Alias for sessions() - used by AdvancedAnalyticsController
+     */
+    public function attendanceSessions(): HasMany
+    {
+        return $this->hasMany(AttendanceSession::class, 'course_id');
+    }
 }
