@@ -32,7 +32,7 @@ class PersonalAnalyticsController extends Controller
             'streakData' => $this->getStreakData($mahasiswa->id),
             'courseBreakdown' => $this->getCourseBreakdown($mahasiswa->id),
             'weeklyTrend' => $this->getWeeklyTrend($mahasiswa->id),
-            'monthlyCalendar' => $this->getMonthlyCalendar($mahasiswa->id),
+            'activityGraph' => $this->getActivityGraph($mahasiswa->id),
             'comparison' => $this->getClassComparison($mahasiswa->id),
             'badges' => $this->getBadges($mahasiswa->id),
             'tips' => $this->getImprovementTips($mahasiswa->id),
@@ -225,6 +225,155 @@ class PersonalAnalyticsController extends Controller
         }
 
         return $calendar;
+    }
+
+    private function getActivityGraph(int $mahasiswaId): array
+    {
+        // Get data for the last 365 days (like GitHub contribution graph)
+        $startDate = now()->subYear()->startOfWeek();
+        $endDate = now()->endOfWeek();
+        
+        // Get attendance logs
+        $attendanceLogs = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
+            ->whereBetween('scanned_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn($log) => $log->scanned_at->toDateString());
+        
+        // Get academic tasks completed
+        $tasksCompleted = \App\Models\AcademicTask::where('mahasiswa_id', $mahasiswaId)
+            ->where('status', 'completed')
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn($task) => $task->updated_at->toDateString());
+        
+        // Get academic notes created
+        $notesCreated = \App\Models\AcademicNote::where('mahasiswa_id', $mahasiswaId)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn($note) => $note->created_at->toDateString());
+        
+        // Build activity data
+        $activities = [];
+        $current = $startDate->copy();
+        $totalActivities = 0;
+        $activeDays = 0;
+        
+        while ($current <= $endDate) {
+            $dateStr = $current->toDateString();
+            $count = 0;
+            $types = [];
+            
+            // Count attendance
+            if (isset($attendanceLogs[$dateStr])) {
+                $attendanceCount = $attendanceLogs[$dateStr]->whereIn('status', ['present', 'late'])->count();
+                $count += $attendanceCount;
+                if ($attendanceCount > 0) {
+                    $types[] = 'attendance';
+                }
+            }
+            
+            // Count tasks completed
+            if (isset($tasksCompleted[$dateStr])) {
+                $taskCount = $tasksCompleted[$dateStr]->count();
+                $count += $taskCount;
+                if ($taskCount > 0) {
+                    $types[] = 'task';
+                }
+            }
+            
+            // Count notes created
+            if (isset($notesCreated[$dateStr])) {
+                $noteCount = $notesCreated[$dateStr]->count();
+                $count += $noteCount;
+                if ($noteCount > 0) {
+                    $types[] = 'note';
+                }
+            }
+            
+            $activities[] = [
+                'date' => $dateStr,
+                'count' => $count,
+                'level' => $this->getActivityLevel($count),
+                'types' => $types,
+                'dayOfWeek' => $current->dayOfWeek,
+                'week' => $current->weekOfYear,
+                'month' => $current->month,
+                'monthName' => $current->format('M'),
+            ];
+            
+            $totalActivities += $count;
+            if ($count > 0) $activeDays++;
+            
+            $current->addDay();
+        }
+        
+        // Group by weeks for display
+        $weeks = collect($activities)->groupBy('week')->map(fn($week) => $week->values()->toArray())->values()->toArray();
+        
+        // Get month labels
+        $months = collect($activities)
+            ->unique('month')
+            ->map(fn($a) => ['month' => $a['month'], 'name' => $a['monthName']])
+            ->values()
+            ->toArray();
+        
+        return [
+            'activities' => $activities,
+            'weeks' => $weeks,
+            'months' => $months,
+            'totalActivities' => $totalActivities,
+            'activeDays' => $activeDays,
+            'longestStreak' => $this->calculateLongestActivityStreak($activities),
+            'currentStreak' => $this->calculateCurrentActivityStreak($activities),
+        ];
+    }
+    
+    private function getActivityLevel(int $count): int
+    {
+        if ($count === 0) return 0;
+        if ($count === 1) return 1;
+        if ($count <= 3) return 2;
+        if ($count <= 5) return 3;
+        return 4;
+    }
+    
+    private function calculateLongestActivityStreak(array $activities): int
+    {
+        $longest = 0;
+        $current = 0;
+        
+        foreach ($activities as $activity) {
+            if ($activity['count'] > 0) {
+                $current++;
+                $longest = max($longest, $current);
+            } else {
+                $current = 0;
+            }
+        }
+        
+        return $longest;
+    }
+    
+    private function calculateCurrentActivityStreak(array $activities): int
+    {
+        $activities = array_reverse($activities);
+        $streak = 0;
+        
+        // Skip today if no activity yet
+        $startIndex = 0;
+        if (isset($activities[0]) && $activities[0]['date'] === now()->toDateString() && $activities[0]['count'] === 0) {
+            $startIndex = 1;
+        }
+        
+        for ($i = $startIndex; $i < count($activities); $i++) {
+            if ($activities[$i]['count'] > 0) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+        
+        return $streak;
     }
 
     private function getClassComparison(int $mahasiswaId): array
