@@ -16,7 +16,11 @@ class PersonalAnalyticsController extends Controller
 {
     public function index()
     {
-        $mahasiswa = Auth::guard('web')->user();
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
 
         return Inertia::render('user/personal-analytics', [
             'mahasiswa' => [
