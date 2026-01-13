@@ -77,7 +77,10 @@ interface Props {
         id: number;
         name: string;
         description: string;
-        image: string;
+        icon: string;
+        color: string;
+        category: string;
+        points: number;
         earned_at: string;
     }>;
     tips: Array<{
@@ -127,6 +130,30 @@ export default function PersonalAnalytics({
             case 3: return 'bg-emerald-500 dark:bg-emerald-600';
             case 4: return 'bg-emerald-600 dark:bg-emerald-500';
             default: return 'bg-gray-100 dark:bg-gray-800';
+        }
+    };
+
+    const getBadgeGradient = (color: string) => {
+        switch (color) {
+            case 'orange': return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white';
+            case 'yellow': return 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white';
+            case 'green': return 'bg-gradient-to-br from-green-400 to-green-600 text-white';
+            case 'blue': return 'bg-gradient-to-br from-blue-400 to-blue-600 text-white';
+            case 'purple': return 'bg-gradient-to-br from-purple-400 to-purple-600 text-white';
+            case 'red': return 'bg-gradient-to-br from-red-400 to-red-600 text-white';
+            case 'emerald': return 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white';
+            case 'pink': return 'bg-gradient-to-br from-pink-400 to-pink-600 text-white';
+            default: return 'bg-gradient-to-br from-gray-400 to-gray-600 text-white';
+        }
+    };
+
+    const getBadgeEmoji = (category: string) => {
+        switch (category) {
+            case 'streak': return '🔥';
+            case 'attendance': return '✅';
+            case 'achievement': return '🏆';
+            case 'special': return '⭐';
+            default: return '🎖️';
         }
     };
 
@@ -430,19 +457,27 @@ export default function PersonalAnalytics({
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Award className="h-5 w-5 text-yellow-500" />
-                                Badge Kamu
+                                Badge Kamu ({badges.length})
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {badges.length > 0 ? (
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="space-y-3">
                                     {badges.map(badge => (
-                                        <div key={badge.id} className="text-center">
-                                            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 rounded-full flex items-center justify-center text-2xl">
-                                                {badge.image || '🏆'}
+                                        <div key={badge.id} className="flex items-center gap-3 p-3 rounded-lg border bg-gradient-to-r from-transparent to-transparent hover:from-yellow-50 hover:to-orange-50 dark:hover:from-yellow-900/10 dark:hover:to-orange-900/10 transition-colors">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0 ${getBadgeGradient(badge.color)}`}>
+                                                {getBadgeEmoji(badge.category)}
                                             </div>
-                                            <p className="text-xs font-medium mt-2">{badge.name}</p>
-                                            <p className="text-xs text-muted-foreground">{badge.earned_at}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="font-medium text-sm truncate">{badge.name}</p>
+                                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                                        +{badge.points} pts
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground line-clamp-1">{badge.description}</p>
+                                                <p className="text-[10px] text-muted-foreground mt-0.5">Diperoleh {badge.earned_at}</p>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
