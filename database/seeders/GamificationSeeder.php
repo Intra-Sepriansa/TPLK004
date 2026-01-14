@@ -24,7 +24,7 @@ class GamificationSeeder extends Seeder
             Level::updateOrCreate(['level_number' => $level['level_number']], $level);
         }
 
-        // Create 12 Badges dengan Level 1-3 (EASIER REQUIREMENTS)
+        // Create 12 Badges dengan Level 1-3 (EASY REQUIREMENTS - PROGRESSIVE VALUES)
         $badges = [
             // ============================================
             // BADGE 1: STREAK MASTER (Hadir berturut-turut)
@@ -72,38 +72,38 @@ class GamificationSeeder extends Seeder
             [
                 'code' => 'perfect_attendance_1',
                 'name' => 'Perfect Attendance I',
-                'description' => 'Kehadiran 100% dalam 3 hari',
+                'description' => 'Kehadiran 100% dalam 3 sesi',
                 'icon' => 'perfect_attendance.png',
                 'color' => 'emerald',
                 'category' => 'attendance',
                 'points' => 50,
                 'badge_level' => 1,
-                'requirement_type' => 'attendance_percentage',
-                'requirement_value' => 100,
+                'requirement_type' => 'perfect_sessions',
+                'requirement_value' => 3,
             ],
             [
                 'code' => 'perfect_attendance_2',
                 'name' => 'Perfect Attendance II',
-                'description' => 'Kehadiran 100% dalam 1 minggu',
+                'description' => 'Kehadiran 100% dalam 7 sesi',
                 'icon' => 'perfect_attendance_2.png',
                 'color' => 'emerald',
                 'category' => 'attendance',
                 'points' => 100,
                 'badge_level' => 2,
-                'requirement_type' => 'attendance_percentage_week',
-                'requirement_value' => 100,
+                'requirement_type' => 'perfect_sessions',
+                'requirement_value' => 7,
             ],
             [
                 'code' => 'perfect_attendance_3',
                 'name' => 'Perfect Attendance III',
-                'description' => 'Kehadiran 100% dalam 2 minggu',
+                'description' => 'Kehadiran 100% dalam 14 sesi',
                 'icon' => 'perfect_attendance_3.png',
                 'color' => 'emerald',
                 'category' => 'attendance',
                 'points' => 200,
                 'badge_level' => 3,
-                'requirement_type' => 'attendance_percentage_month',
-                'requirement_value' => 100,
+                'requirement_type' => 'perfect_sessions',
+                'requirement_value' => 14,
             ],
 
             // ============================================
@@ -147,43 +147,43 @@ class GamificationSeeder extends Seeder
             ],
 
             // ============================================
-            // BADGE 4: CONSISTENT (Kehadiran konsisten >80%)
+            // BADGE 4: CONSISTENT (Kehadiran konsisten)
             // ============================================
             [
                 'code' => 'consistent_1',
                 'name' => 'Consistent I',
-                'description' => 'Kehadiran >70% dalam 1 minggu',
+                'description' => 'Total kehadiran 5 kali',
                 'icon' => 'consistent.png',
                 'color' => 'green',
                 'category' => 'attendance',
                 'points' => 75,
                 'badge_level' => 1,
-                'requirement_type' => 'consistent_week',
-                'requirement_value' => 70,
+                'requirement_type' => 'total_present',
+                'requirement_value' => 5,
             ],
             [
                 'code' => 'consistent_2',
                 'name' => 'Consistent II',
-                'description' => 'Kehadiran >80% dalam 2 minggu',
+                'description' => 'Total kehadiran 10 kali',
                 'icon' => 'consistent_2.png',
                 'color' => 'green',
                 'category' => 'attendance',
                 'points' => 150,
                 'badge_level' => 2,
-                'requirement_type' => 'consistent_month',
-                'requirement_value' => 80,
+                'requirement_type' => 'total_present',
+                'requirement_value' => 10,
             ],
             [
                 'code' => 'consistent_3',
                 'name' => 'Consistent III',
-                'description' => 'Kehadiran >85% dalam 1 bulan',
+                'description' => 'Total kehadiran 20 kali',
                 'icon' => 'consistent_3.png',
                 'color' => 'green',
                 'category' => 'attendance',
                 'points' => 300,
                 'badge_level' => 3,
-                'requirement_type' => 'consistent_quarter',
-                'requirement_value' => 85,
+                'requirement_type' => 'total_present',
+                'requirement_value' => 20,
             ],
 
             // ============================================
