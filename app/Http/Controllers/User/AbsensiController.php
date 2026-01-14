@@ -458,16 +458,30 @@ class AbsensiController extends Controller
         // Count AI verifications (selfie uploads)
         $aiVerifiedCount = $logs->whereNotNull('selfie_path')->count();
         
-        // Count kas payments (placeholder - would need kas_payments table)
-        $kasOnTimeCount = \DB::table('kas_payments')
-            ->where('mahasiswa_id', $mahasiswa?->id)
-            ->where('status', 'paid')
-            ->count();
+        // Count kas payments (check if table exists first)
+        $kasOnTimeCount = 0;
+        try {
+            if (\Schema::hasTable('kas_payments')) {
+                $kasOnTimeCount = \DB::table('kas_payments')
+                    ->where('mahasiswa_id', $mahasiswa?->id)
+                    ->where('status', 'paid')
+                    ->count();
+            }
+        } catch (\Exception $e) {
+            $kasOnTimeCount = 0;
+        }
         
-        // Count voting participation
-        $votingCount = \DB::table('kas_voting_votes')
-            ->where('mahasiswa_id', $mahasiswa?->id)
-            ->count();
+        // Count voting participation (check if table exists first)
+        $votingCount = 0;
+        try {
+            if (\Schema::hasTable('kas_voting_votes')) {
+                $votingCount = \DB::table('kas_voting_votes')
+                    ->where('mahasiswa_id', $mahasiswa?->id)
+                    ->count();
+            }
+        } catch (\Exception $e) {
+            $votingCount = 0;
+        }
         
         // Count fast attendance (within 1 minute of session start)
         $fastAttendanceCount = $logs->filter(function ($log) {
