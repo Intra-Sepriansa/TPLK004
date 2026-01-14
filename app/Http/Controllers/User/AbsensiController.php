@@ -523,10 +523,10 @@ class AbsensiController extends Controller
         $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
         $progress = $progressData[$baseType] ?? ['current' => 0, 'target' => 1];
         
-        // Build badge levels data - use database for unlocked status (permanent)
-        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds) {
-            // Only check database for unlocked status - badges are permanent once earned
-            $isUnlocked = in_array($b->id, $earnedBadgeIds);
+        // Build badge levels data - check both database AND progress
+        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $progress) {
+            // Check database for earned status OR if progress meets requirement
+            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($progress['current'] >= $b->requirement_value);
             
             return [
                 'id' => $b->id,
@@ -542,12 +542,12 @@ class AbsensiController extends Controller
             ];
         })->toArray();
         
-        // Get current/next level badge - based on database (permanent)
+        // Get current/next level badge - check both database AND progress
         $currentBadge = null;
         $nextBadge = null;
         foreach ($allBadges as $b) {
-            // Only check database for unlocked status
-            $isUnlocked = in_array($b->id, $earnedBadgeIds);
+            // Check database OR progress for unlocked status
+            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($progress['current'] >= $b->requirement_value);
             if ($isUnlocked) {
                 $currentBadge = $b;
             } elseif (!$nextBadge) {
@@ -573,14 +573,16 @@ class AbsensiController extends Controller
             ->inRandomOrder()
             ->limit(4)
             ->get()
-            ->map(function ($b) use ($earnedBadgeIds) {
+            ->map(function ($b) use ($earnedBadgeIds, $progressData) {
                 $baseCode = preg_replace('/_[0-9]+$/', '', $b->code);
+                $relatedProgress = $progressData[$baseCode] ?? ['current' => 0, 'target' => 1];
+                $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($relatedProgress['current'] >= $b->requirement_value);
                 return [
                     'type' => $baseCode,
                     'name' => preg_replace('/ I$/', '', $b->name),
                     'icon' => $b->icon,
                     'color' => $b->color,
-                    'unlocked' => in_array($b->id, $earnedBadgeIds),
+                    'unlocked' => $isUnlocked,
                 ];
             })->toArray();
         

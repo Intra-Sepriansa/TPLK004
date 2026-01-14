@@ -25,6 +25,7 @@ import {
     GraduationCap,
     BarChart3,
     FileText,
+    Bell,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -77,6 +78,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Session Templates',
         href: '/dosen/session-templates',
         icon: FileText,
+    },
+    {
+        title: 'Notifikasi',
+        href: '/dosen/notifications',
+        icon: Bell,
     },
     {
         title: 'Profil',

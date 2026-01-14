@@ -1,25 +1,9 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { Progress } from '@/components/ui/progress';
 import {
-    ArrowLeft,
-    Lock,
-    CheckCircle,
-    Star,
-    Sparkles,
-    Lightbulb,
-    Trophy,
-    ChevronRight,
-    Flame,
-    Zap,
-    Award,
-    Crown,
-    Footprints,
-    ScanFace,
-    Wallet,
-    ClipboardCheck,
-    Users,
-    Rocket,
+    ArrowLeft, CheckCircle, Star, Sparkles, Lightbulb, Trophy, ChevronRight,
+    Flame, Zap, Award, Crown, Footprints, ScanFace, Wallet, ClipboardCheck, Users, Rocket, Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
@@ -64,11 +48,7 @@ interface PageProps {
         maxLevel: number;
     };
     levels: BadgeLevel[];
-    progress: {
-        current: number;
-        target: number;
-        percentage: number;
-    };
+    progress: { current: number; target: number; percentage: number };
     tips: string[];
     howToEarn: HowToEarnStep[];
     relatedBadges: RelatedBadge[];
@@ -103,33 +83,11 @@ const colorGradients: Record<string, string> = {
     red: 'from-red-400 to-orange-500',
 };
 
-const colorBg: Record<string, string> = {
-    orange: 'bg-orange-500',
-    emerald: 'bg-emerald-500',
-    sky: 'bg-sky-500',
-    green: 'bg-green-500',
-    amber: 'bg-amber-500',
-    purple: 'bg-purple-500',
-    teal: 'bg-teal-500',
-    cyan: 'bg-cyan-500',
-    blue: 'bg-blue-500',
-    pink: 'bg-pink-500',
-    red: 'bg-red-500',
-};
-
-// Badge Image component with lock animation
+// Badge Image Component - Blur for locked, NO lock icon
 const BadgeImage = ({ 
-    type, 
-    level, 
-    unlocked,
-    size = 'lg',
-    showAnimation = true,
+    type, level, unlocked, size = 'lg', showAnimation = true
 }: { 
-    type: string; 
-    level: number; 
-    unlocked: boolean;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
-    showAnimation?: boolean;
+    type: string; level: number; unlocked: boolean; size?: 'sm' | 'md' | 'lg' | 'xl'; showAnimation?: boolean;
 }) => {
     const [imageError, setImageError] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -146,110 +104,53 @@ const BadgeImage = ({
     };
 
     if (imageError) {
-        // Fallback to icon
         return (
             <div className={cn(
                 sizeClasses[size],
-                'flex items-center justify-center rounded-full',
+                'flex items-center justify-center rounded-full transition-all duration-300',
                 unlocked 
                     ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30'
-                    : 'bg-slate-100 dark:bg-slate-800'
+                    : 'bg-slate-200/80 dark:bg-slate-700/80'
             )}>
-                {unlocked ? (
-                    <Icon className={cn(
-                        size === 'xl' ? 'h-16 w-16' : size === 'lg' ? 'h-12 w-12' : 'h-8 w-8',
-                        'text-amber-600'
-                    )} />
-                ) : (
-                    <Lock className={cn(
-                        size === 'xl' ? 'h-12 w-12' : size === 'lg' ? 'h-8 w-8' : 'h-6 w-6',
-                        'text-slate-400'
-                    )} />
-                )}
+                <Icon className={cn(
+                    size === 'xl' ? 'h-16 w-16' : size === 'lg' ? 'h-12 w-12' : 'h-8 w-8',
+                    unlocked ? 'text-amber-600' : 'text-slate-400 opacity-50'
+                )} />
             </div>
         );
     }
 
-    if (unlocked) {
-        return (
-            <div 
-                className={cn(sizeClasses[size], 'relative')}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                <img
-                    src={imagePath}
-                    alt={type}
-                    className={cn(
-                        'h-full w-full object-contain rounded-full transition-transform duration-300',
-                        showAnimation && isHovered && 'scale-110'
-                    )}
-                    onError={() => setImageError(true)}
-                />
-                {showAnimation && (
-                    <div className="absolute inset-0 rounded-full animate-pulse-ring" />
-                )}
-            </div>
-        );
-    }
-
-    // Locked badge with animation
     return (
         <div 
-            className={cn(
-                sizeClasses[size], 
-                'relative group cursor-pointer'
-            )}
+            className={cn(sizeClasses[size], 'relative group cursor-pointer')}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Grayscale badge image */}
             <img
                 src={imagePath}
                 alt={type}
                 className={cn(
                     'h-full w-full object-contain rounded-full transition-all duration-500',
-                    'grayscale opacity-30 blur-[1px]',
-                    isHovered && 'grayscale-0 opacity-60 blur-0'
+                    !unlocked && 'grayscale blur-[2px] opacity-40',
+                    !unlocked && isHovered && 'grayscale-[50%] blur-[1px] opacity-60',
+                    unlocked && isHovered && showAnimation && 'scale-110',
+                    unlocked && 'drop-shadow-lg'
                 )}
                 onError={() => setImageError(true)}
             />
             
-            {/* Lock overlay with animation */}
-            <div className={cn(
-                'absolute inset-0 flex items-center justify-center rounded-full',
-                'bg-slate-900/40 backdrop-blur-[2px] transition-all duration-500',
-                isHovered && 'bg-slate-900/20 backdrop-blur-0'
-            )}>
-                <div className={cn(
-                    'relative transition-all duration-500',
-                    isHovered && 'scale-90 opacity-70'
-                )}>
-                    {/* Animated lock */}
-                    <div className="relative">
-                        <Lock className={cn(
-                            size === 'xl' ? 'h-12 w-12' : size === 'lg' ? 'h-8 w-8' : 'h-6 w-6',
-                            'text-white drop-shadow-lg transition-transform duration-300',
-                            showAnimation && 'animate-bounce-slow'
-                        )} />
-                        
-                        {/* Sparkle effects */}
-                        {showAnimation && (
-                            <>
-                                <Sparkles className="absolute -top-2 -right-2 h-3 w-3 text-amber-400 animate-twinkle" />
-                                <Sparkles className="absolute -bottom-1 -left-2 h-2 w-2 text-amber-300 animate-twinkle-delay" />
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
+            {/* Glow effect for unlocked */}
+            {unlocked && showAnimation && (
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-400/20 animate-pulse pointer-events-none" />
+            )}
             
-            {/* Hover hint */}
-            {isHovered && showAnimation && (
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 animate-fade-in">
-                        Belum terbuka
-                    </span>
+            {/* Hover hint for locked - just eye icon, no lock */}
+            {!unlocked && isHovered && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-[1px]">
+                    <Eye className={cn(
+                        size === 'xl' ? 'h-8 w-8' : size === 'lg' ? 'h-6 w-6' : 'h-4 w-4',
+                        'text-white/80 animate-pulse'
+                    )} />
                 </div>
             )}
         </div>
@@ -257,25 +158,16 @@ const BadgeImage = ({
 };
 
 export default function BadgeDetail({
-    mahasiswa,
-    badge,
-    levels,
-    progress,
-    tips,
-    howToEarn,
-    relatedBadges,
+    mahasiswa, badge, levels, progress, tips, howToEarn, relatedBadges,
 }: PageProps) {
     const [selectedLevel, setSelectedLevel] = useState<number>(badge.currentLevel);
     const [showConfetti, setShowConfetti] = useState(false);
     
     const gradient = colorGradients[badge.color] || 'from-gray-400 to-gray-500';
-    const bgColor = colorBg[badge.color] || 'bg-gray-500';
     const Icon = achievementIcons[badge.type] || Award;
     
     const currentLevelData = levels.find(l => l.level === selectedLevel);
     const isCurrentUnlocked = currentLevelData?.unlocked || false;
-    
-    // Check if all levels are unlocked
     const allUnlocked = levels.every(l => l.unlocked);
     
     useEffect(() => {
@@ -290,40 +182,13 @@ export default function BadgeDetail({
         <StudentLayout>
             <Head title={`Badge: ${badge.name}`} />
             
-            {/* Custom CSS for animations */}
             <style>{`
                 @keyframes pulse-ring {
                     0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
                     70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
                 }
-                .animate-pulse-ring {
-                    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                }
-                @keyframes bounce-slow {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-4px); }
-                }
-                .animate-bounce-slow {
-                    animation: bounce-slow 2s ease-in-out infinite;
-                }
-                @keyframes twinkle {
-                    0%, 100% { opacity: 0; transform: scale(0.5); }
-                    50% { opacity: 1; transform: scale(1); }
-                }
-                .animate-twinkle {
-                    animation: twinkle 1.5s ease-in-out infinite;
-                }
-                .animate-twinkle-delay {
-                    animation: twinkle 1.5s ease-in-out infinite 0.5s;
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(4px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in {
-                    animation: fade-in 0.3s ease-out forwards;
-                }
+                .animate-pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
                 @keyframes confetti {
                     0% { transform: translateY(0) rotate(0deg); opacity: 1; }
                     100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
@@ -337,7 +202,7 @@ export default function BadgeDetail({
                 }
             `}</style>
 
-            {/* Confetti effect */}
+            {/* Confetti */}
             {showConfetti && (
                 <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
                     {[...Array(50)].map((_, i) => (
@@ -355,43 +220,40 @@ export default function BadgeDetail({
                 </div>
             )}
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 md:p-6 space-y-6">
                 {/* Back Button */}
                 <button
                     onClick={() => router.get('/user/achievements')}
-                    className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors group"
                 >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                     <span className="text-sm font-medium">Kembali ke Pencapaian</span>
                 </button>
 
                 {/* Hero Section */}
                 <div className={cn(
-                    'relative overflow-hidden rounded-3xl p-8 text-white shadow-xl',
+                    'relative overflow-hidden rounded-3xl p-6 md:p-8 text-white shadow-2xl',
                     `bg-gradient-to-br ${gradient}`
                 )}>
-                    {/* Background decorations */}
-                    <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-white/5" />
+                    <div className="absolute inset-0 overflow-hidden">
+                        <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
+                    </div>
                     
-                    <div className="relative flex flex-col md:flex-row items-center gap-8">
+                    <div className="relative flex flex-col md:flex-row items-center gap-6 md:gap-8">
                         {/* Badge Display */}
                         <div className="relative">
                             <div className={cn(
-                                'rounded-full p-2',
-                                isCurrentUnlocked ? 'bg-white/20 ring-4 ring-white/30' : 'bg-white/10'
+                                'rounded-full p-3',
+                                isCurrentUnlocked ? 'bg-white/20 ring-4 ring-white/30 animate-pulse-ring' : 'bg-white/10'
                             )}>
                                 <BadgeImage 
                                     type={badge.type} 
                                     level={selectedLevel} 
                                     unlocked={isCurrentUnlocked}
                                     size="xl"
-                                    showAnimation={true}
                                 />
                             </div>
-                            
-                            {/* Level indicator */}
                             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
                                 <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-bold">
                                     <span>Lv {selectedLevel}</span>
@@ -415,14 +277,13 @@ export default function BadgeDetail({
                                 )}
                             </div>
                             
-                            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                            <h1 className="text-2xl md:text-3xl font-bold mb-2">
                                 {currentLevelData?.name || badge.name}
                             </h1>
-                            <p className="text-white/80 text-lg mb-4">
+                            <p className="text-white/80 text-base md:text-lg mb-4">
                                 {currentLevelData?.description || badge.description}
                             </p>
                             
-                            {/* Points */}
                             <div className="flex items-center justify-center md:justify-start gap-2">
                                 <Star className="h-5 w-5 text-amber-300" />
                                 <span className="text-2xl font-bold">{currentLevelData?.points || 0}</span>
@@ -433,28 +294,27 @@ export default function BadgeDetail({
                 </div>
 
                 {/* Level Selector */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <h2 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90">
+                    <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-amber-500" />
                         Level Badge
                     </h2>
                     
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-3 gap-3 md:gap-4">
                         {levels.map((level) => (
                             <button
                                 key={level.id}
                                 onClick={() => setSelectedLevel(level.level)}
                                 className={cn(
-                                    'relative rounded-2xl p-4 transition-all duration-300',
-                                    'border-2',
+                                    'relative rounded-2xl p-3 md:p-4 transition-all duration-300 border-2',
                                     selectedLevel === level.level
                                         ? level.unlocked
-                                            ? 'border-amber-400 bg-amber-50 dark:bg-amber-950/30'
-                                            : 'border-slate-400 bg-slate-50 dark:bg-slate-800/50'
+                                            ? 'border-amber-400 bg-amber-50 dark:bg-amber-950/30 shadow-lg shadow-amber-500/20'
+                                            : 'border-slate-400 bg-slate-100 dark:bg-slate-800/50'
                                         : 'border-transparent bg-slate-100 dark:bg-slate-800/30 hover:bg-slate-200 dark:hover:bg-slate-800/50'
                                 )}
                             >
-                                <div className="flex flex-col items-center gap-3">
+                                <div className="flex flex-col items-center gap-2 md:gap-3">
                                     <BadgeImage 
                                         type={badge.type} 
                                         level={level.level} 
@@ -472,13 +332,13 @@ export default function BadgeDetail({
                                         )}>
                                             Level {level.level}
                                         </p>
-                                        <p className="text-xs text-slate-500 mt-1">
+                                        <p className="text-xs text-slate-500 mt-0.5">
                                             {level.requirementValue} target
                                         </p>
                                     </div>
                                     
                                     {level.unlocked && (
-                                        <CheckCircle className="absolute top-2 right-2 h-5 w-5 text-emerald-500" />
+                                        <CheckCircle className="absolute top-2 right-2 h-4 w-4 md:h-5 md:w-5 text-emerald-500" />
                                     )}
                                 </div>
                             </button>
@@ -487,9 +347,9 @@ export default function BadgeDetail({
                 </div>
 
                 {/* Progress Section */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <h2 className="font-semibold text-slate-900 dark:text-white mb-4">
-                        Progress Saat Ini
+                <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90">
+                    <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4">
+                        📊 Progress Saat Ini
                     </h2>
                     
                     <div className="space-y-4">
@@ -498,7 +358,7 @@ export default function BadgeDetail({
                                 {currentLevelData?.requirement}
                             </span>
                             <span className={cn(
-                                'font-bold',
+                                'font-bold text-lg',
                                 progress.percentage >= 100 ? 'text-emerald-600' : 'text-slate-900 dark:text-white'
                             )}>
                                 {progress.current} / {progress.target}
@@ -512,9 +372,8 @@ export default function BadgeDetail({
                                 style={{ left: `${Math.min(progress.percentage, 100)}%` }}
                             >
                                 <div className={cn(
-                                    'h-6 w-6 rounded-full -ml-3 flex items-center justify-center',
-                                    `bg-gradient-to-br ${gradient}`,
-                                    'shadow-lg'
+                                    'h-6 w-6 rounded-full -ml-3 flex items-center justify-center shadow-lg',
+                                    `bg-gradient-to-br ${gradient}`
                                 )}>
                                     <Icon className="h-3 w-3 text-white" />
                                 </div>
@@ -524,27 +383,27 @@ export default function BadgeDetail({
                         <p className="text-center text-sm text-slate-500">
                             {progress.percentage >= 100 
                                 ? '🎉 Target tercapai! Badge sudah terbuka.'
-                                : `${100 - progress.percentage}% lagi untuk membuka badge ini`
+                                : `${Math.round(100 - progress.percentage)}% lagi untuk membuka badge ini`
                             }
                         </p>
                     </div>
                 </div>
 
                 {/* How to Earn */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <h2 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90">
+                    <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <Sparkles className="h-5 w-5 text-purple-500" />
                         Cara Mendapatkan
                     </h2>
                     
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {howToEarn.map((step, index) => (
                             <div 
                                 key={step.step}
                                 className={cn(
                                     'flex items-start gap-4 p-4 rounded-xl transition-all',
                                     index < progress.percentage / 25 
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/20'
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800'
                                         : 'bg-slate-50 dark:bg-slate-800/30'
                                 )}
                             >
@@ -579,8 +438,8 @@ export default function BadgeDetail({
                 </div>
 
                 {/* Tips */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <h2 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90">
+                    <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <Lightbulb className="h-5 w-5 text-amber-500" />
                         Tips & Trik
                     </h2>
@@ -589,7 +448,7 @@ export default function BadgeDetail({
                         {tips.map((tip, index) => (
                             <li 
                                 key={index}
-                                className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20"
+                                className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-950/30 transition-colors"
                             >
                                 <div className={cn(
                                     'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
@@ -607,17 +466,17 @@ export default function BadgeDetail({
 
                 {/* Related Badges */}
                 {relatedBadges.length > 0 && (
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <h2 className="font-semibold text-slate-900 dark:text-white mb-4">
-                            Badge Lainnya
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90">
+                        <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4">
+                            🏆 Badge Lainnya
                         </h2>
                         
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
                             {relatedBadges.map((related) => (
                                 <button
                                     key={related.type}
                                     onClick={() => router.get(`/user/achievements/${related.type}`)}
-                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all hover:scale-105 group"
                                 >
                                     <BadgeImage 
                                         type={related.type} 
@@ -629,7 +488,7 @@ export default function BadgeDetail({
                                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300 text-center">
                                         {related.name}
                                     </span>
-                                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ))}
                         </div>

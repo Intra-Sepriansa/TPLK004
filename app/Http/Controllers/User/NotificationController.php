@@ -60,4 +60,22 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Semua notifikasi telah ditandai dibaca.');
     }
+
+    public function destroy($id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
+        $notification = AppNotification::find($id);
+        
+        if ($notification && $notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id) {
+            $notification->delete();
+            return back()->with('success', 'Notifikasi berhasil dihapus.');
+        }
+
+        return back()->with('error', 'Notifikasi tidak ditemukan.');
+    }
 }
