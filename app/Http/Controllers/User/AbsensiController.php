@@ -373,8 +373,10 @@ class AbsensiController extends Controller
                 $unlockedAt = $isUnlocked ? $earnedBadges[$currentBadge->id]->earned_at : null;
             }
 
-            // Get progress for this badge type
-            $progress = $progressData[$baseCode] ?? ['current' => 0, 'target' => $currentBadge->requirement_value];
+            // Get progress for this badge type - current value from progressData, target from badge
+            $progress = $progressData[$baseCode] ?? ['current' => 0];
+            $currentValue = $progress['current'];
+            $targetValue = $currentBadge->requirement_value;
 
             $achievements[] = [
                 'id' => $currentBadge->id,
@@ -382,8 +384,8 @@ class AbsensiController extends Controller
                 'name' => $currentBadge->name,
                 'description' => $currentBadge->description,
                 'requirement' => $this->formatRequirement($currentBadge),
-                'progress' => $progress['current'],
-                'target' => $currentBadge->requirement_value,
+                'progress' => $currentValue,
+                'target' => $targetValue,
                 'unlocked' => $isUnlocked,
                 'unlockedAt' => $unlockedAt,
                 'points' => $currentBadge->points,
@@ -419,26 +421,75 @@ class AbsensiController extends Controller
 
     /**
      * Calculate progress for each badge type
+     * Returns current value for each badge type (target comes from badge requirement_value)
      */
     private function calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance): array
     {
         $earnedBadgesCount = \DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->count();
+        
+        // Calculate longest streak (not just current)
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $longestStreak = 0;
+        $tempStreak = 0;
+        $lastDate = null;
+        
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $logDate = $log->scanned_at?->format('Y-m-d');
+                if ($lastDate === null || $lastDate === $logDate) {
+                    $tempStreak++;
+                } elseif ($lastDate && \Carbon\Carbon::parse($lastDate)->subDay()->format('Y-m-d') === $logDate) {
+                    $tempStreak++;
+                } else {
+                    $longestStreak = max($longestStreak, $tempStreak);
+                    $tempStreak = 1;
+                }
+                $lastDate = $logDate;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+                $lastDate = null;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+        
+        // Count AI verifications (selfie uploads)
+        $aiVerifiedCount = $logs->whereNotNull('selfie_path')->count();
+        
+        // Count kas payments (placeholder - would need kas_payments table)
+        $kasOnTimeCount = \DB::table('kas_payments')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->where('status', 'paid')
+            ->count();
+        
+        // Count voting participation
+        $votingCount = \DB::table('kas_voting_votes')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->count();
+        
+        // Count fast attendance (within 1 minute of session start)
+        $fastAttendanceCount = $logs->filter(function ($log) {
+            if (!$log->scanned_at || !$log->session?->start_at) return false;
+            $diff = $log->scanned_at->diffInSeconds($log->session->start_at);
+            return $diff <= 60 && in_array($log->status, ['present', 'late']);
+        })->count();
 
+        // Return current values - target will be taken from badge requirement_value
         return [
-            'streak_master' => ['current' => $currentStreak, 'target' => 7],
-            'perfect_attendance' => ['current' => $attendanceRate, 'target' => 100],
-            'early_bird' => ['current' => $presentCount, 'target' => 10],
-            'consistent' => ['current' => $attendanceRate, 'target' => 80],
-            'champion' => ['current' => 0, 'target' => 10], // Placeholder - needs leaderboard calculation
-            'legend' => ['current' => $earnedBadgesCount, 'target' => 3],
-            'first_step' => ['current' => $totalAttendance, 'target' => 1],
-            'ai_verified' => ['current' => $logs->where('selfie_path', '!=', null)->count(), 'target' => 10],
-            'kas_hero' => ['current' => 0, 'target' => 4], // Placeholder - needs kas calculation
-            'task_master' => ['current' => 0, 'target' => 5], // Placeholder - needs task calculation
-            'social_star' => ['current' => 0, 'target' => 5], // Placeholder - needs voting calculation
-            'speed_demon' => ['current' => 0, 'target' => 5], // Placeholder - needs fast attendance calculation
+            'streak_master' => ['current' => $longestStreak],
+            'perfect_attendance' => ['current' => $presentCount], // Perfect sessions = present (not late)
+            'early_bird' => ['current' => $presentCount], // On-time sessions
+            'consistent' => ['current' => $totalAttendance], // Total attendance
+            'champion' => ['current' => 0], // Placeholder - needs leaderboard calculation
+            'legend' => ['current' => $earnedBadgesCount],
+            'first_step' => ['current' => $totalAttendance],
+            'ai_verified' => ['current' => $aiVerifiedCount],
+            'kas_hero' => ['current' => $kasOnTimeCount],
+            'task_master' => ['current' => 0], // Placeholder - needs task calculation
+            'social_star' => ['current' => $votingCount],
+            'speed_demon' => ['current' => $fastAttendanceCount],
         ];
     }
 
@@ -519,14 +570,14 @@ class AbsensiController extends Controller
         }
         $currentStreak = $tempStreak;
         
-        // Get progress data
+        // Get progress data - only current value, target comes from each badge's requirement_value
         $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
-        $progress = $progressData[$baseType] ?? ['current' => 0, 'target' => 1];
+        $currentProgress = $progressData[$baseType]['current'] ?? 0;
         
-        // Build badge levels data - check both database AND progress
-        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $progress) {
-            // Check database for earned status OR if progress meets requirement
-            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($progress['current'] >= $b->requirement_value);
+        // Build badge levels data - check EACH level independently based on its requirement_value
+        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $currentProgress) {
+            // Check database for earned status OR if current progress meets THIS level's requirement
+            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($currentProgress >= $b->requirement_value);
             
             return [
                 'id' => $b->id,
@@ -542,12 +593,12 @@ class AbsensiController extends Controller
             ];
         })->toArray();
         
-        // Get current/next level badge - check both database AND progress
+        // Get current/next level badge - check EACH level independently
         $currentBadge = null;
         $nextBadge = null;
         foreach ($allBadges as $b) {
-            // Check database OR progress for unlocked status
-            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($progress['current'] >= $b->requirement_value);
+            // Check database OR if current progress meets THIS level's requirement
+            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($currentProgress >= $b->requirement_value);
             if ($isUnlocked) {
                 $currentBadge = $b;
             } elseif (!$nextBadge) {
@@ -575,8 +626,8 @@ class AbsensiController extends Controller
             ->get()
             ->map(function ($b) use ($earnedBadgeIds, $progressData) {
                 $baseCode = preg_replace('/_[0-9]+$/', '', $b->code);
-                $relatedProgress = $progressData[$baseCode] ?? ['current' => 0, 'target' => 1];
-                $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($relatedProgress['current'] >= $b->requirement_value);
+                $relatedProgress = $progressData[$baseCode]['current'] ?? 0;
+                $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($relatedProgress >= $b->requirement_value);
                 return [
                     'type' => $baseCode,
                     'name' => preg_replace('/ I$/', '', $b->name),
@@ -603,10 +654,10 @@ class AbsensiController extends Controller
             ],
             'levels' => $badgeLevels,
             'progress' => [
-                'current' => $progress['current'],
+                'current' => $currentProgress,
                 'target' => $nextBadge ? $nextBadge->requirement_value : $currentBadge->requirement_value,
                 'percentage' => $nextBadge 
-                    ? min(100, round(($progress['current'] / $nextBadge->requirement_value) * 100))
+                    ? min(100, round(($currentProgress / $nextBadge->requirement_value) * 100))
                     : 100,
             ],
             'tips' => $tips,
