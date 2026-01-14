@@ -266,6 +266,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('user.notifications');
     Route::post('user/notifications/{notification}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
     Route::post('user/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
+    Route::delete('user/notifications/{notification}', [\App\Http\Controllers\User\NotificationController::class, 'destroy'])->name('user.notifications.destroy');
 });
 
 require __DIR__.'/settings.php';

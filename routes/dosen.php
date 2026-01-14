@@ -92,4 +92,10 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::delete('/session-templates/{template}', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'destroy'])->name('session-templates.destroy');
     Route::post('/session-templates/{template}/generate', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'generateSessions'])->name('session-templates.generate');
     Route::post('/session-templates/{template}/create-session', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'createFromTemplate'])->name('session-templates.create-session');
+    
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\Dosen\NotificationController::class, 'destroy'])->name('notifications.destroy');
 });

@@ -1,4 +1,4 @@
-import StudentLayout from '@/layouts/student-layout';
+import DosenLayout from '@/layouts/dosen-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Bell, Clock, Megaphone, AlertTriangle, Award, Info, CheckCircle, ExternalLink, X, Trash2 } from 'lucide-react';
@@ -16,18 +16,19 @@ interface Notification {
 }
 
 interface Props {
+    dosen: { id: number; nama: string };
     notifications: { data: Notification[]; current_page: number; last_page: number };
     unreadCount: number;
 }
 
-export default function Notifications({ notifications, unreadCount }: Props) {
+export default function Notifications({ dosen, notifications, unreadCount }: Props) {
     const [detailModal, setDetailModal] = useState<{ open: boolean; notification: Notification | null }>({ open: false, notification: null });
 
-    const handleMarkAsRead = (id: number) => router.post(`/user/notifications/${id}/read`);
-    const handleMarkAllAsRead = () => router.post('/user/notifications/read-all');
+    const handleMarkAsRead = (id: number) => router.post(`/dosen/notifications/${id}/read`);
+    const handleMarkAllAsRead = () => router.post('/dosen/notifications/read-all');
     const handleDelete = (id: number) => {
         if (confirm('Hapus notifikasi ini?')) {
-            router.delete(`/user/notifications/${id}`);
+            router.delete(`/dosen/notifications/${id}`);
         }
     };
 
@@ -105,7 +106,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
     };
 
     return (
-        <StudentLayout>
+        <DosenLayout dosen={dosen}>
             <Head title="Notifikasi" />
             <div className="p-6 space-y-6">
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
@@ -182,7 +183,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
                             {Array.from({ length: notifications.last_page }, (_, i) => (
                                 <button
                                     key={i}
-                                    onClick={() => router.get('/user/notifications', { page: i + 1 })}
+                                    onClick={() => router.get('/dosen/notifications', { page: i + 1 })}
                                     className={`px-3 py-1 rounded text-sm ${notifications.current_page === i + 1 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
                                 >
                                     {i + 1}
@@ -259,6 +260,6 @@ export default function Notifications({ notifications, unreadCount }: Props) {
                     </div>
                 </div>
             )}
-        </StudentLayout>
+        </DosenLayout>
     );
 }

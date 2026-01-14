@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { 
     Bell, Send, Users, Trash2, Clock, CheckCircle, AlertTriangle,
-    Megaphone, Info, Award, Plus, AlertCircle, X, Filter
+    Megaphone, Info, Award, Plus, AlertCircle, X, Filter, Eye
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -43,6 +43,7 @@ interface Props {
 
 export default function NotificationCenter({ notifications, stats, filters, mahasiswaCount, dosenCount }: Props) {
     const [createModal, setCreateModal] = useState(false);
+    const [detailModal, setDetailModal] = useState<{ open: boolean; notification: Notification | null }>({ open: false, notification: null });
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const { flash, errors: pageErrors } = usePage().props as any;
 
@@ -114,6 +115,28 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             case 'normal': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Normal</span>;
             default: return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-500">Low</span>;
         }
+    };
+
+    const getTypeLabel = (type: string) => {
+        switch (type) {
+            case 'reminder': return 'Pengingat';
+            case 'announcement': return 'Pengumuman';
+            case 'alert': return 'Peringatan';
+            case 'achievement': return 'Pencapaian';
+            case 'warning': return 'Peringatan';
+            default: return 'Informasi';
+        }
+    };
+
+    const formatFullDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('id-ID', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     };
 
     return (
@@ -277,11 +300,11 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                                 }
                                             }}
                                         />
-                                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${getTypeColor(notif.type)}`}>
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${getTypeColor(notif.type)}`}>
                                             {getTypeIcon(notif.type)}
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
+                                        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setDetailModal({ open: true, notification: notif })}>
+                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
                                                 <h3 className="font-medium text-slate-900 dark:text-white">{notif.title}</h3>
                                                 {getPriorityBadge(notif.priority)}
                                                 {notif.scheduled_at && (
@@ -298,16 +321,26 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                             <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                                                 <span>{new Date(notif.created_at).toLocaleString('id-ID')}</span>
                                                 <span className="capitalize">{notif.notifiable_type.split('\\').pop()}</span>
+                                                <span className="text-blue-600 hover:underline">Lihat selengkapnya</span>
                                             </div>
                                         </div>
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="text-red-600"
-                                            onClick={() => router.delete(`/admin/notification-center/${notif.id}`)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={() => setDetailModal({ open: true, notification: notif })}
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="text-red-600"
+                                                onClick={() => router.delete(`/admin/notification-center/${notif.id}`)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             ))
@@ -397,9 +430,11 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                 <Textarea
                                     value={form.data.message}
                                     onChange={(e) => form.setData('message', e.target.value)}
-                                    placeholder="Isi pesan notifikasi"
-                                    rows={4}
+                                    placeholder="Isi pesan notifikasi (bisa panjang untuk menyampaikan informasi lengkap)"
+                                    rows={8}
+                                    className="resize-y min-h-[150px]"
                                 />
+                                <p className="text-xs text-slate-500 mt-1">{form.data.message.length} karakter</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -467,6 +502,72 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                     Batal
                                 </Button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Detail Modal */}
+            {detailModal.open && detailModal.notification && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${getTypeColor(detailModal.notification.type)}`}>
+                                    {getTypeIcon(detailModal.notification.type)}
+                                </div>
+                                <div>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeColor(detailModal.notification.type)}`}>
+                                        {getTypeLabel(detailModal.notification.type)}
+                                    </span>
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-1">
+                                        {detailModal.notification.title}
+                                    </h3>
+                                </div>
+                            </div>
+                            <button onClick={() => setDetailModal({ open: false, notification: null })} className="text-slate-400 hover:text-slate-600">
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="mb-4 flex items-center gap-2 flex-wrap text-sm text-slate-500">
+                            <Clock className="h-4 w-4" />
+                            {formatFullDate(detailModal.notification.created_at)}
+                            {getPriorityBadge(detailModal.notification.priority)}
+                            <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-600 capitalize">
+                                {detailModal.notification.notifiable_type.split('\\').pop()}
+                            </span>
+                            {detailModal.notification.scheduled_at && (
+                                <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700">
+                                    Terjadwal: {formatFullDate(detailModal.notification.scheduled_at)}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="prose prose-slate dark:prose-invert max-w-none">
+                            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl whitespace-pre-wrap text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {detailModal.notification.message}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <Button 
+                                variant="outline" 
+                                className="text-red-600 border-red-200 hover:bg-red-50"
+                                onClick={() => { 
+                                    router.delete(`/admin/notification-center/${detailModal.notification!.id}`);
+                                    setDetailModal({ open: false, notification: null }); 
+                                }}
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Hapus
+                            </Button>
+                            <Button 
+                                className="ml-auto"
+                                onClick={() => setDetailModal({ open: false, notification: null })}
+                            >
+                                Tutup
+                            </Button>
                         </div>
                     </div>
                 </div>
