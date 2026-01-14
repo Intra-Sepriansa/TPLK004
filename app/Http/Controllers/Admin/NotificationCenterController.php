@@ -62,66 +62,96 @@ class NotificationCenterController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'target' => 'required|in:all,mahasiswa,dosen,specific',
-            'target_ids' => 'required_if:target,specific|array',
-            'target_ids.*' => 'integer',
-            'target_type' => 'required_if:target,specific|in:mahasiswa,dosen',
             'title' => 'required|string|max:255',
             'message' => 'required|string|max:1000',
             'type' => 'required|in:reminder,announcement,alert,achievement,warning,info',
             'priority' => 'required|in:low,normal,high,urgent',
             'action_url' => 'nullable|string|max:255',
-            'scheduled_at' => 'nullable|date|after:now',
-        ]);
+            'scheduled_at' => 'nullable|date',
+        ];
+
+        // Only validate target_ids and target_type when target is 'specific'
+        if ($request->input('target') === 'specific') {
+            $rules['target_ids'] = 'required|array|min:1';
+            $rules['target_ids.*'] = 'integer';
+            $rules['target_type'] = 'required|in:mahasiswa,dosen';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Get admin ID from the correct guard
+        $adminId = null;
+        if (auth()->guard('web')->check()) {
+            $adminId = auth()->guard('web')->id();
+        }
 
         $options = [
             'type' => $validated['type'],
             'priority' => $validated['priority'],
             'action_url' => $validated['action_url'] ?? null,
-            'scheduled_at' => $validated['scheduled_at'] ?? null,
-            'created_by' => auth()->id(),
+            'scheduled_at' => !empty($validated['scheduled_at']) ? $validated['scheduled_at'] : null,
+            'created_by' => $adminId,
         ];
 
         $count = 0;
 
-        if ($validated['target'] === 'all') {
-            $this->notificationService->sendToAll(
-                $validated['title'],
-                $validated['message'],
-                $options
-            );
-            $count = 1;
-        } elseif ($validated['target'] === 'mahasiswa') {
-            $ids = Mahasiswa::pluck('id')->toArray();
-            $count = $this->notificationService->sendBulkToMahasiswa(
-                $ids,
-                $validated['title'],
-                $validated['message'],
-                $options
-            );
-        } elseif ($validated['target'] === 'dosen') {
-            $ids = Dosen::pluck('id')->toArray();
-            foreach ($ids as $id) {
-                $this->notificationService->sendToDosen($id, $validated['title'], $validated['message'], $options);
-                $count++;
-            }
-        } elseif ($validated['target'] === 'specific') {
-            foreach ($validated['target_ids'] as $id) {
-                if ($validated['target_type'] === 'mahasiswa') {
-                    $this->notificationService->sendToMahasiswa($id, $validated['title'], $validated['message'], $options);
-                } else {
-                    $this->notificationService->sendToDosen($id, $validated['title'], $validated['message'], $options);
+        try {
+            if ($validated['target'] === 'all') {
+                $this->notificationService->sendToAll(
+                    $validated['title'],
+                    $validated['message'],
+                    $options
+                );
+                $count = 1;
+            } elseif ($validated['target'] === 'mahasiswa') {
+                $ids = Mahasiswa::pluck('id')->toArray();
+                if (empty($ids)) {
+                    return back()->with('success', 'Tidak ada mahasiswa untuk dikirim notifikasi.');
                 }
-                $count++;
+                $count = $this->notificationService->sendBulkToMahasiswa(
+                    $ids,
+                    $validated['title'],
+                    $validated['message'],
+                    $options
+                );
+            } elseif ($validated['target'] === 'dosen') {
+                $ids = Dosen::pluck('id')->toArray();
+                if (empty($ids)) {
+                    return back()->with('success', 'Tidak ada dosen untuk dikirim notifikasi.');
+                }
+                foreach ($ids as $id) {
+                    $this->notificationService->sendToDosen($id, $validated['title'], $validated['message'], $options);
+                    $count++;
+                }
+            } elseif ($validated['target'] === 'specific') {
+                if (empty($validated['target_ids'])) {
+                    return back()->withErrors(['target_ids' => 'Pilih minimal satu penerima.']);
+                }
+                foreach ($validated['target_ids'] as $id) {
+                    if ($validated['target_type'] === 'mahasiswa') {
+                        $this->notificationService->sendToMahasiswa($id, $validated['title'], $validated['message'], $options);
+                    } else {
+                        $this->notificationService->sendToDosen($id, $validated['title'], $validated['message'], $options);
+                    }
+                    $count++;
+                }
             }
-        }
 
-        return back()->with('success', "Notifikasi berhasil dikirim ke {$count} penerima.");
+            return back()->with('success', "Notifikasi berhasil dikirim ke {$count} penerima.");
+        } catch (\Exception $e) {
+            \Log::error('Notification send error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'data' => $validated
+            ]);
+            return back()->withErrors(['error' => 'Gagal mengirim notifikasi: ' . $e->getMessage()]);
+        }
     }
 
-    public function destroy(AppNotification $notification)
+    public function destroy($id)
     {
+        $notification = AppNotification::findOrFail($id);
         $notification->delete();
         return back()->with('success', 'Notifikasi berhasil dihapus.');
     }

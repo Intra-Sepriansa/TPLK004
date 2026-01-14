@@ -1,19 +1,15 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, router, useForm } from '@inertiajs/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { 
     Bell, Send, Users, Trash2, Clock, CheckCircle, AlertTriangle,
-    Megaphone, Info, Award, Plus
+    Megaphone, Info, Award, Plus, AlertCircle, X, Filter
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Notification {
     id: number;
@@ -44,9 +40,11 @@ interface Props {
     dosenCount: number;
 }
 
+
 export default function NotificationCenter({ notifications, stats, filters, mahasiswaCount, dosenCount }: Props) {
     const [createModal, setCreateModal] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const { flash, errors: pageErrors } = usePage().props as any;
 
     const form = useForm({
         target: 'all',
@@ -60,6 +58,13 @@ export default function NotificationCenter({ notifications, stats, filters, maha
         scheduled_at: '',
     });
 
+    useEffect(() => {
+        if (flash?.success) {
+            setCreateModal(false);
+            form.reset();
+        }
+    }, [flash]);
+
     const handleFilterChange = (key: string, value: string) => {
         router.get('/admin/notification-center', { ...filters, [key]: value }, { preserveState: true });
     };
@@ -69,7 +74,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             onSuccess: () => {
                 setCreateModal(false);
                 form.reset();
-            }
+            },
         });
     };
 
@@ -93,21 +98,21 @@ export default function NotificationCenter({ notifications, stats, filters, maha
 
     const getTypeColor = (type: string) => {
         switch (type) {
-            case 'reminder': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
-            case 'announcement': return 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300';
-            case 'alert': return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
-            case 'achievement': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
-            case 'warning': return 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300';
-            default: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+            case 'reminder': return 'bg-blue-100 text-blue-700';
+            case 'announcement': return 'bg-purple-100 text-purple-700';
+            case 'alert': return 'bg-red-100 text-red-700';
+            case 'achievement': return 'bg-yellow-100 text-yellow-700';
+            case 'warning': return 'bg-orange-100 text-orange-700';
+            default: return 'bg-slate-100 text-slate-700';
         }
     };
 
     const getPriorityBadge = (priority: string) => {
         switch (priority) {
-            case 'urgent': return <Badge variant="destructive">Urgent</Badge>;
-            case 'high': return <Badge className="bg-orange-500">High</Badge>;
-            case 'normal': return <Badge variant="secondary">Normal</Badge>;
-            default: return <Badge variant="outline">Low</Badge>;
+            case 'urgent': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Urgent</span>;
+            case 'high': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">High</span>;
+            case 'normal': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Normal</span>;
+            default: return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-500">Low</span>;
         }
     };
 
@@ -115,281 +120,357 @@ export default function NotificationCenter({ notifications, stats, filters, maha
         <AppLayout>
             <Head title="Notification Center" />
             
-            <div className="space-y-6">
+            <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold flex items-center gap-2">
-                            <Bell className="h-6 w-6" />
-                            Notification Center
-                        </h1>
-                        <p className="text-muted-foreground">Kelola notifikasi untuk mahasiswa dan dosen</p>
-                    </div>
-                    <Button onClick={() => setCreateModal(true)}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Kirim Notifikasi
-                    </Button>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Total</p>
-                                    <p className="text-2xl font-bold">{stats.total}</p>
-                                </div>
-                                <Bell className="h-8 w-8 text-muted-foreground" />
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 to-pink-600 p-6 text-white shadow-lg">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="relative">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
+                                <Bell className="h-6 w-6" />
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Belum Dibaca</p>
-                                    <p className="text-2xl font-bold text-blue-600">{stats.unread}</p>
-                                </div>
-                                <Info className="h-8 w-8 text-blue-600" />
+                            <div>
+                                <p className="text-sm text-purple-100">Manajemen</p>
+                                <h1 className="text-2xl font-bold">Notification Center</h1>
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Terjadwal</p>
-                                    <p className="text-2xl font-bold text-purple-600">{stats.scheduled}</p>
-                                </div>
-                                <Clock className="h-8 w-8 text-purple-600" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Penerima</p>
-                                    <p className="text-2xl font-bold">{mahasiswaCount + dosenCount}</p>
-                                </div>
-                                <Users className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Type Distribution */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Distribusi Tipe</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-wrap gap-2">
-                            {Object.entries(stats.by_type).map(([type, count]) => (
-                                <div key={type} className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${getTypeColor(type)}`}>
-                                    {getTypeIcon(type)}
-                                    <span className="capitalize">{type}: {count}</span>
-                                </div>
-                            ))}
                         </div>
-                    </CardContent>
-                </Card>
+                        <p className="mt-4 text-purple-100">
+                            Kirim notifikasi ke mahasiswa dan dosen
+                        </p>
+                    </div>
+                </div>
 
-                {/* Filters & Actions */}
-                <div className="flex flex-wrap gap-2 items-center">
-                    <Select value={filters.type} onValueChange={(v) => handleFilterChange('type', v)}>
-                        <SelectTrigger className="w-[150px]">
-                            <SelectValue placeholder="Tipe" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Semua Tipe</SelectItem>
-                            <SelectItem value="reminder">Reminder</SelectItem>
-                            <SelectItem value="announcement">Announcement</SelectItem>
-                            <SelectItem value="alert">Alert</SelectItem>
-                            <SelectItem value="achievement">Achievement</SelectItem>
-                            <SelectItem value="warning">Warning</SelectItem>
-                            <SelectItem value="info">Info</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select value={filters.status} onValueChange={(v) => handleFilterChange('status', v)}>
-                        <SelectTrigger className="w-[150px]">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Semua</SelectItem>
-                            <SelectItem value="unread">Belum Dibaca</SelectItem>
-                            <SelectItem value="read">Sudah Dibaca</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    
-                    {selectedIds.length > 0 && (
-                        <Button size="sm" variant="destructive" onClick={handleBulkDelete} className="ml-auto">
-                            <Trash2 className="h-4 w-4 mr-1" /> Hapus ({selectedIds.length})
-                        </Button>
-                    )}
+                {/* Flash Messages */}
+                {(flash?.success || flash?.error || pageErrors?.message) && (
+                    <div className={`rounded-xl p-4 ${flash?.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                        <div className="flex items-center gap-2">
+                            {flash?.success ? <CheckCircle className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                            {flash?.success || flash?.error || pageErrors?.message}
+                        </div>
+                    </div>
+                )}
+
+                {/* Stats Cards */}
+                <div className="grid gap-4 md:grid-cols-4">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+                                <Bell className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Total Notifikasi</p>
+                                <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Belum Dibaca</p>
+                                <p className="text-xl font-bold text-blue-600">{stats.unread}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                                <Clock className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Terjadwal</p>
+                                <p className="text-xl font-bold text-amber-600">{stats.scheduled}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                <Users className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Penerima</p>
+                                <p className="text-xl font-bold text-emerald-600">{mahasiswaCount + dosenCount}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter & Actions */}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Filter className="h-5 w-5 text-purple-600" />
+                        <h2 className="font-semibold text-slate-900 dark:text-white">Filter & Aksi</h2>
+                    </div>
+                    <div className="flex flex-wrap gap-4 items-end">
+                        <div>
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Tipe</label>
+                            <select
+                                value={filters.type}
+                                onChange={(e) => handleFilterChange('type', e.target.value)}
+                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                            >
+                                <option value="all">Semua Tipe</option>
+                                <option value="reminder">Reminder</option>
+                                <option value="announcement">Pengumuman</option>
+                                <option value="alert">Alert</option>
+                                <option value="achievement">Achievement</option>
+                                <option value="warning">Warning</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Status</label>
+                            <select
+                                value={filters.status}
+                                onChange={(e) => handleFilterChange('status', e.target.value)}
+                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                            >
+                                <option value="all">Semua Status</option>
+                                <option value="unread">Belum Dibaca</option>
+                                <option value="read">Sudah Dibaca</option>
+                                <option value="scheduled">Terjadwal</option>
+                            </select>
+                        </div>
+                        <div className="flex gap-2 ml-auto">
+                            {selectedIds.length > 0 && (
+                                <Button variant="outline" onClick={handleBulkDelete} className="text-red-600 border-red-200 hover:bg-red-50">
+                                    <Trash2 className="h-4 w-4 mr-1" />
+                                    Hapus ({selectedIds.length})
+                                </Button>
+                            )}
+                            <Button onClick={() => setCreateModal(true)} className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+                                <Plus className="h-4 w-4 mr-1" />
+                                Buat Notifikasi
+                            </Button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Notifications List */}
-                <Card>
-                    <CardContent className="p-0">
-                        <div className="divide-y">
-                            {notifications.data.map(notif => (
-                                <div key={notif.id} className="p-4 hover:bg-muted/50 transition-colors">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center gap-2">
+                            <Megaphone className="h-5 w-5 text-purple-600" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Notifikasi</h2>
+                        </div>
+                    </div>
+                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                        {notifications.data.length === 0 ? (
+                            <div className="p-12 text-center">
+                                <Bell className="h-12 w-12 mx-auto text-slate-300 mb-2" />
+                                <p className="text-slate-500">Belum ada notifikasi</p>
+                            </div>
+                        ) : (
+                            notifications.data.map((notif) => (
+                                <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30">
                                     <div className="flex items-start gap-4">
                                         <Checkbox
                                             checked={selectedIds.includes(notif.id)}
                                             onCheckedChange={(checked) => {
-                                                setSelectedIds(prev => 
-                                                    checked 
-                                                        ? [...prev, notif.id]
-                                                        : prev.filter(id => id !== notif.id)
-                                                );
+                                                if (checked) {
+                                                    setSelectedIds([...selectedIds, notif.id]);
+                                                } else {
+                                                    setSelectedIds(selectedIds.filter(id => id !== notif.id));
+                                                }
                                             }}
                                         />
-                                        <div className={`p-2 rounded-lg ${getTypeColor(notif.type)}`}>
+                                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${getTypeColor(notif.type)}`}>
                                             {getTypeIcon(notif.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-medium">{notif.title}</span>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="font-medium text-slate-900 dark:text-white">{notif.title}</h3>
                                                 {getPriorityBadge(notif.priority)}
-                                                {notif.read_at && <CheckCircle className="h-4 w-4 text-green-500" />}
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{notif.message}</p>
-                                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                                                <span>{new Date(notif.created_at).toLocaleString('id-ID')}</span>
-                                                <span>•</span>
-                                                <span className="capitalize">{notif.notifiable_type}</span>
                                                 {notif.scheduled_at && (
-                                                    <>
-                                                        <span>•</span>
-                                                        <span className="text-purple-600">
-                                                            Dijadwalkan: {new Date(notif.scheduled_at).toLocaleString('id-ID')}
-                                                        </span>
-                                                    </>
+                                                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 flex items-center gap-1">
+                                                        <Clock className="h-3 w-3" />
+                                                        Terjadwal
+                                                    </span>
                                                 )}
+                                                {!notif.read_at && (
+                                                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Baru</span>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{notif.message}</p>
+                                            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                                                <span>{new Date(notif.created_at).toLocaleString('id-ID')}</span>
+                                                <span className="capitalize">{notif.notifiable_type.split('\\').pop()}</span>
                                             </div>
                                         </div>
                                         <Button
-                                            size="sm"
+                                            size="icon"
                                             variant="ghost"
+                                            className="text-red-600"
                                             onClick={() => router.delete(`/admin/notification-center/${notif.id}`)}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </div>
                                 </div>
+                            ))
+                        )}
+                    </div>
+                    {notifications.last_page > 1 && (
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
+                            {Array.from({ length: notifications.last_page }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => router.get('/admin/notification-center', { ...filters, page }, { preserveState: true })}
+                                    className={`px-3 py-1 rounded text-sm ${
+                                        page === notifications.current_page
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
                             ))}
-                            {notifications.data.length === 0 && (
-                                <div className="p-8 text-center text-muted-foreground">
-                                    <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                                    <p>Tidak ada notifikasi</p>
-                                </div>
-                            )}
                         </div>
-                    </CardContent>
-                </Card>
+                    )}
+                </div>
             </div>
 
             {/* Create Modal */}
-            <Dialog open={createModal} onOpenChange={setCreateModal}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Kirim Notifikasi</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                        <div>
-                            <Label>Target Penerima</Label>
-                            <Select value={form.data.target} onValueChange={(v) => form.setData('target', v)}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua ({mahasiswaCount + dosenCount})</SelectItem>
-                                    <SelectItem value="mahasiswa">Semua Mahasiswa ({mahasiswaCount})</SelectItem>
-                                    <SelectItem value="dosen">Semua Dosen ({dosenCount})</SelectItem>
-                                </SelectContent>
-                            </Select>
+            {createModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">Buat Notifikasi Baru</h3>
+                            <button onClick={() => setCreateModal(false)} className="text-slate-400 hover:text-slate-600">
+                                <X className="h-5 w-5" />
+                            </button>
                         </div>
-                        <div>
-                            <Label>Judul</Label>
-                            <Input
-                                className="mt-1"
-                                value={form.data.title}
-                                onChange={(e) => form.setData('title', e.target.value)}
-                                placeholder="Judul notifikasi"
-                            />
-                        </div>
-                        <div>
-                            <Label>Pesan</Label>
-                            <Textarea
-                                className="mt-1"
-                                value={form.data.message}
-                                onChange={(e) => form.setData('message', e.target.value)}
-                                placeholder="Isi pesan notifikasi"
-                                rows={3}
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
                             <div>
-                                <Label>Tipe</Label>
-                                <Select value={form.data.type} onValueChange={(v) => form.setData('type', v)}>
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="reminder">Reminder</SelectItem>
-                                        <SelectItem value="announcement">Announcement</SelectItem>
-                                        <SelectItem value="alert">Alert</SelectItem>
-                                        <SelectItem value="warning">Warning</SelectItem>
-                                        <SelectItem value="info">Info</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label className="mb-2 block">Target</Label>
+                                <select
+                                    value={form.data.target}
+                                    onChange={(e) => form.setData('target', e.target.value)}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                >
+                                    <option value="all">Semua Pengguna</option>
+                                    <option value="mahasiswa">Semua Mahasiswa</option>
+                                    <option value="dosen">Semua Dosen</option>
+                                    <option value="specific">Pilih Spesifik</option>
+                                </select>
                             </div>
+
+                            {form.data.target === 'specific' && (
+                                <div>
+                                    <Label className="mb-2 block">Tipe Penerima</Label>
+                                    <select
+                                        value={form.data.target_type}
+                                        onChange={(e) => form.setData('target_type', e.target.value)}
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                    >
+                                        <option value="mahasiswa">Mahasiswa</option>
+                                        <option value="dosen">Dosen</option>
+                                    </select>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Masukkan ID {form.data.target_type} dipisahkan koma
+                                    </p>
+                                    <Input
+                                        className="mt-2"
+                                        placeholder="1, 2, 3"
+                                        onChange={(e) => {
+                                            const ids = e.target.value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+                                            form.setData('target_ids', ids);
+                                        }}
+                                    />
+                                </div>
+                            )}
+
                             <div>
-                                <Label>Prioritas</Label>
-                                <Select value={form.data.priority} onValueChange={(v) => form.setData('priority', v)}>
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="low">Low</SelectItem>
-                                        <SelectItem value="normal">Normal</SelectItem>
-                                        <SelectItem value="high">High</SelectItem>
-                                        <SelectItem value="urgent">Urgent</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label className="mb-2 block">Judul</Label>
+                                <Input
+                                    value={form.data.title}
+                                    onChange={(e) => form.setData('title', e.target.value)}
+                                    placeholder="Judul notifikasi"
+                                />
                             </div>
-                        </div>
-                        <div>
-                            <Label>URL Aksi (opsional)</Label>
-                            <Input
-                                className="mt-1"
-                                value={form.data.action_url}
-                                onChange={(e) => form.setData('action_url', e.target.value)}
-                                placeholder="/user/absen"
-                            />
-                        </div>
-                        <div>
-                            <Label>Jadwalkan (opsional)</Label>
-                            <Input
-                                type="datetime-local"
-                                className="mt-1"
-                                value={form.data.scheduled_at}
-                                onChange={(e) => form.setData('scheduled_at', e.target.value)}
-                            />
+
+                            <div>
+                                <Label className="mb-2 block">Pesan</Label>
+                                <Textarea
+                                    value={form.data.message}
+                                    onChange={(e) => form.setData('message', e.target.value)}
+                                    placeholder="Isi pesan notifikasi"
+                                    rows={4}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label className="mb-2 block">Tipe</Label>
+                                    <select
+                                        value={form.data.type}
+                                        onChange={(e) => form.setData('type', e.target.value)}
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                    >
+                                        <option value="announcement">Pengumuman</option>
+                                        <option value="reminder">Reminder</option>
+                                        <option value="alert">Alert</option>
+                                        <option value="achievement">Achievement</option>
+                                        <option value="warning">Warning</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <Label className="mb-2 block">Prioritas</Label>
+                                    <select
+                                        value={form.data.priority}
+                                        onChange={(e) => form.setData('priority', e.target.value)}
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                    >
+                                        <option value="low">Low</option>
+                                        <option value="normal">Normal</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label className="mb-2 block">URL Aksi (opsional)</Label>
+                                <Input
+                                    value={form.data.action_url}
+                                    onChange={(e) => form.setData('action_url', e.target.value)}
+                                    placeholder="/dashboard"
+                                />
+                            </div>
+
+                            <div>
+                                <Label className="mb-2 block">Jadwalkan (opsional)</Label>
+                                <Input
+                                    type="datetime-local"
+                                    value={form.data.scheduled_at}
+                                    onChange={(e) => form.setData('scheduled_at', e.target.value)}
+                                />
+                            </div>
+
+                            {Object.keys(form.errors).length > 0 && (
+                                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                    {Object.values(form.errors).map((error, i) => (
+                                        <p key={i} className="text-sm text-red-600">{error}</p>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="flex gap-2 pt-2">
+                                <Button onClick={handleCreate} disabled={form.processing} className="flex-1 bg-gradient-to-r from-purple-500 to-pink-600">
+                                    <Send className="h-4 w-4 mr-1" />
+                                    Kirim Notifikasi
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setCreateModal(false)}>
+                                    Batal
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setCreateModal(false)}>Batal</Button>
-                        <Button onClick={handleCreate} disabled={form.processing}>
-                            <Send className="h-4 w-4 mr-2" />
-                            Kirim
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                </div>
+            )}
         </AppLayout>
     );
 }

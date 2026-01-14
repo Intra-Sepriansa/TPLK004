@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\CourseMeeting;
 use App\Models\MahasiswaCourse;
+use App\Models\MataKuliah;
 use App\Services\ScheduleService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,13 @@ class AcademicCourseController extends Controller
     public function index(): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
+        
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
+        // Auto-sync courses from mata_kuliah if mahasiswa has no courses yet
+        $this->syncCoursesFromMataKuliah($mahasiswa->id);
 
         $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
             ->withCount(['tasks as pending_tasks_count' => function ($query) {
@@ -162,5 +170,47 @@ class AcademicCourseController extends Controller
         $meeting->markAsCompleted();
 
         return back()->with('success', "Pertemuan {$meetingNumber} ditandai selesai!");
+    }
+
+    /**
+     * Sync courses from mata_kuliah table to mahasiswa_courses for a student
+     */
+    private function syncCoursesFromMataKuliah(int $mahasiswaId): void
+    {
+        // Check if mahasiswa already has courses
+        $existingCount = MahasiswaCourse::where('mahasiswa_id', $mahasiswaId)->count();
+        
+        if ($existingCount > 0) {
+            return; // Already has courses, no need to sync
+        }
+
+        // Get all mata kuliah with dosen info
+        $mataKuliahs = MataKuliah::with('dosen')->get();
+
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        $times = ['08:00', '10:00', '13:00', '15:00'];
+        $dayIndex = 0;
+        $timeIndex = 0;
+
+        foreach ($mataKuliahs as $mk) {
+            MahasiswaCourse::create([
+                'mahasiswa_id' => $mahasiswaId,
+                'name' => $mk->nama,
+                'sks' => $mk->sks ?? 3,
+                'total_meetings' => 16, // Default 16 pertemuan
+                'current_meeting' => 1,
+                'uts_meeting' => 8,
+                'uas_meeting' => 16,
+                'schedule_day' => $days[$dayIndex % count($days)],
+                'schedule_time' => $times[$timeIndex % count($times)],
+                'mode' => 'offline',
+                'start_date' => now()->startOfMonth(),
+            ]);
+
+            $timeIndex++;
+            if ($timeIndex % count($times) === 0) {
+                $dayIndex++;
+            }
+        }
     }
 }

@@ -1,13 +1,9 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Progress } from '@/components/ui/progress';
 import { 
     Upload, Download, FileSpreadsheet, CheckCircle, XCircle, 
-    AlertTriangle, Clock, Users, BookOpen, Calendar
+    Clock, Users, BookOpen, Calendar
 } from 'lucide-react';
 import { useState, useRef } from 'react';
 
@@ -53,7 +49,6 @@ export default function BulkImport({ logs, stats, templates }: Props) {
         form.setData('file', file);
         form.setData('type', selectedType);
 
-        // Preview
         setUploading(true);
         const formData = new FormData();
         formData.append('file', file);
@@ -107,10 +102,10 @@ export default function BulkImport({ logs, stats, templates }: Props) {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'completed': return <Badge className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" /> Selesai</Badge>;
-            case 'failed': return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" /> Gagal</Badge>;
-            case 'processing': return <Badge className="bg-blue-500"><Clock className="h-3 w-3 mr-1" /> Proses</Badge>;
-            default: return <Badge variant="outline">Pending</Badge>;
+            case 'completed': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Selesai</span>;
+            case 'failed': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 flex items-center gap-1"><XCircle className="h-3 w-3" /> Gagal</span>;
+            case 'processing': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 flex items-center gap-1"><Clock className="h-3 w-3" /> Proses</span>;
+            default: return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Pending</span>;
         }
     };
 
@@ -118,94 +113,99 @@ export default function BulkImport({ logs, stats, templates }: Props) {
         <AppLayout>
             <Head title="Bulk Import" />
             
-            <div className="space-y-6">
+            <div className="p-6 space-y-6">
                 {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <Upload className="h-6 w-6" />
-                        Bulk Import
-                    </h1>
-                    <p className="text-muted-foreground">Import data mahasiswa, mata kuliah, dan jadwal via CSV</p>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Total Import</p>
-                                    <p className="text-2xl font-bold">{stats.total_imports}</p>
-                                </div>
-                                <FileSpreadsheet className="h-8 w-8 text-muted-foreground" />
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="relative">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
+                                <Upload className="h-6 w-6" />
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Berhasil</p>
-                                    <p className="text-2xl font-bold text-green-600">{stats.successful}</p>
-                                </div>
-                                <CheckCircle className="h-8 w-8 text-green-600" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Gagal</p>
-                                    <p className="text-2xl font-bold text-red-600">{stats.failed}</p>
-                                </div>
-                                <XCircle className="h-8 w-8 text-red-600" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex justify-between">
-                                <div>
-                                    <p className="text-sm text-muted-foreground">Total Record</p>
-                                    <p className="text-2xl font-bold">{stats.total_records}</p>
-                                </div>
-                                <Users className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="grid lg:grid-cols-2 gap-6">
-                    {/* Upload Section */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Upload File</CardTitle>
-                            <CardDescription>Pilih tipe data dan upload file CSV</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
                             <div>
-                                <label className="text-sm font-medium">Tipe Data</label>
-                                <Select value={selectedType} onValueChange={setSelectedType}>
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="mahasiswa">
-                                            <div className="flex items-center gap-2">
-                                                <Users className="h-4 w-4" /> Mahasiswa
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="mata_kuliah">
-                                            <div className="flex items-center gap-2">
-                                                <BookOpen className="h-4 w-4" /> Mata Kuliah
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <p className="text-sm text-emerald-100">Import Data</p>
+                                <h1 className="text-2xl font-bold">Bulk Import</h1>
+                            </div>
+                        </div>
+                        <p className="mt-4 text-emerald-100">
+                            Import data mahasiswa, mata kuliah, dan jadwal via file CSV
+                        </p>
+                    </div>
+                </div>
+
+                {/* Stats Cards */}
+                <div className="grid gap-4 md:grid-cols-4">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                                <FileSpreadsheet className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Total Import</p>
+                                <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total_imports}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                                <CheckCircle className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Berhasil</p>
+                                <p className="text-xl font-bold text-emerald-600">{stats.successful}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                                <XCircle className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Gagal</p>
+                                <p className="text-xl font-bold text-red-600">{stats.failed}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                <Users className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500">Total Record</p>
+                                <p className="text-xl font-bold text-blue-600">{stats.total_records}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Upload Section */}
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <Upload className="h-5 w-5 text-emerald-600" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Upload File</h2>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">Pilih tipe data dan upload file CSV</p>
+                        </div>
+                        <div className="p-4 space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Tipe Data</label>
+                                <select
+                                    value={selectedType}
+                                    onChange={(e) => setSelectedType(e.target.value)}
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                >
+                                    <option value="mahasiswa">👤 Mahasiswa</option>
+                                    <option value="mata_kuliah">📚 Mata Kuliah</option>
+                                </select>
                             </div>
 
-                            <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 text-center hover:border-emerald-400 transition-colors">
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -215,60 +215,48 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     id="file-upload"
                                 />
                                 <label htmlFor="file-upload" className="cursor-pointer">
-                                    <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                                    <p className="text-sm text-muted-foreground">
+                                    <Upload className="h-10 w-10 mx-auto text-slate-400 mb-2" />
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
                                         Klik untuk upload atau drag & drop
                                     </p>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                        CSV, max 5MB
-                                    </p>
+                                    <p className="text-xs text-slate-400 mt-1">CSV, max 5MB</p>
                                 </label>
                             </div>
 
                             {uploading && (
                                 <div className="text-center py-4">
-                                    <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full mx-auto" />
-                                    <p className="text-sm text-muted-foreground mt-2">Memproses file...</p>
+                                    <div className="animate-spin h-6 w-6 border-2 border-emerald-600 border-t-transparent rounded-full mx-auto" />
+                                    <p className="text-sm text-slate-500 mt-2">Memproses file...</p>
                                 </div>
                             )}
 
                             {preview && !preview.error && (
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium">Preview</span>
-                                        <Badge>{preview.total_rows} baris</Badge>
+                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Preview</span>
+                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">{preview.total_rows} baris</span>
                                     </div>
-                                    <div className="overflow-x-auto">
+                                    <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
                                         <table className="w-full text-xs">
                                             <thead>
-                                                <tr className="bg-muted">
+                                                <tr className="bg-slate-50 dark:bg-slate-800">
                                                     {preview.headers?.map((h: string, i: number) => (
-                                                        <th key={i} className="p-2 text-left">{h}</th>
+                                                        <th key={i} className="p-2 text-left font-medium text-slate-600 dark:text-slate-400">{h}</th>
                                                     ))}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {preview.sample?.slice(0, 3).map((row: string[], i: number) => (
-                                                    <tr key={i} className="border-b">
+                                                    <tr key={i} className="border-t border-slate-200 dark:border-slate-700">
                                                         {row.map((cell, j) => (
-                                                            <td key={j} className="p-2">{cell}</td>
+                                                            <td key={j} className="p-2 text-slate-700 dark:text-slate-300">{cell}</td>
                                                         ))}
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
                                     </div>
-                                    {preview.validation_errors?.length > 0 && (
-                                        <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                                            <p className="text-sm font-medium text-red-600 mb-1">Validasi Error:</p>
-                                            <ul className="text-xs text-red-600 list-disc list-inside">
-                                                {preview.validation_errors.slice(0, 5).map((err: string, i: number) => (
-                                                    <li key={i}>{err}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                    <Button onClick={handleImport} className="w-full" disabled={form.processing}>
+                                    <Button onClick={handleImport} className="w-full bg-emerald-600 hover:bg-emerald-700" disabled={form.processing}>
                                         <Upload className="h-4 w-4 mr-2" />
                                         Import {preview.valid_rows} Data Valid
                                     </Button>
@@ -276,26 +264,29 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                             )}
 
                             {preview?.error && (
-                                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
                                     <p className="text-sm text-red-600">{preview.error}</p>
                                 </div>
                             )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
 
                     {/* Templates */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Download Template</CardTitle>
-                            <CardDescription>Gunakan template untuk format yang benar</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-2">
+                                <Download className="h-5 w-5 text-blue-600" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Download Template</h2>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1">Gunakan template untuk format yang benar</p>
+                        </div>
+                        <div className="p-4 space-y-4">
                             {Object.entries(templates).map(([type, template]) => (
-                                <div key={type} className="p-4 border rounded-lg">
+                                <div key={type} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
                                             {getTypeIcon(type)}
-                                            <span className="font-medium capitalize">{type.replace('_', ' ')}</span>
+                                            <span className="font-medium text-slate-900 dark:text-white capitalize">{type.replace('_', ' ')}</span>
                                         </div>
                                         <Button
                                             size="sm"
@@ -306,72 +297,63 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                             Download
                                         </Button>
                                     </div>
-                                    <div className="text-xs text-muted-foreground">
+                                    <div className="text-xs text-slate-500">
                                         <p className="font-medium mb-1">Kolom:</p>
-                                        <p>{template.columns.join(', ')}</p>
+                                        <p className="text-slate-600 dark:text-slate-400">{template.columns.join(', ')}</p>
                                     </div>
                                 </div>
                             ))}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Import History */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Riwayat Import</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {logs.map(log => (
-                                <div key={log.id} className="p-4 border rounded-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            {getTypeIcon(log.type)}
-                                            <span className="font-medium">{log.filename}</span>
-                                            {getStatusBadge(log.status)}
-                                        </div>
-                                        <span className="text-xs text-muted-foreground">
-                                            {new Date(log.created_at).toLocaleString('id-ID')}
-                                        </span>
-                                    </div>
-                                    {log.status === 'completed' && (
-                                        <div className="grid grid-cols-3 gap-4 mt-3">
-                                            <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
-                                                <p className="text-lg font-bold text-green-600">{log.success_count}</p>
-                                                <p className="text-xs text-muted-foreground">Berhasil</p>
-                                            </div>
-                                            <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded">
-                                                <p className="text-lg font-bold text-yellow-600">{log.skip_count}</p>
-                                                <p className="text-xs text-muted-foreground">Dilewati</p>
-                                            </div>
-                                            <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
-                                                <p className="text-lg font-bold text-red-600">{log.error_count}</p>
-                                                <p className="text-xs text-muted-foreground">Error</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {log.errors && log.errors.length > 0 && (
-                                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs">
-                                            <p className="font-medium text-red-600 mb-1">Errors:</p>
-                                            <ul className="list-disc list-inside text-red-600">
-                                                {log.errors.slice(0, 3).map((err, i) => (
-                                                    <li key={i}>Baris {err.row}: {err.message}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            {logs.length === 0 && (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <FileSpreadsheet className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                                    <p>Belum ada riwayat import</p>
-                                </div>
-                            )}
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-blue-600" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Riwayat Import</h2>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                    <div className="p-4 space-y-3">
+                        {logs.map(log => (
+                            <div key={log.id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        {getTypeIcon(log.type)}
+                                        <span className="font-medium text-slate-900 dark:text-white">{log.filename}</span>
+                                        {getStatusBadge(log.status)}
+                                    </div>
+                                    <span className="text-xs text-slate-500">
+                                        {new Date(log.created_at).toLocaleString('id-ID')}
+                                    </span>
+                                </div>
+                                {log.status === 'completed' && (
+                                    <div className="grid grid-cols-3 gap-4 mt-3">
+                                        <div className="text-center p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                                            <p className="text-lg font-bold text-emerald-600">{log.success_count}</p>
+                                            <p className="text-xs text-slate-500">Berhasil</p>
+                                        </div>
+                                        <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                                            <p className="text-lg font-bold text-yellow-600">{log.skip_count}</p>
+                                            <p className="text-xs text-slate-500">Dilewati</p>
+                                        </div>
+                                        <div className="text-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                                            <p className="text-lg font-bold text-red-600">{log.error_count}</p>
+                                            <p className="text-xs text-slate-500">Error</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        {logs.length === 0 && (
+                            <div className="text-center py-12">
+                                <FileSpreadsheet className="h-12 w-12 mx-auto text-slate-300 mb-2" />
+                                <p className="text-slate-500">Belum ada riwayat import</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </AppLayout>
     );

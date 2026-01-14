@@ -64,18 +64,11 @@ interface PageProps {
 
 type TabType = 'card' | 'profile' | 'security';
 
-// Helper function to get badge image path
-const getBadgeImagePath = (type: string, level: number): string => {
-    const suffix = level > 1 ? `_${level}` : '';
-    return `/images/badges/${type}${suffix}.png`;
-};
-
 // Badge Image component for profile
-const BadgeImageProfile = ({ type, level }: { type: string; level: number }) => {
+const BadgeImageProfile = ({ icon, name }: { icon: string; name: string }) => {
     const [imageError, setImageError] = useState(false);
-    const imagePath = getBadgeImagePath(type, level);
 
-    if (imageError) {
+    if (imageError || !icon) {
         return (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500">
                 <Award className="h-5 w-5 text-white" />
@@ -85,9 +78,9 @@ const BadgeImageProfile = ({ type, level }: { type: string; level: number }) => 
 
     return (
         <img
-            src={imagePath}
-            alt={type}
-            className="h-full w-full object-cover"
+            src={`/images/badges/${icon}`}
+            alt={name}
+            className="h-full w-full object-contain"
             onError={() => setImageError(true)}
         />
     );
@@ -305,17 +298,14 @@ export default function StudentProfile() {
                                     )}
                                     title={`${badge.name} - Lv ${badge.level}/${badge.maxLevel}`}
                                 >
-                                    <div className={cn(
-                                        'h-12 w-12 rounded-full overflow-hidden transition-transform hover:scale-110',
-                                        shouldShow ? 'ring-2 ring-amber-400 ring-offset-2 dark:ring-offset-slate-900' : ''
-                                    )}>
+                                    <div className="h-14 w-14 transition-transform hover:scale-110">
                                         {shouldShow ? (
                                             <BadgeImageProfile 
-                                                type={badge.type} 
-                                                level={badge.level}
+                                                icon={badge.icon} 
+                                                name={badge.name}
                                             />
                                         ) : (
-                                            <div className="flex h-full w-full items-center justify-center bg-slate-200 dark:bg-slate-700">
+                                            <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700">
                                                 <Lock className="h-4 w-4 text-slate-400" />
                                             </div>
                                         )}
