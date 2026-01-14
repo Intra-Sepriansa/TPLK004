@@ -229,26 +229,28 @@ class PersonalAnalyticsController extends Controller
 
     private function getActivityGraph(int $mahasiswaId): array
     {
-        // Get data for the last 365 days (like GitHub contribution graph)
-        $startDate = now()->subYear()->startOfWeek();
-        $endDate = now()->endOfWeek();
+        // Get data for full current year (from January 1st to December 31st)
+        $currentYear = now()->year;
+        $startDate = Carbon::create($currentYear, 1, 1)->startOfWeek(); // Start from week containing Jan 1
+        $endDate = Carbon::create($currentYear, 12, 31)->endOfWeek(); // End at week containing Dec 31
+        $today = now()->toDateString();
         
-        // Get attendance logs
+        // Get attendance logs for the year
         $attendanceLogs = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
-            ->whereBetween('scanned_at', [$startDate, $endDate])
+            ->whereYear('scanned_at', $currentYear)
             ->get()
             ->groupBy(fn($log) => $log->scanned_at->toDateString());
         
         // Get academic tasks completed
         $tasksCompleted = \App\Models\AcademicTask::where('mahasiswa_id', $mahasiswaId)
             ->where('status', 'completed')
-            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->whereYear('updated_at', $currentYear)
             ->get()
             ->groupBy(fn($task) => $task->updated_at->toDateString());
         
         // Get academic notes created
         $notesCreated = \App\Models\AcademicNote::where('mahasiswa_id', $mahasiswaId)
-            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereYear('created_at', $currentYear)
             ->get()
             ->groupBy(fn($note) => $note->created_at->toDateString());
         
@@ -257,52 +259,71 @@ class PersonalAnalyticsController extends Controller
         $current = $startDate->copy();
         $totalActivities = 0;
         $activeDays = 0;
+        $weekNumber = 0;
+        $lastWeekOfYear = null;
         
         while ($current <= $endDate) {
             $dateStr = $current->toDateString();
             $count = 0;
             $types = [];
             
-            // Count attendance
-            if (isset($attendanceLogs[$dateStr])) {
-                $attendanceCount = $attendanceLogs[$dateStr]->whereIn('status', ['present', 'late'])->count();
-                $count += $attendanceCount;
-                if ($attendanceCount > 0) {
-                    $types[] = 'attendance';
+            // Only count activities within current year and not in future
+            $isCurrentYear = $current->year === $currentYear;
+            $isFuture = $dateStr > $today;
+            
+            if ($isCurrentYear && !$isFuture) {
+                // Count attendance
+                if (isset($attendanceLogs[$dateStr])) {
+                    $attendanceCount = $attendanceLogs[$dateStr]->whereIn('status', ['present', 'late'])->count();
+                    $count += $attendanceCount;
+                    if ($attendanceCount > 0) {
+                        $types[] = 'attendance';
+                    }
                 }
+                
+                // Count tasks completed
+                if (isset($tasksCompleted[$dateStr])) {
+                    $taskCount = $tasksCompleted[$dateStr]->count();
+                    $count += $taskCount;
+                    if ($taskCount > 0) {
+                        $types[] = 'task';
+                    }
+                }
+                
+                // Count notes created
+                if (isset($notesCreated[$dateStr])) {
+                    $noteCount = $notesCreated[$dateStr]->count();
+                    $count += $noteCount;
+                    if ($noteCount > 0) {
+                        $types[] = 'note';
+                    }
+                }
+                
+                $totalActivities += $count;
+                if ($count > 0) $activeDays++;
             }
             
-            // Count tasks completed
-            if (isset($tasksCompleted[$dateStr])) {
-                $taskCount = $tasksCompleted[$dateStr]->count();
-                $count += $taskCount;
-                if ($taskCount > 0) {
-                    $types[] = 'task';
+            // Track week number sequentially
+            $currentWeekOfYear = $current->weekOfYear;
+            if ($lastWeekOfYear !== $currentWeekOfYear) {
+                if ($lastWeekOfYear !== null) {
+                    $weekNumber++;
                 }
-            }
-            
-            // Count notes created
-            if (isset($notesCreated[$dateStr])) {
-                $noteCount = $notesCreated[$dateStr]->count();
-                $count += $noteCount;
-                if ($noteCount > 0) {
-                    $types[] = 'note';
-                }
+                $lastWeekOfYear = $currentWeekOfYear;
             }
             
             $activities[] = [
                 'date' => $dateStr,
-                'count' => $count,
-                'level' => $this->getActivityLevel($count),
+                'count' => ($isCurrentYear && !$isFuture) ? $count : 0,
+                'level' => ($isCurrentYear && !$isFuture) ? $this->getActivityLevel($count) : -1, // -1 for future dates
                 'types' => $types,
                 'dayOfWeek' => $current->dayOfWeek,
-                'week' => $current->weekOfYear,
+                'week' => $weekNumber,
                 'month' => $current->month,
                 'monthName' => $current->format('M'),
+                'isCurrentYear' => $isCurrentYear,
+                'isFuture' => $isFuture,
             ];
-            
-            $totalActivities += $count;
-            if ($count > 0) $activeDays++;
             
             $current->addDay();
         }
@@ -310,12 +331,21 @@ class PersonalAnalyticsController extends Controller
         // Group by weeks for display
         $weeks = collect($activities)->groupBy('week')->map(fn($week) => $week->values()->toArray())->values()->toArray();
         
-        // Get month labels
-        $months = collect($activities)
-            ->unique('month')
-            ->map(fn($a) => ['month' => $a['month'], 'name' => $a['monthName']])
-            ->values()
-            ->toArray();
+        // Get all 12 months for full year display
+        $months = [
+            ['month' => 1, 'name' => 'Jan'],
+            ['month' => 2, 'name' => 'Feb'],
+            ['month' => 3, 'name' => 'Mar'],
+            ['month' => 4, 'name' => 'Apr'],
+            ['month' => 5, 'name' => 'May'],
+            ['month' => 6, 'name' => 'Jun'],
+            ['month' => 7, 'name' => 'Jul'],
+            ['month' => 8, 'name' => 'Aug'],
+            ['month' => 9, 'name' => 'Sep'],
+            ['month' => 10, 'name' => 'Oct'],
+            ['month' => 11, 'name' => 'Nov'],
+            ['month' => 12, 'name' => 'Dec'],
+        ];
         
         return [
             'activities' => $activities,
@@ -325,6 +355,7 @@ class PersonalAnalyticsController extends Controller
             'activeDays' => $activeDays,
             'longestStreak' => $this->calculateLongestActivityStreak($activities),
             'currentStreak' => $this->calculateCurrentActivityStreak($activities),
+            'year' => $currentYear,
         ];
     }
     
@@ -343,7 +374,7 @@ class PersonalAnalyticsController extends Controller
         $current = 0;
         
         foreach ($activities as $activity) {
-            if ($activity['count'] > 0) {
+            if (($activity['isCurrentYear'] ?? true) && $activity['count'] > 0) {
                 $current++;
                 $longest = max($longest, $current);
             } else {
