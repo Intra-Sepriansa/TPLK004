@@ -763,38 +763,537 @@ MAIL_PASSWORD=
 
 ## 🎮 Sistem Gamifikasi
 
-### 🏅 Badge System
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&duration=2500&pause=500&color=F59E0B&center=true&vCenter=true&width=700&lines=🏆+12+Badge+Types+×+3+Levels+%3D+36+Badges!;🎯+Easy+Requirements+for+Quick+Unlocking;✨+Blur+Effect+for+Locked+Badges;🔥+Independent+Level+Progression" alt="Gamification" />
+</p>
 
-| Badge | Requirement | Points |
-|-------|-------------|--------|
-| 🌟 First Timer | Absen pertama kali | 10 |
-| 🔥 On Fire | 7 hari berturut-turut | 50 |
-| 💪 Consistent | 30 hari berturut-turut | 200 |
-| 🏆 Perfect Month | 100% kehadiran sebulan | 500 |
-| 👑 Semester Champion | Tertinggi di semester | 1000 |
-| ⚡ Early Bird | Absen 5 menit pertama | 25 |
-| 📚 Bookworm | Submit semua tugas | 100 |
+### 🏅 Complete Badge Collection
+
+Sistem badge kami memiliki **12 tipe badge** dengan **3 level** masing-masing, total **36 badge** yang bisa dikumpulkan!
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🔥 STREAK MASTER - Hadir Berturut-turut
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/streak_master.png" width="80" height="80" alt="Streak Master I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 3 hari streak</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/streak_master_2.png" width="80" height="80" alt="Streak Master II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5 hari streak</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/streak_master_3.png" width="80" height="80" alt="Streak Master III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 10 hari streak</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟠 orange</code><br/>
+<sub>Category: streak</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### ⭐ PERFECT ATTENDANCE - Kehadiran Sempurna
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/perfect_attendance.png" width="80" height="80" alt="Perfect Attendance I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 3 sesi sempurna</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/perfect_attendance_2.png" width="80" height="80" alt="Perfect Attendance II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 7 sesi sempurna</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/perfect_attendance_3.png" width="80" height="80" alt="Perfect Attendance III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 14 sesi sempurna</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟢 emerald</code><br/>
+<sub>Category: attendance</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### ⚡ EARLY BIRD - Selalu Tepat Waktu
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/early_bird.png" width="80" height="80" alt="Early Bird I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 3 sesi on-time</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/early_bird_2.png" width="80" height="80" alt="Early Bird II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 7 sesi on-time</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/early_bird_3.png" width="80" height="80" alt="Early Bird III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 15 sesi on-time</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🔵 sky</code><br/>
+<sub>Category: punctuality</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🎯 CONSISTENT - Kehadiran Konsisten
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/consistent.png" width="80" height="80" alt="Consistent I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 5x kehadiran</sub><br/>
+<sub>⭐ 75 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/consistent_2.png" width="80" height="80" alt="Consistent II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 10x kehadiran</sub><br/>
+<sub>⭐ 150 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/consistent_3.png" width="80" height="80" alt="Consistent III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 20x kehadiran</sub><br/>
+<sub>⭐ 300 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟢 green</code><br/>
+<sub>Category: attendance</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🏆 CHAMPION - Top Ranking
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/champion.png" width="80" height="80" alt="Champion I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 Top 20 di kelas</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/champion_2.png" width="80" height="80" alt="Champion II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 Top 10 di kelas</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/champion_3.png" width="80" height="80" alt="Champion III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 Top 3 di kelas</sub><br/>
+<sub>⭐ 400 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟡 amber</code><br/>
+<sub>Category: leaderboard</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 👑 LEGEND - Pencapaian Tertinggi
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/legend.png" width="80" height="80" alt="Legend I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 Unlock 2 badge</sub><br/>
+<sub>⭐ 150 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/legend_2.png" width="80" height="80" alt="Legend II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 Unlock 5 badge</sub><br/>
+<sub>⭐ 300 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/legend_3.png" width="80" height="80" alt="Legend III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 Unlock 10 badge</sub><br/>
+<sub>⭐ 500 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟣 purple</code><br/>
+<sub>Category: special</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 👣 FIRST STEP - Langkah Pertama
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/first_step.png" width="80" height="80" alt="First Step I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 1x absensi</sub><br/>
+<sub>⭐ 25 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/first_step_2.png" width="80" height="80" alt="First Step II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5x absensi</sub><br/>
+<sub>⭐ 75 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/first_step_3.png" width="80" height="80" alt="First Step III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 15x absensi</sub><br/>
+<sub>⭐ 150 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🩵 teal</code><br/>
+<sub>Category: milestone</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🤖 AI VERIFIED - Verifikasi Wajah AI
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/ai_verified.png" width="80" height="80" alt="AI Verified I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 3x verifikasi AI</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/ai_verified_2.png" width="80" height="80" alt="AI Verified II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 10x verifikasi AI</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/ai_verified_3.png" width="80" height="80" alt="AI Verified III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 25x verifikasi AI</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🔵 cyan</code><br/>
+<sub>Category: technology</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 💰 KAS HERO - Pembayaran Kas
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/kas_hero.png" width="80" height="80" alt="Kas Hero I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 2x bayar tepat waktu</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/kas_hero_2.png" width="80" height="80" alt="Kas Hero II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5x bayar tepat waktu</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/kas_hero_3.png" width="80" height="80" alt="Kas Hero III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 10x bayar tepat waktu</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🟢 green</code><br/>
+<sub>Category: financial</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 📝 TASK MASTER - Pengumpulan Tugas
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/task_master.png" width="80" height="80" alt="Task Master I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 2 tugas tepat waktu</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/task_master_2.png" width="80" height="80" alt="Task Master II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5 tugas tepat waktu</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/task_master_3.png" width="80" height="80" alt="Task Master III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 10 tugas tepat waktu</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🔵 blue</code><br/>
+<sub>Category: academic</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🌟 SOCIAL STAR - Aktif di Komunitas
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/social_star.png" width="80" height="80" alt="Social Star I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 2x voting kas</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/social_star_2.png" width="80" height="80" alt="Social Star II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5x voting kas</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/social_star_3.png" width="80" height="80" alt="Social Star III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 10x voting kas</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🩷 pink</code><br/>
+<sub>Category: social</sub>
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td colspan="4" align="center">
+
+#### 🚀 SPEED DEMON - Absen Tercepat
+
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<img src="./public/images/badges/speed_demon.png" width="80" height="80" alt="Speed Demon I"/><br/>
+<b>Level 1</b><br/>
+<sub>🎯 2x absen < 1 menit</sub><br/>
+<sub>⭐ 50 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/speed_demon_2.png" width="80" height="80" alt="Speed Demon II"/><br/>
+<b>Level 2</b><br/>
+<sub>🎯 5x absen < 1 menit</sub><br/>
+<sub>⭐ 100 poin</sub>
+</td>
+<td align="center" width="25%">
+<img src="./public/images/badges/speed_demon_3.png" width="80" height="80" alt="Speed Demon III"/><br/>
+<b>Level 3</b><br/>
+<sub>🎯 10x absen < 1 menit</sub><br/>
+<sub>⭐ 200 poin</sub>
+</td>
+<td align="center" width="25%">
+<code>🔴 red</code><br/>
+<sub>Category: speed</sub>
+</td>
+</tr>
+</table>
+
+---
+
+### 📊 Badge Summary Table
+
+<details>
+<summary><b>📋 Klik untuk melihat tabel lengkap semua badge</b></summary>
+
+| # | Badge | Category | Lv1 Req | Lv2 Req | Lv3 Req | Total Points |
+|---|-------|----------|---------|---------|---------|--------------|
+| 1 | 🔥 Streak Master | streak | 3 hari | 5 hari | 10 hari | 350 |
+| 2 | ⭐ Perfect Attendance | attendance | 3 sesi | 7 sesi | 14 sesi | 350 |
+| 3 | ⚡ Early Bird | punctuality | 3 sesi | 7 sesi | 15 sesi | 350 |
+| 4 | 🎯 Consistent | attendance | 5x | 10x | 20x | 525 |
+| 5 | 🏆 Champion | leaderboard | Top 20 | Top 10 | Top 3 | 700 |
+| 6 | 👑 Legend | special | 2 badge | 5 badge | 10 badge | 950 |
+| 7 | 👣 First Step | milestone | 1x | 5x | 15x | 250 |
+| 8 | 🤖 AI Verified | technology | 3x | 10x | 25x | 350 |
+| 9 | 💰 Kas Hero | financial | 2x | 5x | 10x | 350 |
+| 10 | 📝 Task Master | academic | 2 tugas | 5 tugas | 10 tugas | 350 |
+| 11 | 🌟 Social Star | social | 2x | 5x | 10x | 350 |
+| 12 | 🚀 Speed Demon | speed | 2x | 5x | 10x | 350 |
+
+**Total Possible Points: 5,225 ⭐**
+
+</details>
+
+---
 
 ### 📊 Level System
 
-| Level | Points Required | Title |
-|-------|-----------------|-------|
-| 1 | 0 | Newbie |
-| 2 | 100 | Beginner |
-| 3 | 300 | Regular |
-| 4 | 600 | Committed |
-| 5 | 1000 | Dedicated |
-| 6 | 1500 | Expert |
-| 7 | 2100 | Master |
-| 8 | 2800 | Legend |
-| 9 | 3600 | Champion |
-| 10 | 4500 | Ultimate |
+<table>
+<tr>
+<td align="center">
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    🎮 LEVEL PROGRESSION                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   🌱 Lv.1 PEMULA      │ 0 - 99 pts      │ ░░░░░░░░░░      │
+│   📚 Lv.2 PELAJAR     │ 100 - 299 pts   │ ██░░░░░░░░      │
+│   ⭐ Lv.3 RAJIN       │ 300 - 599 pts   │ ████░░░░░░      │
+│   🏆 Lv.4 TELADAN     │ 600 - 999 pts   │ ██████░░░░      │
+│   👑 Lv.5 MASTER      │ 1000 - 1999 pts │ ████████░░      │
+│   💎 Lv.6 LEGEND      │ 2000+ pts       │ ██████████      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+</td>
+</tr>
+</table>
+
+| Level | Icon | Name | Min Points | Max Points | Color |
+|-------|------|------|------------|------------|-------|
+| 1 | 🌱 | Pemula | 0 | 99 | Gray |
+| 2 | 📚 | Pelajar | 100 | 299 | Green |
+| 3 | ⭐ | Rajin | 300 | 599 | Blue |
+| 4 | 🏆 | Teladan | 600 | 999 | Purple |
+| 5 | 👑 | Master | 1,000 | 1,999 | Yellow |
+| 6 | 💎 | Legend | 2,000 | ∞ | Red |
+
+---
 
 ### 🔥 Streak System
 
-- **Daily Streak**: Absen setiap hari
-- **Weekly Streak**: Absen setiap minggu
-- **Streak Multiplier**: Bonus points untuk streak panjang
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    🔥 STREAK MECHANICS                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Day 1  ──▶  Day 2  ──▶  Day 3  ──▶  Day 4  ──▶  Day 5     │
+│    🔥         🔥🔥        🔥🔥🔥       🔥🔥🔥🔥      🔥🔥🔥🔥🔥    │
+│                           ▲                                 │
+│                           │                                 │
+│                    🏅 BADGE UNLOCKED!                       │
+│                    Streak Master I                          │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│  ⚠️ STREAK RULES:                                           │
+│  • Hadir setiap hari untuk membangun streak                 │
+│  • Izin/sakit yang disetujui TIDAK memutus streak           │
+│  • Alpha (tanpa izin) akan RESET streak ke 0                │
+│  • Streak dihitung dari hari berturut-turut                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### ✨ Badge UI Features
+
+<table>
+<tr>
+<td width="50%">
+
+#### 🔓 Unlocked Badge
+- ✅ Gambar badge penuh warna
+- ✅ Efek glow animasi
+- ✅ Label "Unlocked" hijau
+- ✅ Sparkle effect on hover
+
+</td>
+<td width="50%">
+
+#### 🔒 Locked Badge
+- 🔲 Gambar badge blur (kabur)
+- 🔲 Grayscale filter
+- 🔲 Opacity 40%
+- 🔲 Eye icon on hover (preview)
+
+</td>
+</tr>
+</table>
+
+> **Note:** Badge yang terkunci ditampilkan dengan efek blur, TANPA icon gembok. Ini memberikan preview badge yang akan didapat tanpa menghalangi gambar.
 
 ---
 
