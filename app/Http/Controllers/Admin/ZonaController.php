@@ -112,16 +112,20 @@ class ZonaController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'geofence_lat' => 'required|numeric',
             'geofence_lng' => 'required|numeric',
             'geofence_radius_m' => 'required|integer|min:10|max:5000',
         ]);
 
-        Setting::setValue('geofence_lat', $request->input('geofence_lat'));
-        Setting::setValue('geofence_lng', $request->input('geofence_lng'));
-        Setting::setValue('geofence_radius_m', $request->input('geofence_radius_m'));
+        try {
+            Setting::setValue('geofence_lat', (string) $validated['geofence_lat']);
+            Setting::setValue('geofence_lng', (string) $validated['geofence_lng']);
+            Setting::setValue('geofence_radius_m', (string) $validated['geofence_radius_m']);
 
-        return back()->with('success', 'Zona geofence berhasil diperbarui.');
+            return back()->with('success', 'Zona geofence berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
+        }
     }
 }
