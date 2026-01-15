@@ -86,22 +86,21 @@ class RekapKehadiranController extends Controller
         $dateTo = $request->get('date_to', now()->toDateString());
         $courseId = $request->get('course_id', 'all');
         
+        // If specific course selected, use detailed per-course PDF
+        if ($courseId !== 'all') {
+            return $this->exportPdfPerCourse($courseId, $dateFrom, $dateTo);
+        }
+        
         $attendanceQuery = AttendanceLog::with(['mahasiswa', 'session.course.dosen'])
             ->whereHas('session', function ($q) use ($dateFrom, $dateTo) {
                 $q->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
             });
         
-        if ($courseId !== 'all') {
-            $attendanceQuery->whereHas('session', function ($q) use ($courseId) {
-                $q->where('course_id', $courseId);
-            });
-        }
-        
         $attendanceLogs = $attendanceQuery->latest('scanned_at')->get();
         $stats = $this->getAttendanceStats($dateFrom, $dateTo, $courseId);
         $courseSummary = $this->getCourseAttendanceSummary($dateFrom, $dateTo);
         
-        $selectedCourse = $courseId !== 'all' ? MataKuliah::with('dosen')->find($courseId) : null;
+        $selectedCourse = null;
         
         $data = [
             'attendanceLogs' => $attendanceLogs,
@@ -120,6 +119,114 @@ class RekapKehadiranController extends Controller
         $pdf->setPaper('A4', 'landscape');
         
         $filename = 'Rekap_Kehadiran_Admin_' . $dateFrom . '_' . $dateTo . '.pdf';
+        
+        return $pdf->download($filename);
+    }
+    
+    /**
+     * Export PDF per mata kuliah dengan detail kehadiran per pertemuan
+     */
+    private function exportPdfPerCourse($courseId, $dateFrom, $dateTo)
+    {
+        $course = MataKuliah::with('dosen')->findOrFail($courseId);
+        
+        // Get all sessions for this course
+        $sessions = AttendanceSession::where('course_id', $courseId)
+            ->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'])
+            ->orderBy('meeting_number')
+            ->get();
+        
+        // Get all students who have attendance in this course
+        $studentIds = AttendanceLog::whereHas('session', function ($q) use ($courseId, $dateFrom, $dateTo) {
+            $q->where('course_id', $courseId)
+                ->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
+        })->distinct()->pluck('mahasiswa_id');
+        
+        $mahasiswaList = Mahasiswa::whereIn('id', $studentIds)->orderBy('nama')->get();
+        
+        // Build student attendance data
+        $students = [];
+        $totalPresent = 0;
+        $totalLate = 0;
+        $totalAbsent = 0;
+        
+        foreach ($mahasiswaList as $mahasiswa) {
+            $attendances = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+                ->whereHas('session', function ($q) use ($courseId, $dateFrom, $dateTo) {
+                    $q->where('course_id', $courseId)
+                        ->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
+                })
+                ->get()
+                ->keyBy('session_id');
+            
+            $presentCount = $attendances->where('status', 'present')->count();
+            $lateCount = $attendances->where('status', 'late')->count();
+            $absentCount = $sessions->count() - $presentCount - $lateCount;
+            
+            $totalPresent += $presentCount;
+            $totalLate += $lateCount;
+            $totalAbsent += $absentCount;
+            
+            $rate = $sessions->count() > 0 
+                ? round((($presentCount + $lateCount) / $sessions->count()) * 100, 1) 
+                : 0;
+            
+            $students[] = [
+                'id' => $mahasiswa->id,
+                'nim' => $mahasiswa->nim,
+                'nama' => $mahasiswa->nama,
+                'attendances' => $attendances,
+                'present_count' => $presentCount,
+                'late_count' => $lateCount,
+                'absent_count' => $absentCount,
+                'rate' => $rate,
+            ];
+        }
+        
+        // Session summary
+        $sessionSummary = [];
+        foreach ($sessions as $session) {
+            $logs = AttendanceLog::where('session_id', $session->id)->get();
+            $sessionSummary[$session->id] = [
+                'present' => $logs->where('status', 'present')->count(),
+                'late' => $logs->where('status', 'late')->count(),
+                'absent' => count($mahasiswaList) - $logs->whereIn('status', ['present', 'late'])->count(),
+            ];
+        }
+        
+        // Overall stats
+        $totalAttendances = $totalPresent + $totalLate;
+        $totalPossible = count($mahasiswaList) * $sessions->count();
+        $attendanceRate = $totalPossible > 0 ? round(($totalAttendances / $totalPossible) * 100, 1) : 0;
+        
+        $stats = [
+            'total_sessions' => $sessions->count(),
+            'total_students' => count($mahasiswaList),
+            'present' => $totalPresent,
+            'late' => $totalLate,
+            'absent' => $totalAbsent,
+            'attendance_rate' => $attendanceRate,
+        ];
+        
+        $data = [
+            'course' => $course,
+            'sessions' => $sessions,
+            'students' => $students,
+            'sessionSummary' => $sessionSummary,
+            'stats' => $stats,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'semester' => 'Ganjil 2024/2025',
+            'tanggal' => now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
+            'tempat' => 'Tangerang Selatan',
+            'logoUnpam' => public_path('logo-unpam.png'),
+            'logoSasmita' => public_path('sasmita.png'),
+        ];
+        
+        $pdf = Pdf::loadView('pdf.rekap-kehadiran-matkul', $data);
+        $pdf->setPaper('A4', 'landscape');
+        
+        $filename = 'Rekap_Kehadiran_' . str_replace(' ', '_', $course->nama) . '_' . $dateFrom . '_' . $dateTo . '.pdf';
         
         return $pdf->download($filename);
     }
