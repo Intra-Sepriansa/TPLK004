@@ -31,7 +31,7 @@ class NotificationController extends Controller
         ]);
     }
 
-    public function markAsRead(AppNotification $notification)
+    public function markAsRead($id)
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
         
@@ -39,8 +39,14 @@ class NotificationController extends Controller
             return redirect()->route('mahasiswa.login');
         }
 
-        if ($notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id) {
-            $notification->update(['read_at' => now()]);
+        $notification = AppNotification::find($id);
+
+        if ($notification) {
+            // Allow marking as read if it's for this mahasiswa OR if it's a broadcast to all
+            if ($notification->notifiable_type === 'all' || 
+                ($notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id)) {
+                $notification->update(['read_at' => now()]);
+            }
         }
 
         return back();
@@ -71,9 +77,13 @@ class NotificationController extends Controller
 
         $notification = AppNotification::find($id);
         
-        if ($notification && $notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id) {
-            $notification->delete();
-            return back()->with('success', 'Notifikasi berhasil dihapus.');
+        if ($notification) {
+            // Allow deleting if it's for this mahasiswa OR if it's a broadcast to all
+            if ($notification->notifiable_type === 'all' || 
+                ($notification->notifiable_type === 'mahasiswa' && $notification->notifiable_id === $mahasiswa->id)) {
+                $notification->delete();
+                return back()->with('success', 'Notifikasi berhasil dihapus.');
+            }
         }
 
         return back()->with('error', 'Notifikasi tidak ditemukan.');

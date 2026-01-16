@@ -10,8 +10,11 @@ class AdminNotificationController extends Controller
 {
     public function markAsRead($id)
     {
-        $notification = AppNotification::findOrFail($id);
-        $notification->markAsRead();
+        $notification = AppNotification::find($id);
+        
+        if ($notification) {
+            $notification->markAsRead();
+        }
         
         return back();
     }
@@ -29,8 +32,11 @@ class AdminNotificationController extends Controller
 
     public function destroy($id)
     {
-        $notification = AppNotification::findOrFail($id);
-        $notification->delete();
+        $notification = AppNotification::find($id);
+        
+        if ($notification) {
+            $notification->delete();
+        }
         
         return back();
     }

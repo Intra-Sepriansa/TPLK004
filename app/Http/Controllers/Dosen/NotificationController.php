@@ -42,8 +42,12 @@ class NotificationController extends Controller
 
         $notification = AppNotification::find($id);
         
-        if ($notification && $notification->notifiable_type === 'dosen' && $notification->notifiable_id === $dosen->id) {
-            $notification->update(['read_at' => now()]);
+        if ($notification) {
+            // Allow marking as read if it's for this dosen OR if it's a broadcast to all
+            if ($notification->notifiable_type === 'all' || 
+                ($notification->notifiable_type === 'dosen' && $notification->notifiable_id === $dosen->id)) {
+                $notification->update(['read_at' => now()]);
+            }
         }
 
         return back();
@@ -74,9 +78,13 @@ class NotificationController extends Controller
 
         $notification = AppNotification::find($id);
         
-        if ($notification && $notification->notifiable_type === 'dosen' && $notification->notifiable_id === $dosen->id) {
-            $notification->delete();
-            return back()->with('success', 'Notifikasi berhasil dihapus.');
+        if ($notification) {
+            // Allow deleting if it's for this dosen OR if it's a broadcast to all
+            if ($notification->notifiable_type === 'all' || 
+                ($notification->notifiable_type === 'dosen' && $notification->notifiable_id === $dosen->id)) {
+                $notification->delete();
+                return back()->with('success', 'Notifikasi berhasil dihapus.');
+            }
         }
 
         return back()->with('error', 'Notifikasi tidak ditemukan.');
