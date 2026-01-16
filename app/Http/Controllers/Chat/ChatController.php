@@ -270,6 +270,13 @@ class ChatController extends Controller
             }
         }
 
+        // Get last_read_at for all other participants to determine message status
+        $otherParticipantsLastRead = $conversation->participants
+            ->filter(fn($p) => !($p->participant_type === $currentType && $p->participant_id === $currentUser->id))
+            ->map(fn($p) => $p->last_read_at)
+            ->filter()
+            ->toArray();
+
         return [
             'id' => $conversation->id,
             'type' => $conversation->type,
@@ -291,40 +298,74 @@ class ChatController extends Controller
                 'is_online' => $this->isUserOnline($p->participant),
                 'last_seen' => ($p->participant->last_activity_at ?? $p->participant->updated_at)?->toISOString(),
             ]),
-            'messages' => $conversation->messages->values()->map(fn($m) => [
-                'id' => $m->id,
-                'sender_type' => $m->sender_type,
-                'sender_id' => $m->sender_id,
-                'sender_name' => $m->getSenderName(),
-                'sender_avatar' => $m->getSenderAvatar(),
-                'content' => $m->getDisplayContent(),
-                'type' => $m->type,
-                'is_own' => $m->sender_type === $currentType && $m->sender_id === $currentUser->id,
-                'is_edited' => $m->isEdited(),
-                'is_deleted' => $m->isDeleted(),
-                'can_edit' => $m->canEdit() && $m->sender_type === $currentType && $m->sender_id === $currentUser->id,
-                'is_starred' => in_array($m->id, $starredMessageIds),
-                'is_pinned' => in_array($m->id, $pinnedMessageIds),
-                'reply_to' => $m->replyTo ? [
-                    'id' => $m->replyTo->id,
-                    'content' => $m->replyTo->getDisplayContent(),
-                    'sender_name' => $m->replyTo->getSenderName(),
-                ] : null,
-                'attachments' => $m->attachments->map(fn($a) => [
-                    'id' => $a->id,
-                    'file_name' => $a->file_name,
-                    'file_type' => $a->file_type,
-                    'file_size' => $a->formatted_size,
-                    'url' => $a->url,
-                    'is_image' => $a->is_image,
-                ]),
-                'reactions' => $m->reactions->groupBy('emoji')->map(fn($group, $emoji) => [
-                    'emoji' => $emoji,
-                    'count' => $group->count(),
-                    'users' => $group->map(fn($r) => $r->getReactorName()),
-                ])->values(),
-                'created_at' => $m->created_at->toISOString(),
-            ]),
+            'messages' => $conversation->messages->values()->map(function($m) use ($currentType, $currentUser, $starredMessageIds, $pinnedMessageIds, $otherParticipantsLastRead, $isOnline) {
+                $isOwn = $m->sender_type === $currentType && $m->sender_id === $currentUser->id;
+                
+                // Determine message status for own messages
+                // sent = terkirim ke server (default)
+                // delivered = terkirim ke penerima (penerima online atau pernah buka chat setelah pesan dikirim)
+                // read = sudah dibaca (last_read_at penerima >= created_at pesan)
+                $status = 'sent';
+                if ($isOwn) {
+                    // Check if any other participant has read this message
+                    $messageCreatedAt = $m->created_at;
+                    $hasBeenRead = false;
+                    $hasBeenDelivered = false;
+                    
+                    foreach ($otherParticipantsLastRead as $lastRead) {
+                        if ($lastRead && $lastRead >= $messageCreatedAt) {
+                            $hasBeenRead = true;
+                            break;
+                        }
+                        if ($lastRead) {
+                            $hasBeenDelivered = true;
+                        }
+                    }
+                    
+                    if ($hasBeenRead) {
+                        $status = 'read';
+                    } elseif ($hasBeenDelivered || $isOnline) {
+                        // If other participant is online or has opened chat before, mark as delivered
+                        $status = 'delivered';
+                    }
+                }
+                
+                return [
+                    'id' => $m->id,
+                    'sender_type' => $m->sender_type,
+                    'sender_id' => $m->sender_id,
+                    'sender_name' => $m->getSenderName(),
+                    'sender_avatar' => $m->getSenderAvatar(),
+                    'content' => $m->getDisplayContent(),
+                    'type' => $m->type,
+                    'is_own' => $isOwn,
+                    'is_edited' => $m->isEdited(),
+                    'is_deleted' => $m->isDeleted(),
+                    'can_edit' => $m->canEdit() && $isOwn,
+                    'is_starred' => in_array($m->id, $starredMessageIds),
+                    'is_pinned' => in_array($m->id, $pinnedMessageIds),
+                    'status' => $status,
+                    'reply_to' => $m->replyTo ? [
+                        'id' => $m->replyTo->id,
+                        'content' => $m->replyTo->getDisplayContent(),
+                        'sender_name' => $m->replyTo->getSenderName(),
+                    ] : null,
+                    'attachments' => $m->attachments->map(fn($a) => [
+                        'id' => $a->id,
+                        'file_name' => $a->file_name,
+                        'file_type' => $a->file_type,
+                        'file_size' => $a->formatted_size,
+                        'url' => $a->url,
+                        'is_image' => $a->is_image,
+                    ]),
+                    'reactions' => $m->reactions->groupBy('emoji')->map(fn($group, $emoji) => [
+                        'emoji' => $emoji,
+                        'count' => $group->count(),
+                        'users' => $group->map(fn($r) => $r->getReactorName()),
+                    ])->values(),
+                    'created_at' => $m->created_at->toISOString(),
+                ];
+            }),
             'is_admin' => $conversation->isAdmin($currentUser),
         ];
     }
