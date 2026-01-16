@@ -67,7 +67,6 @@ const ensureLeafletIcons = (() => {
     };
 })();
 
-
 export default function Zona({ geofence, violationStats, distanceDistribution, recentViolations, trendData, recentLocations }: PageProps) {
     const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
     const flash = props.flash;
@@ -82,7 +81,6 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
     const markerRef = useRef<L.Marker | null>(null);
     const circleRef = useRef<L.Circle | null>(null);
 
-    // Show flash message as toast
     useEffect(() => {
         if (flash?.success) {
             setToast({ type: 'success', message: flash.success });
@@ -133,7 +131,6 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
         markerRef.current = L.marker(center, { draggable: true }).addTo(map);
         circleRef.current = L.circle(center, { radius: geofence.radius_m, color: '#6366f1', fillColor: '#6366f1', fillOpacity: 0.2, weight: 2 }).addTo(map);
 
-        // Add scan location markers
         recentLocations.forEach(loc => {
             if (loc.lat && loc.lng) {
                 L.circleMarker([loc.lat, loc.lng], { radius: 4, color: loc.is_violation ? '#ef4444' : '#22c55e', fillColor: loc.is_violation ? '#ef4444' : '#22c55e', fillOpacity: 0.7, weight: 1 }).addTo(map);
@@ -164,12 +161,9 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
         <AppLayout>
             <Head title="Zona Geofence" />
             <div className="p-6 space-y-6">
-                {/* Toast Notification */}
                 {toast && (
                     <div className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg transition-all duration-300 ${
-                        toast.type === 'success' 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
-                            : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                        toast.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                     }`}>
                         {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                         <span className="text-sm font-medium">{toast.message}</span>

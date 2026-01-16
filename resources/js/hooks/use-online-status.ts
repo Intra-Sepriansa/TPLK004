@@ -1,51 +1,57 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
-interface UseOnlineStatusResult {
-    isOnline: boolean;
-    wasOffline: boolean;
-    lastOnline: Date | null;
-    lastOffline: Date | null;
+interface OnlineUser {
+    id: number;
+    type: string;
+    name: string;
 }
 
-export function useOnlineStatus(): UseOnlineStatusResult {
-    const [isOnline, setIsOnline] = useState(
-        typeof navigator !== 'undefined' ? navigator.onLine : true
-    );
-    const [wasOffline, setWasOffline] = useState(false);
-    const [lastOnline, setLastOnline] = useState<Date | null>(
-        typeof navigator !== 'undefined' && navigator.onLine ? new Date() : null
-    );
-    const [lastOffline, setLastOffline] = useState<Date | null>(null);
-
-    const handleOnline = useCallback(() => {
-        setIsOnline(true);
-        setLastOnline(new Date());
-        if (!isOnline) {
-            setWasOffline(true);
-            // Reset wasOffline after 5 seconds
-            setTimeout(() => setWasOffline(false), 5000);
-        }
-    }, [isOnline]);
-
-    const handleOffline = useCallback(() => {
-        setIsOnline(false);
-        setLastOffline(new Date());
-    }, []);
+export function useOnlineStatus() {
+    const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+    const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
+        // Check if Echo is available
+        if (typeof window === 'undefined' || !(window as any).Echo) {
+            console.warn('Laravel Echo not initialized');
+            return;
+        }
+
+        const echo = (window as any).Echo;
+        const channel = echo.join('online');
+
+        channel
+            .here((users: OnlineUser[]) => {
+                setOnlineUsers(users);
+                setIsConnected(true);
+            })
+            .joining((user: OnlineUser) => {
+                setOnlineUsers(prev => [...prev, user]);
+            })
+            .leaving((user: OnlineUser) => {
+                setOnlineUsers(prev => prev.filter(u => !(u.id === user.id && u.type === user.type)));
+            })
+            .listen('.user.status', (data: { user_id: number; user_type: string; is_online: boolean }) => {
+                if (data.is_online) {
+                    // User came online - they should be added via joining
+                } else {
+                    setOnlineUsers(prev => prev.filter(u => !(u.id === data.user_id && u.type === data.user_type)));
+                }
+            });
 
         return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
+            echo.leave('online');
+            setIsConnected(false);
         };
-    }, [handleOnline, handleOffline]);
+    }, []);
+
+    const isUserOnline = (userId: number, userType: string): boolean => {
+        return onlineUsers.some(u => u.id === userId && u.type === userType);
+    };
 
     return {
-        isOnline,
-        wasOffline,
-        lastOnline,
-        lastOffline,
+        onlineUsers,
+        isUserOnline,
+        isConnected,
     };
 }

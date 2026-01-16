@@ -157,7 +157,7 @@ class RekapKehadiranController extends Controller
                         ->whereBetween('start_at', [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59']);
                 })
                 ->get()
-                ->keyBy('session_id');
+                ->keyBy('attendance_session_id');
             
             $presentCount = $attendances->where('status', 'present')->count();
             $lateCount = $attendances->where('status', 'late')->count();
@@ -186,7 +186,7 @@ class RekapKehadiranController extends Controller
         // Session summary
         $sessionSummary = [];
         foreach ($sessions as $session) {
-            $logs = AttendanceLog::where('session_id', $session->id)->get();
+            $logs = AttendanceLog::where('attendance_session_id', $session->id)->get();
             $sessionSummary[$session->id] = [
                 'present' => $logs->where('status', 'present')->count(),
                 'late' => $logs->where('status', 'late')->count(),
@@ -224,7 +224,7 @@ class RekapKehadiranController extends Controller
         ];
         
         $pdf = Pdf::loadView('pdf.rekap-kehadiran-matkul', $data);
-        $pdf->setPaper('A4', 'landscape');
+        $pdf->setPaper('A4', 'portrait');
         
         $filename = 'Rekap_Kehadiran_' . str_replace(' ', '_', $course->nama) . '_' . $dateFrom . '_' . $dateTo . '.pdf';
         

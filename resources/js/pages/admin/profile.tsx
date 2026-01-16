@@ -182,8 +182,8 @@ export default function AdminProfile() {
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-500">Untuk mengubah nama dan email, silakan kunjungi halaman <Link href="/settings/profile" className="text-blue-600 hover:underline font-medium">Settings Profile</Link>.</p>
-                                <Link href="/settings/profile"><Button variant="outline" className="w-full">Buka Settings Profile</Button></Link>
+                                <p className="text-sm text-slate-500">Untuk mengubah nama dan email, silakan kunjungi halaman <Link href="/admin/pengaturan" className="text-blue-600 hover:underline font-medium">Pengaturan</Link>.</p>
+                                <Link href="/admin/pengaturan"><Button variant="outline" className="w-full">Buka Pengaturan</Button></Link>
                             </div>
                         </div>
                         <div className="space-y-6">

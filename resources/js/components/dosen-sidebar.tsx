@@ -20,6 +20,7 @@ import {
     ClipboardList,
     Home,
     LogOut,
+    MessageCircle,
     UserCircle,
     FileCheck,
     GraduationCap,
@@ -43,6 +44,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Mata Kuliah',
         href: '/dosen/courses',
         icon: BookOpen,
+    },
+    {
+        title: 'Chat',
+        href: '/chat',
+        icon: MessageCircle,
     },
     {
         title: 'Informasi Tugas',

@@ -92,7 +92,9 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::patch('admin/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'update'])->name('admin.pengaturan.update');
     Route::patch('admin/pengaturan/geofence', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateGeofence'])->name('admin.pengaturan.geofence');
     Route::patch('admin/pengaturan/notifications', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateNotifications'])->name('admin.pengaturan.notifications');
+    Route::patch('admin/pengaturan/advanced', [\App\Http\Controllers\Admin\PengaturanController::class, 'updateAdvanced'])->name('admin.pengaturan.advanced');
     Route::post('admin/pengaturan/clear-cache', [\App\Http\Controllers\Admin\PengaturanController::class, 'clearCache'])->name('admin.pengaturan.clear-cache');
+    Route::post('admin/pengaturan/optimize', [\App\Http\Controllers\Admin\PengaturanController::class, 'optimize'])->name('admin.pengaturan.optimize');
     
     // Admin QR Builder
     Route::get('admin/qr-builder', [\App\Http\Controllers\Admin\QrBuilderController::class, 'index'])->name('admin.qr-builder');
@@ -271,3 +273,4 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/dosen.php';
+require __DIR__.'/chat.php';

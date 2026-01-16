@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
@@ -22,6 +23,9 @@ class PengaturanController extends Controller
             'timezone' => config('app.timezone'),
             'environment' => config('app.env'),
             'debug_mode' => config('app.debug'),
+            'db_connection' => config('database.default'),
+            'cache_driver' => config('cache.default'),
+            'queue_driver' => config('queue.default'),
         ];
         
         // Storage info
@@ -95,11 +99,52 @@ class PengaturanController extends Controller
         return back()->with('success', 'Pengaturan notifikasi berhasil disimpan.');
     }
     
+    public function updateAdvanced(Request $request)
+    {
+        $request->validate([
+            'max_login_attempts' => 'required|integer|min:3|max:10',
+            'lockout_duration' => 'required|integer|min:5|max:60',
+            'session_lifetime' => 'required|integer|min:30|max:480',
+            'ai_verification_enabled' => 'required|boolean',
+            'face_match_threshold' => 'required|integer|min:50|max:99',
+            'blur_detection_enabled' => 'required|boolean',
+            'auto_approve_verified' => 'required|boolean',
+            'maintenance_mode' => 'required|boolean',
+        ]);
+        
+        $this->setSetting('max_login_attempts', $request->max_login_attempts);
+        $this->setSetting('lockout_duration', $request->lockout_duration);
+        $this->setSetting('session_lifetime', $request->session_lifetime);
+        $this->setSetting('ai_verification_enabled', $request->ai_verification_enabled);
+        $this->setSetting('face_match_threshold', $request->face_match_threshold);
+        $this->setSetting('blur_detection_enabled', $request->blur_detection_enabled);
+        $this->setSetting('auto_approve_verified', $request->auto_approve_verified);
+        $this->setSetting('maintenance_mode', $request->maintenance_mode);
+        
+        Cache::forget('app_settings');
+        
+        return back()->with('success', 'Pengaturan lanjutan berhasil disimpan.');
+    }
+    
     public function clearCache()
     {
         Cache::flush();
         
         return back()->with('success', 'Cache berhasil dibersihkan.');
+    }
+    
+    public function optimize()
+    {
+        try {
+            Artisan::call('optimize:clear');
+            Artisan::call('config:cache');
+            Artisan::call('route:cache');
+            Artisan::call('view:cache');
+            
+            return back()->with('success', 'Database berhasil dioptimasi.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengoptimasi: ' . $e->getMessage());
+        }
     }
     
     private function getAllSettings()
@@ -118,6 +163,14 @@ class PengaturanController extends Controller
                 'push_notifications' => false,
                 'daily_report' => false,
                 'weekly_report' => false,
+                'max_login_attempts' => 5,
+                'lockout_duration' => 15,
+                'session_lifetime' => 120,
+                'ai_verification_enabled' => true,
+                'face_match_threshold' => 70,
+                'blur_detection_enabled' => true,
+                'auto_approve_verified' => false,
+                'maintenance_mode' => false,
             ];
             
             $settings = Setting::pluck('value', 'key')->toArray();

@@ -4,64 +4,260 @@
     <meta charset="UTF-8">
     <title>Rekap Kehadiran - {{ $course->nama }}</title>
     <style>
+        @page {
+            size: A4 portrait;
+            margin: 2cm 1.5cm 2cm 1.5cm;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Times New Roman', Times, serif; font-size: 10px; line-height: 1.4; color: #333; }
-        .container { padding: 15px 20px; }
-        .header { display: table; width: 100%; border-bottom: 3px double #333; padding-bottom: 12px; margin-bottom: 15px; }
-        .header-logo { display: table-cell; width: 60px; vertical-align: middle; }
-        .header-logo img { width: 50px; height: auto; }
-        .header-text { display: table-cell; vertical-align: middle; text-align: center; padding: 0 10px; }
-        .header-logo-right { display: table-cell; width: 60px; vertical-align: middle; text-align: right; }
-        .header-logo-right img { width: 50px; height: auto; }
-        .university-name { font-size: 13px; font-weight: bold; text-transform: uppercase; color: #1a365d; }
-        .faculty-name { font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .address { font-size: 8px; margin-top: 3px; }
-        .title { text-align: center; margin: 15px 0; }
-        .title h1 { font-size: 13px; font-weight: bold; text-transform: uppercase; text-decoration: underline; }
-        .subtitle { font-size: 10px; margin-top: 5px; }
+        body { 
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 11px; 
+            line-height: 1.5; 
+            color: #000; 
+        }
+        .container { 
+            width: 100%;
+            max-width: 100%;
+        }
         
-        .info-box { background: #f8f9fa; border: 1px solid #ddd; padding: 10px; margin: 12px 0; border-radius: 4px; }
-        .info-row { display: table; width: 100%; margin-bottom: 5px; }
-        .info-label { display: table-cell; width: 120px; font-weight: bold; }
-        .info-value { display: table-cell; }
+        /* Header Kop Surat */
+        .header { 
+            display: table; 
+            width: 100%; 
+            border-bottom: 3px double #000; 
+            padding-bottom: 10px; 
+            margin-bottom: 20px; 
+        }
+        .header-logo { 
+            display: table-cell; 
+            width: 70px; 
+            vertical-align: middle; 
+        }
+        .header-logo img { 
+            width: 60px; 
+            height: auto; 
+        }
+        .header-text { 
+            display: table-cell; 
+            vertical-align: middle; 
+            text-align: center; 
+            padding: 0 15px; 
+        }
+        .header-logo-right { 
+            display: table-cell; 
+            width: 70px; 
+            vertical-align: middle; 
+            text-align: right; 
+        }
+        .header-logo-right img { 
+            width: 60px; 
+            height: auto; 
+        }
+        .university-name { 
+            font-size: 16px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+        .faculty-name { 
+            font-size: 14px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+        }
+        .department-name {
+            font-size: 13px; 
+            font-weight: bold;
+        }
+        .address { 
+            font-size: 10px; 
+            margin-top: 5px; 
+            line-height: 1.4;
+        }
         
-        .stats-grid { display: table; width: 100%; margin: 12px 0; }
-        .stat-box { display: table-cell; width: 16.66%; padding: 8px 4px; text-align: center; border: 1px solid #ddd; background: #fff; }
-        .stat-value { font-size: 16px; font-weight: bold; color: #1a365d; }
-        .stat-label { font-size: 8px; color: #666; margin-top: 2px; }
+        /* Judul Dokumen */
+        .title { 
+            text-align: center; 
+            margin: 25px 0 20px 0; 
+        }
+        .title h1 { 
+            font-size: 14px; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            text-decoration: underline; 
+            letter-spacing: 1px;
+        }
+        .subtitle { 
+            font-size: 11px; 
+            margin-top: 8px; 
+        }
         
-        .section-title { font-size: 11px; font-weight: bold; margin: 15px 0 8px; border-bottom: 2px solid #1a365d; padding-bottom: 3px; color: #1a365d; }
+        /* Info Box */
+        .info-box { 
+            border: 1px solid #000; 
+            padding: 12px 15px; 
+            margin: 15px 0; 
+        }
+        .info-row { 
+            display: table; 
+            width: 100%; 
+            margin-bottom: 6px; 
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-label { 
+            display: table-cell; 
+            width: 130px; 
+        }
+        .info-value { 
+            display: table-cell; 
+        }
         
-        .data-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 8px; }
-        .data-table th, .data-table td { border: 1px solid #333; padding: 4px 3px; }
-        .data-table th { background-color: #1a365d; color: white; font-weight: bold; text-align: center; }
-        .data-table tbody tr:nth-child(even) { background-color: #f8f9fa; }
-        .data-table .rotate { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); height: 60px; }
+        /* Stats Grid */
+        .stats-grid { 
+            display: table; 
+            width: 100%; 
+            margin: 15px 0; 
+            border-collapse: collapse;
+        }
+        .stat-box { 
+            display: table-cell; 
+            width: 16.66%; 
+            padding: 10px 5px; 
+            text-align: center; 
+            border: 1px solid #000; 
+        }
+        .stat-value { 
+            font-size: 18px; 
+            font-weight: bold; 
+        }
+        .stat-label { 
+            font-size: 9px; 
+            margin-top: 3px; 
+        }
         
-        .status-h { background-color: #d1fae5; color: #065f46; font-weight: bold; text-align: center; }
-        .status-t { background-color: #fef3c7; color: #92400e; font-weight: bold; text-align: center; }
-        .status-a { background-color: #fee2e2; color: #991b1b; font-weight: bold; text-align: center; }
-        .status-i { background-color: #dbeafe; color: #1e40af; font-weight: bold; text-align: center; }
+        /* Section Title */
+        .section-title { 
+            font-size: 12px; 
+            font-weight: bold; 
+            margin: 20px 0 10px 0; 
+            border-bottom: 2px solid #000; 
+            padding-bottom: 5px; 
+        }
         
-        .summary-row { background-color: #e5e7eb !important; font-weight: bold; }
+        /* Data Table */
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 12px 0; 
+            font-size: 9px; 
+        }
+        .data-table th, .data-table td { 
+            border: 1px solid #000; 
+            padding: 5px 4px; 
+        }
+        .data-table th { 
+            background-color: #e5e5e5; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+        .data-table tbody tr:nth-child(even) { 
+            background-color: #f9f9f9; 
+        }
         
-        .legend { margin: 10px 0; font-size: 8px; }
-        .legend-item { display: inline-block; margin-right: 15px; }
-        .legend-box { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin-right: 3px; border: 1px solid #333; }
+        /* Status Cells */
+        .status-h { 
+            background-color: #d4edda; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+        .status-t { 
+            background-color: #fff3cd; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+        .status-a { 
+            background-color: #f8d7da; 
+            font-weight: bold; 
+            text-align: center; 
+        }
+        .status-i { 
+            background-color: #cce5ff; 
+            font-weight: bold; 
+            text-align: center; 
+        }
         
-        .signature-section { margin-top: 30px; }
-        .signature-row { display: table; width: 100%; }
-        .signature-box { display: table-cell; width: 50%; text-align: center; padding: 10px; }
-        .signature-space { height: 50px; }
-        .signature-name { font-weight: bold; text-decoration: underline; }
+        .summary-row { 
+            background-color: #d5d5d5 !important; 
+            font-weight: bold; 
+        }
         
-        .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #ddd; text-align: center; font-size: 7px; color: #666; }
+        /* Legend */
+        .legend { 
+            margin: 12px 0; 
+            font-size: 10px; 
+        }
+        .legend-item { 
+            display: inline-block; 
+            margin-right: 20px; 
+        }
+        .legend-box { 
+            display: inline-block; 
+            width: 14px; 
+            height: 14px; 
+            vertical-align: middle; 
+            margin-right: 4px; 
+            border: 1px solid #000; 
+        }
         
-        .page-break { page-break-after: always; }
+        /* Signature Section */
+        .signature-section { 
+            margin-top: 40px; 
+        }
+        .signature-row { 
+            display: table; 
+            width: 100%; 
+        }
+        .signature-box { 
+            display: table-cell; 
+            width: 50%; 
+            text-align: center; 
+            padding: 10px 20px; 
+            vertical-align: top;
+        }
+        .signature-space { 
+            height: 70px; 
+        }
+        .signature-name { 
+            font-weight: bold; 
+            text-decoration: underline; 
+        }
+        .signature-nip {
+            font-size: 10px;
+        }
+        
+        /* Footer */
+        .footer { 
+            margin-top: 30px; 
+            padding-top: 10px; 
+            border-top: 1px solid #ccc; 
+            text-align: center; 
+            font-size: 9px; 
+            color: #666; 
+        }
+        
+        .page-break { 
+            page-break-after: always; 
+        }
+        
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Kop Surat -->
         <div class="header">
             <div class="header-logo">
                 @if(file_exists($logoUnpam))
@@ -71,10 +267,10 @@
             <div class="header-text">
                 <div class="university-name">Universitas Pamulang</div>
                 <div class="faculty-name">Fakultas Ilmu Komputer</div>
-                <div style="font-size: 10px; font-weight: bold;">Jurusan Teknik Informatika</div>
+                <div class="department-name">Program Studi Teknik Informatika</div>
                 <div class="address">
                     Jl. Surya Kencana No.1, Pamulang, Tangerang Selatan, Banten 15417<br>
-                    Telp: (021) 7412566 | Email: fikom@unpam.ac.id
+                    Telp: (021) 7412566 | Fax: (021) 7412491 | Email: fikom@unpam.ac.id
                 </div>
             </div>
             <div class="header-logo-right">
@@ -84,13 +280,15 @@
             </div>
         </div>
 
+        <!-- Judul Dokumen -->
         <div class="title">
             <h1>Daftar Hadir Perkuliahan</h1>
             <div class="subtitle">
-                Periode: {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d F Y') }} - {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d F Y') }}
+                Semester {{ $semester ?? 'Ganjil' }} Tahun Akademik {{ date('Y') }}/{{ date('Y') + 1 }}
             </div>
         </div>
 
+        <!-- Informasi Mata Kuliah -->
         <div class="info-box">
             <div class="info-row">
                 <div class="info-label">Mata Kuliah</div>
@@ -109,11 +307,12 @@
                 <div class="info-value">: {{ $course->kelas ?? '06TPLK004' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Semester</div>
-                <div class="info-value">: {{ $semester ?? 'Ganjil 2024/2025' }}</div>
+                <div class="info-label">Periode</div>
+                <div class="info-value">: {{ \Carbon\Carbon::parse($dateFrom)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($dateTo)->translatedFormat('d F Y') }}</div>
             </div>
         </div>
 
+        <!-- Statistik Ringkasan -->
         <div class="stats-grid">
             <div class="stat-box">
                 <div class="stat-value">{{ $stats['total_sessions'] }}</div>
@@ -124,60 +323,63 @@
                 <div class="stat-label">Jumlah Mahasiswa</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" style="color: #059669;">{{ $stats['present'] }}</div>
+                <div class="stat-value">{{ $stats['present'] }}</div>
                 <div class="stat-label">Total Hadir</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" style="color: #d97706;">{{ $stats['late'] }}</div>
+                <div class="stat-value">{{ $stats['late'] }}</div>
                 <div class="stat-label">Total Terlambat</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" style="color: #dc2626;">{{ $stats['absent'] }}</div>
+                <div class="stat-value">{{ $stats['absent'] }}</div>
                 <div class="stat-label">Total Tidak Hadir</div>
             </div>
             <div class="stat-box">
-                <div class="stat-value" style="color: #0891b2;">{{ $stats['attendance_rate'] }}%</div>
+                <div class="stat-value">{{ $stats['attendance_rate'] }}%</div>
                 <div class="stat-label">Tingkat Kehadiran</div>
             </div>
         </div>
 
-        <div class="section-title">Rekap Kehadiran Per Pertemuan</div>
-        
+        <!-- Keterangan Status -->
         <div class="legend">
-            <span class="legend-item"><span class="legend-box" style="background: #d1fae5;"></span> H = Hadir</span>
-            <span class="legend-item"><span class="legend-box" style="background: #fef3c7;"></span> T = Terlambat</span>
-            <span class="legend-item"><span class="legend-box" style="background: #fee2e2;"></span> A = Tidak Hadir</span>
-            <span class="legend-item"><span class="legend-box" style="background: #dbeafe;"></span> I = Izin/Sakit</span>
+            <strong>Keterangan:</strong>
+            <span class="legend-item"><span class="legend-box" style="background: #d4edda;"></span> H = Hadir</span>
+            <span class="legend-item"><span class="legend-box" style="background: #fff3cd;"></span> T = Terlambat</span>
+            <span class="legend-item"><span class="legend-box" style="background: #f8d7da;"></span> A = Tidak Hadir</span>
+            <span class="legend-item"><span class="legend-box" style="background: #cce5ff;"></span> I = Izin/Sakit</span>
         </div>
+
+        <!-- Tabel Rekap Kehadiran -->
+        <div class="section-title">Rekap Kehadiran Per Pertemuan</div>
 
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width: 25px;">No</th>
-                    <th style="width: 70px;">NIM</th>
-                    <th style="min-width: 120px;">Nama Mahasiswa</th>
+                    <th style="width: 30px;">No</th>
+                    <th style="width: 80px;">NIM</th>
+                    <th style="min-width: 130px;">Nama Mahasiswa</th>
                     @foreach($sessions as $session)
-                    <th style="width: 25px; font-size: 7px;">
+                    <th style="width: 28px; font-size: 8px;">
                         P{{ $session->meeting_number }}<br>
-                        <span style="font-weight: normal; font-size: 6px;">{{ $session->start_at?->format('d/m') }}</span>
+                        <span style="font-weight: normal; font-size: 7px;">{{ $session->start_at?->format('d/m') }}</span>
                     </th>
                     @endforeach
-                    <th style="width: 25px;">H</th>
-                    <th style="width: 25px;">T</th>
-                    <th style="width: 25px;">A</th>
-                    <th style="width: 35px;">%</th>
+                    <th style="width: 28px;">H</th>
+                    <th style="width: 28px;">T</th>
+                    <th style="width: 28px;">A</th>
+                    <th style="width: 38px;">%</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($students as $index => $student)
                 <tr>
-                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $student['nim'] }}</td>
                     <td>{{ $student['nama'] }}</td>
                     @foreach($sessions as $session)
                         @php
                             $attendance = $student['attendances'][$session->id] ?? null;
-                            $statusClass = '';
+                            $statusClass = 'status-a';
                             $statusText = 'A';
                             if ($attendance) {
                                 if ($attendance->status === 'present') {
@@ -189,30 +391,19 @@
                                 } elseif ($attendance->status === 'permit' || $attendance->status === 'sick') {
                                     $statusClass = 'status-i';
                                     $statusText = 'I';
-                                } else {
-                                    $statusClass = 'status-a';
-                                    $statusText = 'A';
                                 }
-                            } else {
-                                $statusClass = 'status-a';
                             }
                         @endphp
                         <td class="{{ $statusClass }}">{{ $statusText }}</td>
                     @endforeach
-                    <td style="text-align: center; font-weight: bold; color: #059669;">{{ $student['present_count'] }}</td>
-                    <td style="text-align: center; font-weight: bold; color: #d97706;">{{ $student['late_count'] }}</td>
-                    <td style="text-align: center; font-weight: bold; color: #dc2626;">{{ $student['absent_count'] }}</td>
-                    <td style="text-align: center; font-weight: bold; 
-                        @if($student['rate'] >= 80) color: #059669; 
-                        @elseif($student['rate'] >= 60) color: #d97706; 
-                        @else color: #dc2626; 
-                        @endif">
-                        {{ $student['rate'] }}%
-                    </td>
+                    <td class="text-center font-bold">{{ $student['present_count'] }}</td>
+                    <td class="text-center font-bold">{{ $student['late_count'] }}</td>
+                    <td class="text-center font-bold">{{ $student['absent_count'] }}</td>
+                    <td class="text-center font-bold">{{ $student['rate'] }}%</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="{{ 7 + count($sessions) }}" style="text-align: center; padding: 20px;">
+                    <td colspan="{{ 7 + count($sessions) }}" class="text-center" style="padding: 20px;">
                         Tidak ada data mahasiswa
                     </td>
                 </tr>
@@ -220,7 +411,7 @@
                 
                 @if(count($students) > 0)
                 <tr class="summary-row">
-                    <td colspan="3" style="text-align: center;">TOTAL</td>
+                    <td colspan="3" class="text-center">TOTAL</td>
                     @foreach($sessions as $session)
                         @php
                             $sessionPresent = collect($students)->sum(function($s) use ($session) {
@@ -228,28 +419,29 @@
                                 return $att && in_array($att->status, ['present', 'late']) ? 1 : 0;
                             });
                         @endphp
-                        <td style="text-align: center;">{{ $sessionPresent }}</td>
+                        <td class="text-center">{{ $sessionPresent }}</td>
                     @endforeach
-                    <td style="text-align: center;">{{ collect($students)->sum('present_count') }}</td>
-                    <td style="text-align: center;">{{ collect($students)->sum('late_count') }}</td>
-                    <td style="text-align: center;">{{ collect($students)->sum('absent_count') }}</td>
-                    <td style="text-align: center;">{{ $stats['attendance_rate'] }}%</td>
+                    <td class="text-center">{{ collect($students)->sum('present_count') }}</td>
+                    <td class="text-center">{{ collect($students)->sum('late_count') }}</td>
+                    <td class="text-center">{{ collect($students)->sum('absent_count') }}</td>
+                    <td class="text-center">{{ $stats['attendance_rate'] }}%</td>
                 </tr>
                 @endif
             </tbody>
         </table>
 
+        <!-- Detail Pertemuan -->
         <div class="section-title">Detail Pertemuan</div>
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width: 30px;">Pert.</th>
-                    <th style="width: 80px;">Tanggal</th>
-                    <th style="width: 60px;">Waktu</th>
+                    <th style="width: 40px;">Pert.</th>
+                    <th style="width: 100px;">Tanggal</th>
+                    <th style="width: 80px;">Waktu</th>
                     <th>Materi/Topik</th>
-                    <th style="width: 40px;">Hadir</th>
-                    <th style="width: 50px;">Terlambat</th>
-                    <th style="width: 50px;">Tidak Hadir</th>
+                    <th style="width: 50px;">Hadir</th>
+                    <th style="width: 60px;">Terlambat</th>
+                    <th style="width: 60px;">Tidak Hadir</th>
                 </tr>
             </thead>
             <tbody>
@@ -258,22 +450,23 @@
                     $sessionStats = $sessionSummary[$session->id] ?? ['present' => 0, 'late' => 0, 'absent' => 0];
                 @endphp
                 <tr>
-                    <td style="text-align: center;">{{ $session->meeting_number }}</td>
-                    <td>{{ $session->start_at?->translatedFormat('d M Y') }}</td>
-                    <td>{{ $session->start_at?->format('H:i') }} - {{ $session->end_at?->format('H:i') ?? '-' }}</td>
-                    <td>{{ $session->topic ?? 'Pertemuan ' . $session->meeting_number }}</td>
-                    <td style="text-align: center;" class="status-h">{{ $sessionStats['present'] }}</td>
-                    <td style="text-align: center;" class="status-t">{{ $sessionStats['late'] }}</td>
-                    <td style="text-align: center;" class="status-a">{{ $sessionStats['absent'] }}</td>
+                    <td class="text-center">{{ $session->meeting_number }}</td>
+                    <td>{{ $session->start_at?->translatedFormat('d F Y') }}</td>
+                    <td class="text-center">{{ $session->start_at?->format('H:i') }} - {{ $session->end_at?->format('H:i') ?? '-' }}</td>
+                    <td>{{ $session->topic ?? 'Pertemuan ke-' . $session->meeting_number }}</td>
+                    <td class="status-h">{{ $sessionStats['present'] }}</td>
+                    <td class="status-t">{{ $sessionStats['late'] }}</td>
+                    <td class="status-a">{{ $sessionStats['absent'] }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 15px;">Tidak ada data pertemuan</td>
+                    <td colspan="7" class="text-center" style="padding: 15px;">Tidak ada data pertemuan</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
 
+        <!-- Tanda Tangan -->
         <div class="signature-section">
             <div class="signature-row">
                 <div class="signature-box">
@@ -281,21 +474,22 @@
                     <p>Ketua Program Studi</p>
                     <div class="signature-space"></div>
                     <p class="signature-name">_______________________</p>
-                    <p>NIDN: _______________</p>
+                    <p class="signature-nip">NIDN. _______________</p>
                 </div>
                 <div class="signature-box">
                     <p>{{ $tempat }}, {{ $tanggal }}</p>
                     <p>Dosen Pengampu,</p>
                     <div class="signature-space"></div>
                     <p class="signature-name">{{ $course->dosen?->nama ?? '_______________________' }}</p>
-                    <p>NIDN: {{ $course->dosen?->nidn ?? '_______________' }}</p>
+                    <p class="signature-nip">NIDN. {{ $course->dosen?->nidn ?? '_______________' }}</p>
                 </div>
             </div>
         </div>
 
+        <!-- Footer -->
         <div class="footer">
-            <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi UNPAM - TPLK004</p>
-            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} WIB</p>
+            <p>Dokumen ini dicetak secara otomatis oleh Sistem Presensi Berbasis AI - UNPAM</p>
+            <p>Dicetak pada: {{ now()->timezone('Asia/Jakarta')->translatedFormat('l, d F Y H:i:s') }} WIB</p>
         </div>
     </div>
 </body>

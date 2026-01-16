@@ -67,4 +67,48 @@ class Dosen extends Authenticatable
         }
         return $initials;
     }
+
+    /**
+     * Get participant name for chat
+     */
+    public function getParticipantName(): string
+    {
+        return $this->nama;
+    }
+
+    /**
+     * Get participant avatar for chat
+     */
+    public function getParticipantAvatar(): ?string
+    {
+        return $this->avatar_url;
+    }
+
+    /**
+     * Get conversations for this dosen
+     */
+    public function conversations()
+    {
+        return $this->morphToMany(
+            \App\Models\Conversation::class,
+            'participant',
+            'conversation_participants'
+        )->withPivot(['role', 'joined_at', 'last_read_at', 'is_muted', 'is_blocked']);
+    }
+
+    /**
+     * Get messages sent by this dosen
+     */
+    public function messages()
+    {
+        return $this->morphMany(\App\Models\Message::class, 'sender');
+    }
+
+    /**
+     * Get online status
+     */
+    public function onlineStatus()
+    {
+        return $this->morphOne(\App\Models\UserOnlineStatus::class, 'user');
+    }
 }

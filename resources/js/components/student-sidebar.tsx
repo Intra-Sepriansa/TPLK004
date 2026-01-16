@@ -23,6 +23,7 @@ import {
     History,
     Home,
     LogOut,
+    MessageCircle,
     NotebookPen,
     QrCode,
     Trophy,
@@ -54,6 +55,11 @@ const studentNavItems: NavItem[] = [
         title: 'Riwayat',
         href: '/user/history',
         icon: History,
+    },
+    {
+        title: 'Chat',
+        href: '/chat',
+        icon: MessageCircle,
     },
     {
         title: 'Informasi Tugas',
