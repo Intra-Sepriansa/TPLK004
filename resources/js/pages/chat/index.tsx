@@ -6,6 +6,8 @@ import { ChatWindow } from '@/components/chat/chat-window';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ToastProvider, useToast } from '@/components/ui/toast-notification';
+import { MessageInfoModal, ContactInfoModal } from '@/components/ui/info-modal';
 import { cn } from '@/lib/utils';
 import type { ConversationListItem, ConversationDetail, Message, TypingUser, ChatUser } from '@/types/chat';
 
@@ -15,7 +17,8 @@ interface PageProps {
     currentUser: ChatUser;
 }
 
-export default function ChatIndex({ conversations, activeConversation, currentUser }: PageProps) {
+function ChatContent({ conversations, activeConversation, currentUser }: PageProps) {
+    const { showSuccess, showError, showInfo } = useToast();
     const [replyTo, setReplyTo] = useState<Message | null>(null);
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
     const [showNewChat, setShowNewChat] = useState(false);
@@ -23,6 +26,10 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
     const [searchResults, setSearchResults] = useState<ChatUser[]>([]);
     const [searching, setSearching] = useState(false);
     const [showMobileList, setShowMobileList] = useState(!activeConversation);
+    
+    // Modal states
+    const [messageInfoData, setMessageInfoData] = useState<any>(null);
+    const [contactInfoData, setContactInfoData] = useState<any>(null);
 
     const handleSelectConversation = (id: number) => {
         router.get(`/chat/${id}`, {}, { preserveState: true });
@@ -57,10 +64,10 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                 router.reload({ only: ['activeConversation', 'conversations'] });
             } else {
                 const errorData = await response.json().catch(() => ({}));
-                alert('Gagal mengirim pesan: ' + (errorData.error || errorData.message || 'Unknown error'));
+                showError('Gagal mengirim pesan', errorData.error || errorData.message || 'Terjadi kesalahan');
             }
         } catch (error) {
-            alert('Gagal mengirim pesan. Silakan coba lagi.');
+            showError('Gagal mengirim pesan', 'Silakan coba lagi');
         }
     };
 
@@ -136,10 +143,12 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
             });
             if (response.ok) {
                 const data = await response.json();
-                alert(data.message || 'Pesan diteruskan');
+                showSuccess('Pesan diteruskan', data.message || 'Berhasil meneruskan pesan', 'forward');
+            } else {
+                showError('Gagal meneruskan', 'Pesan tidak dapat diteruskan');
             }
         } catch (error) {
-            alert('Gagal meneruskan pesan');
+            showError('Gagal meneruskan', 'Terjadi kesalahan');
         }
     };
 
@@ -226,9 +235,13 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                     },
                                 });
                                 if (response.ok) {
+                                    const data = await response.json();
+                                    showSuccess(data.message, undefined, 'archive');
                                     router.reload({ only: ['conversations'] });
                                 }
-                            } catch (error) {}
+                            } catch (error) {
+                                showError('Gagal', 'Tidak dapat mengarsipkan chat');
+                            }
                         }}
                         onPin={async (conv) => {
                             try {
@@ -242,9 +255,13 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                     },
                                 });
                                 if (response.ok) {
+                                    const data = await response.json();
+                                    showSuccess(data.message, undefined, 'pin');
                                     router.reload({ only: ['conversations'] });
                                 }
-                            } catch (error) {}
+                            } catch (error) {
+                                showError('Gagal', 'Tidak dapat menyematkan chat');
+                            }
                         }}
                         onMute={async (conv) => {
                             try {
@@ -258,9 +275,13 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                     },
                                 });
                                 if (response.ok) {
+                                    const data = await response.json();
+                                    showSuccess(data.message, undefined, 'mute');
                                     router.reload({ only: ['conversations'] });
                                 }
-                            } catch (error) {}
+                            } catch (error) {
+                                showError('Gagal', 'Tidak dapat membisukan notifikasi');
+                            }
                         }}
                         onContactInfo={async (conv) => {
                             try {
@@ -272,10 +293,11 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                 });
                                 if (response.ok) {
                                     const data = await response.json();
-                                    const participants = data.participants?.map((p: { name: string }) => p.name).join(', ') || '';
-                                    alert(`Info Kontak\n\nNama: ${data.name}\nTipe: ${data.type === 'group' ? 'Grup' : 'Personal'}\nDibuat: ${new Date(data.created_at).toLocaleDateString('id-ID')}\n${data.type === 'group' ? `Anggota: ${participants}` : ''}`);
+                                    setContactInfoData(data);
                                 }
-                            } catch (error) {}
+                            } catch (error) {
+                                showError('Gagal', 'Tidak dapat memuat info kontak');
+                            }
                         }}
                     />
                 </div>
@@ -309,9 +331,13 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                         },
                                     });
                                     if (response.ok) {
+                                        const data = await response.json();
+                                        showSuccess(data.message, undefined, 'star');
                                         router.reload({ only: ['activeConversation'] });
                                     }
-                                } catch (error) {}
+                                } catch (error) {
+                                    showError('Gagal', 'Tidak dapat memberi bintang');
+                                }
                             }}
                             onPin={async (message) => {
                                 try {
@@ -325,9 +351,13 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                         },
                                     });
                                     if (response.ok) {
+                                        const data = await response.json();
+                                        showSuccess(data.message, undefined, 'pin');
                                         router.reload({ only: ['activeConversation'] });
                                     }
-                                } catch (error) {}
+                                } catch (error) {
+                                    showError('Gagal', 'Tidak dapat menyematkan pesan');
+                                }
                             }}
                             onInfo={async (message) => {
                                 try {
@@ -339,9 +369,11 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                                     });
                                     if (response.ok) {
                                         const data = await response.json();
-                                        alert(`Info Pesan\n\nPengirim: ${data.sender_name}\nDikirim: ${new Date(data.created_at).toLocaleString('id-ID')}${data.is_edited ? `\nDiedit: ${new Date(data.edited_at).toLocaleString('id-ID')}` : ''}\nBintang: ${data.is_starred ? 'Ya' : 'Tidak'}\nDisematkan: ${data.is_pinned ? 'Ya' : 'Tidak'}`);
+                                        setMessageInfoData(data);
                                     }
-                                } catch (error) {}
+                                } catch (error) {
+                                    showError('Gagal', 'Tidak dapat memuat info pesan');
+                                }
                             }}
                             onLoadMore={handleLoadMore}
                             onBack={() => setShowMobileList(true)}
@@ -447,6 +479,28 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Message Info Modal */}
+            <MessageInfoModal
+                isOpen={!!messageInfoData}
+                onClose={() => setMessageInfoData(null)}
+                data={messageInfoData}
+            />
+
+            {/* Contact Info Modal */}
+            <ContactInfoModal
+                isOpen={!!contactInfoData}
+                onClose={() => setContactInfoData(null)}
+                data={contactInfoData}
+            />
         </>
+    );
+}
+
+export default function ChatIndex(props: PageProps) {
+    return (
+        <ToastProvider>
+            <ChatContent {...props} />
+        </ToastProvider>
     );
 }
