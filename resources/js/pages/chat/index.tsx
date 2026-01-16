@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ToastProvider, useToast } from '@/components/ui/toast-notification';
 import { MessageInfoModal, ContactInfoModal } from '@/components/ui/info-modal';
+import { apiPost, apiPut, apiDelete, apiGet, isCsrfError } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { ConversationListItem, ConversationDetail, Message, TypingUser, ChatUser } from '@/types/chat';
 
@@ -49,19 +50,14 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
         });
 
         try {
-            const response = await fetch(`/api/chat/conversations/${activeConversation.id}/messages`, {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-            });
+            const response = await apiPost(`/api/chat/conversations/${activeConversation.id}/messages`, formData);
 
             if (response.ok) {
                 setReplyTo(null);
                 router.reload({ only: ['activeConversation', 'conversations'] });
+            } else if (isCsrfError(response)) {
+                showError('Sesi kedaluwarsa', 'Halaman akan dimuat ulang...');
+                setTimeout(() => window.location.reload(), 1500);
             } else {
                 const errorData = await response.json().catch(() => ({}));
                 showError('Gagal mengirim pesan', errorData.error || errorData.message || 'Terjadi kesalahan');
@@ -74,16 +70,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
     const handleTyping = async (isTyping: boolean) => {
         if (!activeConversation) return;
         try {
-            await fetch(`/api/chat/conversations/${activeConversation.id}/typing`, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ is_typing: isTyping }),
-            });
+            await apiPost(`/api/chat/conversations/${activeConversation.id}/typing`, { is_typing: isTyping });
         } catch (error) {}
     };
 
@@ -92,16 +79,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
 
     const handleEdit = async (message: Message, newContent: string) => {
         try {
-            const response = await fetch(`/api/chat/messages/${message.id}`, {
-                method: 'PUT',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ content: newContent }),
-            });
+            const response = await apiPut(`/api/chat/messages/${message.id}`, { content: newContent });
             if (response.ok) {
                 router.reload({ only: ['activeConversation'] });
             }
@@ -111,14 +89,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
     const handleDelete = async (message: Message) => {
         if (!confirm('Hapus pesan ini?')) return;
         try {
-            const response = await fetch(`/api/chat/messages/${message.id}`, {
-                method: 'DELETE',
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-            });
+            const response = await apiDelete(`/api/chat/messages/${message.id}`);
             if (response.ok) {
                 router.reload({ only: ['activeConversation'] });
             }
@@ -126,21 +97,11 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
     };
 
     const handleForward = async (message: Message) => {
-        // Show simple prompt for now - in production, show a conversation picker dialog
         const targetConvId = prompt('Masukkan ID percakapan tujuan:');
         if (!targetConvId) return;
         
         try {
-            const response = await fetch(`/api/chat/messages/${message.id}/forward`, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ conversation_ids: [parseInt(targetConvId)] }),
-            });
+            const response = await apiPost(`/api/chat/messages/${message.id}/forward`, { conversation_ids: [parseInt(targetConvId)] });
             if (response.ok) {
                 const data = await response.json();
                 showSuccess('Pesan diteruskan', data.message || 'Berhasil meneruskan pesan', 'forward');
@@ -154,16 +115,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
 
     const handleReact = async (message: Message, emoji: string) => {
         try {
-            await fetch(`/api/chat/messages/${message.id}/reactions`, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ emoji }),
-            });
+            await apiPost(`/api/chat/messages/${message.id}/reactions`, { emoji });
             router.reload({ only: ['activeConversation'] });
         } catch (error) {}
     };
@@ -177,13 +129,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
         }
         setSearching(true);
         try {
-            const response = await fetch(`/chat/contacts/search?q=${encodeURIComponent(query)}`, {
-                credentials: 'same-origin',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json',
-                },
-            });
+            const response = await apiGet(`/chat/contacts/search?q=${encodeURIComponent(query)}`);
             const data = await response.json();
             setSearchResults(data.contacts || []);
         } catch (error) {}
@@ -225,15 +171,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                         onNewChat={() => setShowNewChat(true)}
                         onArchive={async (conv) => {
                             try {
-                                const response = await fetch(`/api/chat/conversations/${conv.id}/archive`, {
-                                    method: 'POST',
-                                    credentials: 'same-origin',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                        'Accept': 'application/json',
-                                    },
-                                });
+                                const response = await apiPost(`/api/chat/conversations/${conv.id}/archive`);
                                 if (response.ok) {
                                     const data = await response.json();
                                     showSuccess(data.message, undefined, 'archive');
@@ -245,15 +183,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                         }}
                         onPin={async (conv) => {
                             try {
-                                const response = await fetch(`/api/chat/conversations/${conv.id}/pin`, {
-                                    method: 'POST',
-                                    credentials: 'same-origin',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                        'Accept': 'application/json',
-                                    },
-                                });
+                                const response = await apiPost(`/api/chat/conversations/${conv.id}/pin`);
                                 if (response.ok) {
                                     const data = await response.json();
                                     showSuccess(data.message, undefined, 'pin');
@@ -265,15 +195,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                         }}
                         onMute={async (conv) => {
                             try {
-                                const response = await fetch(`/api/chat/conversations/${conv.id}/mute`, {
-                                    method: 'POST',
-                                    credentials: 'same-origin',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                        'Accept': 'application/json',
-                                    },
-                                });
+                                const response = await apiPost(`/api/chat/conversations/${conv.id}/mute`);
                                 if (response.ok) {
                                     const data = await response.json();
                                     showSuccess(data.message, undefined, 'mute');
@@ -285,12 +207,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                         }}
                         onContactInfo={async (conv) => {
                             try {
-                                const response = await fetch(`/api/chat/conversations/${conv.id}/info`, {
-                                    credentials: 'same-origin',
-                                    headers: {
-                                        'Accept': 'application/json',
-                                    },
-                                });
+                                const response = await apiGet(`/api/chat/conversations/${conv.id}/info`);
                                 if (response.ok) {
                                     const data = await response.json();
                                     setContactInfoData(data);
@@ -321,15 +238,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                             onReact={handleReact}
                             onStar={async (message) => {
                                 try {
-                                    const response = await fetch(`/api/chat/messages/${message.id}/star`, {
-                                        method: 'POST',
-                                        credentials: 'same-origin',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                            'Accept': 'application/json',
-                                        },
-                                    });
+                                    const response = await apiPost(`/api/chat/messages/${message.id}/star`);
                                     if (response.ok) {
                                         const data = await response.json();
                                         showSuccess(data.message, undefined, 'star');
@@ -341,15 +250,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                             }}
                             onPin={async (message) => {
                                 try {
-                                    const response = await fetch(`/api/chat/messages/${message.id}/pin`, {
-                                        method: 'POST',
-                                        credentials: 'same-origin',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                                            'Accept': 'application/json',
-                                        },
-                                    });
+                                    const response = await apiPost(`/api/chat/messages/${message.id}/pin`);
                                     if (response.ok) {
                                         const data = await response.json();
                                         showSuccess(data.message, undefined, 'pin');
@@ -361,12 +262,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                             }}
                             onInfo={async (message) => {
                                 try {
-                                    const response = await fetch(`/api/chat/messages/${message.id}/info`, {
-                                        credentials: 'same-origin',
-                                        headers: {
-                                            'Accept': 'application/json',
-                                        },
-                                    });
+                                    const response = await apiGet(`/api/chat/messages/${message.id}/info`);
                                     if (response.ok) {
                                         const data = await response.json();
                                         setMessageInfoData(data);
