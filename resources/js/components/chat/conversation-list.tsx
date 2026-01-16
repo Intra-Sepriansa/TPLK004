@@ -1,11 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Plus, Users, MessageCircle, MoreVertical, Filter, Home, Archive, Pin, BellOff, User, CheckCheck } from 'lucide-react';
+import { Search, Plus, Users, MessageCircle, MoreVertical, Filter, Home, Archive, Pin, BellOff, User, Check, CheckCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ChatAvatarAdvanced } from './chat-avatar';
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import type { ConversationListItem, ChatUser } from '@/types/chat';
+
+// Message status indicator component for conversation list
+function MessageStatusIcon({ status }: { status?: 'sent' | 'delivered' | 'read' }) {
+    switch (status) {
+        case 'read':
+            // 2 ceklis biru - sudah dibaca
+            return <CheckCheck className="h-4 w-4 text-[#53bdeb] flex-shrink-0" />;
+        case 'delivered':
+            // 2 ceklis abu - terkirim ke penerima tapi belum dibaca
+            return <CheckCheck className="h-4 w-4 text-[#8696a0] flex-shrink-0" />;
+        case 'sent':
+        default:
+            // 1 ceklis abu - terkirim ke server
+            return <Check className="h-4 w-4 text-[#8696a0] flex-shrink-0" />;
+    }
+}
 
 interface ConversationListProps {
     conversations: ConversationListItem[];
@@ -237,9 +253,9 @@ export function ConversationList({
                                     <div className="flex items-center justify-between gap-2 mt-0.5">
                                         {conv.last_message ? (
                                             <p className="text-sm text-[#8696a0] truncate flex items-center gap-1">
-                                                {/* Show checkmark only for own messages */}
+                                                {/* Show checkmark only for own messages with proper status */}
                                                 {conv.last_message.is_own && (
-                                                    <CheckCheck className="h-4 w-4 text-[#53bdeb] flex-shrink-0" />
+                                                    <MessageStatusIcon status={conv.last_message.status} />
                                                 )}
                                                 {conv.type === 'group' && !conv.last_message.is_own && (
                                                     <span>{conv.last_message.sender_name}: </span>
