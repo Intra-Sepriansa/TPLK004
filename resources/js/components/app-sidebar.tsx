@@ -23,6 +23,7 @@ import {
     LayoutGrid,
     MapPin,
     BookOpen,
+    MessageCircle,
     QrCode,
     Radar,
     ScanFace,
@@ -95,6 +96,11 @@ const managementNavItems: NavItem[] = [
         title: 'Jadwal',
         href: '/admin/jadwal',
         icon: Clock,
+    },
+    {
+        title: 'Chat',
+        href: '/chat',
+        icon: MessageCircle,
     },
     {
         title: 'Informasi Tugas',
