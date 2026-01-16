@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AppNotification;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -52,6 +53,60 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
+        // Get header notifications based on authenticated user type
+        $headerNotifications = null;
+        $notificationConfig = null;
+        
+        if (auth()->guard('mahasiswa')->check()) {
+            $mahasiswa = auth()->guard('mahasiswa')->user();
+            $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+            $unreadCount = AppNotification::forUser('mahasiswa', $mahasiswa->id)->unread()->count();
+            
+            $headerNotifications = [
+                'items' => $notifications,
+                'unreadCount' => $unreadCount,
+            ];
+            $notificationConfig = [
+                'baseUrl' => '/user/notifications',
+                'allUrl' => '/user/notifications',
+            ];
+        } elseif (auth()->guard('dosen')->check()) {
+            $dosenUser = auth()->guard('dosen')->user();
+            $notifications = AppNotification::forUser('dosen', $dosenUser->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+            $unreadCount = AppNotification::forUser('dosen', $dosenUser->id)->unread()->count();
+            
+            $headerNotifications = [
+                'items' => $notifications,
+                'unreadCount' => $unreadCount,
+            ];
+            $notificationConfig = [
+                'baseUrl' => '/dosen/notifications',
+                'allUrl' => '/dosen/notifications',
+            ];
+        } elseif ($request->user()) {
+            // Admin user
+            $notifications = AppNotification::forUser('admin', $request->user()->id)
+                ->orderBy('created_at', 'desc')
+                ->limit(10)
+                ->get();
+            $unreadCount = AppNotification::forUser('admin', $request->user()->id)->unread()->count();
+            
+            $headerNotifications = [
+                'items' => $notifications,
+                'unreadCount' => $unreadCount,
+            ];
+            $notificationConfig = [
+                'baseUrl' => '/admin/notifications',
+                'allUrl' => '/admin/notification-center',
+            ];
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -65,6 +120,8 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'headerNotifications' => $headerNotifications,
+            'notificationConfig' => $notificationConfig,
         ];
     }
 }
