@@ -68,6 +68,7 @@ export interface LastMessage {
     sender_name: string;
     created_at: string;
     is_own?: boolean;
+    status?: 'sent' | 'delivered' | 'read'; // untuk menampilkan ceklis di conversation list
 }
 
 export interface ConversationListItem {

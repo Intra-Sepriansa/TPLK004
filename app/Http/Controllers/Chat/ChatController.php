@@ -197,9 +197,41 @@ class ChatController extends Controller
 
         // Check if last message is from current user
         $lastMessageIsOwn = false;
+        $lastMessageStatus = 'sent';
         if ($conversation->latestMessage) {
             $lastMessageIsOwn = $conversation->latestMessage->sender_type === $currentType 
                 && $conversation->latestMessage->sender_id === $currentUser->id;
+            
+            // Calculate status for own messages
+            if ($lastMessageIsOwn) {
+                $messageCreatedAt = $conversation->latestMessage->created_at;
+                
+                // Get last_read_at for other participants
+                $otherParticipantsLastRead = $conversation->participants
+                    ->filter(fn($p) => !($p->participant_type === $currentType && $p->participant_id === $currentUser->id))
+                    ->map(fn($p) => $p->last_read_at)
+                    ->filter()
+                    ->toArray();
+                
+                $hasBeenRead = false;
+                $hasBeenDelivered = false;
+                
+                foreach ($otherParticipantsLastRead as $lastRead) {
+                    if ($lastRead && $lastRead >= $messageCreatedAt) {
+                        $hasBeenRead = true;
+                        break;
+                    }
+                    if ($lastRead) {
+                        $hasBeenDelivered = true;
+                    }
+                }
+                
+                if ($hasBeenRead) {
+                    $lastMessageStatus = 'read';
+                } elseif ($hasBeenDelivered || $isOnline) {
+                    $lastMessageStatus = 'delivered';
+                }
+            }
         }
 
         return [
@@ -216,6 +248,7 @@ class ChatController extends Controller
                 'sender_name' => $conversation->latestMessage->getSenderName(),
                 'created_at' => $conversation->latestMessage->created_at->toISOString(),
                 'is_own' => $lastMessageIsOwn,
+                'status' => $lastMessageStatus,
             ] : null,
             'unread_count' => $conversation->unread_count ?? 0,
             'updated_at' => $conversation->updated_at->toISOString(),
