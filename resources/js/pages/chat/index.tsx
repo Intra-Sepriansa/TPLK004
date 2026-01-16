@@ -381,30 +381,38 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                             onCancelReply={handleCancelReply}
                         />
                     ) : (
-                        /* WhatsApp style empty state */
+                        /* Empty state - Komunikasi Kelas */
                         <div className="flex-1 flex flex-col items-center justify-center bg-[#222e35]">
                             <div className="text-center max-w-md px-8">
-                                <div className="w-[320px] h-[188px] mx-auto mb-10 opacity-40">
-                                    <svg viewBox="0 0 303 172" fill="none" className="w-full h-full">
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M229.565 160.229C262.212 149.245 286.931 118.241 283.39 73.4194C278.009 5.31929 212.365 -11.5738 171.472 8.48673C115.998 35.6999 108.972 40.1612 69.2388 40.1612C39.645 40.1612 9.51318 54.4147 5.7467 92.952C3.0166 120.885 13.9985 145.267 54.6373 157.716C128.599 180.373 198.017 170.844 229.565 160.229Z" fill="#364147"/>
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M131.589 68.9422C131.593 68.9422 131.596 68.9422 131.599 68.9422C137.86 68.9422 142.935 63.8667 142.935 57.6057C142.935 51.3446 137.86 46.2692 131.599 46.2692C125.338 46.2692 120.262 51.3446 120.262 57.6057C120.262 63.8667 125.334 68.9393 131.589 68.9422Z" fill="#8696A0"/>
-                                        <path fillRule="evenodd" clipRule="evenodd" d="M176.464 68.9422C176.467 68.9422 176.471 68.9422 176.474 68.9422C182.735 68.9422 187.81 63.8667 187.81 57.6057C187.81 51.3446 182.735 46.2692 176.474 46.2692C170.213 46.2692 165.137 51.3446 165.137 57.6057C165.137 63.8667 170.209 68.9393 176.464 68.9422Z" fill="#8696A0"/>
-                                        <path d="M154.036 90.9436C165.503 90.9436 174.799 81.6479 174.799 70.1804H133.274C133.274 81.6479 142.569 90.9436 154.036 90.9436Z" fill="#8696A0"/>
+                                {/* Icon Komunikasi Kelas */}
+                                <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-[#00a884]/10 flex items-center justify-center">
+                                    <svg viewBox="0 0 24 24" className="w-16 h-16 text-[#00a884]" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 0v2m0-2h2m-2 0H10" />
                                     </svg>
                                 </div>
-                                <h1 className="text-[32px] font-light text-[#e9edef] mb-4">
-                                    WhatsApp Web
+                                <h1 className="text-[28px] font-medium text-[#e9edef] mb-3">
+                                    Komunikasi Kelas
                                 </h1>
-                                <p className="text-sm text-[#8696a0] leading-relaxed mb-8">
-                                    Kirim dan terima pesan tanpa perlu menyimpan ponsel tetap online.
+                                <p className="text-sm text-[#8696a0] leading-relaxed mb-6">
+                                    Mulai percakapan dengan dosen atau mahasiswa lain.
                                     <br />
-                                    Gunakan WhatsApp di hingga 4 perangkat tertaut dan 1 ponsel secara bersamaan.
+                                    Diskusi tugas, tanya jawab, dan koordinasi kelas jadi lebih mudah.
                                 </p>
-                                <div className="flex items-center justify-center gap-2 text-[#8696a0] text-sm">
-                                    <svg viewBox="0 0 10 12" height="12" width="10" className="fill-current">
-                                        <path d="M5.00014 1.19995C2.90014 1.19995 1.20014 2.89995 1.20014 4.99995V6.59995L0.400146 7.39995V8.79995H9.60015V7.39995L8.80015 6.59995V4.99995C8.80015 2.89995 7.10015 1.19995 5.00014 1.19995ZM5.00014 10.9999C5.80015 10.9999 6.40015 10.3999 6.40015 9.59995H3.60015C3.60015 10.3999 4.20014 10.9999 5.00014 10.9999Z"/>
+                                <div className="flex flex-col gap-3">
+                                    <button
+                                        onClick={() => setShowNewChat(true)}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-[#00a884] hover:bg-[#06cf9c] text-white rounded-lg font-medium transition-colors"
+                                    >
+                                        <Plus className="h-5 w-5" />
+                                        Mulai Chat Baru
+                                    </button>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 text-[#8696a0] text-xs mt-8">
+                                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
                                     </svg>
-                                    <span>Terenkripsi secara end-to-end</span>
+                                    <span>Pesan terenkripsi dan aman</span>
                                 </div>
                             </div>
                         </div>
