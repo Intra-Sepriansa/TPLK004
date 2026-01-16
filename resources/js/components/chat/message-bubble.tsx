@@ -8,6 +8,7 @@ interface MessageBubbleProps {
     message: Message;
     showSender?: boolean;
     settings: ChatSettings;
+    isNew?: boolean;
     onReply: (message: Message) => void;
     onEdit: (message: Message) => void;
     onDelete: (message: Message) => void;
@@ -26,6 +27,7 @@ export function MessageBubble({
     message, 
     showSender = false,
     settings,
+    isNew = false,
     onReply, 
     onEdit, 
     onDelete, 
@@ -39,7 +41,36 @@ export function MessageBubble({
 }: MessageBubbleProps) {
     const [showReactions, setShowReactions] = useState(false);
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+    const [isVisible, setIsVisible] = useState(!isNew);
     const contextMenuRef = useRef<HTMLDivElement>(null);
+
+    // Trigger animation when message appears
+    useEffect(() => {
+        if (isNew) {
+            const timer = setTimeout(() => setIsVisible(true), 50);
+            return () => clearTimeout(timer);
+        }
+    }, [isNew]);
+
+    // Get animation class based on settings
+    const getAnimationClass = () => {
+        if (settings.messageAnimation === 'none' || !isNew) return '';
+        
+        const speedClass = settings.animationSpeed === 'slow' ? 'duration-500' : settings.animationSpeed === 'fast' ? 'duration-150' : 'duration-300';
+        
+        switch (settings.messageAnimation) {
+            case 'slide':
+                return message.is_own 
+                    ? `animate-in slide-in-from-right-4 ${speedClass}` 
+                    : `animate-in slide-in-from-left-4 ${speedClass}`;
+            case 'fade':
+                return `animate-in fade-in ${speedClass}`;
+            case 'scale':
+                return `animate-in zoom-in-95 ${speedClass}`;
+            default:
+                return '';
+        }
+    };
 
     const formatTime = (dateStr: string) => {
         return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -88,8 +119,8 @@ export function MessageBubble({
 
     if (message.type === 'system') {
         return (
-            <div className="flex justify-center my-2">
-                <span className="text-xs text-[#8696a0] bg-[#182229] px-3 py-1 rounded-lg">
+            <div className="flex justify-center my-2 animate-in fade-in duration-300">
+                <span className="text-xs text-[#8696a0] bg-[#182229] px-3 py-1 rounded-lg shadow-sm">
                     {message.content}
                 </span>
             </div>
@@ -100,10 +131,15 @@ export function MessageBubble({
         <>
             <div 
                 className={cn(
-                    'group flex gap-1 mb-1',
-                    message.is_own ? 'flex-row-reverse' : 'flex-row'
+                    'group flex gap-1 mb-1 transition-all',
+                    message.is_own ? 'flex-row-reverse' : 'flex-row',
+                    getAnimationClass(),
+                    !isVisible && isNew && 'opacity-0 translate-y-2'
                 )}
                 onContextMenu={handleContextMenu}
+                style={{
+                    transition: isNew ? `opacity ${settings.animationSpeed === 'slow' ? '0.5s' : settings.animationSpeed === 'fast' ? '0.15s' : '0.3s'} ease, transform ${settings.animationSpeed === 'slow' ? '0.5s' : settings.animationSpeed === 'fast' ? '0.15s' : '0.3s'} ease` : undefined
+                }}
             >
                 {/* Message Bubble - WhatsApp Style */}
                 <div className={cn('max-w-[65%] flex flex-col', message.is_own ? 'items-end' : 'items-start')}>

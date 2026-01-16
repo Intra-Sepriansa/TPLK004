@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MessageBubble } from './message-bubble';
 import { MessageComposer } from './message-composer';
 import { ChatSettingsPanel, ChatSettings, DEFAULT_SETTINGS } from './chat-settings';
+import { ChatAvatarAdvanced } from './chat-avatar';
 import { cn } from '@/lib/utils';
 import type { ConversationDetail, Message, TypingUser } from '@/types/chat';
 
@@ -111,23 +112,107 @@ export function ChatWindow({
         if (scrollTop === 0 && hasMore && !loading) onLoadMore();
     };
 
+    // Gradient presets for wallpaper
+    const GRADIENT_PRESETS: Record<string, string> = {
+        'aurora': 'linear-gradient(135deg, #0b141a 0%, #1a4a3a 50%, #0b141a 100%)',
+        'sunset': 'linear-gradient(135deg, #1a1a2e 0%, #4a1942 50%, #1a1a2e 100%)',
+        'ocean-deep': 'linear-gradient(180deg, #0b141a 0%, #023e8a 100%)',
+        'forest-mist': 'linear-gradient(180deg, #1b4332 0%, #0b141a 100%)',
+        'purple-haze': 'linear-gradient(135deg, #1a1a2e 0%, #4c1d95 50%, #1a1a2e 100%)',
+        'cosmic': 'linear-gradient(135deg, #0f0f23 0%, #1e3a5f 25%, #4c1d95 50%, #1e3a5f 75%, #0f0f23 100%)',
+        'emerald': 'linear-gradient(135deg, #064e3b 0%, #0b141a 50%, #064e3b 100%)',
+        'rose-gold': 'linear-gradient(135deg, #1a1a1a 0%, #4a1942 50%, #1a1a1a 100%)',
+    };
+
+    // Pattern presets for wallpaper
+    const PATTERN_PRESETS: Record<string, string> = {
+        'dots': `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='3' cy='3' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
+        'grid': `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.05'%3E%3Cpath d='M0 20h40M20 0v40'/%3E%3C/g%3E%3C/svg%3E")`,
+        'waves': `url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E")`,
+        'hexagon': `url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.05'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9z'/%3E%3C/g%3E%3C/svg%3E")`,
+        'circuit': `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/svg%3E")`,
+        'topography': `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10s-10-4.477-10-10 4.477-10 10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c0 5.523-4.477 10-10 10S0 25.523 0 20s4.477-10 10-10zm10 8c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm40 40c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z' fill='none' stroke='%23ffffff' stroke-opacity='0.03'/%3E%3C/svg%3E")`,
+    };
+
     // Get background style based on settings
-    const getBackgroundStyle = () => {
-        if (settings.wallpaperType === 'custom' && settings.wallpaper) {
-            return {
-                backgroundImage: `url(${settings.wallpaper})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-            };
+    const getBackgroundStyle = (): React.CSSProperties => {
+        switch (settings.wallpaperType) {
+            case 'custom':
+                return settings.wallpaper ? {
+                    backgroundImage: `url(${settings.wallpaper})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                } : { backgroundColor: '#0b141a' };
+            case 'solid':
+                return { backgroundColor: settings.solidColor };
+            case 'gradient':
+                return { 
+                    background: GRADIENT_PRESETS[settings.gradientId] || GRADIENT_PRESETS['aurora'],
+                    transition: 'background 0.5s ease',
+                };
+            case 'pattern':
+                return {
+                    backgroundColor: '#0b141a',
+                    backgroundImage: PATTERN_PRESETS[settings.patternId] || PATTERN_PRESETS['dots'],
+                };
+            case 'animated':
+                return {}; // Handled by AnimatedWallpaper component
+            default:
+                return {
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23182229' fill-opacity='0.4'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z'/%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundColor: '#0b141a',
+                };
         }
-        if (settings.wallpaperType === 'solid') {
-            return { backgroundColor: settings.solidColor };
+    };
+
+    // Get animated wallpaper style
+    const getAnimatedWallpaperStyle = (): React.CSSProperties => {
+        if (settings.wallpaperType !== 'animated') return {};
+        
+        const animationDuration = settings.animationSpeed === 'slow' ? '15s' : settings.animationSpeed === 'fast' ? '5s' : '10s';
+        
+        switch (settings.animatedId) {
+            case 'wave':
+                return {
+                    background: 'linear-gradient(135deg, #0b141a 0%, #1a4a3a 25%, #0b141a 50%, #1a4a3a 75%, #0b141a 100%)',
+                    backgroundSize: '400% 400%',
+                    animation: `wave-animation ${animationDuration} ease infinite`,
+                };
+            case 'particles':
+                return {
+                    background: 'radial-gradient(circle at 20% 80%, rgba(0, 168, 132, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(0, 168, 132, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(0, 168, 132, 0.08) 0%, transparent 30%), #0b141a',
+                    animation: `particles-animation ${animationDuration} ease infinite`,
+                };
+            case 'gradient-shift':
+                return {
+                    background: 'linear-gradient(270deg, #0b141a, #1a4a3a, #023e8a, #1a1a2e, #0b141a)',
+                    backgroundSize: '1000% 1000%',
+                    animation: `gradient-shift-animation calc(${animationDuration} * 2) ease infinite`,
+                };
+            case 'aurora-borealis':
+                return {
+                    background: 'linear-gradient(180deg, #0b141a 0%, #064e3b 30%, #0891b2 50%, #064e3b 70%, #0b141a 100%)',
+                    backgroundSize: '100% 300%',
+                    animation: `aurora-animation ${animationDuration} ease infinite`,
+                };
+            case 'starfield':
+                return {
+                    background: `radial-gradient(2px 2px at 20px 30px, white, transparent),
+                        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                        radial-gradient(1px 1px at 90px 40px, white, transparent),
+                        radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                        radial-gradient(1px 1px at 160px 120px, white, transparent),
+                        #0f0f23`,
+                    animation: `starfield-animation 3s ease infinite`,
+                };
+            case 'pulse':
+                return {
+                    background: 'radial-gradient(circle at center, #1a4a3a 0%, #0b141a 70%)',
+                    animation: `pulse-animation 4s ease infinite`,
+                };
+            default:
+                return { background: '#0b141a' };
         }
-        // Default WhatsApp pattern
-        return {
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23182229' fill-opacity='0.4'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z'/%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundColor: '#0b141a',
-        };
     };
 
     return (
@@ -139,22 +224,15 @@ export function ChatWindow({
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     
-                    {/* Avatar */}
-                    {conversation.avatar ? (
-                        <img src={conversation.avatar} alt={conversation.name} className="h-10 w-10 rounded-full object-cover" />
-                    ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#6b7c85] overflow-hidden">
-                            {conversation.type === 'group' ? (
-                                <Users className="h-5 w-5 text-[#cfd8dc]" />
-                            ) : (
-                                <svg viewBox="0 0 212 212" className="h-10 w-10">
-                                    <path fill="#6b7c85" d="M106.251,0.5C164.653,0.5,212,47.846,212,106.25S164.653,212,106.251,212C47.846,212,0.5,164.654,0.5,106.25S47.846,0.5,106.251,0.5z"/>
-                                    <path fill="#cfd8dc" d="M173.561,171.615c-0.601-0.915-1.287-1.907-2.065-2.955c-0.777-1.049-1.645-2.155-2.608-3.299c-0.964-1.144-2.024-2.326-3.184-3.527c-1.741-1.802-3.71-3.646-5.924-5.47c-2.952-2.431-6.339-4.824-10.204-7.026c-1.877-1.07-3.873-2.092-5.98-3.055c-0.062-0.028-0.118-0.059-0.18-0.087c-9.792-4.44-22.106-7.529-37.416-7.529s-27.624,3.089-37.416,7.529c-0.338,0.153-0.653,0.318-0.985,0.474c-1.431,0.674-2.806,1.376-4.128,2.101c-0.716,0.393-1.417,0.792-2.101,1.197c-3.421,2.027-6.475,4.191-9.15,6.395c-2.213,1.823-4.182,3.668-5.924,5.47c-1.161,1.201-2.22,2.384-3.184,3.527c-0.964,1.144-1.832,2.25-2.609,3.299c-0.778,1.049-1.464,2.04-2.065,2.955c-0.557,0.848-1.033,1.622-1.447,2.324c24.167,21.319,55.913,34.261,90.561,34.261c34.648,0,66.394-12.942,90.561-34.261C174.594,173.238,174.117,172.463,173.561,171.615z"/>
-                                    <path fill="#cfd8dc" d="M106.002,125.5c2.645,0,5.212-0.253,7.68-0.737c1.234-0.242,2.443-0.542,3.624-0.896c1.772-0.532,3.482-1.188,5.12-1.958c2.184-1.027,4.242-2.258,6.15-3.67c2.863-2.119,5.39-4.646,7.509-7.509c0.706-0.954,1.367-1.945,1.98-2.971c0.919-1.539,1.729-3.155,2.422-4.84c0.462-1.123,0.872-2.277,1.226-3.458c0.177-0.591,0.341-1.188,0.49-1.792c0.299-1.208,0.542-2.443,0.725-3.701c0.275-1.887,0.417-3.827,0.417-5.811c0-21.533-17.467-39-39-39c-21.533,0-39,17.467-39,39c0,1.983,0.142,3.923,0.417,5.811c0.184,1.258,0.426,2.493,0.725,3.701c0.15,0.604,0.313,1.202,0.49,1.792c0.354,1.181,0.764,2.335,1.226,3.458c0.693,1.685,1.504,3.301,2.422,4.84c0.613,1.026,1.274,2.017,1.98,2.971c2.119,2.863,4.646,5.39,7.509,7.509c1.909,1.412,3.966,2.643,6.15,3.67c1.638,0.77,3.348,1.426,5.12,1.958c1.181,0.354,2.39,0.654,3.624,0.896C100.79,125.247,103.357,125.5,106.002,125.5z"/>
-                                </svg>
-                            )}
-                        </div>
-                    )}
+                    {/* Avatar - Using Advanced Avatar Component */}
+                    <ChatAvatarAdvanced
+                        name={conversation.name}
+                        avatar={conversation.avatar}
+                        type={conversation.type}
+                        size="md"
+                        isOnline={conversation.is_online}
+                        showOnlineIndicator={true}
+                    />
 
                     <div>
                         <h3 className="font-normal text-[#e9edef]">{conversation.name}</h3>
@@ -189,8 +267,8 @@ export function ChatWindow({
             <div
                 ref={messagesContainerRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto px-4 py-2"
-                style={getBackgroundStyle()}
+                className="flex-1 overflow-y-auto px-4 py-2 relative scroll-smooth"
+                style={settings.wallpaperType === 'animated' ? getAnimatedWallpaperStyle() : getBackgroundStyle()}
             >
                 {loading && (
                     <div className="flex justify-center py-4">

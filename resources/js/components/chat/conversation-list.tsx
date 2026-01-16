@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, Plus, Users, MessageCircle, MoreVertical, Filter, Home, Archive, Pin, BellOff, User, CheckCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { ChatAvatarAdvanced } from './chat-avatar';
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import type { ConversationListItem, ChatUser } from '@/types/chat';
@@ -197,31 +198,16 @@ export function ConversationList({
                                     activeId === conv.id && 'bg-[#2a3942]'
                                 )}
                             >
-                                {/* Avatar with Online Status */}
+                                {/* Avatar with Online Status - Using Advanced Avatar Component */}
                                 <div className="relative flex-shrink-0">
-                                    {conv.avatar ? (
-                                        <img 
-                                            src={conv.avatar} 
-                                            alt={conv.name} 
-                                            className="h-12 w-12 rounded-full object-cover" 
-                                        />
-                                    ) : (
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#6b7c85] overflow-hidden">
-                                            {conv.type === 'group' ? (
-                                                <Users className="h-6 w-6 text-[#cfd8dc]" />
-                                            ) : (
-                                                <svg viewBox="0 0 212 212" className="h-12 w-12">
-                                                    <path fill="#6b7c85" d="M106.251,0.5C164.653,0.5,212,47.846,212,106.25S164.653,212,106.251,212C47.846,212,0.5,164.654,0.5,106.25S47.846,0.5,106.251,0.5z"/>
-                                                    <path fill="#cfd8dc" d="M173.561,171.615c-0.601-0.915-1.287-1.907-2.065-2.955c-0.777-1.049-1.645-2.155-2.608-3.299c-0.964-1.144-2.024-2.326-3.184-3.527c-1.741-1.802-3.71-3.646-5.924-5.47c-2.952-2.431-6.339-4.824-10.204-7.026c-1.877-1.07-3.873-2.092-5.98-3.055c-0.062-0.028-0.118-0.059-0.18-0.087c-9.792-4.44-22.106-7.529-37.416-7.529s-27.624,3.089-37.416,7.529c-0.338,0.153-0.653,0.318-0.985,0.474c-1.431,0.674-2.806,1.376-4.128,2.101c-0.716,0.393-1.417,0.792-2.101,1.197c-3.421,2.027-6.475,4.191-9.15,6.395c-2.213,1.823-4.182,3.668-5.924,5.47c-1.161,1.201-2.22,2.384-3.184,3.527c-0.964,1.144-1.832,2.25-2.609,3.299c-0.778,1.049-1.464,2.04-2.065,2.955c-0.557,0.848-1.033,1.622-1.447,2.324c24.167,21.319,55.913,34.261,90.561,34.261c34.648,0,66.394-12.942,90.561-34.261C174.594,173.238,174.117,172.463,173.561,171.615z"/>
-                                                    <path fill="#cfd8dc" d="M106.002,125.5c2.645,0,5.212-0.253,7.68-0.737c1.234-0.242,2.443-0.542,3.624-0.896c1.772-0.532,3.482-1.188,5.12-1.958c2.184-1.027,4.242-2.258,6.15-3.67c2.863-2.119,5.39-4.646,7.509-7.509c0.706-0.954,1.367-1.945,1.98-2.971c0.919-1.539,1.729-3.155,2.422-4.84c0.462-1.123,0.872-2.277,1.226-3.458c0.177-0.591,0.341-1.188,0.49-1.792c0.299-1.208,0.542-2.443,0.725-3.701c0.275-1.887,0.417-3.827,0.417-5.811c0-21.533-17.467-39-39-39c-21.533,0-39,17.467-39,39c0,1.983,0.142,3.923,0.417,5.811c0.184,1.258,0.426,2.493,0.725,3.701c0.15,0.604,0.313,1.202,0.49,1.792c0.354,1.181,0.764,2.335,1.226,3.458c0.693,1.685,1.504,3.301,2.422,4.84c0.613,1.026,1.274,2.017,1.98,2.971c2.119,2.863,4.646,5.39,7.509,7.509c1.909,1.412,3.966,2.643,6.15,3.67c1.638,0.77,3.348,1.426,5.12,1.958c1.181,0.354,2.39,0.654,3.624,0.896C100.79,125.247,103.357,125.5,106.002,125.5z"/>
-                                                </svg>
-                                            )}
-                                        </div>
-                                    )}
-                                    {/* Online indicator */}
-                                    {conv.type === 'personal' && conv.is_online && (
-                                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#00a884] rounded-full border-2 border-[#111b21]" />
-                                    )}
+                                    <ChatAvatarAdvanced
+                                        name={conv.name}
+                                        avatar={conv.avatar}
+                                        type={conv.type}
+                                        size="lg"
+                                        isOnline={conv.is_online}
+                                        showOnlineIndicator={conv.type === 'personal'}
+                                    />
                                     {/* Pinned indicator */}
                                     {conv.is_pinned && (
                                         <div className="absolute -top-1 -right-1">
