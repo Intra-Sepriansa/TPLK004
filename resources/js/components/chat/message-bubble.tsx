@@ -23,6 +23,24 @@ interface MessageBubbleProps {
 
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
+// Message status indicator component
+function MessageStatus({ status, showReceipts }: { status?: 'sent' | 'delivered' | 'read'; showReceipts: boolean }) {
+    if (!showReceipts) return null;
+    
+    switch (status) {
+        case 'read':
+            // 2 ceklis biru - sudah dibaca
+            return <CheckCheck className="h-4 w-4 text-[#53bdeb]" />;
+        case 'delivered':
+            // 2 ceklis abu - terkirim ke penerima tapi belum dibaca
+            return <CheckCheck className="h-4 w-4 text-[#ffffff99]" />;
+        case 'sent':
+        default:
+            // 1 ceklis abu - terkirim ke server
+            return <Check className="h-4 w-4 text-[#ffffff99]" />;
+    }
+}
+
 export function MessageBubble({ 
     message, 
     showSender = false,
@@ -219,8 +237,8 @@ export function MessageBubble({
                                                 <span className="text-[11px] text-white">
                                                     {formatTime(message.created_at)}
                                                 </span>
-                                                {message.is_own && settings.readReceipts && (
-                                                    <CheckCheck className="h-3.5 w-3.5 text-[#53bdeb]" />
+                                                {message.is_own && (
+                                                    <MessageStatus status={message.status} showReceipts={settings.readReceipts} />
                                                 )}
                                             </div>
                                         )}
@@ -244,8 +262,8 @@ export function MessageBubble({
                                     <span className="text-[11px] text-[#ffffff99]">
                                         {formatTime(message.created_at)}
                                     </span>
-                                    {message.is_own && settings.readReceipts && (
-                                        <CheckCheck className="h-4 w-4 text-[#53bdeb]" />
+                                    {message.is_own && (
+                                        <MessageStatus status={message.status} showReceipts={settings.readReceipts} />
                                     )}
                                 </div>
                             </div>

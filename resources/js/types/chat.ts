@@ -56,6 +56,7 @@ export interface Message {
     can_edit: boolean;
     is_starred?: boolean;
     is_pinned?: boolean;
+    status?: 'sent' | 'delivered' | 'read'; // sent = 1 ceklis, delivered = 2 ceklis abu, read = 2 ceklis biru
     reply_to: ReplyTo | null;
     attachments: Attachment[];
     reactions: Reaction[];
