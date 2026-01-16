@@ -168,6 +168,11 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/notification-center/bulk-delete', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'bulkDelete'])->name('admin.notification-center.bulk-delete');
     Route::get('admin/notification-center/templates', [\App\Http\Controllers\Admin\NotificationCenterController::class, 'templates'])->name('admin.notification-center.templates');
     
+    // Admin Notifications (for header dropdown)
+    Route::post('admin/notifications/{notification}/read', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+    Route::post('admin/notifications/read-all', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.read-all');
+    Route::delete('admin/notifications/{notification}', [\App\Http\Controllers\Admin\AdminNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+    
     // Admin Bulk Import
     Route::get('admin/bulk-import', [\App\Http\Controllers\Admin\BulkImportController::class, 'index'])->name('admin.bulk-import');
     Route::post('admin/bulk-import/preview', [\App\Http\Controllers\Admin\BulkImportController::class, 'preview'])->name('admin.bulk-import.preview');
