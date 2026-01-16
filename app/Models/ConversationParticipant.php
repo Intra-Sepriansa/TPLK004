@@ -17,6 +17,8 @@ class ConversationParticipant extends Model
         'last_read_at',
         'is_muted',
         'is_blocked',
+        'is_pinned',
+        'is_archived',
     ];
 
     protected $casts = [
@@ -24,6 +26,8 @@ class ConversationParticipant extends Model
         'last_read_at' => 'datetime',
         'is_muted' => 'boolean',
         'is_blocked' => 'boolean',
+        'is_pinned' => 'boolean',
+        'is_archived' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -63,6 +67,26 @@ class ConversationParticipant extends Model
     public function unblock(): void
     {
         $this->update(['is_blocked' => false]);
+    }
+
+    public function pin(): void
+    {
+        $this->update(['is_pinned' => true]);
+    }
+
+    public function unpin(): void
+    {
+        $this->update(['is_pinned' => false]);
+    }
+
+    public function archive(): void
+    {
+        $this->update(['is_archived' => true]);
+    }
+
+    public function unarchive(): void
+    {
+        $this->update(['is_archived' => false]);
     }
 
     public function isAdmin(): bool

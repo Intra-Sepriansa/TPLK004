@@ -5,6 +5,8 @@ use App\Http\Controllers\Chat\ChatController;
 use App\Http\Controllers\Chat\MessageController;
 use App\Http\Controllers\Chat\ReactionController;
 use App\Http\Controllers\Chat\SearchController;
+use App\Http\Controllers\Chat\ConversationSettingsController;
+use App\Http\Controllers\Chat\MessageActionsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,5 +47,19 @@ Route::middleware(['auth:web,mahasiswa,dosen'])->group(function () {
 
         // Search
         Route::get('/search', [SearchController::class, 'search']);
+
+        // Conversation Settings (pin, archive, mute)
+        Route::post('/conversations/{conversation}/pin', [ConversationSettingsController::class, 'togglePin']);
+        Route::post('/conversations/{conversation}/archive', [ConversationSettingsController::class, 'toggleArchive']);
+        Route::post('/conversations/{conversation}/mute', [ConversationSettingsController::class, 'toggleMute']);
+        Route::get('/conversations/{conversation}/info', [ConversationSettingsController::class, 'info']);
+
+        // Message Actions (star, pin message, forward, info)
+        Route::post('/messages/{message}/star', [MessageActionsController::class, 'toggleStar']);
+        Route::post('/messages/{message}/pin', [MessageActionsController::class, 'togglePin']);
+        Route::post('/messages/{message}/forward', [MessageActionsController::class, 'forward']);
+        Route::get('/messages/{message}/info', [MessageActionsController::class, 'info']);
+        Route::get('/starred-messages', [MessageActionsController::class, 'starredMessages']);
+        Route::get('/conversations/{conversation}/pinned-messages', [MessageActionsController::class, 'pinnedMessages']);
     });
 });

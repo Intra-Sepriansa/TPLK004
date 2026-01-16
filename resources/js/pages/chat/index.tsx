@@ -118,8 +118,29 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
         } catch (error) {}
     };
 
-    const handleForward = (message: Message) => {
-        alert('Fitur teruskan pesan akan segera hadir!');
+    const handleForward = async (message: Message) => {
+        // Show simple prompt for now - in production, show a conversation picker dialog
+        const targetConvId = prompt('Masukkan ID percakapan tujuan:');
+        if (!targetConvId) return;
+        
+        try {
+            const response = await fetch(`/api/chat/messages/${message.id}/forward`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ conversation_ids: [parseInt(targetConvId)] }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message || 'Pesan diteruskan');
+            }
+        } catch (error) {
+            alert('Gagal meneruskan pesan');
+        }
     };
 
     const handleReact = async (message: Message, emoji: string) => {
@@ -193,20 +214,68 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                         currentUser={currentUser}
                         onSelect={handleSelectConversation}
                         onNewChat={() => setShowNewChat(true)}
-                        onArchive={(conv) => {
-                            // TODO: Implement archive
-                            alert(`${conv.is_archived ? 'Membatalkan arsip' : 'Mengarsipkan'} chat dengan ${conv.name}`);
+                        onArchive={async (conv) => {
+                            try {
+                                const response = await fetch(`/api/chat/conversations/${conv.id}/archive`, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                        'Accept': 'application/json',
+                                    },
+                                });
+                                if (response.ok) {
+                                    router.reload({ only: ['conversations'] });
+                                }
+                            } catch (error) {}
                         }}
-                        onPin={(conv) => {
-                            // TODO: Implement pin
-                            alert(`${conv.is_pinned ? 'Melepas sematan' : 'Menyematkan'} chat dengan ${conv.name}`);
+                        onPin={async (conv) => {
+                            try {
+                                const response = await fetch(`/api/chat/conversations/${conv.id}/pin`, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                        'Accept': 'application/json',
+                                    },
+                                });
+                                if (response.ok) {
+                                    router.reload({ only: ['conversations'] });
+                                }
+                            } catch (error) {}
                         }}
-                        onMute={(conv) => {
-                            // TODO: Implement mute
-                            alert(`${conv.is_muted ? 'Membunyikan' : 'Membisukan'} notifikasi dari ${conv.name}`);
+                        onMute={async (conv) => {
+                            try {
+                                const response = await fetch(`/api/chat/conversations/${conv.id}/mute`, {
+                                    method: 'POST',
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                        'Accept': 'application/json',
+                                    },
+                                });
+                                if (response.ok) {
+                                    router.reload({ only: ['conversations'] });
+                                }
+                            } catch (error) {}
                         }}
-                        onContactInfo={(conv) => {
-                            alert(`Info Kontak: ${conv.name}\nTipe: ${conv.type === 'group' ? 'Grup' : 'Personal'}`);
+                        onContactInfo={async (conv) => {
+                            try {
+                                const response = await fetch(`/api/chat/conversations/${conv.id}/info`, {
+                                    credentials: 'same-origin',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    },
+                                });
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    const participants = data.participants?.map((p: { name: string }) => p.name).join(', ') || '';
+                                    alert(`Info Kontak\n\nNama: ${data.name}\nTipe: ${data.type === 'group' ? 'Grup' : 'Personal'}\nDibuat: ${new Date(data.created_at).toLocaleDateString('id-ID')}\n${data.type === 'group' ? `Anggota: ${participants}` : ''}`);
+                                }
+                            } catch (error) {}
                         }}
                     />
                 </div>
@@ -228,6 +297,52 @@ export default function ChatIndex({ conversations, activeConversation, currentUs
                             onDelete={handleDelete}
                             onForward={handleForward}
                             onReact={handleReact}
+                            onStar={async (message) => {
+                                try {
+                                    const response = await fetch(`/api/chat/messages/${message.id}/star`, {
+                                        method: 'POST',
+                                        credentials: 'same-origin',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                            'Accept': 'application/json',
+                                        },
+                                    });
+                                    if (response.ok) {
+                                        router.reload({ only: ['activeConversation'] });
+                                    }
+                                } catch (error) {}
+                            }}
+                            onPin={async (message) => {
+                                try {
+                                    const response = await fetch(`/api/chat/messages/${message.id}/pin`, {
+                                        method: 'POST',
+                                        credentials: 'same-origin',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                                            'Accept': 'application/json',
+                                        },
+                                    });
+                                    if (response.ok) {
+                                        router.reload({ only: ['activeConversation'] });
+                                    }
+                                } catch (error) {}
+                            }}
+                            onInfo={async (message) => {
+                                try {
+                                    const response = await fetch(`/api/chat/messages/${message.id}/info`, {
+                                        credentials: 'same-origin',
+                                        headers: {
+                                            'Accept': 'application/json',
+                                        },
+                                    });
+                                    if (response.ok) {
+                                        const data = await response.json();
+                                        alert(`Info Pesan\n\nPengirim: ${data.sender_name}\nDikirim: ${new Date(data.created_at).toLocaleString('id-ID')}${data.is_edited ? `\nDiedit: ${new Date(data.edited_at).toLocaleString('id-ID')}` : ''}\nBintang: ${data.is_starred ? 'Ya' : 'Tidak'}\nDisematkan: ${data.is_pinned ? 'Ya' : 'Tidak'}`);
+                                    }
+                                } catch (error) {}
+                            }}
                             onLoadMore={handleLoadMore}
                             onBack={() => setShowMobileList(true)}
                             replyTo={replyTo}

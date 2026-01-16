@@ -67,6 +67,31 @@ class Message extends Model
         return $this->hasMany(Message::class, 'reply_to_id');
     }
 
+    public function starredBy(): HasMany
+    {
+        return $this->hasMany(StarredMessage::class);
+    }
+
+    public function pinnedIn(): HasMany
+    {
+        return $this->hasMany(PinnedMessage::class);
+    }
+
+    // Check if message is starred by user
+    public function isStarredBy(string $userType, int $userId): bool
+    {
+        return $this->starredBy()
+            ->where('user_type', $userType)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
+    // Check if message is pinned in conversation
+    public function isPinnedInConversation(): bool
+    {
+        return $this->pinnedIn()->where('conversation_id', $this->conversation_id)->exists();
+    }
+
     // Scopes
     public function scopeNotDeleted(Builder $query): Builder
     {
