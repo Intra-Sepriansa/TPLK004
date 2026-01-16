@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Chat;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
+use App\Models\ConversationParticipant;
 use App\Models\Course;
 use App\Models\Mahasiswa;
+use App\Models\PinnedMessage;
+use App\Models\StarredMessage;
 use App\Models\User;
 use App\Services\Chat\ChatService;
 use Illuminate\Http\Request;
@@ -170,9 +173,34 @@ class ChatController extends Controller
      */
     private function formatConversation(Conversation $conversation, $currentUser): array
     {
+        $currentType = $this->getUserType($currentUser);
         $otherParticipant = $conversation->type === 'personal' 
             ? $conversation->getOtherParticipant($currentUser)
             : null;
+
+        // Get participant settings (pinned, archived, muted)
+        $participantSettings = $conversation->participants
+            ->where('participant_type', $currentType)
+            ->where('participant_id', $currentUser->id)
+            ->first();
+
+        // Get online status for personal chats
+        $isOnline = false;
+        $lastSeen = null;
+        if ($conversation->type === 'personal' && $otherParticipant) {
+            $otherUser = $otherParticipant->participant;
+            if ($otherUser) {
+                $isOnline = $this->isUserOnline($otherUser);
+                $lastSeen = $otherUser->last_activity_at ?? $otherUser->updated_at;
+            }
+        }
+
+        // Check if last message is from current user
+        $lastMessageIsOwn = false;
+        if ($conversation->latestMessage) {
+            $lastMessageIsOwn = $conversation->latestMessage->sender_type === $currentType 
+                && $conversation->latestMessage->sender_id === $currentUser->id;
+        }
 
         return [
             'id' => $conversation->id,
@@ -187,10 +215,26 @@ class ChatController extends Controller
                 'content' => $conversation->latestMessage->getDisplayContent(),
                 'sender_name' => $conversation->latestMessage->getSenderName(),
                 'created_at' => $conversation->latestMessage->created_at->toISOString(),
+                'is_own' => $lastMessageIsOwn,
             ] : null,
             'unread_count' => $conversation->unread_count ?? 0,
             'updated_at' => $conversation->updated_at->toISOString(),
+            'is_pinned' => $participantSettings?->is_pinned ?? false,
+            'is_archived' => $participantSettings?->is_archived ?? false,
+            'is_muted' => $participantSettings?->is_muted ?? false,
+            'is_online' => $isOnline,
+            'last_seen' => $lastSeen?->toISOString(),
         ];
+    }
+
+    /**
+     * Check if user is online (active within last 5 minutes)
+     */
+    private function isUserOnline($user): bool
+    {
+        $lastActivity = $user->last_activity_at ?? $user->updated_at;
+        if (!$lastActivity) return false;
+        return $lastActivity->diffInMinutes(now()) < 5;
     }
 
     /**
@@ -200,6 +244,32 @@ class ChatController extends Controller
     {
         $currentType = $this->getUserType($currentUser);
 
+        // Get starred message IDs for current user
+        $starredMessageIds = StarredMessage::where('user_type', $currentType)
+            ->where('user_id', $currentUser->id)
+            ->whereIn('message_id', $conversation->messages->pluck('id'))
+            ->pluck('message_id')
+            ->toArray();
+
+        // Get pinned message IDs in this conversation
+        $pinnedMessageIds = PinnedMessage::where('conversation_id', $conversation->id)
+            ->pluck('message_id')
+            ->toArray();
+
+        // Get online status for personal chats
+        $isOnline = false;
+        $lastSeen = null;
+        if ($conversation->type === 'personal') {
+            $otherParticipant = $conversation->getOtherParticipant($currentUser);
+            if ($otherParticipant) {
+                $otherUser = $otherParticipant->participant;
+                if ($otherUser) {
+                    $isOnline = $this->isUserOnline($otherUser);
+                    $lastSeen = $otherUser->last_activity_at ?? $otherUser->updated_at;
+                }
+            }
+        }
+
         return [
             'id' => $conversation->id,
             'type' => $conversation->type,
@@ -208,6 +278,8 @@ class ChatController extends Controller
                 : $conversation->name,
             'description' => $conversation->description,
             'avatar' => $conversation->avatar_url,
+            'is_online' => $isOnline,
+            'last_seen' => $lastSeen?->toISOString(),
             'participants' => $conversation->participants->map(fn($p) => [
                 'id' => $p->id,
                 'participant_id' => $p->participant_id,
@@ -216,6 +288,8 @@ class ChatController extends Controller
                 'avatar' => $p->getParticipantAvatar(),
                 'role' => $p->role,
                 'is_current' => $p->participant_type === $currentType && $p->participant_id === $currentUser->id,
+                'is_online' => $this->isUserOnline($p->participant),
+                'last_seen' => ($p->participant->last_activity_at ?? $p->participant->updated_at)?->toISOString(),
             ]),
             'messages' => $conversation->messages->values()->map(fn($m) => [
                 'id' => $m->id,
@@ -229,6 +303,8 @@ class ChatController extends Controller
                 'is_edited' => $m->isEdited(),
                 'is_deleted' => $m->isDeleted(),
                 'can_edit' => $m->canEdit() && $m->sender_type === $currentType && $m->sender_id === $currentUser->id,
+                'is_starred' => in_array($m->id, $starredMessageIds),
+                'is_pinned' => in_array($m->id, $pinnedMessageIds),
                 'reply_to' => $m->replyTo ? [
                     'id' => $m->replyTo->id,
                     'content' => $m->replyTo->getDisplayContent(),

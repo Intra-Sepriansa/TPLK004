@@ -17,6 +17,9 @@ interface ChatWindowProps {
     onDelete: (message: Message) => void;
     onForward: (message: Message) => void;
     onReact: (message: Message, emoji: string) => void;
+    onStar?: (message: Message) => void;
+    onPin?: (message: Message) => void;
+    onInfo?: (message: Message) => void;
     onLoadMore: () => void;
     onBack: () => void;
     replyTo: Message | null;
@@ -35,6 +38,9 @@ export function ChatWindow({
     onDelete,
     onForward,
     onReact,
+    onStar,
+    onPin,
+    onInfo,
     onLoadMore,
     onBack,
     replyTo,
@@ -221,24 +227,11 @@ export function ChatWindow({
                                         onDelete={onDelete}
                                         onForward={onForward}
                                         onReact={onReact}
-                                        onStar={(msg) => {
-                                            // TODO: Implement star functionality
-                                            alert('Pesan diberi bintang!');
-                                        }}
-                                        onPin={(msg) => {
-                                            // TODO: Implement pin functionality
-                                            alert('Pesan disematkan!');
-                                        }}
-                                        onCopy={(msg) => {
-                                            // Already handled in MessageBubble
-                                        }}
-                                        onInfo={(msg) => {
-                                            alert(`Info Pesan:\nDikirim: ${new Date(msg.created_at).toLocaleString('id-ID')}\nPengirim: ${msg.sender_name}`);
-                                        }}
-                                        onSelect={(msg) => {
-                                            // TODO: Implement multi-select
-                                            alert('Mode pilih pesan akan segera hadir!');
-                                        }}
+                                        onStar={onStar}
+                                        onPin={onPin}
+                                        onCopy={() => {}}
+                                        onInfo={onInfo}
+                                        onSelect={() => {}}
                                     />
                                 );
                             })}
