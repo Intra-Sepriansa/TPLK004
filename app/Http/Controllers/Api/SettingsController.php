@@ -306,15 +306,41 @@ class SettingsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Calculate approximate storage usage
+        // Calculate real storage usage
+        $documentsSize = 0;
+        $cacheSize = 0;
+        $otherSize = 0;
+
+        // Calculate cache size from Laravel cache
+        try {
+            $cacheSize = $this->getCacheSize();
+        } catch (\Exception $e) {
+            $cacheSize = 0;
+        }
+
+        // Calculate session size
+        try {
+            $otherSize = $this->getSessionSize();
+        } catch (\Exception $e) {
+            $otherSize = 0;
+        }
+
+        // Total used
+        $used = $documentsSize + $cacheSize + $otherSize;
+        
+        // Total available (100 MB per user)
+        $total = 100 * 1024 * 1024; // 100 MB
+
+        // Ensure no division by zero
+        $percentage = $total > 0 ? round(($used / $total) * 100, 2) : 0;
+
         $storageData = [
-            'used' => 25 * 1024 * 1024, // 25 MB mock
-            'total' => 100 * 1024 * 1024, // 100 MB mock
-            'percentage' => 25,
+            'used' => max(0, $used),
+            'total' => $total,
             'breakdown' => [
-                ['category' => 'Foto Profil', 'size' => 5 * 1024 * 1024, 'count' => 1],
-                ['category' => 'Cache', 'size' => 15 * 1024 * 1024, 'count' => 50],
-                ['category' => 'Data Sementara', 'size' => 5 * 1024 * 1024, 'count' => 10],
+                'documents' => max(0, $documentsSize),
+                'cache' => max(0, $cacheSize),
+                'other' => max(0, $otherSize),
             ],
         ];
 
@@ -322,6 +348,56 @@ class SettingsController extends Controller
             'success' => true,
             'data' => $storageData,
         ]);
+    }
+
+    /**
+     * Get cache directory size.
+     */
+    protected function getCacheSize(): int
+    {
+        $cachePath = storage_path('framework/cache/data');
+        
+        if (!is_dir($cachePath)) {
+            return 0;
+        }
+
+        $size = 0;
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($cachePath, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($files as $file) {
+            if ($file->isFile()) {
+                $size += $file->getSize();
+            }
+        }
+
+        return $size;
+    }
+
+    /**
+     * Get session directory size.
+     */
+    protected function getSessionSize(): int
+    {
+        $sessionPath = storage_path('framework/sessions');
+        
+        if (!is_dir($sessionPath)) {
+            return 0;
+        }
+
+        $size = 0;
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($sessionPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($files as $file) {
+            if ($file->isFile()) {
+                $size += $file->getSize();
+            }
+        }
+
+        return $size;
     }
 
     /**
@@ -335,16 +411,29 @@ class SettingsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Clear user-specific cache
-        $userType = $this->getUserType($request);
-        $cacheKey = "user_settings_{$userType}_{$user->id}";
-        
-        \Illuminate\Support\Facades\Cache::forget($cacheKey);
+        try {
+            // Clear application cache
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            
+            // Clear config cache
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            
+            // Clear route cache
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            
+            // Clear view cache
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cache cleared successfully',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Cache cleared successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to clear cache: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
