@@ -150,11 +150,10 @@ class DocumentationProgress extends Model
         $inProgressGuides = $progress->where('is_completed', false)->count();
 
         return [
-            'total_guides' => $totalGuides,
-            'completed_guides' => $completedGuides,
-            'in_progress_guides' => $inProgressGuides,
-            'not_started_guides' => $totalGuides - $completedGuides - $inProgressGuides,
-            'completion_percentage' => $totalGuides > 0 
+            'totalGuides' => $totalGuides,
+            'completedGuides' => $completedGuides,
+            'inProgressGuides' => $inProgressGuides,
+            'overallProgress' => $totalGuides > 0 
                 ? (int) round(($completedGuides / $totalGuides) * 100) 
                 : 0,
         ];
