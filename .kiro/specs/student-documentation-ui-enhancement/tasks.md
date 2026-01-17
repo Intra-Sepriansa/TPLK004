@@ -172,6 +172,11 @@ Implementasi UI enhancement untuk halaman Dokumentasi dan Bantuan mahasiswa deng
     - Add hover animations
     - Add gradient icons
     - _Requirements: 3.1, 3.2, 3.3, 3.5_
+    - **FIXED**: Replaced AdvancedCard with custom card implementation using DarkContainer
+    - **FIXED**: Proper spacing and layout with flexbox to prevent text overlap
+    - **FIXED**: Icon in gradient circle, title with line-clamp-1
+    - **FIXED**: Category badge, description with line-clamp-2 and min-h-[40px]
+    - **FIXED**: Progress bar with animated width, footer with estimated time and CTA
 
   - [x] 8.4 Add ProgressIndicator untuk tracking
     - Add circular progress indicators
