@@ -60,6 +60,14 @@ export function DataManagementSettings({
     const [isImporting, setIsImporting] = useState(false);
     const [clearSuccess, setClearSuccess] = useState(false);
 
+    // Provide default values if settings is undefined
+    const safeSettings = settings || {
+        autoBackup: true,
+        backupFrequency: 'weekly' as const,
+        cacheEnabled: true,
+        offlineMode: false,
+    };
+
     const handleClearCache = async () => {
         if (!onClearCache) return;
         setIsClearing(true);
@@ -207,13 +215,13 @@ export function DataManagementSettings({
                             </div>
                             <Switch
                                 id="auto-backup"
-                                checked={settings.autoBackup}
+                                checked={safeSettings.autoBackup}
                                 onCheckedChange={(checked) => onUpdate({ autoBackup: checked })}
                             />
                         </div>
 
                         <AnimatePresence>
-                            {settings.autoBackup && (
+                            {safeSettings.autoBackup && (
                                 <motion.div
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
@@ -223,7 +231,7 @@ export function DataManagementSettings({
                                 >
                                     <Label htmlFor="backup-frequency">Frekuensi Backup</Label>
                                     <Select
-                                        value={settings.backupFrequency}
+                                        value={safeSettings.backupFrequency}
                                         onValueChange={(value) =>
                                             onUpdate({ backupFrequency: value as DataManagementSettingsType['backupFrequency'] })
                                         }
@@ -267,7 +275,7 @@ export function DataManagementSettings({
                             </div>
                             <Switch
                                 id="cache-enabled"
-                                checked={settings.cacheEnabled}
+                                checked={safeSettings.cacheEnabled}
                                 onCheckedChange={(checked) => onUpdate({ cacheEnabled: checked })}
                             />
                         </div>
@@ -281,7 +289,7 @@ export function DataManagementSettings({
                             </div>
                             <Switch
                                 id="offline-mode"
-                                checked={settings.offlineMode}
+                                checked={safeSettings.offlineMode}
                                 onCheckedChange={(checked) => onUpdate({ offlineMode: checked })}
                             />
                         </div>
