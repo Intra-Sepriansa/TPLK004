@@ -104,7 +104,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                         stroke="currentColor"
                         strokeWidth={config.strokeWidth}
                         fill="none"
-                        className="text-white/10"
+                        className="text-gray-200 dark:text-gray-900"
                     />
 
                     {/* Progress Circle */}
@@ -159,7 +159,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 className={cn(
-                                    'font-bold gradient-text-purple font-display',
+                                    'font-bold text-gray-900 dark:text-white font-display',
                                     config.fontSize
                                 )}
                             >
@@ -228,12 +228,12 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
                     transition={{ delay: 0.3 }}
                     className="mt-3 text-center"
                 >
-                    <div className="text-white/80 text-sm font-medium">{label}</div>
+                    <div className="text-gray-700 dark:text-gray-300 text-sm font-semibold">{label}</div>
                     {isComplete && (
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="mt-1 flex items-center justify-center gap-1 text-purple-400 text-xs"
+                            className="mt-1 flex items-center justify-center gap-1 text-purple-600 dark:text-purple-400 text-xs font-medium"
                         >
                             <Sparkles className="w-3 h-3" />
                             <span>Completed!</span>
@@ -278,11 +278,11 @@ export const LinearProgressBar: React.FC<LinearProgressBarProps> = ({
         <div className={cn('w-full', className)}>
             {showLabel && (
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-white/60 text-sm">Progress</span>
-                    <span className="text-white font-medium text-sm">{value}%</span>
+                    <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Progress</span>
+                    <span className="text-gray-900 dark:text-white font-semibold text-sm">{value}%</span>
                 </div>
             )}
-            <div className={cn('w-full bg-white/10 rounded-full overflow-hidden', heightClasses[height])}>
+            <div className={cn('w-full bg-gray-200 dark:bg-gray-900 rounded-full overflow-hidden shadow-inner', heightClasses[height])}>
                 <motion.div
                     className={cn(
                         'h-full rounded-full',

@@ -2,6 +2,7 @@ import StudentSidebarLayout from '@/layouts/student/student-sidebar-layout';
 import { BottomNav } from '@/components/student/bottom-nav';
 import { OfflineIndicator } from '@/components/offline/offline-indicator';
 import { InstallPrompt } from '@/components/pwa/install-prompt';
+import { Toaster } from 'sonner';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
 
@@ -22,6 +23,12 @@ export default function StudentLayout({
             <BottomNav />
             <OfflineIndicator />
             <InstallPrompt />
+            <Toaster 
+                position="top-right" 
+                theme="dark"
+                richColors
+                closeButton
+            />
         </StudentSidebarLayout>
     );
 }

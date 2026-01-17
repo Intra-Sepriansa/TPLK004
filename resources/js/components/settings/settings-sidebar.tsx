@@ -4,8 +4,8 @@
  */
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 import {
     Settings,
     Bell,
@@ -24,13 +24,13 @@ interface SettingsSidebarProps {
     onSearchChange: (query: string) => void;
 }
 
-const categories: { key: SettingsCategory; label: string; icon: React.ElementType; description: string }[] = [
-    { key: 'general', label: 'Umum', icon: Settings, description: 'Bahasa, zona waktu, format' },
-    { key: 'notifications', label: 'Notifikasi', icon: Bell, description: 'Email, push, in-app' },
-    { key: 'appearance', label: 'Tampilan', icon: Palette, description: 'Tema, font, animasi' },
-    { key: 'privacy', label: 'Privasi', icon: Shield, description: 'Visibilitas, aktivitas' },
-    { key: 'security', label: 'Keamanan', icon: Lock, description: '2FA, sesi, riwayat login' },
-    { key: 'dataManagement', label: 'Data', icon: Database, description: 'Backup, cache, ekspor' },
+const categories: { key: SettingsCategory; label: string; icon: React.ElementType; description: string; color: string }[] = [
+    { key: 'general', label: 'Umum', icon: Settings, description: 'Bahasa, zona waktu, format', color: 'text-blue-500' },
+    { key: 'notifications', label: 'Notifikasi', icon: Bell, description: 'Email, push, in-app', color: 'text-green-500' },
+    { key: 'appearance', label: 'Tampilan', icon: Palette, description: 'Tema, font, animasi', color: 'text-purple-500' },
+    { key: 'privacy', label: 'Privasi', icon: Shield, description: 'Visibilitas, aktivitas', color: 'text-orange-500' },
+    { key: 'security', label: 'Keamanan', icon: Lock, description: '2FA, sesi, riwayat login', color: 'text-red-500' },
+    { key: 'dataManagement', label: 'Data', icon: Database, description: 'Backup, cache, ekspor', color: 'text-indigo-500' },
 ];
 
 export function SettingsSidebar({
@@ -46,7 +46,7 @@ export function SettingsSidebar({
     );
 
     return (
-        <aside className="w-full lg:w-64 space-y-4">
+        <aside className="w-full space-y-3">
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -58,25 +58,50 @@ export function SettingsSidebar({
             </div>
 
             <nav className="flex flex-col space-y-1">
-                {filteredCategories.map((category) => (
-                    <Button
-                        key={category.key}
-                        variant="ghost"
-                        className={cn(
-                            'w-full justify-start h-auto py-3 px-3',
-                            activeCategory === category.key && 'bg-muted'
-                        )}
-                        onClick={() => onCategoryChange(category.key)}
-                    >
-                        <category.icon className="h-5 w-5 mr-3 shrink-0" />
-                        <div className="text-left">
-                            <div className="font-medium">{category.label}</div>
-                            <div className="text-xs text-muted-foreground">
-                                {category.description}
+                {filteredCategories.map((category) => {
+                    const Icon = category.icon;
+                    const isActive = activeCategory === category.key;
+                    
+                    return (
+                        <motion.button
+                            key={category.key}
+                            onClick={() => onCategoryChange(category.key)}
+                            className={cn(
+                                'w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
+                                isActive 
+                                    ? 'bg-purple-500 text-white shadow-md' 
+                                    : 'hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-300'
+                            )}
+                            whileHover={{ scale: 1.02, x: 4 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        >
+                            <motion.div
+                                whileHover={{ rotate: 10 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                            >
+                                <Icon className={cn(
+                                    'h-5 w-5 mt-0.5 flex-shrink-0',
+                                    isActive ? 'text-white' : category.color
+                                )} />
+                            </motion.div>
+                            <div className="flex-1 min-w-0">
+                                <div className={cn(
+                                    'font-medium text-sm',
+                                    isActive ? 'text-white' : 'text-gray-900 dark:text-white'
+                                )}>
+                                    {category.label}
+                                </div>
+                                <div className={cn(
+                                    'text-xs mt-0.5 line-clamp-1',
+                                    isActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'
+                                )}>
+                                    {category.description}
+                                </div>
                             </div>
-                        </div>
-                    </Button>
-                ))}
+                        </motion.button>
+                    );
+                })}
             </nav>
         </aside>
     );
