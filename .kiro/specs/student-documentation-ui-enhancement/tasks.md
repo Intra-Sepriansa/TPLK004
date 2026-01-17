@@ -177,6 +177,8 @@ Implementasi UI enhancement untuk halaman Dokumentasi dan Bantuan mahasiswa deng
     - **FIXED**: Icon in gradient circle, title with line-clamp-1
     - **FIXED**: Category badge, description with line-clamp-2 and min-h-[40px]
     - **FIXED**: Progress bar with animated width, footer with estimated time and CTA
+    - **FIXED**: Added proper Lucide icons matching sidebar menu icons
+    - **FIXED**: Created icon mapping for all guide types (Home, QrCode, FileText, etc.)
 
   - [x] 8.4 Add ProgressIndicator untuk tracking
     - Add circular progress indicators
@@ -189,6 +191,17 @@ Implementasi UI enhancement untuk halaman Dokumentasi dan Bantuan mahasiswa deng
     - Animate cards saat page load
     - Add smooth transitions
     - _Requirements: 4.2_
+
+  - [x] 8.6 Create documentation detail page
+    - Create docs-detail.tsx page
+    - Add section navigation sidebar
+    - Add progress tracking per section
+    - Add mark as complete functionality
+    - Add previous/next navigation
+    - Add circular progress indicator
+    - Support for steps and FAQs
+    - Add route /user/docs/{guideId}
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
 - [x] 9. Enhanced Help Center Page
   - [x] 9.1 Update HelpCenterPage dengan DarkContainer
