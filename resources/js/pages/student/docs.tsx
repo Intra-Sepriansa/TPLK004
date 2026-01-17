@@ -6,7 +6,26 @@
 import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Book, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import { 
+    Book, 
+    Clock, 
+    CheckCircle, 
+    TrendingUp,
+    Home,
+    QrCode,
+    FileText,
+    History,
+    ClipboardList,
+    FileCheck,
+    GraduationCap,
+    BarChart3,
+    Award,
+    Trophy,
+    Wallet,
+    Vote,
+    MessageCircle,
+    type LucideIcon
+} from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
 import DarkContainer from '@/components/ui/dark-container';
 import InteractiveSearch from '@/components/ui/interactive-search';
@@ -24,6 +43,24 @@ interface DocumentationStats {
     inProgressGuides: number;
     overallProgress: number;
 }
+
+// Icon mapping untuk setiap guide berdasarkan icon name dari backend
+const iconMap: Record<string, LucideIcon> = {
+    'Home': Home,
+    'QrCode': QrCode,
+    'FileText': FileText,
+    'History': History,
+    'ClipboardList': ClipboardList,
+    'FileCheck': FileCheck,
+    'GraduationCap': GraduationCap,
+    'BarChart3': BarChart3,
+    'Award': Award,
+    'Trophy': Trophy,
+    'Wallet': Wallet,
+    'Vote': Vote,
+    'MessageCircle': MessageCircle,
+    'Book': Book,
+};
 
 export default function StudentDocs() {
     const [guides, setGuides] = useState<GuideSummary[]>([]);
@@ -258,7 +295,13 @@ export default function StudentDocs() {
                         animate="visible"
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
-                        {filteredGuides.map((guide, index) => (
+                        {filteredGuides.map((guide, index) => {
+                            // Get the icon component from the map
+                            const IconComponent = guide.icon && typeof guide.icon === 'string' 
+                                ? iconMap[guide.icon] || Book 
+                                : Book;
+                            
+                            return (
                             <motion.div
                                 key={guide.id}
                                 variants={staggerItemVariants}
@@ -281,8 +324,8 @@ export default function StudentDocs() {
                                         {/* Header */}
                                         <div className="flex items-start justify-between mb-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl flex-shrink-0">
-                                                    {guide.icon || '📚'}
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                                                    <IconComponent className="w-6 h-6 text-white" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">
@@ -334,7 +377,7 @@ export default function StudentDocs() {
                                     </div>
                                 </DarkContainer>
                             </motion.div>
-                        ))}
+                        )})}
                     </motion.div>
                 ) : (
                     <EmptyState

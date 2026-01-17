@@ -278,6 +278,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     // Settings, Documentation, Help (Inertia pages)
     Route::get('user/settings', fn () => inertia('student/settings'))->name('user.settings');
     Route::get('user/docs', fn () => inertia('student/docs'))->name('user.docs');
+    Route::get('user/docs/{guideId}', fn (string $guideId) => inertia('student/docs-detail', ['guideId' => $guideId]))->name('user.docs.detail');
     Route::get('user/help', fn () => inertia('student/help'))->name('user.help');
 });
 
