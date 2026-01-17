@@ -348,25 +348,25 @@ export const StatCard: React.FC<StatCardProps> = ({
         <motion.div
             className={cn(
                 'relative p-6 rounded-xl',
-                'glass border-white/10',
-                'hover-lift hover-glow-blue',
+                'bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg',
+                'hover:shadow-xl transition-all duration-300',
                 className
             )}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
         >
             <div className="flex items-start justify-between mb-4">
-                <div className="text-white/60 text-sm font-medium">{label}</div>
+                <div className="text-gray-600 dark:text-gray-400 text-sm font-semibold uppercase tracking-wider">{label}</div>
                 {icon && (
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 p-2 text-white">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 p-2 text-white shadow-lg">
                         {icon}
                     </div>
                 )}
             </div>
 
             <div className="flex items-end justify-between">
-                <div className="text-3xl font-bold text-white font-display">
+                <div className="text-3xl font-bold text-gray-900 dark:text-white font-display">
                     {value}
                 </div>
 
@@ -375,8 +375,8 @@ export const StatCard: React.FC<StatCardProps> = ({
                         className={cn(
                             'flex items-center gap-1 text-sm font-medium',
                             trend.direction === 'up'
-                                ? 'text-green-400'
-                                : 'text-red-400'
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
                         )}
                     >
                         <svg
