@@ -41,11 +41,23 @@ interface DataManagementSettingsProps {
 }
 
 function formatBytes(bytes: number): string {
-    if (bytes === 0) return '0 B';
+    // Handle invalid inputs
+    if (!bytes || bytes === 0 || isNaN(bytes)) return '0 B';
+    
+    // Ensure bytes is a positive number
+    const absoluteBytes = Math.abs(bytes);
+    
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(absoluteBytes) / Math.log(k));
+    
+    // Ensure index is within bounds
+    const sizeIndex = Math.min(i, sizes.length - 1);
+    
+    const value = absoluteBytes / Math.pow(k, sizeIndex);
+    const formattedValue = value < 10 ? value.toFixed(2) : value.toFixed(1);
+    
+    return `${formattedValue} ${sizes[sizeIndex]}`;
 }
 
 export function DataManagementSettings({
@@ -97,11 +109,12 @@ export function DataManagementSettings({
         }
     };
 
-    const usagePercentage = storageUsage
-        ? Math.round((storageUsage.used / storageUsage.total) * 100)
+    const usagePercentage = storageUsage && storageUsage.total > 0
+        ? Math.min(100, Math.max(0, Math.round((storageUsage.used / storageUsage.total) * 100)))
         : 0;
 
     const getUsageColor = (percentage: number) => {
+        if (isNaN(percentage) || percentage < 0) return 'text-gray-500';
         if (percentage >= 90) return 'text-red-500';
         if (percentage >= 70) return 'text-orange-500';
         return 'text-green-500';
