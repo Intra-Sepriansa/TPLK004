@@ -589,6 +589,42 @@
         background-size: 32px 32px;
     }
 
+    /* Dark Container Override - Force black background for all student pages */
+    .dark .bg-slate-950\/70,
+    .dark .bg-slate-950,
+    .dark .bg-slate-900,
+    .dark .bg-slate-900\/30,
+    .dark .bg-slate-800,
+    .dark .bg-slate-800\/70,
+    .dark .bg-gray-900,
+    .dark .bg-gray-800,
+    .dark .bg-navy-900,
+    .dark .bg-navy-800 {
+        background-color: #000000 !important;
+    }
+
+    /* Dark Container with transparency */
+    .dark .bg-slate-950\/80 {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .dark .bg-slate-900\/50 {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Dark borders to match black containers */
+    .dark .border-slate-800\/70,
+    .dark .border-slate-800,
+    .dark .border-slate-700 {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Hover states for dark containers */
+    .dark .hover\:bg-slate-900\/30:hover,
+    .dark .hover\:bg-slate-800:hover {
+        background-color: rgba(0, 0, 0, 0.8) !important;
+    }
+
 }
 
 .leaflet-container {

@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Monitor, Moon, Sun, Type } from 'lucide-react';
+import { useTheme } from '@/contexts/theme-context';
 import type { AppearanceSettings as AppearanceSettingsType } from '@/types/settings';
 
 interface AppearanceSettingsProps {
@@ -28,6 +29,13 @@ const fontSizes = [
 ] as const;
 
 export function AppearanceSettings({ settings, onUpdate }: AppearanceSettingsProps) {
+    const { theme, setTheme } = useTheme();
+
+    const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+        setTheme(newTheme);
+        onUpdate({ theme: newTheme });
+    };
+
     return (
         <div className="space-y-6">
             {/* Theme Selection */}
@@ -40,19 +48,19 @@ export function AppearanceSettings({ settings, onUpdate }: AppearanceSettingsPro
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-3 gap-3">
-                        {themes.map((theme) => (
+                        {themes.map((themeOption) => (
                             <button
-                                key={theme.value}
-                                onClick={() => onUpdate({ theme: theme.value })}
+                                key={themeOption.value}
+                                onClick={() => handleThemeChange(themeOption.value)}
                                 className={cn(
                                     'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors',
-                                    settings.theme === theme.value
+                                    theme === themeOption.value
                                         ? 'border-primary bg-primary/5'
                                         : 'border-muted hover:border-muted-foreground/50'
                                 )}
                             >
-                                <theme.icon className="h-6 w-6" />
-                                <span className="text-sm font-medium">{theme.label}</span>
+                                <themeOption.icon className="h-6 w-6" />
+                                <span className="text-sm font-medium">{themeOption.label}</span>
                             </button>
                         ))}
                     </div>
