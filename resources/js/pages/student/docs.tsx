@@ -9,9 +9,8 @@ import { motion } from 'framer-motion';
 import { Book, Clock, CheckCircle, TrendingUp } from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
 import DarkContainer from '@/components/ui/dark-container';
-import ColoredHeader from '@/components/ui/colored-header';
 import InteractiveSearch from '@/components/ui/interactive-search';
-import AdvancedCard, { AdvancedCardGrid, StatCard } from '@/components/ui/advanced-card';
+import { StatCard } from '@/components/ui/advanced-card';
 import ProgressIndicator, { LinearProgressBar } from '@/components/ui/progress-indicator';
 import { SkeletonGrid } from '@/components/ui/skeleton-loader';
 import EmptyState from '@/components/ui/empty-state';
@@ -253,37 +252,90 @@ export default function StudentDocs() {
 
                 {/* Documentation Cards */}
                 {filteredGuides.length > 0 ? (
-                    <AdvancedCardGrid columns={3}>
+                    <motion.div
+                        variants={staggerContainerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
                         {filteredGuides.map((guide, index) => (
                             <motion.div
                                 key={guide.id}
                                 variants={staggerItemVariants}
-                                initial="hidden"
-                                animate="visible"
-                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => handleGuideClick(guide.id)}
+                                className="cursor-pointer"
                             >
-                                <AdvancedCard
-                                    title={guide.title}
-                                    description={guide.description}
-                                    icon={
-                                        <div className="text-3xl">{guide.icon || '📚'}</div>
-                                    }
-                                    progress={guide.progress || 0}
-                                    onClick={() => handleGuideClick(guide.id)}
-                                    variant="glow"
-                                    badge={guide.isCompleted ? 'Completed' : `${guide.estimatedTime || 10} min`}
-                                    footer={
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="text-white/60">{guide.category}</span>
+                                <DarkContainer
+                                    variant="secondary"
+                                    padding="lg"
+                                    rounded="xl"
+                                    className="h-full hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden group"
+                                >
+                                    {/* Background Glow Effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    
+                                    {/* Content */}
+                                    <div className="relative z-10">
+                                        {/* Header */}
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-2xl flex-shrink-0">
+                                                    {guide.icon || '📚'}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">
+                                                        {guide.title}
+                                                    </h3>
+                                                    <span className="text-xs text-white/50 uppercase tracking-wider">
+                                                        {guide.category}
+                                                    </span>
+                                                </div>
+                                            </div>
                                             {guide.isCompleted && (
-                                                <CheckCircle className="w-4 h-4 text-green-400" />
+                                                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                                             )}
                                         </div>
-                                    }
-                                />
+
+                                        {/* Description */}
+                                        <p className="text-sm text-white/70 mb-4 line-clamp-2 min-h-[40px]">
+                                            {guide.description}
+                                        </p>
+
+                                        {/* Progress Bar */}
+                                        {guide.progress > 0 && (
+                                            <div className="mb-4">
+                                                <div className="flex items-center justify-between text-xs text-white/60 mb-2">
+                                                    <span>Progress</span>
+                                                    <span>{guide.progress}%</span>
+                                                </div>
+                                                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${guide.progress}%` }}
+                                                        transition={{ duration: 1, delay: index * 0.1 }}
+                                                        className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Footer */}
+                                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                                            <div className="flex items-center gap-2 text-xs text-white/60">
+                                                <Clock className="w-3.5 h-3.5" />
+                                                <span>{guide.estimatedTime || 10} min</span>
+                                            </div>
+                                            <div className="text-xs font-medium text-blue-400 group-hover:text-blue-300 transition-colors">
+                                                {guide.isCompleted ? 'Review' : 'Start Learning'} →
+                                            </div>
+                                        </div>
+                                    </div>
+                                </DarkContainer>
                             </motion.div>
                         ))}
-                    </AdvancedCardGrid>
+                    </motion.div>
                 ) : (
                     <EmptyState
                         title="No guides found"
