@@ -1,6 +1,7 @@
 import DosenLayout from '@/layouts/dosen-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Bell, Clock, Megaphone, AlertTriangle, Award, Info, CheckCircle, ExternalLink, X, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -23,12 +24,17 @@ interface Props {
 
 export default function Notifications({ dosen, notifications, unreadCount }: Props) {
     const [detailModal, setDetailModal] = useState<{ open: boolean; notification: Notification | null }>({ open: false, notification: null });
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     const handleMarkAsRead = (id: number) => router.post(`/dosen/notifications/${id}/read`);
     const handleMarkAllAsRead = () => router.post('/dosen/notifications/read-all');
-    const handleDelete = (id: number) => {
-        if (confirm('Hapus notifikasi ini?')) {
-            router.delete(`/dosen/notifications/${id}`);
+    
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/dosen/notifications/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
+            setDetailModal({ open: false, notification: null });
         }
     };
 
@@ -164,7 +170,7 @@ export default function Notifications({ dosen, notifications, unreadCount }: Pro
                                         size="icon"
                                         variant="ghost"
                                         className="text-red-600 shrink-0"
-                                        onClick={(e) => { e.stopPropagation(); handleDelete(notif.id); }}
+                                        onClick={(e) => { e.stopPropagation(); openDeleteDialog(notif.id); }}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -245,7 +251,7 @@ export default function Notifications({ dosen, notifications, unreadCount }: Pro
                             <Button 
                                 variant="outline" 
                                 className="text-red-600 border-red-200 hover:bg-red-50"
-                                onClick={() => { handleDelete(detailModal.notification!.id); setDetailModal({ open: false, notification: null }); }}
+                                onClick={() => openDeleteDialog(detailModal.notification!.id)}
                             >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Hapus
@@ -260,6 +266,18 @@ export default function Notifications({ dosen, notifications, unreadCount }: Pro
                     </div>
                 </div>
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                onConfirm={handleDelete}
+                title="Hapus Notifikasi"
+                message="Yakin ingin menghapus notifikasi ini? Tindakan ini tidak dapat dibatalkan."
+                variant="danger"
+                confirmText="Ya, Hapus"
+                cancelText="Batal"
+            />
         </DosenLayout>
     );
 }

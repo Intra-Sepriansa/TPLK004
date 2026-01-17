@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
     Select,
     SelectContent,
@@ -79,6 +80,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
     const [showEdit, setShowEdit] = useState(false);
     const [editTugas, setEditTugas] = useState<Tugas | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const [form, setForm] = useState({
         course_id: '',
         judul: '',
@@ -110,9 +112,12 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
         });
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Yakin ingin menghapus tugas ini?')) {
-            router.delete(`/admin/tugas/${id}`);
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/tugas/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
         }
     };
 
@@ -362,7 +367,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                             <DropdownMenuItem onClick={() => openEdit(tugas)} className="cursor-pointer">
                                                 <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleDelete(tugas.id)} className="cursor-pointer text-red-600">
+                                            <DropdownMenuItem onClick={() => openDeleteDialog(tugas.id)} className="cursor-pointer text-red-600">
                                                 <Trash2 className="mr-2 h-4 w-4" /> Hapus
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
@@ -437,6 +442,18 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onConfirm={handleDelete}
+                    title="Hapus Tugas"
+                    message="Yakin ingin menghapus tugas ini? Tindakan ini tidak dapat dibatalkan."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </div>
         </AppLayout>
     );

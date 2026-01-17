@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     NotebookPen, Plus, ArrowLeft, Search, BookOpen, Monitor, Building2,
     Trash2, Edit, ExternalLink, Calendar, CheckCircle, XCircle
@@ -52,6 +53,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     // Show flash message as toast
     useEffect(() => {
@@ -119,11 +121,14 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         setShowForm(true);
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Yakin ingin menghapus catatan ini?')) {
-            router.delete(`/user/akademik/catatan/${id}`, {
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/user/akademik/catatan/${deleteDialog.id}`, {
                 preserveScroll: true,
             });
+            setDeleteDialog({ open: false, id: null });
         }
     };
 
@@ -348,7 +353,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(note)}>
                                                             <Edit className="h-3.5 w-3.5" />
                                                         </Button>
-                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => handleDelete(note.id)}>
+                                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => openDeleteDialog(note.id)}>
                                                             <Trash2 className="h-3.5 w-3.5" />
                                                         </Button>
                                                     </div>
@@ -395,6 +400,18 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onConfirm={handleDelete}
+                    title="Hapus Catatan"
+                    message="Yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </div>
         </StudentLayout>
     );

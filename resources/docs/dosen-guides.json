@@ -1,0 +1,210 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-17",
+  "guides": [
+    {
+      "id": "dosen-dashboard",
+      "menuKey": "dashboard",
+      "title": "Dashboard Dosen",
+      "description": "Halaman utama dengan ringkasan aktivitas mengajar dan statistik kehadiran",
+      "icon": "Home",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Dashboard adalah halaman utama yang menampilkan ringkasan aktivitas mengajar Anda. Di sini Anda dapat melihat statistik kehadiran mahasiswa, sesi absen yang aktif, tugas yang perlu direview, dan notifikasi penting."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Fitur Utama: Statistik Real-time, Quick Actions, Notifikasi, Kalender Jadwal, Grafik Kehadiran"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat ringkasan di kartu statistik\n2. Cek notifikasi dengan klik ikon lonceng\n3. Gunakan quick actions untuk akses cepat"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Cek dashboard setiap pagi, perhatikan notifikasi izin, gunakan quick actions"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Mengapa statistik tidak update?", "answer": "Refresh halaman atau clear cache browser"}]}
+      ]
+    },
+    {
+      "id": "dosen-sesi-absen",
+      "menuKey": "sesi-absen",
+      "title": "Sesi Absen",
+      "description": "Kelola sesi absensi dan token kehadiran untuk setiap pertemuan",
+      "icon": "Calendar",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Sesi Absen memungkinkan Anda membuat dan mengelola sesi absensi. Setiap sesi menghasilkan QR code unik untuk mahasiswa melakukan absensi."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Buat Sesi Baru, QR Code Generator, Real-time Monitoring, Auto-refresh QR, Template Sesi, Export Data"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Klik Buat Sesi Baru\n2. Pilih mata kuliah\n3. Atur waktu mulai/selesai\n4. Simpan dan aktifkan\n5. Tampilkan QR code"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Aktifkan sesi 5-10 menit sebelum kelas, gunakan fullscreen untuk QR, tutup sesi setelah selesai"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "QR tidak bisa di-scan?", "answer": "Refresh QR code atau generate baru"}]}
+      ]
+    },
+    {
+      "id": "dosen-courses",
+      "menuKey": "courses",
+      "title": "Mata Kuliah",
+      "description": "Kelola mata kuliah dan daftar mahasiswa yang terdaftar",
+      "icon": "BookOpen",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Mata Kuliah menampilkan semua mata kuliah yang Anda ampu beserta daftar mahasiswa yang terdaftar di setiap kelas."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Mata Kuliah, Daftar Mahasiswa per Kelas, Statistik Kehadiran per Matkul, Export Daftar Mahasiswa"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih mata kuliah dari daftar\n2. Lihat detail mahasiswa terdaftar\n3. Cek statistik kehadiran\n4. Export data jika diperlukan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Review daftar mahasiswa di awal semester, pantau kehadiran secara berkala"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Mahasiswa tidak muncul di daftar?", "answer": "Hubungi admin untuk update data enrollment"}]}
+      ]
+    },
+    {
+      "id": "dosen-tugas",
+      "menuKey": "tugas",
+      "title": "Informasi Tugas",
+      "description": "Buat dan kelola tugas untuk mahasiswa",
+      "icon": "ClipboardList",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Informasi Tugas memungkinkan Anda membuat tugas, mengatur deadline, dan melihat submission dari mahasiswa."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Buat Tugas Baru, Set Deadline, Lihat Submissions, Forum Diskusi, Grading Tugas"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Klik Buat Tugas Baru\n2. Isi judul dan deskripsi\n3. Set deadline\n4. Pilih mata kuliah\n5. Publish tugas"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Beri deadline yang realistis, gunakan forum diskusi untuk Q&A, berikan feedback yang konstruktif"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana memperpanjang deadline?", "answer": "Edit tugas dan ubah tanggal deadline"}]}
+      ]
+    },
+    {
+      "id": "dosen-permits",
+      "menuKey": "permits",
+      "title": "Persetujuan Izin",
+      "description": "Review dan setujui permintaan izin mahasiswa",
+      "icon": "FileCheck",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Persetujuan Izin menampilkan semua permintaan izin dari mahasiswa yang perlu Anda review dan setujui atau tolak."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Permintaan Izin, Filter by Status, Approve/Reject, Lihat Bukti Dokumen, Riwayat Izin"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat daftar permintaan izin\n2. Klik detail untuk melihat alasan dan bukti\n3. Approve jika valid, Reject jika tidak\n4. Tambahkan catatan jika perlu"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Proses izin dalam 24 jam, periksa bukti dokumen dengan teliti, berikan alasan jika menolak"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana jika bukti tidak valid?", "answer": "Tolak dengan alasan dan minta mahasiswa mengajukan ulang dengan bukti yang benar"}]}
+      ]
+    },
+    {
+      "id": "dosen-verify",
+      "menuKey": "verify",
+      "title": "Verifikasi",
+      "description": "Verifikasi selfie mahasiswa dan deteksi kecurangan",
+      "icon": "CheckCircle",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Verifikasi memungkinkan Anda memeriksa dan memverifikasi foto selfie yang diambil mahasiswa saat absensi untuk memastikan kehadiran yang valid."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Selfie Pending, Approve/Reject Selfie, Deteksi Kecurangan, Bulk Actions, Riwayat Verifikasi"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih sesi yang ingin diverifikasi\n2. Review selfie satu per satu\n3. Approve jika wajah jelas dan valid\n4. Reject jika ada indikasi kecurangan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Verifikasi setelah sesi selesai, perhatikan pencahayaan dan kejelasan wajah, gunakan bulk approve untuk efisiensi"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana mendeteksi foto palsu?", "answer": "Perhatikan kualitas foto, background, dan konsistensi dengan foto sebelumnya"}]}
+      ]
+    },
+    {
+      "id": "dosen-rekapan",
+      "menuKey": "rekapan",
+      "title": "Rekapan",
+      "description": "Laporan kehadiran dan export data",
+      "icon": "ClipboardList",
+      "category": "analytics",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Rekapan menyediakan laporan lengkap kehadiran mahasiswa per mata kuliah dengan berbagai filter dan opsi export."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Rekap per Mata Kuliah, Filter Tanggal, Statistik Kehadiran, Export PDF/Excel, Grafik Tren"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih mata kuliah\n2. Set rentang tanggal\n3. Lihat rekap kehadiran\n4. Export jika diperlukan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Export rekap secara berkala untuk dokumentasi, perhatikan mahasiswa dengan kehadiran rendah"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Format export apa yang tersedia?", "answer": "PDF dan Excel tersedia untuk semua laporan"}]}
+      ]
+    },
+    {
+      "id": "dosen-grading",
+      "menuKey": "grading",
+      "title": "Penilaian",
+      "description": "Sistem penilaian dan kalkulasi nilai akhir",
+      "icon": "GraduationCap",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Penilaian memungkinkan Anda memberikan nilai kepada mahasiswa berdasarkan kehadiran, tugas, dan komponen penilaian lainnya."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Input Nilai, Komponen Penilaian, Kalkulasi Otomatis, Export Nilai, Riwayat Perubahan"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih mata kuliah\n2. Lihat daftar mahasiswa\n3. Input nilai per komponen\n4. Sistem akan menghitung nilai akhir\n5. Export jika diperlukan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Input nilai secara berkala, review sebelum finalisasi, gunakan komponen penilaian yang jelas"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana mengubah bobot komponen?", "answer": "Hubungi admin untuk mengubah konfigurasi bobot penilaian"}]}
+      ]
+    },
+    {
+      "id": "dosen-class-insights",
+      "menuKey": "class-insights",
+      "title": "Class Insights",
+      "description": "Analitik kelas dan tren performa mahasiswa",
+      "icon": "BarChart3",
+      "category": "analytics",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Class Insights menyediakan analitik mendalam tentang performa kelas, tren kehadiran, dan engagement mahasiswa."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Grafik Kehadiran, Tren Performa, Engagement Metrics, Perbandingan Kelas, Prediksi At-Risk Students"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih mata kuliah\n2. Lihat dashboard analytics\n3. Analisis tren dan pola\n4. Identifikasi mahasiswa at-risk"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Review insights mingguan, follow up mahasiswa at-risk, gunakan data untuk improve teaching"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Apa itu at-risk students?", "answer": "Mahasiswa dengan kehadiran atau performa di bawah threshold yang ditentukan"}]}
+      ]
+    },
+    {
+      "id": "dosen-session-templates",
+      "menuKey": "session-templates",
+      "title": "Session Templates",
+      "description": "Buat dan kelola template sesi untuk efisiensi",
+      "icon": "FileText",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Session Templates memungkinkan Anda membuat template sesi absen yang dapat digunakan berulang untuk mata kuliah yang sama."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Buat Template, Apply Template, Edit Template, Jadwal Otomatis, Duplicate Template"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Buat template baru\n2. Set mata kuliah dan waktu default\n3. Simpan template\n4. Apply template saat membuat sesi baru"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Buat template untuk setiap mata kuliah, gunakan naming yang jelas, update template jika jadwal berubah"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bisakah template dijadwalkan otomatis?", "answer": "Ya, Anda bisa set jadwal recurring untuk template"}]}
+      ]
+    },
+    {
+      "id": "dosen-notifications",
+      "menuKey": "notifications",
+      "title": "Notifikasi",
+      "description": "Kelola notifikasi dan preferensi pemberitahuan",
+      "icon": "Bell",
+      "category": "communication",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Notifikasi menampilkan semua pemberitahuan terkait aktivitas mengajar, permintaan izin, dan update sistem."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Notifikasi, Filter by Type, Mark as Read, Notification Settings, Push Notifications"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat daftar notifikasi\n2. Klik untuk melihat detail\n3. Mark as read setelah dibaca\n4. Atur preferensi di Settings"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Aktifkan push notifications untuk update real-time, bersihkan notifikasi lama secara berkala"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana mematikan notifikasi tertentu?", "answer": "Buka Settings > Notifications dan atur preferensi"}]}
+      ]
+    },
+    {
+      "id": "dosen-chat",
+      "menuKey": "chat",
+      "title": "Chat",
+      "description": "Fitur pesan dan komunikasi dengan mahasiswa",
+      "icon": "MessageCircle",
+      "category": "communication",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Chat memungkinkan Anda berkomunikasi langsung dengan mahasiswa atau membuat grup chat per kelas."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Direct Message, Group Chat, File Sharing, Message Search, Online Status"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih kontak atau grup\n2. Ketik pesan\n3. Kirim dengan Enter atau klik Send\n4. Attach file jika diperlukan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Gunakan grup untuk pengumuman kelas, respond dalam waktu yang wajar, gunakan fitur search untuk cari pesan lama"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana membuat grup kelas?", "answer": "Klik New Group, pilih mahasiswa dari kelas, beri nama grup"}]}
+      ]
+    }
+  ]
+}

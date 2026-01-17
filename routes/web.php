@@ -274,6 +274,11 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::post('user/notifications/{id}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
     Route::post('user/notifications/read-all', [\App\Http\Controllers\User\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
     Route::delete('user/notifications/{id}', [\App\Http\Controllers\User\NotificationController::class, 'destroy'])->name('user.notifications.destroy');
+    
+    // Settings, Documentation, Help (Inertia pages)
+    Route::get('user/settings', fn () => inertia('student/settings'))->name('user.settings');
+    Route::get('user/docs', fn () => inertia('student/docs'))->name('user.docs');
+    Route::get('user/help', fn () => inertia('student/help'))->name('user.help');
 });
 
 require __DIR__.'/settings.php';

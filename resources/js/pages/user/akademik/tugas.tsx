@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
     Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle
@@ -60,6 +61,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [showForm, setShowForm] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     // Show flash message as toast
     useEffect(() => {
@@ -104,11 +106,14 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         });
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Yakin ingin menghapus tugas ini?')) {
-            router.delete(`/user/akademik/tugas/${id}`, {
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/user/akademik/tugas/${deleteDialog.id}`, {
                 preserveScroll: true,
             });
+            setDeleteDialog({ open: false, id: null });
         }
     };
 
@@ -360,7 +365,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                                     variant="ghost" 
                                                                     size="icon" 
                                                                     className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                                                    onClick={() => handleDelete(task.id)}
+                                                                    onClick={() => openDeleteDialog(task.id)}
                                                                 >
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </Button>
@@ -387,6 +392,18 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         </Tabs>
                     </CardContent>
                 </Card>
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onConfirm={handleDelete}
+                    title="Hapus Tugas"
+                    message="Yakin ingin menghapus tugas ini? Tindakan ini tidak dapat dibatalkan."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </div>
         </StudentLayout>
     );

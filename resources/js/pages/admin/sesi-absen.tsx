@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Calendar, Play, Pause, Plus, Search, Filter, Clock, Users, CheckCircle, XCircle, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Copy, Trash2, Edit, Eye, Download, Zap, Timer, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface Session {
     id: number;
@@ -101,6 +102,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
     const [showEditModal, setShowEditModal] = useState(false);
     const [editSession, setEditSession] = useState<Session | null>(null);
     const [search, setSearch] = useState(filters.search);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     const createForm = useForm({
         course_id: '',
@@ -154,7 +156,14 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
     const handleActivate = (id: number) => router.patch(`/admin/sesi-absen/${id}/activate`);
     const handleDeactivate = (id: number) => router.patch(`/admin/sesi-absen/${id}/deactivate`);
     const handleDuplicate = (id: number) => router.post(`/admin/sesi-absen/${id}/duplicate`);
-    const handleDelete = (id: number) => { if (confirm('Hapus sesi ini?')) router.delete(`/admin/sesi-absen/${id}`); };
+    
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/admin/sesi-absen/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
+        }
+    };
 
     return (
         <AppLayout>
@@ -343,7 +352,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                     {s.is_active && <button onClick={() => handleDeactivate(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Nonaktifkan"><Pause className="h-4 w-4" /></button>}
                                                     <button onClick={() => handleEdit(s)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600" title="Edit"><Edit className="h-4 w-4" /></button>
                                                     <button onClick={() => handleDuplicate(s.id)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600" title="Duplikat"><Copy className="h-4 w-4" /></button>
-                                                    <button onClick={() => handleDelete(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="h-4 w-4" /></button>
+                                                    <button onClick={() => openDeleteDialog(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="h-4 w-4" /></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -447,6 +456,18 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         </div>
                     </div>
                 )}
+
+                {/* Delete Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onConfirm={handleDelete}
+                    title="Hapus Sesi Absen"
+                    message="Yakin ingin menghapus sesi absen ini? Semua data kehadiran terkait juga akan dihapus."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </div>
         </AppLayout>
     );

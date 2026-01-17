@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { FileText, Plus, Edit, Trash2, Calendar, Clock, Play, X } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,6 +36,7 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
     const [createModal, setCreateModal] = useState(false);
     const [editModal, setEditModal] = useState<{ open: boolean; template: Template | null }>({ open: false, template: null });
     const [generateModal, setGenerateModal] = useState<{ open: boolean; template: Template | null }>({ open: false, template: null });
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     const form = useForm({
         course_id: '',
@@ -57,8 +59,13 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
         form.patch(`/dosen/session-templates/${editModal.template.id}`, { onSuccess: () => { setEditModal({ open: false, template: null }); form.reset(); } });
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Yakin ingin menghapus template ini?')) router.delete(`/dosen/session-templates/${id}`);
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/dosen/session-templates/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
+        }
     };
 
     const handleGenerate = () => {
@@ -138,7 +145,7 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
                                         <Play className="h-4 w-4 mr-1" />Generate
                                     </Button>
                                     <Button size="sm" variant="ghost" onClick={() => openEditModal(template)}><Edit className="h-4 w-4" /></Button>
-                                    <Button size="sm" variant="ghost" className="text-red-600" onClick={() => handleDelete(template.id)}><Trash2 className="h-4 w-4" /></Button>
+                                    <Button size="sm" variant="ghost" className="text-red-600" onClick={() => openDeleteDialog(template.id)}><Trash2 className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                         </div>
@@ -231,6 +238,18 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
                     </div>
                 </div>
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                onConfirm={handleDelete}
+                title="Hapus Template"
+                message="Yakin ingin menghapus template ini? Tindakan ini tidak dapat dibatalkan."
+                variant="danger"
+                confirmText="Ya, Hapus"
+                cancelText="Batal"
+            />
         </DosenLayout>
     );
 }

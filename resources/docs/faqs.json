@@ -1,0 +1,97 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-17",
+  "categories": [
+    {
+      "id": "absensi",
+      "name": "Absensi",
+      "icon": "QrCode",
+      "faqs": [
+        {"id": "faq-1", "question": "Bagaimana cara melakukan absensi?", "answer": "Buka menu Absen, scan QR code yang ditampilkan dosen, ambil foto selfie, lalu klik Konfirmasi.", "tags": ["absen", "qr", "selfie"]},
+        {"id": "faq-2", "question": "QR code tidak bisa di-scan?", "answer": "Pastikan kamera bersih, pencahayaan cukup, dan jarak scan tepat. Minta dosen refresh QR jika perlu.", "tags": ["qr", "scan", "error"]},
+        {"id": "faq-3", "question": "Selfie ditolak, mengapa?", "answer": "Wajah tidak jelas, pencahayaan kurang, atau tertutup masker/kacamata. Pastikan wajah terlihat jelas.", "tags": ["selfie", "verifikasi"]},
+        {"id": "faq-4", "question": "Berapa minimal kehadiran untuk UAS?", "answer": "Minimal 75% kehadiran untuk bisa mengikuti UAS sesuai aturan UNPAM.", "tags": ["kehadiran", "uas"]}
+      ]
+    },
+    {
+      "id": "tugas",
+      "name": "Tugas",
+      "icon": "ClipboardList",
+      "faqs": [
+        {"id": "faq-5", "question": "Bagaimana cara mengumpulkan tugas?", "answer": "Buka menu Tugas, pilih tugas, baca instruksi, upload file, lalu klik Submit.", "tags": ["tugas", "submit"]},
+        {"id": "faq-6", "question": "Bisa submit setelah deadline?", "answer": "Tergantung pengaturan dosen. Beberapa tugas mengizinkan late submission dengan pengurangan nilai.", "tags": ["deadline", "late"]},
+        {"id": "faq-7", "question": "Format file apa yang diterima?", "answer": "Umumnya PDF, DOC, DOCX. Cek instruksi tugas untuk format spesifik.", "tags": ["format", "file"]}
+      ]
+    },
+    {
+      "id": "izin",
+      "name": "Izin & Sakit",
+      "icon": "FileCheck",
+      "faqs": [
+        {"id": "faq-8", "question": "Bagaimana mengajukan izin?", "answer": "Buka menu Izin/Sakit, klik Ajukan Izin Baru, pilih jenis, isi alasan, upload bukti, lalu Kirim.", "tags": ["izin", "sakit"]},
+        {"id": "faq-9", "question": "Dokumen apa untuk izin sakit?", "answer": "Surat keterangan dokter atau foto resep obat dengan tanggal yang sesuai.", "tags": ["dokumen", "sakit"]},
+        {"id": "faq-10", "question": "Berapa lama proses approval?", "answer": "Biasanya 1-2 hari kerja. Pantau status di menu Izin/Sakit.", "tags": ["approval", "status"]}
+      ]
+    },
+    {
+      "id": "akun",
+      "name": "Akun & Profil",
+      "icon": "UserCircle",
+      "faqs": [
+        {"id": "faq-11", "question": "Bagaimana mengubah password?", "answer": "Buka Pengaturan > Keamanan > Ubah Password. Masukkan password lama dan baru.", "tags": ["password", "keamanan"]},
+        {"id": "faq-12", "question": "Bagaimana mengubah foto profil?", "answer": "Buka Profil, klik foto profil, pilih foto baru, crop jika perlu, lalu Simpan.", "tags": ["foto", "profil"]},
+        {"id": "faq-13", "question": "Lupa password?", "answer": "Klik 'Lupa Password' di halaman login, masukkan NIM, ikuti instruksi reset.", "tags": ["password", "lupa"]}
+      ]
+    },
+    {
+      "id": "teknis",
+      "name": "Masalah Teknis",
+      "icon": "Settings",
+      "faqs": [
+        {"id": "faq-14", "question": "Aplikasi error atau tidak bisa dibuka?", "answer": "Refresh halaman, clear cache browser, coba browser lain, atau hubungi support.", "tags": ["error", "teknis"]},
+        {"id": "faq-15", "question": "Data tidak tersimpan?", "answer": "Pastikan koneksi internet stabil dan tunggu loading selesai sebelum menutup halaman.", "tags": ["data", "simpan"]},
+        {"id": "faq-16", "question": "Notifikasi tidak muncul?", "answer": "Cek pengaturan notifikasi di browser dan di menu Pengaturan aplikasi.", "tags": ["notifikasi", "browser"]}
+      ]
+    },
+    {
+      "id": "gamifikasi",
+      "name": "Poin & Badge",
+      "icon": "Trophy",
+      "faqs": [
+        {"id": "faq-17", "question": "Bagaimana cara mendapat poin?", "answer": "Hadir di kelas (10 poin), submit tugas tepat waktu (5 poin), raih badge (varies), streak bonus (5 poin).", "tags": ["poin", "cara"]},
+        {"id": "faq-18", "question": "Apa manfaat poin?", "answer": "Poin menentukan ranking di leaderboard dan bisa ditukar dengan reward tertentu.", "tags": ["poin", "manfaat"]},
+        {"id": "faq-19", "question": "Bagaimana mendapat badge?", "answer": "Setiap badge memiliki kriteria berbeda. Cek menu Pencapaian untuk melihat kriteria.", "tags": ["badge", "kriteria"]}
+      ]
+    }
+  ],
+  "troubleshooting": [
+    {
+      "id": "ts-1",
+      "title": "QR Code Tidak Bisa Di-scan",
+      "problem": "QR code tidak terdeteksi atau scan gagal",
+      "solution": ["Bersihkan lensa kamera", "Pastikan pencahayaan cukup", "Atur jarak scan yang tepat", "Minta dosen refresh QR", "Restart aplikasi"],
+      "relatedGuides": ["mahasiswa-absen"]
+    },
+    {
+      "id": "ts-2",
+      "title": "Selfie Verifikasi Ditolak",
+      "problem": "Foto selfie selalu ditolak sistem",
+      "solution": ["Pastikan wajah terlihat jelas", "Lepas masker/kacamata hitam", "Cari tempat dengan pencahayaan cukup", "Hindari backlight", "Posisikan wajah di tengah frame"],
+      "relatedGuides": ["mahasiswa-absen", "dosen-verify"]
+    },
+    {
+      "id": "ts-3",
+      "title": "Tidak Bisa Login",
+      "problem": "Gagal login dengan NIM dan password",
+      "solution": ["Periksa NIM tidak ada typo", "Perhatikan huruf besar/kecil password", "Pastikan Caps Lock tidak aktif", "Coba reset password", "Hubungi admin jika terkunci"],
+      "relatedGuides": []
+    },
+    {
+      "id": "ts-4",
+      "title": "Upload File Gagal",
+      "problem": "File tugas tidak bisa di-upload",
+      "solution": ["Periksa ukuran file (max 10MB)", "Periksa format file", "Pastikan koneksi stabil", "Compress file jika terlalu besar", "Gunakan format umum (PDF, DOC)"],
+      "relatedGuides": ["mahasiswa-tugas"]
+    }
+  ]
+}

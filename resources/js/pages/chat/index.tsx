@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ToastProvider, useToast } from '@/components/ui/toast-notification';
 import { MessageInfoModal, ContactInfoModal } from '@/components/ui/info-modal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { apiPost, apiPut, apiDelete, apiGet, isCsrfError } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { ConversationListItem, ConversationDetail, Message, TypingUser, ChatUser } from '@/types/chat';
@@ -31,6 +32,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
     // Modal states
     const [messageInfoData, setMessageInfoData] = useState<any>(null);
     const [contactInfoData, setContactInfoData] = useState<any>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; message: Message | null }>({ open: false, message: null });
 
     const handleSelectConversation = (id: number) => {
         router.get(`/chat/${id}`, {}, { preserveState: true });
@@ -86,14 +88,17 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
         } catch (error) {}
     };
 
-    const handleDelete = async (message: Message) => {
-        if (!confirm('Hapus pesan ini?')) return;
+    const openDeleteDialog = (message: Message) => setDeleteDialog({ open: true, message });
+    
+    const handleDelete = async () => {
+        if (!deleteDialog.message) return;
         try {
-            const response = await apiDelete(`/api/chat/messages/${message.id}`);
+            const response = await apiDelete(`/api/chat/messages/${deleteDialog.message.id}`);
             if (response.ok) {
                 router.reload({ only: ['activeConversation'] });
             }
         } catch (error) {}
+        setDeleteDialog({ open: false, message: null });
     };
 
     const handleForward = async (message: Message) => {
@@ -233,7 +238,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                             onTyping={handleTyping}
                             onReply={handleReply}
                             onEdit={handleEdit}
-                            onDelete={handleDelete}
+                            onDelete={openDeleteDialog}
                             onForward={handleForward}
                             onReact={handleReact}
                             onStar={async (message) => {
@@ -396,6 +401,18 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
                 isOpen={!!contactInfoData}
                 onClose={() => setContactInfoData(null)}
                 data={contactInfoData}
+            />
+
+            {/* Delete Message Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, message: open ? deleteDialog.message : null })}
+                onConfirm={handleDelete}
+                title="Hapus Pesan"
+                message="Yakin ingin menghapus pesan ini? Pesan akan dihapus untuk semua orang."
+                variant="danger"
+                confirmText="Ya, Hapus"
+                cancelText="Batal"
             />
         </>
     );
