@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     FileText, Plus, Clock, CheckCircle, XCircle, Upload, Trash2, Eye, X,
     HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck
@@ -51,6 +52,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState(filters.status || 'all');
     const [isLoaded, setIsLoaded] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoaded(true), 100);
@@ -75,9 +77,12 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
         });
     };
 
-    const handleDelete = (id: number) => {
-        if (confirm('Yakin ingin membatalkan pengajuan ini?')) {
-            router.delete(`/user/permit/${id}`);
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/user/permit/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
         }
     };
 
@@ -339,7 +344,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                                         <Button 
                                                             variant="destructive" 
                                                             size="sm" 
-                                                            onClick={() => handleDelete(permit.id)}
+                                                            onClick={() => openDeleteDialog(permit.id)}
                                                             className="rounded-xl"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
@@ -491,6 +496,18 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                     </div>
                 </div>
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                onConfirm={handleDelete}
+                title="Batalkan Pengajuan"
+                message="Yakin ingin membatalkan pengajuan izin/sakit ini? Tindakan ini tidak dapat dibatalkan."
+                variant="danger"
+                confirmText="Ya, Batalkan"
+                cancelText="Tidak"
+            />
             
             <style>{`
                 @keyframes fadeInUp {

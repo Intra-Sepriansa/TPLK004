@@ -27,6 +27,8 @@ import {
     BarChart3,
     FileText,
     Bell,
+    Settings,
+    HelpCircle,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -89,6 +91,21 @@ const dosenNavItems: NavItem[] = [
         title: 'Notifikasi',
         href: '/dosen/notifications',
         icon: Bell,
+    },
+    {
+        title: 'Dokumentasi',
+        href: '/dosen/docs',
+        icon: BookOpen,
+    },
+    {
+        title: 'Pengaturan',
+        href: '/dosen/settings',
+        icon: Settings,
+    },
+    {
+        title: 'Bantuan',
+        href: '/dosen/help',
+        icon: HelpCircle,
     },
     {
         title: 'Profil',

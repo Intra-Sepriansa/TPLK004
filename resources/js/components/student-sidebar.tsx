@@ -33,6 +33,8 @@ import {
     Vote,
     BarChart3,
     Bell,
+    Settings,
+    HelpCircle,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -105,6 +107,21 @@ const studentNavItems: NavItem[] = [
         title: 'Voting Kas',
         href: '/user/kas-voting',
         icon: Vote,
+    },
+    {
+        title: 'Dokumentasi',
+        href: '/user/docs',
+        icon: BookOpen,
+    },
+    {
+        title: 'Pengaturan',
+        href: '/user/settings',
+        icon: Settings,
+    },
+    {
+        title: 'Bantuan',
+        href: '/user/help',
+        icon: HelpCircle,
     },
     {
         title: 'Profil',

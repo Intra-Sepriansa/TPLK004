@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Award, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap } from 'lucide-react';
 
 type Diskusi = {
@@ -28,6 +29,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
     const [visibility, setVisibility] = useState('public');
     const [replyTo, setReplyTo] = useState<Diskusi | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -51,7 +53,14 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
     };
 
     const togglePin = (id: number) => router.patch(`/dosen/tugas/diskusi/${id}/pin`, {}, { preserveScroll: true });
-    const deleteMessage = (id: number) => { if (confirm('Hapus pesan ini?')) router.delete(`/dosen/tugas/diskusi/${id}`, { preserveScroll: true }); };
+    
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    const deleteMessage = () => {
+        if (deleteDialog.id) {
+            router.delete(`/dosen/tugas/diskusi/${deleteDialog.id}`, { preserveScroll: true });
+            setDeleteDialog({ open: false, id: null });
+        }
+    };
 
     const getPriorityStyle = (p: string) => ({
         tinggi: 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25',
@@ -194,7 +203,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                                     <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-7 text-xs hover:bg-amber-100 dark:hover:bg-amber-900/30">
                                                         <Pin className="h-3 w-3 mr-1" /> {d.is_pinned ? 'Unpin' : 'Pin'}
                                                     </Button>
-                                                    <Button variant="ghost" size="sm" onClick={() => deleteMessage(d.id)} className="h-7 text-xs text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
+                                                    <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(d.id)} className="h-7 text-xs text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30">
                                                         <Trash2 className="h-3 w-3 mr-1" /> Hapus
                                                     </Button>
                                                 </div>
@@ -248,6 +257,18 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                         </div>
                     </div>
                 </div>
+
+                {/* Delete Message Confirmation Dialog */}
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                    onConfirm={deleteMessage}
+                    title="Hapus Pesan"
+                    message="Yakin ingin menghapus pesan ini? Tindakan ini tidak dapat dibatalkan."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </div>
         </DosenLayout>
     );

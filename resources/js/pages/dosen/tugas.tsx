@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import {
     AlertTriangle, Award, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
@@ -37,6 +38,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
     const [editTugas, setEditTugas] = useState<Tugas | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const [form, setForm] = useState({
         course_id: '', judul: '', deskripsi: '', instruksi: '',
         jenis: 'tugas', deadline: '', prioritas: 'sedang', status: 'draft',
@@ -63,7 +65,13 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
         });
     };
 
-    const handleDelete = (id: number) => { if (confirm('Yakin ingin menghapus tugas ini?')) router.delete(`/dosen/tugas/${id}`); };
+    const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
+    const handleDelete = () => {
+        if (deleteDialog.id) {
+            router.delete(`/dosen/tugas/${deleteDialog.id}`);
+            setDeleteDialog({ open: false, id: null });
+        }
+    };
 
     const openEdit = (tugas: Tugas) => {
         setEditTugas(tugas);
@@ -387,7 +395,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                         <DropdownMenuItem onClick={() => openEdit(tugas)} className="cursor-pointer">
                                                             <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleDelete(tugas.id)} className="cursor-pointer text-red-600">
+                                                        <DropdownMenuItem onClick={() => openDeleteDialog(tugas.id)} className="cursor-pointer text-red-600">
                                                             <Trash2 className="mr-2 h-4 w-4" /> Hapus
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -581,6 +589,18 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onOpenChange={(open) => setDeleteDialog({ open, id: open ? deleteDialog.id : null })}
+                onConfirm={handleDelete}
+                title="Hapus Tugas"
+                message="Yakin ingin menghapus tugas ini? Tindakan ini tidak dapat dibatalkan."
+                variant="danger"
+                confirmText="Ya, Hapus"
+                cancelText="Batal"
+            />
             
             <style>{`
                 @keyframes fadeInUp {

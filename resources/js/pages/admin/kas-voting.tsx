@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Users, 
     Eye, Gavel, AlertTriangle, BarChart3, Wallet, X, Target, Sparkles
@@ -80,12 +81,19 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
     const [rejectReason, setRejectReason] = useState('');
     const [processing, setProcessing] = useState(false);
     const [activeTab, setActiveTab] = useState(filters.status);
+    const [approveDialog, setApproveDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [closeDialog, setCloseDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [finalizeDialog, setFinalizeDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
-    const handleApprove = (votingId: number) => {
-        if (!confirm('Yakin ingin menyetujui voting ini? Pengeluaran kas akan langsung dicatat.')) return;
+    const openApproveDialog = (id: number) => setApproveDialog({ open: true, id });
+    const handleApprove = () => {
+        if (!approveDialog.id) return;
         setProcessing(true);
-        router.post(`/admin/kas-voting/${votingId}/approve`, {}, {
-            onFinish: () => setProcessing(false),
+        router.post(`/admin/kas-voting/${approveDialog.id}/approve`, {}, {
+            onFinish: () => {
+                setProcessing(false);
+                setApproveDialog({ open: false, id: null });
+            },
         });
     };
 
@@ -100,19 +108,27 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
         });
     };
 
-    const handleClose = (votingId: number) => {
-        if (!confirm('Yakin ingin menutup voting ini tanpa keputusan?')) return;
+    const openCloseDialog = (id: number) => setCloseDialog({ open: true, id });
+    const handleClose = () => {
+        if (!closeDialog.id) return;
         setProcessing(true);
-        router.post(`/admin/kas-voting/${votingId}/close`, {}, {
-            onFinish: () => setProcessing(false),
+        router.post(`/admin/kas-voting/${closeDialog.id}/close`, {}, {
+            onFinish: () => {
+                setProcessing(false);
+                setCloseDialog({ open: false, id: null });
+            },
         });
     };
 
-    const handleFinalize = (votingId: number) => {
-        if (!confirm('Finalisasi voting berdasarkan hasil suara saat ini?')) return;
+    const openFinalizeDialog = (id: number) => setFinalizeDialog({ open: true, id });
+    const handleFinalize = () => {
+        if (!finalizeDialog.id) return;
         setProcessing(true);
-        router.post(`/admin/kas-voting/${votingId}/finalize`, {}, {
-            onFinish: () => setProcessing(false),
+        router.post(`/admin/kas-voting/${finalizeDialog.id}/finalize`, {}, {
+            onFinish: () => {
+                setProcessing(false);
+                setFinalizeDialog({ open: false, id: null });
+            },
         });
     };
 
@@ -396,7 +412,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                             <Button
                                                                 size="sm"
                                                                 className="justify-start bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30"
-                                                                onClick={() => handleApprove(voting.id)}
+                                                                onClick={() => openApproveDialog(voting.id)}
                                                                 disabled={processing}
                                                             >
                                                                 <CheckCircle className="h-4 w-4 mr-2" />
@@ -419,7 +435,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                                 size="sm"
                                                                 variant="secondary"
                                                                 className="justify-start"
-                                                                onClick={() => handleFinalize(voting.id)}
+                                                                onClick={() => openFinalizeDialog(voting.id)}
                                                                 disabled={processing}
                                                             >
                                                                 <Gavel className="h-4 w-4 mr-2" />
@@ -429,7 +445,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                                 size="sm"
                                                                 variant="outline"
                                                                 className="justify-start"
-                                                                onClick={() => handleClose(voting.id)}
+                                                                onClick={() => openCloseDialog(voting.id)}
                                                                 disabled={processing}
                                                             >
                                                                 Tutup Voting
@@ -562,6 +578,45 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     </div>
                 </div>
             )}
+
+            {/* Approve Confirmation Dialog */}
+            <ConfirmDialog
+                open={approveDialog.open}
+                onOpenChange={(open) => setApproveDialog({ open, id: open ? approveDialog.id : null })}
+                onConfirm={handleApprove}
+                title="Setujui Voting"
+                message="Yakin ingin menyetujui voting ini? Pengeluaran kas akan langsung dicatat."
+                variant="success"
+                confirmText="Ya, Setujui"
+                cancelText="Batal"
+                loading={processing}
+            />
+
+            {/* Close Confirmation Dialog */}
+            <ConfirmDialog
+                open={closeDialog.open}
+                onOpenChange={(open) => setCloseDialog({ open, id: open ? closeDialog.id : null })}
+                onConfirm={handleClose}
+                title="Tutup Voting"
+                message="Yakin ingin menutup voting ini tanpa keputusan?"
+                variant="warning"
+                confirmText="Ya, Tutup"
+                cancelText="Batal"
+                loading={processing}
+            />
+
+            {/* Finalize Confirmation Dialog */}
+            <ConfirmDialog
+                open={finalizeDialog.open}
+                onOpenChange={(open) => setFinalizeDialog({ open, id: open ? finalizeDialog.id : null })}
+                onConfirm={handleFinalize}
+                title="Finalisasi Voting"
+                message="Finalisasi voting berdasarkan hasil suara saat ini?"
+                variant="info"
+                confirmText="Ya, Finalisasi"
+                cancelText="Batal"
+                loading={processing}
+            />
         </AppLayout>
     );
 }

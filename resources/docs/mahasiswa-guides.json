@@ -1,0 +1,227 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-17",
+  "guides": [
+    {
+      "id": "mahasiswa-dashboard",
+      "menuKey": "dashboard",
+      "title": "Dashboard Mahasiswa",
+      "description": "Ringkasan kehadiran, tugas mendatang, dan progress pencapaian",
+      "icon": "Home",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Dashboard adalah halaman utama yang menampilkan ringkasan aktivitas akademik Anda. Lihat statistik kehadiran, tugas yang harus dikerjakan, dan progress pencapaian badge."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Statistik Kehadiran, Tugas Mendatang, Progress Badge, Notifikasi, Kalender Akademik"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Cek statistik kehadiran di kartu utama\n2. Lihat tugas yang deadline-nya dekat\n3. Pantau progress badge dan poin\n4. Cek notifikasi penting"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Cek dashboard setiap hari, perhatikan deadline tugas, jaga streak kehadiran untuk bonus poin"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Mengapa poin saya tidak bertambah?", "answer": "Poin bertambah setelah kehadiran diverifikasi oleh dosen"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-absen",
+      "menuKey": "absen",
+      "title": "Absen",
+      "description": "Scan QR code dan verifikasi selfie untuk absensi",
+      "icon": "QrCode",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Absen adalah tempat Anda melakukan absensi dengan scan QR code yang ditampilkan dosen dan mengambil foto selfie untuk verifikasi kehadiran."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "QR Scanner, Selfie Camera, Lokasi GPS, Konfirmasi Absensi, Status Real-time"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Buka menu Absen\n2. Arahkan kamera ke QR code dosen\n3. Tunggu QR code terdeteksi\n4. Ambil foto selfie dengan wajah jelas\n5. Klik Konfirmasi untuk menyelesaikan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Pastikan wajah terlihat jelas, hindari backlight, scan QR dari jarak yang tepat, pastikan GPS aktif"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "QR code tidak terdeteksi?", "answer": "Pastikan kamera bersih, pencahayaan cukup, dan jarak scan tepat. Minta dosen refresh QR jika perlu"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-rekapan",
+      "menuKey": "rekapan",
+      "title": "Rekapan",
+      "description": "Riwayat kehadiran dan statistik per mata kuliah",
+      "icon": "FileText",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Rekapan menampilkan ringkasan kehadiran Anda di semua mata kuliah beserta statistik dan persentase kehadiran."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Rekap per Matkul, Persentase Kehadiran, Status Hadir/Izin/Alpha, Export Data, Grafik Tren"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat ringkasan kehadiran semua matkul\n2. Klik matkul untuk detail\n3. Cek persentase kehadiran\n4. Export jika diperlukan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Pantau persentase kehadiran, jaga minimal 75% untuk bisa ikut UAS, ajukan izin jika tidak bisa hadir"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Berapa minimal kehadiran untuk UAS?", "answer": "Minimal 75% kehadiran untuk bisa mengikuti UAS"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-history",
+      "menuKey": "history",
+      "title": "Riwayat",
+      "description": "Log kehadiran detail dengan filter dan status",
+      "icon": "History",
+      "category": "core",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Riwayat menampilkan log detail setiap kehadiran Anda termasuk waktu, lokasi, dan status verifikasi."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Log Detail, Filter Tanggal, Filter Matkul, Status Verifikasi, Bukti Kehadiran"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat daftar riwayat kehadiran\n2. Gunakan filter untuk mencari\n3. Klik item untuk detail\n4. Lihat bukti selfie jika perlu"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Cek riwayat jika ada ketidaksesuaian, simpan bukti kehadiran, laporkan jika ada error"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Status pending artinya apa?", "answer": "Selfie Anda sedang menunggu verifikasi dari dosen"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-tugas",
+      "menuKey": "tugas",
+      "title": "Informasi Tugas",
+      "description": "Lihat tugas dan submit pekerjaan",
+      "icon": "ClipboardList",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Informasi Tugas menampilkan semua tugas dari dosen beserta deadline dan instruksi pengerjaan."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Tugas, Detail Instruksi, Upload Submission, Forum Diskusi, Status Submission"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat daftar tugas\n2. Klik tugas untuk detail\n3. Baca instruksi dengan teliti\n4. Upload file tugas\n5. Klik Submit"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Kerjakan sebelum deadline, cek format file yang diminta, gunakan forum diskusi untuk bertanya"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bisakah submit ulang?", "answer": "Tergantung pengaturan dosen, beberapa tugas mengizinkan resubmit"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-permit",
+      "menuKey": "permit",
+      "title": "Izin/Sakit",
+      "description": "Ajukan izin tidak hadir dan lacak status",
+      "icon": "FileCheck",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Izin/Sakit memungkinkan Anda mengajukan izin tidak hadir dengan menyertakan alasan dan bukti pendukung."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Ajukan Izin Baru, Upload Bukti, Tracking Status, Riwayat Izin, Notifikasi Approval"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Klik Ajukan Izin Baru\n2. Pilih jenis (Sakit/Izin)\n3. Pilih tanggal dan matkul\n4. Isi alasan\n5. Upload bukti\n6. Kirim pengajuan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Ajukan izin sebelum atau segera setelah ketidakhadiran, sertakan bukti yang valid, pantau status approval"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Dokumen apa yang diperlukan untuk izin sakit?", "answer": "Surat keterangan dokter atau foto resep obat"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-akademik",
+      "menuKey": "akademik",
+      "title": "Akademik",
+      "description": "Kalender akademik, jadwal kuliah, dan catatan",
+      "icon": "GraduationCap",
+      "category": "academic",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Akademik menyediakan tools untuk mengelola jadwal kuliah, tracking pertemuan, dan catatan akademik pribadi."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Jadwal Kuliah, Kalender UTS/UAS, Tracking Pertemuan, Catatan Pribadi, Reminder"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat jadwal kuliah\n2. Cek countdown UTS/UAS\n3. Tandai pertemuan yang sudah selesai\n4. Tambah catatan jika perlu"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Update jadwal di awal semester, gunakan catatan untuk materi penting, perhatikan countdown ujian"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana menambah mata kuliah?", "answer": "Klik Tambah Matkul dan isi detail jadwal"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-personal-analytics",
+      "menuKey": "personal-analytics",
+      "title": "Personal Analytics",
+      "description": "Metrik performa dan saran perbaikan",
+      "icon": "BarChart3",
+      "category": "analytics",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Personal Analytics menampilkan analisis performa akademik Anda termasuk tren kehadiran, pola belajar, dan saran perbaikan."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Grafik Kehadiran, Tren Performa, Perbandingan dengan Rata-rata, Saran Improvement, Achievement Progress"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat overview performa\n2. Analisis grafik tren\n3. Bandingkan dengan rata-rata kelas\n4. Baca saran improvement"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Review analytics mingguan, ikuti saran improvement, jaga konsistensi kehadiran"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana meningkatkan skor?", "answer": "Jaga kehadiran, kumpulkan tugas tepat waktu, aktif di kelas"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-achievements",
+      "menuKey": "achievements",
+      "title": "Pencapaian",
+      "description": "Sistem badge dan kriteria pencapaian",
+      "icon": "Award",
+      "category": "analytics",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Pencapaian menampilkan badge yang sudah Anda dapatkan dan badge yang masih bisa diraih beserta kriterianya."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Badge, Progress Badge, Kriteria Pencapaian, Reward Points, Badge History"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat badge yang sudah didapat\n2. Cek badge yang tersedia\n3. Lihat kriteria untuk unlock\n4. Pantau progress"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Fokus pada badge yang hampir tercapai, jaga streak untuk bonus, kumpulkan semua badge untuk reward"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Apa reward dari badge?", "answer": "Badge memberikan poin bonus dan bisa ditampilkan di profil"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-leaderboard",
+      "menuKey": "leaderboard",
+      "title": "Leaderboard",
+      "description": "Sistem ranking dan perhitungan poin",
+      "icon": "Trophy",
+      "category": "analytics",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Leaderboard menampilkan ranking mahasiswa berdasarkan poin yang dikumpulkan dari kehadiran, tugas, dan pencapaian."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Ranking Global, Ranking per Kelas, Poin Breakdown, Weekly/Monthly Leaderboard, Top Performers"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat posisi ranking Anda\n2. Cek poin breakdown\n3. Bandingkan dengan teman sekelas\n4. Lihat top performers"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Konsisten hadir untuk poin harian, kumpulkan tugas tepat waktu, raih badge untuk bonus poin"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana poin dihitung?", "answer": "Poin dari kehadiran (10), tugas tepat waktu (5), badge (varies), streak bonus (5)"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-kas",
+      "menuKey": "kas",
+      "title": "Uang Kas",
+      "description": "Tracking pembayaran kas dan riwayat",
+      "icon": "Wallet",
+      "category": "finance",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Uang Kas menampilkan status pembayaran kas kelas Anda, riwayat pembayaran, dan penggunaan dana kas."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Status Pembayaran, Riwayat Kas, Penggunaan Dana, Reminder Pembayaran, Laporan Kas"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Cek status pembayaran\n2. Lihat riwayat pembayaran\n3. Cek penggunaan dana kas\n4. Bayar jika ada tunggakan"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Bayar kas tepat waktu, simpan bukti pembayaran, pantau penggunaan dana"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana cara bayar kas?", "answer": "Transfer ke rekening bendahara atau bayar langsung, lalu konfirmasi di sistem"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-kas-voting",
+      "menuKey": "kas-voting",
+      "title": "Voting Kas",
+      "description": "Proses voting penggunaan dana kas",
+      "icon": "Vote",
+      "category": "finance",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Voting Kas memungkinkan Anda berpartisipasi dalam voting penggunaan dana kas kelas."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Daftar Voting Aktif, Submit Vote, Ajukan Proposal, Hasil Voting, Riwayat Voting"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Lihat voting yang aktif\n2. Baca proposal dengan teliti\n3. Pilih opsi vote\n4. Submit vote Anda"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Baca proposal sebelum vote, vote sebelum deadline, ajukan proposal jika ada ide"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bisakah mengubah vote?", "answer": "Tidak, vote bersifat final setelah di-submit"}]}
+      ]
+    },
+    {
+      "id": "mahasiswa-chat",
+      "menuKey": "chat",
+      "title": "Chat",
+      "description": "Fitur pesan dan komunikasi",
+      "icon": "MessageCircle",
+      "category": "communication",
+      "lastUpdated": "2026-01-17",
+      "version": "1.0.0",
+      "sections": [
+        {"id": "overview", "title": "Overview", "type": "overview", "content": "Menu Chat memungkinkan Anda berkomunikasi dengan dosen dan teman sekelas melalui pesan langsung atau grup."},
+        {"id": "features", "title": "Fitur", "type": "features", "content": "Direct Message, Group Chat, File Sharing, Message Search, Online Status"},
+        {"id": "tutorial", "title": "Tutorial", "type": "tutorial", "content": "1. Pilih kontak atau grup\n2. Ketik pesan\n3. Kirim dengan Enter\n4. Attach file jika perlu"},
+        {"id": "tips", "title": "Tips", "type": "tips", "content": "Gunakan bahasa yang sopan, respond dalam waktu wajar, gunakan grup untuk diskusi kelas"},
+        {"id": "faq", "title": "FAQ", "type": "faq", "content": "", "faqs": [{"question": "Bagaimana menghubungi dosen?", "answer": "Cari nama dosen di kontak atau gunakan grup kelas"}]}
+      ]
+    }
+  ]
+}
