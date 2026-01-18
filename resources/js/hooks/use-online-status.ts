@@ -7,13 +7,39 @@ interface OnlineUser {
 }
 
 export function useOnlineStatus() {
+    const [isOnline, setIsOnline] = useState(true); // Default to true
+    const [wasOffline, setWasOffline] = useState(false);
     const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
+        // Set initial online status
+        setIsOnline(navigator.onLine);
+
+        const handleOnline = () => {
+            setIsOnline(true);
+            setWasOffline(true);
+            // Reset wasOffline after 3 seconds
+            setTimeout(() => setWasOffline(false), 3000);
+        };
+
+        const handleOffline = () => {
+            setIsOnline(false);
+            setWasOffline(false);
+        };
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    useEffect(() => {
         // Check if Echo is available
         if (typeof window === 'undefined' || !(window as any).Echo) {
-            console.warn('Laravel Echo not initialized');
             return;
         }
 
@@ -50,6 +76,8 @@ export function useOnlineStatus() {
     };
 
     return {
+        isOnline,
+        wasOffline,
         onlineUsers,
         isUserOnline,
         isConnected,
