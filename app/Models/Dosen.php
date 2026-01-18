@@ -23,6 +23,7 @@ class Dosen extends Authenticatable
         'avatar_url',
         'password',
         'is_active',
+        'settings',
     ];
 
     protected $hidden = [
@@ -33,6 +34,7 @@ class Dosen extends Authenticatable
     protected $casts = [
         'is_active' => 'boolean',
         'password' => 'hashed',
+        'settings' => 'array',
     ];
 
     public function user(): BelongsTo

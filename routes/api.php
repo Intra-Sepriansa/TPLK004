@@ -74,3 +74,16 @@ Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->prefix('help')->group(fu
     Route::post('/feedback', [HelpCenterController::class, 'submitFeedback'])->name('api.help.feedback');
 });
 
+// Dosen Settings API
+Route::middleware(['web', 'auth:dosen'])->prefix('dosen/api/settings')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Dosen\SettingsController::class, 'index'])->name('api.dosen.settings.index');
+    Route::post('/general', [\App\Http\Controllers\Dosen\SettingsController::class, 'updateGeneral'])->name('api.dosen.settings.general');
+    Route::post('/teaching', [\App\Http\Controllers\Dosen\SettingsController::class, 'updateTeaching'])->name('api.dosen.settings.teaching');
+    Route::post('/class-management', [\App\Http\Controllers\Dosen\SettingsController::class, 'updateClassManagement'])->name('api.dosen.settings.class-management');
+    Route::post('/notifications', [\App\Http\Controllers\Dosen\SettingsController::class, 'updateNotifications'])->name('api.dosen.settings.notifications');
+    Route::post('/privacy', [\App\Http\Controllers\Dosen\SettingsController::class, 'updatePrivacy'])->name('api.dosen.settings.privacy');
+    Route::post('/password', [\App\Http\Controllers\Dosen\SettingsController::class, 'updatePassword'])->name('api.dosen.settings.password');
+    Route::post('/reset', [\App\Http\Controllers\Dosen\SettingsController::class, 'reset'])->name('api.dosen.settings.reset');
+    Route::get('/export', [\App\Http\Controllers\Dosen\SettingsController::class, 'export'])->name('api.dosen.settings.export');
+    Route::get('/export-pdf', [\App\Http\Controllers\Dosen\SettingsController::class, 'exportPdf'])->name('api.dosen.settings.export-pdf');
+});
