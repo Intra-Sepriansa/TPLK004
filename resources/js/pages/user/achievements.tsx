@@ -326,11 +326,11 @@ export default function Achievements() {
 
                 {/* Badge Collection */}
                 <div className={cn(
-                    "rounded-2xl border border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90 overflow-hidden transition-all duration-500",
+                    "rounded-2xl border border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/90 overflow-hidden transition-all duration-500",
                     isLoaded ? 'opacity-100' : 'opacity-0'
                 )} style={{ transitionDelay: '200ms' }}>
                     {/* Header with Filter */}
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30">
@@ -343,7 +343,7 @@ export default function Achievements() {
                             </div>
                             
                             {/* Filter Tabs */}
-                            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-gray-800 rounded-lg">
                                 {[
                                     { key: 'all', label: 'Semua', count: achievements.length },
                                     { key: 'unlocked', label: 'Terbuka', count: unlockedCount },
@@ -387,7 +387,7 @@ export default function Achievements() {
                                             'rounded-2xl border-2 p-4 transition-all duration-500 cursor-pointer relative overflow-hidden group',
                                             isUnlocked
                                                 ? 'border-amber-300 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:border-amber-700 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-yellow-950/20 hover:shadow-xl hover:shadow-amber-500/25'
-                                                : 'border-slate-200 bg-slate-50/80 dark:border-slate-700 dark:bg-slate-900/50 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg',
+                                                : 'border-slate-200 bg-slate-50/80 dark:border-gray-700 dark:bg-gray-900/50 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-lg',
                                             isHovered && 'scale-[1.02] -translate-y-1'
                                         )}
                                         style={{ 
@@ -439,7 +439,7 @@ export default function Achievements() {
                                                             Unlocked
                                                         </div>
                                                     )}
-                                                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium dark:bg-slate-800 dark:text-slate-400">
+                                                    <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium dark:bg-gray-800 dark:text-slate-400">
                                                         Lv {achievement.level}/{achievement.maxLevel}
                                                     </div>
                                                 </div>
@@ -463,7 +463,7 @@ export default function Achievements() {
                                             </p>
 
                                             {/* Progress Section */}
-                                            <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
+                                            <div className="mt-3 pt-3 border-t border-slate-200/50 dark:border-gray-700/50">
                                                 <div className="flex justify-between text-xs mb-1.5">
                                                     <span className="text-slate-500 truncate max-w-[65%]">{achievement.requirement}</span>
                                                     <span className={cn(
@@ -516,7 +516,7 @@ export default function Achievements() {
 
                 {/* Tips Section */}
                 <div className={cn(
-                    "rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90 transition-all duration-500",
+                    "rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/90 transition-all duration-500",
                     isLoaded ? 'opacity-100' : 'opacity-0'
                 )} style={{ transitionDelay: '300ms' }}>
                     <div className="flex items-center gap-3 mb-5">
@@ -538,7 +538,7 @@ export default function Achievements() {
                         ].map((tip, index) => (
                             <div 
                                 key={index} 
-                                className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-[1.02] cursor-pointer group"
+                                className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all hover:scale-[1.02] cursor-pointer group"
                             >
                                 <div className={cn("p-2 rounded-lg shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-12", tip.color)}>
                                     <tip.icon className="h-4 w-4" />

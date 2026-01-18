@@ -115,7 +115,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
 
                 {/* Overview Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                                 {overview.trend_direction === 'up' ? <TrendingUp className="h-5 w-5" /> : overview.trend_direction === 'down' ? <TrendingDown className="h-5 w-5" /> : <BarChart3 className="h-5 w-5" />}
@@ -127,7 +127,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-400'}`}>
                                 <Flame className="h-5 w-5" />
@@ -139,7 +139,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                                 <Calendar className="h-5 w-5" />
@@ -151,7 +151,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
                                 <Users className="h-5 w-5" />
@@ -166,8 +166,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                 </div>
 
                 {/* Activity Graph */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-5 w-5 text-indigo-600" />
                             <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Tahun {activityGraph.year}</h2>
@@ -242,8 +242,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Weekly Trend */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-5 w-5 text-blue-600" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Minggu Ini</h2>
@@ -268,8 +268,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                     </div>
 
                     {/* Class Comparison */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
                                 <Users className="h-5 w-5 text-purple-600" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Perbandingan dengan Kelas</h2>
@@ -290,8 +290,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                 </div>
 
                 {/* Course Breakdown */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <GraduationCap className="h-5 w-5 text-blue-600" />
                             <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran per Mata Kuliah</h2>
@@ -299,7 +299,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                     </div>
                     <div className="p-4 space-y-4">
                         {courseBreakdown.map(course => (
-                            <div key={course.course_id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            <div key={course.course_id} className="p-4 border border-slate-200 dark:border-gray-700 rounded-xl">
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
                                         <p className="font-medium text-slate-900 dark:text-white">{course.course_name}</p>
@@ -328,8 +328,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Badges */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
                                 <Award className="h-5 w-5 text-yellow-500" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Badge Kamu ({badges.length})</h2>
@@ -339,7 +339,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             {badges.length > 0 ? (
                                 <div className="space-y-3">
                                     {badges.map(badge => (
-                                        <div key={badge.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <div key={badge.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                                             <div className="w-14 h-14 shrink-0">
                                                 {badge.icon ? (
                                                     <img src={`/images/badges/${badge.icon}`} alt={badge.name} className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; if (e.currentTarget.nextElementSibling) (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} />
@@ -368,8 +368,8 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                     </div>
 
                     {/* Tips */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
                                 <Lightbulb className="h-5 w-5 text-yellow-500" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Tips & Saran</h2>

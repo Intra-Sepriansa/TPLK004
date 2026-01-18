@@ -97,7 +97,7 @@ const CHART_COLORS = {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-950">
+        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-black">
             <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
             {payload.map((entry: any, index: number) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
@@ -230,7 +230,7 @@ export default function AttendanceHistory() {
                 {/* Stats & Streak */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <AttendanceStats present={stats.present} absent={stats.absent} late={stats.late} pending={stats.pending} total={stats.total} />
                         </div>
                     </div>
@@ -253,7 +253,7 @@ export default function AttendanceHistory() {
                 {/* Charts */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     {courseChartData.length > 0 && (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center gap-2 mb-4">
                                 <BarChart3 className="h-5 w-5 text-indigo-600" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran per Mata Kuliah</h2>
@@ -273,7 +273,7 @@ export default function AttendanceHistory() {
                         </div>
                     )}
                     {monthlyTrendData.length > 0 && (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center gap-2 mb-4">
                                 <TrendingUp className="h-5 w-5 text-emerald-600" />
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Tren Kehadiran Bulanan</h2>
@@ -295,20 +295,20 @@ export default function AttendanceHistory() {
                 </div>
 
                 {/* Filters */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="relative flex-1 min-w-[200px]">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <Input placeholder="Cari mata kuliah..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
                         </div>
-                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900">
                             <option value="all">Semua Status</option>
                             <option value="present">Hadir</option>
                             <option value="late">Terlambat</option>
                             <option value="absent">Tidak Hadir</option>
                             <option value="pending">Pending</option>
                         </select>
-                        <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900">
+                        <select value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)} className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-gray-700 dark:bg-gray-900">
                             <option value="all">Semua Mata Kuliah</option>
                             {courses.map(course => (<option key={course.id} value={course.id}>{course.name}</option>))}
                         </select>
@@ -317,7 +317,7 @@ export default function AttendanceHistory() {
                                 <X className="h-4 w-4 mr-1" /> Reset
                             </Button>
                         )}
-                        <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 p-1">
+                        <div className="flex rounded-lg border border-slate-200 dark:border-gray-700 p-1">
                             <button onClick={() => setView('list')} className={cn('px-3 py-1.5 rounded-md text-sm transition-colors', view === 'list' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400')}>
                                 <List className="h-4 w-4" />
                             </button>
@@ -327,11 +327,11 @@ export default function AttendanceHistory() {
                         </div>
                     </div>
                     {hasActiveFilters && (
-                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-gray-800">
                             <span className="text-xs text-slate-500">Filter aktif:</span>
-                            {searchQuery && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">"{searchQuery}"</span>}
-                            {statusFilter !== 'all' && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">{statusConfig[statusFilter as keyof typeof statusConfig]?.label}</span>}
-                            {selectedDate && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">{selectedDate.toLocaleDateString('id-ID')}</span>}
+                            {searchQuery && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-gray-800 dark:text-slate-400">"{searchQuery}"</span>}
+                            {statusFilter !== 'all' && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-gray-800 dark:text-slate-400">{statusConfig[statusFilter as keyof typeof statusConfig]?.label}</span>}
+                            {selectedDate && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs text-slate-600 dark:bg-gray-800 dark:text-slate-400">{selectedDate.toLocaleDateString('id-ID')}</span>}
                         </div>
                     )}
                 </div>
@@ -349,14 +349,14 @@ export default function AttendanceHistory() {
                         </div>
                     )}
                     <div className={cn(view === 'list' && 'lg:col-span-2')}>
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                            <div className="p-4 border-b border-slate-100 dark:border-gray-800">
                                 <div className="flex items-center justify-between">
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Kehadiran</h2>
                                     <span className="text-sm text-slate-500">{filteredRecords.length} dari {records.length}</span>
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[600px] overflow-y-auto">
+                            <div className="divide-y divide-slate-100 dark:divide-gray-800 max-h-[600px] overflow-y-auto">
                                 {filteredRecords.length === 0 ? (
                                     <div className="p-12 text-center">
                                         <CalendarIcon className="h-12 w-12 mx-auto text-slate-300" />
@@ -410,7 +410,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
                 <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
                     <X className="h-5 w-5 text-slate-500" />
                 </button>
@@ -435,7 +435,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
                     </div>
 
                     {/* Selfie / Bukti Masuk */}
-                    <div className="rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <div className="rounded-xl overflow-hidden bg-slate-100 dark:bg-gray-800">
                         {record.selfieUrl ? (
                             <div className="relative">
                                 <img src={record.selfieUrl} alt="Bukti selfie" className="w-full h-56 object-cover" />
@@ -458,7 +458,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
 
                     {/* Details */}
                     <div className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800">
                             <CalendarIcon className="h-5 w-5 text-slate-400" />
                             <div>
                                 <p className="text-xs text-slate-500">Tanggal</p>
@@ -468,7 +468,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
                             </div>
                         </div>
                         {record.checkInTime && (
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800">
                                 <Clock className="h-5 w-5 text-slate-400" />
                                 <div>
                                     <p className="text-xs text-slate-500">Waktu Check-in</p>
@@ -477,7 +477,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
                             </div>
                         )}
                         {record.distance !== null && (
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800">
                                 <MapPin className="h-5 w-5 text-slate-400" />
                                 <div>
                                     <p className="text-xs text-slate-500">Jarak dari Lokasi</p>
@@ -493,7 +493,7 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
                         )}
                     </div>
 
-                    <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-gray-800">
                         <Button variant="outline" className="flex-1" onClick={onClose}>Tutup</Button>
                     </div>
                 </div>

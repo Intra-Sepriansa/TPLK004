@@ -168,7 +168,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
 
                 {/* Stats Cards */}
                 <div className={`grid gap-4 grid-cols-2 md:grid-cols-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-lg shadow-slate-500/30 group-hover:scale-110 transition-transform">
                                 <BarChart3 className="h-6 w-6" />
@@ -179,7 +179,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform">
                                 <Clock className="h-6 w-6" />
@@ -190,7 +190,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
                                 <CheckCircle className="h-6 w-6" />
@@ -201,7 +201,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-red-600 text-white shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform">
                                 <XCircle className="h-6 w-6" />
@@ -215,8 +215,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                 </div>
 
                 {/* Permits List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 text-white">
                                 <FileText className="h-4 w-4" />
@@ -242,7 +242,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                                         activeTab === tab.value
                                             ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg shadow-teal-500/30'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-gray-800 dark:text-slate-300'
                                     }`}
                                 >
                                     <tab.icon className="h-4 w-4" />
@@ -266,11 +266,11 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                     return (
                                         <div 
                                             key={permit.id} 
-                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all ${
+                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-gray-900/50 hover:shadow-lg transition-all ${
                                                 permit.status === 'pending' ? 'border-yellow-200 dark:border-yellow-800' :
                                                 permit.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
                                                 permit.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
-                                                'border-slate-200 dark:border-slate-700'
+                                                'border-slate-200 dark:border-gray-700'
                                             }`}
                                             style={{ 
                                                 animationDelay: `${index * 100}ms`,
@@ -302,7 +302,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                                     </p>
                                                     
                                                     {/* Reason */}
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 p-3 bg-slate-50 dark:bg-gray-800/50 rounded-xl">
                                                         {permit.reason}
                                                     </p>
                                                     
@@ -372,7 +372,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
             {/* Form Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 text-white shadow-lg">
@@ -433,7 +433,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             
                             <div className="space-y-2">
                                 <Label className="text-sm font-semibold">Surat Keterangan (Opsional)</Label>
-                                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center hover:border-teal-400 transition-colors">
+                                <div className="border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-xl p-6 text-center hover:border-teal-400 transition-colors">
                                     <Input
                                         type="file"
                                         accept="image/*,.pdf"
@@ -481,7 +481,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
             {/* Image Preview Modal */}
             {previewImage && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Surat Keterangan</h3>
                             <button onClick={() => setPreviewImage(null)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
