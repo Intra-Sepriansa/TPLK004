@@ -84,7 +84,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                    className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                 >
                     <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 py-12 text-center"
+                        className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black py-12 text-center"
                     >
                         <motion.div
                             animate={{ y: [0, -10, 0] }}
@@ -172,7 +172,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.1 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -194,7 +194,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.15 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -216,7 +216,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.2 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -238,7 +238,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.25 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -262,7 +262,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                            className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                         >
                             <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
@@ -334,7 +334,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.1 }}
-                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                             >
                                 <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                                     <div className="flex items-center gap-2">
@@ -386,7 +386,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.15 }}
-                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                             >
                                 <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                                     <div className="flex items-center gap-2">
@@ -436,7 +436,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.2 }}
-                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                                className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                             >
                                 <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                                     <div className="flex items-center gap-2">
