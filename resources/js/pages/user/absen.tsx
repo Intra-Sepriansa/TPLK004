@@ -45,7 +45,8 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
         },
     },
 };
@@ -57,8 +58,21 @@ const itemVariants = {
         y: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 100,
-            damping: 15,
+            stiffness: 400,
+            damping: 17,
+        },
+    },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 20,
         },
     },
 };
@@ -67,36 +81,65 @@ const itemVariants = {
 function StepIndicator({ steps, currentStep }: { steps: { key: string; label: string; done: boolean }[]; currentStep: number }) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
             className="flex items-center justify-between mb-6"
         >
             {steps.map((step, index) => (
                 <div key={step.key} className="flex items-center flex-1">
-                    <div className="flex flex-col items-center">
+                    <motion.div
+                        variants={itemVariants}
+                        className="flex flex-col items-center"
+                    >
                         <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: index * 0.1, type: 'spring' as const }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
                             className={cn(
-                                'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300',
-                                step.done ? 'border-emerald-500 bg-emerald-500 text-white' :
-                                index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950' :
+                                'flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300 shadow-sm',
+                                step.done ? 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-200 dark:shadow-emerald-900/50' :
+                                index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 shadow-emerald-100 dark:shadow-emerald-900/30' :
                                 'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-900'
                             )}
                         >
-                            {step.done ? <CheckCircle2 className="h-5 w-5" /> : <span className="font-semibold">{index + 1}</span>}
+                            {step.done ? (
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                >
+                                    <CheckCircle2 className="h-6 w-6" />
+                                </motion.div>
+                            ) : (
+                                <span className="font-bold text-lg">{index + 1}</span>
+                            )}
                         </motion.div>
-                        <span className={cn(
-                            'mt-2 text-xs font-medium',
-                            step.done ? 'text-emerald-600' : index === currentStep ? 'text-gray-900 dark:text-white' : 'text-gray-400'
-                        )}>{step.label}</span>
-                    </div>
+                        <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: index * 0.1 + 0.2 }}
+                            className={cn(
+                                'mt-2 text-xs font-semibold',
+                                step.done ? 'text-emerald-600 dark:text-emerald-400' : 
+                                index === currentStep ? 'text-gray-900 dark:text-white' : 
+                                'text-gray-400'
+                            )}
+                        >
+                            {step.label}
+                        </motion.span>
+                    </motion.div>
                     {index < steps.length - 1 && (
-                        <div className={cn(
-                            'flex-1 h-0.5 mx-2 transition-all duration-300',
-                            step.done ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'
-                        )} />
+                        <motion.div
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ delay: index * 0.1, duration: 0.3 }}
+                            className="flex-1 mx-2 origin-left"
+                        >
+                            <div className={cn(
+                                'h-1 rounded-full transition-all duration-500',
+                                step.done ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gray-200 dark:bg-gray-700'
+                            )} />
+                        </motion.div>
                     )}
                 </div>
             ))}
@@ -495,67 +538,160 @@ export default function UserAbsensi() {
         <StudentLayout>
             <Head title="Absensi" />
 
-            <div className="p-6 space-y-6">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="p-6 space-y-6"
+            >
                 {/* Success Toast */}
-                {successToast && (
-                    <div className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur animate-in slide-in-from-top-2 dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100">
-                        <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
-                        <div>
-                            <p className="font-semibold">Absensi Berhasil!</p>
-                            <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successToast}</p>
-                        </div>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {successToast && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                            className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-xl backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100"
+                        >
+                            <motion.div
+                                animate={{ rotate: [0, 10, -10, 10, 0] }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
+                            </motion.div>
+                            <div>
+                                <p className="font-semibold">Absensi Berhasil!</p>
+                                <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successToast}</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                <motion.div
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-2xl"
+                >
+                    <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                    />
+                    <motion.div
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                    />
                     
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
-                                    <User className="h-7 w-7" />
-                                </div>
+                                <motion.div
+                                    whileHover={{ rotate: 10, scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                >
+                                    <User className="h-8 w-8" />
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-emerald-100">Selamat datang,</p>
-                                    <h1 className="text-xl font-bold">{mahasiswa.nama}</h1>
-                                    <p className="text-sm text-emerald-100">NIM: {mahasiswa.nim}</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-emerald-100"
+                                    >
+                                        Selamat datang,
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-2xl font-bold"
+                                    >
+                                        {mahasiswa.nama}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-sm text-emerald-100"
+                                    >
+                                        NIM: {mahasiswa.nim}
+                                    </motion.p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5, type: 'spring' }}
+                                whileHover={{ scale: 1.05 }}
+                                className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur shadow-lg"
+                            >
                                 <MapPin className="h-4 w-4" />
-                                <span className="text-sm">Radius {geofence.radius_m}m</span>
-                            </div>
+                                <span className="text-sm font-semibold">Radius {geofence.radius_m}m</span>
+                            </motion.div>
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="mt-6">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mt-6"
+                        >
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm text-emerald-100">Progress Absensi</span>
-                                <span className="text-sm font-semibold">{Math.round(progressPercent)}%</span>
+                                <motion.span
+                                    key={progressPercent}
+                                    initial={{ scale: 1.3, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="text-sm font-bold"
+                                >
+                                    {Math.round(progressPercent)}%
+                                </motion.span>
                             </div>
-                            <Progress value={progressPercent} className="h-2 bg-white/20" indicatorClassName="bg-white" />
-                        </div>
+                            <div className="relative h-3 rounded-full bg-white/20 overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progressPercent}%` }}
+                                    transition={{ duration: 0.8, ease: "easeOut", delay: 0.7 }}
+                                    className="h-full rounded-full bg-white shadow-lg"
+                                />
+                            </div>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Step Indicator */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                <motion.div
+                    variants={cardVariants}
+                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black"
+                >
                     <StepIndicator steps={flowSteps} currentStep={currentStep} />
-                </div>
+                </motion.div>
 
                 {/* Consent Card */}
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                <motion.div
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black"
+                >
                     <div className="flex items-start gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-                            <Shield className="h-5 w-5" />
-                        </div>
+                        <motion.div
+                            whileHover={{ rotate: 10, scale: 1.1 }}
+                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
+                        >
+                            <Shield className="h-6 w-6" />
+                        </motion.div>
                         <div className="flex-1">
                             <h2 className="font-semibold text-gray-900 dark:text-white">Persetujuan Privasi</h2>
                             <p className="text-sm text-gray-500 mt-1">Dengan menggunakan kamera dan lokasi, kamu menyetujui kebijakan privasi.</p>
-                            <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                            <motion.label
+                                whileHover={{ x: 5 }}
+                                className="flex items-center gap-2 mt-3 cursor-pointer"
+                            >
                                 <Checkbox
                                     checked={consentAccepted}
                                     onCheckedChange={(value) => {
@@ -566,77 +702,157 @@ export default function UserAbsensi() {
                                     }}
                                 />
                                 <span className="text-sm text-gray-700 dark:text-gray-300">Setuju penggunaan kamera & lokasi</span>
-                            </label>
-                            {consentError && (
-                                <div className="mt-2 flex items-center gap-2 text-xs text-rose-600">
-                                    <AlertCircle className="h-4 w-4" />
-                                    {consentError}
-                                </div>
-                            )}
+                            </motion.label>
+                            <AnimatePresence>
+                                {consentError && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="mt-2 flex items-center gap-2 text-xs text-rose-600"
+                                    >
+                                        <AlertCircle className="h-4 w-4" />
+                                        {consentError}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Step 1: QR Scanner */}
-                    <div className={cn(
-                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
-                        step1Locked && 'opacity-60 pointer-events-none'
-                    )}>
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={!step1Locked ? { scale: 1.01, y: -2 } : {}}
+                        className={cn(
+                            'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
+                            step1Locked && 'opacity-60 pointer-events-none'
+                        )}
+                    >
                         <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-xl',
-                                    tokenDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'
-                                )}>
-                                    <QrCode className="h-5 w-5" />
-                                </div>
+                                <motion.div
+                                    whileHover={{ rotate: 10, scale: 1.1 }}
+                                    className={cn(
+                                        'flex h-12 w-12 items-center justify-center rounded-xl shadow-sm',
+                                        tokenDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'
+                                    )}
+                                >
+                                    <QrCode className="h-6 w-6" />
+                                </motion.div>
                                 <div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">Scan QR Code</h2>
                                     <p className="text-sm text-gray-500">Scan QR dari admin atau input token manual</p>
                                 </div>
                             </div>
-                            {tokenDone && (
-                                <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                    <CheckCircle2 className="h-3 w-3" /> Selesai
-                                </span>
-                            )}
+                            <AnimatePresence>
+                                {tokenDone && (
+                                    <motion.span
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0, opacity: 0 }}
+                                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                        className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                    >
+                                        <CheckCircle2 className="h-3 w-3" /> Selesai
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {/* QR Scanner */}
-                        <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900">
+                        <motion.div
+                            whileHover={{ scale: 1.01 }}
+                            className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900"
+                        >
                             <video ref={videoRef} className={cn('h-56 w-full object-cover', !scanning && 'hidden')} playsInline />
-                            {!scanning && (
-                                <div className="flex h-56 flex-col items-center justify-center text-gray-400">
-                                    <QrCode className="h-12 w-12 mb-2" />
-                                    <span className="text-sm">Klik tombol untuk scan QR</span>
-                                </div>
-                            )}
+                            <AnimatePresence mode="wait">
+                                {!scanning && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="flex h-56 flex-col items-center justify-center text-gray-400"
+                                    >
+                                        <motion.div
+                                            animate={{ scale: [1, 1.1, 1] }}
+                                            transition={{ duration: 2, repeat: Infinity }}
+                                        >
+                                            <QrCode className="h-12 w-12 mb-2" />
+                                        </motion.div>
+                                        <span className="text-sm">Klik tombol untuk scan QR</span>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                             {scanning && (
                                 <div className="absolute inset-0 pointer-events-none">
-                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-40 w-40 border-2 border-emerald-500 rounded-lg">
-                                        <div className="absolute -top-0.5 -left-0.5 h-4 w-4 border-t-2 border-l-2 border-emerald-500" />
-                                        <div className="absolute -top-0.5 -right-0.5 h-4 w-4 border-t-2 border-r-2 border-emerald-500" />
-                                        <div className="absolute -bottom-0.5 -left-0.5 h-4 w-4 border-b-2 border-l-2 border-emerald-500" />
-                                        <div className="absolute -bottom-0.5 -right-0.5 h-4 w-4 border-b-2 border-r-2 border-emerald-500" />
-                                    </div>
-                                    <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-                                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                                    <motion.div
+                                        animate={{ scale: [1, 1.05, 1] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-40 w-40 border-2 border-emerald-500 rounded-lg"
+                                    >
+                                        <motion.div
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="absolute -top-0.5 -left-0.5 h-4 w-4 border-t-2 border-l-2 border-emerald-500"
+                                        />
+                                        <motion.div
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                                            className="absolute -top-0.5 -right-0.5 h-4 w-4 border-t-2 border-r-2 border-emerald-500"
+                                        />
+                                        <motion.div
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                                            className="absolute -bottom-0.5 -left-0.5 h-4 w-4 border-b-2 border-l-2 border-emerald-500"
+                                        />
+                                        <motion.div
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
+                                            className="absolute -bottom-0.5 -right-0.5 h-4 w-4 border-b-2 border-r-2 border-emerald-500"
+                                        />
+                                    </motion.div>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white shadow-lg"
+                                    >
+                                        <motion.span
+                                            animate={{ scale: [1, 1.2, 1] }}
+                                            transition={{ duration: 1, repeat: Infinity }}
+                                            className="h-2 w-2 rounded-full bg-white"
+                                        />
                                         Scanning...
-                                    </div>
+                                    </motion.div>
                                 </div>
                             )}
-                        </div>
+                        </motion.div>
 
-                        {scanStatus && <p className="mt-2 text-xs text-gray-500">{scanStatus}</p>}
+                        <AnimatePresence>
+                            {scanStatus && (
+                                <motion.p
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="mt-2 text-xs text-gray-500"
+                                >
+                                    {scanStatus}
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
 
                         <div className="mt-4 flex flex-wrap gap-2">
-                            <Button type="button" variant="outline" size="sm" onClick={() => { if (!consentAccepted) { setConsentError('Setujui persetujuan kamera sebelum memulai.'); return; } setScanning((prev) => !prev); }} disabled={!scanAvailable || step1Locked}>
-                                {scanning ? <><Loader2 className="h-4 w-4 animate-spin" /> Stop</> : <><QrCode className="h-4 w-4" /> Scan QR</>}
-                            </Button>
-                            <Button type="button" variant="ghost" size="sm" onClick={() => { stopScan(); setScanning(false); form.setData('token', ''); setScanStatus(''); }} disabled={step1Locked}>
-                                <RefreshCcw className="h-4 w-4" /> Reset
-                            </Button>
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <Button type="button" variant="outline" size="sm" onClick={() => { if (!consentAccepted) { setConsentError('Setujui persetujuan kamera sebelum memulai.'); return; } setScanning((prev) => !prev); }} disabled={!scanAvailable || step1Locked}>
+                                    {scanning ? <><Loader2 className="h-4 w-4 animate-spin" /> Stop</> : <><QrCode className="h-4 w-4" /> Scan QR</>}
+                                </Button>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                <Button type="button" variant="ghost" size="sm" onClick={() => { stopScan(); setScanning(false); form.setData('token', ''); setScanStatus(''); }} disabled={step1Locked}>
+                                    <RefreshCcw className="h-4 w-4" /> Reset
+                                </Button>
+                            </motion.div>
                         </div>
 
                         <div className="mt-4">
@@ -644,7 +860,7 @@ export default function UserAbsensi() {
                             <Input id="token" value={form.data.token} onChange={(e) => form.setData('token', e.target.value)} placeholder="Masukkan token jika tidak bisa scan" className="mt-1" disabled={step1Locked} />
                             <InputError message={form.errors.token} />
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Step 2: Selfie */}
                     <div className={cn(
@@ -924,7 +1140,7 @@ export default function UserAbsensi() {
                         )}
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }
