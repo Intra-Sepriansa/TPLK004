@@ -226,7 +226,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                     ].map((stat, i) => (
                         <div 
                             key={i} 
-                            className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
+                            className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
                             style={{ transitionDelay: `${i * 100}ms` }}
                         >
                             <div className="flex items-center gap-4">
@@ -268,8 +268,8 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 )}
 
                 {/* Tabs & Permits List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
@@ -467,7 +467,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 {rejectDialog.open && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setRejectDialog({ open: false, permitId: null })} />
-                        <div className="relative w-full max-w-md mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="relative w-full max-w-md mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                             <div className="bg-gradient-to-r from-red-500 to-rose-600 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -533,7 +533,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 {previewImage && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setPreviewImage(null)} />
-                        <div className="relative w-full max-w-3xl mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="relative w-full max-w-3xl mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">

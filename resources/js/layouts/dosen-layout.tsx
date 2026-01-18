@@ -29,9 +29,9 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
         <SidebarProvider>
             <DosenSidebar />
             <SidebarInset>
-                <div className="flex min-h-screen flex-col bg-slate-50/50 dark:bg-slate-950">
+                <div className="flex min-h-screen flex-col bg-slate-50/50 dark:bg-black">
                     {/* Mobile Header with Sidebar Trigger */}
-                    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-4 backdrop-blur-sm dark:border-slate-800/60 dark:bg-slate-950/80 md:hidden">
+                    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-4 backdrop-blur-sm dark:border-gray-800/60 dark:bg-black/80 md:hidden">
                         <div className="flex items-center gap-4">
                             <SidebarTrigger className="-ml-1" />
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Panel Dosen</span>
@@ -46,7 +46,7 @@ export default function DosenLayout({ children, breadcrumbs, dosen }: DosenLayou
                         )}
                     </header>
                     {/* Desktop Header */}
-                    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-sm dark:border-slate-800/60 dark:bg-slate-950/80 md:flex">
+                    <header className="sticky top-0 z-40 hidden h-14 items-center justify-between gap-4 border-b border-slate-200/60 bg-white/80 px-6 backdrop-blur-sm dark:border-gray-800/60 dark:bg-black/80 md:flex">
                         <div className="flex items-center gap-4">
                             <SidebarTrigger className="-ml-1" />
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Panel Dosen</span>

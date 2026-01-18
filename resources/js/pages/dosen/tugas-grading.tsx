@@ -171,7 +171,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-gray-900/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Mahasiswa</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Waktu Submit</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Status</th>
@@ -179,7 +179,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                            <tbody className="divide-y divide-slate-200 dark:divide-gray-800">
                                 {submissions.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="px-4 py-12 text-center">
@@ -191,7 +191,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                     submissions.map((submission, index) => (
                                         <tr
                                             key={submission.id}
-                                            className={`hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                            className={`hover:bg-slate-50 dark:hover:bg-gray-900/30 transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
                                             style={{ transitionDelay: `${500 + index * 50}ms` }}
                                         >
                                             <td className="px-4 py-4">
@@ -262,7 +262,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                         </DialogHeader>
                         {selectedSubmission && (
                             <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-lg">
                                             {selectedSubmission.mahasiswa.nama.charAt(0)}
@@ -321,7 +321,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                         </DialogHeader>
                         {selectedSubmission && (
                             <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-lg">
@@ -352,7 +352,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                 {selectedSubmission.content && (
                                     <div>
                                         <Label className="text-slate-600">Jawaban:</Label>
-                                        <div className="mt-2 p-4 rounded-xl bg-white dark:bg-slate-900 border whitespace-pre-wrap">
+                                        <div className="mt-2 p-4 rounded-xl bg-white dark:bg-gray-900 border whitespace-pre-wrap">
                                             {selectedSubmission.content}
                                         </div>
                                     </div>

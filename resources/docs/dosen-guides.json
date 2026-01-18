@@ -138,5 +138,529 @@
         "content": "Session Templates memudahkan Anda membuat banyak sesi sekaligus dengan pola yang sama:\n\n**Keuntungan Menggunakan Templates:**\n• Hemat waktu - buat 14-16 sesi sekaligus\n• Konsisten - semua sesi menggunakan setting yang sama\n• Otomatis - sistem generate jadwal berdasarkan hari yang dipilih\n• Fleksibel - bisa edit individual sesi setelah di-generate\n\n**Cara Membuat Template:**\n1. Buka menu 'Session Templates'\n2. Klik 'Buat Template Baru'\n3. Isi informasi template:\n   • Nama template (contoh: 'Jadwal Reguler Senin')\n   • Mata kuliah\n   • Jam mulai dan selesai default\n   • Hari-hari perkuliahan (bisa pilih multiple)\n   • Auto-activate atau tidak\n4. Simpan template\n\n**Cara Generate Sesi dari Template:**\n1. Pilih template yang sudah dibuat\n2. Klik tombol 'Generate'\n3. Tentukan:\n   • Tanggal mulai semester\n   • Jumlah pertemuan (14 untuk 2 SKS, 16 untuk 3 SKS)\n4. Sistem akan otomatis membuat semua sesi sesuai jadwal\n5. Review dan edit jika perlu (untuk hari libur, dll)\n\n**Tips Menggunakan Templates:**\n• Buat template di awal semester\n• Gunakan nama template yang jelas (include hari dan waktu)\n• Cek kalender akademik untuk skip hari libur\n• Buat template berbeda untuk kelas pagi dan sore\n• Duplikat template untuk semester berikutnya"
       }
     ]
+  },
+  {
+    "id": "attendance-verification",
+    "title": "Verifikasi Kehadiran dengan Selfie",
+    "description": "Panduan lengkap sistem verifikasi kehadiran menggunakan foto selfie untuk mencegah kecurangan dan memastikan kehadiran yang valid",
+    "icon": "Users",
+    "category": "Kehadiran",
+    "estimatedReadTime": 10,
+    "sections": [
+      {
+        "id": "why-selfie",
+        "title": "Mengapa Perlu Verifikasi Selfie?",
+        "type": "text",
+        "content": "Sistem verifikasi selfie adalah fitur keamanan penting untuk memastikan kehadiran yang valid:\n\n**Manfaat Verifikasi Selfie:**\n\n1. **Mencegah Titip Absen**\n   • Mahasiswa harus hadir secara fisik untuk foto\n   • Tidak bisa diwakilkan oleh teman\n   • Foto tersimpan sebagai bukti kehadiran\n   • Sistem deteksi wajah memastikan foto adalah wajah manusia\n\n2. **Validasi Lokasi**\n   • Foto diambil di lokasi perkuliahan\n   • Timestamp dan GPS terekam otomatis\n   • Mencegah absen dari jarak jauh\n   • Radius lokasi dapat dikonfigurasi per sesi\n\n3. **Audit Trail**\n   • Semua foto tersimpan di database dengan enkripsi\n   • Dapat di-review kapan saja\n   • Bukti jika ada dispute atau komplain\n   • Riwayat lengkap dengan metadata\n\n4. **Deteksi Kecurangan**\n   • Sistem dapat mendeteksi foto yang sama digunakan berulang\n   • Alert jika ada pola mencurigakan\n   • Perbandingan dengan foto profil mahasiswa\n   • Machine learning untuk deteksi anomali"
+      },
+      {
+        "id": "review-selfies",
+        "title": "Mereview Foto Selfie Mahasiswa",
+        "type": "steps",
+        "content": "Sebagai dosen, Anda dapat mereview semua foto selfie untuk verifikasi:",
+        "steps": [
+          {
+            "title": "Akses Menu Verifikasi",
+            "description": "Klik menu 'Verifikasi' di sidebar. Anda akan melihat daftar semua sesi dengan foto selfie yang perlu direview. Dashboard menampilkan:\n• Jumlah foto yang perlu direview\n• Foto yang sudah diverifikasi\n• Foto yang ditandai mencurigakan\n• Filter berdasarkan mata kuliah dan tanggal"
+          },
+          {
+            "title": "Pilih Sesi untuk Review",
+            "description": "Pilih mata kuliah dan sesi yang ingin direview. Sistem akan menampilkan grid foto semua mahasiswa yang sudah absen dengan informasi:\n• Thumbnail foto selfie\n• Nama dan NIM mahasiswa\n• Waktu absen\n• Status verifikasi (Pending/Verified/Flagged)\n• Indikator kualitas foto (Good/Fair/Poor)"
+          },
+          {
+            "title": "Review Foto Satu Per Satu",
+            "description": "Klik foto untuk melihat detail lengkap:\n• Foto selfie ukuran penuh\n• Foto profil mahasiswa untuk perbandingan\n• Nama lengkap dan NIM\n• Waktu absen dengan presisi detik\n• Lokasi GPS dengan peta\n• Jarak dari lokasi sesi\n• Device info (model HP, browser)\n• IP address\n• Riwayat absen mahasiswa"
+          },
+          {
+            "title": "Verifikasi atau Tandai Foto",
+            "description": "Setelah review, Anda dapat:\n• Klik tombol 'Verifikasi' jika foto valid\n• Klik 'Tandai Mencurigakan' jika ada indikasi kecurangan\n• Tambahkan catatan untuk foto yang ditandai\n• Batalkan kehadiran jika terbukti curang\n• Export data untuk investigasi lebih lanjut"
+          },
+          {
+            "title": "Bulk Verification",
+            "description": "Untuk efisiensi, gunakan fitur bulk verification:\n• Centang multiple foto sekaligus\n• Klik 'Verifikasi Semua' untuk foto yang jelas valid\n• Filter hanya foto yang perlu perhatian khusus\n• Sistem AI dapat auto-verify foto dengan confidence tinggi"
+          }
+        ]
+      },
+      {
+        "id": "fraud-detection",
+        "title": "Sistem Deteksi Kecurangan",
+        "type": "text",
+        "content": "Sistem dilengkapi dengan berbagai mekanisme deteksi kecurangan otomatis:\n\n**1. Deteksi Foto Duplikat**\n• Sistem membandingkan hash foto untuk deteksi duplikasi\n• Alert jika mahasiswa menggunakan foto yang sama berulang kali\n• Perbandingan dengan foto dari sesi sebelumnya\n\n**2. Deteksi Lokasi Abnormal**\n• Alert jika lokasi GPS jauh dari lokasi sesi\n• Tracking pergerakan mahasiswa (tidak mungkin pindah lokasi terlalu cepat)\n• Deteksi GPS spoofing\n\n**3. Deteksi Waktu Abnormal**\n• Alert jika absen di luar jam yang wajar\n• Deteksi pola absen yang tidak natural\n• Perbandingan dengan jadwal mahasiswa\n\n**4. Face Recognition (Opsional)**\n• Jika diaktifkan, sistem membandingkan dengan foto profil\n• Confidence score untuk kesamaan wajah\n• Alert jika confidence rendah\n\n**5. Device Fingerprinting**\n• Tracking device yang digunakan mahasiswa\n• Alert jika device berubah-ubah\n• Deteksi multiple account dari device yang sama"
+      },
+      {
+        "id": "verification-tips",
+        "title": "Tips Verifikasi Efektif",
+        "type": "text",
+        "content": "**Best Practices untuk Verifikasi:**\n\n1. **Review Berkala**\n   • Lakukan review minimal 1x seminggu\n   • Jangan menumpuk terlalu banyak foto\n   • Prioritaskan foto yang ditandai sistem\n\n2. **Fokus pada Pola**\n   • Perhatikan mahasiswa dengan pola mencurigakan\n   • Cek mahasiswa yang sering terlambat\n   • Review mahasiswa dengan kehadiran rendah\n\n3. **Gunakan Filter**\n   • Filter berdasarkan status verifikasi\n   • Filter berdasarkan kualitas foto\n   • Filter berdasarkan confidence score\n\n4. **Dokumentasi**\n   • Catat mahasiswa yang sering bermasalah\n   • Simpan screenshot untuk bukti\n   • Buat laporan untuk administrasi\n\n5. **Komunikasi**\n   • Hubungi mahasiswa jika ada kejanggalan\n   • Berikan warning sebelum sanksi\n   • Jelaskan konsekuensi kecurangan\n\n6. **Konsistensi**\n   • Terapkan standar yang sama untuk semua mahasiswa\n   • Dokumentasikan kebijakan verifikasi\n   • Sosialisasikan ke mahasiswa di awal semester"
+      },
+      {
+        "id": "troubleshooting",
+        "title": "Troubleshooting Masalah Verifikasi",
+        "type": "faq",
+        "content": "Solusi untuk masalah umum dalam verifikasi:",
+        "faqs": [
+          {
+            "question": "Foto mahasiswa blur atau gelap, bagaimana?",
+            "answer": "Jika foto tidak jelas:\n• Minta mahasiswa upload ulang dengan pencahayaan lebih baik\n• Gunakan fitur 'Request Re-upload' di sistem\n• Berikan panduan foto yang baik ke mahasiswa\n• Jika berulang, beri sanksi poin kehadiran"
+          },
+          {
+            "question": "GPS mahasiswa tidak akurat, apa solusinya?",
+            "answer": "Untuk masalah GPS:\n• Cek apakah mahasiswa mengaktifkan GPS\n• Beberapa gedung memiliki sinyal GPS lemah\n• Pertimbangkan memperlebar radius lokasi\n• Gunakan WiFi fingerprinting sebagai alternatif\n• Verifikasi manual jika mahasiswa memang hadir"
+          },
+          {
+            "question": "Sistem menandai foto valid sebagai mencurigakan?",
+            "answer": "False positive bisa terjadi:\n• Review manual dan override keputusan sistem\n• Adjust sensitivity setting jika terlalu ketat\n• Whitelist mahasiswa yang sering false positive\n• Report ke admin untuk improve algoritma"
+          },
+          {
+            "question": "Bagaimana menangani mahasiswa yang komplain?",
+            "answer": "Prosedur handling komplain:\n• Dengarkan penjelasan mahasiswa\n• Cek data lengkap (foto, GPS, timestamp)\n• Bandingkan dengan data sesi lain\n• Jika valid, approve manual\n• Jika tidak valid, jelaskan alasan penolakan\n• Dokumentasikan kasus untuk referensi"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "grading-system",
+    "title": "Sistem Penilaian Kehadiran Otomatis",
+    "description": "Panduan lengkap sistem penilaian kehadiran otomatis, kalkulasi nilai, dan penentuan kelayakan UAS",
+    "icon": "Award",
+    "category": "Penilaian",
+    "estimatedReadTime": 15,
+    "sections": [
+      {
+        "id": "grading-overview",
+        "title": "Pengenalan Sistem Penilaian",
+        "type": "text",
+        "content": "Sistem penilaian kehadiran otomatis menghitung nilai berdasarkan data kehadiran mahasiswa dengan algoritma yang adil dan transparan:\n\n**Komponen Penilaian:**\n\n1. **Persentase Kehadiran**\n   • Hadir tepat waktu = 100 poin\n   • Terlambat (< 15 menit) = 75 poin\n   • Izin dengan surat = 50 poin\n   • Sakit dengan surat dokter = 50 poin\n   • Tidak hadir tanpa keterangan = 0 poin\n\n2. **Grade Letter (A-E)**\n   • A: 85-100 (Excellent)\n   • B: 70-84 (Good)\n   • C: 60-69 (Satisfactory)\n   • D: 50-59 (Poor)\n   • E: < 50 (Fail)\n\n3. **Kelayakan UAS**\n   • Minimal 75% kehadiran untuk ikut UAS\n   • Di bawah 75% = tidak boleh UAS\n   • Izin dan sakit dihitung sebagai kehadiran\n   • Sistem otomatis menandai mahasiswa tidak layak UAS"
+      },
+      {
+        "id": "how-grading-works",
+        "title": "Cara Kerja Sistem Penilaian",
+        "type": "steps",
+        "content": "Sistem menghitung nilai kehadiran secara otomatis dengan langkah-langkah berikut:",
+        "steps": [
+          {
+            "title": "Pengumpulan Data Kehadiran",
+            "description": "Sistem mengumpulkan semua data kehadiran mahasiswa dari setiap sesi:\n• Status kehadiran (Hadir/Terlambat/Izin/Sakit/Tidak Hadir)\n• Waktu absen\n• Foto selfie untuk verifikasi\n• Lokasi GPS\n• Catatan tambahan dari dosen"
+          },
+          {
+            "title": "Kalkulasi Poin per Sesi",
+            "description": "Setiap sesi diberi poin berdasarkan status:\n• Hadir = 100 poin (bobot penuh)\n• Terlambat = 75 poin (pengurangan 25%)\n• Izin/Sakit = 50 poin (bobot setengah)\n• Tidak hadir = 0 poin\n\nContoh: Jika ada 14 pertemuan, total poin maksimal = 1400"
+          },
+          {
+            "title": "Perhitungan Persentase",
+            "description": "Persentase kehadiran dihitung dengan rumus:\n\nPersentase = (Total Poin Diperoleh / Total Poin Maksimal) × 100%\n\nContoh:\n• Hadir 10x = 1000 poin\n• Terlambat 2x = 150 poin\n• Izin 1x = 50 poin\n• Tidak hadir 1x = 0 poin\n• Total = 1200 / 1400 = 85.7%"
+          },
+          {
+            "title": "Konversi ke Grade Letter",
+            "description": "Persentase dikonversi ke grade letter:\n• 85.7% = Grade A (Excellent)\n• Sistem otomatis assign grade\n• Grade tampil di dashboard mahasiswa\n• Dosen dapat override jika ada kasus khusus"
+          },
+          {
+            "title": "Penentuan Kelayakan UAS",
+            "description": "Sistem otomatis cek kelayakan UAS:\n• Jika persentase ≥ 75% = Layak UAS\n• Jika persentase < 75% = Tidak Layak UAS\n• Mahasiswa tidak layak UAS mendapat notifikasi\n• Dosen dapat memberikan dispensasi khusus"
+          }
+        ]
+      },
+      {
+        "id": "using-grading-page",
+        "title": "Menggunakan Halaman Penilaian",
+        "type": "text",
+        "content": "Halaman Penilaian menyediakan interface lengkap untuk mengelola nilai kehadiran:\n\n**Fitur Utama:**\n\n1. **Dashboard Statistik**\n   • Total mahasiswa\n   • Rata-rata kehadiran kelas\n   • Jumlah mahasiswa berisiko (< 75%)\n   • Jumlah mahasiswa tidak layak UAS\n   • Grafik distribusi grade\n\n2. **Tabel Penilaian**\n   • Daftar semua mahasiswa dengan nilai\n   • Kolom: Nama, NIM, Kehadiran, Grade, Status UAS\n   • Sortable dan filterable\n   • Search mahasiswa\n   • Color coding untuk status (hijau/kuning/merah)\n\n3. **Detail Mahasiswa**\n   • Klik nama mahasiswa untuk detail lengkap\n   • Riwayat kehadiran per sesi\n   • Breakdown poin\n   • Grafik tren kehadiran\n   • Catatan dan warning\n\n4. **Bulk Actions**\n   • Export nilai ke Excel/PDF\n   • Send notifikasi ke mahasiswa berisiko\n   • Generate laporan untuk administrasi\n   • Print daftar nilai\n\n5. **Manual Override**\n   • Adjust nilai untuk kasus khusus\n   • Tambahkan bonus poin\n   • Override status UAS\n   • Catat alasan perubahan"
+      },
+      {
+        "id": "grade-adjustment",
+        "title": "Penyesuaian Nilai Manual",
+        "type": "steps",
+        "content": "Dalam kasus tertentu, dosen dapat melakukan penyesuaian nilai manual:",
+        "steps": [
+          {
+            "title": "Identifikasi Kasus Khusus",
+            "description": "Kasus yang memerlukan penyesuaian:\n• Mahasiswa sakit berkepanjangan dengan surat dokter\n• Tugas kampus resmi (lomba, seminar, dll)\n• Force majeure (bencana, kecelakaan)\n• Error sistem yang merugikan mahasiswa\n• Mahasiswa berprestasi dengan kontribusi khusus"
+          },
+          {
+            "title": "Akses Detail Mahasiswa",
+            "description": "Dari tabel penilaian:\n• Klik nama mahasiswa\n• Pilih tab 'Adjustment'\n• Sistem menampilkan nilai saat ini dan riwayat adjustment"
+          },
+          {
+            "title": "Lakukan Penyesuaian",
+            "description": "Pilih jenis adjustment:\n• Add Bonus Points: Tambah poin langsung\n• Change Session Status: Ubah status sesi tertentu\n• Override Grade: Ubah grade manual\n• Override UAS Eligibility: Ubah kelayakan UAS\n\nMasukkan nilai adjustment dan alasan lengkap"
+          },
+          {
+            "title": "Review dan Konfirmasi",
+            "description": "Sebelum save:\n• Review perubahan nilai\n• Cek impact ke grade dan status UAS\n• Pastikan alasan tercatat dengan jelas\n• Klik 'Save Adjustment'"
+          },
+          {
+            "title": "Notifikasi Mahasiswa",
+            "description": "Setelah adjustment:\n• Sistem otomatis kirim notifikasi ke mahasiswa\n• Mahasiswa dapat lihat perubahan di dashboard\n• Riwayat adjustment tersimpan untuk audit\n• Dosen dapat add catatan tambahan"
+          }
+        ]
+      },
+      {
+        "id": "grading-reports",
+        "title": "Laporan dan Export Nilai",
+        "type": "text",
+        "content": "Sistem menyediakan berbagai format laporan untuk kebutuhan administrasi:\n\n**Jenis Laporan:**\n\n1. **Laporan Nilai Akhir**\n   • Daftar lengkap mahasiswa dengan nilai\n   • Format: Excel, PDF, CSV\n   • Include: Nama, NIM, Persentase, Grade, Status UAS\n   • Dapat difilter per mata kuliah\n   • Dengan tanda tangan digital dosen\n\n2. **Laporan Mahasiswa Berisiko**\n   • Daftar mahasiswa dengan kehadiran < 75%\n   • Rekomendasi tindakan\n   • Riwayat komunikasi dengan mahasiswa\n   • Progress improvement\n\n3. **Laporan Distribusi Grade**\n   • Grafik distribusi A, B, C, D, E\n   • Perbandingan dengan semester sebelumnya\n   • Analisis statistik (mean, median, std dev)\n   • Benchmark dengan kelas lain\n\n4. **Laporan Detail per Mahasiswa**\n   • Riwayat kehadiran lengkap\n   • Breakdown poin per sesi\n   • Grafik tren\n   • Catatan dan adjustment\n   • Foto selfie untuk verifikasi\n\n5. **Laporan Audit**\n   • Semua perubahan nilai\n   • Riwayat adjustment\n   • User yang melakukan perubahan\n   • Timestamp dan alasan\n   • Untuk compliance dan audit"
+      },
+      {
+        "id": "grading-tips",
+        "title": "Tips Penilaian Efektif",
+        "type": "text",
+        "content": "**Best Practices untuk Penilaian:**\n\n1. **Transparansi**\n   • Jelaskan sistem penilaian di awal semester\n   • Berikan syllabus dengan breakdown nilai\n   • Update nilai secara berkala\n   • Mahasiswa dapat cek nilai real-time\n\n2. **Konsistensi**\n   • Terapkan aturan yang sama untuk semua\n   • Dokumentasikan semua adjustment\n   • Jangan diskriminatif\n   • Fair dan objektif\n\n3. **Komunikasi Proaktif**\n   • Kirim warning ke mahasiswa berisiko\n   • Follow up mahasiswa dengan kehadiran rendah\n   • Berikan kesempatan perbaikan\n   • Dokumentasikan semua komunikasi\n\n4. **Review Berkala**\n   • Cek nilai setiap 2 minggu\n   • Identifikasi tren negatif early\n   • Intervensi sebelum terlambat\n   • Update mahasiswa tentang progress\n\n5. **Dokumentasi**\n   • Simpan semua bukti (foto, surat izin)\n   • Catat semua adjustment dengan alasan\n   • Backup data secara berkala\n   • Siapkan untuk audit atau komplain\n\n6. **Fleksibilitas dengan Prinsip**\n   • Pertimbangkan kasus khusus\n   • Tapi tetap adil untuk semua\n   • Jangan terlalu rigid atau terlalu longgar\n   • Balance antara empati dan standar"
+      },
+      {
+        "id": "grading-faq",
+        "title": "FAQ Penilaian",
+        "type": "faq",
+        "content": "Pertanyaan umum tentang sistem penilaian:",
+        "faqs": [
+          {
+            "question": "Bagaimana jika mahasiswa sakit berkepanjangan?",
+            "answer": "Untuk sakit berkepanjangan:\n• Minta surat dokter resmi\n• Verifikasi dengan rumah sakit jika perlu\n• Berikan dispensasi untuk sesi yang terlewat\n• Ubah status sesi menjadi 'Sakit' (50 poin)\n• Jika sangat parah, pertimbangkan cuti akademik\n• Dokumentasikan semua surat dan komunikasi"
+          },
+          {
+            "question": "Apakah izin dan sakit dihitung sebagai kehadiran?",
+            "answer": "Ya, dengan catatan:\n• Izin/sakit dengan surat resmi = 50 poin\n• Dihitung dalam total kehadiran untuk kelayakan UAS\n• Tapi nilai poin lebih rendah dari hadir (100 poin)\n• Jadi persentase akhir akan lebih rendah\n• Contoh: 10 hadir + 4 izin = 1200/1400 = 85.7%"
+          },
+          {
+            "question": "Bagaimana menangani mahasiswa yang komplain nilai?",
+            "answer": "Prosedur handling komplain:\n1. Dengarkan komplain dengan baik\n2. Cek data kehadiran lengkap\n3. Tunjukkan breakdown poin per sesi\n4. Jelaskan rumus kalkulasi\n5. Jika ada error sistem, perbaiki segera\n6. Jika tidak ada error, jelaskan dengan data\n7. Dokumentasikan komplain dan resolusi\n8. Jika perlu, escalate ke koordinator"
+          },
+          {
+            "question": "Bisakah mahasiswa improve nilai di akhir semester?",
+            "answer": "Opsi untuk improvement:\n• Tidak bisa mengubah kehadiran yang sudah lewat\n• Tapi bisa berikan tugas kompensasi (jika ada kebijakan)\n• Atau berikan bonus poin untuk kontribusi khusus\n• Atau adjust beberapa sesi dengan alasan valid\n• Pastikan fair untuk semua mahasiswa\n• Dokumentasikan semua adjustment"
+          },
+          {
+            "question": "Bagaimana jika sistem salah hitung nilai?",
+            "answer": "Jika ada error sistem:\n• Segera report ke admin/IT\n• Screenshot bukti error\n• Jangan ubah data manual dulu\n• Tunggu fix dari IT\n• Setelah fix, verify semua nilai\n• Notifikasi mahasiswa yang terdampak\n• Berikan grace period jika perlu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "class-insights",
+    "title": "Analisis Class Insights",
+    "description": "Panduan menggunakan fitur Class Insights untuk analisis mendalam performa kelas dan identifikasi mahasiswa berisiko",
+    "icon": "BarChart3",
+    "category": "Analitik",
+    "estimatedReadTime": 12,
+    "sections": [
+      {
+        "id": "insights-overview",
+        "title": "Pengenalan Class Insights",
+        "type": "text",
+        "content": "Class Insights menyediakan analisis mendalam tentang performa kelas Anda dengan visualisasi data yang interaktif dan actionable insights:\n\n**Fitur Utama:**\n\n1. **Dashboard Analitik**\n   • Grafik tren kehadiran per pertemuan\n   • Heatmap kehadiran per hari/jam\n   • Distribusi grade real-time\n   • Perbandingan antar mata kuliah\n   • Prediksi kehadiran akhir semester\n\n2. **Identifikasi Mahasiswa Berisiko**\n   • Auto-detect mahasiswa dengan kehadiran < 75%\n   • Alert untuk pola kehadiran menurun\n   • Risk score berdasarkan multiple faktor\n   • Rekomendasi intervensi\n\n3. **Top Performers**\n   • Ranking mahasiswa dengan kehadiran terbaik\n   • Mahasiswa dengan improvement tertinggi\n   • Consistency score\n   • Badge dan achievement\n\n4. **Frequently Late Students**\n   • Daftar mahasiswa yang sering terlambat\n   • Pola keterlambatan (hari, jam)\n   • Impact ke nilai\n   • Rekomendasi tindakan\n\n5. **Perbandingan Antar Kelas**\n   • Benchmark dengan kelas lain\n   • Perbandingan dengan semester sebelumnya\n   • Identifikasi best practices\n   • Analisis faktor yang mempengaruhi kehadiran"
+      },
+      {
+        "id": "using-insights",
+        "title": "Menggunakan Class Insights",
+        "type": "steps",
+        "content": "Langkah-langkah menggunakan Class Insights untuk analisis kelas:",
+        "steps": [
+          {
+            "title": "Akses Class Insights",
+            "description": "Klik menu 'Class Insights' di sidebar. Dashboard akan menampilkan overview semua mata kuliah yang Anda ampu dengan metrics utama:\n• Total mahasiswa\n• Rata-rata kehadiran\n• Jumlah mahasiswa berisiko\n• Tren kehadiran 4 minggu terakhir"
+          },
+          {
+            "title": "Pilih Mata Kuliah",
+            "description": "Pilih mata kuliah yang ingin dianalisis dari dropdown. Sistem akan load data lengkap untuk mata kuliah tersebut:\n• Grafik tren kehadiran per pertemuan\n• Distribusi grade saat ini\n• Daftar mahasiswa dengan berbagai kategori\n• Statistik detail"
+          },
+          {
+            "title": "Analisis Tren Kehadiran",
+            "description": "Grafik line chart menampilkan tren kehadiran:\n• Sumbu X: Pertemuan ke-1 sampai terakhir\n• Sumbu Y: Persentase kehadiran\n• Hover untuk detail per pertemuan\n• Identifikasi pertemuan dengan kehadiran rendah\n• Analisis penyebab (hari libur, cuaca, dll)"
+          },
+          {
+            "title": "Review Mahasiswa Berisiko",
+            "description": "Section 'At Risk Students' menampilkan:\n• Daftar mahasiswa dengan kehadiran < 75%\n• Current attendance percentage\n• Jumlah sesi tersisa\n• Minimum kehadiran yang dibutuhkan\n• Quick action: Send warning, Schedule meeting\n• Klik nama untuk detail lengkap"
+          },
+          {
+            "title": "Cek Top Performers",
+            "description": "Section 'Top Performers' menampilkan:\n• Top 10 mahasiswa dengan kehadiran terbaik\n• Ranking dengan badge (Gold, Silver, Bronze)\n• Consistency score\n• Streak (berapa kali hadir berturut-turut)\n• Option untuk give recognition/reward"
+          },
+          {
+            "title": "Analisis Frequently Late",
+            "description": "Section 'Frequently Late' menampilkan:\n• Mahasiswa yang sering terlambat\n• Jumlah keterlambatan\n• Pola keterlambatan (hari apa saja)\n• Impact ke nilai (poin yang hilang)\n• Rekomendasi: counseling, warning"
+          },
+          {
+            "title": "Perbandingan Kelas",
+            "description": "Section 'Class Comparison' menampilkan:\n• Bar chart perbandingan rata-rata kehadiran\n• Ranking kelas Anda vs kelas lain\n• Benchmark dengan semester sebelumnya\n• Identifikasi kelas dengan performa terbaik\n• Learn from best practices"
+          },
+          {
+            "title": "Export dan Share Insights",
+            "description": "Gunakan tombol export untuk:\n• Download report PDF lengkap\n• Export data ke Excel untuk analisis lanjut\n• Share insights dengan koordinator\n• Print untuk meeting atau presentasi"
+          }
+        ]
+      },
+      {
+        "id": "interpreting-data",
+        "title": "Menginterpretasi Data Analitik",
+        "type": "text",
+        "content": "Panduan membaca dan menginterpretasi data di Class Insights:\n\n**1. Tren Kehadiran**\n\n• **Tren Menurun**: Jika grafik menunjukkan penurunan konsisten, ini indikasi masalah. Kemungkinan penyebab:\n  - Materi terlalu sulit\n  - Metode pengajaran kurang engaging\n  - Jadwal tidak ideal (terlalu pagi/sore)\n  - Faktor eksternal (cuaca, transportasi)\n\n• **Tren Meningkat**: Indikasi positif. Kemungkinan:\n  - Mahasiswa mulai adapt dengan materi\n  - Metode pengajaran efektif\n  - Awareness tentang pentingnya kehadiran meningkat\n\n• **Fluktuatif**: Naik-turun tidak konsisten. Kemungkinan:\n  - Pengaruh hari (Senin rendah, Rabu tinggi)\n  - Pengaruh event kampus\n  - Belum ada pola yang stabil\n\n**2. Distribusi Grade**\n\n• **Normal Distribution (Bell Curve)**: Ideal, mayoritas di B-C\n• **Skewed Right**: Banyak grade tinggi, bisa jadi:\n  - Kelas sangat engaged\n  - Atau standar terlalu mudah\n• **Skewed Left**: Banyak grade rendah, perlu intervensi:\n  - Review metode pengajaran\n  - Berikan support tambahan\n  - Adjust ekspektasi jika terlalu tinggi\n\n**3. Risk Score**\n\nSistem menghitung risk score berdasarkan:\n• Current attendance percentage (40%)\n• Trend direction (30%)\n• Consistency (20%)\n• Late frequency (10%)\n\nRisk Level:\n• High (80-100): Urgent intervention needed\n• Medium (50-79): Monitor closely\n• Low (0-49): On track\n\n**4. Consistency Score**\n\nMengukur seberapa konsisten mahasiswa hadir:\n• 90-100: Very consistent\n• 70-89: Fairly consistent\n• 50-69: Inconsistent\n• < 50: Very inconsistent\n\nMahasiswa dengan attendance tinggi tapi consistency rendah perlu perhatian khusus."
+      },
+      {
+        "id": "actionable-insights",
+        "title": "Mengambil Tindakan Berdasarkan Insights",
+        "type": "steps",
+        "content": "Cara menggunakan insights untuk improve performa kelas:",
+        "steps": [
+          {
+            "title": "Identifikasi Masalah Utama",
+            "description": "Dari dashboard, identifikasi:\n• Apakah masalah di level kelas (overall attendance rendah)?\n• Atau di level individual (beberapa mahasiswa berisiko)?\n• Apakah ada pola tertentu (hari, waktu, pertemuan)?\n• Bandingkan dengan kelas lain untuk context"
+          },
+          {
+            "title": "Prioritaskan Intervensi",
+            "description": "Fokus pada:\n1. High risk students (< 60% attendance)\n2. Students dengan trend menurun tajam\n3. Frequently late yang bisa jadi absent\n4. Kelas dengan overall attendance < 75%\n\nGunakan risk score untuk prioritas"
+          },
+          {
+            "title": "Lakukan Intervensi Personal",
+            "description": "Untuk mahasiswa berisiko:\n• Send personal message via chat\n• Schedule one-on-one meeting\n• Tanyakan kendala yang dihadapi\n• Tawarkan support atau flexibility\n• Set clear expectations dan consequences\n• Follow up secara berkala"
+          },
+          {
+            "title": "Intervensi di Level Kelas",
+            "description": "Jika masalah di level kelas:\n• Announce di kelas tentang pentingnya kehadiran\n• Review metode pengajaran\n• Buat kelas lebih engaging (diskusi, quiz, games)\n• Adjust jadwal jika memungkinkan\n• Berikan incentive untuk kehadiran baik\n• Collect feedback dari mahasiswa"
+          },
+          {
+            "title": "Monitor Progress",
+            "description": "Setelah intervensi:\n• Cek Class Insights setiap minggu\n• Track apakah ada improvement\n• Adjust strategi jika belum efektif\n• Dokumentasikan what works\n• Share best practices dengan dosen lain"
+          },
+          {
+            "title": "Recognize Good Performance",
+            "description": "Jangan lupa appreciate top performers:\n• Give public recognition di kelas\n• Send appreciation message\n• Berikan certificate atau badge\n• Recommend untuk beasiswa/program\n• Motivasi mahasiswa lain untuk follow"
+          }
+        ]
+      },
+      {
+        "id": "advanced-analytics",
+        "title": "Fitur Analitik Lanjutan",
+        "type": "text",
+        "content": "Class Insights menyediakan fitur analitik advanced untuk deep dive:\n\n**1. Predictive Analytics**\n• Prediksi kehadiran akhir semester berdasarkan tren saat ini\n• Probability mahasiswa tidak layak UAS\n• Recommended actions untuk prevent failure\n• What-if scenarios (jika mahasiswa hadir X kali lagi)\n\n**2. Correlation Analysis**\n• Korelasi antara kehadiran dan nilai UTS/UAS\n• Korelasi antara hari/jam dan kehadiran\n• Korelasi antara cuaca dan kehadiran\n• Identifikasi faktor yang paling berpengaruh\n\n**3. Cohort Analysis**\n• Perbandingan performa antar angkatan\n• Identifikasi cohort dengan performa terbaik/terburuk\n• Analisis faktor yang membedakan\n• Benchmark untuk improvement\n\n**4. Time Series Analysis**\n• Analisis pola kehadiran sepanjang semester\n• Identifikasi seasonality (awal semester vs akhir)\n• Forecast untuk pertemuan berikutnya\n• Alert untuk anomali\n\n**5. Sentiment Analysis (jika ada feedback)**\n• Analisis feedback mahasiswa tentang kelas\n• Korelasi antara sentiment dan kehadiran\n• Identifikasi pain points\n• Rekomendasi improvement\n\n**6. Network Analysis**\n• Identifikasi kelompok mahasiswa (siapa sering absent bareng)\n• Pengaruh peer terhadap kehadiran\n• Identifikasi influencer positif/negatif\n• Strategi untuk leverage positive influence"
+      },
+      {
+        "id": "insights-tips",
+        "title": "Tips Menggunakan Class Insights",
+        "type": "text",
+        "content": "**Best Practices:**\n\n1. **Review Berkala**\n   • Cek insights minimal 1x seminggu\n   • Jangan tunggu sampai akhir semester\n   • Early detection = easier intervention\n\n2. **Data-Driven Decisions**\n   • Jangan assume, lihat data\n   • Gunakan insights untuk justify decisions\n   • Track impact dari setiap intervensi\n\n3. **Combine Quantitative & Qualitative**\n   • Data memberikan what, tapi tidak why\n   • Combine dengan feedback mahasiswa\n   • Talk to students untuk understand context\n\n4. **Share Insights**\n   • Diskusikan dengan dosen lain\n   • Share best practices\n   • Learn from each other\n   • Collaborate untuk improve\n\n5. **Set Benchmarks**\n   • Set target kehadiran untuk kelas\n   • Track progress towards target\n   • Celebrate when target achieved\n   • Adjust target jika terlalu mudah/sulit\n\n6. **Use for Continuous Improvement**\n   • Reflect on what works and what doesn't\n   • Iterate teaching methods\n   • Experiment dengan different approaches\n   • Measure impact dengan data\n\n7. **Privacy & Ethics**\n   • Jaga privasi data mahasiswa\n   • Jangan share data personal\n   • Gunakan data untuk help, bukan punish\n   • Be transparent dengan mahasiswa"
+      },
+      {
+        "id": "insights-faq",
+        "title": "FAQ Class Insights",
+        "type": "faq",
+        "content": "Pertanyaan umum tentang Class Insights:",
+        "faqs": [
+          {
+            "question": "Seberapa sering data di-update?",
+            "answer": "Data di-update real-time setiap ada kehadiran baru. Grafik dan statistik akan otomatis refresh. Untuk performa, beberapa metrics di-cache dan update setiap 15 menit. Anda bisa klik tombol 'Refresh' untuk force update."
+          },
+          {
+            "question": "Bagaimana sistem menghitung risk score?",
+            "answer": "Risk score dihitung dengan weighted formula:\n• Current attendance (40%): Semakin rendah, semakin tinggi risk\n• Trend (30%): Trend menurun = higher risk\n• Consistency (20%): Inconsistent = higher risk\n• Late frequency (10%): Sering terlambat = higher risk\n\nScore 0-100, dengan 80+ = high risk"
+          },
+          {
+            "question": "Bisakah saya export data untuk analisis sendiri?",
+            "answer": "Ya, Anda bisa export:\n• Raw data ke CSV/Excel\n• Report lengkap ke PDF\n• Grafik ke PNG/SVG\n• Pilih data yang ingin di-export\n• Gunakan tools seperti Excel, Python, R untuk analisis lanjut"
+          },
+          {
+            "question": "Bagaimana cara membandingkan dengan semester lalu?",
+            "answer": "Gunakan fitur 'Historical Comparison':\n• Pilih semester yang ingin dibandingkan\n• Sistem akan overlay grafik\n• Lihat perbedaan metrics\n• Identifikasi improvement atau decline\n• Analisis faktor yang berbeda"
+          },
+          {
+            "question": "Apakah mahasiswa bisa lihat insights ini?",
+            "answer": "Mahasiswa punya dashboard sendiri dengan:\n• Personal attendance stats\n• Ranking mereka di kelas (anonim)\n• Trend kehadiran mereka\n• Prediction kelayakan UAS\n\nTapi mereka tidak bisa lihat data mahasiswa lain atau class-level insights untuk privacy."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "permit-management",
+    "title": "Manajemen Izin Mahasiswa",
+    "description": "Panduan lengkap mengelola permintaan izin mahasiswa, approval process, dan dokumentasi",
+    "icon": "FileCheck",
+    "category": "Kehadiran",
+    "estimatedReadTime": 10,
+    "sections": [
+      {
+        "id": "permit-overview",
+        "title": "Sistem Izin Mahasiswa",
+        "type": "text",
+        "content": "Sistem izin memungkinkan mahasiswa mengajukan izin tidak hadir dengan dokumentasi lengkap dan proses approval yang terstruktur:\n\n**Jenis Izin:**\n\n1. **Sakit**\n   • Dengan surat dokter resmi\n   • Keterangan diagnosis dan rekomendasi istirahat\n   • Stempel dan tanda tangan dokter\n   • Foto surat di-upload ke sistem\n\n2. **Izin Keluarga**\n   • Acara keluarga penting (pernikahan, pemakaman)\n   • Surat keterangan dari orang tua/wali\n   • Bukti undangan atau dokumen pendukung\n   • Maksimal 2-3 hari per semester\n\n3. **Tugas Kampus**\n   • Lomba, seminar, workshop atas nama kampus\n   • Surat tugas dari fakultas/jurusan\n   • Bukti keikutsertaan (sertifikat, foto)\n   • Prioritas tinggi untuk approval\n\n4. **Keperluan Lainnya**\n   • Keperluan mendesak lainnya\n   • Dengan surat keterangan yang jelas\n   • Dosen dapat request dokumen tambahan\n   • Approval case-by-case\n\n**Proses Approval:**\n1. Mahasiswa submit izin dengan bukti dokumen\n2. Notifikasi otomatis ke dosen\n3. Dosen review dokumen dan alasan\n4. Approve atau reject dengan catatan\n5. Status kehadiran otomatis update\n6. Notifikasi ke mahasiswa tentang keputusan\n7. Dokumen tersimpan untuk audit"
+      },
+      {
+        "id": "reviewing-permits",
+        "title": "Mereview Permintaan Izin",
+        "type": "steps",
+        "content": "Langkah-langkah mereview dan memproses permintaan izin:",
+        "steps": [
+          {
+            "title": "Akses Menu Persetujuan Izin",
+            "description": "Klik menu 'Persetujuan Izin' di sidebar. Dashboard menampilkan:\n• Jumlah izin pending approval\n• Izin yang sudah diapprove hari ini\n• Izin yang direject\n• Filter berdasarkan mata kuliah, jenis izin, tanggal"
+          },
+          {
+            "title": "Review Permintaan Baru",
+            "description": "Klik pada permintaan izin untuk melihat detail:\n• Nama dan NIM mahasiswa\n• Mata kuliah dan sesi yang diminta izin\n• Jenis izin (Sakit/Izin/Tugas)\n• Alasan lengkap dari mahasiswa\n• Dokumen pendukung (foto surat)\n• Riwayat izin mahasiswa sebelumnya\n• Current attendance percentage"
+          },
+          {
+            "title": "Verifikasi Dokumen",
+            "description": "Periksa dokumen pendukung:\n• Klik untuk zoom foto surat\n• Cek keaslian (stempel, tanda tangan)\n• Pastikan tanggal sesuai\n• Pastikan nama mahasiswa sesuai\n• Jika ragu, bisa contact pihak terkait (RS, fakultas)\n• Gunakan fitur 'Request Additional Document' jika perlu"
+          },
+          {
+            "title": "Cek Riwayat Mahasiswa",
+            "description": "Review riwayat izin mahasiswa:\n• Berapa kali sudah izin semester ini\n• Apakah ada pola mencurigakan\n• Attendance percentage saat ini\n• Apakah mahasiswa berisiko\n• Pertimbangkan track record"
+          },
+          {
+            "title": "Buat Keputusan",
+            "description": "Pilih salah satu:\n\n**Approve:**\n• Jika dokumen valid dan alasan reasonable\n• Status sesi otomatis berubah jadi 'Izin' (50 poin)\n• Mahasiswa dapat notifikasi approval\n• Dokumen tersimpan di database\n\n**Reject:**\n• Jika dokumen tidak valid atau alasan tidak kuat\n• Wajib berikan alasan penolakan yang jelas\n• Status tetap 'Tidak Hadir' (0 poin)\n• Mahasiswa dapat notifikasi dengan alasan\n• Mahasiswa bisa re-submit dengan dokumen lebih lengkap\n\n**Request More Info:**\n• Jika perlu klarifikasi atau dokumen tambahan\n• Tulis pertanyaan atau request spesifik\n• Status pending sampai mahasiswa respond\n• Set deadline untuk response"
+          },
+          {
+            "title": "Tambahkan Catatan",
+            "description": "Sebelum submit keputusan:\n• Tambahkan catatan internal (tidak dilihat mahasiswa)\n• Atau catatan untuk mahasiswa (dilihat mahasiswa)\n• Dokumentasikan pertimbangan Anda\n• Berguna untuk audit atau dispute nanti"
+          }
+        ]
+      },
+      {
+        "id": "permit-policies",
+        "title": "Kebijakan dan Guidelines Izin",
+        "type": "text",
+        "content": "Panduan kebijakan untuk approval izin yang fair dan konsisten:\n\n**Kriteria Approval:**\n\n1. **Dokumen Harus Valid**\n   • Surat resmi dengan kop dan stempel\n   • Tanda tangan pejabat berwenang\n   • Tanggal sesuai dengan sesi yang diminta izin\n   • Nama mahasiswa jelas tertulis\n\n2. **Alasan Harus Reasonable**\n   • Alasan yang tidak bisa dihindari\n   • Bukan karena kelalaian mahasiswa\n   • Proporsional dengan permintaan izin\n\n3. **Tidak Berlebihan**\n   • Maksimal 3-4 izin per semester (di luar sakit)\n   • Jika lebih, perlu justifikasi kuat\n   • Pertimbangkan impact ke attendance\n\n4. **Timing Submission**\n   • Idealnya submit sebelum sesi (untuk izin)\n   • Maksimal 3 hari setelah sesi (untuk sakit)\n   • Late submission perlu alasan kuat\n\n**Kasus Khusus:**\n\n• **Sakit Berkepanjangan**: Jika > 2 minggu, recommend cuti akademik\n• **Tugas Kampus**: Prioritas tinggi, hampir selalu approve\n• **Keluarga Meninggal**: Approve dengan empati, beri support\n• **Kecelakaan**: Approve, minta surat dari RS atau polisi\n• **Alasan Tidak Jelas**: Reject atau request more info\n\n**Konsistensi:**\n• Terapkan standar yang sama untuk semua mahasiswa\n• Jangan diskriminatif\n• Dokumentasikan semua keputusan\n• Jika ada exception, catat alasannya"
+      },
+      {
+        "id": "bulk-approval",
+        "title": "Bulk Approval untuk Efisiensi",
+        "type": "text",
+        "content": "Untuk kasus tertentu, Anda bisa melakukan bulk approval:\n\n**Kapan Menggunakan Bulk Approval:**\n\n1. **Event Kampus Resmi**\n   • Jika ada event kampus yang melibatkan banyak mahasiswa\n   • Contoh: Dies Natalis, seminar wajib, lomba\n   • Fakultas biasanya kirim daftar peserta\n   • Approve semua sekaligus\n\n2. **Hari Libur Nasional**\n   • Jika ada sesi yang jatuh di hari libur\n   • Atau hari yang diliburkan kampus\n   • Approve semua mahasiswa sekaligus\n   • Atau lebih baik: cancel sesi\n\n3. **Force Majeure**\n   • Bencana alam, banjir, dll\n   • Yang mempengaruhi banyak mahasiswa\n   • Approve semua yang terdampak\n\n**Cara Bulk Approval:**\n1. Filter izin berdasarkan kriteria (tanggal, jenis)\n2. Centang semua yang ingin di-approve\n3. Klik 'Bulk Approve'\n4. Tambahkan catatan umum\n5. Konfirmasi\n6. Sistem otomatis update semua status\n7. Notifikasi ke semua mahasiswa\n\n**Hati-hati:**\n• Pastikan semua yang di-centang memang layak approve\n• Review sekali lagi sebelum konfirmasi\n• Bulk approval tidak bisa di-undo\n• Dokumentasikan alasan bulk approval"
+      },
+      {
+        "id": "permit-reports",
+        "title": "Laporan dan Analisis Izin",
+        "type": "text",
+        "content": "Sistem menyediakan laporan untuk monitoring izin:\n\n**Jenis Laporan:**\n\n1. **Permit Summary**\n   • Total izin per jenis (Sakit/Izin/Tugas)\n   • Approval rate (berapa % diapprove)\n   • Average response time\n   • Pending permits\n\n2. **Student Permit History**\n   • Daftar mahasiswa dengan jumlah izin terbanyak\n   • Pattern analysis (apakah ada yang abuse)\n   • Impact ke attendance\n   • Rekomendasi tindakan\n\n3. **Document Verification Report**\n   • Dokumen yang valid vs tidak valid\n   • Common issues dengan dokumen\n   • Improvement suggestions\n\n4. **Approval Timeline**\n   • Berapa lama rata-rata approve izin\n   • Identifikasi bottleneck\n   • Improve response time\n\n**Menggunakan Laporan:**\n• Export ke Excel/PDF\n• Share dengan koordinator\n• Identifikasi mahasiswa yang perlu perhatian\n• Improve proses approval\n• Dokumentasi untuk audit"
+      },
+      {
+        "id": "permit-faq",
+        "title": "FAQ Manajemen Izin",
+        "type": "faq",
+        "content": "Pertanyaan umum tentang manajemen izin:",
+        "faqs": [
+          {
+            "question": "Bagaimana jika mahasiswa submit izin setelah sesi lewat?",
+            "answer": "Late submission bisa diterima dengan syarat:\n• Maksimal 3 hari setelah sesi\n• Ada alasan kuat kenapa late (sakit parah, emergency)\n• Dokumen lengkap dan valid\n• Jika > 3 hari, perlu approval khusus dari koordinator\n• Jika terlalu sering late submit, beri warning"
+          },
+          {
+            "question": "Apakah izin mengurangi nilai kehadiran?",
+            "answer": "Ya, tapi tidak sebanyak tidak hadir:\n• Hadir = 100 poin\n• Izin/Sakit = 50 poin\n• Tidak hadir = 0 poin\n\nJadi izin lebih baik dari tidak hadir, tapi tetap impact ke nilai. Izin dihitung sebagai kehadiran untuk kelayakan UAS (75% rule)."
+          },
+          {
+            "question": "Bagaimana menangani dokumen palsu?",
+            "answer": "Jika curiga dokumen palsu:\n1. Jangan approve dulu\n2. Request dokumen asli (bawa ke kantor)\n3. Verifikasi dengan pihak terkait (RS, fakultas)\n4. Jika terbukti palsu:\n   • Reject izin\n   • Report ke administrasi\n   • Beri sanksi akademik\n   • Dokumentasikan kasus\n5. Jika valid, approve dengan catatan"
+          },
+          {
+            "question": "Bisakah mahasiswa cancel izin yang sudah diapprove?",
+            "answer": "Ya, mahasiswa bisa cancel jika:\n• Ternyata bisa hadir\n• Submit cancel request\n• Dosen approve cancel\n• Status berubah kembali ke 'Tidak Hadir'\n• Mahasiswa harus absen ulang jika masih dalam waktu\n\nTapi jarang terjadi karena biasanya izin untuk hal yang sudah pasti."
+          },
+          {
+            "question": "Bagaimana jika saya salah approve/reject?",
+            "answer": "Jika salah keputusan:\n• Bisa di-undo dalam 24 jam\n• Klik 'Reverse Decision' di detail izin\n• Berikan alasan reversal\n• Buat keputusan baru yang benar\n• Notifikasi ke mahasiswa tentang perubahan\n• Jika > 24 jam, contact admin untuk help"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "reports-export",
+    "title": "Laporan dan Export Data",
+    "description": "Panduan membuat laporan kehadiran, export data ke Excel/PDF, dan analisis statistik",
+    "icon": "FileText",
+    "category": "Laporan",
+    "estimatedReadTime": 12,
+    "sections": [
+      {
+        "id": "export-overview",
+        "title": "Sistem Pelaporan dan Export",
+        "type": "text",
+        "content": "Sistem menyediakan berbagai format export dan laporan untuk kebutuhan administrasi, analisis, dan dokumentasi:\n\n**Format Export:**\n\n1. **Excel (.xlsx)**\n   • Untuk analisis lebih lanjut dengan Excel/Google Sheets\n   • Data terstruktur dalam multiple sheets\n   • Include formulas untuk kalkulasi\n   • Charts dan pivot tables\n   • Easy to manipulate dan customize\n\n2. **PDF**\n   • Untuk print dan arsip resmi\n   • Professional formatting\n   • Include header, footer, page numbers\n   • Tanda tangan digital dosen\n   • Ready to submit ke administrasi\n\n3. **CSV**\n   • Untuk import ke sistem lain\n   • Universal format\n   • Lightweight dan fast\n   • Easy to process dengan script\n\n4. **JSON**\n   • Untuk developer dan API integration\n   • Structured data\n   • Include metadata\n   • Easy to parse\n\n**Jenis Laporan:**\n\n1. **Laporan Per Mata Kuliah**\n   • Daftar semua mahasiswa dengan nilai kehadiran\n   • Statistik kelas (rata-rata, median, std dev)\n   • Distribusi grade\n   • Mahasiswa berisiko\n   • Rekomendasi\n\n2. **Laporan Per Mahasiswa**\n   • Detail kehadiran per sesi\n   • Foto selfie untuk verifikasi\n   • Riwayat izin\n   • Grafik tren\n   • Catatan dosen\n\n3. **Laporan Semester**\n   • Aggregate semua mata kuliah\n   • Overall statistics\n   • Comparison antar mata kuliah\n   • Trend analysis\n   • Executive summary\n\n4. **Laporan Custom**\n   • Filter berdasarkan kriteria spesifik\n   • Pilih kolom yang ingin di-include\n   • Custom date range\n   • Custom grouping\n   • Save template untuk reuse"
+      },
+      {
+        "id": "creating-reports",
+        "title": "Membuat Laporan",
+        "type": "steps",
+        "content": "Langkah-langkah membuat dan export laporan:",
+        "steps": [
+          {
+            "title": "Akses Menu Rekapan",
+            "description": "Klik menu 'Rekapan' di sidebar. Dashboard menampilkan:\n• Quick stats (total mahasiswa, rata-rata kehadiran)\n• Recent reports yang sudah dibuat\n• Templates laporan yang tersedia\n• Quick export buttons"
+          },
+          {
+            "title": "Pilih Jenis Laporan",
+            "description": "Pilih template laporan yang sesuai kebutuhan:\n• Laporan Nilai Akhir (untuk administrasi)\n• Laporan Kehadiran Detail (untuk analisis)\n• Laporan Mahasiswa Berisiko (untuk intervensi)\n• Laporan Izin dan Dispensasi\n• Custom Report (build your own)"
+          },
+          {
+            "title": "Konfigurasi Filter",
+            "description": "Set filter untuk laporan:\n• Mata kuliah: Pilih satu atau semua\n• Date range: Pilih periode (semester, bulan, custom)\n• Status: Semua, atau filter by status (Hadir/Izin/dll)\n• Grade: Filter by grade (A, B, C, dll)\n• Risk level: Filter mahasiswa berisiko\n• Custom filters: Tambahkan filter lain sesuai kebutuhan"
+          },
+          {
+            "title": "Pilih Kolom Data",
+            "description": "Pilih kolom yang ingin di-include dalam laporan:\n• Basic: Nama, NIM, Kehadiran %\n• Detailed: Include semua sesi, foto, GPS\n• Summary: Hanya ringkasan dan grade\n• Custom: Pilih kolom spesifik\n\nSemakin banyak kolom, semakin besar file size"
+          },
+          {
+            "title": "Preview Laporan",
+            "description": "Sebelum export, preview laporan:\n• Lihat tampilan laporan\n• Cek apakah data sudah sesuai\n• Adjust filter atau kolom jika perlu\n• Cek jumlah records\n• Estimate file size"
+          },
+          {
+            "title": "Export Laporan",
+            "description": "Pilih format export:\n• Excel: Untuk analisis dan manipulasi data\n• PDF: Untuk print dan submit resmi\n• CSV: Untuk import ke sistem lain\n• JSON: Untuk developer\n\nKlik 'Export' dan tunggu proses selesai. File akan auto-download atau bisa diakses dari 'My Reports'"
+          },
+          {
+            "title": "Save Template (Opsional)",
+            "description": "Jika sering buat laporan yang sama:\n• Klik 'Save as Template'\n• Beri nama template (contoh: 'Laporan Bulanan Kelas A')\n• Template menyimpan semua filter dan settings\n• Next time tinggal pilih template dan export\n• Hemat waktu untuk laporan rutin"
+          }
+        ]
+      },
+      {
+        "id": "report-types-detail",
+        "title": "Detail Jenis-Jenis Laporan",
+        "type": "text",
+        "content": "Penjelasan lengkap setiap jenis laporan dan kegunaannya:\n\n**1. Laporan Nilai Akhir**\n\n*Kegunaan:* Submit ke administrasi untuk input nilai\n\n*Include:*\n• Nama lengkap dan NIM\n• Persentase kehadiran\n• Grade letter (A-E)\n• Status kelayakan UAS\n• Tanda tangan digital dosen\n• Stempel fakultas (jika ada)\n\n*Format:* PDF (untuk official submission)\n\n*Timing:* Akhir semester sebelum UAS\n\n**2. Laporan Kehadiran Detail**\n\n*Kegunaan:* Analisis mendalam dan dokumentasi\n\n*Include:*\n• Semua sesi dengan status per mahasiswa\n• Foto selfie untuk verifikasi\n• GPS location\n• Timestamp\n• Catatan dosen\n• Riwayat izin dengan dokumen\n\n*Format:* Excel (untuk analisis) atau PDF (untuk arsip)\n\n*Timing:* Kapan saja, biasanya mid-semester dan akhir semester\n\n**3. Laporan Mahasiswa Berisiko**\n\n*Kegunaan:* Identifikasi dan intervensi early\n\n*Include:*\n• Daftar mahasiswa dengan kehadiran < 75%\n• Current percentage dan trend\n• Jumlah sesi tersisa\n• Minimum kehadiran yang dibutuhkan\n• Risk score dan level\n• Rekomendasi tindakan\n• Contact info untuk follow up\n\n*Format:* Excel (untuk tracking) atau PDF (untuk meeting)\n\n*Timing:* Setiap 2-4 minggu untuk monitoring\n\n**4. Laporan Izin dan Dispensasi**\n\n*Kegunaan:* Audit dan dokumentasi izin\n\n*Include:*\n• Semua permintaan izin (approved dan rejected)\n• Jenis izin dan alasan\n• Dokumen pendukung\n• Approval timeline\n• Catatan dosen\n• Pattern analysis\n\n*Format:* PDF (untuk audit) atau Excel (untuk analisis)\n\n*Timing:* Akhir semester atau saat audit\n\n**5. Laporan Statistik Kelas**\n\n*Kegunaan:* Evaluasi performa kelas dan teaching effectiveness\n\n*Include:*\n• Rata-rata kehadiran kelas\n• Distribusi grade\n• Trend kehadiran per pertemuan\n• Comparison dengan kelas lain\n• Correlation analysis\n• Insights dan rekomendasi\n\n*Format:* PDF dengan charts dan graphs\n\n*Timing:* Mid-semester dan akhir semester\n\n**6. Laporan Verifikasi Selfie**\n\n*Kegunaan:* Audit keamanan dan deteksi kecurangan\n\n*Include:*\n• Semua foto selfie\n• Verification status\n• Flagged photos\n• Fraud detection results\n• Action taken\n\n*Format:* PDF dengan embedded images\n\n*Timing:* Saat ada suspicion atau untuk random audit"
+      },
+      {
+        "id": "advanced-export",
+        "title": "Fitur Export Lanjutan",
+        "type": "text",
+        "content": "Fitur-fitur advanced untuk export yang lebih powerful:\n\n**1. Scheduled Reports**\n• Set laporan untuk auto-generate secara berkala\n• Pilih frequency (daily, weekly, monthly)\n• Set recipients (email otomatis)\n• Pilih format dan template\n• Hemat waktu untuk laporan rutin\n\n**2. Batch Export**\n• Export multiple reports sekaligus\n• Pilih beberapa mata kuliah\n• Generate semua dalam satu klik\n• Download as ZIP file\n• Efficient untuk end-of-semester reporting\n\n**3. Custom Branding**\n• Add logo fakultas/universitas\n• Custom header dan footer\n• Custom color scheme\n• Professional appearance\n• Consistent branding\n\n**4. Data Aggregation**\n• Aggregate data across multiple classes\n• Cross-class comparison\n• Department-level statistics\n• University-wide benchmarking\n• Executive dashboards\n\n**5. API Export**\n• Export via API untuk integration\n• Automated data pipeline\n• Real-time sync dengan sistem lain\n• Webhook notifications\n• For advanced users/developers\n\n**6. Collaborative Reports**\n• Share reports dengan dosen lain\n• Collaborative annotations\n• Version control\n• Comment dan discussion\n• Team-based analysis"
+      },
+      {
+        "id": "report-best-practices",
+        "title": "Best Practices Pelaporan",
+        "type": "text",
+        "content": "Tips untuk pelaporan yang efektif dan efisien:\n\n**1. Konsistensi**\n• Gunakan template yang sama untuk laporan rutin\n• Consistent naming convention\n• Consistent format dan structure\n• Easier to compare across time\n\n**2. Dokumentasi**\n• Selalu include metadata (tanggal generate, filter used)\n• Add notes dan context\n• Document any anomalies\n• Explain methodology\n\n**3. Backup**\n• Backup semua laporan penting\n• Store di multiple locations (cloud + local)\n• Organize dengan folder structure yang jelas\n• Set retention policy\n\n**4. Security**\n• Protect sensitive data\n• Password-protect PDF jika perlu\n• Encrypt files untuk transmission\n• Follow data privacy regulations\n• Limit access to authorized personnel\n\n**5. Timeliness**\n• Generate laporan on time\n• Don't wait until last minute\n• Set reminders untuk deadline\n• Use scheduled reports untuk automation\n\n**6. Accuracy**\n• Always verify data before export\n• Double-check calculations\n• Review for errors or anomalies\n• Get second opinion untuk laporan penting\n\n**7. Actionability**\n• Laporan harus actionable, bukan hanya informational\n• Include insights dan recommendations\n• Highlight key findings\n• Provide next steps\n\n**8. Accessibility**\n• Make reports easy to understand\n• Use visualizations (charts, graphs)\n• Avoid jargon\n• Include executive summary\n• Consider audience"
+      },
+      {
+        "id": "troubleshooting-export",
+        "title": "Troubleshooting Export Issues",
+        "type": "faq",
+        "content": "Solusi untuk masalah umum saat export:",
+        "faqs": [
+          {
+            "question": "Export gagal atau file corrupt?",
+            "answer": "Solusi:\n• Cek koneksi internet\n• Reduce jumlah data (filter date range lebih kecil)\n• Try different format (Excel ke CSV)\n• Clear browser cache\n• Try different browser\n• Contact support jika masih gagal"
+          },
+          {
+            "question": "File terlalu besar untuk download?",
+            "answer": "Solusi:\n• Split menjadi multiple reports (per bulan, per kelas)\n• Export ke CSV instead of Excel (lebih kecil)\n• Remove unnecessary columns\n• Exclude images (foto selfie) jika tidak perlu\n• Use compression (ZIP)\n• Request admin untuk increase limit"
+          },
+          {
+            "question": "Data di laporan tidak sesuai dengan dashboard?",
+            "answer": "Kemungkinan:\n• Filter yang berbeda\n• Cache issue (refresh dashboard)\n• Data updated setelah export\n• Timezone difference\n• Bug di sistem (report ke admin)\n\nSolusi: Re-export dengan filter yang sama, atau contact support"
+          },
+          {
+            "question": "Tidak bisa open file Excel?",
+            "answer": "Solusi:\n• Pastikan punya Excel atau compatible software (LibreOffice, Google Sheets)\n• Update Excel ke versi terbaru\n• Try open dengan Google Sheets (upload ke Drive)\n• Export ulang ke CSV jika Excel tidak available\n• Check file tidak corrupt (re-download)"
+          },
+          {
+            "question": "Foto selfie tidak muncul di PDF?",
+            "answer": "Kemungkinan:\n• Setting export tidak include images\n• File size limit exceeded\n• Images not loaded properly\n\nSolusi:\n• Check 'Include Images' option saat export\n• Reduce number of records\n• Export images separately\n• Use Excel format instead (better for images)"
+          }
+        ]
+      }
+    ]
   }
 ]

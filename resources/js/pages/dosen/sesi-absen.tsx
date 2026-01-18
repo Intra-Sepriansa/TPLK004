@@ -106,7 +106,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                                 <Calendar className="h-5 w-5" />
@@ -117,7 +117,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
                                 <Play className="h-5 w-5" />
@@ -128,7 +128,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
                                 <Users className="h-5 w-5" />
@@ -139,7 +139,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                                 <Clock className="h-5 w-5" />
@@ -161,17 +161,17 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                             placeholder="Cari sesi atau mata kuliah..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white"
                         />
                     </div>
                 </div>
 
                 {/* Sessions List */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-slate-200 dark:border-slate-800">
+                                <tr className="border-b border-slate-200 dark:border-gray-800">
                                     <th className="px-4 py-3 text-left font-medium text-slate-500">Mata Kuliah</th>
                                     <th className="px-4 py-3 text-left font-medium text-slate-500">Pertemuan</th>
                                     <th className="px-4 py-3 text-left font-medium text-slate-500">Waktu</th>
@@ -189,7 +189,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                     </tr>
                                 ) : (
                                     filteredSessions.map((session) => (
-                                        <tr key={session.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                                        <tr key={session.id} className="border-b border-slate-100 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-900/50">
                                             <td className="px-4 py-3">
                                                 <div>
                                                     <p className="font-medium text-slate-900 dark:text-white">{session.course_name}</p>
@@ -267,7 +267,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                 {/* Create Modal */}
                 {showCreateModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Buat Sesi Absen Baru</h3>
                             <form onSubmit={handleCreate} className="space-y-4">
                                 <div>

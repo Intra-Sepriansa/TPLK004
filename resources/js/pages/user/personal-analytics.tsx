@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 
 interface ActivityDay {
     date: string; count: number; level: number; types: string[]; dayOfWeek: number; week: number; month: number; monthName: string; isFuture?: boolean;
@@ -20,6 +22,44 @@ interface Props {
     badges: Array<{ id: number; name: string; description: string; icon: string; color: string; category: string; points: number; earned_at: string }>;
     tips: Array<{ type: 'success' | 'warning' | 'danger' | 'info'; title: string; message: string }>;
 }
+
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
+            damping: 17,
+        },
+    },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 20,
+        },
+    },
+};
 
 export default function PersonalAnalytics({ mahasiswa, overview, streakData, courseBreakdown, weeklyTrend, activityGraph, comparison, badges, tips }: Props) {
     const getStatusColor = (status: string | null) => {
@@ -94,82 +134,169 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
     return (
         <StudentLayout>
             <Head title="Personal Analytics" />
-            <div className="p-6 space-y-6">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="p-6 space-y-6"
+            >
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                <motion.div
+                    variants={cardVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                >
+                    <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                    />
+                    <motion.div
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                    />
                     <div className="relative">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
+                            <motion.div
+                                whileHover={{ rotate: 10, scale: 1.1 }}
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                            >
                                 <BarChart3 className="h-6 w-6" />
-                            </div>
+                            </motion.div>
                             <div>
-                                <p className="text-sm text-indigo-100">Analisis</p>
-                                <h1 className="text-2xl font-bold">Personal Analytics</h1>
+                                <motion.p
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-sm text-indigo-100"
+                                >
+                                    Analisis
+                                </motion.p>
+                                <motion.h1
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-2xl font-bold"
+                                >
+                                    Personal Analytics
+                                </motion.h1>
                             </div>
                         </div>
-                        <p className="mt-4 text-indigo-100">Analisis aktivitas akademik kamu</p>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="mt-4 text-indigo-100"
+                        >
+                            Analisis aktivitas akademik kamu
+                        </motion.p>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Overview Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                >
+                    <motion.div
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                            <motion.div
+                                whileHover={{ rotate: 10 }}
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                            >
                                 {overview.trend_direction === 'up' ? <TrendingUp className="h-5 w-5" /> : overview.trend_direction === 'down' ? <TrendingDown className="h-5 w-5" /> : <BarChart3 className="h-5 w-5" />}
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Rate Kehadiran</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white">{overview.overall_rate}%</p>
+                                <p className="text-xl font-bold text-slate-900 dark:text-white">
+                                    <AnimatedCounter value={overview.overall_rate} suffix="%" duration={1500} />
+                                </p>
                                 <p className="text-xs text-slate-500">{overview.trend > 0 ? '+' : ''}{overview.trend}% dari bulan lalu</p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                    </motion.div>
+                    <motion.div
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-400'}`}>
+                            <motion.div
+                                whileHover={{ rotate: 10 }}
+                                className={`flex h-10 w-10 items-center justify-center rounded-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-slate-100 text-slate-400'}`}
+                            >
                                 <Flame className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Streak Aktivitas</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white">{activityGraph.currentStreak} hari</p>
+                                <p className="text-xl font-bold text-slate-900 dark:text-white">
+                                    <AnimatedCounter value={activityGraph.currentStreak} duration={1500} /> hari
+                                </p>
                                 <p className="text-xs text-slate-500">Terpanjang: {activityGraph.longestStreak} hari</p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                    </motion.div>
+                    <motion.div
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                            <motion.div
+                                whileHover={{ rotate: 10 }}
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            >
                                 <Calendar className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Total Aktivitas</p>
-                                <p className="text-xl font-bold text-emerald-600">{activityGraph.totalActivities}</p>
+                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                                    <AnimatedCounter value={activityGraph.totalActivities} duration={1500} />
+                                </p>
                                 <p className="text-xs text-slate-500">{activityGraph.activeDays} hari aktif</p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                    </motion.div>
+                    <motion.div
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+                            <motion.div
+                                whileHover={{ rotate: 10 }}
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                            >
                                 <Users className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Ranking</p>
-                                <p className="text-xl font-bold text-purple-600">#{comparison.rank}</p>
+                                <p className="text-xl font-bold text-purple-600 dark:text-purple-400">#{comparison.rank}</p>
                                 <p className="text-xs text-slate-500">Top {comparison.percentile}%</p>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Activity Graph */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                <motion.div
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                >
                     <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-indigo-600" />
+                            <motion.div whileHover={{ rotate: 10 }}>
+                                <Calendar className="h-5 w-5 text-indigo-600" />
+                            </motion.div>
                             <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Tahun {activityGraph.year}</h2>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">{activityGraph.totalActivities} aktivitas sejak 1 Januari {activityGraph.year}</p>
@@ -238,68 +365,108 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             <div className="flex items-center gap-1"><BookOpen className="h-3 w-3 text-purple-500" /><span>Catatan</span></div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Weekly Trend */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5 text-blue-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Calendar className="h-5 w-5 text-blue-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Minggu Ini</h2>
                             </div>
                         </div>
                         <div className="p-4">
                             <div className="flex justify-between">
                                 {weeklyTrend.map((d, i) => (
-                                    <div key={i} className="text-center">
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        whileHover={{ scale: 1.1, y: -5 }}
+                                        className="text-center"
+                                    >
                                         <p className="text-xs text-slate-500 mb-2">{d.day}</p>
-                                        <div className={`w-10 h-10 rounded-full ${getStatusColor(d.status)} flex items-center justify-center mx-auto`}>
+                                        <motion.div
+                                            whileHover={{ rotate: 10 }}
+                                            className={`w-10 h-10 rounded-full ${getStatusColor(d.status)} flex items-center justify-center mx-auto`}
+                                        >
                                             {d.status === 'present' && <CheckCircle className="h-5 w-5 text-white" />}
                                             {d.status === 'late' && <Clock className="h-5 w-5 text-white" />}
                                             {(d.status === 'rejected' || d.status === 'absent') && <XCircle className="h-5 w-5 text-white" />}
-                                        </div>
+                                        </motion.div>
                                         <p className="text-xs mt-2 text-slate-600">{d.date}</p>
                                         {d.time && <p className="text-xs text-slate-500">{d.time}</p>}
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Class Comparison */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
-                                <Users className="h-5 w-5 text-purple-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Users className="h-5 w-5 text-purple-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Perbandingan dengan Kelas</h2>
                             </div>
                         </div>
                         <div className="p-4 space-y-4">
-                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Kamu</span><span className="font-bold text-slate-900 dark:text-white">{comparison.my_rate}%</span></div>
+                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Kamu</span><span className="font-bold text-slate-900 dark:text-white"><AnimatedCounter value={comparison.my_rate} suffix="%" duration={1500} /></span></div>
                             <Progress value={comparison.my_rate} className="h-3" />
-                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Rata-rata Kelas</span><span className="font-bold text-slate-900 dark:text-white">{comparison.class_average}%</span></div>
+                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Rata-rata Kelas</span><span className="font-bold text-slate-900 dark:text-white"><AnimatedCounter value={comparison.class_average} suffix="%" duration={1500} /></span></div>
                             <Progress value={comparison.class_average} className="h-3 bg-slate-200" />
-                            <div className={`p-3 rounded-lg ${comparison.status === 'above' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className={`p-3 rounded-lg ${comparison.status === 'above' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}
+                            >
                                 <p className={`text-sm font-medium ${comparison.status === 'above' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
                                     {comparison.status === 'above' ? `🎉 Kamu ${comparison.difference}% di atas rata-rata!` : `📈 Kamu ${Math.abs(comparison.difference)}% di bawah rata-rata`}
                                 </p>
-                            </div>
+                            </motion.div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Course Breakdown */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                <motion.div
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                >
                     <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
-                            <GraduationCap className="h-5 w-5 text-blue-600" />
+                            <motion.div whileHover={{ rotate: 10 }}>
+                                <GraduationCap className="h-5 w-5 text-blue-600" />
+                            </motion.div>
                             <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran per Mata Kuliah</h2>
                         </div>
                     </div>
                     <div className="p-4 space-y-4">
-                        {courseBreakdown.map(course => (
-                            <div key={course.course_id} className="p-4 border border-slate-200 dark:border-gray-700 rounded-xl">
+                        {courseBreakdown.map((course, index) => (
+                            <motion.div
+                                key={course.course_id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                                whileHover={{ x: 5, scale: 1.01 }}
+                                className="p-4 border border-slate-200 dark:border-gray-700 rounded-xl"
+                            >
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
                                         <p className="font-medium text-slate-900 dark:text-white">{course.course_name}</p>
@@ -315,31 +482,48 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                     </div>
                                 </div>
                                 <Progress value={course.rate} className="h-2" />
-                            </div>
+                            </motion.div>
                         ))}
                         {courseBreakdown.length === 0 && (
-                            <div className="text-center py-8">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-center py-8"
+                            >
                                 <GraduationCap className="h-12 w-12 mx-auto mb-2 text-slate-300" />
                                 <p className="text-slate-500">Belum ada data kehadiran</p>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
-                </div>
+                </motion.div>
 
                 <div className="grid lg:grid-cols-2 gap-6">
                     {/* Badges */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
-                                <Award className="h-5 w-5 text-yellow-500" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Award className="h-5 w-5 text-yellow-500" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Badge Kamu ({badges.length})</h2>
                             </div>
                         </div>
                         <div className="p-4">
                             {badges.length > 0 ? (
                                 <div className="space-y-3">
-                                    {badges.map(badge => (
-                                        <div key={badge.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                    {badges.map((badge, index) => (
+                                        <motion.div
+                                            key={badge.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            whileHover={{ x: 5, scale: 1.02 }}
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors"
+                                        >
                                             <div className="w-14 h-14 shrink-0">
                                                 {badge.icon ? (
                                                     <img src={`/images/badges/${badge.icon}`} alt={badge.name} className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; if (e.currentTarget.nextElementSibling) (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} />
@@ -354,49 +538,72 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                                 <p className="text-xs text-slate-500 line-clamp-1">{badge.description}</p>
                                                 <p className="text-[10px] text-slate-400 mt-0.5">Diperoleh {badge.earned_at}</p>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-8">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-8"
+                                >
                                     <Award className="h-12 w-12 mx-auto mb-2 text-slate-300" />
                                     <p className="text-slate-500">Belum ada badge</p>
                                     <p className="text-xs text-slate-400">Terus tingkatkan aktivitas untuk mendapatkan badge!</p>
-                                </div>
+                                </motion.div>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Tips */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
-                                <Lightbulb className="h-5 w-5 text-yellow-500" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Lightbulb className="h-5 w-5 text-yellow-500" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Tips & Saran</h2>
                             </div>
                         </div>
                         <div className="p-4 space-y-3">
                             {tips.map((tip, i) => (
-                                <div key={i} className={`p-3 rounded-lg border ${getTipBg(tip.type)}`}>
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.05 }}
+                                    whileHover={{ x: 5, scale: 1.02 }}
+                                    className={`p-3 rounded-lg border ${getTipBg(tip.type)}`}
+                                >
                                     <div className="flex items-start gap-3">
-                                        {getTipIcon(tip.type)}
+                                        <motion.div whileHover={{ rotate: 10, scale: 1.1 }}>
+                                            {getTipIcon(tip.type)}
+                                        </motion.div>
                                         <div>
                                             <p className="font-medium text-sm text-slate-900 dark:text-white">{tip.title}</p>
                                             <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{tip.message}</p>
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                             {tips.length === 0 && (
-                                <div className="text-center py-8">
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-center py-8"
+                                >
                                     <Lightbulb className="h-12 w-12 mx-auto mb-2 text-slate-300" />
                                     <p className="text-slate-500">Tidak ada tips saat ini</p>
-                                </div>
+                                </motion.div>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }

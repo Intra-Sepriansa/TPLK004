@@ -196,7 +196,13 @@ class DocumentationService
         $content = File::get($filepath);
         $data = json_decode($content, true);
 
-        return $data['guides'] ?? [];
+        // Support both array format and object with 'guides' key
+        if (isset($data['guides'])) {
+            return $data['guides'];
+        }
+        
+        // If data is already an array of guides, return it directly
+        return is_array($data) ? $data : [];
     }
 
     /**

@@ -85,10 +85,13 @@ export default function DosenDocs({ dosen }: Props) {
     const loadDocumentation = async () => {
         try {
             setIsLoading(true);
+            console.log('Loading documentation for dosen...');
             const [guidesData, statsData] = await Promise.all([
                 getGuides('dosen'),
                 getProgressStats('dosen'),
             ]);
+            console.log('Guides loaded:', guidesData);
+            console.log('Stats loaded:', statsData);
             setGuides(guidesData);
             setStats(statsData);
         } catch (error) {

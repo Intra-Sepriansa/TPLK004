@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import DosenLayout from '@/layouts/dosen-layout';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
     AreaChart,
     Area,
@@ -26,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DosenInfo {
     id: number;
@@ -100,16 +102,58 @@ interface PageProps {
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-    present: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700' },
-    late: { label: 'Terlambat', color: 'bg-amber-100 text-amber-700' },
-    rejected: { label: 'Ditolak', color: 'bg-rose-100 text-rose-700' },
-    pending: { label: 'Pending', color: 'bg-sky-100 text-sky-700' },
+    present: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+    late: { label: 'Terlambat', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+    rejected: { label: 'Ditolak', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' },
+    pending: { label: 'Pending', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
+};
+
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
+            damping: 17,
+        },
+    },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 20,
+        },
+    },
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-950">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-black"
+        >
             <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
             {payload.map((entry: any, index: number) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
@@ -118,7 +162,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     <span className="font-medium text-slate-900 dark:text-white">{entry.value}</span>
                 </div>
             ))}
-        </div>
+        </motion.div>
     );
 };
 
@@ -127,74 +171,168 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
         <DosenLayout>
             <Head title="Dashboard Dosen" />
 
-            <div className="p-6 space-y-6">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="p-6 space-y-6"
+            >
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                <motion.div
+                    variants={cardVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                >
+                    <motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                    />
+                    <motion.div
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                    />
 
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold"
+                                >
                                     {dosen.initials}
-                                </div>
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-indigo-100">Selamat Datang,</p>
-                                    <h1 className="text-2xl font-bold">{dosen.nama}</h1>
-                                    <p className="text-sm text-indigo-100">NIDN: {dosen.nidn}</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-indigo-100"
+                                    >
+                                        Selamat Datang,
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-2xl font-bold"
+                                    >
+                                        {dosen.nama}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-sm text-indigo-100"
+                                    >
+                                        NIDN: {dosen.nidn}
+                                    </motion.p>
                                 </div>
                             </div>
                             {stats.pendingCount > 0 && (
-                                <Link href="/dosen/verify">
-                                    <Button className="bg-white/20 hover:bg-white/30 text-white backdrop-blur">
-                                        <AlertCircle className="h-4 w-4 mr-2" />
-                                        {stats.pendingCount} Verifikasi Pending
-                                    </Button>
-                                </Link>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Link href="/dosen/verify">
+                                        <Button className="bg-white/20 hover:bg-white/30 text-white backdrop-blur">
+                                            <AlertCircle className="h-4 w-4 mr-2" />
+                                            {stats.pendingCount} Verifikasi Pending
+                                        </Button>
+                                    </Link>
+                                </motion.div>
                             )}
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
                                 <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <BookOpen className="h-4 w-4" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <BookOpen className="h-4 w-4" />
+                                    </motion.div>
                                     <span className="text-xs">Mata Kuliah</span>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalCourses}</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.totalCourses} duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
                                 <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <Users className="h-4 w-4" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <Users className="h-4 w-4" />
+                                    </motion.div>
                                     <span className="text-xs">Mahasiswa</span>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalStudents}</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.totalStudents} duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
                                 <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <Calendar className="h-4 w-4" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <Calendar className="h-4 w-4" />
+                                    </motion.div>
                                     <span className="text-xs">Total Sesi</span>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalSessions}</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.totalSessions} duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
                                 <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <TrendingUp className="h-4 w-4" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <TrendingUp className="h-4 w-4" />
+                                    </motion.div>
                                     <span className="text-xs">Kehadiran</span>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.attendanceRate}%</p>
-                            </div>
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.attendanceRate} suffix="%" duration={1500} />
+                                </p>
+                            </motion.div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Active Sessions & Pending Verifications */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Active Sessions */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <Play className="h-5 w-5 text-emerald-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Play className="h-5 w-5 text-emerald-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Sesi Aktif</h2>
                             </div>
                             <Link href="/dosen/courses" className="text-sm text-indigo-600 hover:underline">
@@ -208,9 +346,16 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {activeSessions.map(session => (
+                                {activeSessions.map((session, index) => (
                                     <Link key={session.id} href={`/dosen/sessions/${session.id}`}>
-                                        <div className="flex items-center gap-4 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            whileHover={{ x: 5, scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="flex items-center gap-4 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30"
+                                        >
                                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white font-bold">
                                                 {session.meeting_number}
                                             </div>
@@ -222,19 +367,27 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                                 <p className="text-sm font-medium text-emerald-600">{session.attendance_count} hadir</p>
                                                 <p className="text-xs text-slate-500">{session.start_at} - {session.end_at}</p>
                                             </div>
-                                            <ChevronRight className="h-4 w-4 text-slate-400" />
-                                        </div>
+                                            <motion.div whileHover={{ x: 5 }}>
+                                                <ChevronRight className="h-4 w-4 text-slate-400" />
+                                            </motion.div>
+                                        </motion.div>
                                     </Link>
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Pending Verifications */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={{ scale: 1.01, y: -2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                    >
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <Image className="h-5 w-5 text-amber-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <Image className="h-5 w-5 text-amber-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Pending</h2>
                             </div>
                             <Link href="/dosen/verify" className="text-sm text-indigo-600 hover:underline">
@@ -248,9 +401,16 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {pendingVerifications.map(v => (
+                                {pendingVerifications.map((v, index) => (
                                     <Link key={v.id} href="/dosen/verify">
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors dark:bg-amber-900/20 dark:hover:bg-amber-900/30">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            whileHover={{ x: 5, scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors dark:bg-amber-900/20 dark:hover:bg-amber-900/30"
+                                        >
                                             {v.selfie_url ? (
                                                 <img src={v.selfie_url} alt="" className="h-12 w-12 rounded-lg object-cover" />
                                             ) : (
@@ -265,21 +425,27 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                             <div className="text-right">
                                                 <p className="text-xs text-slate-500">{v.scanned_at}</p>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     </Link>
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Charts */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Monthly Trend */}
                     {monthlyTrend.length > 0 && (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <motion.div
+                            variants={cardVariants}
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        >
                             <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Tren Kehadiran 6 Bulan</h2>
                             </div>
                             <ResponsiveContainer width="100%" height={250}>
@@ -297,14 +463,20 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     <Area type="monotone" dataKey="present" name="Hadir" stroke="#6366f1" fillOpacity={1} fill="url(#colorPresent)" />
                                 </AreaChart>
                             </ResponsiveContainer>
-                        </div>
+                        </motion.div>
                     )}
 
                     {/* Course Stats */}
                     {courseStats.length > 0 && (
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <motion.div
+                            variants={cardVariants}
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        >
                             <div className="flex items-center gap-2 mb-4">
-                                <BookOpen className="h-5 w-5 text-purple-600" />
+                                <motion.div whileHover={{ rotate: 10 }}>
+                                    <BookOpen className="h-5 w-5 text-purple-600" />
+                                </motion.div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Statistik per Mata Kuliah</h2>
                             </div>
                             <ResponsiveContainer width="100%" height={250}>
@@ -319,22 +491,35 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     <Bar dataKey="Absen" fill="#f43f5e" />
                                 </BarChart>
                             </ResponsiveContainer>
-                        </div>
+                        </motion.div>
                     )}
                 </div>
 
                 {/* Recent Activity */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div
+                    variants={cardVariants}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                >
                     <div className="flex items-center gap-2 mb-4">
-                        <Clock className="h-5 w-5 text-slate-600" />
+                        <motion.div whileHover={{ rotate: 10 }}>
+                            <Clock className="h-5 w-5 text-slate-600" />
+                        </motion.div>
                         <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2>
                     </div>
                     {recentActivity.length === 0 ? (
                         <p className="text-center py-8 text-slate-500">Belum ada aktivitas</p>
                     ) : (
-                        <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {recentActivity.map(activity => (
-                                <div key={activity.id} className="flex items-center gap-4 py-3">
+                        <div className="divide-y divide-slate-100 dark:divide-gray-800">
+                            {recentActivity.map((activity, index) => (
+                                <motion.div
+                                    key={activity.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
+                                    className="flex items-center gap-4 py-3"
+                                >
                                     <div className={cn('flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium', statusConfig[activity.status]?.color || 'bg-slate-100 text-slate-600')}>
                                         {activity.mahasiswa.charAt(0)}
                                     </div>
@@ -348,12 +533,12 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         </span>
                                         <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     )}
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </DosenLayout>
     );
 }

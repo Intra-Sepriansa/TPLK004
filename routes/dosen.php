@@ -101,6 +101,28 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     
     // Settings, Documentation, Help (Inertia pages)
     Route::get('/settings', fn () => inertia('dosen/settings'))->name('settings');
-    Route::get('/docs', fn () => inertia('dosen/docs'))->name('docs');
+    Route::get('/docs', function () {
+        $dosen = auth()->guard('dosen')->user();
+        return inertia('dosen/docs', [
+            'dosen' => [
+                'id' => $dosen->id,
+                'nama' => $dosen->nama,
+                'nidn' => $dosen->nidn,
+                'email' => $dosen->email,
+            ]
+        ]);
+    })->name('docs');
+    Route::get('/docs/{guideId}', function ($guideId) {
+        $dosen = auth()->guard('dosen')->user();
+        return inertia('dosen/docs-detail', [
+            'guideId' => $guideId,
+            'dosen' => [
+                'id' => $dosen->id,
+                'nama' => $dosen->nama,
+                'nidn' => $dosen->nidn,
+                'email' => $dosen->email,
+            ]
+        ]);
+    })->name('docs.detail');
     Route::get('/help', fn () => inertia('dosen/help'))->name('help');
 });
