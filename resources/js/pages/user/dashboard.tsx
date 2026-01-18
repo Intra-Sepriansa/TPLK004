@@ -1,4 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import StudentLayout from '@/layouts/student-layout';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { AchievementBadge } from '@/components/ui/achievement-badge';
@@ -115,23 +116,63 @@ const CHART_COLORS = {
     absent: '#f43f5e',
 };
 
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 100,
+            damping: 15,
+        },
+    },
+};
+
+const cardHoverVariants = {
+    rest: { scale: 1 },
+    hover: {
+        scale: 1.02,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
+            damping: 17,
+        },
+    },
+};
+
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
 
     return (
-        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-950">
-            <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-3 shadow-xl"
+        >
+            <p className="font-medium text-gray-900 dark:text-white mb-2">{label}</p>
             {payload.map((entry: any, index: number) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                     <div
                         className="h-3 w-3 rounded-full"
                         style={{ backgroundColor: entry.color }}
                     />
-                    <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
-                    <span className="font-medium text-slate-900 dark:text-white">{entry.value}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{entry.name}:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{entry.value}</span>
                 </div>
             ))}
-        </div>
+        </motion.div>
     );
 };
 
@@ -151,15 +192,15 @@ function CountdownTimer({ targetDate }: { targetDate: Date }) {
 
     return (
         <div className="flex items-center gap-1 font-mono">
-            <span className="bg-slate-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-slate-900">
+            <span className="bg-gray-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-gray-900">
                 {String(hours).padStart(2, '0')}
             </span>
-            <span className="text-slate-400">:</span>
-            <span className="bg-slate-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-slate-900">
+            <span className="text-gray-400">:</span>
+            <span className="bg-gray-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-gray-900">
                 {String(minutes).padStart(2, '0')}
             </span>
-            <span className="text-slate-400">:</span>
-            <span className="bg-slate-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-slate-900">
+            <span className="text-gray-400">:</span>
+            <span className="bg-gray-900 text-white px-2 py-1 rounded text-sm dark:bg-white dark:text-gray-900">
                 {String(seconds).padStart(2, '0')}
             </span>
         </div>
@@ -190,22 +231,30 @@ function QuickStatCard({
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+        <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.05, y: -5 }}
+            whileTap={{ scale: 0.95 }}
+            className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
             <div className="flex items-center gap-3">
-                <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}>
+                <motion.div
+                    whileHover={{ rotate: 10 }}
+                    className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}
+                >
                     <Icon className="h-5 w-5" />
-                </div>
+                </motion.div>
                 <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
                         <AnimatedCounter value={value} suffix={suffix} />
                     </p>
                     {subtext && (
-                        <p className="text-[10px] text-slate-400">{subtext}</p>
+                        <p className="text-[10px] text-gray-400">{subtext}</p>
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
 
@@ -271,7 +320,12 @@ export default function UserDashboard() {
         <StudentLayout>
             <Head title="Dashboard" />
 
-            <div className="space-y-6 p-6">
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-6 p-6"
+            >
                 {/* Welcome Card */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
@@ -326,7 +380,10 @@ export default function UserDashboard() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                >
                     <QuickStatCard
                         icon={CheckCircle}
                         label="Total Kehadiran"
@@ -358,7 +415,7 @@ export default function UserDashboard() {
                         subtext="minggu ini"
                         color="violet"
                     />
-                </div>
+                </motion.div>
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 lg:grid-cols-3">
@@ -366,11 +423,11 @@ export default function UserDashboard() {
                     <div className="space-y-6 lg:col-span-2">
                         {/* Upcoming Session */}
                         {nextSession && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <Clock className="h-5 w-5 text-amber-600" />
-                                        <h2 className="font-semibold text-slate-900 dark:text-white">
+                                        <h2 className="font-semibold text-gray-900 dark:text-white">
                                             Sesi Berikutnya
                                         </h2>
                                     </div>
@@ -381,13 +438,13 @@ export default function UserDashboard() {
 
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div>
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                             {nextSession.course_name}
                                         </h3>
-                                        <p className="text-sm text-slate-500">
+                                        <p className="text-sm text-gray-500">
                                             {nextSession.title || `Pertemuan ${nextSession.meeting_number}`}
                                         </p>
-                                        <p className="text-xs text-slate-400 mt-1">
+                                        <p className="text-xs text-gray-400 mt-1">
                                             {new Date(nextSession.start_at).toLocaleString('id-ID', {
                                                 weekday: 'long',
                                                 hour: '2-digit',
@@ -396,7 +453,7 @@ export default function UserDashboard() {
                                         </p>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-xs text-slate-500 mb-2">Dimulai dalam</p>
+                                        <p className="text-xs text-gray-500 mb-2">Dimulai dalam</p>
                                         <CountdownTimer targetDate={new Date(nextSession.start_at)} />
                                     </div>
                                 </div>
@@ -411,15 +468,15 @@ export default function UserDashboard() {
                         )}
 
                         {/* This Week Progress */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-5 w-5 text-sky-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Progress Minggu Ini
                                     </h2>
                                 </div>
-                                <span className="text-sm text-slate-500">
+                                <span className="text-sm text-gray-500">
                                     {stats.thisWeekAttendance}/{stats.thisWeekTotal} sesi
                                 </span>
                             </div>
@@ -433,14 +490,14 @@ export default function UserDashboard() {
                             <div className="mt-4 grid grid-cols-7 gap-1">
                                 {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day, i) => (
                                     <div key={day} className="text-center">
-                                        <p className="text-[10px] text-slate-400 mb-1">{day}</p>
+                                        <p className="text-[10px] text-gray-400 mb-1">{day}</p>
                                         <div className={cn(
                                             'h-8 w-8 mx-auto rounded-lg flex items-center justify-center text-xs font-medium',
                                             i < stats.thisWeekAttendance
                                                 ? 'bg-emerald-500 text-white'
                                                 : i < stats.thisWeekTotal
-                                                    ? 'bg-slate-100 text-slate-400 dark:bg-slate-800'
-                                                    : 'bg-slate-50 text-slate-300 dark:bg-slate-900'
+                                                    ? 'bg-gray-100 text-gray-400 dark:bg-gray-800'
+                                                    : 'bg-gray-50 text-gray-300 dark:bg-gray-900'
                                         )}>
                                             {i < stats.thisWeekAttendance ? '✓' : '-'}
                                         </div>
@@ -450,11 +507,11 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Weekly Attendance Chart */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <BarChart3 className="h-5 w-5 text-indigo-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Tren Kehadiran Mingguan
                                     </h2>
                                 </div>
@@ -475,11 +532,11 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Monthly Trend Chart */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <TrendingUp className="h-5 w-5 text-emerald-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Tren Kehadiran 6 Bulan Terakhir
                                     </h2>
                                 </div>
@@ -521,11 +578,11 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Recent Activity */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Bell className="h-5 w-5 text-violet-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Aktivitas Terbaru
                                     </h2>
                                 </div>
@@ -536,7 +593,7 @@ export default function UserDashboard() {
 
                             <div className="space-y-3">
                                 {recentActivity.length === 0 ? (
-                                    <p className="text-sm text-slate-500 text-center py-4">
+                                    <p className="text-sm text-gray-500 text-center py-4">
                                         Belum ada aktivitas
                                     </p>
                                 ) : (
@@ -546,16 +603,16 @@ export default function UserDashboard() {
                                         return (
                                             <div
                                                 key={activity.id}
-                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
                                             >
                                                 <div className={cn('flex h-9 w-9 items-center justify-center rounded-full', colorClass)}>
                                                     <Icon className="h-4 w-4" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm text-slate-900 dark:text-white truncate">
+                                                    <p className="text-sm text-gray-900 dark:text-white truncate">
                                                         {activity.message}
                                                     </p>
-                                                    <p className="text-xs text-slate-400">{activity.time}</p>
+                                                    <p className="text-xs text-gray-400">{activity.time}</p>
                                                 </div>
                                             </div>
                                         );
@@ -569,10 +626,10 @@ export default function UserDashboard() {
                     <div className="space-y-6">
                         {/* Attendance Distribution Pie Chart */}
                         {pieData.length > 0 && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                                 <div className="flex items-center gap-2 mb-4">
                                     <PieChartIcon className="h-5 w-5 text-violet-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Distribusi Kehadiran
                                     </h2>
                                 </div>
@@ -603,7 +660,7 @@ export default function UserDashboard() {
                                                 className="h-3 w-3 rounded-full"
                                                 style={{ backgroundColor: entry.color }}
                                             />
-                                            <span className="text-slate-600 dark:text-slate-400">
+                                            <span className="text-gray-600 dark:text-gray-400">
                                                 {entry.name}: {entry.value}
                                             </span>
                                         </div>
@@ -613,11 +670,11 @@ export default function UserDashboard() {
                         )}
 
                         {/* Achievements */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">
                                     <Award className="h-5 w-5 text-amber-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Pencapaian
                                     </h2>
                                 </div>
@@ -637,7 +694,7 @@ export default function UserDashboard() {
                                         className={cn(
                                             'flex flex-col items-center p-2 rounded-xl transition-all',
                                             achievement.unlocked
-                                                ? 'bg-white dark:bg-slate-900'
+                                                ? 'bg-white dark:bg-gray-900'
                                                 : 'opacity-40 grayscale'
                                         )}
                                     >
@@ -659,8 +716,8 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Quick Links */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <h2 className="font-semibold text-slate-900 dark:text-white mb-4">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
                                 Menu Cepat
                             </h2>
 
@@ -697,8 +754,8 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Attendance Rate Card */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
-                            <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
+                        <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
+                            <p className="text-sm text-gray-400">Tingkat Kehadiran</p>
                             <div className="flex items-end gap-2 mt-2">
                                 <span className="text-4xl font-bold">
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
@@ -711,18 +768,18 @@ export default function UserDashboard() {
                             </div>
                             <Progress
                                 value={stats.attendanceRate}
-                                className="mt-4 h-2 bg-slate-700"
+                                className="mt-4 h-2 bg-gray-700"
                                 indicatorClassName={cn(
                                     stats.attendanceRate >= 75 ? 'bg-emerald-500' : 'bg-amber-500'
                                 )}
                             />
-                            <p className="text-xs text-slate-400 mt-2">
+                            <p className="text-xs text-gray-400 mt-2">
                                 Minimal 75% untuk memenuhi syarat kehadiran
                             </p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }
