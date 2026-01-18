@@ -290,7 +290,7 @@ export default function AdminJadwal({
                     className="grid gap-4 md:grid-cols-4 lg:grid-cols-7"
                     variants={containerVariants}
                 >
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
                                 <Calendar className="h-5 w-5" />
@@ -301,7 +301,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                                 <Play className="h-5 w-5" />
@@ -312,7 +312,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                                 <CalendarCheck className="h-5 w-5" />
@@ -323,7 +323,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
                                 <CalendarClock className="h-5 w-5" />
@@ -334,7 +334,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
                                 <Users className="h-5 w-5" />
@@ -345,7 +345,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
                                 <Clock className="h-5 w-5" />
@@ -356,7 +356,7 @@ export default function AdminJadwal({
                             </div>
                         </div>
                     </motion.div>
-                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+                    <motion.div variants={itemVariants} className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70" whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
                                 <BookOpen className="h-5 w-5" />
@@ -372,7 +372,7 @@ export default function AdminJadwal({
                 {/* Filter & Actions */}
                 <motion.div 
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     whileHover={{ scale: 1.005, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                 >
@@ -519,7 +519,7 @@ export default function AdminJadwal({
                     {/* Sessions Table */}
                     <motion.div 
                         variants={slideInLeft}
-                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                     >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                             <div className="flex items-center justify-between">
@@ -633,7 +633,7 @@ export default function AdminJadwal({
                     >
                         {/* Weekly Schedule */}
                         <motion.div 
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                             whileHover={{ scale: 1.01, y: -2 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -673,7 +673,7 @@ export default function AdminJadwal({
                         {/* Course Distribution */}
                         {courseDistribution.length > 0 && (
                             <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                                 whileHover={{ scale: 1.01, y: -2 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
@@ -697,7 +697,7 @@ export default function AdminJadwal({
 
                         {/* Upcoming Sessions */}
                         <motion.div 
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                             whileHover={{ scale: 1.01, y: -2 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >
