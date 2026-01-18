@@ -148,7 +148,7 @@ export default function CourseShow({ dosen, course, sessions, students, stats, d
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Sessions List */}
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Sesi</h2>
                             </div>
@@ -165,7 +165,7 @@ export default function CourseShow({ dosen, course, sessions, students, stats, d
                                             'flex items-center gap-4 p-4 rounded-xl border transition-colors',
                                             session.is_active 
                                                 ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' 
-                                                : 'bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800'
+                                                : 'bg-slate-50 border-slate-200 dark:bg-gray-900 dark:border-gray-800'
                                         )}>
                                             <div className={cn(
                                                 'flex h-12 w-12 items-center justify-center rounded-xl font-bold text-lg',
@@ -223,7 +223,7 @@ export default function CourseShow({ dosen, course, sessions, students, stats, d
                         </div>
 
                         {/* Students */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Mahasiswa</h2>
                                 <Link href={`/dosen/courses/${course.id}/students`} className="text-sm text-indigo-600 hover:underline">
@@ -240,7 +240,7 @@ export default function CourseShow({ dosen, course, sessions, students, stats, d
                                 <div className="space-y-2">
                                     {students.slice(0, 5).map(student => (
                                         <Link key={student.id} href={`/dosen/courses/${course.id}/students/${student.id}`}>
-                                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                                            <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-gray-900 transition-colors">
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 font-medium dark:bg-indigo-900/30 dark:text-indigo-400">
                                                     {student.nama.charAt(0)}
                                                 </div>
@@ -262,7 +262,7 @@ export default function CourseShow({ dosen, course, sessions, students, stats, d
                     </div>
 
                     {/* Distribution Chart */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <h2 className="font-semibold text-slate-900 dark:text-white mb-4">Distribusi Kehadiran</h2>
                         {distribution.some(d => d.value > 0) ? (
                             <ResponsiveContainer width="100%" height={250}>

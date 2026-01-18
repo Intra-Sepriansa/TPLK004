@@ -215,7 +215,7 @@ export default function DosenProfile() {
                 </div>
 
                 {/* Tab Navigation */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                     <div className="flex gap-2">
                         {tabs.map(tab => {
                             const Icon = tab.icon;
@@ -259,7 +259,7 @@ export default function DosenProfile() {
 
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                                     <User className="h-5 w-5" />
@@ -289,7 +289,7 @@ export default function DosenProfile() {
                                     <Label htmlFor="nidn">NIDN</Label>
                                     <div className="relative">
                                         <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="nidn" value={dosen.nidn} disabled className="pl-10 bg-slate-50 dark:bg-slate-900" />
+                                        <Input id="nidn" value={dosen.nidn} disabled className="pl-10 bg-slate-50 dark:bg-gray-900" />
                                     </div>
                                     <p className="text-xs text-slate-500">NIDN tidak dapat diubah</p>
                                 </div>
@@ -361,7 +361,7 @@ export default function DosenProfile() {
                         </div>
 
                         <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
                                         <IdCard className="h-5 w-5" />
@@ -370,19 +370,19 @@ export default function DosenProfile() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
                                         <span className="text-sm text-slate-500">Nama</span>
                                         <span className="font-medium text-slate-900 dark:text-white">{dosen.nama}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
                                         <span className="text-sm text-slate-500">NIDN</span>
                                         <span className="font-medium text-slate-900 dark:text-white">{dosen.nidn}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
                                         <span className="text-sm text-slate-500">Email</span>
                                         <span className="font-medium text-slate-900 dark:text-white">{dosen.email}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
                                         <span className="text-sm text-slate-500">Status</span>
                                         <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                                             <CheckCircle2 className="h-4 w-4" />
@@ -397,7 +397,7 @@ export default function DosenProfile() {
 
                 {activeTab === 'security' && (
                     <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                                     <KeyRound className="h-5 w-5" />
@@ -473,7 +473,7 @@ export default function DosenProfile() {
                         </div>
 
                         <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                                         <AlertCircle className="h-5 w-5" />

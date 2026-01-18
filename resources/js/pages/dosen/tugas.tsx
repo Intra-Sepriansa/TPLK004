@@ -209,7 +209,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     ].map((stat, i) => (
                         <div 
                             key={i} 
-                            className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
+                            className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
                             style={{ transitionDelay: `${i * 100}ms` }}
                         >
                             <div className="flex items-center gap-4">
@@ -229,7 +229,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 </div>
 
                 {/* Filters */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
                             <Filter className="h-4 w-4" />
@@ -244,18 +244,18 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 value={search} 
                                 onChange={(e) => setSearch(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && router.get('/dosen/tugas', { search, course_id: courseId, status }, { preserveState: true })}
-                                className="pl-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700" 
+                                className="pl-10 bg-slate-50 dark:bg-gray-900 border-slate-200 dark:border-slate-700" 
                             />
                         </div>
                         <Select value={courseId} onValueChange={(v) => { setCourseId(v); router.get('/dosen/tugas', { search, course_id: v, status }, { preserveState: true }); }}>
-                            <SelectTrigger className="w-48 bg-slate-50 dark:bg-slate-900"><SelectValue placeholder="Semua Mata Kuliah" /></SelectTrigger>
+                            <SelectTrigger className="w-48 bg-slate-50 dark:bg-gray-900"><SelectValue placeholder="Semua Mata Kuliah" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Semua Mata Kuliah</SelectItem>
                                 {courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}
                             </SelectContent>
                         </Select>
                         <Select value={status} onValueChange={(v) => { setStatus(v); router.get('/dosen/tugas', { search, course_id: courseId, status: v }, { preserveState: true }); }}>
-                            <SelectTrigger className="w-40 bg-slate-50 dark:bg-slate-900"><SelectValue placeholder="Semua Status" /></SelectTrigger>
+                            <SelectTrigger className="w-40 bg-slate-50 dark:bg-gray-900"><SelectValue placeholder="Semua Status" /></SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Semua Status</SelectItem>
                                 <SelectItem value="published">Published</SelectItem>
@@ -267,8 +267,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 </div>
 
                 {/* Tugas List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
                                 <ListTodo className="h-4 w-4" />
@@ -311,7 +311,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                 'rounded-2xl border-2 p-5 transition-all duration-500 cursor-pointer relative overflow-hidden group',
                                                 tugas.is_overdue 
                                                     ? 'border-red-200 bg-gradient-to-br from-red-50 to-rose-50 dark:border-red-800 dark:from-red-950/30 dark:to-rose-950/30' 
-                                                    : 'border-slate-200/70 bg-white dark:border-slate-700 dark:bg-slate-900/50',
+                                                    : 'border-slate-200/70 bg-white dark:border-slate-700 dark:bg-gray-900/50',
                                                 isHovered && 'scale-[1.01] shadow-xl border-indigo-300 dark:border-indigo-700'
                                             )}
                                             style={{ 
@@ -421,7 +421,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 {showCreate && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
-                        <div className="relative w-full max-w-lg mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="relative w-full max-w-lg mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                             <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
@@ -510,7 +510,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 {showEdit && editTugas && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowEdit(false)} />
-                        <div className="relative w-full max-w-lg mx-4 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="relative w-full max-w-lg mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                             <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">

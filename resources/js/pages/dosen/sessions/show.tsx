@@ -165,7 +165,7 @@ export default function SessionShow({ dosen, session, logs, stats }: PageProps) 
 
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* QR Code */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
                                 <QrCode className="h-5 w-5 text-indigo-600" />
@@ -199,8 +199,8 @@ export default function SessionShow({ dosen, session, logs, stats }: PageProps) 
                     </div>
 
                     {/* Attendance List */}
-                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
+                        <div className="p-4 border-b border-slate-100 dark:border-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-5 w-5 text-slate-600" />
