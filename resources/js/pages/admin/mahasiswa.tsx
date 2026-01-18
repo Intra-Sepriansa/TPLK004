@@ -298,7 +298,7 @@ export default function AdminMahasiswa({
                 >
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                         whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
@@ -325,7 +325,7 @@ export default function AdminMahasiswa({
                     </motion.div>
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                         whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
@@ -352,7 +352,7 @@ export default function AdminMahasiswa({
                     </motion.div>
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                         whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
@@ -379,7 +379,7 @@ export default function AdminMahasiswa({
                     </motion.div>
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                         whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
@@ -409,7 +409,7 @@ export default function AdminMahasiswa({
                 {/* Filter & Actions */}
                 <motion.div 
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                     whileHover={{ scale: 1.005, y: -2 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                 >
@@ -572,7 +572,7 @@ export default function AdminMahasiswa({
                     {/* Student Table */}
                     <motion.div 
                         variants={slideInLeft}
-                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
                         whileHover={{ scale: 1.005, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -686,7 +686,7 @@ export default function AdminMahasiswa({
                         {/* Top Performers */}
                         <motion.div 
                             variants={slideInRight}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
                             whileHover={{ scale: 1.02, y: -4 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -726,7 +726,7 @@ export default function AdminMahasiswa({
                         {/* Low Attendance */}
                         <motion.div 
                             variants={slideInRight}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
                             whileHover={{ scale: 1.02, y: -4 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -764,7 +764,7 @@ export default function AdminMahasiswa({
                         {trendData.length > 0 && (
                             <motion.div 
                                 variants={slideInRight}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
                                 whileHover={{ scale: 1.02, y: -4 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
