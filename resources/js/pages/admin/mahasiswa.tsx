@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     BarChart,
     Bar,
@@ -165,20 +166,105 @@ export default function AdminMahasiswa({
     const formatLabel = (label: string) =>
         label.replace(/&laquo;/g, '«').replace(/&raquo;/g, '»').replace(/&amp;/g, '&').replace(/<[^>]*>/g, '');
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.08,
+                delayChildren: 0.15
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 12
+            }
+        }
+    };
+
+    const slideInLeft = {
+        hidden: { opacity: 0, x: -30 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 15
+            }
+        }
+    };
+
+    const slideInRight = {
+        hidden: { opacity: 0, x: 30 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 15
+            }
+        }
+    };
+
     return (
         <AppLayout>
             <Head title="Mahasiswa" />
 
-            <div className="p-6 space-y-6">
+            <motion.div 
+                className="p-6 space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+            >
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                <motion.div 
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                >
+                    <motion.div 
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                        animate={{ 
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 90, 0]
+                        }}
+                        transition={{ 
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div 
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        animate={{ 
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0]
+                        }}
+                        transition={{ 
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
                     <div className="relative">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
+                            <motion.div 
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
                                 <GraduationCap className="h-6 w-6" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-sm text-blue-100">Manajemen</p>
                                 <h1 className="text-2xl font-bold">Data Mahasiswa</h1>
@@ -188,65 +274,145 @@ export default function AdminMahasiswa({
                             Kelola data mahasiswa, pantau kehadiran, dan analisis performa
                         </p>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Flash Messages */}
-                {(flash?.success || flash?.error) && (
-                    <div className={`rounded-xl p-4 ${flash.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                        {flash.success || flash.error}
-                    </div>
-                )}
+                <AnimatePresence>
+                    {(flash?.success || flash?.error) && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                            className={`rounded-xl p-4 ${flash.success ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
+                        >
+                            {flash.success || flash.error}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-4">
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="grid gap-4 md:grid-cols-4"
+                    variants={containerVariants}
+                >
+                    <motion.div 
+                        variants={itemVariants}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                            <motion.div 
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600"
+                                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                                transition={{ duration: 0.5 }}
+                            >
                                 <Users className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Total Mahasiswa</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
+                                <motion.p 
+                                    className="text-xl font-bold text-slate-900 dark:text-white"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                >
+                                    {stats.total}
+                                </motion.p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    </motion.div>
+                    <motion.div 
+                        variants={itemVariants}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                            <motion.div 
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"
+                                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                                transition={{ duration: 0.5 }}
+                            >
                                 <UserCheck className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Aktif Bulan Ini</p>
-                                <p className="text-xl font-bold text-emerald-600">{stats.active_this_month}</p>
+                                <motion.p 
+                                    className="text-xl font-bold text-emerald-600"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                >
+                                    {stats.active_this_month}
+                                </motion.p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    </motion.div>
+                    <motion.div 
+                        variants={itemVariants}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+                            <motion.div 
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600"
+                                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                                transition={{ duration: 0.5 }}
+                            >
                                 <TrendingUp className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Total Kehadiran</p>
-                                <p className="text-xl font-bold text-purple-600">{stats.avg_attendance}</p>
+                                <motion.p 
+                                    className="text-xl font-bold text-purple-600"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                >
+                                    {stats.avg_attendance}
+                                </motion.p>
                             </div>
                         </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    </motion.div>
+                    <motion.div 
+                        variants={itemVariants}
+                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                        whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+                            <motion.div 
+                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600"
+                                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                                transition={{ duration: 0.5 }}
+                            >
                                 <GraduationCap className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <p className="text-xs text-slate-500">Fakultas</p>
-                                <p className="text-xl font-bold text-amber-600">{Object.keys(stats.by_fakultas).length}</p>
+                                <motion.p 
+                                    className="text-xl font-bold text-amber-600"
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                >
+                                    {Object.keys(stats.by_fakultas).length}
+                                </motion.p>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Filter & Actions */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    variants={itemVariants}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                    whileHover={{ scale: 1.005, y: -2 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                >
                     <div className="flex items-center gap-2 mb-4">
                         <Filter className="h-5 w-5 text-blue-600" />
                         <h2 className="font-semibold text-slate-900 dark:text-white">Filter & Pencarian</h2>
@@ -305,28 +471,48 @@ export default function AdminMahasiswa({
                         </div>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
-                        <Button onClick={() => setShowAddForm(true)} className="bg-emerald-600 hover:bg-emerald-700">
-                            <Plus className="h-4 w-4" />
-                            Tambah Mahasiswa
-                        </Button>
-                        <Button variant="outline" asChild>
-                            <a href="/mahasiswa/export.csv">
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button onClick={() => setShowAddForm(true)} className="bg-emerald-600 hover:bg-emerald-700">
+                                <Plus className="h-4 w-4" />
+                                Tambah Mahasiswa
+                            </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button variant="outline" asChild>
+                                <a href="/mahasiswa/export.csv">
+                                    <Download className="h-4 w-4" />
+                                    Export CSV
+                                </a>
+                            </Button>
+                        </motion.div>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button onClick={handleExportPdf} className="bg-gradient-to-r from-blue-500 to-purple-600">
                                 <Download className="h-4 w-4" />
-                                Export CSV
-                            </a>
-                        </Button>
-                        <Button onClick={handleExportPdf} className="bg-gradient-to-r from-blue-500 to-purple-600">
-                            <Download className="h-4 w-4" />
-                            Export PDF
-                        </Button>
+                                Export PDF
+                            </Button>
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
 
                 {/* Add Form Modal */}
-                {showAddForm && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                <AnimatePresence>
+                    {showAddForm && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                            onClick={() => setShowAddForm(false)}
+                        >
+                            <motion.div 
+                                initial={{ scale: 0.9, opacity: 0, rotateY: -15 }}
+                                animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, rotateY: 15 }}
+                                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold">Tambah Mahasiswa</h3>
                                 <button onClick={() => setShowAddForm(false)} className="text-slate-400 hover:text-slate-600">
@@ -366,21 +552,30 @@ export default function AdminMahasiswa({
                                     </div>
                                 </div>
                                 <div className="flex gap-2 pt-2">
-                                    <Button type="submit" disabled={addForm.processing} className="flex-1">
-                                        <Plus className="h-4 w-4" />
-                                        Simpan
-                                    </Button>
-                                    <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>Batal</Button>
+                                    <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <Button type="submit" disabled={addForm.processing} className="w-full">
+                                            <Plus className="h-4 w-4" />
+                                            Simpan
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>Batal</Button>
+                                    </motion.div>
                                 </div>
                             </form>
-                        </div>
-                    </div>
-                )}
+                        </motion.div>
+                    </motion.div>
+                )}</AnimatePresence>
 
                 {/* Main Content Grid */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Student Table */}
-                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    <motion.div 
+                        variants={slideInLeft}
+                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                        whileHover={{ scale: 1.005, y: -2 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -411,8 +606,15 @@ export default function AdminMahasiswa({
                                             </td>
                                         </tr>
                                     ) : (
-                                        mahasiswa.data.map(m => (
-                                            <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                        mahasiswa.data.map((m, index) => (
+                                            <motion.tr 
+                                                key={m.id} 
+                                                className="hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
+                                                whileHover={{ scale: 1.01, x: 4 }}
+                                            >
                                                 {editingId === m.id ? (
                                                     <td colSpan={4} className="p-4">
                                                         <form onSubmit={submitEdit} className="space-y-3">
@@ -454,7 +656,7 @@ export default function AdminMahasiswa({
                                                         </td>
                                                     </>
                                                 )}
-                                            </tr>
+                                            </motion.tr>
                                         ))
                                     )}
                                 </tbody>
@@ -463,7 +665,7 @@ export default function AdminMahasiswa({
                         {mahasiswa.last_page > 1 && (
                             <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
                                 {mahasiswa.links.map((link, i) => (
-                                    <button
+                                    <motion.button
                                         key={i}
                                         onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                         disabled={!link.url}
@@ -471,16 +673,23 @@ export default function AdminMahasiswa({
                                             link.active ? 'bg-blue-600 text-white' : link.url ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-slate-50 text-slate-400 cursor-not-allowed'
                                         }`}
                                         dangerouslySetInnerHTML={{ __html: formatLabel(link.label) }}
+                                        whileHover={link.url ? { scale: 1.05 } : {}}
+                                        whileTap={link.url ? { scale: 0.95 } : {}}
                                     />
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* Top Performers */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                        <motion.div 
+                            variants={slideInRight}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            transition={{ type: 'spring', stiffness: 300 }}
+                        >
                             <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                                 <div className="flex items-center gap-2">
                                     <Award className="h-5 w-5 text-emerald-600" />
@@ -492,7 +701,14 @@ export default function AdminMahasiswa({
                                     <div className="p-6 text-center text-slate-500">Tidak ada data</div>
                                 ) : (
                                     topPerformers.map((s, i) => (
-                                        <div key={s.id} className="p-3 flex items-center gap-3">
+                                        <motion.div 
+                                            key={s.id} 
+                                            className="p-3 flex items-center gap-3"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
+                                            whileHover={{ scale: 1.02, x: 4 }}
+                                        >
                                             <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                                                 i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-slate-200 text-slate-700' : i === 2 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
                                             }`}>{i + 1}</div>
@@ -501,14 +717,19 @@ export default function AdminMahasiswa({
                                                 <p className="text-xs text-slate-500">{s.nim}</p>
                                             </div>
                                             <span className="text-sm font-bold text-emerald-600">{s.count}x</span>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Low Attendance */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                        <motion.div 
+                            variants={slideInRight}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            transition={{ type: 'spring', stiffness: 300 }}
+                        >
                             <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                                 <div className="flex items-center gap-2">
                                     <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -519,22 +740,34 @@ export default function AdminMahasiswa({
                                 {lowAttendance.length === 0 ? (
                                     <div className="p-6 text-center text-slate-500">Tidak ada data</div>
                                 ) : (
-                                    lowAttendance.map(s => (
-                                        <div key={s.id} className="p-3 flex items-center gap-3">
+                                    lowAttendance.map((s, i) => (
+                                        <motion.div 
+                                            key={s.id} 
+                                            className="p-3 flex items-center gap-3"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
+                                            whileHover={{ scale: 1.02, x: 4 }}
+                                        >
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{s.nama}</p>
                                                 <p className="text-xs text-slate-500">{s.nim}</p>
                                             </div>
                                             <span className="text-sm font-bold text-red-600">{s.count}x</span>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Registration Trend */}
                         {trendData.length > 0 && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <motion.div 
+                                variants={slideInRight}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                                whileHover={{ scale: 1.02, y: -4 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
                                 <div className="flex items-center gap-2 mb-4">
                                     <TrendingUp className="h-5 w-5 text-blue-600" />
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Tren Aktivitas</h2>
@@ -550,11 +783,11 @@ export default function AdminMahasiswa({
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </AppLayout>
     );
 }
