@@ -107,7 +107,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
 
                 {/* Stats Cards */}
                 <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
                                 <FileText className="h-6 w-6" />
@@ -118,7 +118,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
                                 <Clock className="h-6 w-6" />
@@ -129,7 +129,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-red-600 text-white shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform">
                                 <AlertTriangle className="h-6 w-6" />
@@ -140,7 +140,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform">
                                 <Bell className="h-6 w-6" />
@@ -154,7 +154,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                 </div>
 
                 {/* Filters */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
                     <div className="flex items-center gap-2 mb-4">
                         <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-400 to-indigo-600 text-white">
                             <Filter className="h-4 w-4" />
@@ -195,8 +195,8 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                 </div>
 
                 {/* Tugas List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white">
@@ -218,7 +218,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                         <FileText className="h-12 w-12 text-white" />
                                     </div>
                                 </div>
-                                <p className="text-xl font-semibold text-slate-700 dark:text-slate-300">Belum ada tugas</p>
+                                <p className="text-xl font-semibold text-slate-700 dark:text-gray-300">Belum ada tugas</p>
                                 <p className="text-sm text-slate-500 mt-2">Tugas dari dosen akan muncul di sini</p>
                             </div>
                         ) : (
@@ -235,8 +235,8 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                 tugas.is_overdue 
                                                     ? 'border-red-200 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-800' 
                                                     : !tugas.is_read 
-                                                        ? 'border-l-4 border-l-blue-500 border-slate-200 dark:border-slate-700' 
-                                                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
+                                                        ? 'border-l-4 border-l-blue-500 border-slate-200 dark:border-gray-700' 
+                                                        : 'border-slate-200 dark:border-gray-700 hover:border-blue-300'
                                             }`}
                                             style={{ 
                                                 animationDelay: `${index * 100}ms`,
@@ -272,19 +272,19 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                     <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                                         {tugas.judul}
                                                     </h3>
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mt-2">{tugas.deskripsi}</p>
+                                                    <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-2 mt-2">{tugas.deskripsi}</p>
                                                     
                                                     {/* Meta Info */}
                                                     <div className="flex items-center gap-3 mt-4 flex-wrap">
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-400">
+                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
                                                             <BookOpen className="h-4 w-4 text-blue-500" />
                                                             {tugas.course.nama}
                                                         </span>
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-400">
+                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
                                                             <Calendar className="h-4 w-4 text-purple-500" />
                                                             {tugas.deadline_display}
                                                         </span>
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-400">
+                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
                                                             <MessageSquare className="h-4 w-4 text-emerald-500" />
                                                             {tugas.diskusi_count} diskusi
                                                         </span>

@@ -141,7 +141,7 @@ export default function AcademicDashboard({
 
                 {/* Stats Cards */}
                 <div className={`grid gap-4 grid-cols-2 md:grid-cols-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
                                 <BookOpen className="h-6 w-6" />
@@ -152,7 +152,7 @@ export default function AcademicDashboard({
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
                                 <CheckCircle2 className="h-6 w-6" />
@@ -163,7 +163,7 @@ export default function AcademicDashboard({
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
                                 <Clock className="h-6 w-6" />
@@ -174,7 +174,7 @@ export default function AcademicDashboard({
                             </div>
                         </div>
                     </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all group">
+                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
                         <div className="flex items-center gap-3">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-red-600 text-white shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform">
                                 <AlertTriangle className="h-6 w-6" />
@@ -198,7 +198,7 @@ export default function AcademicDashboard({
                     ].map((item, index) => (
                         <Link key={item.href} href={item.href}>
                             <div 
-                                className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
+                                className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all cursor-pointer group hover:scale-[1.02]"
                                 style={{ 
                                     animationDelay: `${index * 50}ms`,
                                     animation: isLoaded ? 'fadeInUp 0.5s ease-out forwards' : 'none'
@@ -218,8 +218,8 @@ export default function AcademicDashboard({
 
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* Today's Schedule */}
-                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white">
                                     <Calendar className="h-4 w-4" />
@@ -236,7 +236,7 @@ export default function AcademicDashboard({
                                     {todaySchedule.map((item, index) => (
                                         <div 
                                             key={item.id} 
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                            className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                                             style={{ 
                                                 animationDelay: `${index * 100}ms`,
                                                 animation: isLoaded ? 'fadeInLeft 0.5s ease-out forwards' : 'none'
@@ -263,7 +263,7 @@ export default function AcademicDashboard({
                                 </div>
                             ) : (
                                 <div className="text-center py-8">
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-gray-800 flex items-center justify-center">
                                         <Calendar className="h-8 w-8 text-slate-400" />
                                     </div>
                                     <p className="text-slate-500 font-medium">Tidak ada jadwal hari ini</p>
@@ -274,8 +274,8 @@ export default function AcademicDashboard({
                     </div>
 
                     {/* Pending Tasks */}
-                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '350ms' }}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '350ms' }}>
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white">
@@ -300,7 +300,7 @@ export default function AcademicDashboard({
                                             className={`p-3 rounded-xl border-2 transition-all hover:shadow-md ${
                                                 task.is_overdue 
                                                     ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30' 
-                                                    : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
+                                                    : 'border-slate-200 bg-slate-50 dark:border-gray-700 dark:bg-gray-800/50'
                                             }`}
                                         >
                                             <div className="flex items-start justify-between gap-2">
@@ -335,8 +335,8 @@ export default function AcademicDashboard({
 
                 <div className="grid gap-6 md:grid-cols-2">
                     {/* Upcoming Exams */}
-                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '400ms' }}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '400ms' }}>
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 rounded-lg bg-gradient-to-br from-red-400 to-red-600 text-white">
@@ -363,7 +363,7 @@ export default function AcademicDashboard({
                                                     ? 'border-red-300 bg-gradient-to-r from-red-50 to-rose-50 dark:border-red-700 dark:from-red-950/40 dark:to-rose-950/40' 
                                                     : exam.is_warning 
                                                         ? 'border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 dark:border-amber-700 dark:from-amber-950/40 dark:to-orange-950/40' 
-                                                        : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
+                                                        : 'border-slate-200 bg-slate-50 dark:border-gray-700 dark:bg-gray-800/50'
                                             }`}
                                         >
                                             <div className="flex items-center justify-between">
@@ -379,12 +379,12 @@ export default function AcademicDashboard({
                                                 <div className={`text-right p-2 rounded-xl ${
                                                     exam.is_critical ? 'bg-red-100 dark:bg-red-900/30' : 
                                                     exam.is_warning ? 'bg-amber-100 dark:bg-amber-900/30' : 
-                                                    'bg-slate-100 dark:bg-slate-800'
+                                                    'bg-slate-100 dark:bg-gray-800'
                                                 }`}>
                                                     <p className={`text-2xl font-bold ${
                                                         exam.is_critical ? 'text-red-600' : 
                                                         exam.is_warning ? 'text-amber-600' : 
-                                                        'text-slate-700 dark:text-slate-300'
+                                                        'text-slate-700 dark:text-gray-300'
                                                     }`}>{exam.days_remaining}</p>
                                                     <p className="text-xs text-slate-500">hari lagi</p>
                                                 </div>
@@ -394,7 +394,7 @@ export default function AcademicDashboard({
                                 </div>
                             ) : (
                                 <div className="text-center py-8">
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-gray-800 flex items-center justify-center">
                                         <GraduationCap className="h-8 w-8 text-slate-400" />
                                     </div>
                                     <p className="text-slate-500 font-medium">Belum ada ujian terjadwal</p>
@@ -404,8 +404,8 @@ export default function AcademicDashboard({
                     </div>
 
                     {/* Course Progress */}
-                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '450ms' }}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '450ms' }}>
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white">
@@ -431,11 +431,11 @@ export default function AcademicDashboard({
                                                     <span className="font-medium text-sm text-slate-900 dark:text-white">{course.name}</span>
                                                     <Badge variant="outline" className="text-xs">{course.mode}</Badge>
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                <span className="text-sm font-medium text-slate-600 dark:text-gray-400">
                                                     {course.current_meeting}/{course.total_meetings}
                                                 </span>
                                             </div>
-                                            <div className="relative h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div className="relative h-2 bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
                                                 <div 
                                                     className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-1000 ease-out group-hover:from-emerald-500 group-hover:to-emerald-700"
                                                     style={{ width: `${course.progress}%` }}
@@ -446,7 +446,7 @@ export default function AcademicDashboard({
                                 </div>
                             ) : (
                                 <div className="text-center py-8">
-                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-slate-100 dark:bg-gray-800 flex items-center justify-center">
                                         <BookOpen className="h-8 w-8 text-slate-400" />
                                     </div>
                                     <p className="text-slate-500 font-medium">Belum ada mata kuliah</p>
@@ -461,8 +461,8 @@ export default function AcademicDashboard({
 
                 {/* Recent Notes */}
                 {recentNotes.length > 0 && (
-                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '500ms' }}>
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '500ms' }}>
+                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="p-2 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white">
@@ -483,7 +483,7 @@ export default function AcademicDashboard({
                                 {recentNotes.map((note, index) => (
                                     <Link key={note.id} href="/user/akademik/catatan">
                                         <div 
-                                            className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group hover:scale-[1.02]"
+                                            className="p-4 rounded-xl border border-slate-200 dark:border-gray-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group hover:scale-[1.02]"
                                             style={{ 
                                                 animationDelay: `${index * 100}ms`,
                                                 animation: isLoaded ? 'fadeInUp 0.5s ease-out forwards' : 'none'
@@ -493,7 +493,7 @@ export default function AcademicDashboard({
                                                 <Badge variant={note.course_mode === 'offline' ? 'default' : 'secondary'} className="text-xs">
                                                     {note.course_mode}
                                                 </Badge>
-                                                <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">P{note.meeting_number}</span>
+                                                <span className="text-xs text-slate-500 bg-slate-100 dark:bg-gray-800 px-2 py-0.5 rounded">P{note.meeting_number}</span>
                                             </div>
                                             <p className="font-medium text-sm text-slate-900 dark:text-white line-clamp-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{note.title}</p>
                                             <p className="text-xs text-slate-500 mt-1">{note.course_name}</p>
