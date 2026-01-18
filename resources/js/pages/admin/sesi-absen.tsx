@@ -4,6 +4,7 @@ import { Calendar, Play, Pause, Plus, Search, Filter, Clock, Users, CheckCircle,
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { motion } from 'framer-motion';
 
 interface Session {
     id: number;
@@ -217,17 +218,38 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                 )}
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-5">
-                    <StatCard icon={Calendar} label="Total Sesi" value={stats.total_sessions} sub="Semua waktu" color="blue" />
-                    <StatCard icon={Zap} label="Sesi Aktif" value={stats.active_sessions} sub="Saat ini" color="emerald" />
-                    <StatCard icon={Clock} label="Hari Ini" value={stats.today_sessions} sub={`${stats.today_attendance} kehadiran`} color="amber" />
-                    <StatCard icon={Users} label="Rata-rata" value={stats.avg_attendance_per_session} sub="Per sesi" color="purple" />
-                    <StatCard icon={CheckCircle} label="Completion" value={`${stats.completion_rate}%`} sub="Sesi selesai" color="green" />
-                </div>
+                <motion.div 
+                    className="grid gap-4 md:grid-cols-5"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ staggerChildren: 0.1 }}
+                >
+                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <StatCard icon={Calendar} label="Total Sesi" value={stats.total_sessions} sub="Semua waktu" color="blue" />
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <StatCard icon={Zap} label="Sesi Aktif" value={stats.active_sessions} sub="Saat ini" color="emerald" />
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <StatCard icon={Clock} label="Hari Ini" value={stats.today_sessions} sub={`${stats.today_attendance} kehadiran`} color="amber" />
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <StatCard icon={Users} label="Rata-rata" value={stats.avg_attendance_per_session} sub="Per sesi" color="purple" />
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                        <StatCard icon={CheckCircle} label="Completion" value={`${stats.completion_rate}%`} sub="Sesi selesai" color="green" />
+                    </motion.div>
+                </motion.div>
 
                 {/* Charts Row */}
                 <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <motion.div 
+                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        whileHover={{ scale: 1.01 }}
+                    >
                         <div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Tren Mingguan</h2></div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -237,47 +259,79 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    </motion.div>
+                    <motion.div 
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        whileHover={{ scale: 1.02 }}
+                    >
                         <div className="flex items-center gap-2 mb-4"><BarChart3 className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Hari Ini</h2></div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={hourlyDistribution}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="hour" tick={{ fontSize: 9 }} stroke="#94a3b8" interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" /><Tooltip /><Bar dataKey="count" name="Kehadiran" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Today Sessions & Course Performance */}
                 <div className="grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    <motion.div 
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        whileHover={{ scale: 1.01 }}
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><Timer className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Jadwal Hari Ini</h2></div></div>
                         <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-72 overflow-y-auto">
-                            {todaySessions.length === 0 ? <div className="p-8 text-center text-slate-500">Tidak ada sesi hari ini</div> : todaySessions.map(s => {
+                            {todaySessions.length === 0 ? <div className="p-8 text-center text-slate-500">Tidak ada sesi hari ini</div> : todaySessions.map((s, idx) => {
                                 const cfg = statusConfig[s.status] || statusConfig.scheduled;
                                 return (
-                                    <div key={s.id} className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                    <motion.div 
+                                        key={s.id} 
+                                        className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        whileHover={{ scale: 1.02, x: 4 }}
+                                    >
                                         <div className="flex items-center gap-3">
                                             <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${s.is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{s.is_active ? <Play className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</div>
                                             <div><p className="font-medium text-slate-900 dark:text-white text-sm">{s.course}</p><p className="text-xs text-slate-500">Pertemuan #{s.meeting} • {s.time}</p></div>
                                         </div>
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
-                                    </div>
+                                    </motion.div>
                                 );
                             })}
                         </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    </motion.div>
+                    <motion.div 
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        whileHover={{ scale: 1.01 }}
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Performa Mata Kuliah</h2></div></div>
                         <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-72 overflow-y-auto">
-                            {coursePerformance.length === 0 ? <div className="p-8 text-center text-slate-500">Belum ada data</div> : coursePerformance.map(c => (
-                                <div key={c.id} className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                            {coursePerformance.length === 0 ? <div className="p-8 text-center text-slate-500">Belum ada data</div> : coursePerformance.map((c, idx) => (
+                                <motion.div 
+                                    key={c.id} 
+                                    className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    whileHover={{ scale: 1.02, x: -4 }}
+                                >
                                     <div><p className="font-medium text-slate-900 dark:text-white text-sm">{c.name}</p><p className="text-xs text-slate-500">{c.completed_sessions}/{c.total_sessions} sesi</p></div>
                                     <div className="text-right"><p className="text-sm font-bold text-slate-900 dark:text-white">{c.avg_attendance}</p><p className="text-xs text-slate-500">rata-rata</p></div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Filters & Search */}
@@ -306,7 +360,12 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                 </div>
 
                 {/* Sessions Table */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                <motion.div 
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                >
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead><tr className="bg-slate-50 dark:bg-slate-900/50">
@@ -320,10 +379,17 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                 {sessions.data.length === 0 ? (
                                     <tr><td colSpan={6} className="px-4 py-12 text-center"><Calendar className="h-12 w-12 mx-auto text-slate-300 mb-3" /><p className="text-slate-500">Belum ada sesi absen</p></td></tr>
-                                ) : sessions.data.map(s => {
+                                ) : sessions.data.map((s, idx) => {
                                     const cfg = statusConfig[s.status] || statusConfig.scheduled;
                                     return (
-                                        <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <motion.tr 
+                                            key={s.id} 
+                                            className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.03 }}
+                                            whileHover={{ scale: 1.005 }}
+                                        >
                                             <td className="px-4 py-3">
                                                 <p className="font-medium text-slate-900 dark:text-white">{s.course_name}</p>
                                                 <p className="text-xs text-slate-500">{s.dosen_name}</p>
@@ -355,7 +421,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                     <button onClick={() => openDeleteDialog(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="h-4 w-4" /></button>
                                                 </div>
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     );
                                 })}
                             </tbody>
@@ -368,7 +434,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                             ))}
                         </div>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Create Modal */}
                 {showCreateModal && (

@@ -72,131 +72,36 @@ export default function DosenHelp() {
         try {
             setIsLoading(true);
             
-            // Simulate API call with dummy data
-            await new Promise(resolve => setTimeout(resolve, 800));
+            console.log('Loading help data...');
             
-            // Set dummy FAQ categories
-            setFaqCategories([
-                {
-                    id: '1',
-                    name: 'Memulai',
-                    description: 'Panduan dasar untuk memulai',
-                    icon: 'rocket',
-                    faqs: [
-                        {
-                            id: 'faq1',
-                            question: 'Bagaimana cara membuat sesi absensi baru?',
-                            answer: 'Untuk membuat sesi absensi baru, buka menu Sesi Absen, klik tombol "Buat Sesi Baru", pilih mata kuliah, tentukan waktu mulai dan selesai, lalu klik Simpan.',
-                            category: 'Memulai',
-                            helpful: 45,
-                            notHelpful: 2,
-                        },
-                        {
-                            id: 'faq2',
-                            question: 'Bagaimana cara melihat daftar mahasiswa yang hadir?',
-                            answer: 'Buka menu Sesi Absen, pilih sesi yang ingin dilihat, kemudian klik tab "Daftar Kehadiran" untuk melihat semua mahasiswa yang sudah melakukan absensi.',
-                            category: 'Memulai',
-                            helpful: 38,
-                            notHelpful: 1,
-                        },
-                    ],
-                },
-                {
-                    id: '2',
-                    name: 'Pengelolaan Kelas',
-                    description: 'Mengelola kelas dan mahasiswa',
-                    icon: 'users',
-                    faqs: [
-                        {
-                            id: 'faq3',
-                            question: 'Bagaimana cara mengatur batas keterlambatan?',
-                            answer: 'Buka menu Pengaturan, pilih tab "Manajemen Kelas", kemudian atur "Batas Keterlambatan" sesuai kebutuhan (dalam menit). Perubahan akan otomatis tersimpan.',
-                            category: 'Pengelolaan Kelas',
-                            helpful: 52,
-                            notHelpful: 3,
-                        },
-                        {
-                            id: 'faq4',
-                            question: 'Bagaimana cara menyetujui izin mahasiswa?',
-                            answer: 'Buka menu Izin/Sakit, pilih pengajuan yang ingin disetujui, periksa dokumen pendukung, kemudian klik tombol "Setujui" atau "Tolak" sesuai kebijakan.',
-                            category: 'Pengelolaan Kelas',
-                            helpful: 41,
-                            notHelpful: 2,
-                        },
-                    ],
-                },
-                {
-                    id: '3',
-                    name: 'Notifikasi',
-                    description: 'Pengaturan notifikasi dan pengingat',
-                    icon: 'bell',
-                    faqs: [
-                        {
-                            id: 'faq5',
-                            question: 'Bagaimana cara mengaktifkan notifikasi email?',
-                            answer: 'Buka menu Pengaturan, pilih tab "Notifikasi", kemudian aktifkan toggle untuk "Notifikasi Email Kehadiran Baru" dan "Notifikasi Pengajuan Izin".',
-                            category: 'Notifikasi',
-                            helpful: 29,
-                            notHelpful: 1,
-                        },
-                    ],
-                },
+            // Fetch real data from API
+            const [faqsRes, troubleshootingRes, contactRes] = await Promise.all([
+                fetch('/dosen/help/faqs'),
+                fetch('/dosen/help/troubleshooting'),
+                fetch('/dosen/help/contact'),
             ]);
             
-            // Set dummy troubleshooting guides
-            setTroubleshootingGuides([
-                {
-                    id: 'ts1',
-                    title: 'Mahasiswa tidak bisa melakukan absensi',
-                    description: 'Panduan mengatasi masalah mahasiswa yang tidak bisa absen',
-                    category: 'Absensi',
-                    steps: [
-                        'Pastikan sesi absensi sudah dibuat dan masih aktif',
-                        'Periksa apakah mahasiswa berada dalam radius geofence yang ditentukan',
-                        'Pastikan QR code masih valid (belum expired)',
-                        'Cek koneksi internet mahasiswa',
-                        'Verifikasi bahwa mahasiswa terdaftar di mata kuliah tersebut',
-                    ],
-                    relatedArticles: ['Membuat Sesi Absensi', 'Pengaturan Geofence'],
-                },
-                {
-                    id: 'ts2',
-                    title: 'Data kehadiran tidak muncul',
-                    description: 'Solusi ketika data kehadiran tidak tampil di dashboard',
-                    category: 'Dashboard',
-                    steps: [
-                        'Refresh halaman dengan menekan F5 atau Ctrl+R',
-                        'Periksa filter tanggal yang dipilih',
-                        'Pastikan mata kuliah sudah dipilih dengan benar',
-                        'Coba logout dan login kembali',
-                        'Hubungi admin jika masalah berlanjut',
-                    ],
-                    relatedArticles: ['Dashboard Overview', 'Filter Data'],
-                },
-                {
-                    id: 'ts3',
-                    title: 'Tidak bisa mengubah pengaturan',
-                    description: 'Mengatasi masalah saat menyimpan pengaturan',
-                    category: 'Pengaturan',
-                    steps: [
-                        'Pastikan semua field yang wajib sudah diisi',
-                        'Periksa koneksi internet Anda',
-                        'Coba clear cache browser (Ctrl+Shift+Delete)',
-                        'Gunakan browser yang berbeda (Chrome, Firefox, Edge)',
-                        'Pastikan Anda memiliki hak akses untuk mengubah pengaturan',
-                    ],
-                    relatedArticles: ['Pengaturan Akun', 'Hak Akses'],
-                },
-            ]);
+            console.log('FAQ Response:', faqsRes.status, faqsRes.ok);
+            console.log('Troubleshooting Response:', troubleshootingRes.status, troubleshootingRes.ok);
+            console.log('Contact Response:', contactRes.status, contactRes.ok);
             
-            // Set dummy contact info
-            setContactInfo({
-                email: 'support@unpam.ac.id',
-                phone: '(021) 7412566',
-                hours: 'Senin - Jumat: 08:00 - 16:00 WIB',
-                responseTime: '1-2 jam kerja',
-            });
-        } catch {
+            if (!faqsRes.ok || !troubleshootingRes.ok || !contactRes.ok) {
+                throw new Error('Failed to fetch help data');
+            }
+            
+            const faqs = await faqsRes.json();
+            const troubleshooting = await troubleshootingRes.json();
+            const contact = await contactRes.json();
+            
+            console.log('FAQs loaded:', faqs.length, 'categories');
+            console.log('Troubleshooting loaded:', troubleshooting.length, 'guides');
+            console.log('Contact info loaded:', contact);
+            
+            setFaqCategories(faqs);
+            setTroubleshootingGuides(troubleshooting);
+            setContactInfo(contact);
+        } catch (error) {
+            console.error('Error loading help data:', error);
             showToast('error', 'Gagal memuat data bantuan');
         } finally {
             setIsLoading(false);
@@ -212,14 +117,51 @@ export default function DosenHelp() {
 
         try {
             setIsSubmitting(true);
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            showToast('success', 'Pesan berhasil dikirim! Kami akan segera merespons.');
-            setFeedbackForm({ subject: '', message: '', category: 'general' });
-        } catch {
+            const response = await fetch('/dosen/help/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify(feedbackForm),
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showToast('success', `Pesan berhasil dikirim! Ticket ID: ${data.ticketId}`);
+                setFeedbackForm({ subject: '', message: '', category: 'general' });
+            } else {
+                showToast('error', 'Gagal mengirim pesan');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
             showToast('error', 'Gagal mengirim pesan');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleFaqFeedback = async (faqId: string, isHelpful: boolean) => {
+        try {
+            const id = faqId.replace('faq', '');
+            const endpoint = isHelpful ? 'helpful' : 'not-helpful';
+            
+            await fetch(`/dosen/help/faq/${id}/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+            
+            showToast('success', 'Terima kasih atas feedback Anda!');
+            
+            // Reload FAQs to get updated counts
+            const response = await fetch('/dosen/help/faqs');
+            const faqs = await response.json();
+            setFaqCategories(faqs);
+        } catch (error) {
+            console.error('Error submitting FAQ feedback:', error);
         }
     };
 
@@ -478,7 +420,7 @@ export default function DosenHelp() {
                                                                                             className="h-7 text-xs"
                                                                                             onClick={(e) => {
                                                                                                 e.stopPropagation();
-                                                                                                showToast('success', 'Terima kasih atas feedback Anda!');
+                                                                                                handleFaqFeedback(faq.id, true);
                                                                                             }}
                                                                                         >
                                                                                             👍 Ya ({faq.helpful})
@@ -489,7 +431,7 @@ export default function DosenHelp() {
                                                                                             className="h-7 text-xs"
                                                                                             onClick={(e) => {
                                                                                                 e.stopPropagation();
-                                                                                                showToast('success', 'Terima kasih atas feedback Anda!');
+                                                                                                handleFaqFeedback(faq.id, false);
                                                                                             }}
                                                                                         >
                                                                                             👎 Tidak ({faq.notHelpful})

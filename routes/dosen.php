@@ -124,5 +124,14 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
             ]
         ]);
     })->name('docs.detail');
+    
+    // Help Center
     Route::get('/help', fn () => inertia('dosen/help'))->name('help');
+    Route::get('/help/faqs', [\App\Http\Controllers\Dosen\HelpController::class, 'faqs']);
+    Route::get('/help/troubleshooting', [\App\Http\Controllers\Dosen\HelpController::class, 'troubleshooting']);
+    Route::get('/help/contact', [\App\Http\Controllers\Dosen\HelpController::class, 'contact']);
+    Route::post('/help/feedback', [\App\Http\Controllers\Dosen\HelpController::class, 'submitFeedback']);
+    Route::post('/help/faq/{id}/helpful', [\App\Http\Controllers\Dosen\HelpController::class, 'markFaqHelpful']);
+    Route::post('/help/faq/{id}/not-helpful', [\App\Http\Controllers\Dosen\HelpController::class, 'markFaqNotHelpful']);
+    Route::get('/help/search', [\App\Http\Controllers\Dosen\HelpController::class, 'search']);
 });

@@ -27,6 +27,7 @@ import {
     Target,
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Area,
     AreaChart,
@@ -121,10 +122,69 @@ export default function DashboardOverview({
         color: COLORS[i % COLORS.length],
     }));
 
+    // Container animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 12
+            }
+        }
+    };
+
+    const slideInLeft = {
+        hidden: { opacity: 0, x: -50 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 12
+            }
+        }
+    };
+
+    const slideInRight = {
+        hidden: { opacity: 0, x: 50 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 12
+            }
+        }
+    };
+
     return (
-        <div className="space-y-6">
+        <motion.div 
+            className="space-y-6"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+        >
             {/* Hero Header with Gradient */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 text-white shadow-2xl">
+            <motion.div 
+                className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 text-white shadow-2xl"
+                variants={itemVariants}
+            >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
@@ -184,10 +244,13 @@ export default function DashboardOverview({
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Stats Cards */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <motion.div 
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                variants={containerVariants}
+            >
                 {stats.map((stat, index) => {
                     const icons = [UserCheck, Clock, Camera, Users];
                     const Icon = icons[index] ?? Users;
@@ -200,7 +263,12 @@ export default function DashboardOverview({
                     const color = colors[stat.tone as keyof typeof colors] ?? colors.sky;
 
                     return (
-                        <div key={stat.title} className="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-all hover:shadow-lg hover:scale-[1.02] dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <motion.div 
+                            key={stat.title} 
+                            className="group relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.03, y: -4 }}
+                        >
                             <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full ${color.light} opacity-50 transition-transform group-hover:scale-150`} />
                             <div className="relative">
                                 <div className="flex items-start justify-between">
@@ -214,16 +282,23 @@ export default function DashboardOverview({
                                     <p className="text-xs text-slate-400 mt-0.5">{stat.note}</p>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     );
                 })}
-            </div>
+            </motion.div>
 
 
             {/* Main Content Grid */}
-            <div className="grid gap-6 lg:grid-cols-3">
+            <motion.div 
+                className="grid gap-6 lg:grid-cols-3"
+                variants={containerVariants}
+            >
                 {/* Weekly Attendance Chart */}
-                <div className="lg:col-span-2 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="lg:col-span-2 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={slideInLeft}
+                    whileHover={{ scale: 1.01 }}
+                >
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Kehadiran Mingguan</h2>
@@ -258,10 +333,14 @@ export default function DashboardOverview({
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Attendance Rate Gauge */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={slideInRight}
+                    whileHover={{ scale: 1.02 }}
+                >
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Tingkat Kehadiran</h2>
                     <p className="text-sm text-slate-500 mb-4">Persentase kehadiran keseluruhan</p>
                     <div className="h-52 flex items-center justify-center">
@@ -289,13 +368,19 @@ export default function DashboardOverview({
                             <p className="text-rose-600/70">Ditolak</p>
                         </div>
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* Second Row */}
-            <div className="grid gap-6 lg:grid-cols-3">
+            <motion.div 
+                className="grid gap-6 lg:grid-cols-3"
+                variants={containerVariants}
+            >
                 {/* Recent Activity */}
-                <div className="lg:col-span-2 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="lg:col-span-2 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={slideInLeft}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2>
@@ -311,11 +396,18 @@ export default function DashboardOverview({
                                 Belum ada aktivitas hari ini.
                             </div>
                         ) : (
-                            activity.slice(0, 5).map((item) => {
+                            activity.slice(0, 5).map((item, idx) => {
                                 const config = statusConfig[item.status] ?? statusConfig.present;
                                 const Icon = config.icon;
                                 return (
-                                    <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
+                                    <motion.div 
+                                        key={item.id} 
+                                        className="flex items-center gap-4 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        whileHover={{ scale: 1.02, x: 4 }}
+                                    >
                                         <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${config.bg}`}>
                                             <Icon className={`h-5 w-5 ${config.color}`} />
                                         </div>
@@ -329,15 +421,19 @@ export default function DashboardOverview({
                                             </span>
                                             <p className="text-xs text-slate-400 mt-1">{item.time}</p>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 );
                             })
                         )}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Top Students */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={slideInRight}
+                    whileHover={{ scale: 1.02 }}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Top Mahasiswa</h2>
@@ -352,7 +448,14 @@ export default function DashboardOverview({
                             </div>
                         ) : (
                             (topStudents ?? []).map((student, index) => (
-                                <div key={student.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                <motion.div 
+                                    key={student.id} 
+                                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 }}
+                                    whileHover={{ scale: 1.03, x: 4 }}
+                                >
                                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
                                         index === 0 ? 'bg-amber-100 text-amber-700' :
                                         index === 1 ? 'bg-slate-200 text-slate-700' :
@@ -372,18 +475,24 @@ export default function DashboardOverview({
                                             {student.streak}
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))
                         )}
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
 
             {/* Third Row */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            <motion.div 
+                className="grid gap-6 lg:grid-cols-2"
+                variants={containerVariants}
+            >
                 {/* Course Stats */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={slideInLeft}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Kehadiran per Mata Kuliah</h2>
@@ -410,12 +519,18 @@ export default function DashboardOverview({
                             </ResponsiveContainer>
                         )}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Device & Hourly Stats */}
-                <div className="grid gap-6 sm:grid-cols-2">
+                <motion.div 
+                    className="grid gap-6 sm:grid-cols-2"
+                    variants={containerVariants}
+                >
                     {/* Device Distribution */}
-                    <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <motion.div 
+                        className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        variants={itemVariants}
+                    >
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-semibold text-slate-900 dark:text-white">Perangkat</h2>
                             <Smartphone className="h-5 w-5 text-slate-400" />
@@ -447,10 +562,13 @@ export default function DashboardOverview({
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Hourly Distribution */}
-                    <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <motion.div 
+                        className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        variants={itemVariants}
+                    >
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-semibold text-slate-900 dark:text-white">Jam Absen</h2>
                             <Clock className="h-5 w-5 text-slate-400" />
@@ -471,14 +589,20 @@ export default function DashboardOverview({
                                 </ResponsiveContainer>
                             )}
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </motion.div>
+                </motion.div>
+            </motion.div>
 
             {/* Security & Session Info */}
-            <div className="grid gap-6 lg:grid-cols-3">
+            <motion.div 
+                className="grid gap-6 lg:grid-cols-3"
+                variants={containerVariants}
+            >
                 {/* Active Session */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={itemVariants}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Sesi Aktif</h2>
@@ -515,10 +639,13 @@ export default function DashboardOverview({
                             </a>
                         </div>
                     )}
-                </div>
+                </motion.div>
 
                 {/* Security Summary */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={itemVariants}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Keamanan</h2>
@@ -549,10 +676,13 @@ export default function DashboardOverview({
                             <span className="font-semibold text-amber-600">{securitySummary?.expired_tokens ?? 0}</span>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Upcoming Sessions */}
-                <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    variants={itemVariants}
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Sesi Berikutnya</h2>
@@ -575,14 +705,21 @@ export default function DashboardOverview({
                             ))
                         )}
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* Quick Actions */}
-            <div className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+            <motion.div 
+                className="rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                variants={itemVariants}
+            >
                 <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Aksi Cepat</h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <a href="/admin/qr-builder" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    <motion.a 
+                        href="/admin/qr-builder" 
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                    >
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 transition-transform group-hover:scale-110">
                             <QrCode className="h-6 w-6" />
                         </div>
@@ -591,8 +728,12 @@ export default function DashboardOverview({
                             <p className="text-sm text-slate-500">Buat QR code absensi</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
-                    </a>
-                    <a href="/admin/mahasiswa" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    </motion.a>
+                    <motion.a 
+                        href="/admin/mahasiswa" 
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                    >
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 transition-transform group-hover:scale-110">
                             <Users className="h-6 w-6" />
                         </div>
@@ -601,8 +742,12 @@ export default function DashboardOverview({
                             <p className="text-sm text-slate-500">Kelola data mahasiswa</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
-                    </a>
-                    <a href="/admin/sesi-absen" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    </motion.a>
+                    <motion.a 
+                        href="/admin/sesi-absen" 
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                    >
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 transition-transform group-hover:scale-110">
                             <CalendarCheck className="h-6 w-6" />
                         </div>
@@ -611,8 +756,12 @@ export default function DashboardOverview({
                             <p className="text-sm text-slate-500">Kelola sesi absensi</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
-                    </a>
-                    <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    </motion.a>
+                    <motion.a 
+                        href="/admin/rekap-kehadiran" 
+                        className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                    >
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 transition-transform group-hover:scale-110">
                             <FileBarChart className="h-6 w-6" />
                         </div>
@@ -621,9 +770,9 @@ export default function DashboardOverview({
                             <p className="text-sm text-slate-500">Lihat rekap kehadiran</p>
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
-                    </a>
+                    </motion.a>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
