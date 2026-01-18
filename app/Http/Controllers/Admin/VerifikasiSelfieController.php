@@ -56,7 +56,7 @@ class VerifikasiSelfieController extends Controller
             'today_pending' => SelfieVerification::where('status', 'pending')
                 ->whereDate('created_at', today())->count(),
             'today_processed' => SelfieVerification::whereIn('status', ['approved', 'rejected'])
-                ->whereDate('verified_at', today())->count(),
+                ->whereDate('updated_at', today())->count(),
         ];
 
         // Daily trend
@@ -79,14 +79,14 @@ class VerifikasiSelfieController extends Controller
         }
 
         // Recent verifications by admin
-        $recentVerifications = SelfieVerification::whereNotNull('verified_at')
-            ->orderBy('verified_at', 'desc')
+        $recentVerifications = SelfieVerification::whereIn('status', ['approved', 'rejected'])
+            ->orderBy('updated_at', 'desc')
             ->take(10)
             ->get()
             ->map(fn($item) => [
                 'id' => $item->id,
                 'status' => $item->status,
-                'verified_at' => $item->verified_at?->format('H:i:s'),
+                'verified_at' => $item->updated_at?->format('H:i:s'),
                 'verified_by_name' => $item->verified_by_name ?? 'System',
             ]);
 

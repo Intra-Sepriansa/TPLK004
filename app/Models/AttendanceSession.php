@@ -16,6 +16,7 @@ class AttendanceSession extends Model
         'end_at',
         'is_active',
         'created_by',
+        'created_by_dosen_id',
     ];
 
     protected $casts = [
@@ -27,6 +28,11 @@ class AttendanceSession extends Model
     public function course(): BelongsTo
     {
         return $this->belongsTo(MataKuliah::class, 'course_id');
+    }
+
+    public function dosen(): BelongsTo
+    {
+        return $this->belongsTo(Dosen::class, 'created_by_dosen_id');
     }
 
     public function tokens(): HasMany

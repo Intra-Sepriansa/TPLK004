@@ -57,6 +57,8 @@ class HandleInertiaRequests extends Middleware
         $headerNotifications = null;
         $notificationConfig = null;
         
+        // Temporarily disabled notifications until app_notifications table is created
+        /*
         if (auth()->guard('mahasiswa')->check()) {
             $mahasiswa = auth()->guard('mahasiswa')->user();
             $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
@@ -106,6 +108,7 @@ class HandleInertiaRequests extends Middleware
                 'allUrl' => '/admin/notification-center',
             ];
         }
+        */
 
         return [
             ...parent::share($request),
