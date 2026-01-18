@@ -257,22 +257,50 @@ export default function UserRekapan() {
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
+                            >
                                 <p className="text-xs text-violet-200">Total Sesi</p>
-                                <p className="text-2xl font-bold">{stats.totalSessions}</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.totalSessions} duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3, duration: 0.5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
+                            >
                                 <p className="text-xs text-violet-200">Kehadiran</p>
-                                <p className="text-2xl font-bold">{stats.attendanceRate}%</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.attendanceRate} suffix="%" duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4, duration: 0.5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
+                            >
                                 <p className="text-xs text-violet-200">Tepat Waktu</p>
-                                <p className="text-2xl font-bold">{stats.onTimeRate}%</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.onTimeRate} suffix="%" duration={1500} />
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
+                            >
                                 <p className="text-xs text-violet-200">Bulan Ini</p>
-                                <p className="text-2xl font-bold">{stats.thisMonthPresent}/{stats.thisMonthTotal}</p>
-                            </div>
+                                <p className="text-2xl font-bold">
+                                    <AnimatedCounter value={stats.thisMonthPresent} duration={1500} />/{stats.thisMonthTotal}
+                                </p>
+                            </motion.div>
                         </div>
                     </div>
                 </motion.div>
