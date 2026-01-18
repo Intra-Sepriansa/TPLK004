@@ -74,7 +74,7 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
             const maxScroll = scrollHeight - clientHeight;
             let progress = 0;
             
-            if (maxScroll <= 10) {
+            if (maxScroll <= 50) {
                 // Content fits in viewport or very close
                 progress = 100;
             } else {
@@ -84,12 +84,12 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
             
             setScrollProgress(Math.min(progress, 100));
 
-            // Auto-complete when scrolled to 90% or more
-            if (progress >= 90 && !completedSections.includes(activeSection) && !hasAutoCompleted.current) {
+            // Auto-complete when scrolled to 85% or more (lowered threshold)
+            if (progress >= 85 && !completedSections.includes(activeSection) && !hasAutoCompleted.current) {
                 hasAutoCompleted.current = true;
                 setTimeout(() => {
                     handleSectionComplete(activeSection, true);
-                }, 500); // Small delay to ensure smooth UX
+                }, 300); // Small delay to ensure smooth UX
             }
         };
 
@@ -109,24 +109,28 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
         setScrollProgress(0);
         
         // Trigger initial scroll check after section change
-        setTimeout(() => {
-            if (contentRef.current) {
+        const checkTimer = setTimeout(() => {
+            if (contentRef.current && activeSection) {
                 const element = contentRef.current;
                 const scrollHeight = element.scrollHeight;
                 const clientHeight = element.clientHeight;
                 
-                // If content fits in viewport, auto-complete after 3 seconds of viewing
-                if (scrollHeight - clientHeight <= 10 && !completedSections.includes(activeSection)) {
-                    setTimeout(() => {
+                // If content fits in viewport, auto-complete after 2 seconds of viewing
+                if (scrollHeight - clientHeight <= 50 && !completedSections.includes(activeSection)) {
+                    const autoCompleteTimer = setTimeout(() => {
                         if (!hasAutoCompleted.current && !completedSections.includes(activeSection)) {
                             hasAutoCompleted.current = true;
                             handleSectionComplete(activeSection, true);
                         }
-                    }, 3000);
+                    }, 2000); // Reduced from 3 to 2 seconds
+                    
+                    return () => clearTimeout(autoCompleteTimer);
                 }
             }
-        }, 200);
-    }, [activeSection]);
+        }, 300);
+        
+        return () => clearTimeout(checkTimer);
+    }, [activeSection, completedSections]);
 
     const loadGuideDetail = async () => {
         try {
@@ -203,7 +207,7 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
 
                 // Optional: Navigate back to docs list after 2 seconds
                 setTimeout(() => {
-                    router.visit('/user/docs');
+                    router.visit('/dosen/docs');
                 }, 2000);
             } catch (error) {
                 console.error('Failed to mark guide as complete:', error);
@@ -219,7 +223,7 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
     };
 
     const handleBack = () => {
-        router.visit('/user/docs');
+        router.visit('/dosen/docs');
     };
 
     if (isLoading) {
@@ -418,26 +422,43 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
                                                     </div>
                                                 )}
                                             </div>
-                                            {isGuideCompleted ? (
-                                                <div className="px-6 py-2 rounded-xl bg-green-600 text-white font-bold flex items-center gap-2 flex-shrink-0 shadow-lg">
-                                                    <CheckCircle className="w-5 h-5" />
-                                                    <span>Selesai</span>
-                                                </div>
-                                            ) : completionPercentage === 100 ? (
-                                                <button
-                                                    onClick={handleManualComplete}
-                                                    className="px-6 py-2 rounded-xl transition-all duration-300 flex-shrink-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
-                                                >
-                                                    <span className="flex items-center gap-2">
+                                            <div className="flex items-center gap-3 flex-shrink-0">
+                                                {/* Section Complete Button */}
+                                                {!completedSections.includes(activeContent.id) ? (
+                                                    <button
+                                                        onClick={() => handleSectionComplete(activeContent.id, false)}
+                                                        className="px-4 py-2 rounded-xl transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 font-medium shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 text-sm"
+                                                    >
+                                                        <span className="flex items-center gap-2">
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Tandai Selesai
+                                                        </span>
+                                                    </button>
+                                                ) : (
+                                                    <div className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium flex items-center gap-2 shadow-lg text-sm">
                                                         <CheckCircle className="w-4 h-4" />
-                                                        Tandai Selesai
-                                                    </span>
-                                                </button>
-                                            ) : (
-                                                <div className="text-sm text-gray-600 dark:text-gray-400 flex-shrink-0 font-medium">
-                                                    {completionPercentage}% Complete
-                                                </div>
-                                            )}
+                                                        <span>Selesai</span>
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Guide Complete Button */}
+                                                {isGuideCompleted ? (
+                                                    <div className="px-6 py-2 rounded-xl bg-green-600 text-white font-bold flex items-center gap-2 shadow-lg">
+                                                        <CheckCircle className="w-5 h-5" />
+                                                        <span>Guide Selesai</span>
+                                                    </div>
+                                                ) : completionPercentage === 100 && (
+                                                    <button
+                                                        onClick={handleManualComplete}
+                                                        className="px-6 py-2 rounded-xl transition-all duration-300 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
+                                                    >
+                                                        <span className="flex items-center gap-2">
+                                                            <Award className="w-4 h-4" />
+                                                            Selesaikan Guide
+                                                        </span>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="prose prose-slate dark:prose-invert max-w-none">
