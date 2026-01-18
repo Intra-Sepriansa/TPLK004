@@ -34,6 +34,7 @@ import {
     Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface MahasiswaInfo {
     id: number;
@@ -101,10 +102,37 @@ const statusConfig = {
     rejected: { label: 'Ditolak', color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400', icon: XCircle },
 };
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 400,
+            damping: 17,
+        },
+    },
+};
+
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-slate-800 dark:bg-slate-950">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-black"
+        >
             <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
             {payload.map((entry: any, index: number) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
@@ -113,7 +141,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                     <span className="font-medium text-slate-900 dark:text-white">{entry.value}</span>
                 </div>
             ))}
-        </div>
+        </motion.div>
     );
 };
 
@@ -141,11 +169,19 @@ function StatCard({
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+        <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.05, y: -5 }}
+            whileTap={{ scale: 0.95 }}
+            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+        >
             <div className="flex items-center gap-3">
-                <div className={cn('flex h-12 w-12 items-center justify-center rounded-xl', colors[color])}>
+                <motion.div
+                    whileHover={{ rotate: 10 }}
+                    className={cn('flex h-12 w-12 items-center justify-center rounded-xl', colors[color])}
+                >
                     <Icon className="h-6 w-6" />
-                </div>
+                </motion.div>
                 <div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
                     <p className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -154,7 +190,7 @@ function StatCard({
                     {subtext && <p className="text-[10px] text-slate-400">{subtext}</p>}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
 
@@ -191,9 +227,17 @@ export default function UserRekapan() {
         <StudentLayout>
             <Head title="Rekapan Kehadiran" />
 
-            <div className="space-y-6 p-6">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-6 p-6"
+            >
                 {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 p-6 text-white shadow-lg">
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-500 to-purple-600 p-6 text-white shadow-lg"
+                >
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     
@@ -204,9 +248,12 @@ export default function UserRekapan() {
                                 <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
                                 <p className="text-sm text-violet-200">NIM: {mahasiswa.nim}</p>
                             </div>
-                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                            <motion.div
+                                whileHover={{ rotate: 10, scale: 1.1 }}
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
+                            >
                                 <FileText className="h-7 w-7" />
-                            </div>
+                            </motion.div>
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -228,25 +275,34 @@ export default function UserRekapan() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                >
                     <StatCard icon={CheckCircle} label="Hadir" value={stats.presentCount} subtext="tepat waktu" color="emerald" />
                     <StatCard icon={Clock} label="Terlambat" value={stats.lateCount} subtext="sesi" color="amber" />
                     <StatCard icon={XCircle} label="Ditolak" value={stats.rejectedCount} subtext="sesi" color="rose" />
                     <StatCard icon={Target} label="Target" value={75} suffix="%" subtext="min. kehadiran" color="violet" />
-                </div>
+                </motion.div>
 
                 {/* Main Content */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Left Column */}
                     <div className="space-y-6 lg:col-span-2">
                         {/* Course Summary Table */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        >
+                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
-                                    <BookOpen className="h-5 w-5 text-violet-600" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <BookOpen className="h-5 w-5 text-violet-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Ringkasan per Mata Kuliah
                                     </h2>
@@ -254,15 +310,22 @@ export default function UserRekapan() {
                                 <span className="text-sm text-slate-500">{courseSummary.length} mata kuliah</span>
                             </div>
 
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                            <div className="divide-y divide-slate-100 dark:divide-gray-800">
                                 {courseSummary.length === 0 ? (
                                     <div className="p-8 text-center">
                                         <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
                                         <p className="mt-3 text-slate-500">Belum ada data mata kuliah</p>
                                     </div>
                                 ) : (
-                                    courseSummary.map((course) => (
-                                        <div key={course.courseId} className="p-4">
+                                    courseSummary.map((course, index) => (
+                                        <motion.div
+                                            key={course.courseId}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
+                                            className="p-4"
+                                        >
                                             <div className="flex items-center justify-between mb-2">
                                                 <h3 className="font-medium text-slate-900 dark:text-white truncate max-w-[200px]">
                                                     {course.courseName}
@@ -291,17 +354,23 @@ export default function UserRekapan() {
                                                     Ditolak: {course.rejected}
                                                 </span>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Course Bar Chart */}
                         {courseChartData.length > 0 && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <motion.div
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02 }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Grafik per Mata Kuliah
                                     </h2>
@@ -318,14 +387,20 @@ export default function UserRekapan() {
                                         <Bar dataKey="Ditolak" fill="#f43f5e" radius={[4, 4, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* Monthly Trend */}
                         {trendChartData.length > 0 && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <motion.div
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02 }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Calendar className="h-5 w-5 text-sky-600" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <Calendar className="h-5 w-5 text-sky-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Tren Kehadiran 6 Bulan Terakhir
                                     </h2>
@@ -339,7 +414,7 @@ export default function UserRekapan() {
                                         <Line type="monotone" dataKey="Kehadiran" stroke="#6366f1" strokeWidth={3} dot={{ r: 5 }} />
                                     </LineChart>
                                 </ResponsiveContainer>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
 
@@ -347,9 +422,15 @@ export default function UserRekapan() {
                     <div className="space-y-6">
                         {/* Distribution Pie Chart */}
                         {distribution.some(d => d.value > 0) && (
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            <motion.div
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02 }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Award className="h-5 w-5 text-amber-600" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <Award className="h-5 w-5 text-amber-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Distribusi Status
                                     </h2>
@@ -382,20 +463,28 @@ export default function UserRekapan() {
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* Attendance Rate Card */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-gray-900 dark:to-black"
+                        >
                             <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
                             <div className="flex items-end gap-2 mt-2">
                                 <span className="text-4xl font-bold">
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
                                 </span>
                                 {stats.attendanceRate >= 75 ? (
-                                    <span className="text-emerald-400 text-sm mb-1 flex items-center gap-1">
+                                    <motion.span
+                                        animate={{ scale: [1, 1.1, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2 }}
+                                        className="text-emerald-400 text-sm mb-1 flex items-center gap-1"
+                                    >
                                         <Zap className="h-4 w-4" /> Bagus!
-                                    </span>
+                                    </motion.span>
                                 ) : (
                                     <span className="text-amber-400 text-sm mb-1">Perlu ditingkatkan</span>
                                 )}
@@ -407,29 +496,42 @@ export default function UserRekapan() {
                             <p className="text-xs text-slate-400 mt-2">
                                 Minimal 75% untuk memenuhi syarat kehadiran
                             </p>
-                        </div>
+                        </motion.div>
 
                         {/* Recent Activity */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        >
+                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5 text-sky-600" />
+                                    <motion.div whileHover={{ rotate: 10 }}>
+                                        <Clock className="h-5 w-5 text-sky-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Aktivitas Terakhir
                                     </h2>
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                            <div className="divide-y divide-slate-100 dark:divide-gray-800">
                                 {recentLogs.length === 0 ? (
                                     <div className="p-6 text-center text-sm text-slate-500">
                                         Belum ada aktivitas
                                     </div>
                                 ) : (
-                                    recentLogs.map((log) => {
+                                    recentLogs.map((log, index) => {
                                         const config = statusConfig[log.status as keyof typeof statusConfig] || statusConfig.rejected;
                                         const Icon = config.icon;
                                         return (
-                                            <div key={log.id} className="p-3 flex items-center gap-3">
+                                            <motion.div
+                                                key={log.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
+                                                className="p-3 flex items-center gap-3"
+                                            >
                                                 <div className={cn('flex h-8 w-8 items-center justify-center rounded-full', config.color)}>
                                                     <Icon className="h-4 w-4" />
                                                 </div>
@@ -441,44 +543,54 @@ export default function UserRekapan() {
                                                         {log.scannedAtFormatted}
                                                     </p>
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         );
                                     })
                                 )}
                             </div>
-                            <div className="p-3 border-t border-slate-100 dark:border-slate-800">
+                            <div className="p-3 border-t border-slate-100 dark:border-gray-800">
                                 <Link href="/user/history">
-                                    <Button variant="ghost" className="w-full text-sm">
-                                        Lihat Riwayat Lengkap
-                                        <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <Button variant="ghost" className="w-full text-sm">
+                                            Lihat Riwayat Lengkap
+                                            <ChevronRight className="h-4 w-4 ml-1" />
+                                        </Button>
+                                    </motion.div>
                                 </Link>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Quick Links */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        >
                             <h2 className="font-semibold text-slate-900 dark:text-white mb-3">
                                 Aksi Cepat
                             </h2>
                             <div className="space-y-2">
                                 <Link href="/user/absen">
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <CheckCircle className="h-4 w-4 mr-2 text-emerald-600" />
-                                        Absen Sekarang
-                                    </Button>
+                                    <motion.div whileHover={{ scale: 1.02, x: 5 }} whileTap={{ scale: 0.98 }}>
+                                        <Button variant="outline" className="w-full justify-start">
+                                            <CheckCircle className="h-4 w-4 mr-2 text-emerald-600" />
+                                            Absen Sekarang
+                                        </Button>
+                                    </motion.div>
                                 </Link>
                                 <Link href="/user/history">
-                                    <Button variant="outline" className="w-full justify-start">
-                                        <Calendar className="h-4 w-4 mr-2 text-sky-600" />
-                                        Lihat Riwayat
-                                    </Button>
+                                    <motion.div whileHover={{ scale: 1.02, x: 5 }} whileTap={{ scale: 0.98 }}>
+                                        <Button variant="outline" className="w-full justify-start">
+                                            <Calendar className="h-4 w-4 mr-2 text-sky-600" />
+                                            Lihat Riwayat
+                                        </Button>
+                                    </motion.div>
                                 </Link>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }
