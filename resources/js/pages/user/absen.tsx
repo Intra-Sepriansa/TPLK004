@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import StudentLayout from '@/layouts/student-layout';
 import { type SharedData } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Camera,
     CheckCircle2,
@@ -38,35 +39,68 @@ type PageProps = {
     locationSampleWindowSeconds?: number;
 };
 
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 100,
+            damping: 15,
+        },
+    },
+};
+
 // Step indicator component
 function StepIndicator({ steps, currentStep }: { steps: { key: string; label: string; done: boolean }[]; currentStep: number }) {
     return (
-        <div className="flex items-center justify-between mb-6">
+        <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-6"
+        >
             {steps.map((step, index) => (
                 <div key={step.key} className="flex items-center flex-1">
                     <div className="flex flex-col items-center">
-                        <div className={cn(
-                            'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300',
-                            step.done ? 'border-emerald-500 bg-emerald-500 text-white' :
-                            index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950' :
-                            'border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900'
-                        )}>
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: index * 0.1, type: 'spring' as const }}
+                            className={cn(
+                                'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300',
+                                step.done ? 'border-emerald-500 bg-emerald-500 text-white' :
+                                index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950' :
+                                'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-900'
+                            )}
+                        >
                             {step.done ? <CheckCircle2 className="h-5 w-5" /> : <span className="font-semibold">{index + 1}</span>}
-                        </div>
+                        </motion.div>
                         <span className={cn(
                             'mt-2 text-xs font-medium',
-                            step.done ? 'text-emerald-600' : index === currentStep ? 'text-slate-900 dark:text-white' : 'text-slate-400'
+                            step.done ? 'text-emerald-600' : index === currentStep ? 'text-gray-900 dark:text-white' : 'text-gray-400'
                         )}>{step.label}</span>
                     </div>
                     {index < steps.length - 1 && (
                         <div className={cn(
                             'flex-1 h-0.5 mx-2 transition-all duration-300',
-                            step.done ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+                            step.done ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-gray-700'
                         )} />
                     )}
                 </div>
             ))}
-        </div>
+        </motion.div>
     );
 }
 
@@ -508,19 +542,19 @@ export default function UserAbsensi() {
                 </div>
 
                 {/* Step Indicator */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                     <StepIndicator steps={flowSteps} currentStep={currentStep} />
                 </div>
 
                 {/* Consent Card */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                     <div className="flex items-start gap-4">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                             <Shield className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Persetujuan Privasi</h2>
-                            <p className="text-sm text-slate-500 mt-1">Dengan menggunakan kamera dan lokasi, kamu menyetujui kebijakan privasi.</p>
+                            <h2 className="font-semibold text-gray-900 dark:text-white">Persetujuan Privasi</h2>
+                            <p className="text-sm text-gray-500 mt-1">Dengan menggunakan kamera dan lokasi, kamu menyetujui kebijakan privasi.</p>
                             <label className="flex items-center gap-2 mt-3 cursor-pointer">
                                 <Checkbox
                                     checked={consentAccepted}
@@ -531,7 +565,7 @@ export default function UserAbsensi() {
                                         if (typeof window !== 'undefined') window.localStorage.setItem('tplk004_camera_consent', checked ? '1' : '0');
                                     }}
                                 />
-                                <span className="text-sm text-slate-700 dark:text-slate-300">Setuju penggunaan kamera & lokasi</span>
+                                <span className="text-sm text-gray-700 dark:text-gray-300">Setuju penggunaan kamera & lokasi</span>
                             </label>
                             {consentError && (
                                 <div className="mt-2 flex items-center gap-2 text-xs text-rose-600">
@@ -546,7 +580,7 @@ export default function UserAbsensi() {
                 <form onSubmit={submit} className="space-y-6">
                     {/* Step 1: QR Scanner */}
                     <div className={cn(
-                        'rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-all dark:border-slate-800/70 dark:bg-slate-950/70',
+                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
                         step1Locked && 'opacity-60 pointer-events-none'
                     )}>
                         <div className="flex items-start justify-between gap-3 mb-4">
@@ -558,8 +592,8 @@ export default function UserAbsensi() {
                                     <QrCode className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Scan QR Code</h2>
-                                    <p className="text-sm text-slate-500">Scan QR dari admin atau input token manual</p>
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">Scan QR Code</h2>
+                                    <p className="text-sm text-gray-500">Scan QR dari admin atau input token manual</p>
                                 </div>
                             </div>
                             {tokenDone && (
@@ -570,10 +604,10 @@ export default function UserAbsensi() {
                         </div>
 
                         {/* QR Scanner */}
-                        <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-900">
+                        <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900">
                             <video ref={videoRef} className={cn('h-56 w-full object-cover', !scanning && 'hidden')} playsInline />
                             {!scanning && (
-                                <div className="flex h-56 flex-col items-center justify-center text-slate-400">
+                                <div className="flex h-56 flex-col items-center justify-center text-gray-400">
                                     <QrCode className="h-12 w-12 mb-2" />
                                     <span className="text-sm">Klik tombol untuk scan QR</span>
                                 </div>
@@ -594,7 +628,7 @@ export default function UserAbsensi() {
                             )}
                         </div>
 
-                        {scanStatus && <p className="mt-2 text-xs text-slate-500">{scanStatus}</p>}
+                        {scanStatus && <p className="mt-2 text-xs text-gray-500">{scanStatus}</p>}
 
                         <div className="mt-4 flex flex-wrap gap-2">
                             <Button type="button" variant="outline" size="sm" onClick={() => { if (!consentAccepted) { setConsentError('Setujui persetujuan kamera sebelum memulai.'); return; } setScanning((prev) => !prev); }} disabled={!scanAvailable || step1Locked}>
@@ -614,7 +648,7 @@ export default function UserAbsensi() {
 
                     {/* Step 2: Selfie */}
                     <div className={cn(
-                        'rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-all dark:border-slate-800/70 dark:bg-slate-950/70',
+                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
                         step2Locked && 'opacity-60 pointer-events-none'
                     )}>
                         <div className="flex items-start justify-between gap-3 mb-4">
@@ -626,8 +660,8 @@ export default function UserAbsensi() {
                                     <Camera className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Selfie</h2>
-                                    <p className="text-sm text-slate-500">{selfieRequired ? 'Ambil foto wajah untuk verifikasi' : 'Selfie tidak diwajibkan'}</p>
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">Verifikasi Selfie</h2>
+                                    <p className="text-sm text-gray-500">{selfieRequired ? 'Ambil foto wajah untuk verifikasi' : 'Selfie tidak diwajibkan'}</p>
                                 </div>
                             </div>
                             {selfieDone && (
@@ -638,7 +672,7 @@ export default function UserAbsensi() {
                         </div>
 
                         {step2Locked && !submitSuccess && (
-                            <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-3 text-sm text-slate-500 dark:bg-slate-800">
+                            <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-3 text-sm text-gray-500 dark:bg-gray-800">
                                 <AlertCircle className="h-4 w-4" />
                                 Selesaikan langkah 1 terlebih dahulu
                             </div>
@@ -646,13 +680,13 @@ export default function UserAbsensi() {
 
                         {!step2Locked && selfieRequired && (
                             <>
-                                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-900">
+                                <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900">
                                     {selfieActive ? (
                                         <video ref={selfieVideoRef} className="h-56 w-full object-cover" autoPlay playsInline muted />
                                     ) : previewUrl ? (
                                         <img src={previewUrl} alt="Preview selfie" className="h-56 w-full object-cover" />
                                     ) : (
-                                        <div className="flex h-56 flex-col items-center justify-center text-slate-400">
+                                        <div className="flex h-56 flex-col items-center justify-center text-gray-400">
                                             <Camera className="h-12 w-12 mb-2" />
                                             <span className="text-sm">Aktifkan kamera untuk selfie</span>
                                         </div>
@@ -665,7 +699,7 @@ export default function UserAbsensi() {
                                     )}
                                 </div>
 
-                                {selfieStatus && <p className="mt-2 text-xs text-slate-500">{selfieStatus}</p>}
+                                {selfieStatus && <p className="mt-2 text-xs text-gray-500">{selfieStatus}</p>}
 
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button type="button" variant="outline" size="sm" onClick={selfieActive ? stopSelfie : startSelfie} disabled={!selfieAvailable || step2Locked}>
@@ -703,7 +737,7 @@ export default function UserAbsensi() {
 
                     {/* Step 3: Location */}
                     <div className={cn(
-                        'rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur transition-all dark:border-slate-800/70 dark:bg-slate-950/70',
+                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
                         step3Locked && 'opacity-60 pointer-events-none'
                     )}>
                         <div className="flex items-start justify-between gap-3 mb-4">
@@ -715,8 +749,8 @@ export default function UserAbsensi() {
                                     <Navigation className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Lokasi</h2>
-                                    <p className="text-sm text-slate-500">Ambil {locationSampleCount} sampel GPS untuk validasi</p>
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">Verifikasi Lokasi</h2>
+                                    <p className="text-sm text-gray-500">Ambil {locationSampleCount} sampel GPS untuk validasi</p>
                                 </div>
                             </div>
                             {locationDone && (
@@ -727,7 +761,7 @@ export default function UserAbsensi() {
                         </div>
 
                         {step3Locked && !submitSuccess && (
-                            <div className="flex items-center gap-2 rounded-xl bg-slate-100 p-3 text-sm text-slate-500 dark:bg-slate-800">
+                            <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-3 text-sm text-gray-500 dark:bg-gray-800">
                                 <AlertCircle className="h-4 w-4" />
                                 Selesaikan langkah sebelumnya terlebih dahulu
                             </div>
@@ -735,34 +769,34 @@ export default function UserAbsensi() {
 
                         {!step3Locked && (
                             <>
-                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                                     <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-slate-500">Koordinat</span>
-                                        <span className="font-mono text-sm text-slate-900 dark:text-white">
+                                        <span className="text-sm text-gray-500">Koordinat</span>
+                                        <span className="font-mono text-sm text-gray-900 dark:text-white">
                                             {locationDone ? `${form.data.latitude}, ${form.data.longitude}` : '-'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-slate-500">Akurasi GPS</span>
+                                        <span className="text-sm text-gray-500">Akurasi GPS</span>
                                         <span className={cn(
                                             'font-semibold text-sm',
                                             accuracyOk ? 'text-emerald-600' : 'text-amber-600'
                                         )}>
-                                            {accuracyValue !== null ? `${Math.round(accuracyValue)}m` : '-'} <span className="font-normal text-slate-400">(maks {accuracyThreshold}m)</span>
+                                            {accuracyValue !== null ? `${Math.round(accuracyValue)}m` : '-'} <span className="font-normal text-gray-400">(maks {accuracyThreshold}m)</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-slate-500">Jarak dari Zona</span>
+                                        <span className="text-sm text-gray-500">Jarak dari Zona</span>
                                         <span className={cn(
                                             'font-semibold text-sm',
                                             isInsideZone ? 'text-emerald-600' : 'text-red-600'
                                         )}>
-                                            {currentDistance !== null ? `${currentDistance}m` : '-'} <span className="font-normal text-slate-400">(maks {geofence.radius_m}m)</span>
+                                            {currentDistance !== null ? `${currentDistance}m` : '-'} <span className="font-normal text-gray-400">(maks {geofence.radius_m}m)</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-slate-500">Sampel</span>
-                                        <span className="text-sm text-slate-900 dark:text-white">{sampleCount}/{locationSampleCount}</span>
+                                        <span className="text-sm text-gray-500">Sampel</span>
+                                        <span className="text-sm text-gray-900 dark:text-white">{sampleCount}/{locationSampleCount}</span>
                                     </div>
                                 </div>
 
@@ -811,7 +845,7 @@ export default function UserAbsensi() {
                     </div>
 
                     {/* Step 4: Submit */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
                         <div className="flex items-start justify-between gap-3 mb-4">
                             <div className="flex items-center gap-3">
                                 <div className={cn(
@@ -821,8 +855,8 @@ export default function UserAbsensi() {
                                     <Zap className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Kirim Absensi</h2>
-                                    <p className="text-sm text-slate-500">Pastikan semua langkah sudah lengkap</p>
+                                    <h2 className="font-semibold text-gray-900 dark:text-white">Kirim Absensi</h2>
+                                    <p className="text-sm text-gray-500">Pastikan semua langkah sudah lengkap</p>
                                 </div>
                             </div>
                             {submitSuccess && (
@@ -833,20 +867,20 @@ export default function UserAbsensi() {
                         </div>
 
                         {/* Summary */}
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900 space-y-2">
+                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900 space-y-2">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-500">Token</span>
-                                <span className="font-mono text-sm text-slate-900 dark:text-white truncate max-w-[150px]">{tokenDone ? form.data.token : '-'}</span>
+                                <span className="text-sm text-gray-500">Token</span>
+                                <span className="font-mono text-sm text-gray-900 dark:text-white truncate max-w-[150px]">{tokenDone ? form.data.token : '-'}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-500">Selfie</span>
-                                <span className={cn('text-sm font-medium', selfieDone ? 'text-emerald-600' : 'text-slate-400')}>
+                                <span className="text-sm text-gray-500">Selfie</span>
+                                <span className={cn('text-sm font-medium', selfieDone ? 'text-emerald-600' : 'text-gray-400')}>
                                     {selfieRequired ? (selfieDone ? '✓ Tersimpan' : 'Belum') : 'Tidak wajib'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-500">Lokasi</span>
-                                <span className={cn('text-sm font-medium', locationDone ? 'text-emerald-600' : 'text-slate-400')}>
+                                <span className="text-sm text-gray-500">Lokasi</span>
+                                <span className={cn('text-sm font-medium', locationDone ? 'text-emerald-600' : 'text-gray-400')}>
                                     {locationDone ? '✓ Valid' : 'Belum'}
                                 </span>
                             </div>
