@@ -99,18 +99,8 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::post('/notifications/read-all', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\Dosen\NotificationController::class, 'destroy'])->name('notifications.destroy');
     
-    // Settings, Documentation, Help (Inertia pages)
-    Route::get('/settings', function () {
-        $dosen = auth()->guard('dosen')->user();
-        return inertia('dosen/settings', [
-            'dosen' => [
-                'id' => $dosen->id,
-                'nama' => $dosen->nama,
-                'nidn' => $dosen->nidn,
-                'email' => $dosen->email,
-            ]
-        ]);
-    })->name('settings');
+    // Settings Page (Inertia)
+    Route::get('/settings', [\App\Http\Controllers\Dosen\SettingsController::class, 'page'])->name('settings');
     Route::get('/docs', function () {
         $dosen = auth()->guard('dosen')->user();
         return inertia('dosen/docs', [
