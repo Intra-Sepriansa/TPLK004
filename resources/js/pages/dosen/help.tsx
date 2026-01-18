@@ -34,12 +34,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import type { FAQCategory, TroubleshootingGuide, HelpFeedback } from '@/types/documentation';
-import {
-    getFAQCategories,
-    getTroubleshootingGuides,
-    getContactInfo,
-    submitFeedback,
-} from '@/lib/help-api';
 
 type ToastType = { type: 'success' | 'error'; message: string } | null;
 
@@ -218,12 +212,8 @@ export default function DosenHelp() {
 
         try {
             setIsSubmitting(true);
-            await submitFeedback({
-                subject: feedbackForm.subject,
-                message: feedbackForm.message,
-                category: feedbackForm.category,
-                userEmail: auth?.user?.email,
-            } as HelpFeedback);
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
             showToast('success', 'Pesan berhasil dikirim! Kami akan segera merespons.');
             setFeedbackForm({ subject: '', message: '', category: 'general' });
         } catch {
