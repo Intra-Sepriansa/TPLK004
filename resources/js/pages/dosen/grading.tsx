@@ -166,7 +166,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                        className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                     >
                         <div className="py-12 text-center">
                             <motion.div
@@ -194,7 +194,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.1 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -216,7 +216,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.15 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -238,7 +238,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.2 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -260,7 +260,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.25 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex items-center gap-3">
                                     <motion.div
@@ -282,7 +282,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.3, delay: 0.3 }}
                                 whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900"
+                                className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
                             >
                                 <div className="flex justify-center gap-1">
                                     {Object.entries(grades.summary.grade_distribution).map(([grade, count]) => (
@@ -305,7 +305,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.4 }}
-                            className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-gray-900 overflow-hidden"
+                            className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
                         >
                             <div className="p-4 border-b border-gray-200 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 exit={{ scale: 0.9, opacity: 0 }}
                                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[90vh] overflow-y-auto"
+                                className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-black max-h-[90vh] overflow-y-auto"
                             >
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold">Detail Kehadiran</h3>
@@ -491,7 +491,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                 exit={{ scale: 0.9, opacity: 0 }}
                                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900"
+                                className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black"
                             >
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold">Override Status Kehadiran</h3>
