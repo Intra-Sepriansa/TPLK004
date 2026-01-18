@@ -22,7 +22,6 @@ import {
     Shield,
     Users,
     FileText,
-    Video,
     ChevronRight,
     ExternalLink,
     Sparkles,
@@ -78,14 +77,131 @@ export default function DosenHelp() {
     const loadHelpData = async () => {
         try {
             setIsLoading(true);
-            const [faqs, troubleshooting, contact] = await Promise.all([
-                getFAQCategories(),
-                getTroubleshootingGuides(),
-                getContactInfo().catch(() => undefined),
+            
+            // Simulate API call with dummy data
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Set dummy FAQ categories
+            setFaqCategories([
+                {
+                    id: '1',
+                    name: 'Memulai',
+                    description: 'Panduan dasar untuk memulai',
+                    icon: 'rocket',
+                    faqs: [
+                        {
+                            id: 'faq1',
+                            question: 'Bagaimana cara membuat sesi absensi baru?',
+                            answer: 'Untuk membuat sesi absensi baru, buka menu Sesi Absen, klik tombol "Buat Sesi Baru", pilih mata kuliah, tentukan waktu mulai dan selesai, lalu klik Simpan.',
+                            category: 'Memulai',
+                            helpful: 45,
+                            notHelpful: 2,
+                        },
+                        {
+                            id: 'faq2',
+                            question: 'Bagaimana cara melihat daftar mahasiswa yang hadir?',
+                            answer: 'Buka menu Sesi Absen, pilih sesi yang ingin dilihat, kemudian klik tab "Daftar Kehadiran" untuk melihat semua mahasiswa yang sudah melakukan absensi.',
+                            category: 'Memulai',
+                            helpful: 38,
+                            notHelpful: 1,
+                        },
+                    ],
+                },
+                {
+                    id: '2',
+                    name: 'Pengelolaan Kelas',
+                    description: 'Mengelola kelas dan mahasiswa',
+                    icon: 'users',
+                    faqs: [
+                        {
+                            id: 'faq3',
+                            question: 'Bagaimana cara mengatur batas keterlambatan?',
+                            answer: 'Buka menu Pengaturan, pilih tab "Manajemen Kelas", kemudian atur "Batas Keterlambatan" sesuai kebutuhan (dalam menit). Perubahan akan otomatis tersimpan.',
+                            category: 'Pengelolaan Kelas',
+                            helpful: 52,
+                            notHelpful: 3,
+                        },
+                        {
+                            id: 'faq4',
+                            question: 'Bagaimana cara menyetujui izin mahasiswa?',
+                            answer: 'Buka menu Izin/Sakit, pilih pengajuan yang ingin disetujui, periksa dokumen pendukung, kemudian klik tombol "Setujui" atau "Tolak" sesuai kebijakan.',
+                            category: 'Pengelolaan Kelas',
+                            helpful: 41,
+                            notHelpful: 2,
+                        },
+                    ],
+                },
+                {
+                    id: '3',
+                    name: 'Notifikasi',
+                    description: 'Pengaturan notifikasi dan pengingat',
+                    icon: 'bell',
+                    faqs: [
+                        {
+                            id: 'faq5',
+                            question: 'Bagaimana cara mengaktifkan notifikasi email?',
+                            answer: 'Buka menu Pengaturan, pilih tab "Notifikasi", kemudian aktifkan toggle untuk "Notifikasi Email Kehadiran Baru" dan "Notifikasi Pengajuan Izin".',
+                            category: 'Notifikasi',
+                            helpful: 29,
+                            notHelpful: 1,
+                        },
+                    ],
+                },
             ]);
-            setFaqCategories(faqs);
-            setTroubleshootingGuides(troubleshooting);
-            setContactInfo(contact);
+            
+            // Set dummy troubleshooting guides
+            setTroubleshootingGuides([
+                {
+                    id: 'ts1',
+                    title: 'Mahasiswa tidak bisa melakukan absensi',
+                    description: 'Panduan mengatasi masalah mahasiswa yang tidak bisa absen',
+                    category: 'Absensi',
+                    steps: [
+                        'Pastikan sesi absensi sudah dibuat dan masih aktif',
+                        'Periksa apakah mahasiswa berada dalam radius geofence yang ditentukan',
+                        'Pastikan QR code masih valid (belum expired)',
+                        'Cek koneksi internet mahasiswa',
+                        'Verifikasi bahwa mahasiswa terdaftar di mata kuliah tersebut',
+                    ],
+                    relatedArticles: ['Membuat Sesi Absensi', 'Pengaturan Geofence'],
+                },
+                {
+                    id: 'ts2',
+                    title: 'Data kehadiran tidak muncul',
+                    description: 'Solusi ketika data kehadiran tidak tampil di dashboard',
+                    category: 'Dashboard',
+                    steps: [
+                        'Refresh halaman dengan menekan F5 atau Ctrl+R',
+                        'Periksa filter tanggal yang dipilih',
+                        'Pastikan mata kuliah sudah dipilih dengan benar',
+                        'Coba logout dan login kembali',
+                        'Hubungi admin jika masalah berlanjut',
+                    ],
+                    relatedArticles: ['Dashboard Overview', 'Filter Data'],
+                },
+                {
+                    id: 'ts3',
+                    title: 'Tidak bisa mengubah pengaturan',
+                    description: 'Mengatasi masalah saat menyimpan pengaturan',
+                    category: 'Pengaturan',
+                    steps: [
+                        'Pastikan semua field yang wajib sudah diisi',
+                        'Periksa koneksi internet Anda',
+                        'Coba clear cache browser (Ctrl+Shift+Delete)',
+                        'Gunakan browser yang berbeda (Chrome, Firefox, Edge)',
+                        'Pastikan Anda memiliki hak akses untuk mengubah pengaturan',
+                    ],
+                    relatedArticles: ['Pengaturan Akun', 'Hak Akses'],
+                },
+            ]);
+            
+            // Set dummy contact info
+            setContactInfo({
+                email: 'support@unpam.ac.id',
+                phone: '(021) 7412566',
+                hours: 'Senin - Jumat: 08:00 - 16:00 WIB',
+                responseTime: '1-2 jam kerja',
+            });
         } catch {
             showToast('error', 'Gagal memuat data bantuan');
         } finally {
@@ -124,13 +240,6 @@ export default function DosenHelp() {
             description: 'Dokumentasi sistem presensi',
             color: 'from-blue-500 to-cyan-500',
             count: '12 Artikel',
-        },
-        {
-            icon: Video,
-            title: 'Video Tutorial',
-            description: 'Pelajari dengan video',
-            color: 'from-purple-500 to-pink-500',
-            count: '8 Video',
         },
         {
             icon: Lightbulb,
@@ -234,7 +343,7 @@ export default function DosenHelp() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
                     >
                         {quickLinks.map((link, index) => (
                             <motion.div
@@ -244,7 +353,7 @@ export default function DosenHelp() {
                                 transition={{ delay: 0.2 + index * 0.1 }}
                                 whileHover={{ y: -4 }}
                             >
-                                <Card className="relative overflow-hidden group cursor-pointer border-2 hover:border-emerald-500/50 transition-all dark:bg-slate-900/50 backdrop-blur-sm">
+                                <Card className="relative overflow-hidden group cursor-pointer border-2 hover:border-emerald-500/50 transition-all dark:bg-black backdrop-blur-sm">
                                     <div className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
                                     <CardContent className="p-6 space-y-3">
                                         <motion.div
@@ -280,7 +389,7 @@ export default function DosenHelp() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <Card className="border-2 dark:bg-slate-900/50 backdrop-blur-sm">
+                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-2">
@@ -325,6 +434,149 @@ export default function DosenHelp() {
                         </Card>
                     </motion.div>
 
+                    {/* FAQ Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                    >
+                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
+                            <CardContent className="p-6">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <HelpCircle className="h-5 w-5 text-emerald-500" />
+                                    <h2 className="text-xl font-bold">Pertanyaan yang Sering Diajukan (FAQ)</h2>
+                                </div>
+                                <div className="space-y-3">
+                                    {faqCategories.map((category, catIndex) => (
+                                        <div key={category.id}>
+                                            <h3 className="font-semibold text-emerald-600 mb-3 flex items-center gap-2">
+                                                <BookOpen className="h-4 w-4" />
+                                                {category.name}
+                                            </h3>
+                                            <div className="space-y-2 mb-4">
+                                                {category.faqs?.map((faq, faqIndex) => (
+                                                    <motion.div
+                                                        key={faq.id}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.8 + catIndex * 0.1 + faqIndex * 0.05 }}
+                                                    >
+                                                        <div
+                                                            onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
+                                                            className="p-4 rounded-lg border-2 border-transparent hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer"
+                                                        >
+                                                            <div className="flex items-start justify-between gap-4">
+                                                                <div className="flex-1">
+                                                                    <h4 className="font-medium text-sm mb-1 group-hover:text-emerald-600">
+                                                                        {faq.question}
+                                                                    </h4>
+                                                                    <AnimatePresence>
+                                                                        {expandedFAQ === faq.id && (
+                                                                            <motion.div
+                                                                                initial={{ opacity: 0, height: 0 }}
+                                                                                animate={{ opacity: 1, height: 'auto' }}
+                                                                                exit={{ opacity: 0, height: 0 }}
+                                                                                className="mt-2 text-sm text-muted-foreground"
+                                                                            >
+                                                                                {faq.answer}
+                                                                                <div className="flex items-center gap-4 mt-3 pt-3 border-t">
+                                                                                    <span className="text-xs text-muted-foreground">Apakah ini membantu?</span>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <Button
+                                                                                            size="sm"
+                                                                                            variant="ghost"
+                                                                                            className="h-7 text-xs"
+                                                                                            onClick={(e) => {
+                                                                                                e.stopPropagation();
+                                                                                                showToast('success', 'Terima kasih atas feedback Anda!');
+                                                                                            }}
+                                                                                        >
+                                                                                            👍 Ya ({faq.helpful})
+                                                                                        </Button>
+                                                                                        <Button
+                                                                                            size="sm"
+                                                                                            variant="ghost"
+                                                                                            className="h-7 text-xs"
+                                                                                            onClick={(e) => {
+                                                                                                e.stopPropagation();
+                                                                                                showToast('success', 'Terima kasih atas feedback Anda!');
+                                                                                            }}
+                                                                                        >
+                                                                                            👎 Tidak ({faq.notHelpful})
+                                                                                        </Button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        )}
+                                                                    </AnimatePresence>
+                                                                </div>
+                                                                <motion.div
+                                                                    animate={{ rotate: expandedFAQ === faq.id ? 90 : 0 }}
+                                                                    transition={{ duration: 0.2 }}
+                                                                >
+                                                                    <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                                                                </motion.div>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    {/* Troubleshooting Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                    >
+                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
+                            <CardContent className="p-6">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <AlertCircle className="h-5 w-5 text-amber-500" />
+                                    <h2 className="text-xl font-bold">Panduan Troubleshooting</h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {troubleshootingGuides.map((guide, index) => (
+                                        <motion.div
+                                            key={guide.id}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: 0.9 + index * 0.1 }}
+                                            whileHover={{ y: -4 }}
+                                        >
+                                            <div className="h-full p-5 rounded-lg border-2 border-transparent hover:border-amber-500/50 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all cursor-pointer">
+                                                <div className="flex items-start gap-3 mb-3">
+                                                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                                                        <AlertCircle className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="font-semibold text-sm mb-1 line-clamp-2">
+                                                            {guide.title}
+                                                        </h3>
+                                                        <Badge variant="secondary" className="text-xs">
+                                                            {guide.category}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                                                    {guide.description}
+                                                </p>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {guide.steps?.length || 0} langkah solusi
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
                     {/* Contact & Feedback Section */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -333,7 +585,7 @@ export default function DosenHelp() {
                         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
                     >
                         {/* Contact Info */}
-                        <Card className="border-2 dark:bg-slate-900/50 backdrop-blur-sm">
+                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
                             <CardContent className="p-6 space-y-6">
                                 <div className="flex items-center gap-2">
                                     <Phone className="h-5 w-5 text-emerald-500" />
@@ -407,7 +659,7 @@ export default function DosenHelp() {
                         </Card>
 
                         {/* Feedback Form */}
-                        <Card className="border-2 dark:bg-slate-900/50 backdrop-blur-sm">
+                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
                             <CardContent className="p-6">
                                 <div className="flex items-center gap-2 mb-6">
                                     <MessageSquare className="h-5 w-5 text-emerald-500" />
