@@ -372,7 +372,7 @@ export default function AdvancedAnalytics({
                                     { level: 'danger', label: 'Bahaya', count: riskPrediction.distribution.danger, color: 'from-orange-400 to-orange-600', shadow: 'shadow-orange-500/30' },
                                     { level: 'critical', label: 'Kritis', count: riskPrediction.distribution.critical, color: 'from-red-400 to-red-600', shadow: 'shadow-red-500/30' },
                                 ].map(item => (
-                                    <div key={item.level} className="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:shadow-md transition-all">
+                                    <div key={item.level} className="text-center p-3 rounded-xl bg-slate-50 dark:bg-black/50 hover:shadow-md transition-all">
                                         <div className={`w-4 h-4 rounded-full mx-auto mb-2 bg-gradient-to-r ${item.color} shadow-lg ${item.shadow}`} />
                                         <p className="text-xl font-bold text-slate-900 dark:text-white">{item.count}</p>
                                         <p className="text-xs text-slate-500 font-medium">{item.label}</p>
@@ -383,7 +383,7 @@ export default function AdvancedAnalytics({
                             {/* Risk Students List */}
                             <div className="space-y-2 max-h-[280px] overflow-y-auto">
                                 {riskPrediction.students.slice(0, 10).map((student, idx) => (
-                                    <div key={student.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
+                                    <div key={student.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${getRiskColor(student.riskLevel)}`}>
                                                 {idx + 1}
@@ -438,7 +438,7 @@ export default function AdvancedAnalytics({
                                             <TooltipTrigger asChild>
                                                 <div className="flex-1 flex flex-col items-center cursor-pointer group">
                                                     <div
-                                                        className="w-full bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-md transition-all group-hover:from-indigo-600 group-hover:to-indigo-500"
+                                                        className="w-full bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-md transition-all group-hover:from-gray-800 group-hover:to-indigo-500"
                                                         style={{ height: `${Math.max(d.rate * 1.8, 4)}px` }}
                                                     />
                                                     <span className="text-[9px] text-slate-500 mt-2 -rotate-45 origin-left whitespace-nowrap">
@@ -548,7 +548,7 @@ export default function AdvancedAnalytics({
                                         className={`text-center p-4 rounded-2xl transition-all hover:shadow-lg ${
                                             isHighest ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 ring-2 ring-emerald-500/30' :
                                             isLowest && d.total > 0 ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 ring-2 ring-red-500/30' :
-                                            'bg-slate-50 dark:bg-slate-900/50'
+                                            'bg-slate-50 dark:bg-black/50'
                                         }`}
                                     >
                                         <p className="font-semibold text-slate-700 dark:text-slate-300">{d.day}</p>

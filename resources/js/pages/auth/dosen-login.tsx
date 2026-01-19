@@ -30,7 +30,7 @@ export default function DosenLogin() {
 
             <div className="min-h-screen flex">
                 {/* Left Side - Branding */}
-                <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-500 to-purple-600 p-12 flex-col justify-between relative overflow-hidden">
+                <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 to-black p-12 flex-col justify-between relative overflow-hidden">
                     <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10" />
                     <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-white/5" />
@@ -136,7 +136,7 @@ export default function DosenLogin() {
 
                             <Button
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
+                                className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 text-white"
                                 disabled={processing}
                             >
                                 {processing ? 'Memproses...' : 'Masuk'}

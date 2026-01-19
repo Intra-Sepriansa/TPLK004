@@ -86,7 +86,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
 
     const getSenderStyle = (type: string) => ({
         admin: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
-        dosen: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
+        dosen: 'bg-gradient-to-br from-gray-800 to-black text-white',
         mahasiswa: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white',
     }[type] || 'bg-gray-100 text-gray-700');
 
@@ -184,7 +184,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                                         </a>
                                     )}
                                     {submission.grade !== null && (
-                                        <div className="p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                                        <div className="p-3 rounded-xl bg-gradient-to-r from-gray-900 to-black dark:from-black/20 dark:to-black/20">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-medium">Nilai:</span>
                                                 <div className="flex items-center gap-2">

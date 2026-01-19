@@ -171,7 +171,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
             <Head title="Uang Kas" />
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -273,16 +273,16 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 <div className="flex-1 min-w-[200px]">
                                     <div className="relative">
                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleFilter('search', search)} placeholder="Cari mahasiswa..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+                                        <input type="text" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleFilter('search', search)} placeholder="Cari mahasiswa..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 bg-white text-sm dark:border-slate-700 dark:bg-black dark:text-white" />
                                     </div>
                                 </div>
-                                <select value={filters.pertemuan} onChange={e => handleFilter('pertemuan', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                                <select value={filters.pertemuan} onChange={e => handleFilter('pertemuan', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black dark:text-white">
                                     <option value="all">Semua Pertemuan</option>
                                     {pertemuanDates.map(date => (
                                         <option key={date} value={date}>{new Date(date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</option>
                                     ))}
                                 </select>
-                                <input type="month" value={filters.month} onChange={e => handleFilter('month', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+                                <input type="month" value={filters.month} onChange={e => handleFilter('month', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black dark:text-white" />
                                 {selectedMahasiswa.length > 0 && filters.pertemuan !== 'all' && (
                                     <button onClick={handleBulkMarkPaid} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700">
                                         <Check className="h-4 w-4" />Tandai {selectedMahasiswa.length} Lunas
@@ -303,7 +303,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                        <tr className="bg-slate-50 dark:bg-black/50">
                                             <th className="px-4 py-3 text-left">
                                                 <input type="checkbox" onChange={selectAll} checked={selectedMahasiswa.length > 0 && selectedMahasiswa.length === mahasiswaList.filter(m => m.status !== 'paid').length} className="rounded border-slate-300" />
                                             </th>
@@ -317,7 +317,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                         {mahasiswaList.map(m => (
-                                            <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                            <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-black/30">
                                                 <td className="px-4 py-3">
                                                     {m.status !== 'paid' && (
                                                         <input type="checkbox" checked={selectedMahasiswa.includes(m.id)} onChange={() => toggleSelect(m.id)} className="rounded border-slate-300" />
@@ -370,7 +370,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                    <tr className="bg-slate-50 dark:bg-black/50">
                                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase w-8"></th>
                                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Tanggal Pertemuan</th>
                                         <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Uang Masuk</th>
@@ -385,7 +385,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         </tr>
                                     ) : ledger.map(item => (
                                         <>
-                                            <tr key={item.date} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 cursor-pointer" onClick={() => toggleExpand(item.date)}>
+                                            <tr key={item.date} className="hover:bg-slate-50 dark:hover:bg-black/30 cursor-pointer" onClick={() => toggleExpand(item.date)}>
                                                 <td className="px-4 py-3">
                                                     {expandedDates.includes(item.date) ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
                                                 </td>
@@ -398,7 +398,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                             </tr>
                                             {expandedDates.includes(item.date) && (
                                                 <tr key={`${item.date}-detail`}>
-                                                    <td colSpan={5} className="bg-slate-50 dark:bg-slate-900/50 px-4 py-3">
+                                                    <td colSpan={5} className="bg-slate-50 dark:bg-black/50 px-4 py-3">
                                                         <div className="space-y-2">
                                                             {item.transactions.map(t => (
                                                                 <div key={t.id} className="flex items-center justify-between py-2 px-3 bg-white dark:bg-slate-800 rounded-lg">
@@ -440,7 +440,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Create Pertemuan Modal */}
                 {showPertemuanModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Buat Pertemuan Baru</h3>
                                 <button onClick={() => setShowPertemuanModal(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -460,7 +460,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 </div>
                                 <div className="flex justify-end gap-3 pt-4">
                                     <button type="button" onClick={() => setShowPertemuanModal(false)} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium dark:bg-slate-800 dark:text-slate-300">Batal</button>
-                                    <button type="submit" disabled={pertemuanForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium disabled:opacity-50">Buat Pertemuan</button>
+                                    <button type="submit" disabled={pertemuanForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white text-sm font-medium disabled:opacity-50">Buat Pertemuan</button>
                                 </div>
                             </form>
                         </div>
@@ -470,7 +470,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Expense Modal */}
                 {showExpenseModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Catat Pengeluaran</h3>
                                 <button onClick={() => setShowExpenseModal(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -501,7 +501,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 </div>
                                 <div className="flex justify-end gap-3 pt-4">
                                     <button type="button" onClick={() => setShowExpenseModal(false)} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium dark:bg-slate-800 dark:text-slate-300">Batal</button>
-                                    <button type="submit" disabled={expenseForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium disabled:opacity-50">Simpan</button>
+                                    <button type="submit" disabled={expenseForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white text-sm font-medium disabled:opacity-50">Simpan</button>
                                 </div>
                             </form>
                         </div>
@@ -511,7 +511,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Export Modal */}
                 {showExportModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Export Laporan PDF</h3>
                                 <button onClick={() => setShowExportModal(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">

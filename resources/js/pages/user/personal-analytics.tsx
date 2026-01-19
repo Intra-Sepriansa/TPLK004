@@ -143,7 +143,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                 {/* Header */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -522,7 +522,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
                                             whileHover={{ x: 5, scale: 1.02 }}
-                                            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors"
+                                            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
                                         >
                                             <div className="w-14 h-14 shrink-0">
                                                 {badge.icon ? (

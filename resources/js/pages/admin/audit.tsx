@@ -165,7 +165,7 @@ export default function AdminAudit({
 
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -197,7 +197,7 @@ export default function AdminAudit({
                                 type="date"
                                 value={dateFrom}
                                 onChange={e => setDateFrom(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
@@ -206,7 +206,7 @@ export default function AdminAudit({
                                 type="date"
                                 value={dateTo}
                                 onChange={e => setDateTo(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
@@ -214,7 +214,7 @@ export default function AdminAudit({
                             <select
                                 value={eventType}
                                 onChange={e => setEventType(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             >
                                 {eventTypes.map(et => (
                                     <option key={et.value} value={et.value}>{et.label}</option>
@@ -231,7 +231,7 @@ export default function AdminAudit({
                             </button>
                             <button
                                 onClick={handleExportPdf}
-                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:from-blue-600 hover:to-purple-700 transition-all"
+                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-2.5 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all"
                             >
                                 <Download className="h-4 w-4" />
                                 PDF
@@ -370,7 +370,7 @@ export default function AdminAudit({
                                 </div>
                             ) : (
                                 suspiciousActivities.map(activity => (
-                                    <div key={activity.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                    <div key={activity.id} className="p-4 hover:bg-slate-50 dark:hover:bg-black/30">
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{activity.mahasiswa}</p>
@@ -404,7 +404,7 @@ export default function AdminAudit({
                                 </div>
                             ) : (
                                 topFlaggedStudents.map((student, index) => (
-                                    <div key={student.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                    <div key={student.id} className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-black/30">
                                         <div className={`flex h-8 w-8 items-center justify-center rounded-full font-bold text-sm ${
                                             index === 0 ? 'bg-red-100 text-red-700' :
                                             index === 1 ? 'bg-amber-100 text-amber-700' :
@@ -444,7 +444,7 @@ export default function AdminAudit({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-black/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Tipe Event</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pesan</th>
@@ -462,7 +462,7 @@ export default function AdminAudit({
                                     </tr>
                                 ) : (
                                     auditLogs.data.map(log => (
-                                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors">
                                             <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                                 {log.created_at}
                                             </td>
@@ -504,7 +504,7 @@ export default function AdminAudit({
                                             ? 'bg-blue-600 text-white'
                                             : link.url
                                             ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-slate-900'
+                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-black'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

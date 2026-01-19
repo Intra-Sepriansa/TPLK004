@@ -114,7 +114,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
         <StudentLayout>
             <Head title="Notifikasi" />
             <div className="p-6 space-y-6">
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -147,7 +147,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
                         {notifications.data.map(notif => (
                             <div 
                                 key={notif.id} 
-                                className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors ${!notif.read_at ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                                className={`p-4 hover:bg-slate-50 dark:hover:bg-black/30 transition-colors ${!notif.read_at ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                             >
                                 <div className="flex items-start gap-4">
                                     <div className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${getTypeColor(notif.type)}`}>
@@ -202,7 +202,7 @@ export default function Notifications({ notifications, unreadCount }: Props) {
             {/* Detail Modal */}
             {detailModal.open && detailModal.notification && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-black max-h-[90vh] overflow-y-auto">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${getTypeColor(detailModal.notification.type)}`}>

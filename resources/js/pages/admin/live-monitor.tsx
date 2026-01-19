@@ -153,7 +153,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                 {/* Header Card with Gradient */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-black p-8 text-white shadow-2xl"
                 >
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
@@ -345,7 +345,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-black dark:border-slate-800/70 shadow-xl backdrop-blur-xl overflow-hidden"
                 >
-                    <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
+                    <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-black dark:to-slate-950">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -385,7 +385,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: 20 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all cursor-pointer group"
+                                        className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/50 transition-all cursor-pointer group"
                                         whileHover={{ scale: 1.01 }}
                                     >
                                         <div className="flex items-center gap-4">
@@ -426,7 +426,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-black dark:border-slate-800/70 shadow-xl backdrop-blur-xl overflow-hidden"
                 >
-                    <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
+                    <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-black dark:to-slate-950">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
                                 <Timer className="h-5 w-5" />
@@ -441,7 +441,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all cursor-pointer group"
+                                className="p-5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/50 transition-all cursor-pointer group"
                                 whileHover={{ scale: 1.01 }}
                             >
                                 <div className="flex items-center gap-4">

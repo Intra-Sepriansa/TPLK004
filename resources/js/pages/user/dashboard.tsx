@@ -754,7 +754,7 @@ export default function UserDashboard() {
                         </div>
 
                         {/* Attendance Rate Card */}
-                        <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
+                        <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-black">
                             <p className="text-sm text-gray-400">Tingkat Kehadiran</p>
                             <div className="flex items-end gap-2 mt-2">
                                 <span className="text-4xl font-bold">

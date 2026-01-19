@@ -171,7 +171,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
             <Head title="Sesi Absen" />
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -292,7 +292,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                 return (
                                     <motion.div 
                                         key={s.id} 
-                                        className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                        className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.05 }}
@@ -320,7 +320,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                             {coursePerformance.length === 0 ? <div className="p-8 text-center text-slate-500">Belum ada data</div> : coursePerformance.map((c, idx) => (
                                 <motion.div 
                                     key={c.id} 
-                                    className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                    className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30"
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.05 }}
@@ -340,14 +340,14 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari sesi atau mata kuliah..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" />
+                                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari sesi atau mata kuliah..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" />
                             </div>
                         </form>
-                        <select value={filters.course_id} onChange={e => handleFilter('course_id', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                        <select value={filters.course_id} onChange={e => handleFilter('course_id', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-black dark:text-white">
                             <option value="all">Semua Mata Kuliah</option>
                             {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
                         </select>
-                        <select value={filters.status} onChange={e => handleFilter('status', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                        <select value={filters.status} onChange={e => handleFilter('status', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-black dark:text-white">
                             <option value="all">Semua Status</option>
                             <option value="active">Aktif</option>
                             <option value="scheduled">Terjadwal</option>
@@ -368,7 +368,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                 >
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead><tr className="bg-slate-50 dark:bg-slate-900/50">
+                            <thead><tr className="bg-slate-50 dark:bg-black/50">
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th>
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Pertemuan</th>
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th>
@@ -384,7 +384,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                     return (
                                         <motion.tr 
                                             key={s.id} 
-                                            className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors"
+                                            className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.03 }}
@@ -439,7 +439,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                 {/* Create Modal */}
                 {showCreateModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Buat Sesi Absen Baru</h3>
                             <form onSubmit={handleCreate} className="space-y-4">
                                 <div>
@@ -475,7 +475,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                 </label>
                                 <div className="flex justify-end gap-3 pt-4">
                                     <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium">Batal</button>
-                                    <button type="submit" disabled={createForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 text-sm font-medium disabled:opacity-50">{createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}</button>
+                                    <button type="submit" disabled={createForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white hover:from-gray-800 hover:to-gray-900 text-sm font-medium disabled:opacity-50">{createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}</button>
                                 </div>
                             </form>
                         </div>
@@ -485,7 +485,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                 {/* Edit Modal */}
                 {showEditModal && editSession && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Edit Sesi Absen</h3>
                             <form onSubmit={handleUpdate} className="space-y-4">
                                 <div>
@@ -516,7 +516,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                 </div>
                                 <div className="flex justify-end gap-3 pt-4">
                                     <button type="button" onClick={() => { setShowEditModal(false); setEditSession(null); }} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium">Batal</button>
-                                    <button type="submit" disabled={editForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 text-sm font-medium disabled:opacity-50">{editForm.processing ? 'Menyimpan...' : 'Simpan'}</button>
+                                    <button type="submit" disabled={editForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white hover:from-gray-800 hover:to-gray-900 text-sm font-medium disabled:opacity-50">{editForm.processing ? 'Menyimpan...' : 'Simpan'}</button>
                                 </div>
                             </form>
                         </div>

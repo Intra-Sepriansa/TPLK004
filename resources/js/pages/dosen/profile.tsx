@@ -166,7 +166,7 @@ export default function DosenProfile() {
                 </div>
 
                 {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
 
@@ -501,7 +501,7 @@ export default function DosenProfile() {
                                 </ul>
                             </div>
 
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-sm">
+                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-sm">
                                 <div className="flex items-center gap-3 mb-4">
                                     <Shield className="h-6 w-6" />
                                     <h2 className="font-semibold">Status Keamanan</h2>

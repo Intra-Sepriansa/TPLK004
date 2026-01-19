@@ -225,7 +225,7 @@ export default function FraudDetection({ alerts, stats, filters }: Props) {
                         <select
                             value={filters.status}
                             onChange={(e) => handleFilterChange('status', e.target.value)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                         >
                             <option value="all">Semua Status</option>
                             <option value="pending">Pending</option>
@@ -236,7 +236,7 @@ export default function FraudDetection({ alerts, stats, filters }: Props) {
                         <select
                             value={filters.severity}
                             onChange={(e) => handleFilterChange('severity', e.target.value)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                         >
                             <option value="all">Semua Level</option>
                             <option value="critical">Critical</option>
@@ -247,7 +247,7 @@ export default function FraudDetection({ alerts, stats, filters }: Props) {
                         <select
                             value={filters.type}
                             onChange={(e) => handleFilterChange('type', e.target.value)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                         >
                             <option value="all">Semua Tipe</option>
                             <option value="gps_spoofing">GPS Spoofing</option>
@@ -280,7 +280,7 @@ export default function FraudDetection({ alerts, stats, filters }: Props) {
                     </div>
                     <div className="divide-y divide-slate-200 dark:divide-slate-800">
                         {alerts.data.map(alert => (
-                            <div key={alert.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                            <div key={alert.id} className="p-4 hover:bg-slate-50 dark:hover:bg-black/30 transition-colors">
                                 <div className="flex items-start gap-4">
                                     <Checkbox
                                         checked={selectedIds.includes(alert.id)}
@@ -355,7 +355,7 @@ export default function FraudDetection({ alerts, stats, filters }: Props) {
             {/* Review Modal */}
             {reviewModal.open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
+                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Review Alert</h3>
                             <button onClick={() => setReviewModal({ open: false, alert: null })} className="text-slate-400 hover:text-slate-600">

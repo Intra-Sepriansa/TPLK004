@@ -139,7 +139,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
 
                 {/* My Rank Card */}
                 {myRank && myStats && (
-                    <div className={`rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-xl transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
+                    <div className={`rounded-2xl bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-xl transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-3xl font-bold shadow-lg animate-pulse" style={{ animationDuration: '2s' }}>
@@ -341,7 +341,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                 <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '400ms' }}>
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-gradient-to-br from-violet-400 to-purple-600 text-white">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-gray-900 to-black text-white">
                                 <Trophy className="h-4 w-4" />
                             </div>
                             <div>
@@ -359,7 +359,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                 <div
                                     key={entry.id}
                                     className={cn(
-                                        'p-4 flex items-center gap-4 transition-all duration-300 hover:bg-slate-50 dark:hover:bg-slate-900/30',
+                                        'p-4 flex items-center gap-4 transition-all duration-300 hover:bg-slate-50 dark:hover:bg-black/30',
                                         isMe && 'bg-violet-50 dark:bg-violet-950/30 hover:bg-violet-100 dark:hover:bg-violet-950/50'
                                     )}
                                     style={{ 

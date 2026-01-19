@@ -191,7 +191,7 @@ export default function DosenRekapan({
                 {/* Header */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -300,7 +300,7 @@ export default function DosenRekapan({
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleExportPdf}
                                 disabled={!sessionId}
-                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:from-gray-800 hover:to-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 <Download className="h-4 w-4" />
                                 Export PDF

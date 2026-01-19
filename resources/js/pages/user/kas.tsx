@@ -117,7 +117,7 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         {kasRecords.length === 0 ? (
                             <div className="p-8 text-center text-slate-500">Belum ada tagihan kas</div>
                         ) : kasRecords.map(record => (
-                            <div key={record.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                            <div key={record.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30">
                                 <div>
                                     <p className="font-medium text-slate-900 dark:text-white">{record.period_display}</p>
                                     <p className="text-xs text-slate-500">{record.description}</p>
@@ -145,7 +145,7 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         {recentExpenses.length === 0 ? (
                             <div className="p-8 text-center text-slate-500">Belum ada pengeluaran</div>
                         ) : recentExpenses.map(expense => (
-                            <div key={expense.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                            <div key={expense.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30">
                                 <div>
                                     <p className="font-medium text-slate-900 dark:text-white">{expense.description}</p>
                                     <p className="text-xs text-slate-500">{expense.period_display}</p>

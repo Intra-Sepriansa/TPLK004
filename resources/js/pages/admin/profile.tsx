@@ -98,7 +98,7 @@ export default function AdminProfile() {
             )}
 
             <div className="p-6 space-y-6">
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -193,10 +193,10 @@ export default function AdminProfile() {
                                     <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
                                 </div>
                                 <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900"><span className="text-sm text-slate-500">Nama</span><span className="font-medium text-slate-900 dark:text-white">{auth.user.name}</span></div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900"><span className="text-sm text-slate-500">Email</span><span className="font-medium text-slate-900 dark:text-white">{auth.user.email}</span></div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900"><span className="text-sm text-slate-500">Role</span><span className="font-medium text-blue-600 dark:text-blue-400">Administrator</span></div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900"><span className="text-sm text-slate-500">Status</span><span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><CheckCircle2 className="h-4 w-4" /><span className="font-medium">Aktif</span></span></div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black"><span className="text-sm text-slate-500">Nama</span><span className="font-medium text-slate-900 dark:text-white">{auth.user.name}</span></div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black"><span className="text-sm text-slate-500">Email</span><span className="font-medium text-slate-900 dark:text-white">{auth.user.email}</span></div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black"><span className="text-sm text-slate-500">Role</span><span className="font-medium text-blue-600 dark:text-blue-400">Administrator</span></div>
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black"><span className="text-sm text-slate-500">Status</span><span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><CheckCircle2 className="h-4 w-4" /><span className="font-medium">Aktif</span></span></div>
                                 </div>
                             </div>
                         </div>
@@ -226,7 +226,7 @@ export default function AdminProfile() {
                                     <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Jangan gunakan password yang sama dengan akun lain</span></li>
                                 </ul>
                             </div>
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-sm">
+                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-sm">
                                 <div className="flex items-center gap-3 mb-4"><Shield className="h-6 w-6" /><h2 className="font-semibold">Status Keamanan</h2></div>
                                 <div className="flex items-center gap-2 mb-2"><CheckCircle2 className="h-5 w-5" /><span className="font-medium">Akun Terlindungi</span></div>
                                 <p className="text-sm text-blue-100">Pertimbangkan untuk mengaktifkan Two-Factor Authentication untuk keamanan optimal.</p>

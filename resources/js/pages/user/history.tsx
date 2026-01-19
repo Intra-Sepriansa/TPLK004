@@ -243,7 +243,7 @@ export default function AttendanceHistory() {
                 {/* Header Card */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 to-blue-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
@@ -473,10 +473,10 @@ export default function AttendanceHistory() {
                             </Button>
                         )}
                         <div className="flex rounded-lg border border-slate-200 dark:border-gray-700 p-1">
-                            <button onClick={() => setView('list')} className={cn('px-3 py-1.5 rounded-md text-sm transition-colors', view === 'list' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400')}>
+                            <button onClick={() => setView('list')} className={cn('px-3 py-1.5 rounded-md text-sm transition-colors', view === 'list' ? 'bg-black text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400')}>
                                 <List className="h-4 w-4" />
                             </button>
-                            <button onClick={() => setView('calendar')} className={cn('px-3 py-1.5 rounded-md text-sm transition-colors', view === 'calendar' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400')}>
+                            <button onClick={() => setView('calendar')} className={cn('px-3 py-1.5 rounded-md text-sm transition-colors', view === 'calendar' ? 'bg-black text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400')}>
                                 <CalendarIcon className="h-4 w-4" />
                             </button>
                         </div>

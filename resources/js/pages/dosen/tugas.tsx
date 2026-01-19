@@ -202,7 +202,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 {/* Stats Cards */}
                 <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
                     {[
-                        { icon: FileText, label: 'Total Tugas', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/25' },
+                        { icon: FileText, label: 'Total Tugas', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-black/25' },
                         { icon: CheckCircle, label: 'Published', value: stats.published, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
                         { icon: Clock, label: 'Draft', value: stats.draft, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
                         { icon: AlertTriangle, label: 'Overdue', value: stats.overdue, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },
@@ -231,7 +231,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 {/* Filters */}
                 <div className={`rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
                     <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-gray-900 to-black text-white">
                             <Filter className="h-4 w-4" />
                         </div>
                         <h3 className="font-semibold text-slate-900 dark:text-white">Filter & Pencarian</h3>
@@ -270,7 +270,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '300ms' }}>
                     <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-gray-900 to-black text-white">
                                 <ListTodo className="h-4 w-4" />
                             </div>
                             <div>
@@ -284,8 +284,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                         {tugasList.length === 0 ? (
                             <div className="text-center py-16">
                                 <div className="relative mx-auto w-24 h-24 mb-6">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full opacity-20 animate-ping" />
-                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-black rounded-full opacity-20 animate-ping" />
+                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-gray-900 to-black rounded-full">
                                         <FileText className="h-12 w-12 text-white" />
                                     </div>
                                 </div>
@@ -293,7 +293,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 <p className="text-sm text-slate-500 mt-2">Klik tombol "Tambah Tugas" untuk membuat tugas baru</p>
                                 <Button 
                                     onClick={() => setShowCreate(true)}
-                                    className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                    className="mt-4 bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
                                 >
                                     <Plus className="mr-2 h-4 w-4" /> Tambah Tugas Pertama
                                 </Button>
@@ -321,7 +321,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         >
                                             {/* Glow Effect */}
                                             {isHovered && (
-                                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 pointer-events-none" />
+                                                <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-black/20 pointer-events-none" />
                                             )}
                                             
                                             <div className="flex items-start justify-between relative">
@@ -422,7 +422,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowCreate(false)} />
                         <div className="relative w-full max-w-lg mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-                            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+                            <div className="bg-gradient-to-r from-gray-900 to-black p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 bg-white/20 rounded-lg">
@@ -497,7 +497,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                 <div className="flex gap-3">
                                     <Button variant="outline" onClick={() => setShowCreate(false)} className="flex-1">Batal</Button>
-                                    <Button onClick={handleCreate} className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700">
+                                    <Button onClick={handleCreate} className="flex-1 bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900">
                                         <Plus className="mr-2 h-4 w-4" /> Simpan
                                     </Button>
                                 </div>

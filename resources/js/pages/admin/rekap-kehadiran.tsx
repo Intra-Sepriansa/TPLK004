@@ -172,7 +172,7 @@ export default function AdminRekapKehadiran({
 
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -204,7 +204,7 @@ export default function AdminRekapKehadiran({
                                 type="date"
                                 value={dateFrom}
                                 onChange={e => setDateFrom(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
@@ -213,7 +213,7 @@ export default function AdminRekapKehadiran({
                                 type="date"
                                 value={dateTo}
                                 onChange={e => setDateTo(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
@@ -221,7 +221,7 @@ export default function AdminRekapKehadiran({
                             <select
                                 value={courseId}
                                 onChange={e => setCourseId(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             >
                                 <option value="all">Semua Mata Kuliah</option>
                                 {courses.map(c => (
@@ -234,7 +234,7 @@ export default function AdminRekapKehadiran({
                             <select
                                 value={status}
                                 onChange={e => setStatus(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             >
                                 <option value="all">Semua Status</option>
                                 <option value="present">Hadir</option>
@@ -252,7 +252,7 @@ export default function AdminRekapKehadiran({
                             </button>
                             <button
                                 onClick={handleExportPdf}
-                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:from-blue-600 hover:to-purple-700 transition-all"
+                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-2.5 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all"
                             >
                                 <Download className="h-4 w-4" />
                                 PDF
@@ -409,7 +409,7 @@ export default function AdminRekapKehadiran({
                         </div>
                         <div className="overflow-x-auto max-h-80">
                             <table className="w-full">
-                                <thead className="sticky top-0 bg-slate-50 dark:bg-slate-900/50">
+                                <thead className="sticky top-0 bg-slate-50 dark:bg-black/50">
                                     <tr>
                                         <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mata Kuliah</th>
                                         <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Sesi</th>
@@ -423,7 +423,7 @@ export default function AdminRekapKehadiran({
                                         <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">Tidak ada data</td></tr>
                                     ) : (
                                         courseSummary.map(course => (
-                                            <tr key={course.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                            <tr key={course.id} className="hover:bg-slate-50 dark:hover:bg-black/30">
                                                 <td className="px-4 py-3">
                                                     <p className="text-sm font-medium text-slate-900 dark:text-white">{course.nama}</p>
                                                     <p className="text-xs text-slate-500">{course.dosen}</p>
@@ -526,7 +526,7 @@ export default function AdminRekapKehadiran({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-black/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Waktu</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mahasiswa</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mata Kuliah</th>
@@ -545,7 +545,7 @@ export default function AdminRekapKehadiran({
                                     </tr>
                                 ) : (
                                     attendanceLogs.data.map(log => (
-                                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+                                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors">
                                             <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                                                 {log.scanned_at}
                                             </td>
@@ -601,7 +601,7 @@ export default function AdminRekapKehadiran({
                                             ? 'bg-blue-600 text-white'
                                             : link.url
                                             ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-slate-900'
+                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-black'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

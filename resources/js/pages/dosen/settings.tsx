@@ -127,7 +127,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
         appearance: { title: t.settings.categories.appearance.title, description: t.settings.categories.appearance.description, icon: Palette, gradient: 'from-purple-500 to-pink-500' },
         privacy: { title: t.settings.categories.privacy.title, description: t.settings.categories.privacy.description, icon: Shield, gradient: 'from-orange-500 to-red-500' },
         security: { title: t.settings.categories.security.title, description: t.settings.categories.security.description, icon: Lock, gradient: 'from-red-500 to-rose-500' },
-        dataManagement: { title: t.settings.categories.dataManagement.title, description: t.settings.categories.dataManagement.description, icon: Database, gradient: 'from-indigo-500 to-purple-500' },
+        dataManagement: { title: t.settings.categories.dataManagement.title, description: t.settings.categories.dataManagement.description, icon: Database, gradient: 'from-gray-900 to-black' },
     };
 
     const renderContent = () => {

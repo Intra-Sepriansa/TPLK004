@@ -162,7 +162,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
 
                 {/* Submissions List */}
                 <div className={`rounded-2xl border bg-card shadow-sm overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '400ms' }}>
-                    <div className="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                    <div className="p-4 border-b bg-gradient-to-r from-gray-900 to-black dark:from-black/20 dark:to-black/20">
                         <div className="flex items-center gap-2">
                             <GraduationCap className="h-5 w-5 text-indigo-600" />
                             <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Submission</h2>
@@ -196,7 +196,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                         >
                                             <td className="px-4 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold">
+                                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black text-white font-bold">
                                                         {submission.mahasiswa.nama.charAt(0)}
                                                     </div>
                                                     <div>
@@ -238,7 +238,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                                     <Button
                                                         size="sm"
                                                         onClick={() => openGradeDialog(submission)}
-                                                        className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                                        className="bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
                                                     >
                                                         <Award className="h-4 w-4 mr-1" /> Nilai
                                                     </Button>
@@ -264,7 +264,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                             <div className="space-y-4">
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-lg">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black text-white font-bold text-lg">
                                             {selectedSubmission.mahasiswa.nama.charAt(0)}
                                         </div>
                                         <div>
@@ -301,7 +301,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                 </div>
                                 <Button
                                     onClick={handleGrade}
-                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                    className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
                                     disabled={!gradeForm.grade}
                                 >
                                     <Save className="h-4 w-4 mr-2" /> Simpan Nilai
@@ -324,7 +324,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                 <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-bold text-lg">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black text-white font-bold text-lg">
                                                 {selectedSubmission.mahasiswa.nama.charAt(0)}
                                             </div>
                                             <div>
@@ -374,7 +374,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                 )}
 
                                 {selectedSubmission.grade !== null && (
-                                    <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+                                    <div className="p-4 rounded-xl bg-gradient-to-r from-gray-900 to-black dark:from-black/20 dark:to-black/20">
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium text-slate-700 dark:text-slate-300">Nilai:</span>
                                             {getGradeBadge(selectedSubmission.grade, selectedSubmission.grade_letter)}
@@ -395,7 +395,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                                         setShowDetailDialog(false);
                                         openGradeDialog(selectedSubmission);
                                     }}
-                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                                    className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
                                 >
                                     <Award className="h-4 w-4 mr-2" /> {selectedSubmission.grade !== null ? 'Edit Nilai' : 'Beri Nilai'}
                                 </Button>

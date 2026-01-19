@@ -160,7 +160,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                 variants={containerVariants}
             >
                 <motion.div 
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                     variants={itemVariants}
                 >
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
@@ -236,7 +236,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                             <div className="flex items-center gap-2">
                                 <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                                     {['all', 'pending', 'approved', 'rejected'].map(s => (
-                                        <button key={s} onClick={() => handleFilter(s)} className={`px-3 py-1.5 text-xs font-medium transition-colors ${filter === s ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-400'}`}>
+                                        <button key={s} onClick={() => handleFilter(s)} className={`px-3 py-1.5 text-xs font-medium transition-colors ${filter === s ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50 dark:bg-black dark:text-slate-400'}`}>
                                             {s === 'all' ? 'Semua' : statusConfig[s]?.label || s}
                                         </button>
                                     ))}
@@ -274,7 +274,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                 return (
                                     <motion.div 
                                         key={item.id} 
-                                        className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900"
+                                        className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-black"
                                         variants={cardVariants}
                                         layout
                                         whileHover={{ 
@@ -320,7 +320,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     {selfieQueue.last_page > 1 && (
                         <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
                             {selfieQueue.links.map((link, i) => (
-                                <button key={i} onClick={() => link.url && router.get(link.url, {}, { preserveState: true })} disabled={!link.url} className={`px-3 py-1 rounded text-sm ${link.active ? 'bg-blue-600 text-white' : link.url ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300' : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-slate-900'}`} dangerouslySetInnerHTML={{ __html: link.label }} />
+                                <button key={i} onClick={() => link.url && router.get(link.url, {}, { preserveState: true })} disabled={!link.url} className={`px-3 py-1 rounded text-sm ${link.active ? 'bg-blue-600 text-white' : link.url ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300' : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-black'}`} dangerouslySetInnerHTML={{ __html: link.label }} />
                             ))}
                         </div>
                     )}

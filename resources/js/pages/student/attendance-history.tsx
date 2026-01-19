@@ -198,7 +198,7 @@ export default function AttendanceHistory() {
                                 filteredRecords.map((record) => (
                                     <div
                                         key={record.id}
-                                        className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors"
+                                        className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-black/50 transition-colors"
                                     >
                                         <div className="flex-1">
                                             <p className="font-medium text-slate-900 dark:text-white">

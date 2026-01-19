@@ -198,7 +198,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                 <select
                                     value={selectedType}
                                     onChange={(e) => setSelectedType(e.target.value)}
-                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                 >
                                     <option value="mahasiswa">👤 Mahasiswa</option>
                                     <option value="mata_kuliah">📚 Mata Kuliah</option>

@@ -85,7 +85,7 @@ const categoryInfo: Record<SettingsCategory, { title: string; description: strin
         title: 'Data Management',
         description: 'Manage your data, storage, and backups',
         icon: Database,
-        gradient: 'from-indigo-500 to-purple-500',
+        gradient: 'from-gray-900 to-black',
     },
 };
 

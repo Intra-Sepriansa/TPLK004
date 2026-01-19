@@ -255,7 +255,7 @@ export default function Achievements() {
 
                 {/* Level Progress Card */}
                 <div className={cn(
-                    "rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-xl transition-all duration-500 overflow-hidden",
+                    "rounded-2xl bg-gradient-to-br from-black via-slate-800 to-black p-6 text-white shadow-xl transition-all duration-500 overflow-hidden",
                     isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 )} style={{ transitionDelay: '100ms' }}>
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -311,7 +311,7 @@ export default function Achievements() {
                         {/* Rank Display */}
                         {rank && totalStudents && (
                             <div className="flex flex-col items-center gap-3">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-purple-600 shadow-xl shadow-violet-500/40 ring-4 ring-violet-400/30">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black shadow-xl shadow-violet-500/40 ring-4 ring-violet-400/30">
                                     <Crown className="h-10 w-10 text-white" />
                                 </div>
                                 <div className="text-center px-4 py-2 bg-white/5 rounded-xl backdrop-blur">
@@ -330,7 +330,7 @@ export default function Achievements() {
                     isLoaded ? 'opacity-100' : 'opacity-0'
                 )} style={{ transitionDelay: '200ms' }}>
                     {/* Header with Filter */}
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-gradient-to-r from-slate-50 to-white dark:from-black dark:to-slate-950">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30">

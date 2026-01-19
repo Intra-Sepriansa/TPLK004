@@ -138,7 +138,7 @@ export default function Profile({
                     </div>
 
                     {/* Avatar Preview with Upload */}
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50">
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-black/20 border border-blue-200/50 dark:border-blue-800/50">
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileCard(true)}

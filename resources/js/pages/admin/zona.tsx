@@ -253,7 +253,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div 
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
@@ -323,9 +323,9 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                             {!mapReady && <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800"><p className="text-slate-500">Memuat peta...</p></div>}
                         </div>
                         <div className="mt-4 grid gap-2 text-sm">
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/50"><span className="text-slate-500">Latitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lat}</span></div>
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/50"><span className="text-slate-500">Longitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lng}</span></div>
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/50"><span className="text-slate-500">Radius</span><span className="font-medium text-blue-600">{form.data.geofence_radius_m}m</span></div>
+                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Latitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lat}</span></div>
+                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Longitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lng}</span></div>
+                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Radius</span><span className="font-medium text-blue-600">{form.data.geofence_radius_m}m</span></div>
                         </div>
                     </motion.div>
 
@@ -353,13 +353,13 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 </motion.button>
                                 {locationStatus && <span className="text-xs text-slate-500 self-center">{locationStatus}</span>}
                             </motion.div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Latitude</label><input type="number" step="any" value={form.data.geofence_lat} onChange={e => form.setData('geofence_lat', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" /></div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longitude</label><input type="number" step="any" value={form.data.geofence_lng} onChange={e => form.setData('geofence_lng', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" /></div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Radius (meter)</label><input type="number" value={form.data.geofence_radius_m} onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white" /></div>
+                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Latitude</label><input type="number" step="any" value={form.data.geofence_lat} onChange={e => form.setData('geofence_lat', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
+                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longitude</label><input type="number" step="any" value={form.data.geofence_lng} onChange={e => form.setData('geofence_lng', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
+                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Radius (meter)</label><input type="number" value={form.data.geofence_radius_m} onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
                             <motion.button 
                                 type="submit" 
                                 disabled={form.processing} 
-                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-sm font-medium text-white hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50"
+                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-3 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all disabled:opacity-50"
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                             >
@@ -407,14 +407,14 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-red-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Pelanggaran Terbaru</h2></div></div>
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead><tr className="bg-slate-50 dark:bg-slate-900/50"><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mahasiswa</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">NIM</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Jarak</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th></tr></thead>
+                            <thead><tr className="bg-slate-50 dark:bg-black/50"><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mahasiswa</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">NIM</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Jarak</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th></tr></thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                 {recentViolations.length === 0 ? (
                                     <tr><td colSpan={5} className="px-4 py-12 text-center"><AlertTriangle className="h-10 w-10 mx-auto text-slate-300 mb-2" /><p className="text-slate-500">Tidak ada pelanggaran</p></td></tr>
                                 ) : recentViolations.map((v, index) => (
                                     <motion.tr 
                                         key={v.id} 
-                                        className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors"
+                                        className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
