@@ -85,8 +85,24 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
     const ttlLabel = useMemo(() => formatTtl(tokenTtlSeconds), [tokenTtlSeconds]);
 
     useEffect(() => {
-        if (!token) { setQrUrl(null); return; }
-        QRCode.toDataURL(token, { width: 300 }, (err, url) => { if (!err && url) setQrUrl(url); });
+        if (!token) { 
+            setQrUrl(null); 
+            return; 
+        }
+        
+        // Generate QR code
+        QRCode.toDataURL(token, { 
+            width: 300,
+            margin: 2,
+            errorCorrectionLevel: 'M'
+        })
+        .then(url => {
+            setQrUrl(url);
+        })
+        .catch(err => {
+            console.error('QR Code generation error:', err);
+            setQrUrl(null);
+        });
     }, [token]);
 
     useEffect(() => {
@@ -113,19 +129,36 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         try {
             const res = await fetch(`/attendance-sessions/${activeSession.id}/token`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}) },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Accept': 'application/json',
+                    ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}) 
+                },
                 body: JSON.stringify(force ? { force: true } : {}),
             });
+            
             if (res.ok) {
                 const data = await res.json();
+                console.log('Token generated:', data);
                 setToken(data.token);
-                if (typeof data.expires_at_ts === 'number') setExpiresAtMs(data.expires_at_ts * 1000);
-                else if (typeof data.expires_at === 'string') {
+                if (typeof data.expires_at_ts === 'number') {
+                    setExpiresAtMs(data.expires_at_ts * 1000);
+                } else if (typeof data.expires_at === 'string') {
                     const p = Date.parse(data.expires_at);
                     if (!Number.isNaN(p)) setExpiresAtMs(p);
                 }
+            } else {
+                const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
+                console.error('Failed to generate token:', res.status, errorData);
+                alert(`Gagal generate token: ${errorData.message || 'Unknown error'}`);
             }
-        } finally { rotatingRef.current = false; if (!silent) setLoading(false); }
+        } catch (error) {
+            console.error('Error generating token:', error);
+            alert('Terjadi kesalahan saat generate token. Cek console untuk detail.');
+        } finally { 
+            rotatingRef.current = false; 
+            if (!silent) setLoading(false); 
+        }
     };
 
     const copyToken = () => { if (!token) return; navigator.clipboard.writeText(token); setCopied(true); setTimeout(() => setCopied(false), 2000); };
@@ -161,7 +194,20 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             {activeSession && <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700"><Play className="h-3 w-3" />Sesi Aktif</span>}
                         </div>
                         {!activeSession ? (
-                            <div className="text-center py-12"><QrCode className="h-16 w-16 mx-auto text-slate-300 mb-4" /><p className="text-slate-500 mb-2">Belum ada sesi aktif</p><p className="text-sm text-slate-400">Aktifkan sesi di menu Sesi Absen</p></div>
+                            <div className="text-center py-12">
+                                <QrCode className="h-16 w-16 mx-auto text-slate-300 mb-4" />
+                                <p className="text-slate-500 mb-2 font-semibold">Belum ada sesi aktif</p>
+                                <p className="text-sm text-slate-400 mb-4">
+                                    Aktifkan sesi absensi terlebih dahulu untuk generate QR code
+                                </p>
+                                <a 
+                                    href="/attendance-sessions" 
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                    <Play className="h-4 w-4" />
+                                    Kelola Sesi Absensi
+                                </a>
+                            </div>
                         ) : (
                             <div className="space-y-6">
                                 <div className="rounded-xl bg-slate-50 dark:bg-slate-900/50 p-4">
