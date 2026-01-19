@@ -1,8 +1,9 @@
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { Radar, RefreshCw, Users, Clock, CheckCircle, XCircle, Timer, Camera, Activity, Play, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Radar, RefreshCw, Users, Clock, CheckCircle, XCircle, Timer, Activity, Play, AlertTriangle, TrendingUp, Zap, Target } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Log {
     id: number;
@@ -68,13 +69,34 @@ interface PageProps {
     recentSessions: RecentSession[];
 }
 
-const COLORS = ['#22c55e', '#f59e0b', '#ef4444', '#6366f1'];
+const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-    present: { label: 'Hadir', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
-    late: { label: 'Terlambat', color: 'bg-amber-100 text-amber-700', icon: Clock },
-    rejected: { label: 'Ditolak', color: 'bg-red-100 text-red-700', icon: XCircle },
+    present: { label: 'Hadir', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', icon: CheckCircle },
+    late: { label: 'Terlambat', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30', icon: Clock },
+    rejected: { label: 'Ditolak', color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: XCircle },
 };
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+        transition: {
+            type: "spring",
+            stiffness: 100
+        }
+    }
+};
 
 export default function LiveMonitor({ activeSession, recentLogs: initialLogs, todayStats, sessionStats, hourlyData, statusDistribution, recentSessions }: PageProps) {
     const [logs, setLogs] = useState<Log[]>(initialLogs);
@@ -109,147 +131,449 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
     return (
         <AppLayout>
             <Head title="Live Monitor" />
-            <div className="p-6 space-y-6">
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+            <div className="min-h-screen bg-slate-50 dark:bg-black p-6 space-y-6">
+                {/* Animated Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
+                >
+                    <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 90, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                    />
+                    
                     <div className="relative">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"><Radar className="h-6 w-6" /></div>
-                                <div><p className="text-sm text-blue-100">Real-time Monitoring</p><h1 className="text-2xl font-bold">Live Monitor</h1></div>
+                            <div className="flex items-center gap-4">
+                                <motion.div
+                                    animate={{
+                                        rotate: 360,
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                    }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                >
+                                    <Radar className="h-8 w-8" />
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-blue-100 font-medium"
+                                    >
+                                        Real-time Monitoring System
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-3xl font-bold"
+                                    >
+                                        Live Monitor
+                                    </motion.h1>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <div className="text-right text-sm"><p className="text-blue-100">Update terakhir</p><p className="font-medium">{lastUpdate.toLocaleTimeString('id-ID')}</p></div>
-                                <button onClick={handleRefresh} disabled={isRefreshing} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors">
-                                    <RefreshCw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                </button>
+                            <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                    <p className="text-sm text-blue-100">Update terakhir</p>
+                                    <p className="text-lg font-semibold">{lastUpdate.toLocaleTimeString('id-ID')}</p>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleRefresh}
+                                    disabled={isRefreshing}
+                                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/30"
+                                >
+                                    <RefreshCw className={`h-6 w-6 ${isRefreshing ? 'animate-spin' : ''}`} />
+                                </motion.button>
                             </div>
                         </div>
-                        <p className="mt-4 text-blue-100">Pantau scan absensi secara real-time dengan auto-refresh setiap 5 detik</p>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="mt-4 text-blue-100"
+                        >
+                            Pantau scan absensi secara real-time dengan auto-refresh setiap 5 detik
+                        </motion.p>
                     </div>
-                </div>
+                </motion.div>
 
-                {activeSession && (
-                    <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600"><Play className="h-5 w-5" /></div>
-                                <div><p className="text-sm text-emerald-600 dark:text-emerald-400">Sesi Aktif</p><p className="font-semibold text-emerald-900 dark:text-emerald-100">{activeSession.course?.nama ?? 'Tanpa Mata Kuliah'} - Pertemuan #{activeSession.meeting_number}</p></div>
-                            </div>
-                            <div className="text-right text-sm"><p className="text-emerald-600">{activeSession.start_at} - {activeSession.end_at}</p></div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="grid gap-4 md:grid-cols-4">
-                    <StatCard icon={Users} label="Total Scan Hari Ini" value={todayStats.total_scans} color="blue" />
-                    <StatCard icon={CheckCircle} label="Hadir" value={todayStats.present} color="emerald" />
-                    <StatCard icon={Clock} label="Terlambat" value={todayStats.late} color="amber" />
-                    <StatCard icon={XCircle} label="Ditolak" value={todayStats.rejected} color="red" />
-                </div>
-
-                {sessionStats && (
-                    <div className="grid gap-4 md:grid-cols-5">
-                        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <p className="text-sm text-slate-500">Sesi: Total</p><p className="text-2xl font-bold text-slate-900 dark:text-white">{sessionStats.total}</p>
-                        </div>
-                        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <p className="text-sm text-slate-500">Sesi: Hadir</p><p className="text-2xl font-bold text-emerald-600">{sessionStats.present}</p>
-                        </div>
-                        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <p className="text-sm text-slate-500">Sesi: Terlambat</p><p className="text-2xl font-bold text-amber-600">{sessionStats.late}</p>
-                        </div>
-                        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <p className="text-sm text-slate-500">Sesi: Ditolak</p><p className="text-2xl font-bold text-red-600">{sessionStats.rejected}</p>
-                        </div>
-                        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <p className="text-sm text-slate-500">Selfie Pending</p><p className="text-2xl font-bold text-purple-600">{sessionStats.pending_selfie}</p>
-                        </div>
-                    </div>
-                )}
-
-                <div className="grid gap-6 lg:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Scan per Jam</h2></div>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={hourlyData}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#94a3b8" /><YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} /><Bar dataKey="scans" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-2 mb-4"><Activity className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Distribusi Status</h2></div>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart><Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>{pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip /></PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2"><Radar className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2></div>
-                            <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /><span className="text-xs text-slate-500">Live</span></div>
-                        </div>
-                    </div>
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-96 overflow-y-auto">
-                        {logs.length === 0 ? (
-                            <div className="p-12 text-center"><Radar className="h-12 w-12 mx-auto text-slate-300 mb-4" /><p className="text-slate-500">Belum ada scan masuk</p></div>
-                        ) : logs.map(log => {
-                            const cfg = statusConfig[log.status] || { label: log.status, color: 'bg-slate-100 text-slate-700', icon: AlertTriangle };
-                            const Icon = cfg.icon;
-                            return (
-                                <div key={log.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${cfg.color}`}><Icon className="h-5 w-5" /></div>
-                                        <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{log.name}</p>
-                                            <p className="text-xs text-slate-500">{log.nim} • {log.course}</p>
+                {/* Active Session Banner */}
+                <AnimatePresence>
+                    {activeSession && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                            className="rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-6 dark:bg-gradient-to-r dark:from-emerald-500/20 dark:via-teal-500/20 dark:to-cyan-500/20 backdrop-blur-xl"
+                        >
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.1, 1],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                    >
+                                        <Play className="h-7 w-7" />
+                                    </motion.div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <motion.span
+                                                animate={{
+                                                    opacity: [1, 0.5, 1],
+                                                }}
+                                                transition={{
+                                                    duration: 1.5,
+                                                    repeat: Infinity,
+                                                }}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500 text-white"
+                                            >
+                                                <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                                                LIVE
+                                            </motion.span>
+                                            <p className="text-sm text-emerald-400 font-medium">Sesi Aktif</p>
                                         </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-medium text-slate-900 dark:text-white">{log.time}</p>
-                                        <div className="flex items-center gap-2 justify-end mt-1">
-                                            {log.distance_m !== null && <span className="text-xs text-slate-500">{log.distance_m}m</span>}
-                                            <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>{cfg.label}</span>
-                                        </div>
+                                        <p className="text-xl font-bold text-white">{activeSession.course?.nama ?? 'Tanpa Mata Kuliah'}</p>
+                                        <p className="text-sm text-emerald-300">Pertemuan #{activeSession.meeting_number}</p>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Stats Grid with Animation */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid gap-4 md:grid-cols-4"
+                >
+                    <StatCard icon={Users} label="Total Scan Hari Ini" value={todayStats.total_scans} color="blue" trend="+12%" />
+                    <StatCard icon={CheckCircle} label="Hadir" value={todayStats.present} color="emerald" trend="+8%" />
+                    <StatCard icon={Clock} label="Terlambat" value={todayStats.late} color="amber" trend="-3%" />
+                    <StatCard icon={XCircle} label="Ditolak" value={todayStats.rejected} color="red" trend="-5%" />
+                </motion.div>
+
+                {/* Session Stats */}
+                {sessionStats && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="grid gap-4 md:grid-cols-5"
+                    >
+                        <MiniStatCard label="Sesi: Total" value={sessionStats.total} />
+                        <MiniStatCard label="Sesi: Hadir" value={sessionStats.present} color="emerald" />
+                        <MiniStatCard label="Sesi: Terlambat" value={sessionStats.late} color="amber" />
+                        <MiniStatCard label="Sesi: Ditolak" value={sessionStats.rejected} color="red" />
+                        <MiniStatCard label="Selfie Pending" value={sessionStats.pending_selfie} color="purple" />
+                    </motion.div>
+                )}
+
+                {/* Charts Row */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="rounded-2xl border border-slate-200/50 bg-white/50 dark:border-slate-800/50 dark:bg-slate-900/50 p-6 shadow-xl backdrop-blur-xl"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <TrendingUp className="h-5 w-5 text-blue-500" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Scan per Jam</h2>
+                        </div>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={hourlyData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
+                                    <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#94a3b8' }} stroke="#475569" />
+                                    <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} stroke="#475569" />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                            border: '1px solid rgba(148, 163, 184, 0.2)',
+                                            borderRadius: '12px',
+                                            color: '#fff'
+                                        }}
+                                    />
+                                    <Bar dataKey="scans" fill="url(#colorGradient)" radius={[8, 8, 0, 0]} />
+                                    <defs>
+                                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
+                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                        </linearGradient>
+                                    </defs>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="rounded-2xl border border-slate-200/50 bg-white/50 dark:border-slate-800/50 dark:bg-slate-900/50 p-6 shadow-xl backdrop-blur-xl"
+                    >
+                        <div className="flex items-center gap-2 mb-4">
+                            <Activity className="h-5 w-5 text-blue-500" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Distribusi Status</h2>
+                        </div>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={pieData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={3}
+                                        dataKey="value"
+                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        labelLine={false}
+                                    >
+                                        {pieData.map((_, i) => (
+                                            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                                            border: '1px solid rgba(148, 163, 184, 0.2)',
+                                            borderRadius: '12px',
+                                            color: '#fff'
+                                        }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><Timer className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Sesi Terbaru</h2></div></div>
-                    <div className="divide-y divide-slate-200 dark:divide-slate-800">
-                        {recentSessions.map(s => (
-                            <div key={s.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                {/* Activity Feed */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="rounded-2xl border border-slate-200/50 bg-white/50 dark:border-slate-800/50 dark:bg-slate-900/50 shadow-xl backdrop-blur-xl overflow-hidden"
+                >
+                    <div className="p-6 border-b border-slate-200/50 dark:border-slate-800/50">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Radar className="h-5 w-5 text-blue-500" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [1, 0.5, 1],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                    }}
+                                    className="h-2 w-2 rounded-full bg-emerald-500"
+                                />
+                                <span className="text-xs text-slate-500 dark:text-slate-400">Live</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="divide-y divide-slate-200/50 dark:divide-slate-800/50 max-h-96 overflow-y-auto">
+                        <AnimatePresence>
+                            {logs.length === 0 ? (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="p-12 text-center"
+                                >
+                                    <Radar className="h-12 w-12 mx-auto text-slate-300 dark:text-slate-700 mb-4" />
+                                    <p className="text-slate-500 dark:text-slate-400">Belum ada scan masuk</p>
+                                </motion.div>
+                            ) : logs.map((log, index) => {
+                                const cfg = statusConfig[log.status] || { label: log.status, color: 'bg-slate-500/20 text-slate-400 border-slate-500/30', icon: AlertTriangle };
+                                const Icon = cfg.icon;
+                                return (
+                                    <motion.div
+                                        key={log.id}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        className="p-4 flex items-center justify-between hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <motion.div
+                                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                                className={`flex h-12 w-12 items-center justify-center rounded-xl border ${cfg.color}`}
+                                            >
+                                                <Icon className="h-6 w-6" />
+                                            </motion.div>
+                                            <div>
+                                                <p className="font-medium text-slate-900 dark:text-white">{log.name}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{log.nim} • {log.course}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{log.time}</p>
+                                            <div className="flex items-center gap-2 justify-end mt-1">
+                                                {log.distance_m !== null && (
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400">{log.distance_m}m</span>
+                                                )}
+                                                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium border ${cfg.color}`}>
+                                                    {cfg.label}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
+
+                {/* Recent Sessions */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="rounded-2xl border border-slate-200/50 bg-white/50 dark:border-slate-800/50 dark:bg-slate-900/50 shadow-xl backdrop-blur-xl overflow-hidden"
+                >
+                    <div className="p-6 border-b border-slate-200/50 dark:border-slate-800/50">
+                        <div className="flex items-center gap-2">
+                            <Timer className="h-5 w-5 text-blue-500" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Sesi Terbaru</h2>
+                        </div>
+                    </div>
+                    <div className="divide-y divide-slate-200/50 dark:divide-slate-800/50">
+                        {recentSessions.map((s, index) => (
+                            <motion.div
+                                key={s.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.6 + index * 0.05 }}
+                                className="p-4 flex items-center justify-between hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors"
+                            >
                                 <div className="flex items-center gap-3">
-                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${s.is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{s.is_active ? <Play className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</div>
-                                    <div><p className="font-medium text-slate-900 dark:text-white">{s.course_name}</p><p className="text-xs text-slate-500">Pertemuan #{s.meeting_number}</p></div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.1 }}
+                                        className={`flex h-10 w-10 items-center justify-center rounded-xl ${s.is_active ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-500/20 text-slate-400 border border-slate-500/30'}`}
+                                    >
+                                        {s.is_active ? <Play className="h-5 w-5" /> : <Clock className="h-5 w-5" />}
+                                    </motion.div>
+                                    <div>
+                                        <p className="font-medium text-slate-900 dark:text-white">{s.course_name}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">Pertemuan #{s.meeting_number}</p>
+                                    </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-sm font-bold text-slate-900 dark:text-white">{s.total_attendance}</p>
-                                    <p className="text-xs text-slate-500">kehadiran</p>
+                                    <p className="text-lg font-bold text-slate-900 dark:text-white">{s.total_attendance}</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">kehadiran</p>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
-                </div>
+                </motion.div>
             </div>
         </AppLayout>
     );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
-    const colors: Record<string, string> = { blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', red: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' };
+function StatCard({ icon: Icon, label, value, color, trend }: { icon: any; label: string; value: number; color: string; trend?: string }) {
+    const colors: Record<string, { bg: string; text: string; border: string }> = {
+        blue: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
+        emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
+        amber: { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30' },
+        red: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30' },
+    };
+
+    const cfg = colors[color] || colors.blue;
+
     return (
-        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-            <div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}><Icon className="h-5 w-5" /></div><div><p className="text-sm text-slate-500">{label}</p><p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p></div></div>
-        </div>
+        <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.02, y: -5 }}
+            className={`rounded-2xl border ${cfg.border} bg-white/50 dark:bg-slate-900/50 p-6 shadow-xl backdrop-blur-xl`}
+        >
+            <div className="flex items-start justify-between mb-4">
+                <motion.div
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.5 }}
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${cfg.bg} ${cfg.text} border ${cfg.border}`}
+                >
+                    <Icon className="h-6 w-6" />
+                </motion.div>
+                {trend && (
+                    <span className={`text-xs font-medium ${trend.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {trend}
+                    </span>
+                )}
+            </div>
+            <div>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+                <motion.p
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="text-3xl font-bold text-slate-900 dark:text-white"
+                >
+                    {value}
+                </motion.p>
+            </div>
+        </motion.div>
+    );
+}
+
+function MiniStatCard({ label, value, color = 'slate' }: { label: string; value: number; color?: string }) {
+    const colors: Record<string, string> = {
+        slate: 'text-slate-900 dark:text-white',
+        emerald: 'text-emerald-400',
+        amber: 'text-amber-400',
+        red: 'text-red-400',
+        purple: 'text-purple-400',
+    };
+
+    return (
+        <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="rounded-xl border border-slate-200/50 bg-white/50 dark:border-slate-800/50 dark:bg-slate-900/50 p-4 shadow-lg backdrop-blur-xl"
+        >
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+            <p className={`text-2xl font-bold ${colors[color]}`}>{value}</p>
+        </motion.div>
     );
 }
