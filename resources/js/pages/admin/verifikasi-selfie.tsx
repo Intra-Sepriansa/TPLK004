@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image } from 'lucide-react';
 import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Mahasiswa {
     id: number;
@@ -103,11 +104,65 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
         setSelectedIds(selectedIds.length === pendingIds.length ? [] : pendingIds);
     };
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.08,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20, scale: 0.95 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 15
+            }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { opacity: 0, scale: 0.8, rotateY: -15 },
+        visible: {
+            opacity: 1,
+            scale: 1,
+            rotateY: 0,
+            transition: {
+                type: "spring",
+                stiffness: 120,
+                damping: 12
+            }
+        },
+        exit: {
+            opacity: 0,
+            scale: 0.8,
+            rotateY: 15,
+            transition: { duration: 0.3 }
+        }
+    };
+
     return (
         <AppLayout>
             <Head title="Verifikasi Selfie" />
-            <div className="p-6 space-y-6">
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+            <motion.div 
+                className="p-6 space-y-6"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+            >
+                <motion.div 
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    variants={itemVariants}
+                >
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -117,19 +172,29 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         </div>
                         <p className="mt-4 text-blue-100">Review dan validasi selfie mahasiswa yang masuk untuk absensi</p>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="grid gap-4 md:grid-cols-6">
+                <motion.div 
+                    className="grid gap-4 md:grid-cols-6"
+                    variants={containerVariants}
+                >
                     <StatCard icon={Image} label="Total Selfie" value={stats.total} color="blue" />
                     <StatCard icon={Clock} label="Pending" value={stats.pending} color="amber" />
                     <StatCard icon={CheckCircle} label="Disetujui" value={stats.approved} color="emerald" />
                     <StatCard icon={XCircle} label="Ditolak" value={stats.rejected} color="red" />
                     <StatCard icon={AlertTriangle} label="Pending Hari Ini" value={stats.today_pending} color="orange" />
                     <StatCard icon={Users} label="Diproses Hari Ini" value={stats.today_processed} color="purple" />
-                </div>
+                </motion.div>
 
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                <motion.div 
+                    className="grid gap-6 lg:grid-cols-3"
+                    variants={containerVariants}
+                >
+                    <motion.div 
+                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.01 }}
+                    >
                         <div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Tren 7 Hari Terakhir</h2></div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -140,8 +205,12 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                    </motion.div>
+                    <motion.div 
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.02 }}
+                    >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><Eye className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Terbaru</h2></div></div>
                         <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-64 overflow-y-auto">
                             {recentVerifications.length === 0 ? <div className="p-6 text-center text-slate-500">Belum ada verifikasi</div> : recentVerifications.map(v => (
@@ -154,10 +223,13 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                 </div>
                             ))}
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
+                <motion.div 
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                    variants={itemVariants}
+                >
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                         <div className="flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-2"><ScanFace className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Antrian Selfie</h2></div>
@@ -182,13 +254,37 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         )}
                     </div>
 
-                    <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {selfieQueue.data.length === 0 ? (
-                            <div className="col-span-full p-12 text-center"><ScanFace className="h-16 w-16 mx-auto text-slate-300 mb-4" /><p className="text-slate-500">Tidak ada selfie dalam antrian</p></div>
-                        ) : selfieQueue.data.map(item => {
-                            const cfg = statusConfig[item.status] || { label: item.status, color: 'text-slate-700', bg: 'bg-slate-100' };
-                            return (
-                                <div key={item.id} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900">
+                    <motion.div 
+                        className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                        variants={containerVariants}
+                    >
+                        <AnimatePresence mode="popLayout">
+                            {selfieQueue.data.length === 0 ? (
+                                <motion.div 
+                                    className="col-span-full p-12 text-center"
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                >
+                                    <ScanFace className="h-16 w-16 mx-auto text-slate-300 mb-4" />
+                                    <p className="text-slate-500">Tidak ada selfie dalam antrian</p>
+                                </motion.div>
+                            ) : selfieQueue.data.map((item, index) => {
+                                const cfg = statusConfig[item.status] || { label: item.status, color: 'text-slate-700', bg: 'bg-slate-100' };
+                                return (
+                                    <motion.div 
+                                        key={item.id} 
+                                        className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-slate-900"
+                                        variants={cardVariants}
+                                        layout
+                                        whileHover={{ 
+                                            scale: 1.05, 
+                                            y: -8,
+                                            boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+                                            transition: { duration: 0.2 }
+                                        }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
                                     <div className="relative aspect-square bg-slate-100 dark:bg-slate-800">
                                         {item.attendance_log?.selfie_path ? (
                                             <img src={`/storage/${item.attendance_log.selfie_path}`} alt="Selfie" className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewImage(`/storage/${item.attendance_log?.selfie_path}`)} />
@@ -215,10 +311,11 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         {item.status === 'rejected' && item.rejection_reason && <p className="text-xs text-red-600 mt-2">Alasan: {item.rejection_reason}</p>}
                                         {item.verified_by_name && <p className="text-xs text-slate-400 mt-1">Oleh: {item.verified_by_name}</p>}
                                     </div>
-                                </div>
+                                </motion.div>
                             );
                         })}
-                    </div>
+                        </AnimatePresence>
+                    </motion.div>
 
                     {selfieQueue.last_page > 1 && (
                         <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
@@ -227,14 +324,32 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                             ))}
                         </div>
                     )}
-                </div>
+                </motion.div>
 
-                {previewImage && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setPreviewImage(null)}>
-                        <img src={previewImage} alt="Preview" className="max-w-[90vw] max-h-[90vh] rounded-lg" />
-                    </div>
-                )}
-            </div>
+                <AnimatePresence>
+                    {previewImage && (
+                        <motion.div 
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" 
+                            onClick={() => setPreviewImage(null)}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <motion.img 
+                                src={previewImage} 
+                                alt="Preview" 
+                                className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
+                                initial={{ scale: 0.5, rotateY: -90 }}
+                                animate={{ scale: 1, rotateY: 0 }}
+                                exit={{ scale: 0.5, rotateY: 90 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
         </AppLayout>
     );
 }
@@ -242,8 +357,39 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
     const colors: Record<string, string> = { blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', red: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' };
     return (
-        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-            <div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}><Icon className="h-5 w-5" /></div><div><p className="text-xs text-slate-500">{label}</p><p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p></div></div>
-        </div>
+        <motion.div 
+            className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+            variants={{
+                hidden: { opacity: 0, y: 20, scale: 0.9 },
+                visible: { 
+                    opacity: 1, 
+                    y: 0, 
+                    scale: 1,
+                    transition: { type: "spring", stiffness: 100, damping: 12 }
+                }
+            }}
+            whileHover={{ scale: 1.05, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+        >
+            <div className="flex items-center gap-3">
+                <motion.div 
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
+                    whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
+                >
+                    <Icon className="h-5 w-5" />
+                </motion.div>
+                <div>
+                    <p className="text-xs text-slate-500">{label}</p>
+                    <motion.p 
+                        className="text-xl font-bold text-slate-900 dark:text-white"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                    >
+                        {value}
+                    </motion.p>
+                </div>
+            </div>
+        </motion.div>
     );
 }
