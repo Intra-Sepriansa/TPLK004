@@ -203,7 +203,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                 {/* Header with Animation */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div 
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
@@ -256,7 +256,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                             </DialogTrigger>
                             <DialogContent className="max-w-lg">
                             <DialogHeader>
-                                <DialogTitle className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tambah Tugas Baru</DialogTitle>
+                                <DialogTitle className="text-xl bg-gradient-to-r from-gray-900 to-black bg-clip-text text-transparent">Tambah Tugas Baru</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
                                 <div>
@@ -316,7 +316,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                         </Select>
                                     </div>
                                 </div>
-                                <Button onClick={handleCreate} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300">Simpan</Button>
+                                <Button onClick={handleCreate} className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 transition-all duration-300">Simpan</Button>
                             </div>
                         </DialogContent>
                     </Dialog>
@@ -398,11 +398,11 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         >
                             <div className="relative mx-auto w-24 h-24 mb-6">
                                 <motion.div 
-                                    className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-20"
+                                    className="absolute inset-0 bg-gradient-to-r from-gray-900 to-black rounded-full opacity-20"
                                     animate={{ scale: [1, 1.2, 1] }}
                                     transition={{ duration: 2, repeat: Infinity }}
                                 />
-                                <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+                                <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-gray-900 to-black rounded-full">
                                     <FileText className="h-12 w-12 text-white" />
                                 </div>
                             </div>
@@ -473,7 +473,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                 <Dialog open={showEdit} onOpenChange={setShowEdit}>
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
-                            <DialogTitle className="text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Edit Tugas</DialogTitle>
+                            <DialogTitle className="text-xl bg-gradient-to-r from-gray-900 to-black bg-clip-text text-transparent">Edit Tugas</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                             <div>
@@ -527,7 +527,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                     </Select>
                                 </div>
                             </div>
-                            <Button onClick={handleEdit} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-300">
+                            <Button onClick={handleEdit} className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 transition-all duration-300">
                                 Simpan Perubahan
                             </Button>
                         </div>

@@ -234,7 +234,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                             <select
                                 value={filters.type}
                                 onChange={(e) => handleFilterChange('type', e.target.value)}
-                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                             >
                                 <option value="all">Semua Tipe</option>
                                 <option value="reminder">Reminder</option>
@@ -249,7 +249,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                             <select
                                 value={filters.status}
                                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                             >
                                 <option value="all">Semua Status</option>
                                 <option value="unread">Belum Dibaca</option>
@@ -288,7 +288,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                             </div>
                         ) : (
                             notifications.data.map((notif) => (
-                                <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                <div key={notif.id} className="p-4 hover:bg-slate-50 dark:hover:bg-black/30">
                                     <div className="flex items-start gap-4">
                                         <Checkbox
                                             checked={selectedIds.includes(notif.id)}
@@ -369,7 +369,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             {/* Create Modal */}
             {createModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">Buat Notifikasi Baru</h3>
                             <button onClick={() => setCreateModal(false)} className="text-slate-400 hover:text-slate-600">
@@ -382,7 +382,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                 <select
                                     value={form.data.target}
                                     onChange={(e) => form.setData('target', e.target.value)}
-                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                 >
                                     <option value="all">Semua Pengguna</option>
                                     <option value="mahasiswa">Semua Mahasiswa</option>
@@ -397,7 +397,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                     <select
                                         value={form.data.target_type}
                                         onChange={(e) => form.setData('target_type', e.target.value)}
-                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                     >
                                         <option value="mahasiswa">Mahasiswa</option>
                                         <option value="dosen">Dosen</option>
@@ -443,7 +443,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                     <select
                                         value={form.data.type}
                                         onChange={(e) => form.setData('type', e.target.value)}
-                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                     >
                                         <option value="announcement">Pengumuman</option>
                                         <option value="reminder">Reminder</option>
@@ -457,7 +457,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                                     <select
                                         value={form.data.priority}
                                         onChange={(e) => form.setData('priority', e.target.value)}
-                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                     >
                                         <option value="low">Low</option>
                                         <option value="normal">Normal</option>
@@ -510,7 +510,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             {/* Detail Modal */}
             {detailModal.open && detailModal.notification && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl dark:bg-black max-h-[90vh] overflow-y-auto">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${getTypeColor(detailModal.notification.type)}`}>

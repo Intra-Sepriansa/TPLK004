@@ -218,7 +218,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                             { step: 5, title: 'Test Sistem', desc: 'Lakukan test absensi dengan akun mahasiswa dummy untuk memastikan semua fitur berjalan dengan baik.', time: '5 menit' },
                         ].map((item) => (
                             <div key={item.step} className="relative pl-12">
-                                <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 border-4 border-blue-500 text-blue-600 font-bold">
+                                <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-black border-4 border-blue-500 text-blue-600 font-bold">
                                     {item.step}
                                 </div>
                                 <div className="p-4 rounded-xl border bg-card">
@@ -344,7 +344,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         { icon: AlertCircle, title: 'Alert Kecurangan', desc: 'Notifikasi instan jika terdeteksi aktivitas mencurigakan.' },
                     ].map((item, i) => (
                         <div key={i} className="flex gap-3 p-4 rounded-xl border bg-card">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex-shrink-0">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gray-900 to-black text-white flex-shrink-0">
                                 <item.icon className="h-5 w-5" />
                             </div>
                             <div>
@@ -1112,7 +1112,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
         content: (
             <div className="space-y-6">
                 <p className="text-muted-foreground">Sistem menyediakan API untuk integrasi dengan aplikasi atau sistem lain.</p>
-                <div className="p-4 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border">
+                <div className="p-4 rounded-xl bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-black border">
                     <h4 className="font-semibold flex items-center gap-2 mb-2">
                         <Globe className="h-5 w-5" /> Base URL
                     </h4>
@@ -1210,8 +1210,8 @@ export default function AdminPanduan() {
 
             <div className="flex h-[calc(100vh-4rem)]">
                 {/* Sidebar Navigation */}
-                <div className="w-80 border-r bg-slate-50/50 dark:bg-slate-900/50 overflow-y-auto flex-shrink-0">
-                    <div className="p-4 border-b sticky top-0 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur z-10">
+                <div className="w-80 border-r bg-slate-50/50 dark:bg-black/50 overflow-y-auto flex-shrink-0">
+                    <div className="p-4 border-b sticky top-0 bg-slate-50/95 dark:bg-black/95 backdrop-blur z-10">
                         <div className="flex items-center gap-2 mb-4">
                             <BookOpen className="h-6 w-6 text-blue-600" />
                             <h1 className="text-lg font-bold">Panduan Admin</h1>

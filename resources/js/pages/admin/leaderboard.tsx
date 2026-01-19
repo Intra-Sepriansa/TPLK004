@@ -44,7 +44,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
             <Head title="Leaderboard" />
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -76,7 +76,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     className={cn(
                                         'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                                         filters.period === p
-                                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+                                            ? 'bg-gradient-to-r from-gray-900 to-black text-white'
                                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
                                     )}
                                 >
@@ -87,7 +87,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                         <select
                             value={filters.kelas}
                             onChange={e => handleFilter('kelas', e.target.value)}
-                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black dark:text-white"
                         >
                             <option value="all">Semua Kelas</option>
                             {kelasList.map(k => (
@@ -187,7 +187,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-black/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Rank</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mahasiswa</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Kelas</th>
@@ -202,7 +202,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                 {leaderboard.map((entry, index) => {
                                     const rank = index + 1;
                                     return (
-                                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                        <tr key={entry.id} className="hover:bg-slate-50 dark:hover:bg-black/30">
                                             <td className="px-4 py-3">
                                                 <div className={cn(
                                                     'flex h-8 w-8 items-center justify-center rounded-full font-bold text-sm',

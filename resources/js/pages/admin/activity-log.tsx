@@ -57,7 +57,7 @@ const actionConfig: Record<string, { label: string; color: string; icon: any }> 
     update: { label: 'Update', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', icon: Pencil },
     delete: { label: 'Hapus', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: Trash2 },
     login: { label: 'Login', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: LogIn },
-    view: { label: 'Lihat', color: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400', icon: Eye },
+    view: { label: 'Lihat', color: 'bg-slate-100 text-slate-700 dark:bg-black/30 dark:text-slate-400', icon: Eye },
     settings: { label: 'Pengaturan', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Settings },
 };
 
@@ -88,7 +88,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
 
             <div className="p-6 space-y-6">
                 {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     <div className="relative">
@@ -159,14 +159,14 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                 onChange={e => setSearch(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleFilter()}
                                 placeholder="Cari aktivitas..."
-                                className="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
                             <select
                                 value={action}
                                 onChange={e => setAction(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             >
                                 <option value="all">Semua Aksi</option>
                                 {actions.map(a => (
@@ -179,7 +179,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                 type="date"
                                 value={date}
                                 onChange={e => setDate(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-700 dark:bg-black dark:text-white"
                             />
                         </div>
                         <div>
@@ -210,7 +210,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-black/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">User</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
@@ -232,7 +232,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                         <>
                                             <tr
                                                 key={log.id}
-                                                className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors cursor-pointer"
+                                                className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors cursor-pointer"
                                                 onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
                                             >
                                                 <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
@@ -271,7 +271,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                             </tr>
                                             {expandedLog === log.id && (log.old_values || log.new_values) && (
                                                 <tr key={`${log.id}-detail`}>
-                                                    <td colSpan={6} className="px-4 py-4 bg-slate-50 dark:bg-slate-900/50">
+                                                    <td colSpan={6} className="px-4 py-4 bg-slate-50 dark:bg-black/50">
                                                         <div className="grid md:grid-cols-2 gap-4">
                                                             {log.old_values && Object.keys(log.old_values).length > 0 && (
                                                                 <div>
@@ -312,7 +312,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                             ? 'bg-indigo-600 text-white'
                                             : link.url
                                             ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-slate-900'
+                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-black'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />

@@ -247,7 +247,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                 <div className="flex-1">
                                                     {/* Badges */}
                                                     <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/25">
+                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-black/25">
                                                             {tugas.jenis}
                                                         </span>
                                                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${priorityConfig.bg} ${priorityConfig.text} shadow-lg`}>

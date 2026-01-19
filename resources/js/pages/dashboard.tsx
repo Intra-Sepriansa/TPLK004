@@ -579,8 +579,8 @@ function StudentsSection({
                                         }
                                         className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                                             link.active
-                                                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                                                : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-900'
+                                                ? 'bg-black text-white dark:bg-white dark:text-slate-900'
+                                                : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-black'
                                         } ${
                                             link.url
                                                 ? ''
@@ -661,14 +661,14 @@ function SessionsSection({
                     </p>
                     <div className="mt-4 grid max-h-72 gap-3 overflow-auto text-sm">
                         {courses.length === 0 ? (
-                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-xs text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data mata kuliah.
                             </div>
                         ) : (
                             courses.map((course) => (
                                 <div
                                     key={course.id}
-                                    className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
+                                    className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 dark:border-slate-800 dark:bg-black"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
@@ -700,7 +700,7 @@ function SessionsSection({
                             <Label htmlFor="session-course">Mata kuliah</Label>
                             <select
                                 id="session-course"
-                                className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+                                className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-800 dark:bg-black"
                                 value={sessionForm.data.course_id}
                                 onChange={(event) =>
                                     sessionForm.setData(
@@ -804,14 +804,14 @@ function SessionsSection({
                 </div>
                 <div className="mt-4 grid gap-3">
                     {sessions.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Belum ada sesi.
                         </div>
                     ) : (
                         sessions.map((session) => (
                             <div
                                 key={session.id}
-                                className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900"
+                                className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black"
                             >
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
@@ -1032,7 +1032,7 @@ function QrSection({
                             </div>
                         </div>
 
-                        <div className="mt-6 rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mt-6 rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-xs text-slate-500 dark:border-slate-800 dark:bg-black">
                             Token akan otomatis berubah setiap {ttlLabel} dan hanya
                             berlaku untuk sesi aktif.
                         </div>
@@ -1056,7 +1056,7 @@ function QrSection({
                                     <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
                                         Token aktif
                                     </p>
-                                    <div className="break-all rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-mono text-base font-semibold tracking-[0.2em] text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white sm:text-2xl">
+                                    <div className="break-all rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-mono text-base font-semibold tracking-[0.2em] text-slate-900 dark:border-slate-800 dark:bg-black dark:text-white sm:text-2xl">
                                         {token}
                                     </div>
                                     {timeLeft !== null ? (
@@ -1131,7 +1131,7 @@ function MonitorSection({
                 </div>
                 <div className="mt-5 grid gap-3">
                     {logs.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Belum ada scan masuk.
                         </div>
                     ) : (
@@ -1153,7 +1153,7 @@ function MonitorSection({
                             return (
                                 <div
                                     key={item.id}
-                                    className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/70 sm:flex-row sm:items-center sm:justify-between"
+                                    className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-black/70 sm:flex-row sm:items-center sm:justify-between"
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200">
@@ -1733,7 +1733,7 @@ function AiAttendanceSection({
 
             <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
                 <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <div className="relative aspect-video overflow-hidden rounded-2xl border border-slate-200/70 bg-slate-900">
+                    <div className="relative aspect-video overflow-hidden rounded-2xl border border-slate-200/70 bg-black">
                         {maintenanceMode ? (
                             <div className="flex h-full w-full flex-col items-center justify-center gap-3 px-6 text-center text-sm text-slate-200">
                                 <div className="h-44 w-44">
@@ -1932,14 +1932,14 @@ function SelfieSection({ selfieQueue }: { selfieQueue: any[] }) {
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="grid gap-3">
                     {selfieQueue.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Tidak ada selfie pending.
                         </div>
                     ) : (
                         selfieQueue.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/70 p-4 text-sm shadow-sm dark:border-slate-800/70 dark:bg-slate-900/70"
+                                className="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/70 p-4 text-sm shadow-sm dark:border-slate-800/70 dark:bg-black/70"
                             >
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex items-center gap-3">
@@ -2170,7 +2170,7 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
                 </div>
 
                 <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200/60 dark:border-slate-800/70">
-                    <div className="relative h-[360px] w-full bg-slate-100/70 dark:bg-slate-900/70">
+                    <div className="relative h-[360px] w-full bg-slate-100/70 dark:bg-black/70">
                         <div ref={mapRef} className="h-full w-full" />
                         {!mapReady && (
                             <div className="absolute inset-0 flex h-full w-full items-center justify-center px-6 text-center text-sm text-slate-500 backdrop-blur-sm dark:text-slate-400">
@@ -2184,7 +2184,7 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
                 </div>
 
                 <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                    <div className="rounded-2xl border border-slate-200/60 bg-slate-50/80 p-4 text-sm text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/70 dark:text-slate-300">
+                    <div className="rounded-2xl border border-slate-200/60 bg-slate-50/80 p-4 text-sm text-slate-600 dark:border-slate-800/60 dark:bg-black/70 dark:text-slate-300">
                         <div className="flex items-center justify-between">
                             <span>Latitude</span>
                             <span className="font-semibold text-slate-900 dark:text-white">
@@ -2215,7 +2215,7 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-900"
+                                className="border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-black"
                                 onClick={useCurrentLocation}
                                 disabled={locationLoading}
                             >
@@ -2311,7 +2311,7 @@ function DevicesSection({
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="grid gap-4 text-sm">
                     {deviceDistribution.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Belum ada data perangkat.
                         </div>
                     ) : (
@@ -2323,7 +2323,7 @@ function DevicesSection({
                             return (
                                 <div
                                     key={device.label}
-                                    className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900"
+                                    className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 dark:border-slate-800 dark:bg-black"
                                 >
                                     <div className="flex items-center justify-between">
                                         <span className="text-slate-600 dark:text-slate-300">
@@ -2503,7 +2503,7 @@ function ScheduleSection({
                                         </Label>
                                         <select
                                             id={`edit-course-${session.id}`}
-                                            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-800 dark:bg-slate-900"
+                                            className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm dark:border-slate-800 dark:bg-black"
                                             value={editForm.data.course_id}
                                             onChange={(event) =>
                                                 editForm.setData(
@@ -2817,14 +2817,14 @@ function ReportsSection({ reportSessions }: { reportSessions: any[] }) {
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="grid gap-3">
                     {reportSessions.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Belum ada rekap.
                         </div>
                     ) : (
                         reportSessions.map((session) => (
                             <div
                                 key={session.id}
-                                className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900"
+                                className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black"
                             >
                                 <div className="flex flex-wrap items-center justify-between gap-3">
                                     <div>
@@ -2893,14 +2893,14 @@ function AuditSection({ auditLogs }: { auditLogs: any[] }) {
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 text-sm shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                 <div className="grid gap-3">
                     {auditLogs.length === 0 ? (
-                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                             Belum ada audit.
                         </div>
                     ) : (
                         auditLogs.map((log) => (
                             <div
                                 key={log.id}
-                                className="flex flex-col justify-between gap-2 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center"
+                                className="flex flex-col justify-between gap-2 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 dark:border-slate-800 dark:bg-black sm:flex-row sm:items-center"
                             >
                                 <div>
                                     <p className="font-semibold text-slate-900 dark:text-white">
@@ -3684,7 +3684,7 @@ function OverviewSection({
                         </div>
 
                         <div className="mt-6 grid grid-cols-3 gap-4">
-                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black">
                                 <p className="text-xs text-slate-500">
                                     Rata-rata hadir
                                 </p>
@@ -3702,7 +3702,7 @@ function OverviewSection({
                                     per hari
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black">
                                 <p className="text-xs text-slate-500">
                                     Token ganda
                                 </p>
@@ -3713,7 +3713,7 @@ function OverviewSection({
                                     audit log
                                 </p>
                             </div>
-                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900">
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black">
                                 <p className="text-xs text-slate-500">
                                     Selfie lolos
                                 </p>
@@ -3741,7 +3741,7 @@ function OverviewSection({
 
                         <div className="mt-5 grid gap-3">
                             {activity.length === 0 ? (
-                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                     Belum ada aktivitas.
                                 </div>
                             ) : (
@@ -3758,7 +3758,7 @@ function OverviewSection({
                                     return (
                                         <div
                                             key={item.id}
-                                            className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/70 sm:flex-row sm:items-center sm:justify-between"
+                                            className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/70 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800/70 dark:bg-black/70 sm:flex-row sm:items-center sm:justify-between"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-200">
@@ -3812,14 +3812,14 @@ function OverviewSection({
 
                         <div className="mt-4 grid gap-3">
                             {upcomingSessions.length === 0 ? (
-                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                     Belum ada sesi berikutnya.
                                 </div>
                             ) : (
                                 upcomingSessions.map((session) => (
                                     <div
                                         key={session.id}
-                                        className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900"
+                                        className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-sm dark:border-slate-800 dark:bg-black"
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
@@ -3881,7 +3881,7 @@ function OverviewSection({
                         </div>
 
                         <div className="mt-4 grid gap-3 text-sm">
-                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black">
                                 <span className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
                                     <ShieldCheck className="h-4 w-4 text-emerald-500" />
                                     Token ganda
@@ -3890,7 +3890,7 @@ function OverviewSection({
                                     {securitySummary?.duplicate_tokens ?? 0} kasus
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black">
                                 <span className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
                                     <Camera className="h-4 w-4 text-sky-500" />
                                     Selfie lolos
@@ -3899,7 +3899,7 @@ function OverviewSection({
                                     {securitySummary?.selfie_rate ?? 0}%
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black">
                                 <span className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
                                     <QrCode className="h-4 w-4 text-amber-500" />
                                     Token kadaluarsa
@@ -3926,14 +3926,14 @@ function OverviewSection({
 
                         <div className="mt-4 grid gap-3 text-sm">
                             {deviceDistribution.length === 0 ? (
-                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                                <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                     Belum ada data perangkat.
                                 </div>
                             ) : (
                                 deviceDistribution.map((device) => (
                                     <div
                                         key={device.label}
-                                        className="rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900"
+                                        className="rounded-2xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black"
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="text-slate-600 dark:text-slate-300">
@@ -3968,12 +3968,12 @@ function OverviewSection({
                     </div>
                     <div className="space-y-3">
                         {(topStudents ?? []).length === 0 ? (
-                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data mahasiswa.
                             </div>
                         ) : (
                             (topStudents ?? []).map((student, index) => (
-                                <div key={student.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
+                                <div key={student.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-black/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
                                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
                                         index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
                                         index === 1 ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' :
@@ -4014,7 +4014,7 @@ function OverviewSection({
                     </div>
                     <div className="h-64">
                         {(courseStats ?? []).length === 0 ? (
-                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data mata kuliah.
                             </div>
                         ) : (
@@ -4093,7 +4093,7 @@ function OverviewSection({
                     </div>
                     <div className="h-40">
                         {(hourlyData ?? []).length === 0 ? (
-                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex items-center justify-center h-full rounded-2xl border border-slate-200/60 bg-slate-50 text-sm text-slate-500 dark:border-slate-800 dark:bg-black">
                                 Belum ada data hari ini.
                             </div>
                         ) : (
@@ -4124,7 +4124,7 @@ function OverviewSection({
             <section className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 animate-appear [animation-delay:420ms]">
                 <h2 className="font-display text-xl text-slate-900 dark:text-white mb-4">Aksi Cepat</h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <a href="/admin/qr-builder" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    <a href="/admin/qr-builder" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 transition-transform group-hover:scale-110">
                             <QrCode className="h-6 w-6" />
                         </div>
@@ -4134,7 +4134,7 @@ function OverviewSection({
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/mahasiswa" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    <a href="/admin/mahasiswa" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 transition-transform group-hover:scale-110">
                             <Users className="h-6 w-6" />
                         </div>
@@ -4144,7 +4144,7 @@ function OverviewSection({
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/sesi-absen" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    <a href="/admin/sesi-absen" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 transition-transform group-hover:scale-110">
                             <CalendarCheck className="h-6 w-6" />
                         </div>
@@ -4154,7 +4154,7 @@ function OverviewSection({
                         </div>
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
-                    <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-slate-900/50 dark:hover:bg-slate-900">
+                    <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 transition-transform group-hover:scale-110">
                             <FileBarChart className="h-6 w-6" />
                         </div>

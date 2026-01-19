@@ -74,7 +74,7 @@ const FloatingInput = ({
                     autoFocus={autoFocus}
                     placeholder=" "
                     className={cn(
-                        "h-14 pt-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur border-slate-200 dark:border-slate-700",
+                        "h-14 pt-4 bg-white/80 dark:bg-black/80 backdrop-blur border-slate-200 dark:border-slate-700",
                         "focus:border-indigo-500 transition-all duration-300 rounded-xl",
                         Icon && "pl-12",
                         showPasswordToggle && "pr-12"
@@ -115,7 +115,7 @@ const AnimatedToggle = ({ checked, onChange, label }: { checked: boolean; onChan
             className={cn(
                 "relative w-12 h-6 rounded-full transition-all duration-300 cursor-pointer",
                 checked 
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30" 
+                    ? "bg-gradient-to-r from-gray-900 to-black shadow-lg shadow-indigo-500/30" 
                     : "bg-slate-200 dark:bg-slate-700"
             )}
         >
@@ -146,7 +146,7 @@ const ModeTab = ({ mode, currentMode, onClick, icon: Icon, label }: {
         className={cn(
             "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-300",
             currentMode === mode
-                ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 scale-105"
+                ? "bg-gradient-to-r from-gray-900 to-black text-white shadow-lg shadow-indigo-500/30 scale-105"
                 : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
         )}
     >
@@ -492,7 +492,7 @@ export default function Login({ status }: LoginProps) {
                                     "w-full h-14 text-lg font-semibold rounded-xl transition-all duration-300",
                                     "bg-gradient-to-r shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
                                     mode === 'admin' && "from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-red-500/30",
-                                    mode === 'dosen' && "from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-indigo-500/30",
+                                    mode === 'dosen' && "from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 shadow-indigo-500/30",
                                     mode === 'mahasiswa' && "from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-emerald-500/30",
                                     currentForm.processing && "opacity-80 cursor-not-allowed"
                                 )}

@@ -144,7 +144,7 @@ export default function DosenVerify({ dosen, pendingVerifications, recentVerific
                 {/* Header */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}

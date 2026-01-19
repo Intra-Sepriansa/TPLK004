@@ -225,7 +225,7 @@ export default function AdminJadwal({
                 {/* Header */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div 
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
@@ -394,7 +394,7 @@ export default function AdminJadwal({
                             <select
                                 value={courseId}
                                 onChange={e => setCourseId(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                             >
                                 <option value="all">Semua</option>
                                 {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
@@ -405,7 +405,7 @@ export default function AdminJadwal({
                             <select
                                 value={status}
                                 onChange={e => setStatus(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                             >
                                 <option value="all">Semua</option>
                                 <option value="active">Aktif</option>
@@ -427,7 +427,7 @@ export default function AdminJadwal({
                                 </Button>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button onClick={handleExportPdf} className="bg-gradient-to-r from-blue-500 to-purple-600">
+                                <Button onClick={handleExportPdf} className="bg-gradient-to-r from-gray-900 to-black">
                                     <Download className="h-4 w-4" />
                                     PDF
                                 </Button>
@@ -451,7 +451,7 @@ export default function AdminJadwal({
                                 animate={{ scale: 1, rotateY: 0 }}
                                 exit={{ scale: 0.9, rotateY: 15 }}
                                 transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                                className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
+                                className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black"
                             >
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-lg font-semibold">Tambah Jadwal</h3>
@@ -470,7 +470,7 @@ export default function AdminJadwal({
                                         <select
                                             value={addForm.data.course_id}
                                             onChange={e => addForm.setData('course_id', e.target.value)}
-                                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900"
+                                            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
                                         >
                                             <option value="">Pilih mata kuliah</option>
                                             {courses.map(c => <option key={c.id} value={c.id}>{c.nama} (SKS {c.sks})</option>)}
@@ -540,7 +540,7 @@ export default function AdminJadwal({
                                 sessions.data.map((s, index) => (
                                     <motion.div 
                                         key={s.id} 
-                                        className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                        className="p-4 hover:bg-slate-50 dark:hover:bg-black/30"
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05 }}

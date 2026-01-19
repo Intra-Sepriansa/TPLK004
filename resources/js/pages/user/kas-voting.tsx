@@ -287,7 +287,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                     return (
                                         <div 
                                             key={voting.id} 
-                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all cursor-pointer ${
+                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-black/50 hover:shadow-lg transition-all cursor-pointer ${
                                                 voting.status === 'open' ? 'border-blue-200 dark:border-blue-800 hover:border-blue-300' :
                                                 voting.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
                                                 voting.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
@@ -431,7 +431,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
             {/* Add Form Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                    <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-black max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
@@ -519,7 +519,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
             {/* Detail Modal */}
             {selectedVoting && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setSelectedVoting(null)}>
-                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-black max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
                         {(() => {
                             const statusConfig = getStatusConfig(selectedVoting.status);
                             const StatusIcon = statusConfig.icon;

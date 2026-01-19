@@ -252,7 +252,7 @@ export default function DosenHelp() {
                                 placeholder="Cari bantuan, panduan, atau pertanyaan..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-12 h-14 text-base border-2 focus:border-emerald-500 dark:bg-slate-900/50 backdrop-blur-sm"
+                                className="pl-12 h-14 text-base border-2 focus:border-emerald-500 dark:bg-black/50 backdrop-blur-sm"
                             />
                             <motion.div
                                 whileHover={{ scale: 1.05 }}
@@ -545,7 +545,7 @@ export default function DosenHelp() {
                                         {contactInfo.phone && (
                                             <motion.div
                                                 whileHover={{ x: 4 }}
-                                                className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800"
+                                                className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800"
                                             >
                                                 <Phone className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                                 <div className="flex-1 min-w-0">

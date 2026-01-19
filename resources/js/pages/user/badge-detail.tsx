@@ -72,7 +72,7 @@ const achievementIcons: Record<string, any> = {
 const colorGradients: Record<string, string> = {
     orange: 'from-orange-400 to-red-500',
     emerald: 'from-emerald-400 to-green-500',
-    sky: 'from-sky-400 to-blue-500',
+    sky: 'from-gray-900 to-black',
     green: 'from-green-400 to-emerald-500',
     amber: 'from-amber-400 to-yellow-500',
     purple: 'from-purple-400 to-violet-500',

@@ -220,9 +220,9 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                     variants={containerVariants}
                 >
                     {[
-                        { icon: Calendar, label: 'Total Sesi', value: totalSessions, color: 'indigo', gradient: 'from-indigo-500 to-purple-500' },
+                        { icon: Calendar, label: 'Total Sesi', value: totalSessions, color: 'indigo', gradient: 'from-gray-900 to-black' },
                         { icon: Play, label: 'Sesi Aktif', value: activeSessions, color: 'emerald', gradient: 'from-emerald-500 to-teal-500' },
-                        { icon: Users, label: 'Total Kehadiran', value: totalAttendance, color: 'sky', gradient: 'from-sky-500 to-blue-500' },
+                        { icon: Users, label: 'Total Kehadiran', value: totalAttendance, color: 'sky', gradient: 'from-gray-900 to-black' },
                         { icon: Clock, label: 'Terlambat', value: totalLate, color: 'amber', gradient: 'from-amber-500 to-orange-500' },
                     ].map((stat, index) => (
                         <motion.div

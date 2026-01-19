@@ -185,7 +185,7 @@ export default function AdminPerangkat({
                 {/* Header */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div 
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
@@ -259,7 +259,7 @@ export default function AdminPerangkat({
                                 </Button>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button onClick={handleExportPdf} className="bg-gradient-to-r from-blue-500 to-purple-600">
+                                <Button onClick={handleExportPdf} className="bg-gradient-to-r from-gray-900 to-black">
                                     <Download className="h-4 w-4" />
                                     Export PDF
                                 </Button>
@@ -549,7 +549,7 @@ export default function AdminPerangkat({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                <tr className="bg-slate-50 dark:bg-black/50">
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Waktu</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mahasiswa</th>
                                     <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">OS</th>
@@ -569,7 +569,7 @@ export default function AdminPerangkat({
                                     recentLogs.map((log, index) => (
                                         <motion.tr 
                                             key={log.id} 
-                                            className="hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                            className="hover:bg-slate-50 dark:hover:bg-black/30"
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}

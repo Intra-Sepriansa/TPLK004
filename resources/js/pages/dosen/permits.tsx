@@ -219,7 +219,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 {/* Stats Cards */}
                 <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
                     {[
-                        { icon: FileText, label: 'Total Pengajuan', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/25' },
+                        { icon: FileText, label: 'Total Pengajuan', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-black/25' },
                         { icon: Clock, label: 'Menunggu', value: stats.pending, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
                         { icon: UserCheck, label: 'Disetujui', value: stats.approved, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
                         { icon: UserX, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },

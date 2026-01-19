@@ -132,7 +132,7 @@ export default function StudentDocs() {
             <StudentLayout>
                 <Head title="Documentation" />
                 <div className="space-y-6 p-6">
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 p-6 text-white shadow-lg">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800 to-black p-6 text-white shadow-lg">
                         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                         <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                         <div className="relative">
@@ -159,7 +159,7 @@ export default function StudentDocs() {
 
             <div className="space-y-6 p-6">
                 {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 p-6 text-white shadow-xl">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800 to-black p-6 text-white shadow-xl">
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     

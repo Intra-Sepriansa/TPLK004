@@ -312,7 +312,7 @@ export default function StudentProfile() {
                                     </div>
                                     {/* Tooltip */}
                                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                        <div className="bg-slate-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                        <div className="bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                                             {badge.name}
                                         </div>
                                     </div>
@@ -407,7 +407,7 @@ export default function StudentProfile() {
                                             id="nim"
                                             value={mahasiswa.nim}
                                             disabled
-                                            className="pl-10 bg-slate-50 dark:bg-slate-900"
+                                            className="pl-10 bg-slate-50 dark:bg-black"
                                         />
                                     </div>
                                     <p className="text-xs text-slate-500">NIM tidak dapat diubah</p>
@@ -424,7 +424,7 @@ export default function StudentProfile() {
                                                 id="email"
                                                 value={mahasiswa.email}
                                                 disabled
-                                                className="pl-10 bg-slate-50 dark:bg-slate-900"
+                                                className="pl-10 bg-slate-50 dark:bg-black"
                                             />
                                         </div>
                                     </div>
@@ -481,15 +481,15 @@ export default function StudentProfile() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black">
                                         <span className="text-sm text-slate-500">Nama</span>
                                         <span className="font-medium text-slate-900 dark:text-white">{mahasiswa.nama}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black">
                                         <span className="text-sm text-slate-500">NIM</span>
                                         <span className="font-medium text-slate-900 dark:text-white">{mahasiswa.nim}</span>
                                     </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900">
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black">
                                         <span className="text-sm text-slate-500">Status</span>
                                         <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                                             <CheckCircle2 className="h-4 w-4" />
@@ -500,7 +500,7 @@ export default function StudentProfile() {
                             </div>
 
                             {/* Stats Card */}
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-slate-900">
+                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-black">
                                 <div className="flex items-center gap-2 mb-4">
                                     <TrendingUp className="h-5 w-5 text-emerald-400" />
                                     <h2 className="font-semibold">Statistik Kehadiran</h2>

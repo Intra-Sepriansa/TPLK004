@@ -40,7 +40,7 @@ export default function ClassInsights({ dosen, courses, selectedCourseId, insigh
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
                 >
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}

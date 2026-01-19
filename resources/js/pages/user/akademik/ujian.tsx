@@ -290,7 +290,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                 )}
 
                 {/* Preparation Tips */}
-                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border-blue-200 dark:border-blue-800">
+                <Card className="bg-gradient-to-r from-gray-900 to-black dark:from-blue-950/30 dark:to-black/20 border-blue-200 dark:border-blue-800">
                     <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                             <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">

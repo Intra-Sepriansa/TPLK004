@@ -310,7 +310,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     return (
                                         <div 
                                             key={voting.id} 
-                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all ${
+                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-black/50 hover:shadow-lg transition-all ${
                                                 voting.status === 'open' ? 'border-blue-200 dark:border-blue-800' :
                                                 voting.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
                                                 voting.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
@@ -474,7 +474,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
             {/* Voters Modal */}
             {showVoters && selectedVoting && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+                    <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-black max-h-[90vh] overflow-y-auto">
                         <div className="flex items-start justify-between mb-6">
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">Detail Voters</h3>
@@ -533,7 +533,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
             {/* Reject Modal */}
             {showRejectDialog && selectedVoting && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-black">
                         <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-red-600">

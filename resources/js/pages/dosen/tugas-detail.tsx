@@ -76,7 +76,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
 
     const getSenderStyle = (type: string) => ({
         admin: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
-        dosen: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
+        dosen: 'bg-gradient-to-br from-gray-800 to-black text-white',
         mahasiswa: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white',
     }[type] || 'bg-gray-100 text-gray-700');
 
@@ -111,7 +111,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                 <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{tugas.deskripsi}</p>
                             </div>
                             {tugas.instruksi && (
-                                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
+                                <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-black/20 dark:to-black/30 rounded-xl">
                                     <h3 className="font-semibold mb-2 flex items-center gap-2"><Zap className="h-4 w-4 text-blue-500" /> Instruksi</h3>
                                     <p className="text-muted-foreground whitespace-pre-wrap">{tugas.instruksi}</p>
                                 </div>
@@ -137,7 +137,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                             </div>
                             <Button
                                 onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)}
-                                className="w-full mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 shadow-lg"
+                                className="w-full mt-4 bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 shadow-lg"
                             >
                                 <Award className="h-4 w-4 mr-2" /> Penilaian Submission
                             </Button>
@@ -147,7 +147,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
 
                 {/* Diskusi Section */}
                 <div className={`rounded-2xl border bg-card shadow-lg transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`} style={{ transitionDelay: '400ms' }}>
-                    <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-t-2xl">
+                    <div className="p-4 border-b bg-gradient-to-r from-gray-50 to-gray-100 dark:from-black/20 dark:to-black/30 rounded-t-2xl">
                         <h2 className="font-semibold flex items-center gap-2 text-lg">
                             <MessageSquare className="h-5 w-5 text-blue-500" /> Diskusi ({diskusi.length})
                         </h2>
@@ -251,7 +251,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                 className="flex-1 transition-all duration-200 focus:ring-2 focus:ring-blue-500" 
                                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }} 
                             />
-                            <Button onClick={sendMessage} className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:scale-105">
+                            <Button onClick={sendMessage} className="bg-gradient-to-r from-gray-800 to-black hover:from-gray-800 hover:to-cyan-700 shadow-lg shadow-black/25 transition-all duration-300 hover:scale-105">
                                 <Send className="h-4 w-4" />
                             </Button>
                         </div>
