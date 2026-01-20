@@ -216,14 +216,13 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 {/* Animated Header with Particles */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Circles */}
                     <motion.div
                         animate={{
                             scale: [1, 1.2, 1],
                             opacity: [0.3, 0.5, 0.3],
-                            rotate: [0, 180, 360],
                         }}
                         transition={{
                             duration: 8,
@@ -236,7 +235,6 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                         animate={{
                             scale: [1, 1.3, 1],
                             opacity: [0.2, 0.4, 0.2],
-                            rotate: [360, 180, 0],
                         }}
                         transition={{
                             duration: 10,
@@ -273,8 +271,8 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     <div className="relative">
                         <div className="flex items-center gap-4 mb-4">
                             <motion.div
-                                whileHover={{ rotate: 360, scale: 1.1 }}
-                                transition={{ duration: 0.6 }}
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ duration: 0.3 }}
                                 className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl shadow-lg"
                             >
                                 <Wallet className="h-8 w-8" />
@@ -284,7 +282,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-sm text-purple-100 font-medium"
+                                    className="text-sm text-gray-300 font-medium"
                                 >
                                     Manajemen Keuangan
                                 </motion.p>
@@ -302,7 +300,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="text-purple-100 mb-6"
+                            className="text-gray-300 mb-6"
                         >
                             Kelola dan pantau voting pengeluaran kas mahasiswa
                         </motion.p>
@@ -398,15 +396,11 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/80 overflow-hidden"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-black/30">
                         <div className="flex items-center gap-2">
-                            <motion.div
-                                animate={{ rotate: [0, 360] }}
-                                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                                className="p-2 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white"
-                            >
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 text-white">
                                 <Vote className="h-4 w-4" />
-                            </motion.div>
+                            </div>
                             <div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Voting Pengeluaran</h2>
                                 <p className="text-xs text-slate-500">Lihat detail voting dan ambil keputusan</p>
@@ -439,7 +433,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     onClick={() => handleTabChange(tab.value)}
                                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                                         activeTab === tab.value
-                                            ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                                            ? 'bg-gradient-to-r from-gray-800 to-black text-white shadow-lg shadow-gray-500/30'
                                             : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
                                     }`}
                                 >
