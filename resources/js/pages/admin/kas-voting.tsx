@@ -327,13 +327,9 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     className="bg-white/10 backdrop-blur rounded-xl p-3"
                                 >
                                     <p className="text-purple-100 text-xs font-medium">{stat.label}</p>
-                                    <motion.p
-                                        animate={{ scale: [1, 1.1, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                                        className="text-2xl font-bold"
-                                    >
+                                    <p className="text-2xl font-bold">
                                         {stat.value}
-                                    </motion.p>
+                                    </p>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -369,7 +365,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             />
                             <div className="relative flex items-center gap-3">
                                 <motion.div
-                                    whileHover={{ rotate: 360, scale: 1.2 }}
+                                    whileHover={{ scale: 1.2 }}
                                     transition={{ duration: 0.6 }}
                                     className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}
                                 >
@@ -500,13 +496,9 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                                 {categoryConfig.label}
                                                             </motion.span>
                                                             {voting.is_expired && voting.status === 'open' && (
-                                                                <motion.span
-                                                                    animate={{ scale: [1, 1.1, 1] }}
-                                                                    transition={{ duration: 1.5, repeat: Infinity }}
-                                                                    className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-100 text-red-700"
-                                                                >
+                                                                <span className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-red-100 text-red-700">
                                                                     ⏰ Expired
-                                                                </motion.span>
+                                                                </span>
                                                             )}
                                                         </div>
 
@@ -708,20 +700,12 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">Detail Voters</h3>
                                     <p className="text-sm text-slate-500">{selectedVoting.title}</p>
                                     <div className="flex gap-4 mt-2 text-sm">
-                                        <motion.span
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 2, repeat: Infinity }}
-                                            className="text-emerald-600 font-medium"
-                                        >
+                                        <span className="text-emerald-600 font-medium">
                                             {selectedVoting.stats.approve} setuju
-                                        </motion.span>
-                                        <motion.span
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                            className="text-red-600 font-medium"
-                                        >
+                                        </span>
+                                        <span className="text-red-600 font-medium">
                                             {selectedVoting.stats.reject} tolak
-                                        </motion.span>
+                                        </span>
                                         <span className="text-slate-500">Total: {selectedVoting.stats.total}</span>
                                     </div>
                                 </div>
@@ -748,7 +732,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                         >
                                             <div className="flex items-center gap-3">
                                                 <motion.div
-                                                    whileHover={{ rotate: 360 }}
+                                                    whileHover={{ scale: 1.1 }}
                                                     transition={{ duration: 0.5 }}
                                                     className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
                                                         vote.vote === 'approve' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-red-400 to-red-600'

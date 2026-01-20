@@ -396,7 +396,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         />
                         <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                whileHover={{ scale: 1.2 }}
                                 transition={{ duration: 0.6 }}
                                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
                             >
@@ -433,7 +433,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         />
                         <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                whileHover={{ scale: 1.2 }}
                                 transition={{ duration: 0.6 }}
                                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/50"
                             >
@@ -470,7 +470,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         />
                         <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: -360, scale: 1.2 }}
+                                whileHover={{ scale: 1.2 }}
                                 transition={{ duration: 0.6 }}
                                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500 text-white shadow-lg shadow-red-500/50"
                             >
@@ -507,7 +507,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         />
                         <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                whileHover={{ scale: 1.2 }}
                                 transition={{ duration: 0.6 }}
                                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/50"
                             >
@@ -516,13 +516,9 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             <div>
                                 <p className="text-xs text-amber-700 dark:text-amber-300">Status Pembayaran</p>
                                 <p className="text-sm mt-1">
-                                    <motion.span
-                                        animate={{ scale: [1, 1.1, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className="text-emerald-600 font-bold"
-                                    >
+                                    <span className="text-emerald-600 font-bold">
                                         {summary.paid_count}
-                                    </motion.span> lunas • <span className="text-red-600 font-bold">{summary.unpaid_count}</span> belum
+                                    </span> lunas • <span className="text-red-600 font-bold">{summary.unpaid_count}</span> belum
                                 </p>
                             </div>
                         </div>
