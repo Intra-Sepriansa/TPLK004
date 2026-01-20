@@ -117,6 +117,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
     const [search, setSearch] = useState(filters.search);
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+    const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
 
     const expenseForm = useForm({
         amount: 0,
@@ -190,6 +191,35 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
         const unpaidIds = mahasiswaList.filter(m => m.status !== 'paid').map(m => m.id);
         setSelectedMahasiswa(prev => prev.length === unpaidIds.length ? [] : unpaidIds);
     };
+
+    const selectAllUnpaid = () => {
+        const unpaidIds = mahasiswaList.filter(m => m.status !== 'paid').map(m => m.id);
+        setSelectedMahasiswa(unpaidIds);
+    };
+
+    const markAllUnpaidAsLunas = () => {
+        if (filters.pertemuan === 'all') {
+            alert('Silakan pilih pertemuan terlebih dahulu untuk menandai lunas');
+            return;
+        }
+        const unpaidIds = mahasiswaList.filter(m => m.status !== 'paid').map(m => m.id);
+        if (unpaidIds.length === 0) {
+            alert('Tidak ada mahasiswa yang belum bayar');
+            return;
+        }
+        if (confirm(`Tandai ${unpaidIds.length} mahasiswa yang belum bayar sebagai lunas?`)) {
+            router.post('/admin/kas/bulk-mark-paid', {
+                mahasiswa_ids: unpaidIds,
+                period_date: filters.pertemuan,
+            });
+        }
+    };
+
+    const filteredMahasiswaList = mahasiswaList.filter(m => {
+        if (statusFilter === 'paid') return m.status === 'paid';
+        if (statusFilter === 'unpaid') return m.status !== 'paid';
+        return true;
+    });
 
     const toggleExpand = (date: string) => {
         setExpandedDates(prev => 
@@ -560,7 +590,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             {/* Filters */}
                             <motion.div
                                 variants={itemVariants}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/80"
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/80 space-y-4"
                             >
                                 <div className="flex flex-wrap items-center gap-4">
                                     <div className="flex-1 min-w-[200px]">
@@ -576,7 +606,66 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         ))}
                                     </select>
                                     <input type="month" value={filters.month} onChange={e => handleFilter('month', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black dark:text-white" />
+                                </div>
 
+                                {/* Status Filter Buttons */}
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Filter Status:</span>
+                                    <div className="flex gap-2">
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setStatusFilter('all')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                statusFilter === 'all'
+                                                    ? 'bg-slate-600 text-white shadow-lg'
+                                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
+                                            }`}
+                                        >
+                                            Semua ({mahasiswaList.length})
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setStatusFilter('unpaid')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                statusFilter === 'unpaid'
+                                                    ? 'bg-red-600 text-white shadow-lg'
+                                                    : 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400'
+                                            }`}
+                                        >
+                                            Belum Bayar ({mahasiswaList.filter(m => m.status !== 'paid').length})
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setStatusFilter('paid')}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                                                statusFilter === 'paid'
+                                                    ? 'bg-emerald-600 text-white shadow-lg'
+                                                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                            }`}
+                                        >
+                                            Sudah Lunas ({mahasiswaList.filter(m => m.status === 'paid').length})
+                                        </motion.button>
+                                    </div>
+                                </div>
+
+                                {/* Bulk Actions */}
+                                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                                    {filters.pertemuan !== 'all' && mahasiswaList.filter(m => m.status !== 'paid').length > 0 && (
+                                        <motion.button
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={markAllUnpaidAsLunas}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-sm font-medium hover:from-emerald-700 hover:to-teal-700 shadow-lg"
+                                        >
+                                            <CheckCircle className="h-4 w-4" />
+                                            Tandai Semua Belum Bayar Sebagai Lunas ({mahasiswaList.filter(m => m.status !== 'paid').length})
+                                        </motion.button>
+                                    )}
                                     {selectedMahasiswa.length > 0 && filters.pertemuan !== 'all' && (
                                         <motion.button
                                             initial={{ scale: 0 }}
@@ -586,7 +675,17 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                             onClick={handleBulkMarkPaid}
                                             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700"
                                         >
-                                            <Check className="h-4 w-4" />Tandai {selectedMahasiswa.length} Lunas
+                                            <Check className="h-4 w-4" />Tandai {selectedMahasiswa.length} Terpilih Lunas
+                                        </motion.button>
+                                    )}
+                                    {filters.pertemuan !== 'all' && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={selectAllUnpaid}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300"
+                                        >
+                                            <Users className="h-4 w-4" />Pilih Semua Belum Bayar
                                         </motion.button>
                                     )}
                                 </div>
@@ -625,7 +724,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         </thead>
                                         <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
 
-                                            {mahasiswaList.map((m, index) => (
+                                            {filteredMahasiswaList.map((m, index) => (
                                                 <motion.tr
                                                     key={m.id}
                                                     initial={{ opacity: 0, x: -20 }}
