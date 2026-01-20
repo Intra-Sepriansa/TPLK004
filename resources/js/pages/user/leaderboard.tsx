@@ -55,28 +55,38 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
         <StudentLayout>
             <Head title="Leaderboard" />
             <div className="p-6 space-y-6">
-                {/* Header */}
-                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 p-6 text-white shadow-xl transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
-                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                {/* Animated Header with Particles */}
+                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-8 text-white shadow-2xl transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                    {/* Animated Background Circles */}
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl" style={{ animation: 'pulse 6s infinite' }} />
                     
-                    <div className="absolute right-10 top-10 animate-bounce" style={{ animationDuration: '2s' }}>
-                        <Trophy className="h-12 w-12 text-yellow-300/50" />
-                    </div>
+                    {/* Floating Sparkles */}
+                    {[...Array(5)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute animate-bounce"
+                            style={{
+                                left: `${20 + i * 15}%`,
+                                top: `${30 + Math.random() * 40}%`,
+                                animationDelay: `${i * 0.5}s`,
+                                animationDuration: `${3 + Math.random() * 2}s`,
+                            }}
+                        >
+                            <Sparkles className="h-4 w-4 text-white/60" />
+                        </div>
+                    ))}
                     
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                    <Trophy className="h-7 w-7" />
+                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl shadow-lg">
+                                    <Trophy className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-violet-100 font-medium">Kompetisi</p>
-                                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                                        Leaderboard
-                                        <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
-                                    </h1>
+                                    <p className="text-sm text-gray-300 font-medium">Kompetisi Kelas</p>
+                                    <h1 className="text-3xl font-bold">Leaderboard</h1>
+                                    <p className="text-sm text-gray-300 mt-1">Bersaing dan raih peringkat tertinggi!</p>
                                 </div>
                             </div>
                             
@@ -92,7 +102,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                         className={cn(
                                             'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                                             period === p.value
-                                                ? 'bg-white text-purple-600 shadow-lg'
+                                                ? 'bg-white text-gray-900 shadow-lg'
                                                 : 'text-white/80 hover:bg-white/10'
                                         )}
                                     >
@@ -101,34 +111,33 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                 ))}
                             </div>
                         </div>
-                        <p className="mt-4 text-violet-100">Bersaing dengan teman sekelas dan raih peringkat tertinggi!</p>
                         
                         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <Users className="h-4 w-4 text-violet-200" />
-                                    <p className="text-violet-100 text-xs font-medium">Total Peserta</p>
+                                    <Users className="h-4 w-4 text-gray-300" />
+                                    <p className="text-gray-300 text-xs font-medium">Total Peserta</p>
                                 </div>
                                 <p className="text-2xl font-bold">{stats.total_students}</p>
                             </div>
                             <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <TrendingUp className="h-4 w-4 text-violet-200" />
-                                    <p className="text-violet-100 text-xs font-medium">Rata-rata</p>
+                                    <TrendingUp className="h-4 w-4 text-gray-300" />
+                                    <p className="text-gray-300 text-xs font-medium">Rata-rata</p>
                                 </div>
                                 <p className="text-2xl font-bold">{stats.avg_attendance_rate}%</p>
                             </div>
                             <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <Target className="h-4 w-4 text-violet-200" />
-                                    <p className="text-violet-100 text-xs font-medium">Peringkat Kamu</p>
+                                    <Target className="h-4 w-4 text-gray-300" />
+                                    <p className="text-gray-300 text-xs font-medium">Peringkat Kamu</p>
                                 </div>
                                 <p className="text-2xl font-bold">#{myRank || '-'}</p>
                             </div>
                             <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <Star className="h-4 w-4 text-violet-200" />
-                                    <p className="text-violet-100 text-xs font-medium">Poin Kamu</p>
+                                    <Star className="h-4 w-4 text-gray-300" />
+                                    <p className="text-gray-300 text-xs font-medium">Poin Kamu</p>
                                 </div>
                                 <p className="text-2xl font-bold">{myStats?.points || 0}</p>
                             </div>
