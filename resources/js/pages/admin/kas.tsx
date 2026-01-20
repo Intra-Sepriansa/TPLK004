@@ -233,14 +233,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Animated Header with Particles */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Circles */}
                     <motion.div
                         animate={{
                             scale: [1, 1.2, 1],
                             opacity: [0.3, 0.5, 0.3],
-                            rotate: [0, 180, 360],
                         }}
                         transition={{
                             duration: 8,
@@ -253,7 +252,6 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         animate={{
                             scale: [1, 1.3, 1],
                             opacity: [0.2, 0.4, 0.2],
-                            rotate: [360, 180, 0],
                         }}
                         transition={{
                             duration: 10,
@@ -291,8 +289,8 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
                                 <motion.div
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.1 }}
+                                    transition={{ duration: 0.3 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl shadow-lg"
                                 >
                                     <Wallet className="h-8 w-8" />
@@ -302,7 +300,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-sm text-emerald-100"
+                                        className="text-sm text-gray-300"
                                     >
                                         Manajemen Keuangan
                                     </motion.p>
@@ -318,7 +316,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.5 }}
-                                        className="text-sm text-emerald-100 mt-1"
+                                        className="text-sm text-gray-300 mt-1"
                                     >
                                         Kas mingguan: {formatCurrency(kasAmount)} / mahasiswa
                                     </motion.p>
@@ -334,7 +332,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             >
                                 <Award className="h-6 w-6" />
                                 <div>
-                                    <p className="text-xs text-emerald-100">Tingkat Pembayaran</p>
+                                    <p className="text-xs text-gray-300">Tingkat Pembayaran</p>
                                     <p className="text-2xl font-bold">{paymentRate.toFixed(0)}%</p>
                                 </div>
                             </motion.div>
@@ -367,7 +365,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowExportModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                className="flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                             >
                                 <Download className="h-4 w-4" />Export PDF
                             </motion.button>
