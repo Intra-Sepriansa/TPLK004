@@ -23,11 +23,16 @@ class Mahasiswa extends Authenticatable
         'password',
         'avatar_url',
         'remember_token',
+        'last_activity_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts = [
+        'last_activity_at' => 'datetime',
     ];
 
     public $timestamps = false;

@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar_url',
+        'last_activity_at',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'last_activity_at' => 'datetime',
         ];
     }
 }

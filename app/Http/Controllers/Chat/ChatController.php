@@ -265,8 +265,16 @@ class ChatController extends Controller
      */
     private function isUserOnline($user): bool
     {
+        if (!$user) return false;
+        
         $lastActivity = $user->last_activity_at ?? $user->updated_at;
         if (!$lastActivity) return false;
+        
+        // Convert to Carbon if it's a string
+        if (is_string($lastActivity)) {
+            $lastActivity = \Carbon\Carbon::parse($lastActivity);
+        }
+        
         return $lastActivity->diffInMinutes(now()) < 5;
     }
 
