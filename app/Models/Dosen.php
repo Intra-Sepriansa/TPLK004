@@ -24,6 +24,7 @@ class Dosen extends Authenticatable
         'password',
         'is_active',
         'settings',
+        'last_activity_at',
     ];
 
     protected $hidden = [
@@ -35,6 +36,7 @@ class Dosen extends Authenticatable
         'is_active' => 'boolean',
         'password' => 'hashed',
         'settings' => 'array',
+        'last_activity_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
