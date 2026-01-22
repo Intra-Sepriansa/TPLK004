@@ -1,8 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import { FormEvent, useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -254,8 +252,8 @@ export default function Login({ status }: LoginProps) {
                                     {mode === 'admin' ? 'Email' : mode === 'dosen' ? 'NIDN' : 'NIM'}
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-                                    <Input
+                                    <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500 z-10" />
+                                    <input
                                         type={mode === 'admin' ? 'email' : 'text'}
                                         value={mode === 'admin' ? adminForm.data.email : mode === 'dosen' ? dosenForm.data.nidn : mahasiswaForm.data.nim}
                                         onChange={(e) => {
@@ -263,7 +261,7 @@ export default function Login({ status }: LoginProps) {
                                             else if (mode === 'dosen') dosenForm.setData('nidn', e.target.value);
                                             else mahasiswaForm.setData('nim', e.target.value);
                                         }}
-                                        className="pl-10 h-12 dark:bg-slate-800/50 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500"
+                                        className="w-full pl-10 h-12 rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-600 dark:focus:ring-slate-600/20"
                                         placeholder={mode === 'admin' ? 'Masukkan email' : mode === 'dosen' ? 'Masukkan NIDN' : 'Masukkan NIM'}
                                         autoFocus
                                     />
@@ -280,8 +278,8 @@ export default function Login({ status }: LoginProps) {
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-                                    <Input
+                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500 z-10" />
+                                    <input
                                         type={showPassword ? 'text' : 'password'}
                                         value={currentForm.data.password}
                                         onChange={(e) => {
@@ -289,13 +287,13 @@ export default function Login({ status }: LoginProps) {
                                             else if (mode === 'dosen') dosenForm.setData('password', e.target.value);
                                             else mahasiswaForm.setData('password', e.target.value);
                                         }}
-                                        className="pl-10 pr-10 h-12 dark:bg-slate-800/50 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500"
+                                        className="w-full pl-10 pr-10 h-12 rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-600 dark:focus:ring-slate-600/20"
                                         placeholder="Masukkan password"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors z-10"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
@@ -326,14 +324,14 @@ export default function Login({ status }: LoginProps) {
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <Button
+                                <button
                                     type="submit"
                                     disabled={currentForm.processing}
-                                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 dark:from-white dark:to-gray-100 dark:hover:from-gray-100 dark:hover:to-white dark:text-gray-900 shadow-lg transition-all"
+                                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 dark:from-white dark:to-gray-100 dark:hover:from-gray-100 dark:hover:to-white text-white dark:text-gray-900 shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {currentForm.processing ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="flex items-center gap-2 justify-center">
+                                            <div className="h-4 w-4 border-2 border-white/30 dark:border-gray-900/30 border-t-white dark:border-t-gray-900 rounded-full animate-spin" />
                                             <span>Memproses...</span>
                                         </div>
                                     ) : (
@@ -342,7 +340,7 @@ export default function Login({ status }: LoginProps) {
                                             <ChevronRight className="h-5 w-5" />
                                         </div>
                                     )}
-                                </Button>
+                                </button>
                             </motion.div>
                         </form>
                     </motion.div>
