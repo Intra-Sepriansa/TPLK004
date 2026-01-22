@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { FormEvent, useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import AppLogoIcon from '@/components/app-logo-icon';
+import Orb from '@/components/auth/Orb';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -84,7 +85,19 @@ export default function Login({ status }: LoginProps) {
         <>
             <Head title="Login" />
             
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative overflow-hidden">
+                {/* Orb Background Animation */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 dark:opacity-20">
+                    <div className="w-full h-full max-w-2xl max-h-2xl">
+                        <Orb
+                            hoverIntensity={0}
+                            rotateOnHover={false}
+                            hue={220}
+                            forceHoverState={false}
+                            backgroundColor={isDark ? '#020617' : '#f8fafc'}
+                        />
+                    </div>
+                </div>
                 {/* Dark Mode Toggle */}
                 <motion.button
                     onClick={toggleDarkMode}
