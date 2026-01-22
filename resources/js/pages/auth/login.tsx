@@ -86,13 +86,13 @@ export default function Login({ status }: LoginProps) {
             <Head title="Login" />
             
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative overflow-hidden">
-                {/* Orb Background Animation */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30 dark:opacity-20">
-                    <div className="w-full h-full max-w-2xl max-h-2xl">
+                {/* Orb Background Animation - Larger, Brighter, More Interactive */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-40 dark:opacity-50">
+                    <div className="w-full h-full">
                         <Orb
-                            hoverIntensity={0}
-                            rotateOnHover={false}
-                            hue={220}
+                            hoverIntensity={2.5}
+                            rotateOnHover={true}
+                            hue={isDark ? 260 : 220}
                             forceHoverState={false}
                             backgroundColor={isDark ? '#020617' : '#f8fafc'}
                         />
@@ -190,7 +190,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Mode Tabs */}
                     <motion.div 
                         variants={itemVariants}
-                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-900/70 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-slate-800/50"
+                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-900/90 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-slate-800/50"
                     >
                         <motion.button
                             type="button"
@@ -256,7 +256,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Login Form */}
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm dark:border-slate-700/50 dark:shadow-lg dark:shadow-slate-800/50"
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-900/90 backdrop-blur p-6 shadow-sm dark:border-slate-700/50 dark:shadow-lg dark:shadow-slate-800/50"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* ID Field */}
