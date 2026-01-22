@@ -179,7 +179,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Mode Tabs */}
                     <motion.div 
                         variants={itemVariants}
-                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-900/70 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm"
+                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-900/70 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-slate-800/50"
                     >
                         <motion.button
                             type="button"
@@ -245,16 +245,16 @@ export default function Login({ status }: LoginProps) {
                     {/* Login Form */}
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm dark:border-slate-800/70"
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm dark:border-slate-700/50 dark:shadow-lg dark:shadow-slate-800/50"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* ID Field */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                                     {mode === 'admin' ? 'Email' : mode === 'dosen' ? 'NIDN' : 'NIM'}
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                                    <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                                     <Input
                                         type={mode === 'admin' ? 'email' : 'text'}
                                         value={mode === 'admin' ? adminForm.data.email : mode === 'dosen' ? dosenForm.data.nidn : mahasiswaForm.data.nim}
@@ -263,7 +263,7 @@ export default function Login({ status }: LoginProps) {
                                             else if (mode === 'dosen') dosenForm.setData('nidn', e.target.value);
                                             else mahasiswaForm.setData('nim', e.target.value);
                                         }}
-                                        className="pl-10 h-12"
+                                        className="pl-10 h-12 dark:bg-slate-800/50 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500"
                                         placeholder={mode === 'admin' ? 'Masukkan email' : mode === 'dosen' ? 'Masukkan NIDN' : 'Masukkan NIM'}
                                         autoFocus
                                     />
@@ -276,11 +276,11 @@ export default function Login({ status }: LoginProps) {
 
                             {/* Password Field */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                                    <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                                     <Input
                                         type={showPassword ? 'text' : 'password'}
                                         value={currentForm.data.password}
@@ -289,13 +289,13 @@ export default function Login({ status }: LoginProps) {
                                             else if (mode === 'dosen') dosenForm.setData('password', e.target.value);
                                             else mahasiswaForm.setData('password', e.target.value);
                                         }}
-                                        className="pl-10 pr-10 h-12"
+                                        className="pl-10 pr-10 h-12 dark:bg-slate-800/50 dark:border-slate-700 dark:text-white dark:placeholder:text-slate-500"
                                         placeholder="Masukkan password"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
@@ -313,9 +313,9 @@ export default function Login({ status }: LoginProps) {
                                             if (mode === 'admin') adminForm.setData('remember', e.target.checked);
                                             else dosenForm.setData('remember', e.target.checked);
                                         }}
-                                        className="h-4 w-4 rounded border-slate-300 text-gray-900 focus:ring-gray-900"
+                                        className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-gray-900 dark:bg-slate-800 focus:ring-gray-900 dark:focus:ring-slate-500"
                                     />
-                                    <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                                    <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                                         Ingat saya di perangkat ini
                                     </span>
                                 </label>
@@ -350,7 +350,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Footer */}
                     <motion.div 
                         variants={itemVariants}
-                        className="text-center text-xs text-slate-400 dark:text-slate-500"
+                        className="text-center text-xs text-slate-400 dark:text-slate-600"
                     >
                         <p>© 2025 UNPAM - Universitas Pamulang</p>
                     </motion.div>
