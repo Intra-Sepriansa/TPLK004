@@ -57,7 +57,15 @@ export default function Login({ status }: LoginProps) {
         e.preventDefault();
         const endpoint = mode === 'admin' ? '/login' : mode === 'dosen' ? '/dosen/login' : '/login/mahasiswa';
         currentForm.post(endpoint, {
-            onFinish: () => currentForm.reset('password'),
+            onFinish: () => {
+                if (mode === 'admin') {
+                    adminForm.reset('password');
+                } else if (mode === 'dosen') {
+                    dosenForm.reset('password');
+                } else {
+                    mahasiswaForm.reset('password');
+                }
+            },
         });
     };
 
