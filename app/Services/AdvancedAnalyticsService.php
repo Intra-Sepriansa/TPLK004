@@ -2,264 +2,298 @@
 
 namespace App\Services;
 
-use App\Models\AttendanceLog;
+use App\Models\AnalyticsEvent;
+use App\Models\DailyMetric;
+use App\Models\Prediction;
+use App\Models\Anomaly;
 use App\Models\Mahasiswa;
-use App\Models\MataKuliah;
+use App\Models\AttendanceLog;
+use App\Models\AttendanceSession;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AdvancedAnalyticsService
 {
-    /**
-     * Predictive Analytics - Predict attendance probability
-     */
-    public function predictAttendance($mahasiswaId, $courseId)
+    public function trackEvent(string $eventType, $user, array $properties = []): void
     {
-        $history = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
-            ->whereHas('session', function($q) use ($courseId) {
-                $q->where('mata_kuliah_id', $courseId);
+        AnalyticsEvent::track($eventType, $user, $properties);
+    }
+
+    public function generateDailyMetrics(): void
+    {
+        $date = now()->toDateString();
+
+        // Attendance Rate
+        $this->calculateAttendanceRate($date);
+
+        // Active Users
+        $this->calculateActiveUsers($date);
+
+        // Engagement Score
+        $this->calculateEngagementScore($date);
+
+        // Course Performance
+        $this->calculateCoursePerformance($date);
+    }
+
+    private function calculateAttendanceRate(string $date): void
+    {
+        $totalLogs = AttendanceLog::whereDate('created_at', $date)->count();
+        $presentLogs = AttendanceLog::whereDate('created_at', $date)
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+
+        $rate = $totalLogs > 0 ? ($presentLogs / $totalLogs) * 100 : 0;
+
+        DailyMetric::record('attendance_rate', $rate);
+    }
+
+    private function calculateActiveUsers(string $date): void
+    {
+        $activeStudents = Mahasiswa::whereDate('last_activity_at', $date)->count();
+        DailyMetric::record('active_students', $activeStudents);
+    }
+
+    private function calculateEngagementScore(string $date): void
+    {
+        $events = AnalyticsEvent::whereDate('created_at', $date)->count();
+        $users = AnalyticsEvent::whereDate('created_at', $date)
+            ->distinct('user_id')
+            ->count();
+
+        $score = $users > 0 ? $events / $users : 0;
+        DailyMetric::record('engagement_score', $score);
+    }
+
+    private function calculateCoursePerformance(string $date): void
+    {
+        $courses = \App\Models\Course::all();
+
+        foreach ($courses as $course) {
+            $sessions = AttendanceSession::where('course_id', $course->id)
+                ->whereDate('created_at', '<=', $date)
+                ->count();
+
+            $attendance = AttendanceLog::whereHas('session', function ($query) use ($course) {
+                $query->where('course_id', $course->id);
             })
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+            ->whereDate('created_at', $date)
+            ->whereIn('status', ['present', 'late'])
+            ->count();
 
-        if ($history->count() < 3) {
-            return [
-                'probability' => 0.5,
-                'confidence' => 'low',
-                'message' => 'Insufficient data for prediction',
-            ];
+            $rate = $sessions > 0 ? ($attendance / $sessions) * 100 : 0;
+
+            DailyMetric::record(
+                'course_attendance_rate',
+                $rate,
+                'course',
+                (string) $course->id
+            );
         }
-
-        $presentCount = $history->where('status', 'hadir')->count();
-        $totalCount = $history->count();
-        $probability = $presentCount / $totalCount;
-
-        // Factor in recent trend
-        $recentHistory = $history->take(5);
-        $recentPresentCount = $recentHistory->where('status', 'hadir')->count();
-        $recentProbability = $recentPresentCount / $recentHistory->count();
-
-        // Weighted average (60% recent, 40% overall)
-        $finalProbability = ($recentProbability * 0.6) + ($probability * 0.4);
-
-        return [
-            'probability' => round($finalProbability * 100, 2),
-            'confidence' => $totalCount >= 10 ? 'high' : 'medium',
-            'trend' => $recentProbability > $probability ? 'improving' : 'declining',
-            'message' => $this->getPredictionMessage($finalProbability),
-        ];
     }
 
-    /**
-     * Attendance Heatmap - Get attendance patterns by day and hour
-     */
-    public function getAttendanceHeatmap($courseId = null, $startDate = null, $endDate = null)
+    public function predictAttendance(Mahasiswa $mahasiswa, $date): Prediction
     {
-        $query = AttendanceLog::query()
-            ->where('status', 'hadir')
-            ->whereBetween('created_at', [
-                $startDate ?? now()->subDays(30),
-                $endDate ?? now()
+        // Get historical data
+        $historicalRate = $this->getHistoricalAttendanceRate($mahasiswa);
+        $recentTrend = $this->getRecentTrend($mahasiswa);
+        $dayOfWeek = date('N', strtotime($date));
+
+        // Simple prediction algorithm
+        $baseRate = $historicalRate;
+        $trendAdjustment = $recentTrend * 0.3;
+        $dayAdjustment = $this->getDayOfWeekAdjustment($mahasiswa, $dayOfWeek);
+
+        $predictedValue = min(100, max(0, $baseRate + $trendAdjustment + $dayAdjustment));
+        $confidence = $this->calculateConfidence($mahasiswa);
+
+        return Prediction::create([
+            'prediction_type' => 'attendance',
+            'subject_type' => Mahasiswa::class,
+            'subject_id' => $mahasiswa->id,
+            'prediction_date' => $date,
+            'predicted_value' => $predictedValue,
+            'confidence_score' => $confidence,
+            'factors' => [
+                'historical_rate' => $historicalRate,
+                'recent_trend' => $recentTrend,
+                'day_of_week' => $dayOfWeek,
+            ],
+        ]);
+    }
+
+    private function getHistoricalAttendanceRate(Mahasiswa $mahasiswa): float
+    {
+        $total = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)->count();
+        $present = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+
+        return $total > 0 ? ($present / $total) * 100 : 0;
+    }
+
+    private function getRecentTrend(Mahasiswa $mahasiswa): float
+    {
+        $recent = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+
+        $older = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+
+        return $recent - $older;
+    }
+
+    private function getDayOfWeekAdjustment(Mahasiswa $mahasiswa, int $dayOfWeek): float
+    {
+        // Calculate attendance rate for specific day of week
+        $rate = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->whereRaw('DAYOFWEEK(created_at) = ?', [$dayOfWeek])
+            ->whereIn('status', ['present', 'late'])
+            ->count();
+
+        $total = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->whereRaw('DAYOFWEEK(created_at) = ?', [$dayOfWeek])
+            ->count();
+
+        $dayRate = $total > 0 ? ($rate / $total) * 100 : 0;
+        $overallRate = $this->getHistoricalAttendanceRate($mahasiswa);
+
+        return $dayRate - $overallRate;
+    }
+
+    private function calculateConfidence(Mahasiswa $mahasiswa): float
+    {
+        $dataPoints = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)->count();
+        
+        // More data = higher confidence
+        return min(100, ($dataPoints / 50) * 100);
+    }
+
+    public function detectAnomalies(): void
+    {
+        $this->detectUnusualAttendancePatterns();
+        $this->detectFraudAttempts();
+        $this->detectPerformanceAnomalies();
+    }
+
+    private function detectUnusualAttendancePatterns(): void
+    {
+        $students = Mahasiswa::all();
+
+        foreach ($students as $student) {
+            $recentRate = $this->getRecentAttendanceRate($student, 7);
+            $historicalRate = $this->getHistoricalAttendanceRate($student);
+
+            $deviation = abs($recentRate - $historicalRate);
+
+            if ($deviation > 30) {
+                Anomaly::create([
+                    'anomaly_type' => 'unusual_attendance_pattern',
+                    'subject_type' => Mahasiswa::class,
+                    'subject_id' => $student->id,
+                    'severity' => $deviation > 50 ? 'high' : 'medium',
+                    'description' => "Attendance rate changed by {$deviation}% from historical average",
+                    'evidence' => [
+                        'recent_rate' => $recentRate,
+                        'historical_rate' => $historicalRate,
+                        'deviation' => $deviation,
+                    ],
+                ]);
+            }
+        }
+    }
+
+    private function detectFraudAttempts(): void
+    {
+        // Detect multiple scans in short time
+        $suspiciousLogs = AttendanceLog::select('mahasiswa_id', DB::raw('COUNT(*) as scan_count'))
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->groupBy('mahasiswa_id')
+            ->having('scan_count', '>', 1)
+            ->get();
+
+        foreach ($suspiciousLogs as $log) {
+            Anomaly::create([
+                'anomaly_type' => 'fraud_attempt',
+                'subject_type' => Mahasiswa::class,
+                'subject_id' => $log->mahasiswa_id,
+                'severity' => 'critical',
+                'description' => 'Multiple attendance scans detected within 5 minutes',
+                'evidence' => [
+                    'scan_count' => $log->scan_count,
+                    'time_window' => '5 minutes',
+                ],
             ]);
-
-        if ($courseId) {
-            $query->whereHas('session', function($q) use ($courseId) {
-                $q->where('mata_kuliah_id', $courseId);
-            });
         }
-
-        $data = $query->get()->groupBy(function($item) {
-            return Carbon::parse($item->check_in_at)->format('w'); // Day of week (0-6)
-        })->map(function($dayGroup) {
-            return $dayGroup->groupBy(function($item) {
-                return Carbon::parse($item->check_in_at)->format('H'); // Hour (0-23)
-            })->map->count();
-        });
-
-        // Format for heatmap
-        $heatmap = [];
-        $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        
-        for ($day = 0; $day < 7; $day++) {
-            for ($hour = 7; $hour < 18; $hour++) { // 7 AM to 6 PM
-                $heatmap[] = [
-                    'day' => $days[$day],
-                    'hour' => $hour,
-                    'count' => $data[$day][$hour] ?? 0,
-                ];
-            }
-        }
-
-        return $heatmap;
     }
 
-    /**
-     * Attendance Pattern Recognition
-     */
-    public function recognizeAttendancePatterns($mahasiswaId)
+    private function detectPerformanceAnomalies(): void
     {
-        $logs = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
-            ->with('session.mataKuliah')
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
-            ->get();
+        // Detect sudden drops in engagement
+        $students = Mahasiswa::all();
 
-        $patterns = [
-            'preferred_days' => $this->getPreferredDays($logs),
-            'preferred_times' => $this->getPreferredTimes($logs),
-            'attendance_streak' => $this->calculateStreak($logs),
-            'punctuality_score' => $this->calculatePunctuality($logs),
-            'consistency_score' => $this->calculateConsistency($logs),
-        ];
+        foreach ($students as $student) {
+            $recentEvents = AnalyticsEvent::where('user_type', Mahasiswa::class)
+                ->where('user_id', $student->id)
+                ->where('created_at', '>=', now()->subDays(7))
+                ->count();
 
-        return $patterns;
+            $previousEvents = AnalyticsEvent::where('user_type', Mahasiswa::class)
+                ->where('user_id', $student->id)
+                ->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])
+                ->count();
+
+            if ($previousEvents > 10 && $recentEvents < $previousEvents * 0.3) {
+                Anomaly::create([
+                    'anomaly_type' => 'engagement_drop',
+                    'subject_type' => Mahasiswa::class,
+                    'subject_id' => $student->id,
+                    'severity' => 'medium',
+                    'description' => 'Significant drop in student engagement detected',
+                    'evidence' => [
+                        'recent_events' => $recentEvents,
+                        'previous_events' => $previousEvents,
+                        'drop_percentage' => (($previousEvents - $recentEvents) / $previousEvents) * 100,
+                    ],
+                ]);
+            }
+        }
     }
 
-    /**
-     * Risk Analysis - Identify at-risk students
-     */
-    public function getRiskAnalysis($courseId = null)
+    private function getRecentAttendanceRate(Mahasiswa $mahasiswa, int $days): float
     {
-        $query = Mahasiswa::with(['attendanceLogs' => function($q) use ($courseId) {
-            if ($courseId) {
-                $q->whereHas('session', function($sq) use ($courseId) {
-                    $sq->where('mata_kuliah_id', $courseId);
-                });
-            }
-            $q->where('created_at', '>=', now()->subDays(30));
-        }]);
+        $total = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->where('created_at', '>=', now()->subDays($days))
+            ->count();
 
-        $students = $query->get()->map(function($student) {
-            $totalSessions = $student->attendanceLogs->count();
-            $presentCount = $student->attendanceLogs->where('status', 'hadir')->count();
-            $attendanceRate = $totalSessions > 0 ? ($presentCount / $totalSessions) * 100 : 0;
+        $present = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->where('created_at', '>=', now()->subDays($days))
+            ->whereIn('status', ['present', 'late'])
+            ->count();
 
-            $riskLevel = 'safe';
-            if ($attendanceRate < 60) {
-                $riskLevel = 'danger';
-            } elseif ($attendanceRate < 80) {
-                $riskLevel = 'warning';
-            }
+        return $total > 0 ? ($present / $total) * 100 : 0;
+    }
 
-            return [
-                'mahasiswa' => $student,
-                'attendance_rate' => round($attendanceRate, 2),
-                'total_sessions' => $totalSessions,
-                'present_count' => $presentCount,
-                'risk_level' => $riskLevel,
-            ];
-        });
-
+    public function getDashboardStats(): array
+    {
         return [
-            'safe' => $students->where('risk_level', 'safe')->values(),
-            'warning' => $students->where('risk_level', 'warning')->values(),
-            'danger' => $students->where('risk_level', 'danger')->values(),
+            'today' => [
+                'attendance_rate' => DailyMetric::getMetric('attendance_rate', now()->toDateString())?->value ?? 0,
+                'active_students' => DailyMetric::getMetric('active_students', now()->toDateString())?->value ?? 0,
+                'engagement_score' => DailyMetric::getMetric('engagement_score', now()->toDateString())?->value ?? 0,
+            ],
+            'trends' => [
+                'attendance' => DailyMetric::getTrend('attendance_rate', 7),
+                'engagement' => DailyMetric::getTrend('engagement_score', 7),
+            ],
+            'anomalies' => [
+                'critical' => Anomaly::unresolved()->critical()->count(),
+                'total' => Anomaly::unresolved()->count(),
+            ],
         ];
-    }
-
-    /**
-     * Attendance Forecast - Predict future attendance trends
-     */
-    public function forecastAttendance($courseId, $days = 7)
-    {
-        $historicalData = AttendanceLog::whereHas('session', function($q) use ($courseId) {
-            $q->where('mata_kuliah_id', $courseId);
-        })
-        ->where('created_at', '>=', now()->subDays(30))
-        ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
-
-        if ($historicalData->count() < 7) {
-            return [
-                'forecast' => [],
-                'confidence' => 'low',
-                'message' => 'Insufficient historical data',
-            ];
-        }
-
-        // Simple moving average forecast
-        $forecast = [];
-        $avgCount = $historicalData->avg('count');
-        
-        for ($i = 1; $i <= $days; $i++) {
-            $date = now()->addDays($i);
-            $forecast[] = [
-                'date' => $date->format('Y-m-d'),
-                'predicted_count' => round($avgCount),
-                'confidence' => 'medium',
-            ];
-        }
-
-        return [
-            'forecast' => $forecast,
-            'confidence' => 'medium',
-            'historical_average' => round($avgCount, 2),
-        ];
-    }
-
-    // Helper methods
-    private function getPredictionMessage($probability)
-    {
-        if ($probability >= 0.8) return 'Sangat mungkin hadir';
-        if ($probability >= 0.6) return 'Kemungkinan hadir';
-        if ($probability >= 0.4) return 'Tidak pasti';
-        return 'Kemungkinan tidak hadir';
-    }
-
-    private function getPreferredDays($logs)
-    {
-        return $logs->groupBy(function($log) {
-            return Carbon::parse($log->check_in_at)->format('l');
-        })->map->count()->sortDesc()->take(3)->keys()->toArray();
-    }
-
-    private function getPreferredTimes($logs)
-    {
-        return $logs->groupBy(function($log) {
-            $hour = Carbon::parse($log->check_in_at)->format('H');
-            if ($hour < 12) return 'Pagi (07:00-12:00)';
-            if ($hour < 15) return 'Siang (12:00-15:00)';
-            return 'Sore (15:00-18:00)';
-        })->map->count()->sortDesc()->keys()->first();
-    }
-
-    private function calculateStreak($logs)
-    {
-        $streak = 0;
-        $currentDate = now()->startOfDay();
-        
-        foreach ($logs as $log) {
-            $logDate = Carbon::parse($log->check_in_at)->startOfDay();
-            if ($logDate->eq($currentDate) && $log->status === 'hadir') {
-                $streak++;
-                $currentDate->subDay();
-            } else {
-                break;
-            }
-        }
-        
-        return $streak;
-    }
-
-    private function calculatePunctuality($logs)
-    {
-        $onTimeCount = $logs->filter(function($log) {
-            return $log->status === 'hadir' && !$log->is_late;
-        })->count();
-        
-        $totalPresent = $logs->where('status', 'hadir')->count();
-        
-        return $totalPresent > 0 ? round(($onTimeCount / $totalPresent) * 100, 2) : 0;
-    }
-
-    private function calculateConsistency($logs)
-    {
-        $presentCount = $logs->where('status', 'hadir')->count();
-        $totalCount = $logs->count();
-        
-        return $totalCount > 0 ? round(($presentCount / $totalCount) * 100, 2) : 0;
     }
 }

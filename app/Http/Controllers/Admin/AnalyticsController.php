@@ -3,203 +3,156 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceLog;
-use App\Models\AttendanceSession;
-use App\Models\Mahasiswa;
-use App\Models\MataKuliah;
-use App\Models\StudentActivityScore;
+use App\Services\AdvancedAnalyticsService;
+use App\Models\AnalyticsEvent;
+use App\Models\DailyMetric;
+use App\Models\Prediction;
+use App\Models\Anomaly;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response as InertiaResponse;
 
 class AnalyticsController extends Controller
 {
-    public function index(Request $request): InertiaResponse
+    public function __construct(
+        private AdvancedAnalyticsService $analyticsService
+    ) {}
+
+    public function dashboard()
     {
-        $mataKuliahId = $request->get('mata_kuliah_id');
-        
-        // Get all mata kuliah for filter
-        $mataKuliahList = MataKuliah::with('dosen')->get()->map(fn($mk) => [
-            'id' => $mk->id,
-            'nama' => $mk->nama,
-            'dosen' => $mk->dosen?->nama ?? '-',
-        ])->toArray();
+        $stats = $this->analyticsService->getDashboardStats();
 
-        // Recalculate scores for all students
-        $this->recalculateAllScores($mataKuliahId);
-
-        // Get risk statistics
-        $riskStats = $this->getRiskStatistics($mataKuliahId);
-        
-        // Get students at risk (danger status)
-        $studentsAtRisk = $this->getStudentsAtRisk($mataKuliahId);
-        
-        // Get course comparison data
-        $courseComparison = $this->getCourseComparison();
-        
-        // Get attendance trends (last 8 sessions)
-        $attendanceTrends = $this->getAttendanceTrends($mataKuliahId);
-        
-        // Get overall statistics
-        $overallStats = $this->getOverallStats();
-
-        return Inertia::render('admin/analytics', [
-            'mataKuliahList' => $mataKuliahList,
-            'riskStats' => $riskStats,
-            'studentsAtRisk' => $studentsAtRisk,
-            'courseComparison' => $courseComparison,
-            'attendanceTrends' => $attendanceTrends,
-            'overallStats' => $overallStats,
-            'filters' => [
-                'mata_kuliah_id' => $mataKuliahId,
-            ],
+        return Inertia::render('Admin/Analytics/Dashboard', [
+            'stats' => $stats,
         ]);
     }
 
-    private function recalculateAllScores(?int $mataKuliahId = null): void
+    public function events(Request $request)
     {
-        $mahasiswaIds = Mahasiswa::pluck('id');
-        
-        if ($mataKuliahId) {
-            foreach ($mahasiswaIds as $id) {
-                StudentActivityScore::recalculate($id, $mataKuliahId);
-            }
-        } else {
-            $mataKuliahIds = MataKuliah::pluck('id');
-            foreach ($mahasiswaIds as $mhsId) {
-                foreach ($mataKuliahIds as $mkId) {
-                    StudentActivityScore::recalculate($mhsId, $mkId);
-                }
-            }
-        }
-    }
+        $query = AnalyticsEvent::with('user')
+            ->orderBy('created_at', 'desc');
 
-    private function getRiskStatistics(?int $mataKuliahId = null): array
-    {
-        $query = StudentActivityScore::query();
-        
-        if ($mataKuliahId) {
-            $query->where('mata_kuliah_id', $mataKuliahId);
+        if ($request->has('event_type')) {
+            $query->where('event_type', $request->event_type);
         }
 
-        $safe = (clone $query)->where('risk_status', 'safe')->count();
-        $warning = (clone $query)->where('risk_status', 'warning')->count();
-        $danger = (clone $query)->where('risk_status', 'danger')->count();
-        $total = $safe + $warning + $danger;
-
-        return [
-            'safe' => $safe,
-            'warning' => $warning,
-            'danger' => $danger,
-            'total' => $total,
-            'safe_percentage' => $total > 0 ? round(($safe / $total) * 100, 1) : 0,
-            'warning_percentage' => $total > 0 ? round(($warning / $total) * 100, 1) : 0,
-            'danger_percentage' => $total > 0 ? round(($danger / $total) * 100, 1) : 0,
-        ];
-    }
-
-    private function getStudentsAtRisk(?int $mataKuliahId = null): array
-    {
-        $query = StudentActivityScore::with(['mahasiswa', 'mataKuliah'])
-            ->whereIn('risk_status', ['warning', 'danger'])
-            ->orderByRaw("FIELD(risk_status, 'danger', 'warning')")
-            ->orderBy('absent_count', 'desc');
-
-        if ($mataKuliahId) {
-            $query->where('mata_kuliah_id', $mataKuliahId);
+        if ($request->has('date_from')) {
+            $query->where('created_at', '>=', $request->date_from);
         }
 
-        return $query->limit(20)->get()->map(fn($score) => [
-            'id' => $score->id,
-            'mahasiswa_id' => $score->mahasiswa_id,
-            'nama' => $score->mahasiswa?->nama ?? '-',
-            'nim' => $score->mahasiswa?->nim ?? '-',
-            'mata_kuliah' => $score->mataKuliah?->nama ?? '-',
-            'total_sessions' => $score->total_sessions,
-            'present_count' => $score->present_count,
-            'late_count' => $score->late_count,
-            'permit_count' => $score->permit_count,
-            'absent_count' => $score->absent_count,
-            'attendance_percentage' => $score->attendance_percentage,
-            'activity_score' => $score->activity_score,
-            'risk_status' => $score->risk_status,
-        ])->toArray();
-    }
-
-    private function getCourseComparison(): array
-    {
-        return MataKuliah::with('dosen')->get()->map(function ($mk) {
-            $scores = StudentActivityScore::where('mata_kuliah_id', $mk->id)->get();
-            
-            $avgAttendance = $scores->avg('attendance_percentage') ?? 0;
-            $avgActivityScore = $scores->avg('activity_score') ?? 0;
-            $dangerCount = $scores->where('risk_status', 'danger')->count();
-            $totalStudents = $scores->count();
-
-            return [
-                'id' => $mk->id,
-                'nama' => $mk->nama,
-                'dosen' => $mk->dosen?->nama ?? '-',
-                'avg_attendance' => round($avgAttendance, 1),
-                'avg_activity_score' => round($avgActivityScore, 1),
-                'danger_count' => $dangerCount,
-                'total_students' => $totalStudents,
-            ];
-        })->toArray();
-    }
-
-    private function getAttendanceTrends(?int $mataKuliahId = null): array
-    {
-        $query = AttendanceSession::query()
-            ->orderBy('start_at', 'desc')
-            ->limit(8);
-
-        if ($mataKuliahId) {
-            $query->where('course_id', $mataKuliahId);
+        if ($request->has('date_to')) {
+            $query->where('created_at', '<=', $request->date_to);
         }
 
-        return $query->get()->reverse()->values()->map(function ($session) {
-            $logs = AttendanceLog::where('attendance_session_id', $session->id)->get();
-            $totalMahasiswa = Mahasiswa::count();
-            
-            $present = $logs->where('status', 'present')->count();
-            $late = $logs->where('status', 'late')->count();
-            $absent = $totalMahasiswa - $present - $late;
+        $events = $query->paginate(50);
 
-            return [
-                'date' => $session->start_at->format('d/m'),
-                'full_date' => $session->start_at->format('Y-m-d'),
-                'present' => $present,
-                'late' => $late,
-                'absent' => max(0, $absent),
-                'total' => $totalMahasiswa,
-                'attendance_rate' => $totalMahasiswa > 0 ? round((($present + $late) / $totalMahasiswa) * 100, 1) : 0,
-            ];
-        })->toArray();
+        return Inertia::render('Admin/Analytics/Events', [
+            'events' => $events,
+            'filters' => $request->only(['event_type', 'date_from', 'date_to']),
+        ]);
     }
 
-    private function getOverallStats(): array
+    public function metrics(Request $request)
     {
-        $totalMahasiswa = Mahasiswa::count();
-        $totalSessions = AttendanceSession::count();
-        $totalLogs = AttendanceLog::count();
-        
-        $presentLogs = AttendanceLog::where('status', 'present')->count();
-        $lateLogs = AttendanceLog::where('status', 'late')->count();
-        
-        $avgAttendanceRate = $totalLogs > 0 
-            ? round((($presentLogs + $lateLogs) / $totalLogs) * 100, 1) 
-            : 0;
+        $metricType = $request->get('metric_type', 'attendance_rate');
+        $days = $request->get('days', 30);
 
-        $dangerStudents = StudentActivityScore::where('risk_status', 'danger')
-            ->distinct('mahasiswa_id')
-            ->count('mahasiswa_id');
+        $metrics = DailyMetric::where('metric_type', $metricType)
+            ->where('date', '>=', now()->subDays($days))
+            ->orderBy('date')
+            ->get();
 
-        return [
-            'total_mahasiswa' => $totalMahasiswa,
-            'total_sessions' => $totalSessions,
-            'avg_attendance_rate' => $avgAttendanceRate,
-            'danger_students' => $dangerStudents,
-        ];
+        return Inertia::render('Admin/Analytics/Metrics', [
+            'metrics' => $metrics,
+            'metric_type' => $metricType,
+            'days' => $days,
+        ]);
+    }
+
+    public function predictions()
+    {
+        $predictions = Prediction::with('subject')
+            ->orderBy('prediction_date', 'desc')
+            ->paginate(20);
+
+        return Inertia::render('Admin/Analytics/Predictions', [
+            'predictions' => $predictions,
+        ]);
+    }
+
+    public function anomalies(Request $request)
+    {
+        $query = Anomaly::with(['subject', 'resolver'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('severity')) {
+            $query->where('severity', $request->severity);
+        }
+
+        $anomalies = $query->paginate(20);
+
+        return Inertia::render('Admin/Analytics/Anomalies', [
+            'anomalies' => $anomalies,
+            'filters' => $request->only(['status', 'severity']),
+        ]);
+    }
+
+    public function resolveAnomaly(Request $request, Anomaly $anomaly)
+    {
+        $validated = $request->validate([
+            'resolution_notes' => 'required|string',
+        ]);
+
+        $anomaly->resolve(auth()->user(), $validated['resolution_notes']);
+
+        return redirect()->back()->with('success', 'Anomaly resolved');
+    }
+
+    public function markAsFalsePositive(Request $request, Anomaly $anomaly)
+    {
+        $validated = $request->validate([
+            'resolution_notes' => 'required|string',
+        ]);
+
+        $anomaly->markAsFalsePositive(auth()->user(), $validated['resolution_notes']);
+
+        return redirect()->back()->with('success', 'Marked as false positive');
+    }
+
+    public function investigateAnomaly(Anomaly $anomaly)
+    {
+        $anomaly->investigate();
+
+        return redirect()->back()->with('success', 'Anomaly marked as investigating');
+    }
+
+    public function generateReport(Request $request)
+    {
+        $validated = $request->validate([
+            'date_from' => 'required|date',
+            'date_to' => 'required|date|after:date_from',
+            'metrics' => 'required|array',
+        ]);
+
+        // Generate comprehensive report
+        $report = [];
+
+        foreach ($validated['metrics'] as $metricType) {
+            $report[$metricType] = DailyMetric::where('metric_type', $metricType)
+                ->whereBetween('date', [$validated['date_from'], $validated['date_to']])
+                ->orderBy('date')
+                ->get();
+        }
+
+        return response()->json([
+            'report' => $report,
+            'period' => [
+                'from' => $validated['date_from'],
+                'to' => $validated['date_to'],
+            ],
+        ]);
     }
 }
