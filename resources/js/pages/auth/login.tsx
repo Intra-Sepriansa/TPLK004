@@ -464,25 +464,41 @@ export default function Login({ status }: LoginProps) {
                         className="rounded-2xl border border-white/10 dark:border-white/10 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl p-6 shadow-lg"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            {/* ID Field */}
+                            {/* ID Field with AnimatePresence for smooth transition */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">
-                                    {mode === 'admin' ? 'Email' : mode === 'dosen' ? 'NIDN' : 'NIM'}
-                                </label>
+                                <AnimatePresence mode="wait">
+                                    <motion.label 
+                                        key={`label-${mode}`}
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2"
+                                    >
+                                        {mode === 'admin' ? 'Email' : mode === 'dosen' ? 'NIDN' : 'NIM'}
+                                    </motion.label>
+                                </AnimatePresence>
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500 z-10" />
-                                    <input
-                                        type={mode === 'admin' ? 'email' : 'text'}
-                                        value={mode === 'admin' ? adminForm.data.email : mode === 'dosen' ? dosenForm.data.nidn : mahasiswaForm.data.nim}
-                                        onChange={(e) => {
-                                            if (mode === 'admin') adminForm.setData('email', e.target.value);
-                                            else if (mode === 'dosen') dosenForm.setData('nidn', e.target.value);
-                                            else mahasiswaForm.setData('nim', e.target.value);
-                                        }}
-                                        className="w-full pl-10 h-12 rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-600 dark:focus:ring-slate-600/20"
-                                        placeholder={mode === 'admin' ? 'Masukkan email' : mode === 'dosen' ? 'Masukkan NIDN' : 'Masukkan NIM'}
-                                        autoFocus
-                                    />
+                                    <AnimatePresence mode="wait">
+                                        <motion.input
+                                            key={`input-${mode}`}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            transition={{ duration: 0.3 }}
+                                            type={mode === 'admin' ? 'email' : 'text'}
+                                            value={mode === 'admin' ? adminForm.data.email : mode === 'dosen' ? dosenForm.data.nidn : mahasiswaForm.data.nim}
+                                            onChange={(e) => {
+                                                if (mode === 'admin') adminForm.setData('email', e.target.value);
+                                                else if (mode === 'dosen') dosenForm.setData('nidn', e.target.value);
+                                                else mahasiswaForm.setData('nim', e.target.value);
+                                            }}
+                                            className="w-full pl-10 h-12 rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-slate-600 dark:focus:ring-slate-600/20"
+                                            placeholder={mode === 'admin' ? 'Masukkan email' : mode === 'dosen' ? 'Masukkan NIDN' : 'Masukkan NIM'}
+                                            autoFocus
+                                        />
+                                    </AnimatePresence>
                                 </div>
                                 <InputError 
                                     message={mode === 'admin' ? adminForm.errors.email : mode === 'dosen' ? dosenForm.errors.nidn : mahasiswaForm.errors.nim} 
@@ -519,23 +535,31 @@ export default function Login({ status }: LoginProps) {
                                 <InputError message={currentForm.errors.password} className="mt-2" />
                             </div>
 
-                            {/* Remember Me (for admin and dosen) */}
-                            {mode !== 'mahasiswa' && (
-                                <label className="flex items-center gap-3 cursor-pointer group">
-                                    <input
-                                        type="checkbox"
-                                        checked={mode === 'admin' ? adminForm.data.remember : dosenForm.data.remember}
-                                        onChange={(e) => {
-                                            if (mode === 'admin') adminForm.setData('remember', e.target.checked);
-                                            else dosenForm.setData('remember', e.target.checked);
-                                        }}
-                                        className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-gray-900 dark:bg-slate-800 focus:ring-gray-900 dark:focus:ring-slate-500"
-                                    />
-                                    <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                                        Ingat saya di perangkat ini
-                                    </span>
-                                </label>
-                            )}
+                            {/* Remember Me (for admin and dosen) with smooth transition */}
+                            <AnimatePresence>
+                                {mode !== 'mahasiswa' && (
+                                    <motion.label 
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="flex items-center gap-3 cursor-pointer group"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={mode === 'admin' ? adminForm.data.remember : dosenForm.data.remember}
+                                            onChange={(e) => {
+                                                if (mode === 'admin') adminForm.setData('remember', e.target.checked);
+                                                else dosenForm.setData('remember', e.target.checked);
+                                            }}
+                                            className="h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-gray-900 dark:bg-slate-800 focus:ring-gray-900 dark:focus:ring-slate-500"
+                                        />
+                                        <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                                            Ingat saya di perangkat ini
+                                        </span>
+                                    </motion.label>
+                                )}
+                            </AnimatePresence>
 
                             {/* Submit Button */}
                             <motion.div
