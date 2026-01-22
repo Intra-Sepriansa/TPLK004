@@ -325,6 +325,19 @@ export default function Login({ status }: LoginProps) {
                     </AnimatePresence>
                 </motion.button>
 
+                {/* Test Animation Button - DEV ONLY */}
+                <motion.button
+                    onClick={() => setShowSuccessAnimation(!showSuccessAnimation)}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="fixed top-6 right-20 z-50 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all"
+                >
+                    Test Animation
+                </motion.button>
+
                 <motion.div
                     initial="hidden"
                     animate="visible"
