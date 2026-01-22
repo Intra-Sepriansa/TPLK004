@@ -7,7 +7,8 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import { cn } from '@/lib/utils';
 import { 
     Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, Moon, Sun,
-    CheckCircle, Sparkles, BookOpen, Calendar, Award, ChevronRight
+    CheckCircle, Sparkles, BookOpen, Calendar, Award, ChevronRight, Zap,
+    TrendingUp, Target, Star, Flame, Trophy
 } from 'lucide-react';
 
 interface LoginProps {
@@ -162,6 +163,8 @@ export default function Login({ status }: LoginProps) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [loginSuccess, setLoginSuccess] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [loginStreak, setLoginStreak] = useState(0);
+    const [showWelcome, setShowWelcome] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
     // Forms for each mode
@@ -172,6 +175,14 @@ export default function Login({ status }: LoginProps) {
     useEffect(() => {
         const timer = setTimeout(() => setIsLoaded(true), 100);
         setIsDark(document.documentElement.classList.contains('dark'));
+        
+        // Simulate login streak (in real app, fetch from backend)
+        const streak = Math.floor(Math.random() * 30) + 1;
+        setLoginStreak(streak);
+        
+        // Show welcome message
+        setTimeout(() => setShowWelcome(true), 500);
+        
         return () => clearTimeout(timer);
     }, []);
 
