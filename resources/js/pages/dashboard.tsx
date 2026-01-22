@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ScrollFloat from '@/components/ui/scroll-float';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem, type SharedData } from '@/types';
@@ -338,11 +339,13 @@ function SectionHeader({
     title,
     description,
     actions,
+    useScrollFloat = false,
 }: {
     kicker?: string;
     title: string;
     description?: string;
     actions?: ReactNode;
+    useScrollFloat?: boolean;
 }) {
     return (
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -352,9 +355,23 @@ function SectionHeader({
                         {kicker}
                     </p>
                 )}
-                <h1 className="font-display text-2xl text-slate-900 dark:text-white">
-                    {title}
-                </h1>
+                {useScrollFloat ? (
+                    <ScrollFloat
+                        containerClassName="!my-0"
+                        textClassName="!text-2xl font-display text-slate-900 dark:text-white"
+                        animationDuration={0.8}
+                        ease="power2.out"
+                        scrollStart="top bottom-=100"
+                        scrollEnd="top center"
+                        stagger={0.02}
+                    >
+                        {title}
+                    </ScrollFloat>
+                ) : (
+                    <h1 className="font-display text-2xl text-slate-900 dark:text-white">
+                        {title}
+                    </h1>
+                )}
                 {description && (
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         {description}
@@ -400,6 +417,7 @@ function StudentsSection({
                 kicker="Manajemen"
                 title="Mahasiswa"
                 description="Kelola data mahasiswa dan password default otomatis."
+                useScrollFloat={true}
                 actions={
                     <Button variant="outline" size="sm" asChild>
                         <a href="/mahasiswa/export.csv">
@@ -636,6 +654,7 @@ function SessionsSection({
                 kicker="Absensi"
                 title="Sesi Absen"
                 description="Buat sesi baru, atur jadwal, dan pilih mata kuliah."
+                useScrollFloat={true}
                 actions={
                     <Button
                         size="sm"
