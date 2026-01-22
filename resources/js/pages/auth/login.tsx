@@ -179,7 +179,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Mode Tabs */}
                     <motion.div 
                         variants={itemVariants}
-                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-950/70 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm"
+                        className="flex gap-2 p-1.5 bg-white/80 dark:bg-slate-900/70 backdrop-blur rounded-2xl border border-slate-200/70 dark:border-slate-800/70 shadow-sm"
                     >
                         <motion.button
                             type="button"
@@ -245,7 +245,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Login Form */}
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-950/70 backdrop-blur p-6 shadow-sm dark:border-slate-800/70"
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 dark:bg-slate-900/70 backdrop-blur p-6 shadow-sm dark:border-slate-800/70"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* ID Field */}
@@ -329,7 +329,7 @@ export default function Login({ status }: LoginProps) {
                                 <Button
                                     type="submit"
                                     disabled={currentForm.processing}
-                                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 shadow-lg transition-all"
+                                    className="w-full h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900 dark:from-white dark:to-gray-100 dark:hover:from-gray-100 dark:hover:to-white dark:text-gray-900 shadow-lg transition-all"
                                 >
                                     {currentForm.processing ? (
                                         <div className="flex items-center gap-2">
