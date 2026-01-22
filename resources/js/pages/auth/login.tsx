@@ -87,12 +87,12 @@ export default function Login({ status }: LoginProps) {
             
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative overflow-hidden">
                 {/* Orb Background Animation - Larger, Brighter, More Interactive */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-40 dark:opacity-50">
+                <div className="absolute inset-0 flex items-center justify-center opacity-60 dark:opacity-50">
                     <div className="w-full h-full">
                         <Orb
                             hoverIntensity={2.5}
                             rotateOnHover={true}
-                            hue={isDark ? 260 : 220}
+                            hue={isDark ? 260 : 200}
                             forceHoverState={false}
                             backgroundColor={isDark ? '#020617' : '#f8fafc'}
                         />
