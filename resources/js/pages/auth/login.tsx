@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import AppLogoIcon from '@/components/app-logo-icon';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight
+    Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight, Moon, Sun
 } from 'lucide-react';
 
 interface LoginProps {
@@ -45,6 +45,7 @@ const itemVariants = {
 export default function Login({ status }: LoginProps) {
     const [mode, setMode] = useState<LoginMode>('mahasiswa');
     const [showPassword, setShowPassword] = useState(false);
+    const [isDark, setIsDark] = useState(false);
 
     // Forms for each mode
     const adminForm = useForm({ email: '', password: '', remember: false });
@@ -52,6 +53,18 @@ export default function Login({ status }: LoginProps) {
     const mahasiswaForm = useForm({ nim: '', password: '' });
 
     const currentForm = mode === 'admin' ? adminForm : mode === 'dosen' ? dosenForm : mahasiswaForm;
+
+    // Check initial dark mode state
+    useEffect(() => {
+        setIsDark(document.documentElement.classList.contains('dark'));
+    }, []);
+
+    // Toggle dark mode
+    const toggleDarkMode = () => {
+        setIsDark(!isDark);
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', !isDark ? 'dark' : 'light');
+    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -73,7 +86,42 @@ export default function Login({ status }: LoginProps) {
         <>
             <Head title="Login" />
             
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative">
+                {/* Dark Mode Toggle */}
+                <motion.button
+                    onClick={toggleDarkMode}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    whileHover={{ scale: 1.1, rotate: 10 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="fixed top-6 right-6 z-50 p-3 rounded-xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all border border-slate-200 dark:border-slate-700"
+                >
+                    <AnimatePresence mode="wait">
+                        {isDark ? (
+                            <motion.div
+                                key="sun"
+                                initial={{ rotate: -90, opacity: 0 }}
+                                animate={{ rotate: 0, opacity: 1 }}
+                                exit={{ rotate: 90, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Sun className="h-5 w-5 text-amber-500" />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="moon"
+                                initial={{ rotate: 90, opacity: 0 }}
+                                animate={{ rotate: 0, opacity: 1 }}
+                                exit={{ rotate: -90, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Moon className="h-5 w-5 text-slate-700" />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.button>
+
                 <motion.div
                     initial="hidden"
                     animate="visible"
