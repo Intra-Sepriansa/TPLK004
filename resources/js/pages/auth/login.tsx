@@ -190,7 +190,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Mode Tabs */}
                     <motion.div 
                         variants={itemVariants}
-                        className="flex gap-2 p-1.5 bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl rounded-2xl border border-slate-200/30 dark:border-slate-700/30 shadow-sm dark:shadow-lg dark:shadow-slate-800/30"
+                        className="flex gap-2 p-1.5 bg-white/25 dark:bg-slate-900/25 backdrop-blur-xl rounded-2xl border border-slate-200/20 dark:border-slate-700/20 shadow-sm dark:shadow-lg dark:shadow-slate-800/20"
                     >
                         <motion.button
                             type="button"
@@ -256,7 +256,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Login Form */}
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/30 bg-white/40 dark:bg-slate-900/30 backdrop-blur-xl p-6 shadow-sm dark:border-slate-700/30 dark:shadow-lg dark:shadow-slate-800/30"
+                        className="rounded-2xl border border-slate-200/20 bg-white/25 dark:bg-slate-900/25 backdrop-blur-xl p-6 shadow-sm dark:border-slate-700/20 dark:shadow-lg dark:shadow-slate-800/20"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* ID Field */}
