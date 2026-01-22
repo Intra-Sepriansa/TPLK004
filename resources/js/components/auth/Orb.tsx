@@ -106,9 +106,9 @@ vec4 extractAlpha(vec3 colorIn) {
     return vec4(colorIn.rgb / (a + 1e-5), a);
 }
 
-const vec3 baseColor1 = vec3(0.811765, 0.362745, 1.0);
-const vec3 baseColor2 = vec3(0.398039, 0.860784, 1.0);
-const vec3 baseColor3 = vec3(0.162745, 0.278431, 0.900000);
+const vec3 baseColor1 = vec3(0.911765, 0.462745, 1.0);
+const vec3 baseColor2 = vec3(0.498039, 0.960784, 1.0);
+const vec3 baseColor3 = vec3(0.262745, 0.378431, 1.0);
 const float innerRadius = 0.5;
 const float noiseScale = 0.75;
 
@@ -135,11 +135,11 @@ vec4 draw(vec2 uv) {
     float r0 = mix(mix(innerRadius, 1.0, 0.4), mix(innerRadius, 1.0, 0.6), n0);
     float d0 = distance(uv, (r0 * invLen) * uv);
     
-    float v0 = light1(1.5, 8.0, d0);
-    v0 *= smoothstep(r0 * 1.1, r0, len);
+    float v0 = light1(2.0, 7.0, d0);
+    v0 *= smoothstep(r0 * 1.15, r0, len);
     
-    float innerFade = smoothstep(r0 * 0.7, r0 * 0.9, len);
-    v0 *= mix(innerFade, 1.0, bgLuminance * 0.5);
+    float innerFade = smoothstep(r0 * 0.65, r0 * 0.85, len);
+    v0 *= mix(innerFade, 1.0, bgLuminance * 0.3);
     
     float cl = cos(ang + iTime * 2.0) * 0.5 + 0.5;
     
@@ -147,21 +147,21 @@ vec4 draw(vec2 uv) {
     vec2 pos = vec2(cos(a), sin(a)) * r0;
     float d = distance(uv, pos);
     
-    float v1 = light2(2.0, 4.0, d);
-    v1 *= light1(1.5, 40.0, d0);
+    float v1 = light2(2.5, 3.5, d);
+    v1 *= light1(2.0, 35.0, d0);
     
     float v2 = smoothstep(1.0, mix(innerRadius, 1.0, n0 * 0.5), len);
     float v3 = smoothstep(innerRadius, mix(innerRadius, 1.0, 0.5), len);
     
     vec3 colBase = mix(color1, color2, cl);
     
-    float fadeAmount = mix(1.0, 0.2, bgLuminance);
+    float fadeAmount = mix(1.0, 0.15, bgLuminance);
     vec3 darkCol = mix(color3, colBase, v0);
-    darkCol = (darkCol + v1 * 1.5) * v2 * v3;
+    darkCol = (darkCol + v1 * 2.0) * v2 * v3;
     darkCol = clamp(darkCol, 0.0, 1.0);
     
-    vec3 lightCol = (colBase + v1 * 1.2) * mix(1.0, v2 * v3, fadeAmount);
-    lightCol = mix(backgroundColor, lightCol, v0 * 1.2);
+    vec3 lightCol = (colBase + v1 * 1.5) * mix(1.0, v2 * v3, fadeAmount);
+    lightCol = mix(backgroundColor, lightCol, v0 * 1.5);
     lightCol = clamp(lightCol, 0.0, 1.0);
     
     vec3 finalCol = mix(darkCol, lightCol, bgLuminance);
