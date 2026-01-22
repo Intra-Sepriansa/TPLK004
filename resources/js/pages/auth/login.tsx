@@ -142,7 +142,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Header with animated circles */}
                     <motion.div 
                         variants={itemVariants}
-                        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900/15 to-black/15 dark:from-white/15 dark:to-gray-100/15 backdrop-blur-2xl p-6 text-white dark:text-gray-900 shadow-lg border border-white/10 dark:border-black/10"
                     >
                         <motion.div 
                             className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
@@ -190,7 +190,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Mode Tabs */}
                     <motion.div 
                         variants={itemVariants}
-                        className="flex gap-2 p-1.5 bg-white/25 dark:bg-slate-900/25 backdrop-blur-xl rounded-2xl border border-slate-200/20 dark:border-slate-700/20 shadow-sm dark:shadow-lg dark:shadow-slate-800/20"
+                        className="flex gap-2 p-1.5 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl rounded-2xl border border-white/10 dark:border-white/10 shadow-lg"
                     >
                         <motion.button
                             type="button"
@@ -246,7 +246,7 @@ export default function Login({ status }: LoginProps) {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-sm"
+                                className="p-4 rounded-xl bg-emerald-500/15 dark:bg-emerald-400/15 backdrop-blur-2xl border border-emerald-500/20 dark:border-emerald-400/20 text-emerald-700 dark:text-emerald-300 text-sm shadow-lg"
                             >
                                 {status}
                             </motion.div>
@@ -256,7 +256,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Login Form */}
                     <motion.div 
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/20 bg-white/25 dark:bg-slate-900/25 backdrop-blur-xl p-6 shadow-sm dark:border-slate-700/20 dark:shadow-lg dark:shadow-slate-800/20"
+                        className="rounded-2xl border border-white/10 dark:border-white/10 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl p-6 shadow-lg"
                     >
                         <form onSubmit={handleSubmit} className="space-y-5">
                             {/* ID Field */}
@@ -361,7 +361,7 @@ export default function Login({ status }: LoginProps) {
                     {/* Footer */}
                     <motion.div 
                         variants={itemVariants}
-                        className="text-center text-xs text-slate-400 dark:text-slate-600"
+                        className="text-center text-xs text-slate-600 dark:text-slate-400 bg-white/15 dark:bg-slate-900/15 backdrop-blur-2xl rounded-xl p-3 border border-white/10 dark:border-white/10"
                     >
                         <p>© 2025 UNPAM - Universitas Pamulang</p>
                     </motion.div>
