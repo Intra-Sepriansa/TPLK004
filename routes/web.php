@@ -204,6 +204,9 @@ Route::middleware(['auth:web,dosen'])->group(function () {
 });
 
 Route::post('login/mahasiswa', [MahasiswaAuthController::class, 'store'])->name('mahasiswa.login');
+Route::get('login/mahasiswa', function () {
+    return redirect('/login')->with('info', 'Silakan login sebagai mahasiswa');
+});
 Route::post('logout/mahasiswa', [MahasiswaAuthController::class, 'destroy'])->name('mahasiswa.logout');
 
 Route::middleware(['auth:mahasiswa'])->group(function () {
