@@ -34,7 +34,6 @@ import {
     Users,
     Vote,
     Wallet,
-    BarChart3,
     ScrollText,
     Shield,
     Bell,
