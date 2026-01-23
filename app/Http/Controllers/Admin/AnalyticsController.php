@@ -23,7 +23,7 @@ class AnalyticsController extends Controller
         $startDate = $this->getStartDate($period);
         $endDate = now();
 
-        return Inertia::render('Admin/Analytics', [
+        return Inertia::render('admin/analytics', [
             'stats' => $this->getOverviewStats($startDate, $endDate),
             'attendanceTrend' => $this->getAttendanceTrend($startDate, $endDate),
             'heatmapData' => $this->getHeatmapData($startDate, $endDate),
@@ -247,8 +247,8 @@ class AnalyticsController extends Controller
                 (SELECT COUNT(*) FROM attendance_logs WHERE mahasiswa_id = mahasiswa.id) as total_attendance,
                 (SELECT COUNT(*) FROM attendance_sessions) as total_sessions
             ')
-            ->havingRaw('(total_attendance / total_sessions * 100) < ?', [$threshold])
-            ->orderByRaw('(total_attendance / total_sessions * 100) ASC')
+            ->havingRaw('(total_attendance / GREATEST(total_sessions, 1) * 100) < ?', [$threshold])
+            ->orderByRaw('(total_attendance / GREATEST(total_sessions, 1) * 100) ASC')
             ->limit(10)
             ->get()
             ->map(function ($student) {
