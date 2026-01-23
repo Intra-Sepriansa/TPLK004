@@ -32,10 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
     
     // Admin Profile
-    Route::get('admin/profile', function () {
-        return Inertia::render('admin/profile');
-    })->name('admin.profile');
-    Route::post('admin/profile/avatar', [\App\Http\Controllers\Settings\ProfileController::class, 'updateAvatar'])->name('admin.profile.avatar');
+    Route::get('admin/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('admin.profile');
+    Route::patch('admin/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('admin.profile.update');
+    Route::post('admin/profile/avatar', [\App\Http\Controllers\Admin\ProfileController::class, 'updateAvatar'])->name('admin.profile.avatar');
+    Route::patch('admin/profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('admin.profile.password');
     
     Route::post('courses', [CourseController::class, 'store'])->name('courses.store');
     Route::post('attendance-sessions', [AttendanceSessionController::class, 'store'])->name('attendance-sessions.store');
