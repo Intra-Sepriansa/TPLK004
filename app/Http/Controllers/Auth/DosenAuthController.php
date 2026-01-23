@@ -12,11 +12,6 @@ use Inertia\Response;
 
 class DosenAuthController extends Controller
 {
-    public function create(): Response
-    {
-        return Inertia::render('auth/dosen-login');
-    }
-
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $credentials = $request->validate([
