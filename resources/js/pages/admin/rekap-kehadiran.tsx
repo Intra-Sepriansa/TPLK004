@@ -330,13 +330,60 @@ export default function AdminRekapKehadiran({
                     </div>
                 </motion.div>
 
-                {/* Stats Cards dengan animasi dock-style */}
-                <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-8">
+                {/* Stats Cards dengan animasi dock-style - 4 atas, 4 bawah */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {[
                         { icon: Users, label: 'Total', value: stats.total, color: 'from-blue-500 to-cyan-600', delay: 0.1 },
                         { icon: CheckCircle, label: 'Hadir', value: stats.present, color: 'from-emerald-500 to-green-600', delay: 0.15 },
                         { icon: Clock, label: 'Terlambat', value: stats.late, color: 'from-amber-500 to-orange-600', delay: 0.2 },
                         { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', delay: 0.25 },
+                    ].map((stat, index) => (
+                        <motion.div
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
+                            whileHover={{ 
+                                scale: 1.05, 
+                                y: -5,
+                                transition: { type: "spring", stiffness: 400, damping: 10 }
+                            }}
+                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50 cursor-pointer"
+                        >
+                            {/* Glow effect on hover */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                            
+                            <div className="relative flex items-center gap-4">
+                                <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                                    <stat.icon className="h-7 w-7 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                                    <motion.p
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: stat.delay + 0.1, type: "spring" }}
+                                        className="text-2xl font-bold text-white"
+                                    >
+                                        {stat.value}
+                                    </motion.p>
+                                </div>
+                            </div>
+                            
+                            {/* Animated border */}
+                            <motion.div
+                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
+                                initial={{ width: "0%", opacity: 0 }}
+                                whileHover={{ width: "100%", opacity: 0.5 }}
+                                transition={{ duration: 0.3 }}
+                            />
+                        </motion.div>
+                    ))}
+                </div>
+
+                {/* Stats Cards Row 2 */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[
                         { icon: Calendar, label: 'Sesi', value: stats.total_sessions, color: 'from-purple-500 to-violet-600', delay: 0.3 },
                         { icon: Users, label: 'Mahasiswa', value: stats.unique_students, color: 'from-indigo-500 to-blue-600', delay: 0.35 },
                         { icon: BarChart3, label: 'Rata-rata', value: stats.avg_per_session, color: 'from-cyan-500 to-teal-600', delay: 0.4 },
@@ -352,26 +399,22 @@ export default function AdminRekapKehadiran({
                                 y: -5,
                                 transition: { type: "spring", stiffness: 400, damping: 10 }
                             }}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-4 shadow-xl border border-slate-800/50 cursor-pointer"
+                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50 cursor-pointer"
                         >
                             {/* Glow effect on hover */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                             
-                            <div className="relative flex items-center gap-3">
-                                <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.5 }}
-                                    className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}
-                                >
-                                    <stat.icon className="h-5 w-5 text-white" />
-                                </motion.div>
+                            <div className="relative flex items-center gap-4">
+                                <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+                                    <stat.icon className="h-7 w-7 text-white" />
+                                </div>
                                 <div>
                                     <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{stat.label}</p>
                                     <motion.p
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         transition={{ delay: stat.delay + 0.1, type: "spring" }}
-                                        className="text-lg font-bold text-white"
+                                        className="text-2xl font-bold text-white"
                                     >
                                         {stat.value}
                                     </motion.p>
