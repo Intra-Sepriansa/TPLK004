@@ -43,7 +43,7 @@ class NotificationPreference extends Model
         return $now >= $this->quiet_hours_start && $now <= $this->quiet_hours_end;
     }
 
-    public function canReceive(string $type, ?string $category = null): bool
+    public function canReceive(string $type, string $category = null): bool
     {
         if ($this->isInQuietHours()) {
             return false;

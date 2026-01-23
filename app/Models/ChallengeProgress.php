@@ -35,6 +35,15 @@ class ChallengeProgress extends Model
         return $this->belongsTo(Mahasiswa::class);
     }
 
+    public function getProgressPercentage(): float
+    {
+        if ($this->challenge->target_value == 0) {
+            return 0;
+        }
+        
+        return min(100, ($this->current_value / $this->challenge->target_value) * 100);
+    }
+
     public function incrementProgress(int $amount = 1): void
     {
         $this->current_value += $amount;
@@ -45,10 +54,5 @@ class ChallengeProgress extends Model
         }
         
         $this->save();
-    }
-
-    public function getProgressPercentage(): float
-    {
-        return min(100, ($this->current_value / $this->challenge->target_value) * 100);
     }
 }

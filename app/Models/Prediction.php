@@ -26,8 +26,8 @@ class Prediction extends Model
         'prediction_date' => 'date',
         'predicted_value' => 'decimal:2',
         'confidence_score' => 'decimal:2',
-        'factors' => 'array',
         'actual_value' => 'decimal:2',
+        'factors' => 'array',
         'verified_at' => 'datetime',
     ];
 
@@ -50,23 +50,8 @@ class Prediction extends Model
         }
 
         $error = abs($this->predicted_value - $this->actual_value);
-        $accuracy = 100 - (($error / max($this->predicted_value, $this->actual_value)) * 100);
+        $accuracy = 100 - (($error / $this->actual_value) * 100);
         
         return max(0, min(100, $accuracy));
-    }
-
-    public function scopeByType($query, string $type)
-    {
-        return $query->where('prediction_type', $type);
-    }
-
-    public function scopeUnverified($query)
-    {
-        return $query->whereNull('verified_at');
-    }
-
-    public function scopeForDate($query, $date)
-    {
-        return $query->where('prediction_date', $date);
     }
 }

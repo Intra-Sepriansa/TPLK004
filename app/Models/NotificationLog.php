@@ -66,6 +66,7 @@ class NotificationLog extends Model
     public function markAsClicked(): void
     {
         if (!$this->clicked_at) {
+            $this->status = 'clicked';
             $this->clicked_at = now();
             $this->save();
 
@@ -73,12 +74,5 @@ class NotificationLog extends Model
                 $this->campaign->increment('clicked_count');
             }
         }
-    }
-
-    public function markAsFailed(string $error): void
-    {
-        $this->status = 'failed';
-        $this->error_message = $error;
-        $this->save();
     }
 }

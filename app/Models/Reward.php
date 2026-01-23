@@ -40,7 +40,7 @@ class Reward extends Model
             });
     }
 
-    public function canRedeem(Mahasiswa $mahasiswa): bool
+    public function canBeRedeemed(): bool
     {
         if (!$this->is_available) {
             return false;
@@ -50,7 +50,7 @@ class Reward extends Model
             return false;
         }
 
-        return $mahasiswa->points >= $this->cost_points;
+        return true;
     }
 
     public function decrementStock(): void

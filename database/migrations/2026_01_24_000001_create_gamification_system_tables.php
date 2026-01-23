@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('target_value');
             $table->integer('reward_points');
             $table->string('reward_badge_id')->nullable();
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('ends_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->json('requirements')->nullable();
             $table->timestamps();
@@ -29,7 +29,8 @@ return new class extends Migration
         Schema::create('challenge_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
-            $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->integer('mahasiswa_id');
+            $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('current_value')->default(0);
             $table->boolean('is_completed')->default(false);
             $table->timestamp('completed_at')->nullable();
@@ -56,7 +57,8 @@ return new class extends Migration
         Schema::create('reward_redemptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reward_id')->constrained()->onDelete('cascade');
-            $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->integer('mahasiswa_id');
+            $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('points_spent');
             $table->enum('status', ['pending', 'approved', 'delivered', 'cancelled'])->default('pending');
             $table->text('notes')->nullable();
@@ -68,7 +70,8 @@ return new class extends Migration
         // Leaderboard Snapshots (for historical data)
         Schema::create('leaderboard_snapshots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('mahasiswa_id')->constrained('mahasiswa')->onDelete('cascade');
+            $table->integer('mahasiswa_id');
+            $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('rank');
             $table->integer('points');
             $table->integer('streak');
