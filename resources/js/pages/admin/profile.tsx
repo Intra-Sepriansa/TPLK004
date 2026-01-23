@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,8 @@ import AppLayout from '@/layouts/app-layout';
 import InputError from '@/components/input-error';
 import { 
     Sparkles, X, Camera, Upload, User, Mail, Shield, 
-    CheckCircle2, TrendingUp, Settings, CreditCard, KeyRound, AlertCircle
+    CheckCircle2, TrendingUp, Settings, CreditCard, KeyRound, AlertCircle,
+    Edit2, Save, XCircle, Eye, EyeOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,18 +28,36 @@ export default function AdminProfile() {
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [showFlash, setShowFlash] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const avatarInputRef = useRef<HTMLInputElement>(null);
+
+    // Form for profile update
+    const profileForm = useForm({
+        name: auth.user.name,
+        email: auth.user.email,
+    });
+
+    // Form for password update
+    const passwordForm = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
 
     useEffect(() => {
         if (flash?.success) {
             setShowFlash(true);
-            const timer = setTimeout(() => setShowFlash(false), 2000);
+            const timer = setTimeout(() => setShowFlash(false), 3000);
             return () => clearTimeout(timer);
         }
     }, [flash?.success]);
 
-    const avatarUrl = avatarPreview || (auth.user as any).avatar_url || 
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`;
+    const avatarUrl = avatarPreview || (auth.user as any).avatar_url 
+        ? `${(auth.user as any).avatar_url.startsWith('http') ? '' : '/storage/'}${(auth.user as any).avatar_url}`
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`;
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -60,10 +79,40 @@ export default function AdminProfile() {
                 setSuccessMessage('Foto profil berhasil diperbarui!');
                 setAvatarPreview(null);
                 if (avatarInputRef.current) avatarInputRef.current.value = '';
-                setTimeout(() => setSuccessMessage(null), 2000);
+                setTimeout(() => setSuccessMessage(null), 3000);
             },
             onFinish: () => setIsUploadingAvatar(false),
         });
+    };
+
+    const handleProfileUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        profileForm.patch('/admin/profile', {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsEditingProfile(false);
+                setSuccessMessage('Profil berhasil diperbarui!');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+        });
+    };
+
+    const handlePasswordUpdate = (e: React.FormEvent) => {
+        e.preventDefault();
+        passwordForm.patch('/admin/profile/password', {
+            preserveScroll: true,
+            onSuccess: () => {
+                passwordForm.reset();
+                setSuccessMessage('Password berhasil diperbarui!');
+                setTimeout(() => setSuccessMessage(null), 3000);
+            },
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditingProfile(false);
+        profileForm.reset();
+        profileForm.clearErrors();
     };
 
     const tabs = [
@@ -160,32 +209,94 @@ export default function AdminProfile() {
                 {activeTab === 'profile' && (
                     <div className="grid gap-6 lg:grid-cols-2">
                         <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"><User className="h-5 w-5" /></div>
-                                <div><h2 className="font-semibold text-slate-900 dark:text-white">Edit Profil</h2><p className="text-sm text-slate-500">Perbarui informasi akun Anda</p></div>
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"><User className="h-5 w-5" /></div>
+                                    <div><h2 className="font-semibold text-slate-900 dark:text-white">Edit Profil</h2><p className="text-sm text-slate-500">Perbarui informasi akun Anda</p></div>
+                                </div>
+                                {!isEditingProfile && (
+                                    <Button type="button" size="sm" variant="outline" onClick={() => setIsEditingProfile(true)} className="flex items-center gap-2">
+                                        <Edit2 className="h-4 w-4" />Edit
+                                    </Button>
+                                )}
                             </div>
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Foto Profil</Label>
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-                                            <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
-                                            {avatarPreview && <div className="absolute inset-0 flex items-center justify-center bg-blue-500/20"><CheckCircle2 className="h-6 w-6 text-blue-500" /></div>}
+
+                            {/* Avatar Upload Section */}
+                            <div className="space-y-4 mb-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+                                <Label>Foto Profil</Label>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 ring-2 ring-slate-200 dark:ring-slate-700">
+                                        <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
+                                        {avatarPreview && <div className="absolute inset-0 flex items-center justify-center bg-blue-500/20"><CheckCircle2 className="h-6 w-6 text-blue-500" /></div>}
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" id="avatar-upload" />
+                                        <div className="flex gap-2">
+                                            <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="flex items-center gap-2"><Camera className="h-4 w-4" />Pilih Foto</Button>
+                                            {avatarPreview && <Button type="button" size="sm" onClick={handleAvatarUpload} disabled={isUploadingAvatar} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"><Upload className="h-4 w-4" />{isUploadingAvatar ? 'Uploading...' : 'Upload'}</Button>}
                                         </div>
-                                        <div className="flex-1 space-y-2">
-                                            <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" id="avatar-upload" />
-                                            <div className="flex gap-2">
-                                                <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="flex items-center gap-2"><Camera className="h-4 w-4" />Pilih Foto</Button>
-                                                {avatarPreview && <Button type="button" size="sm" onClick={handleAvatarUpload} disabled={isUploadingAvatar} className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"><Upload className="h-4 w-4" />{isUploadingAvatar ? 'Uploading...' : 'Upload'}</Button>}
-                                            </div>
-                                            <p className="text-xs text-slate-500">PNG, JPG max 2MB</p>
-                                        </div>
+                                        <p className="text-xs text-slate-500">PNG, JPG max 2MB</p>
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-500">Untuk mengubah nama dan email, silakan kunjungi halaman <Link href="/admin/pengaturan" className="text-blue-600 hover:underline font-medium">Pengaturan</Link>.</p>
-                                <Link href="/admin/pengaturan"><Button variant="outline" className="w-full">Buka Pengaturan</Button></Link>
                             </div>
+
+                            {/* Profile Form */}
+                            <form onSubmit={handleProfileUpdate} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Nama Lengkap</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="name"
+                                            type="text"
+                                            value={profileForm.data.name}
+                                            onChange={(e) => profileForm.setData('name', e.target.value)}
+                                            disabled={!isEditingProfile}
+                                            className={cn(
+                                                "pr-10",
+                                                !isEditingProfile && "bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed"
+                                            )}
+                                            placeholder="Masukkan nama lengkap"
+                                        />
+                                        {isEditingProfile && <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />}
+                                    </div>
+                                    {profileForm.errors.name && <InputError message={profileForm.errors.name} />}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={profileForm.data.email}
+                                            onChange={(e) => profileForm.setData('email', e.target.value)}
+                                            disabled={!isEditingProfile}
+                                            className={cn(
+                                                "pr-10",
+                                                !isEditingProfile && "bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed"
+                                            )}
+                                            placeholder="Masukkan email"
+                                        />
+                                        {isEditingProfile && <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />}
+                                    </div>
+                                    {profileForm.errors.email && <InputError message={profileForm.errors.email} />}
+                                </div>
+
+                                {isEditingProfile && (
+                                    <div className="flex gap-2 pt-2">
+                                        <Button type="submit" disabled={profileForm.processing} className="flex-1 bg-blue-500 hover:bg-blue-600">
+                                            <Save className="h-4 w-4 mr-2" />
+                                            {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                        </Button>
+                                        <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={profileForm.processing}>
+                                            <XCircle className="h-4 w-4 mr-2" />
+                                            Batal
+                                        </Button>
+                                    </div>
+                                )}
+                            </form>
                         </div>
+
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -199,6 +310,16 @@ export default function AdminProfile() {
                                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-black"><span className="text-sm text-slate-500">Status</span><span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><CheckCircle2 className="h-4 w-4" /><span className="font-medium">Aktif</span></span></div>
                                 </div>
                             </div>
+
+                            <div className="rounded-2xl border border-amber-200/70 bg-amber-50/80 p-6 shadow-sm backdrop-blur dark:border-amber-800/70 dark:bg-amber-950/30">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                    <h3 className="font-semibold text-amber-900 dark:text-amber-100">Perhatian</h3>
+                                </div>
+                                <p className="text-sm text-amber-800 dark:text-amber-200">
+                                    Pastikan email yang Anda gunakan masih aktif. Email digunakan untuk notifikasi penting dan pemulihan akun.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -210,9 +331,80 @@ export default function AdminProfile() {
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"><KeyRound className="h-5 w-5" /></div>
                                 <div><h2 className="font-semibold text-slate-900 dark:text-white">Ganti Password</h2><p className="text-sm text-slate-500">Perbarui password untuk keamanan</p></div>
                             </div>
-                            <p className="text-sm text-slate-500 mb-4">Untuk mengubah password, silakan kunjungi halaman <Link href="/settings/password" className="text-blue-600 hover:underline font-medium">Pengaturan Password</Link>.</p>
-                            <Link href="/settings/password"><Button variant="outline" className="w-full">Ubah Password</Button></Link>
+
+                            <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="current_password">Password Saat Ini</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="current_password"
+                                            type={showCurrentPassword ? "text" : "password"}
+                                            value={passwordForm.data.current_password}
+                                            onChange={(e) => passwordForm.setData('current_password', e.target.value)}
+                                            className="pr-10"
+                                            placeholder="Masukkan password saat ini"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                        >
+                                            {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                    {passwordForm.errors.current_password && <InputError message={passwordForm.errors.current_password} />}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="password">Password Baru</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="password"
+                                            type={showNewPassword ? "text" : "password"}
+                                            value={passwordForm.data.password}
+                                            onChange={(e) => passwordForm.setData('password', e.target.value)}
+                                            className="pr-10"
+                                            placeholder="Masukkan password baru"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                        >
+                                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                    {passwordForm.errors.password && <InputError message={passwordForm.errors.password} />}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="password_confirmation">Konfirmasi Password Baru</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="password_confirmation"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            value={passwordForm.data.password_confirmation}
+                                            onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
+                                            className="pr-10"
+                                            placeholder="Konfirmasi password baru"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <Button type="submit" disabled={passwordForm.processing} className="w-full bg-violet-500 hover:bg-violet-600">
+                                    <KeyRound className="h-4 w-4 mr-2" />
+                                    {passwordForm.processing ? 'Memperbarui...' : 'Perbarui Password'}
+                                </Button>
+                            </form>
                         </div>
+
                         <div className="space-y-6">
                             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
                                 <div className="flex items-center gap-3 mb-4">
@@ -222,15 +414,19 @@ export default function AdminProfile() {
                                 <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                                     <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Gunakan minimal 8 karakter</span></li>
                                     <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Kombinasikan huruf besar, kecil, dan angka</span></li>
+                                    <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Tambahkan karakter spesial (!@#$%)</span></li>
                                     <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Hindari menggunakan informasi pribadi</span></li>
                                     <li className="flex items-start gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" /><span>Jangan gunakan password yang sama dengan akun lain</span></li>
                                 </ul>
                             </div>
+
                             <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-sm">
                                 <div className="flex items-center gap-3 mb-4"><Shield className="h-6 w-6" /><h2 className="font-semibold">Status Keamanan</h2></div>
                                 <div className="flex items-center gap-2 mb-2"><CheckCircle2 className="h-5 w-5" /><span className="font-medium">Akun Terlindungi</span></div>
-                                <p className="text-sm text-blue-100">Pertimbangkan untuk mengaktifkan Two-Factor Authentication untuk keamanan optimal.</p>
-                                <Link href="/settings/two-factor"><Button variant="secondary" size="sm" className="mt-4">Aktifkan 2FA</Button></Link>
+                                <p className="text-sm text-blue-100 mb-4">Password terakhir diubah: Belum pernah diubah</p>
+                                <div className="rounded-lg bg-white/10 p-3 backdrop-blur">
+                                    <p className="text-xs text-blue-100">💡 Tip: Ubah password secara berkala setiap 3-6 bulan untuk keamanan optimal.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
