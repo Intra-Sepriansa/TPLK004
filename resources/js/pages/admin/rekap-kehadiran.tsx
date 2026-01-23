@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     FileBarChart,
     Download,
@@ -171,57 +172,121 @@ export default function AdminRekapKehadiran({
             <Head title="Rekap Kehadiran" />
 
             <div className="p-6 space-y-6">
-                {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                {/* Header dengan animasi masuk */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-black p-8 text-white shadow-2xl border border-slate-700/50"
+                >
+                    {/* Animated background particles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, 90, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-500/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, -90, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-cyan-500/10 blur-3xl"
+                        />
+                    </div>
+                    
                     <div className="relative">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur">
-                                <FileBarChart className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-blue-100">Laporan Lengkap</p>
-                                <h1 className="text-2xl font-bold">Rekap Kehadiran</h1>
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/50"
+                                >
+                                    <FileBarChart className="h-8 w-8" />
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-slate-400 font-medium"
+                                    >
+                                        Laporan Lengkap
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
+                                    >
+                                        Rekap Kehadiran
+                                    </motion.h1>
+                                </div>
                             </div>
                         </div>
-                        <p className="mt-4 text-blue-100">
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                            className="mt-4 text-slate-400"
+                        >
                             Analisis kehadiran mahasiswa secara komprehensif
-                        </p>
+                        </motion.p>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Filter Section */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Filter className="h-5 w-5 text-blue-600" />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Filter Data</h2>
+                {/* Filter Section dengan background hitam */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50"
+                >
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600">
+                            <Filter className="h-5 w-5 text-white" />
+                        </div>
+                        <h2 className="font-semibold text-white text-lg">Filter Data</h2>
                     </div>
                     <div className="grid gap-4 md:grid-cols-5">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dari Tanggal</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Dari Tanggal</label>
                             <input
                                 type="date"
                                 value={dateFrom}
                                 onChange={e => setDateFrom(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
+                                className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sampai Tanggal</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Sampai Tanggal</label>
                             <input
                                 type="date"
                                 value={dateTo}
                                 onChange={e => setDateTo(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
+                                className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Mata Kuliah</label>
                             <select
                                 value={courseId}
                                 onChange={e => setCourseId(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
+                                className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                             >
                                 <option value="all">Semua Mata Kuliah</option>
                                 {courses.map(c => (
@@ -230,11 +295,11 @@ export default function AdminRekapKehadiran({
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Status</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-2">Status</label>
                             <select
                                 value={status}
                                 onChange={e => setStatus(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white"
+                                className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-sm text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                             >
                                 <option value="all">Semua Status</option>
                                 <option value="present">Hadir</option>
@@ -243,282 +308,316 @@ export default function AdminRekapKehadiran({
                             </select>
                         </div>
                         <div className="flex items-end gap-2">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={handleFilter}
-                                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+                                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all"
                             >
                                 <RefreshCw className="h-4 w-4" />
                                 Filter
-                            </button>
-                            <button
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={handleExportPdf}
-                                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-2.5 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all"
+                                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-700 to-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:from-slate-600 hover:to-slate-800 transition-all"
                             >
                                 <Download className="h-4 w-4" />
                                 PDF
-                            </button>
+                            </motion.button>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Stats Cards */}
+                {/* Stats Cards dengan animasi dock-style */}
                 <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-8">
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                                <Users className="h-5 w-5" />
+                    {[
+                        { icon: Users, label: 'Total', value: stats.total, color: 'from-blue-500 to-cyan-600', delay: 0.1 },
+                        { icon: CheckCircle, label: 'Hadir', value: stats.present, color: 'from-emerald-500 to-green-600', delay: 0.15 },
+                        { icon: Clock, label: 'Terlambat', value: stats.late, color: 'from-amber-500 to-orange-600', delay: 0.2 },
+                        { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', delay: 0.25 },
+                        { icon: Calendar, label: 'Sesi', value: stats.total_sessions, color: 'from-purple-500 to-violet-600', delay: 0.3 },
+                        { icon: Users, label: 'Mahasiswa', value: stats.unique_students, color: 'from-indigo-500 to-blue-600', delay: 0.35 },
+                        { icon: BarChart3, label: 'Rata-rata', value: stats.avg_per_session, color: 'from-cyan-500 to-teal-600', delay: 0.4 },
+                        { icon: TrendingUp, label: 'Rate', value: `${stats.attendance_rate}%`, color: 'from-teal-500 to-emerald-600', delay: 0.45 },
+                    ].map((stat, index) => (
+                        <motion.div
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
+                            whileHover={{ 
+                                scale: 1.05, 
+                                y: -5,
+                                transition: { type: "spring", stiffness: 400, damping: 10 }
+                            }}
+                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-4 shadow-xl border border-slate-800/50 cursor-pointer"
+                        >
+                            {/* Glow effect on hover */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+                            
+                            <div className="relative flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.5 }}
+                                    className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}
+                                >
+                                    <stat.icon className="h-5 w-5 text-white" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                                    <motion.p
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: stat.delay + 0.1, type: "spring" }}
+                                        className="text-lg font-bold text-white"
+                                    >
+                                        {stat.value}
+                                    </motion.p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Total</p>
-                                <p className="text-lg font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
-                                <CheckCircle className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Hadir</p>
-                                <p className="text-lg font-bold text-emerald-600">{stats.present}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
-                                <Clock className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Terlambat</p>
-                                <p className="text-lg font-bold text-amber-600">{stats.late}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-600">
-                                <XCircle className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Ditolak</p>
-                                <p className="text-lg font-bold text-red-600">{stats.rejected}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
-                                <Calendar className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Sesi</p>
-                                <p className="text-lg font-bold text-purple-600">{stats.total_sessions}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
-                                <Users className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Mahasiswa</p>
-                                <p className="text-lg font-bold text-indigo-600">{stats.unique_students}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
-                                <BarChart3 className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Rata-rata</p>
-                                <p className="text-lg font-bold text-cyan-600">{stats.avg_per_session}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 text-teal-600">
-                                <TrendingUp className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500">Rate</p>
-                                <p className="text-lg font-bold text-teal-600">{stats.attendance_rate}%</p>
-                            </div>
-                        </div>
-                    </div>
+                            
+                            {/* Animated border */}
+                            <motion.div
+                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
+                                initial={{ width: "0%", opacity: 0 }}
+                                whileHover={{ width: "100%", opacity: 0.5 }}
+                                transition={{ duration: 0.3 }}
+                            />
+                        </motion.div>
+                    ))}
                 </div>
 
-                {/* Charts Row */}
+                {/* Charts Row dengan background hitam */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Daily Trend Chart */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-2 mb-4">
-                            <TrendingUp className="h-5 w-5 text-blue-600" />
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Tren Kehadiran Harian</h2>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50"
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600">
+                                <TrendingUp className="h-5 w-5 text-white" />
+                            </div>
+                            <h2 className="font-semibold text-white text-lg">Tren Kehadiran Harian</h2>
                         </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={trendData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                                    <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                                    <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
-                                    <Legend />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} stroke="#475569" />
+                                    <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} stroke="#475569" />
+                                    <Tooltip contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid #334155', borderRadius: '12px', color: '#fff' }} />
+                                    <Legend wrapperStyle={{ color: '#94a3b8' }} />
                                     <Area type="monotone" dataKey="Hadir" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
                                     <Area type="monotone" dataKey="Terlambat" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} />
                                     <Area type="monotone" dataKey="Ditolak" stackId="1" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Hourly Distribution */}
-                    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Clock className="h-5 w-5 text-blue-600" />
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Distribusi Per Jam</h2>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50"
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-violet-600">
+                                <Clock className="h-5 w-5 text-white" />
+                            </div>
+                            <h2 className="font-semibold text-white text-lg">Distribusi Per Jam</h2>
                         </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={hourlyData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                    <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-                                    <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                                    <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} stroke="#475569" />
+                                    <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} stroke="#475569" />
+                                    <Tooltip contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid #334155', borderRadius: '12px', color: '#fff' }} />
                                     <Bar dataKey="total" fill="#6366f1" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Course Summary & Top/Low Attendance */}
+                {/* Course Summary & Top/Low Attendance dengan background hitam */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Course Summary */}
-                    <div className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                            <div className="flex items-center gap-2">
-                                <BookOpen className="h-5 w-5 text-blue-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Ringkasan Per Mata Kuliah</h2>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        className="lg:col-span-2 rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                    >
+                        <div className="p-6 border-b border-slate-800">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600">
+                                    <BookOpen className="h-5 w-5 text-white" />
+                                </div>
+                                <h2 className="font-semibold text-white text-lg">Ringkasan Per Mata Kuliah</h2>
                             </div>
                         </div>
                         <div className="overflow-x-auto max-h-80">
                             <table className="w-full">
-                                <thead className="sticky top-0 bg-slate-50 dark:bg-black/50">
+                                <thead className="sticky top-0 bg-slate-800/50 backdrop-blur">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mata Kuliah</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Sesi</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Hadir</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Terlambat</th>
-                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase">Rate</th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Mata Kuliah</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase">Sesi</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase">Hadir</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase">Terlambat</th>
+                                        <th className="px-4 py-3 text-center text-xs font-semibold text-slate-400 uppercase">Rate</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                                <tbody className="divide-y divide-slate-800">
                                     {courseSummary.length === 0 ? (
                                         <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">Tidak ada data</td></tr>
                                     ) : (
-                                        courseSummary.map(course => (
-                                            <tr key={course.id} className="hover:bg-slate-50 dark:hover:bg-black/30">
+                                        courseSummary.map((course, index) => (
+                                            <motion.tr
+                                                key={course.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.8 + index * 0.05 }}
+                                                whileHover={{ backgroundColor: "rgba(15, 23, 42, 0.5)" }}
+                                                className="transition-colors"
+                                            >
                                                 <td className="px-4 py-3">
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{course.nama}</p>
-                                                    <p className="text-xs text-slate-500">{course.dosen}</p>
+                                                    <p className="text-sm font-medium text-white">{course.nama}</p>
+                                                    <p className="text-xs text-slate-400">{course.dosen}</p>
                                                 </td>
-                                                <td className="px-4 py-3 text-center text-sm text-slate-600">{course.total_sessions}</td>
-                                                <td className="px-4 py-3 text-center text-sm text-emerald-600 font-medium">{course.present}</td>
-                                                <td className="px-4 py-3 text-center text-sm text-amber-600 font-medium">{course.late}</td>
+                                                <td className="px-4 py-3 text-center text-sm text-slate-300">{course.total_sessions}</td>
+                                                <td className="px-4 py-3 text-center text-sm text-emerald-400 font-medium">{course.present}</td>
+                                                <td className="px-4 py-3 text-center text-sm text-amber-400 font-medium">{course.late}</td>
                                                 <td className="px-4 py-3 text-center">
                                                     <span className={`inline-flex px-2 py-1 rounded-full text-xs font-bold ${
-                                                        course.rate >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                                                        course.rate >= 60 ? 'bg-amber-100 text-amber-700' :
-                                                        'bg-red-100 text-red-700'
+                                                        course.rate >= 80 ? 'bg-emerald-500/20 text-emerald-400' :
+                                                        course.rate >= 60 ? 'bg-amber-500/20 text-amber-400' :
+                                                        'bg-red-500/20 text-red-400'
                                                     }`}>
                                                         {course.rate}%
                                                     </span>
                                                 </td>
-                                            </tr>
+                                            </motion.tr>
                                         ))
                                     )}
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Top & Low Attendance */}
                     <div className="space-y-6">
                         {/* Top Attendees */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                                <div className="flex items-center gap-2">
-                                    <Award className="h-5 w-5 text-emerald-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Top Kehadiran</h2>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                            className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                        >
+                            <div className="p-4 border-b border-slate-800">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600">
+                                        <Award className="h-5 w-5 text-white" />
+                                    </div>
+                                    <h2 className="font-semibold text-white">Top Kehadiran</h2>
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                            <div className="divide-y divide-slate-800">
                                 {topAttendees.length === 0 ? (
                                     <div className="p-6 text-center text-slate-500">Tidak ada data</div>
                                 ) : (
                                     topAttendees.map((student, i) => (
-                                        <div key={student.id} className="p-3 flex items-center gap-3">
+                                        <motion.div
+                                            key={student.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.9 + i * 0.05 }}
+                                            whileHover={{ backgroundColor: "rgba(15, 23, 42, 0.5)", x: 5 }}
+                                            className="p-3 flex items-center gap-3 transition-all cursor-pointer"
+                                        >
                                             <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                                                i === 0 ? 'bg-yellow-100 text-yellow-700' :
-                                                i === 1 ? 'bg-slate-200 text-slate-700' :
-                                                i === 2 ? 'bg-amber-100 text-amber-700' :
-                                                'bg-slate-100 text-slate-600'
+                                                i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                                                i === 1 ? 'bg-slate-500/20 text-slate-400' :
+                                                i === 2 ? 'bg-amber-500/20 text-amber-400' :
+                                                'bg-slate-700/50 text-slate-400'
                                             }`}>
                                                 {i + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{student.nama}</p>
-                                                <p className="text-xs text-slate-500">{student.nim}</p>
+                                                <p className="text-sm font-medium text-white truncate">{student.nama}</p>
+                                                <p className="text-xs text-slate-400">{student.nim}</p>
                                             </div>
-                                            <span className="text-sm font-bold text-emerald-600">{student.total_attendance}x</span>
-                                        </div>
+                                            <span className="text-sm font-bold text-emerald-400">{student.total_attendance}x</span>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Low Attendance */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                            <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                                <div className="flex items-center gap-2">
-                                    <AlertTriangle className="h-5 w-5 text-red-600" />
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Rendah</h2>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.9 }}
+                            className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                        >
+                            <div className="p-4 border-b border-slate-800">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-rose-600">
+                                        <AlertTriangle className="h-5 w-5 text-white" />
+                                    </div>
+                                    <h2 className="font-semibold text-white">Kehadiran Rendah</h2>
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                            <div className="divide-y divide-slate-800">
                                 {lowAttendance.length === 0 ? (
                                     <div className="p-6 text-center text-slate-500">Tidak ada data</div>
                                 ) : (
-                                    lowAttendance.map(student => (
-                                        <div key={student.id} className="p-3 flex items-center gap-3">
+                                    lowAttendance.map((student, index) => (
+                                        <motion.div
+                                            key={student.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 1.0 + index * 0.05 }}
+                                            whileHover={{ backgroundColor: "rgba(15, 23, 42, 0.5)", x: 5 }}
+                                            className="p-3 flex items-center gap-3 transition-all cursor-pointer"
+                                        >
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{student.nama}</p>
-                                                <p className="text-xs text-slate-500">{student.nim}</p>
+                                                <p className="text-sm font-medium text-white truncate">{student.nama}</p>
+                                                <p className="text-xs text-slate-400">{student.nim}</p>
                                             </div>
-                                            <span className="text-sm font-bold text-red-600">{student.rate}%</span>
-                                        </div>
+                                            <span className="text-sm font-bold text-red-400">{student.rate}%</span>
+                                        </motion.div>
                                     ))
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
 
-                {/* Attendance Logs Table */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden">
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800">
+                {/* Attendance Logs Table dengan background hitam */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.0 }}
+                    className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                >
+                    <div className="p-6 border-b border-slate-800">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Users className="h-5 w-5 text-blue-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Detail Kehadiran</h2>
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600">
+                                    <Users className="h-5 w-5 text-white" />
+                                </div>
+                                <h2 className="font-semibold text-white text-lg">Detail Kehadiran</h2>
                             </div>
-                            <span className="text-sm text-slate-500">
+                            <span className="text-sm text-slate-400">
                                 Halaman {attendanceLogs.current_page} dari {attendanceLogs.last_page}
                             </span>
                         </div>
@@ -526,43 +625,50 @@ export default function AdminRekapKehadiran({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-black/50">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Waktu</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mahasiswa</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Mata Kuliah</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Pertemuan</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Status</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase">Selfie</th>
+                                <tr className="bg-slate-800/50 backdrop-blur">
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Waktu</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Mahasiswa</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Mata Kuliah</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Pertemuan</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Status</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase">Selfie</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                            <tbody className="divide-y divide-slate-800">
                                 {attendanceLogs.data.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-4 py-12 text-center">
-                                            <Users className="h-10 w-10 mx-auto text-slate-300 mb-2" />
+                                            <Users className="h-10 w-10 mx-auto text-slate-700 mb-2" />
                                             <p className="text-slate-500">Tidak ada data kehadiran</p>
                                         </td>
                                     </tr>
                                 ) : (
-                                    attendanceLogs.data.map(log => (
-                                        <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors">
-                                            <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
+                                    attendanceLogs.data.map((log, index) => (
+                                        <motion.tr
+                                            key={log.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 1.1 + index * 0.03 }}
+                                            whileHover={{ backgroundColor: "rgba(15, 23, 42, 0.5)" }}
+                                            className="transition-colors"
+                                        >
+                                            <td className="px-4 py-3 text-sm text-slate-400 whitespace-nowrap">
                                                 {log.scanned_at}
                                             </td>
                                             <td className="px-4 py-3">
                                                 {log.mahasiswa ? (
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-900 dark:text-white">{log.mahasiswa.nama}</p>
-                                                        <p className="text-xs text-slate-500">{log.mahasiswa.nim}</p>
+                                                        <p className="text-sm font-medium text-white">{log.mahasiswa.nama}</p>
+                                                        <p className="text-xs text-slate-400">{log.mahasiswa.nim}</p>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-sm text-slate-400">-</span>
+                                                    <span className="text-sm text-slate-500">-</span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                            <td className="px-4 py-3 text-sm text-slate-300">
                                                 {log.session?.course?.nama || '-'}
                                             </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600">
+                                            <td className="px-4 py-3 text-sm text-slate-300">
                                                 {log.session?.meeting_number ? `Pertemuan ${log.session.meeting_number}` : '-'}
                                             </td>
                                             <td className="px-4 py-3">
@@ -571,18 +677,18 @@ export default function AdminRekapKehadiran({
                                             <td className="px-4 py-3">
                                                 {log.selfie_verification ? (
                                                     <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                                                        log.selfie_verification.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                                                        log.selfie_verification.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                                        'bg-red-100 text-red-700'
+                                                        log.selfie_verification.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' :
+                                                        log.selfie_verification.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                                                        'bg-red-500/20 text-red-400'
                                                     }`}>
                                                         {log.selfie_verification.status === 'approved' ? 'Verified' :
                                                          log.selfie_verification.status === 'pending' ? 'Pending' : 'Rejected'}
                                                     </span>
                                                 ) : (
-                                                    <span className="text-sm text-slate-400">-</span>
+                                                    <span className="text-sm text-slate-500">-</span>
                                                 )}
                                             </td>
-                                        </tr>
+                                        </motion.tr>
                                     ))
                                 )}
                             </tbody>
@@ -590,25 +696,27 @@ export default function AdminRekapKehadiran({
                     </div>
                     {/* Pagination */}
                     {attendanceLogs.last_page > 1 && (
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
+                        <div className="p-4 border-t border-slate-800 flex justify-center gap-2">
                             {attendanceLogs.links.map((link, i) => (
-                                <button
+                                <motion.button
                                     key={i}
+                                    whileHover={{ scale: link.url ? 1.05 : 1 }}
+                                    whileTap={{ scale: link.url ? 0.95 : 1 }}
                                     onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                     disabled={!link.url}
-                                    className={`px-3 py-1 rounded text-sm ${
+                                    className={`px-3 py-1 rounded-lg text-sm transition-all ${
                                         link.active
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg'
                                             : link.url
-                                            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                                            : 'bg-slate-50 text-slate-400 cursor-not-allowed dark:bg-black'
+                                            ? 'bg-slate-800/50 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                                            : 'bg-slate-900 text-slate-600 cursor-not-allowed'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             ))}
                         </div>
                     )}
-                </div>
+                </motion.div>
             </div>
         </AppLayout>
     );
