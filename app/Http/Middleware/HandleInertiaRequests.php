@@ -53,6 +53,20 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
+        // Get mahasiswa if authenticated via mahasiswa guard
+        $mahasiswa = null;
+        if (auth()->guard('mahasiswa')->check()) {
+            $mahasiswaUser = auth()->guard('mahasiswa')->user();
+            $mahasiswa = [
+                'id' => $mahasiswaUser->id,
+                'nama' => $mahasiswaUser->nama,
+                'nim' => $mahasiswaUser->nim,
+                'email' => $mahasiswaUser->email,
+                'avatar_url' => $mahasiswaUser->avatar_url,
+                'initials' => $mahasiswaUser->initials ?? strtoupper(substr($mahasiswaUser->nama, 0, 2)),
+            ];
+        }
+
         // Get theme preference from authenticated user
         $themePreference = 'light'; // default
         if ($request->user()) {
@@ -128,6 +142,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'dosen' => $dosen,
+            'mahasiswa' => $mahasiswa,
             'themePreference' => $themePreference,
             'flash' => [
                 'success' => $request->session()->get('success'),
