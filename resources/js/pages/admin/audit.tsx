@@ -167,32 +167,32 @@ export default function AdminAudit({
             <div className="p-6 space-y-6">
                 {/* Header */}
                 <motion.div
-                    initial={{ opacity: 0, y: -30 }}
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl border border-slate-800/50"
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl border border-slate-200 dark:border-slate-800/50"
                 >
                     <motion.div 
                         className="flex items-center gap-4"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
+                        transition={{ delay: 0.1, duration: 0.3 }}
                     >
                         <motion.div
                             className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur border border-red-500/30"
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
-                            transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
+                            transition={{ delay: 0.15, duration: 0.3, type: "spring", stiffness: 200 }}
                             whileHover={{ scale: 1.05, rotate: 5 }}
                         >
-                            <ShieldCheck className="h-8 w-8 text-red-400" />
+                            <ShieldCheck className="h-8 w-8 text-red-600 dark:text-red-400" />
                         </motion.div>
                         <div>
                             <motion.p 
                                 className="text-sm text-red-200/80"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ delay: 0.4, duration: 0.4 }}
+                                transition={{ delay: 0.2, duration: 0.2 }}
                             >
                                 Keamanan Sistem
                             </motion.p>
@@ -200,7 +200,7 @@ export default function AdminAudit({
                                 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.4 }}
+                                transition={{ delay: 0.25, duration: 0.2 }}
                             >
                                 Audit Keamanan
                             </motion.h1>
@@ -210,7 +210,7 @@ export default function AdminAudit({
                         className="mt-4 text-red-100/70 max-w-2xl"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.4 }}
+                        transition={{ delay: 0.3, duration: 0.2 }}
                     >
                         Monitor aktivitas keamanan dan deteksi anomali sistem
                     </motion.p>
@@ -220,38 +220,38 @@ export default function AdminAudit({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.7, duration: 0.5, ease: "easeOut" }}
-                    className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
+                    transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+                    className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Filter className="h-5 w-5 text-red-400" />
-                        <h2 className="font-semibold text-white">Filter Data</h2>
+                        <Filter className="h-5 w-5 text-red-600 dark:text-red-400" />
+                        <h2 className="font-semibold text-slate-900 dark:text-white">Filter Data</h2>
                     </div>
                     <div className="grid gap-4 md:grid-cols-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Dari Tanggal</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dari Tanggal</label>
                             <input
                                 type="date"
                                 value={dateFrom}
                                 onChange={e => setDateFrom(e.target.value)}
-                                className="w-full rounded-lg border border-slate-700 bg-black/50 px-4 py-2.5 text-sm text-white focus:border-red-500 focus:ring-red-500 transition-colors"
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-red-500 focus:ring-red-500 transition-colors"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Sampai Tanggal</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sampai Tanggal</label>
                             <input
                                 type="date"
                                 value={dateTo}
                                 onChange={e => setDateTo(e.target.value)}
-                                className="w-full rounded-lg border border-slate-700 bg-black/50 px-4 py-2.5 text-sm text-white focus:border-red-500 focus:ring-red-500 transition-colors"
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-red-500 focus:ring-red-500 transition-colors"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-2">Tipe Event</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipe Event</label>
                             <select
                                 value={eventType}
                                 onChange={e => setEventType(e.target.value)}
-                                className="w-full rounded-lg border border-slate-700 bg-black/50 px-4 py-2.5 text-sm text-white focus:border-red-500 focus:ring-red-500 transition-colors"
+                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-red-500 focus:ring-red-500 transition-colors"
                             >
                                 {eventTypes.map(et => (
                                     <option key={et.value} value={et.value}>{et.label}</option>
@@ -284,22 +284,22 @@ export default function AdminAudit({
                 {/* Security Stats - Dock Style */}
                 <div className="grid gap-4 md:grid-cols-4">
                     {[
-                        { icon: Activity, label: 'Total Event', value: securityStats.total_events, color: 'from-blue-500/20 to-cyan-500/20', iconColor: 'text-blue-400', borderColor: 'border-blue-500/30' },
-                        { icon: AlertTriangle, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'from-red-500/20 to-rose-500/20', iconColor: 'text-red-400', borderColor: 'border-red-500/30' },
+                        { icon: Activity, label: 'Total Event', value: securityStats.total_events, color: 'from-blue-500/20 to-cyan-500/20', iconColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-500/30' },
+                        { icon: AlertTriangle, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'from-red-500/20 to-rose-500/20', iconColor: 'text-red-600 dark:text-red-400', borderColor: 'border-red-500/30' },
                         { icon: MapPin, label: 'Pelanggaran Zona', value: securityStats.geofence_violation, color: 'from-rose-500/20 to-pink-500/20', iconColor: 'text-rose-400', borderColor: 'border-rose-500/30' },
-                        { icon: Clock, label: 'Token Expired', value: securityStats.token_expired, color: 'from-amber-500/20 to-yellow-500/20', iconColor: 'text-amber-400', borderColor: 'border-amber-500/30' },
+                        { icon: Clock, label: 'Token Expired', value: securityStats.token_expired, color: 'from-amber-500/20 to-yellow-500/20', iconColor: 'text-amber-600 dark:text-amber-400', borderColor: 'border-amber-500/30' },
                     ].map((stat, index) => (
                         <motion.div
                             key={stat.label}
-                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ 
-                                delay: 0.8 + index * 0.1, 
-                                duration: 0.5,
+                                delay: 0.05 + index * 0.015, 
+                                duration: 0.15,
                                 ease: "easeOut"
                             }}
                             whileHover={{ scale: 1.05, y: -5 }}
-                            className="group relative overflow-hidden rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl cursor-pointer"
+                            className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl cursor-pointer"
                         >
                             <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ backgroundImage: `linear-gradient(to bottom right, ${stat.color})` }} />
                             
@@ -312,8 +312,8 @@ export default function AdminAudit({
                                     <stat.icon className={`h-7 w-7 ${stat.iconColor}`} />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-slate-400">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -324,14 +324,14 @@ export default function AdminAudit({
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Daily Trend Chart */}
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
+                        initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.2, duration: 0.6, ease: "easeOut" }}
-                        className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
+                        transition={{ delay: 0.12, duration: 0.2, ease: "easeOut" }}
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl"
                     >
                         <div className="flex items-center gap-2 mb-4">
-                            <TrendingUp className="h-5 w-5 text-red-400" />
-                            <h2 className="font-semibold text-white">Tren Harian</h2>
+                            <TrendingUp className="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Tren Harian</h2>
                         </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -361,14 +361,14 @@ export default function AdminAudit({
 
                     {/* Event Distribution Pie */}
                     <motion.div
-                        initial={{ opacity: 0, x: 30 }}
+                        initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.3, duration: 0.6, ease: "easeOut" }}
-                        className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
+                        transition={{ delay: 0.14, duration: 0.2, ease: "easeOut" }}
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl"
                     >
                         <div className="flex items-center gap-2 mb-4">
-                            <Shield className="h-5 w-5 text-red-400" />
-                            <h2 className="font-semibold text-white">Distribusi Event</h2>
+                            <Shield className="h-5 w-5 text-red-600 dark:text-red-400" />
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Distribusi Event</h2>
                         </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
@@ -406,22 +406,22 @@ export default function AdminAudit({
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Suspicious Activities */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.4, duration: 0.6, ease: "easeOut" }}
-                        className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
+                        transition={{ delay: 0.16, duration: 0.2, ease: "easeOut" }}
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl overflow-hidden"
                     >
-                        <div className="p-4 border-b border-slate-800/50">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800/50">
                             <div className="flex items-center gap-2">
-                                <AlertTriangle className="h-5 w-5 text-red-400" />
-                                <h2 className="font-semibold text-white">Aktivitas Mencurigakan</h2>
+                                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Mencurigakan</h2>
                             </div>
                         </div>
                         <div className="divide-y divide-slate-800/50 max-h-80 overflow-y-auto">
                             {suspiciousActivities.length === 0 ? (
                                 <div className="p-8 text-center">
-                                    <CheckCircle className="h-10 w-10 mx-auto text-emerald-400 mb-2" />
-                                    <p className="text-slate-400">Tidak ada aktivitas mencurigakan</p>
+                                    <CheckCircle className="h-10 w-10 mx-auto text-emerald-600 dark:text-emerald-400 mb-2" />
+                                    <p className="text-slate-600 dark:text-slate-400">Tidak ada aktivitas mencurigakan</p>
                                 </div>
                             ) : (
                                 suspiciousActivities.map((activity, index) => (
@@ -429,13 +429,13 @@ export default function AdminAudit({
                                         key={activity.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 1.5 + index * 0.05, duration: 0.4 }}
-                                        className="p-4 hover:bg-slate-800/30 transition-colors"
+                                        transition={{ delay: 0.18 + index * 0.02, duration: 0.15 }}
+                                        className="p-4 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors"
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-white truncate">{activity.mahasiswa}</p>
-                                                <p className="text-xs text-slate-400">{activity.nim} • {activity.course}</p>
+                                                <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{activity.mahasiswa}</p>
+                                                <p className="text-xs text-slate-600 dark:text-slate-400">{activity.nim} • {activity.course}</p>
                                                 <p className="text-xs text-slate-500 mt-1">{activity.message}</p>
                                             </div>
                                             <div className="text-right">
@@ -451,22 +451,22 @@ export default function AdminAudit({
 
                     {/* Top Flagged Students */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
-                        className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
+                        transition={{ delay: 0.18, duration: 0.2, ease: "easeOut" }}
+                        className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl overflow-hidden"
                     >
-                        <div className="p-4 border-b border-slate-800/50">
+                        <div className="p-4 border-b border-slate-200 dark:border-slate-800/50">
                             <div className="flex items-center gap-2">
-                                <UserX className="h-5 w-5 text-amber-400" />
-                                <h2 className="font-semibold text-white">Mahasiswa Paling Banyak Flag</h2>
+                                <UserX className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Mahasiswa Paling Banyak Flag</h2>
                             </div>
                         </div>
                         <div className="divide-y divide-slate-800/50">
                             {topFlaggedStudents.length === 0 ? (
                                 <div className="p-8 text-center">
-                                    <CheckCircle className="h-10 w-10 mx-auto text-emerald-400 mb-2" />
-                                    <p className="text-slate-400">Tidak ada mahasiswa yang di-flag</p>
+                                    <CheckCircle className="h-10 w-10 mx-auto text-emerald-600 dark:text-emerald-400 mb-2" />
+                                    <p className="text-slate-600 dark:text-slate-400">Tidak ada mahasiswa yang di-flag</p>
                                 </div>
                             ) : (
                                 topFlaggedStudents.map((student, index) => (
@@ -474,23 +474,23 @@ export default function AdminAudit({
                                         key={student.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 1.6 + index * 0.05, duration: 0.4 }}
+                                        transition={{ delay: 0.2 + index * 0.015, duration: 0.15 }}
                                         whileHover={{ scale: 1.02, x: 5 }}
-                                        className="p-4 flex items-center gap-4 hover:bg-slate-800/30 transition-colors cursor-pointer"
+                                        className="p-4 flex items-center gap-4 hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
                                     >
                                         <div className={`flex h-8 w-8 items-center justify-center rounded-full font-bold text-sm ${
-                                            index === 0 ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                            index === 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                                            'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                            index === 0 ? 'bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30' :
+                                            index === 1 ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30' :
+                                            'bg-slate-500/20 text-slate-600 dark:text-slate-400 border border-slate-500/30'
                                         }`}>
                                             {index + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium text-white truncate">{student.nama}</p>
-                                            <p className="text-xs text-slate-400">{student.nim}</p>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{student.nama}</p>
+                                            <p className="text-xs text-slate-600 dark:text-slate-400">{student.nim}</p>
                                         </div>
                                         <div className="text-right">
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30">
+                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/30">
                                                 {student.total_flags} flags
                                             </span>
                                         </div>
@@ -503,18 +503,18 @@ export default function AdminAudit({
 
                 {/* Audit Logs Table */}
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.7, duration: 0.6, ease: "easeOut" }}
-                    className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
+                    transition={{ delay: 0.22, duration: 0.2, ease: "easeOut" }}
+                    className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl overflow-hidden"
                 >
-                    <div className="p-4 border-b border-slate-800/50">
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-800/50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <Activity className="h-5 w-5 text-red-400" />
-                                <h2 className="font-semibold text-white">Log Audit</h2>
+                                <Activity className="h-5 w-5 text-red-600 dark:text-red-400" />
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Log Audit</h2>
                             </div>
-                            <span className="text-sm text-slate-400">
+                            <span className="text-sm text-slate-600 dark:text-slate-400">
                                 Halaman {auditLogs.current_page} dari {auditLogs.last_page}
                             </span>
                         </div>
@@ -522,12 +522,12 @@ export default function AdminAudit({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-black/50">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Waktu</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipe Event</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Pesan</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Mahasiswa</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Mata Kuliah</th>
+                                <tr className="bg-slate-50 dark:bg-black/50">
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Tipe Event</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Pesan</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Mahasiswa</th>
+                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Mata Kuliah</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/50">
@@ -536,7 +536,7 @@ export default function AdminAudit({
                                         <tr>
                                             <td colSpan={5} className="px-4 py-12 text-center">
                                                 <Activity className="h-10 w-10 mx-auto text-slate-600 mb-2" />
-                                                <p className="text-slate-400">Tidak ada log audit</p>
+                                                <p className="text-slate-600 dark:text-slate-400">Tidak ada log audit</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -546,30 +546,30 @@ export default function AdminAudit({
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 20 }}
-                                                transition={{ delay: 1.8 + index * 0.03, duration: 0.3 }}
+                                                transition={{ delay: 0.24 + index * 0.01, duration: 0.15 }}
                                                 whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
                                                 className="transition-colors"
                                             >
-                                                <td className="px-4 py-3 text-sm text-slate-400 whitespace-nowrap">
+                                                <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
                                                     {log.created_at}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {getEventBadge(log.event_type)}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm text-slate-400 max-w-xs truncate">
+                                                <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">
                                                     {log.message}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     {log.mahasiswa ? (
                                                         <div>
-                                                            <p className="text-sm font-medium text-white">{log.mahasiswa.nama}</p>
+                                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{log.mahasiswa.nama}</p>
                                                             <p className="text-xs text-slate-500">{log.mahasiswa.nim}</p>
                                                         </div>
                                                     ) : (
                                                         <span className="text-sm text-slate-500">-</span>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3 text-sm text-slate-400">
+                                                <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
                                                     {log.session?.course?.nama || '-'}
                                                 </td>
                                             </motion.tr>
@@ -581,7 +581,7 @@ export default function AdminAudit({
                     </div>
                     {/* Pagination */}
                     {auditLogs.last_page > 1 && (
-                        <div className="p-4 border-t border-slate-800/50 flex justify-center gap-2">
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-800/50 flex justify-center gap-2">
                             {auditLogs.links.map((link, i) => (
                                 <motion.button
                                     key={i}
@@ -593,7 +593,7 @@ export default function AdminAudit({
                                         link.active
                                             ? 'bg-gradient-to-r from-red-600 to-orange-600 text-white shadow-lg'
                                             : link.url
-                                            ? 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                                            ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:bg-slate-700/50'
                                             : 'bg-slate-900/50 text-slate-600 cursor-not-allowed'
                                     }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}

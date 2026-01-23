@@ -25,6 +25,7 @@ class Dosen extends Authenticatable
         'is_active',
         'settings',
         'last_activity_at',
+        'theme_preference',
     ];
 
     protected $hidden = [

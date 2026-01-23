@@ -165,7 +165,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-slate-400 font-medium"
+                                    className="text-sm text-slate-600 dark:text-slate-400 font-medium"
                                 >
                                     Import Data
                                 </motion.p>
@@ -183,7 +183,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="mt-4 text-slate-400"
+                            className="mt-4 text-slate-600 dark:text-slate-400"
                         >
                             Import data mahasiswa, mata kuliah, dan jadwal via file CSV
                         </motion.p>
@@ -208,7 +208,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                 y: -5,
                                 transition: { type: "spring", stiffness: 400, damping: 10 }
                             }}
-                            className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50 cursor-pointer"
+                            className="group relative overflow-hidden rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl border border-slate-200 dark:border-slate-800/50 cursor-pointer"
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
                             
@@ -217,12 +217,12 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     <stat.icon className="h-7 w-7 text-white" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">{stat.label}</p>
                                     <motion.p
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         transition={{ delay: stat.delay + 0.1, type: "spring" }}
-                                        className="text-2xl font-bold text-white"
+                                        className="text-2xl font-bold text-slate-900 dark:text-white"
                                     >
                                         {stat.value}
                                     </motion.p>
@@ -230,7 +230,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                             </div>
                             
                             <motion.div
-                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
+                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-slate-900 dark:via-white to-transparent"
                                 initial={{ width: "0%", opacity: 0 }}
                                 whileHover={{ width: "100%", opacity: 0.5 }}
                                 transition={{ duration: 0.3 }}
@@ -245,7 +245,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                        className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl border border-slate-200 dark:border-slate-800/50 overflow-hidden"
                     >
                         <div className="p-6 border-b border-slate-800">
                             <div className="flex items-center gap-3">
@@ -253,18 +253,18 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     <Upload className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-white text-lg">Upload File</h2>
-                                    <p className="text-xs text-slate-400">Pilih tipe data dan upload file CSV</p>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white text-lg">Upload File</h2>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400">Pilih tipe data dan upload file CSV</p>
                                 </div>
                             </div>
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="text-sm font-medium text-slate-300 mb-2 block">Tipe Data</label>
+                                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 block">Tipe Data</label>
                                 <select
                                     value={selectedType}
                                     onChange={(e) => setSelectedType(e.target.value)}
-                                    className="w-full rounded-xl border border-slate-700 bg-slate-800/50 px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                                 >
                                     <option value="mahasiswa">👤 Mahasiswa</option>
                                     <option value="mata_kuliah">📚 Mata Kuliah</option>
@@ -282,7 +282,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                 />
                                 <label htmlFor="file-upload" className="cursor-pointer">
                                     <Upload className="h-12 w-12 mx-auto text-slate-600 mb-3" />
-                                    <p className="text-sm text-slate-300 font-medium">
+                                    <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
                                         Klik untuk upload atau drag & drop
                                     </p>
                                     <p className="text-xs text-slate-500 mt-1">CSV, max 5MB</p>
@@ -296,7 +296,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     className="text-center py-4"
                                 >
                                     <div className="animate-spin h-8 w-8 border-3 border-emerald-500 border-t-transparent rounded-full mx-auto" />
-                                    <p className="text-sm text-slate-400 mt-3">Memproses file...</p>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-3">Memproses file...</p>
                                 </motion.div>
                             )}
 
@@ -309,15 +309,15 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                         className="space-y-3"
                                     >
                                         <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium text-slate-300">Preview</span>
-                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">{preview.total_rows} baris</span>
+                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Preview</span>
+                                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-400">{preview.total_rows} baris</span>
                                         </div>
-                                        <div className="overflow-x-auto rounded-xl border border-slate-700 bg-slate-800/50">
+                                        <div className="overflow-x-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/50">
                                             <table className="w-full text-xs">
                                                 <thead>
                                                     <tr className="bg-slate-800/80">
                                                         {preview.headers?.map((h: string, i: number) => (
-                                                            <th key={i} className="p-3 text-left font-semibold text-slate-300">{h}</th>
+                                                            <th key={i} className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300">{h}</th>
                                                         ))}
                                                     </tr>
                                                 </thead>
@@ -325,7 +325,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                                     {preview.sample?.slice(0, 3).map((row: string[], i: number) => (
                                                         <tr key={i} className="border-t border-slate-700">
                                                             {row.map((cell, j) => (
-                                                                <td key={j} className="p-3 text-slate-400">{cell}</td>
+                                                                <td key={j} className="p-3 text-slate-600 dark:text-slate-400">{cell}</td>
                                                             ))}
                                                         </tr>
                                                     ))}
@@ -352,7 +352,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     animate={{ opacity: 1 }}
                                     className="p-4 bg-red-500/10 rounded-xl border border-red-500/50"
                                 >
-                                    <p className="text-sm text-red-400">{preview.error}</p>
+                                    <p className="text-sm text-red-600 dark:text-red-400">{preview.error}</p>
                                 </motion.div>
                             )}
                         </div>
@@ -363,7 +363,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                        className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl border border-slate-200 dark:border-slate-800/50 overflow-hidden"
                     >
                         <div className="p-6 border-b border-slate-800">
                             <div className="flex items-center gap-3">
@@ -371,8 +371,8 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     <Download className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="font-semibold text-white text-lg">Download Template</h2>
-                                    <p className="text-xs text-slate-400">Gunakan template untuk format yang benar</p>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white text-lg">Download Template</h2>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400">Gunakan template untuk format yang benar</p>
                                 </div>
                             </div>
                         </div>
@@ -391,20 +391,20 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                             <div className="p-2 rounded-lg bg-slate-700/50">
                                                 {getTypeIcon(type)}
                                             </div>
-                                            <span className="font-medium text-white capitalize">{type.replace('_', ' ')}</span>
+                                            <span className="font-medium text-slate-900 dark:text-white capitalize">{type.replace('_', ' ')}</span>
                                         </div>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => window.location.href = `/admin/bulk-import/template/${type}`}
-                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 text-sm font-medium transition-all"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/30 text-sm font-medium transition-all"
                                         >
                                             <Download className="h-4 w-4" />
                                             Download
                                         </motion.button>
                                     </div>
                                     <div className="text-xs">
-                                        <p className="font-medium text-slate-400 mb-1">Kolom:</p>
+                                        <p className="font-medium text-slate-600 dark:text-slate-400 mb-1">Kolom:</p>
                                         <p className="text-slate-500">{template.columns.join(', ')}</p>
                                     </div>
                                 </motion.div>
@@ -418,14 +418,14 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+                    className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl border border-slate-200 dark:border-slate-800/50 overflow-hidden"
                 >
                     <div className="p-6 border-b border-slate-800">
                         <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600">
                                 <Clock className="h-5 w-5 text-white" />
                             </div>
-                            <h2 className="font-semibold text-white text-lg">Riwayat Import</h2>
+                            <h2 className="font-semibold text-slate-900 dark:text-white text-lg">Riwayat Import</h2>
                         </div>
                     </div>
                     <div className="p-6 space-y-3">
@@ -445,7 +445,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                                 {getTypeIcon(log.type)}
                                             </div>
                                             <div>
-                                                <span className="font-medium text-white block">{log.filename}</span>
+                                                <span className="font-medium text-slate-900 dark:text-white block">{log.filename}</span>
                                                 <span className="text-xs text-slate-500">
                                                     {new Date(log.created_at).toLocaleString('id-ID')}
                                                 </span>
@@ -456,16 +456,16 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                     {log.status === 'completed' && (
                                         <div className="grid grid-cols-3 gap-3 mt-3">
                                             <div className="text-center p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/30">
-                                                <p className="text-xl font-bold text-emerald-400">{log.success_count}</p>
-                                                <p className="text-xs text-slate-400 mt-1">Berhasil</p>
+                                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{log.success_count}</p>
+                                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Berhasil</p>
                                             </div>
                                             <div className="text-center p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
                                                 <p className="text-xl font-bold text-yellow-400">{log.skip_count}</p>
-                                                <p className="text-xs text-slate-400 mt-1">Dilewati</p>
+                                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Dilewati</p>
                                             </div>
                                             <div className="text-center p-3 bg-red-500/10 rounded-lg border border-red-500/30">
-                                                <p className="text-xl font-bold text-red-400">{log.error_count}</p>
-                                                <p className="text-xs text-slate-400 mt-1">Error</p>
+                                                <p className="text-xl font-bold text-red-600 dark:text-red-400">{log.error_count}</p>
+                                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">Error</p>
                                             </div>
                                         </div>
                                     )}

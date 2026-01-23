@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\ThemeController;
 use App\Http\Controllers\Settings\TwoFactorAuthenticationController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,4 +27,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
+});
+
+// Theme preference routes - accessible by all authenticated users (admin, mahasiswa, dosen)
+Route::middleware(['auth:web,mahasiswa,dosen'])->group(function () {
+    Route::get('settings/theme', [ThemeController::class, 'show'])->name('theme.show');
+    Route::post('settings/theme', [ThemeController::class, 'update'])->name('theme.update');
 });

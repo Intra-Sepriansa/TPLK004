@@ -24,6 +24,7 @@ class Mahasiswa extends Authenticatable
         'avatar_url',
         'remember_token',
         'last_activity_at',
+        'theme_preference',
     ];
 
     protected $hidden = [
