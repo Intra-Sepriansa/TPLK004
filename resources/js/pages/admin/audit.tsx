@@ -167,35 +167,60 @@ export default function AdminAudit({
             <div className="p-6 space-y-6">
                 {/* Header */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: -30 }}
                     animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl border border-slate-800/50"
                 >
-                    <div className="flex items-center gap-4">
+                    <motion.div 
+                        className="flex items-center gap-4"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                    >
                         <motion.div
                             className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur border border-red-500/30"
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ delay: 0.3, duration: 0.5, type: "spring", stiffness: 200 }}
                             whileHover={{ scale: 1.05, rotate: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
                         >
                             <ShieldCheck className="h-8 w-8 text-red-400" />
                         </motion.div>
                         <div>
-                            <p className="text-sm text-red-200/80">Keamanan Sistem</p>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent">
+                            <motion.p 
+                                className="text-sm text-red-200/80"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.4, duration: 0.4 }}
+                            >
+                                Keamanan Sistem
+                            </motion.p>
+                            <motion.h1 
+                                className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.4 }}
+                            >
                                 Audit Keamanan
-                            </h1>
+                            </motion.h1>
                         </div>
-                    </div>
-                    <p className="mt-4 text-red-100/70 max-w-2xl">
+                    </motion.div>
+                    <motion.p 
+                        className="mt-4 text-red-100/70 max-w-2xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.4 }}
+                    >
                         Monitor aktivitas keamanan dan deteksi anomali sistem
-                    </p>
+                    </motion.p>
                 </motion.div>
 
                 {/* Filter Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: 0.7, duration: 0.5, ease: "easeOut" }}
                     className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
                 >
                     <div className="flex items-center gap-2 mb-4">
@@ -266,9 +291,13 @@ export default function AdminAudit({
                     ].map((stat, index) => (
                         <motion.div
                             key={stat.label}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 + index * 0.1 }}
+                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ 
+                                delay: 0.8 + index * 0.1, 
+                                duration: 0.5,
+                                ease: "easeOut"
+                            }}
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="group relative overflow-hidden rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl cursor-pointer"
                         >
@@ -295,9 +324,9 @@ export default function AdminAudit({
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Daily Trend Chart */}
                     <motion.div
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: -30 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6 }}
+                        transition={{ delay: 1.2, duration: 0.6, ease: "easeOut" }}
                         className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
                     >
                         <div className="flex items-center gap-2 mb-4">
@@ -332,9 +361,9 @@ export default function AdminAudit({
 
                     {/* Event Distribution Pie */}
                     <motion.div
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.7 }}
+                        transition={{ delay: 1.3, duration: 0.6, ease: "easeOut" }}
                         className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl"
                     >
                         <div className="flex items-center gap-2 mb-4">
@@ -377,9 +406,9 @@ export default function AdminAudit({
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Suspicious Activities */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.8 }}
+                        transition={{ delay: 1.4, duration: 0.6, ease: "easeOut" }}
                         className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
                     >
                         <div className="p-4 border-b border-slate-800/50">
@@ -400,7 +429,7 @@ export default function AdminAudit({
                                         key={activity.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.9 + index * 0.05 }}
+                                        transition={{ delay: 1.5 + index * 0.05, duration: 0.4 }}
                                         className="p-4 hover:bg-slate-800/30 transition-colors"
                                     >
                                         <div className="flex items-start justify-between gap-3">
@@ -422,9 +451,9 @@ export default function AdminAudit({
 
                     {/* Top Flagged Students */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.9 }}
+                        transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
                         className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
                     >
                         <div className="p-4 border-b border-slate-800/50">
@@ -445,7 +474,7 @@ export default function AdminAudit({
                                         key={student.id}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 1.0 + index * 0.05 }}
+                                        transition={{ delay: 1.6 + index * 0.05, duration: 0.4 }}
                                         whileHover={{ scale: 1.02, x: 5 }}
                                         className="p-4 flex items-center gap-4 hover:bg-slate-800/30 transition-colors cursor-pointer"
                                     >
@@ -474,9 +503,9 @@ export default function AdminAudit({
 
                 {/* Audit Logs Table */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.0 }}
+                    transition={{ delay: 1.7, duration: 0.6, ease: "easeOut" }}
                     className="rounded-2xl border border-slate-800/50 bg-gradient-to-br from-slate-900 to-black shadow-xl overflow-hidden"
                 >
                     <div className="p-4 border-b border-slate-800/50">
@@ -517,7 +546,7 @@ export default function AdminAudit({
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: 20 }}
-                                                transition={{ delay: index * 0.03 }}
+                                                transition={{ delay: 1.8 + index * 0.03, duration: 0.3 }}
                                                 whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
                                                 className="transition-colors"
                                             >
