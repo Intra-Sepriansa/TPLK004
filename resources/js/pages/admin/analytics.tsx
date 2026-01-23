@@ -659,7 +659,7 @@ export default function AnalyticsPage({
                                 style={{ fontSize: '12px' }}
                             />
                             <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                            <Tooltip
+                            <RechartsTooltip
                                 contentStyle={{
                                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                     border: '1px solid #e2e8f0',
@@ -725,7 +725,7 @@ export default function AnalyticsPage({
                                     height={80}
                                 />
                                 <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                                <Tooltip
+                                <RechartsTooltip
                                     contentStyle={{
                                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                         border: '1px solid #e2e8f0',
@@ -768,7 +768,7 @@ export default function AnalyticsPage({
                                     cx="50%"
                                     cy="50%"
                                     labelLine={false}
-                                    label={({ name, percent }) =>
+                                    label={({ name, percent }: any) =>
                                         `${name} ${(percent * 100).toFixed(0)}%`
                                     }
                                     outerRadius={90}
@@ -784,7 +784,7 @@ export default function AnalyticsPage({
                                         />
                                     ))}
                                 </Pie>
-                                <Tooltip
+                                <RechartsTooltip
                                     contentStyle={{
                                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                         border: '1px solid #e2e8f0',
@@ -826,7 +826,7 @@ export default function AnalyticsPage({
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                             <XAxis dataKey="hour" stroke="#94a3b8" style={{ fontSize: '12px' }} />
                             <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                            <Tooltip
+                            <RechartsTooltip
                                 contentStyle={{
                                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                                     border: '1px solid #e2e8f0',
