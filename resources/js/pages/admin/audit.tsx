@@ -165,57 +165,30 @@ export default function AdminAudit({
             <Head title="Audit Keamanan" />
 
             <div className="p-6 space-y-6">
-                {/* Animated Header */}
+                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl border border-slate-800/50"
                 >
-                    {/* Animated particles */}
-                    {[...Array(6)].map((_, i) => (
+                    <div className="flex items-center gap-4">
                         <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-gradient-to-br from-red-500/20 to-orange-500/20"
-                            style={{
-                                width: Math.random() * 100 + 50,
-                                height: Math.random() * 100 + 50,
-                                left: `${Math.random() * 100}%`,
-                                top: `${Math.random() * 100}%`,
-                            }}
-                            animate={{
-                                x: [0, Math.random() * 100 - 50],
-                                y: [0, Math.random() * 100 - 50],
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 360],
-                            }}
-                            transition={{
-                                duration: Math.random() * 10 + 10,
-                                repeat: Infinity,
-                                ease: "linear",
-                            }}
-                        />
-                    ))}
-                    
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4">
-                            <motion.div
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur border border-red-500/30"
-                                whileHover={{ scale: 1.05, rotate: 5 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                <ShieldCheck className="h-8 w-8 text-red-400" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm text-red-200/80">Keamanan Sistem</p>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent">
-                                    Audit Keamanan
-                                </h1>
-                            </div>
+                            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur border border-red-500/30"
+                            whileHover={{ scale: 1.05, rotate: 5 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                        >
+                            <ShieldCheck className="h-8 w-8 text-red-400" />
+                        </motion.div>
+                        <div>
+                            <p className="text-sm text-red-200/80">Keamanan Sistem</p>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent">
+                                Audit Keamanan
+                            </h1>
                         </div>
-                        <p className="mt-4 text-red-100/70 max-w-2xl">
-                            Monitor aktivitas keamanan dan deteksi anomali sistem
-                        </p>
                     </div>
+                    <p className="mt-4 text-red-100/70 max-w-2xl">
+                        Monitor aktivitas keamanan dan deteksi anomali sistem
+                    </p>
                 </motion.div>
 
                 {/* Filter Section */}
