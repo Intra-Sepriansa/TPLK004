@@ -150,701 +150,548 @@ export default function AnalyticsPage({
         <AppLayout>
             <Head title="Advanced Analytics" />
 
-            <div className="space-y-8 pb-12">
-                {/* Animated Header with ScrollFloat */}
-                <motion.div
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 shadow-2xl"
-                >
-                    {/* Animated Background Gradient */}
-                    <motion.div
-                        className="absolute inset-0 opacity-30"
-                        animate={{
-                            background: [
-                                'radial-gradient(circle at 0% 0%, #3b82f6 0%, transparent 50%)',
-                                'radial-gradient(circle at 100% 100%, #8b5cf6 0%, transparent 50%)',
-                                'radial-gradient(circle at 0% 100%, #ec4899 0%, transparent 50%)',
-                                'radial-gradient(circle at 100% 0%, #3b82f6 0%, transparent 50%)',
-                                'radial-gradient(circle at 0% 0%, #3b82f6 0%, transparent 50%)',
-                            ],
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-                    />
-
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/50"
+            <div className="space-y-6">
+                {/* Header Section dengan style dashboard */}
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            Sistem Analitik
+                        </p>
+                        <ScrollFloat
+                            containerClassName="!my-0"
+                            textClassName="!text-2xl font-display text-slate-900 dark:text-white"
+                            animationDuration={0.8}
+                            ease="power2.out"
+                            scrollStart="top bottom-=100"
+                            scrollEnd="top center"
+                            stagger={0.02}
+                        >
+                            Advanced Analytics
+                        </ScrollFloat>
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                            Analisis mendalam dengan prediksi AI dan deteksi anomali real-time
+                        </p>
+                    </div>
+                    <div className="flex gap-2">
+                        {['day', 'week', 'month', 'year'].map((p) => (
+                            <Button
+                                key={p}
+                                variant={selectedPeriod === p ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setSelectedPeriod(p)}
                             >
-                                <Brain className="h-8 w-8 text-white" />
-                            </motion.div>
+                                {p === 'day' ? 'Hari' : p === 'week' ? 'Minggu' : p === 'month' ? 'Bulan' : 'Tahun'}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Metric Cards dengan style dashboard */}
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    >
+                        <div className="flex items-center justify-between">
                             <div>
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    <p className="text-sm font-medium text-blue-400">Sistem Analitik Cerdas</p>
-                                    <h1 className="text-4xl font-bold text-white">
-                                        Advanced Analytics
-                                    </h1>
-                                </motion.div>
-                                <motion.p
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="mt-2 text-slate-300"
-                                >
-                                    Analisis mendalam dengan prediksi AI dan deteksi anomali real-time
-                                </motion.p>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Kehadiran
+                                </p>
+                                <p className="mt-2 font-display text-3xl text-slate-900 dark:text-white">
+                                    {stats.attendance_rate}%
+                                </p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                                <BarChart3 className="h-6 w-6" />
                             </div>
                         </div>
+                        {stats.rate_change !== undefined && (
+                            <div className="mt-3 flex items-center gap-1 text-xs">
+                                {stats.rate_change >= 0 ? (
+                                    <>
+                                        <TrendingUp className="h-3 w-3 text-emerald-600" />
+                                        <span className="text-emerald-600">+{stats.rate_change}%</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <TrendingDown className="h-3 w-3 text-rose-600" />
+                                        <span className="text-rose-600">{stats.rate_change}%</span>
+                                    </>
+                                )}
+                                <span className="text-slate-500">dari periode sebelumnya</span>
+                            </div>
+                        )}
+                    </motion.div>
 
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.3 }}
-                            className="flex gap-2"
-                        >
-                            {['day', 'week', 'month', 'year'].map((p, index) => (
-                                <motion.button
-                                    key={p}
-                                    whileHover={{ scale: 1.05, y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setSelectedPeriod(p)}
-                                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                                        selectedPeriod === p
-                                            ? 'bg-white text-slate-900 shadow-lg'
-                                            : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
-                                    }`}
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 + index * 0.1 }}
-                                >
-                                    {p === 'day' ? 'Hari' : p === 'week' ? 'Minggu' : p === 'month' ? 'Bulan' : 'Tahun'}
-                                </motion.button>
-                            ))}
-                        </motion.div>
-                    </div>
-                </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Mahasiswa Aktif
+                                </p>
+                                <p className="mt-2 font-display text-3xl text-slate-900 dark:text-white">
+                                    {stats.active_students}
+                                </p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                <Users className="h-6 w-6" />
+                            </div>
+                        </div>
+                        <p className="mt-3 text-xs text-slate-500">
+                            dari {stats.total_students} total mahasiswa
+                        </p>
+                    </motion.div>
 
-                {/* ScrollFloat Section Title */}
-                <ScrollFloat
-                    containerClassName="text-center"
-                    textClassName="font-bold text-white"
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Total Sesi
+                                </p>
+                                <p className="mt-2 font-display text-3xl text-slate-900 dark:text-white">
+                                    {stats.total_sessions}
+                                </p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400">
+                                <Calendar className="h-6 w-6" />
+                            </div>
+                        </div>
+                        <p className="mt-3 text-xs text-slate-500">sesi aktif</p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Anomali
+                                </p>
+                                <p className="mt-2 font-display text-3xl text-slate-900 dark:text-white">
+                                    {anomalies.length}
+                                </p>
+                            </div>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                <AlertTriangle className="h-6 w-6" />
+                            </div>
+                        </div>
+                        <p className="mt-3 text-xs text-slate-500">perlu perhatian</p>
+                    </motion.div>
+                </div>
+
+                {/* Attendance Trend Chart dengan style dashboard */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                 >
-                    Metrik Utama
-                </ScrollFloat>
-
-                {/* Metric Cards dengan Animasi Advanced */}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {[
-                        {
-                            icon: BarChart3,
-                            label: 'Tingkat Kehadiran',
-                            value: `${stats.attendance_rate}%`,
-                            change: stats.rate_change,
-                            color: 'blue',
-                            gradient: 'from-blue-500 to-cyan-500',
-                        },
-                        {
-                            icon: Users,
-                            label: 'Mahasiswa Aktif',
-                            value: stats.active_students,
-                            subValue: `dari ${stats.total_students}`,
-                            color: 'emerald',
-                            gradient: 'from-emerald-500 to-teal-500',
-                        },
-                        {
-                            icon: Calendar,
-                            label: 'Total Sesi',
-                            value: stats.total_sessions,
-                            subValue: 'sesi aktif',
-                            color: 'purple',
-                            gradient: 'from-purple-500 to-pink-500',
-                        },
-                        {
-                            icon: AlertTriangle,
-                            label: 'Anomali Terdeteksi',
-                            value: anomalies.length,
-                            subValue: 'perlu perhatian',
-                            color: 'rose',
-                            gradient: 'from-rose-500 to-orange-500',
-                        },
-                    ].map((metric, index) => (
-                        <motion.div
-                            key={metric.label}
-                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ delay: index * 0.1, duration: 0.5 }}
-                            whileHover={{ y: -8, scale: 1.02 }}
-                            className="group relative overflow-hidden rounded-2xl bg-slate-900 p-6 shadow-2xl"
-                        >
-                            {/* Animated Glow Effect */}
-                            <motion.div
-                                className={`absolute -inset-1 bg-gradient-to-r ${metric.gradient} opacity-0 blur-xl transition-opacity group-hover:opacity-30`}
-                                animate={{
-                                    scale: [1, 1.2, 1],
-                                }}
-                                transition={{ duration: 3, repeat: Infinity }}
+                    <div className="mb-6">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            Tren
+                        </p>
+                        <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                            Tren Kehadiran
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Pola kehadiran dalam periode waktu
+                        </p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <AreaChart data={attendanceTrend}>
+                            <defs>
+                                <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
+                            <XAxis
+                                dataKey="date"
+                                stroke="#94a3b8"
+                                style={{ fontSize: '12px' }}
                             />
-
-                            <div className="relative z-10">
-                                <div className="flex items-start justify-between">
-                                    <motion.div
-                                        whileHover={{ rotate: 360, scale: 1.1 }}
-                                        transition={{ duration: 0.6 }}
-                                        className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${metric.gradient} shadow-lg`}
-                                    >
-                                        <metric.icon className="h-7 w-7 text-white" />
-                                    </motion.div>
-
-                                    {metric.change !== undefined && (
-                                        <motion.div
-                                            initial={{ opacity: 0, x: 10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.3 + index * 0.1 }}
-                                            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
-                                                metric.change >= 0
-                                                    ? 'bg-emerald-500/20 text-emerald-400'
-                                                    : 'bg-rose-500/20 text-rose-400'
-                                            }`}
-                                        >
-                                            {metric.change >= 0 ? (
-                                                <TrendingUp className="h-3 w-3" />
-                                            ) : (
-                                                <TrendingDown className="h-3 w-3" />
-                                            )}
-                                            {Math.abs(metric.change)}%
-                                        </motion.div>
-                                    )}
-                                </div>
-
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 + index * 0.1 }}
-                                    className="mt-4"
-                                >
-                                    <p className="text-sm font-medium text-slate-400">{metric.label}</p>
-                                    <p className="mt-2 text-3xl font-bold text-white">{metric.value}</p>
-                                    {metric.subValue && (
-                                        <p className="mt-1 text-xs text-slate-500">{metric.subValue}</p>
-                                    )}
-                                </motion.div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-
-                {/* ScrollFloat Section Title */}
-                <ScrollFloat
-                    containerClassName="text-center"
-                    textClassName="font-bold text-white"
-                >
-                    Tren & Analisis
-                </ScrollFloat>
-
-                {/* Attendance Trend Chart dengan Container Hitam */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.6 }}
-                    whileHover={{ y: -4 }}
-                    className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
-                >
-                    {/* Glow Effect */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                    <div className="relative z-10">
-                        <div className="mb-8 flex items-center justify-between">
-                            <div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
-                                        <TrendingUpDown className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-white">Tren Kehadiran</h3>
-                                        <p className="mt-1 text-sm text-slate-400">
-                                            Pola kehadiran dalam periode waktu
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <motion.div
-                                animate={{ rotate: [0, 5, 0, -5, 0] }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                            >
-                                <Activity className="h-8 w-8 text-blue-400" />
-                            </motion.div>
-                        </div>
-                        <ResponsiveContainer width="100%" height={350}>
-                            <AreaChart data={attendanceTrend}>
-                                <defs>
-                                    <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
-                                <XAxis
-                                    dataKey="date"
-                                    stroke="#94a3b8"
-                                    style={{ fontSize: '12px', fontWeight: 500 }}
-                                />
-                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px', fontWeight: 500 }} />
-                                <Tooltip
-                                    contentStyle={{
-                                        backgroundColor: 'rgba(15, 23, 42, 0.98)',
-                                        border: '1px solid #475569',
-                                        borderRadius: '12px',
-                                        color: '#fff',
-                                        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-                                    }}
-                                />
-                                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                                <Area
-                                    type="monotone"
-                                    dataKey="rate"
-                                    stroke="#3b82f6"
-                                    strokeWidth={3}
-                                    fill="url(#colorRate)"
-                                    name="Tingkat Kehadiran (%)"
-                                />
-                                <Area
-                                    type="monotone"
-                                    dataKey="attendance"
-                                    stroke="#8b5cf6"
-                                    strokeWidth={2}
-                                    fill="url(#colorAttendance)"
-                                    name="Total Kehadiran"
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
+                            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '12px',
+                                }}
+                                labelStyle={{ color: '#0f172a' }}
+                            />
+                            <Legend />
+                            <Area
+                                type="monotone"
+                                dataKey="rate"
+                                stroke="#3b82f6"
+                                strokeWidth={2}
+                                fill="url(#colorRate)"
+                                name="Tingkat Kehadiran (%)"
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="attendance"
+                                stroke="#8b5cf6"
+                                strokeWidth={2}
+                                fill="url(#colorAttendance)"
+                                name="Total Kehadiran"
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
                 </motion.div>
 
-                {/* Course Comparison & Device Distribution */}
-                <div className="grid gap-6 lg:grid-cols-2">
+                {/* Course Comparison & Device Distribution dengan style dashboard */}
+                <div className="grid gap-4 lg:grid-cols-2">
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6, duration: 0.6 }}
-                        whileHover={{ y: -4 }}
-                        className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                        <div className="relative z-10">
-                            <div className="mb-6 flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
-                                    <Layers className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">Performa Mata Kuliah</h3>
-                                    <p className="text-sm text-slate-400">Perbandingan tingkat kehadiran</p>
-                                </div>
-                            </div>
-                            <ResponsiveContainer width="100%" height={320}>
-                                <BarChart data={courseComparison}>
-                                    <defs>
-                                        <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.9} />
-                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.9} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
-                                    <XAxis
-                                        dataKey="course_name"
-                                        stroke="#94a3b8"
-                                        style={{ fontSize: '11px', fontWeight: 500 }}
-                                        angle={-45}
-                                        textAnchor="end"
-                                        height={100}
-                                    />
-                                    <YAxis stroke="#94a3b8" style={{ fontSize: '12px', fontWeight: 500 }} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgba(15, 23, 42, 0.98)',
-                                            border: '1px solid #475569',
-                                            borderRadius: '12px',
-                                            color: '#fff',
-                                            boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-                                        }}
-                                    />
-                                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                                    <Bar
-                                        dataKey="rate"
-                                        fill="url(#barGradient)"
-                                        name="Tingkat Kehadiran (%)"
-                                        radius={[10, 10, 0, 0]}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="mb-6">
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Performa
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Performa Mata Kuliah
+                            </h2>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                Perbandingan tingkat kehadiran
+                            </p>
                         </div>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.7, duration: 0.6 }}
-                        whileHover={{ y: -4 }}
-                        className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
-                    >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                        <div className="relative z-10">
-                            <div className="mb-6 flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500">
-                                    <Cpu className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">Distribusi Perangkat</h3>
-                                    <p className="text-sm text-slate-400">Perangkat yang digunakan</p>
-                                </div>
-                            </div>
-                            <ResponsiveContainer width="100%" height={320}>
-                                <PieChart>
-                                    <Pie
-                                        data={deviceDistribution}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) =>
-                                            `${name} ${(percent * 100).toFixed(0)}%`
-                                        }
-                                        outerRadius={100}
-                                        fill="#8884d8"
-                                        dataKey="count"
-                                        animationBegin={0}
-                                        animationDuration={1000}
-                                    >
-                                        {deviceDistribution.map((entry, index) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={COLORS[index % COLORS.length]}
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'rgba(15, 23, 42, 0.98)',
-                                            border: '1px solid #475569',
-                                            borderRadius: '12px',
-                                            color: '#fff',
-                                            boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-                                        }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </motion.div>
-                </div>
-
-                {/* Hourly Pattern */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                    whileHover={{ y: -4 }}
-                    className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
-                >
-                    <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-orange-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                    <div className="relative z-10">
-                        <div className="mb-8 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-orange-500">
-                                    <Clock className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl font-bold text-white">Pola Kehadiran Per Jam</h3>
-                                    <p className="mt-1 text-sm text-slate-400">
-                                        Distribusi kehadiran berdasarkan waktu
-                                    </p>
-                                </div>
-                            </div>
-                            <motion.div
-                                animate={{ scale: [1, 1.1, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >
-                                <Target className="h-8 w-8 text-pink-400" />
-                            </motion.div>
-                        </div>
-                        <ResponsiveContainer width="100%" height={280}>
-                            <BarChart data={hourlyPattern}>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={courseComparison}>
                                 <defs>
-                                    <linearGradient id="hourlyGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stopColor="#ec4899" stopOpacity={0.9} />
-                                        <stop offset="100%" stopColor="#f97316" stopOpacity={0.9} />
+                                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
+                                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
                                 <XAxis
-                                    dataKey="hour"
+                                    dataKey="course_name"
                                     stroke="#94a3b8"
-                                    style={{ fontSize: '12px', fontWeight: 500 }}
+                                    style={{ fontSize: '11px' }}
+                                    angle={-45}
+                                    textAnchor="end"
+                                    height={80}
                                 />
-                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px', fontWeight: 500 }} />
+                                <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
                                 <Tooltip
                                     contentStyle={{
-                                        backgroundColor: 'rgba(15, 23, 42, 0.98)',
-                                        border: '1px solid #475569',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                        border: '1px solid #e2e8f0',
                                         borderRadius: '12px',
-                                        color: '#fff',
-                                        boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
                                     }}
+                                    labelStyle={{ color: '#0f172a' }}
                                 />
-                                <Bar dataKey="count" fill="url(#hourlyGradient)" radius={[10, 10, 0, 0]} />
+                                <Legend />
+                                <Bar
+                                    dataKey="rate"
+                                    fill="url(#barGradient)"
+                                    name="Tingkat Kehadiran (%)"
+                                    radius={[8, 8, 0, 0]}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    >
+                        <div className="mb-6">
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                Distribusi
+                            </p>
+                            <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                Distribusi Perangkat
+                            </h2>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                Perangkat yang digunakan mahasiswa
+                            </p>
+                        </div>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <PieChart>
+                                <Pie
+                                    data={deviceDistribution}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={false}
+                                    label={({ name, percent }) =>
+                                        `${name} ${(percent * 100).toFixed(0)}%`
+                                    }
+                                    outerRadius={90}
+                                    fill="#8884d8"
+                                    dataKey="count"
+                                    animationBegin={0}
+                                    animationDuration={800}
+                                >
+                                    {deviceDistribution.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={COLORS[index % COLORS.length]}
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: '12px',
+                                    }}
+                                    labelStyle={{ color: '#0f172a' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </motion.div>
+                </div>
+
+                {/* Hourly Pattern dengan style dashboard */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                >
+                    <div className="mb-6">
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                            Pola Waktu
+                        </p>
+                        <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                            Pola Kehadiran Per Jam
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Distribusi kehadiran berdasarkan waktu
+                        </p>
                     </div>
+                    <ResponsiveContainer width="100%" height={250}>
+                        <BarChart data={hourlyPattern}>
+                            <defs>
+                                <linearGradient id="hourlyGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                                    <stop offset="100%" stopColor="#ec4899" stopOpacity={0.8} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800" />
+                            <XAxis dataKey="hour" stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                            <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                            <Tooltip
+                                contentStyle={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '12px',
+                                }}
+                                labelStyle={{ color: '#0f172a' }}
+                            />
+                            <Bar
+                                dataKey="count"
+                                fill="url(#hourlyGradient)"
+                                radius={[8, 8, 0, 0]}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </motion.div>
 
-                {/* ScrollFloat Section Title */}
-                <ScrollFloat
-                    containerClassName="text-center"
-                    textClassName="font-bold text-white"
-                >
-                    Prediksi & Deteksi
-                </ScrollFloat>
-
-                {/* Top Performers & At-Risk Students */}
-                <div className="grid gap-6 lg:grid-cols-2">
+                {/* Top Performers & At-Risk Students dengan style dashboard */}
+                <div className="grid gap-4 lg:grid-cols-2">
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.9, duration: 0.6 }}
-                        whileHover={{ y: -4 }}
-                        className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                        <div className="relative z-10">
-                            <div className="mb-6 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500">
-                                        <Sparkles className="h-6 w-6 text-white" />
+                        <div className="mb-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Prestasi
+                                </p>
+                                <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                    Top Performers
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                    Mahasiswa dengan kehadiran terbaik
+                                </p>
+                            </div>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                <Sparkles className="h-5 w-5" />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            {topPerformers.map((student, index) => (
+                                <div
+                                    key={student.id}
+                                    className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">
+                                        {index + 1}
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white">Top Performers</h3>
-                                        <p className="text-sm text-slate-400">Mahasiswa terbaik</p>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {student.name}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {student.nim}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                            {student.attendance_count}
+                                        </p>
+                                        <p className="text-xs text-slate-500">kehadiran</p>
                                     </div>
                                 </div>
-                                <motion.div
-                                    animate={{ rotate: [0, 360] }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                                >
-                                    <Zap className="h-6 w-6 text-yellow-400" />
-                                </motion.div>
-                            </div>
-                            <div className="space-y-3">
-                                {topPerformers.map((student, index) => (
-                                    <motion.div
-                                        key={student.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.9 + index * 0.05 }}
-                                        whileHover={{ x: 4, scale: 1.02 }}
-                                        className="flex items-center gap-4 rounded-xl bg-slate-800/50 p-4 backdrop-blur transition-all hover:bg-slate-800"
-                                    >
-                                        <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 5 }}
-                                            className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white ${
-                                                index === 0
-                                                    ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-yellow-500/50'
-                                                    : index === 1
-                                                    ? 'bg-gradient-to-br from-slate-300 to-slate-500 shadow-lg shadow-slate-500/50'
-                                                    : index === 2
-                                                    ? 'bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/50'
-                                                    : 'bg-gradient-to-br from-emerald-500 to-teal-500'
-                                            }`}
-                                        >
-                                            {index + 1}
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <p className="font-semibold text-white">{student.name}</p>
-                                            <p className="text-xs text-slate-400">{student.nim}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xl font-bold text-emerald-400">
-                                                {student.attendance_count}
-                                            </p>
-                                            <p className="text-xs text-slate-500">kehadiran</p>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                            ))}
                         </div>
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.0, duration: 0.6 }}
-                        whileHover={{ y: -4 }}
-                        className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 to-orange-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                        <div className="relative z-10">
-                            <div className="mb-6 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-500">
-                                        <AlertTriangle className="h-6 w-6 text-white" />
+                        <div className="mb-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Perhatian
+                                </p>
+                                <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                    Mahasiswa Berisiko
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                    Perlu perhatian khusus
+                                </p>
+                            </div>
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            {atRiskStudents.map((student) => (
+                                <div
+                                    key={student.id}
+                                    className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50 p-3 dark:border-slate-800 dark:bg-black"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-500 text-white">
+                                        <AlertTriangle className="h-5 w-5" />
                                     </div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-white">Mahasiswa Berisiko</h3>
-                                        <p className="text-sm text-slate-400">Perlu perhatian khusus</p>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {student.name}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            {student.nim}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-rose-600 dark:text-rose-400">
+                                            {student.attendance_rate}%
+                                        </p>
+                                        <p className="text-xs capitalize text-slate-500">
+                                            {student.risk_level === 'high'
+                                                ? 'Tinggi'
+                                                : student.risk_level === 'medium'
+                                                ? 'Sedang'
+                                                : 'Rendah'}
+                                        </p>
                                     </div>
                                 </div>
-                                <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                >
-                                    <Eye className="h-6 w-6 text-rose-400" />
-                                </motion.div>
-                            </div>
-                            <div className="space-y-3">
-                                {atRiskStudents.map((student, index) => (
-                                    <motion.div
-                                        key={student.id}
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 1.0 + index * 0.05 }}
-                                        whileHover={{ x: 4, scale: 1.02 }}
-                                        className="flex items-center gap-4 rounded-xl bg-slate-800/50 p-4 backdrop-blur transition-all hover:bg-slate-800"
-                                    >
-                                        <motion.div
-                                            whileHover={{ scale: 1.1, rotate: -5 }}
-                                            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/50"
-                                        >
-                                            <AlertTriangle className="h-6 w-6" />
-                                        </motion.div>
-                                        <div className="flex-1">
-                                            <p className="font-semibold text-white">{student.name}</p>
-                                            <p className="text-xs text-slate-400">{student.nim}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xl font-bold text-rose-400">
-                                                {student.attendance_rate}%
-                                            </p>
-                                            <p className="text-xs capitalize text-slate-500">
-                                                {student.risk_level === 'high'
-                                                    ? 'Tinggi'
-                                                    : student.risk_level === 'medium'
-                                                    ? 'Sedang'
-                                                    : 'Rendah'}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                            ))}
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Anomalies dengan Design Baru */}
+                {/* Anomalies dengan style dashboard */}
                 {anomalies.length > 0 && (
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.1, duration: 0.6 }}
-                        whileHover={{ y: -4 }}
-                        className="group relative overflow-hidden rounded-2xl bg-slate-900 p-8 shadow-2xl"
+                        transition={{ delay: 1.0 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                     >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-orange-500 to-yellow-500 opacity-0 blur-2xl transition-opacity group-hover:opacity-20" />
-
-                        <div className="relative z-10">
-                            <div className="mb-8 flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-500">
-                                        <Eye className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-white">Anomali Terdeteksi</h3>
-                                        <p className="mt-1 text-sm text-slate-400">
-                                            Pola tidak biasa yang terdeteksi sistem AI
-                                        </p>
-                                    </div>
-                                </div>
-                                <motion.div
-                                    animate={{
-                                        scale: [1, 1.2, 1],
-                                        rotate: [0, 180, 360],
-                                    }}
-                                    transition={{ duration: 4, repeat: Infinity }}
-                                >
-                                    <Brain className="h-8 w-8 text-rose-400" />
-                                </motion.div>
+                        <div className="mb-6 flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+                                    Deteksi AI
+                                </p>
+                                <h2 className="font-display text-xl text-slate-900 dark:text-white">
+                                    Anomali Terdeteksi
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                    Pola tidak biasa yang terdeteksi sistem
+                                </p>
                             </div>
-                            <div className="grid gap-4 md:grid-cols-2">
-                                {anomalies.map((anomaly, index) => (
-                                    <motion.div
-                                        key={anomaly.id}
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 1.1 + index * 0.05 }}
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        className={`rounded-xl border-2 p-5 backdrop-blur transition-all ${getSeverityColor(
-                                            anomaly.severity
-                                        )}`}
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <motion.div
-                                                        animate={{ rotate: [0, 10, -10, 0] }}
-                                                        transition={{
-                                                            duration: 2,
-                                                            repeat: Infinity,
-                                                            delay: index * 0.2,
-                                                        }}
-                                                    >
-                                                        <AlertTriangle
-                                                            className={`h-5 w-5 ${getSeverityTextColor(
-                                                                anomaly.severity
-                                                            )}`}
-                                                        />
-                                                    </motion.div>
-                                                    <p
-                                                        className={`text-sm font-bold uppercase ${getSeverityTextColor(
-                                                            anomaly.severity
-                                                        )}`}
-                                                    >
-                                                        {anomaly.severity === 'critical'
-                                                            ? 'Kritis'
-                                                            : anomaly.severity === 'high'
-                                                            ? 'Tinggi'
-                                                            : anomaly.severity === 'medium'
-                                                            ? 'Sedang'
-                                                            : 'Rendah'}
-                                                    </p>
-                                                </div>
-                                                <p className="mt-3 font-semibold text-white">
-                                                    {anomaly.type
-                                                        .replace(/_/g, ' ')
-                                                        .replace(/\b\w/g, (l) => l.toUpperCase())}
-                                                </p>
-                                                <p className="mt-2 text-sm text-slate-300">
-                                                    {anomaly.description}
-                                                </p>
-                                                <p className="mt-3 text-xs text-slate-500">
-                                                    {anomaly.created_at}
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                                <Eye className="h-5 w-5" />
+                            </div>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-2">
+                            {anomalies.map((anomaly) => (
+                                <div
+                                    key={anomaly.id}
+                                    className={`rounded-xl border-2 p-4 ${getSeverityColor(
+                                        anomaly.severity
+                                    )}`}
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <AlertTriangle
+                                                    className={`h-4 w-4 ${getSeverityTextColor(
+                                                        anomaly.severity
+                                                    )}`}
+                                                />
+                                                <p
+                                                    className={`text-xs font-bold uppercase ${getSeverityTextColor(
+                                                        anomaly.severity
+                                                    )}`}
+                                                >
+                                                    {anomaly.severity === 'critical'
+                                                        ? 'Kritis'
+                                                        : anomaly.severity === 'high'
+                                                        ? 'Tinggi'
+                                                        : anomaly.severity === 'medium'
+                                                        ? 'Sedang'
+                                                        : 'Rendah'}
                                                 </p>
                                             </div>
+                                            <p className="mt-2 font-semibold text-slate-900 dark:text-white">
+                                                {anomaly.type
+                                                    .replace(/_/g, ' ')
+                                                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                            </p>
+                                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                                                {anomaly.description}
+                                            </p>
+                                            <p className="mt-2 text-xs text-slate-500">
+                                                {anomaly.created_at}
+                                            </p>
                                         </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </motion.div>
                 )}
