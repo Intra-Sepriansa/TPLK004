@@ -246,18 +246,32 @@ class ChatController extends Controller
             'last_message' => $conversation->latestMessage ? [
                 'content' => $conversation->latestMessage->getDisplayContent(),
                 'sender_name' => $conversation->latestMessage->getSenderName(),
-                'created_at' => $conversation->latestMessage->created_at->toISOString(),
+                'created_at' => $this->formatDate($conversation->latestMessage->created_at),
                 'is_own' => $lastMessageIsOwn,
                 'status' => $lastMessageStatus,
             ] : null,
             'unread_count' => $conversation->unread_count ?? 0,
-            'updated_at' => $conversation->updated_at->toISOString(),
+            'updated_at' => $this->formatDate($conversation->updated_at),
             'is_pinned' => $participantSettings?->is_pinned ?? false,
             'is_archived' => $participantSettings?->is_archived ?? false,
             'is_muted' => $participantSettings?->is_muted ?? false,
             'is_online' => $isOnline,
-            'last_seen' => $lastSeen?->toISOString(),
+            'last_seen' => $lastSeen ? $this->formatDate($lastSeen) : null,
         ];
+    }
+
+    /**
+     * Format date to ISO string, handling both Carbon and string dates
+     */
+    private function formatDate($date): ?string
+    {
+        if (!$date) return null;
+        
+        if (is_string($date)) {
+            $date = \Carbon\Carbon::parse($date);
+        }
+        
+        return $date->toISOString();
     }
 
     /**
@@ -327,7 +341,7 @@ class ChatController extends Controller
             'description' => $conversation->description,
             'avatar' => $conversation->avatar_url,
             'is_online' => $isOnline,
-            'last_seen' => $lastSeen?->toISOString(),
+            'last_seen' => $lastSeen ? $this->formatDate($lastSeen) : null,
             'participants' => $conversation->participants->map(fn($p) => [
                 'id' => $p->id,
                 'participant_id' => $p->participant_id,
@@ -337,7 +351,7 @@ class ChatController extends Controller
                 'role' => $p->role,
                 'is_current' => $p->participant_type === $currentType && $p->participant_id === $currentUser->id,
                 'is_online' => $this->isUserOnline($p->participant),
-                'last_seen' => ($p->participant->last_activity_at ?? $p->participant->updated_at)?->toISOString(),
+                'last_seen' => $this->formatDate($p->participant->last_activity_at ?? $p->participant->updated_at),
             ]),
             'messages' => $conversation->messages->values()->map(function($m) use ($currentType, $currentUser, $starredMessageIds, $pinnedMessageIds, $otherParticipantsLastRead, $isOnline) {
                 $isOwn = $m->sender_type === $currentType && $m->sender_id === $currentUser->id;
@@ -404,7 +418,7 @@ class ChatController extends Controller
                         'count' => $group->count(),
                         'users' => $group->map(fn($r) => $r->getReactorName()),
                     ])->values(),
-                    'created_at' => $m->created_at->toISOString(),
+                    'created_at' => $this->formatDate($m->created_at),
                 ];
             }),
             'is_admin' => $conversation->isAdmin($currentUser),

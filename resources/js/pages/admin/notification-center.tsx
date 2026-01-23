@@ -101,10 +101,10 @@ export default function NotificationCenter({ notifications, stats, filters, maha
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'urgent': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-400">Urgent</span>;
+      case 'urgent': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500/20 text-red-600 dark:text-red-400">Urgent</span>;
       case 'high': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-500/20 text-orange-400">High</span>;
-      case 'normal': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">Normal</span>;
-      default: return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-500/20 text-slate-400">Low</span>;
+      case 'normal': return <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-400">Normal</span>;
+      default: return <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-500/20 text-slate-600 dark:text-slate-400">Low</span>;
     }
   };
 
@@ -184,7 +184,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="text-sm text-slate-400 font-medium"
+                    className="text-sm text-slate-600 dark:text-slate-400 font-medium"
                   >
                     Pusat Komunikasi
                   </motion.p>
@@ -212,15 +212,15 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                     Buat Notifikasi
                   </motion.button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-gradient-to-br from-slate-900 to-black border-slate-800">
+                <DialogContent className="max-w-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black border-slate-300 dark:border-slate-800">
                   <DialogHeader>
-                    <DialogTitle className="text-white">Buat Notifikasi Baru</DialogTitle>
+                    <DialogTitle className="text-slate-900 dark:text-white">Buat Notifikasi Baru</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-slate-300">Target</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Target</label>
                       <Select value={formData.target} onValueChange={(value) => setFormData({ ...formData, target: value })}>
-                        <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                        <SelectTrigger className="bg-slate-100 dark:bg-slate-800/50 border-slate-700 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-slate-900 border-slate-800">
@@ -233,36 +233,36 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium text-slate-300">Judul</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Judul</label>
                       <Input
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder="Judul notifikasi"
-                        className="bg-slate-800/50 border-slate-700 text-white"
+                        className="bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
                         required
                       />
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium text-slate-300">Pesan</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Pesan</label>
                       <Textarea
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         placeholder="Isi pesan notifikasi"
                         rows={4}
-                        className="bg-slate-800/50 border-slate-700 text-white"
+                        className="bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
                         required
                       />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-slate-300">Tipe</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipe</label>
                         <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                          <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                          <SelectTrigger className="bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-800">
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800">
                             <SelectItem value="info">Info</SelectItem>
                             <SelectItem value="reminder">Reminder</SelectItem>
                             <SelectItem value="announcement">Pengumuman</SelectItem>
@@ -274,12 +274,12 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                       </div>
                       
                       <div>
-                        <label className="text-sm font-medium text-slate-300">Prioritas</label>
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prioritas</label>
                         <Select value={formData.priority} onValueChange={(value) => setFormData({ ...formData, priority: value })}>
-                          <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                          <SelectTrigger className="bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-800">
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800">
                             <SelectItem value="low">Low</SelectItem>
                             <SelectItem value="normal">Normal</SelectItem>
                             <SelectItem value="high">High</SelectItem>
@@ -290,17 +290,17 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                     </div>
                     
                     <div>
-                      <label className="text-sm font-medium text-slate-300">Jadwal (Opsional)</label>
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Jadwal (Opsional)</label>
                       <Input
                         type="datetime-local"
                         value={formData.scheduled_at}
                         onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
-                        className="bg-slate-800/50 border-slate-700 text-white"
+                        className="bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white"
                       />
                     </div>
                     
                     <div className="flex justify-end gap-2 pt-4">
-                      <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="border-slate-700 text-slate-300 hover:bg-slate-800">
+                      <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-800">
                         Batal
                       </Button>
                       <Button type="submit" className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700">
@@ -315,7 +315,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="mt-4 text-slate-400"
+              className="mt-4 text-slate-600 dark:text-slate-400"
             >
               Kelola dan kirim notifikasi ke mahasiswa dan dosen
             </motion.p>
@@ -340,7 +340,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                 y: -5,
                 transition: { type: "spring", stiffness: 400, damping: 10 }
               }}
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50 cursor-pointer"
+              className="group relative overflow-hidden rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl border border-slate-200 dark:border-slate-800/50 cursor-pointer"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
               
@@ -349,12 +349,12 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   <stat.icon className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                  <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">{stat.label}</p>
                   <motion.p
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: stat.delay + 0.1, type: "spring" }}
-                    className="text-2xl font-bold text-white"
+                    className="text-2xl font-bold text-slate-900 dark:text-white"
                   >
                     {stat.value}
                   </motion.p>
@@ -362,7 +362,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               </div>
               
               <motion.div
-                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent"
+                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-slate-900 dark:via-white to-transparent"
                 initial={{ width: "0%", opacity: 0 }}
                 whileHover={{ width: "100%", opacity: 0.5 }}
                 transition={{ duration: 0.3 }}
@@ -376,20 +376,20 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-2xl bg-gradient-to-br from-slate-900 to-black p-6 shadow-xl border border-slate-800/50"
+          className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl border border-slate-200 dark:border-slate-800/50"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600">
               <Filter className="h-5 w-5 text-white" />
             </div>
-            <h2 className="font-semibold text-white text-lg">Filter Notifikasi</h2>
+            <h2 className="font-semibold text-slate-900 dark:text-white text-lg">Filter Notifikasi</h2>
           </div>
           <div className="flex flex-wrap gap-3 items-center">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[200px] bg-slate-800/50 border-slate-700 text-white">
+              <SelectTrigger className="w-[200px] bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
                 <SelectValue placeholder="Semua Tipe" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
+              <SelectContent className="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800">
                 <SelectItem value="all">Semua Tipe</SelectItem>
                 <SelectItem value="info">Info</SelectItem>
                 <SelectItem value="reminder">Reminder</SelectItem>
@@ -401,10 +401,10 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             </Select>
             
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[200px] bg-slate-800/50 border-slate-700 text-white">
+              <SelectTrigger className="w-[200px] bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
                 <SelectValue placeholder="Semua Status" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900 border-slate-800">
+              <SelectContent className="bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800">
                 <SelectItem value="all">Semua Status</SelectItem>
                 <SelectItem value="unread">Belum Dibaca</SelectItem>
                 <SelectItem value="read">Sudah Dibaca</SelectItem>
@@ -445,14 +445,14 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-2xl bg-gradient-to-br from-slate-900 to-black shadow-xl border border-slate-800/50 overflow-hidden"
+          className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl border border-slate-200 dark:border-slate-800/50 overflow-hidden"
         >
           <div className="p-6 border-b border-slate-800">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600">
                 <Bell className="h-5 w-5 text-white" />
               </div>
-              <h2 className="font-semibold text-white text-lg">Daftar Notifikasi</h2>
+              <h2 className="font-semibold text-slate-900 dark:text-white text-lg">Daftar Notifikasi</h2>
             </div>
           </div>
           <div className="divide-y divide-slate-800">
@@ -491,18 +491,18 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <span className="font-semibold text-white">{notification.title}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white">{notification.title}</span>
                           {getPriorityBadge(notification.priority)}
                           {notification.read_at ? (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-700/50 text-slate-400">Dibaca</span>
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-700/50 text-slate-600 dark:text-slate-400">Dibaca</span>
                           ) : (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">Baru</span>
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-400">Baru</span>
                           )}
                           {notification.scheduled_at && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400">Terjadwal</span>
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-600 dark:text-amber-400">Terjadwal</span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-400 mb-2">{notification.message}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{notification.message}</p>
                         <p className="text-xs text-slate-500">
                           {new Date(notification.created_at).toLocaleString('id-ID')}
                           {notification.target_type && ` • Target: ${notification.target_type}`}
@@ -516,7 +516,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                             router.delete(`/admin/notification-center/${notification.id}`);
                           }
                         }}
-                        className="p-2 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-red-500/50 text-slate-400 hover:text-red-400 transition-all"
+                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-700/50 hover:border-red-500/50 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:text-red-400 transition-all"
                       >
                         <Trash2 className="h-5 w-5" />
                       </motion.button>
@@ -553,7 +553,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   link.active
                     ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg'
                     : link.url
-                    ? 'bg-slate-800/50 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                    ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:bg-slate-700 border border-slate-700'
                     : 'bg-slate-900 text-slate-600 cursor-not-allowed'
                 }`}
                 dangerouslySetInnerHTML={{ __html: link.label }}

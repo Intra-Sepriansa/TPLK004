@@ -53,6 +53,16 @@ class HandleInertiaRequests extends Middleware
             ];
         }
 
+        // Get theme preference from authenticated user
+        $themePreference = 'light'; // default
+        if ($request->user()) {
+            $themePreference = $request->user()->theme_preference ?? 'light';
+        } elseif (auth()->guard('mahasiswa')->check()) {
+            $themePreference = auth()->guard('mahasiswa')->user()->theme_preference ?? 'light';
+        } elseif (auth()->guard('dosen')->check()) {
+            $themePreference = auth()->guard('dosen')->user()->theme_preference ?? 'light';
+        }
+
         // Get header notifications based on authenticated user type
         $headerNotifications = null;
         $notificationConfig = null;
@@ -118,6 +128,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'dosen' => $dosen,
+            'themePreference' => $themePreference,
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

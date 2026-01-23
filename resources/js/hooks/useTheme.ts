@@ -1,24 +1,59 @@
 /**
  * useTheme Hook
- * Manages dark/light theme with localStorage persistence
+ * Manages dark/light theme with database persistence
  */
 
 import { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 export type Theme = 'light' | 'dark' | 'auto';
 
 export function useTheme() {
+    const { themePreference } = usePage().props as { themePreference?: Theme };
+    
     const [theme, setThemeState] = useState<Theme>(() => {
-        // Get from localStorage or default to 'dark'
+        // Priority: localStorage > server theme > default light
         const stored = localStorage.getItem('theme') as Theme;
-        return stored || 'dark';
+        if (stored && (stored === 'light' || stored === 'dark' || stored === 'auto')) {
+            return stored;
+        }
+        
+        // Use theme from server if available
+        if (themePreference) {
+            localStorage.setItem('theme', themePreference);
+            return themePreference;
+        }
+        
+        // Default to light mode
+        return 'light';
     });
 
-    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
+    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
+        // Initialize with correct theme immediately
+        const stored = localStorage.getItem('theme') as Theme;
+        const initialTheme = stored || themePreference || 'light';
+        
+        if (initialTheme === 'light') return 'light';
+        if (initialTheme === 'dark') return 'dark';
+        if (initialTheme === 'auto') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return prefersDark ? 'dark' : 'light';
+        }
+        
+        return 'light';
+    });
+
+    // Sync with server theme on mount
+    useEffect(() => {
+        if (themePreference && !localStorage.getItem('theme')) {
+            setThemeState(themePreference);
+            localStorage.setItem('theme', themePreference);
+        }
+    }, [themePreference]);
 
     useEffect(() => {
         // Determine actual theme to apply
-        let actualTheme: 'light' | 'dark' = 'dark';
+        let actualTheme: 'light' | 'dark' = 'light';
 
         if (theme === 'auto') {
             // Use system preference
@@ -37,8 +72,11 @@ export function useTheme() {
             root.classList.remove('dark');
         }
 
-        // Save to localStorage
+        // Save to localStorage (for immediate persistence)
         localStorage.setItem('theme', theme);
+
+        // Save to database (for cross-device persistence)
+        saveThemeToDatabase(theme);
     }, [theme]);
 
     // Listen for system theme changes when in auto mode
@@ -65,4 +103,22 @@ export function useTheme() {
     };
 
     return { theme, setTheme, resolvedTheme };
+}
+
+/**
+ * Save theme preference to database
+ */
+async function saveThemeToDatabase(theme: Theme) {
+    try {
+        await fetch('/settings/theme', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+            body: JSON.stringify({ theme }),
+        });
+    } catch (error) {
+        console.error('Failed to save theme to database:', error);
+    }
 }
