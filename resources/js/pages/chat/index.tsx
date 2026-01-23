@@ -21,9 +21,10 @@ interface PageProps {
         user: any;
     };
     dosen: any;
+    mahasiswa: any;
 }
 
-function ChatContent({ conversations, activeConversation, currentUser, auth, dosen }: PageProps) {
+function ChatContent({ conversations, activeConversation, currentUser, auth, dosen, mahasiswa }: PageProps) {
     const { showSuccess, showError, showInfo } = useToast();
     const [replyTo, setReplyTo] = useState<Message | null>(null);
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
@@ -44,8 +45,10 @@ function ChatContent({ conversations, activeConversation, currentUser, auth, dos
             return '/admin/dashboard'; // Admin user
         } else if (dosen) {
             return '/dosen/dashboard'; // Dosen user
-        } else {
+        } else if (mahasiswa) {
             return '/user/dashboard'; // Mahasiswa user
+        } else {
+            return '/login'; // Fallback
         }
     };
 
