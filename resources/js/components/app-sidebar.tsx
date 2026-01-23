@@ -38,7 +38,6 @@ import {
     Shield,
     Bell,
     Upload,
-    TrendingUp,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -133,11 +132,6 @@ const reportNavItems: NavItem[] = [
         title: 'Rekap Kehadiran',
         href: '/admin/rekap-kehadiran',
         icon: FileBarChart,
-    },
-    {
-        title: 'Advanced Analytics',
-        href: '/admin/analytics',
-        icon: TrendingUp,
     },
     {
         title: 'Fraud Detection',
