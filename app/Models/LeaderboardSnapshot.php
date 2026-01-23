@@ -36,23 +36,8 @@ class LeaderboardSnapshot extends Model
         return $query->where('period', $period);
     }
 
-    public function scopeForDate($query, $date)
+    public function scopeLatest($query)
     {
-        return $query->where('snapshot_date', $date);
-    }
-
-    public function getRankChange(): ?int
-    {
-        $previousSnapshot = static::where('mahasiswa_id', $this->mahasiswa_id)
-            ->where('period', $this->period)
-            ->where('snapshot_date', '<', $this->snapshot_date)
-            ->orderBy('snapshot_date', 'desc')
-            ->first();
-
-        if (!$previousSnapshot) {
-            return null;
-        }
-
-        return $previousSnapshot->rank - $this->rank;
+        return $query->orderBy('snapshot_date', 'desc');
     }
 }

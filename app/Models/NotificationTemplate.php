@@ -45,14 +45,4 @@ class NotificationTemplate extends Model
             'body' => $body,
         ];
     }
-
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    public function scopeByType($query, string $type)
-    {
-        return $query->where('type', $type);
-    }
 }

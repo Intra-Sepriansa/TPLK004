@@ -44,30 +44,19 @@ class NotificationCampaign extends Model
 
     public function getOpenRate(): float
     {
-        if ($this->sent_count === 0) {
+        if ($this->sent_count == 0) {
             return 0;
         }
-
-        return ($this->opened_count / $this->sent_count) * 100;
+        
+        return round(($this->opened_count / $this->sent_count) * 100, 2);
     }
 
     public function getClickRate(): float
     {
-        if ($this->sent_count === 0) {
+        if ($this->sent_count == 0) {
             return 0;
         }
-
-        return ($this->clicked_count / $this->sent_count) * 100;
-    }
-
-    public function scopeScheduled($query)
-    {
-        return $query->where('status', 'scheduled');
-    }
-
-    public function scopeDue($query)
-    {
-        return $query->where('status', 'scheduled')
-            ->where('scheduled_at', '<=', now());
+        
+        return round(($this->clicked_count / $this->sent_count) * 100, 2);
     }
 }

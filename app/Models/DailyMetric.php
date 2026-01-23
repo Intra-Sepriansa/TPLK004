@@ -24,47 +24,24 @@ class DailyMetric extends Model
         'metadata' => 'array',
     ];
 
-    public static function record(string $metricType, float $value, ?string $dimension = null, ?string $dimensionValue = null, array $metadata = []): void
+    public function scopeForDate($query, $date)
     {
-        static::updateOrCreate(
-            [
-                'date' => now()->toDateString(),
-                'metric_type' => $metricType,
-                'dimension' => $dimension,
-                'dimension_value' => $dimensionValue,
-            ],
-            [
-                'value' => $value,
-                'metadata' => $metadata,
-            ]
-        );
+        return $query->whereDate('date', $date);
     }
 
-    public static function getMetric(string $metricType, $date = null, ?string $dimension = null, ?string $dimensionValue = null)
+    public function scopeForMetricType($query, string $type)
     {
-        $query = static::where('metric_type', $metricType);
-
-        if ($date) {
-            $query->where('date', $date);
-        }
-
-        if ($dimension) {
-            $query->where('dimension', $dimension);
-        }
-
-        if ($dimensionValue) {
-            $query->where('dimension_value', $dimensionValue);
-        }
-
-        return $query->first();
+        return $query->where('metric_type', $type);
     }
 
-    public static function getTrend(string $metricType, int $days = 7): array
+    public function scopeForDimension($query, string $dimension, string $value = null)
     {
-        return static::where('metric_type', $metricType)
-            ->where('date', '>=', now()->subDays($days))
-            ->orderBy('date')
-            ->pluck('value', 'date')
-            ->toArray();
+        $query->where('dimension', $dimension);
+        
+        if ($value !== null) {
+            $query->where('dimension_value', $value);
+        }
+        
+        return $query;
     }
 }

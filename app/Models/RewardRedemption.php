@@ -53,8 +53,8 @@ class RewardRedemption extends Model
     {
         $this->status = 'cancelled';
         $this->save();
-        
+
         // Refund points
-        $this->mahasiswa->increment('points', $this->points_spent);
+        $this->mahasiswa->increment('total_points', $this->points_spent);
     }
 }
