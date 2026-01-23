@@ -10,9 +10,7 @@ use App\Http\Controllers\Dosen\SessionController;
 use App\Http\Controllers\Dosen\VerificationController;
 use Illuminate\Support\Facades\Route;
 
-// Dosen Auth Routes
-Route::get('dosen/login', [DosenAuthController::class, 'create'])->name('dosen.login');
-Route::post('dosen/login', [DosenAuthController::class, 'store']);
+// Dosen Auth Routes - Login handled by main login page
 Route::post('dosen/logout', [DosenAuthController::class, 'destroy'])->name('dosen.logout');
 
 // Dosen Protected Routes

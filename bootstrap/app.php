@@ -27,12 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Configure redirect for unauthenticated users based on guard
         $middleware->redirectGuestsTo(function ($request) {
-            if ($request->is('dosen/*') || $request->is('dosen')) {
-                return route('dosen.login');
-            }
-            if ($request->is('user/*') || $request->is('user')) {
-                return route('login');
-            }
+            // All users (admin, dosen, mahasiswa) use the same login page
             return route('login');
         });
     })

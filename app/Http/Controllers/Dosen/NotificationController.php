@@ -14,7 +14,7 @@ class NotificationController extends Controller
         $dosen = Auth::guard('dosen')->user();
         
         if (!$dosen) {
-            return redirect()->route('dosen.login');
+            return redirect()->route('login');
         }
 
         $notifications = AppNotification::forUser('dosen', $dosen->id)
@@ -37,7 +37,7 @@ class NotificationController extends Controller
         $dosen = Auth::guard('dosen')->user();
         
         if (!$dosen) {
-            return redirect()->route('dosen.login');
+            return redirect()->route('login');
         }
 
         $notification = AppNotification::find($id);
@@ -58,7 +58,7 @@ class NotificationController extends Controller
         $dosen = Auth::guard('dosen')->user();
         
         if (!$dosen) {
-            return redirect()->route('dosen.login');
+            return redirect()->route('login');
         }
 
         AppNotification::forUser('dosen', $dosen->id)
@@ -73,7 +73,7 @@ class NotificationController extends Controller
         $dosen = Auth::guard('dosen')->user();
         
         if (!$dosen) {
-            return redirect()->route('dosen.login');
+            return redirect()->route('login');
         }
 
         $notification = AppNotification::find($id);
