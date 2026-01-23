@@ -136,13 +136,8 @@ const reportNavItems: NavItem[] = [
         icon: FileBarChart,
     },
     {
-        title: 'Analytics & Prediksi',
-        href: '/admin/analytics',
-        icon: BarChart3,
-    },
-    {
         title: 'Advanced Analytics',
-        href: '/admin/advanced-analytics',
+        href: '/admin/analytics',
         icon: TrendingUp,
     },
     {
