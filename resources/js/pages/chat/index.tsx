@@ -17,9 +17,13 @@ interface PageProps {
     conversations: ConversationListItem[];
     activeConversation?: ConversationDetail;
     currentUser: ChatUser;
+    auth: {
+        user: any;
+    };
+    dosen: any;
 }
 
-function ChatContent({ conversations, activeConversation, currentUser }: PageProps) {
+function ChatContent({ conversations, activeConversation, currentUser, auth, dosen }: PageProps) {
     const { showSuccess, showError, showInfo } = useToast();
     const [replyTo, setReplyTo] = useState<Message | null>(null);
     const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
@@ -33,6 +37,17 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
     const [messageInfoData, setMessageInfoData] = useState<any>(null);
     const [contactInfoData, setContactInfoData] = useState<any>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; message: Message | null }>({ open: false, message: null });
+
+    // Determine dashboard URL based on user type
+    const getDashboardUrl = () => {
+        if (auth.user) {
+            return '/admin/dashboard'; // Admin user
+        } else if (dosen) {
+            return '/dosen/dashboard'; // Dosen user
+        } else {
+            return '/user/dashboard'; // Mahasiswa user
+        }
+    };
 
     const handleSelectConversation = (id: number) => {
         router.get(`/chat/${id}`, {}, { preserveState: true });
@@ -162,9 +177,23 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
             <Head title="Chat" />
 
             <div className="flex h-screen bg-[#111b21]">
+                {/* Header with Back Button */}
+                <div className="absolute top-0 left-0 right-0 z-20 bg-[#202c33] border-b border-[#222d34] px-4 py-3 flex items-center gap-3">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.get(getDashboardUrl())}
+                        className="h-10 w-10 text-[#aebac1] hover:bg-[#374045]"
+                        title="Kembali ke Dashboard"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <h1 className="text-lg font-medium text-[#e9edef]">Chat</h1>
+                </div>
+
                 {/* Sidebar */}
                 <div className={cn(
-                    'w-full md:w-[30%] lg:w-[25%] min-w-[300px] max-w-[500px] border-r border-[#222d34]',
+                    'w-full md:w-[30%] lg:w-[25%] min-w-[300px] max-w-[500px] border-r border-[#222d34] pt-16',
                     'md:block',
                     showMobileList ? 'block' : 'hidden'
                 )}>
@@ -226,7 +255,7 @@ function ChatContent({ conversations, activeConversation, currentUser }: PagePro
 
                 {/* Main Chat Area */}
                 <div className={cn(
-                    'flex-1 flex flex-col',
+                    'flex-1 flex flex-col pt-16',
                     'md:flex',
                     showMobileList ? 'hidden' : 'flex'
                 )}>
