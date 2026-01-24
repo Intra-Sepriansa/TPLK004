@@ -209,6 +209,9 @@ Route::get('login/mahasiswa', function () {
 });
 Route::post('logout/mahasiswa', [MahasiswaAuthController::class, 'destroy'])->name('mahasiswa.logout');
 
+// Dosen Login Route
+Route::post('dosen/login', [\App\Http\Controllers\Auth\DosenAuthController::class, 'store'])->name('dosen.login');
+
 Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user', [AbsensiController::class, 'dashboard'])->name('user.dashboard');
     Route::get('user/dashboard', [AbsensiController::class, 'dashboard'])->name('user.dashboard.alt');

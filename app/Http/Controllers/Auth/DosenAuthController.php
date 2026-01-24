@@ -27,12 +27,6 @@ class DosenAuthController extends Controller
             ])->onlyInput('nidn');
         }
 
-        if (!$dosen->is_active) {
-            return back()->withErrors([
-                'nidn' => 'Akun tidak aktif. Hubungi administrator.',
-            ])->onlyInput('nidn');
-        }
-
         Auth::guard('dosen')->login($dosen, $request->boolean('remember'));
 
         $request->session()->regenerate();

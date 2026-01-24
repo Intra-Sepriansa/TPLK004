@@ -22,7 +22,6 @@ class Dosen extends Authenticatable
         'phone',
         'avatar_url',
         'password',
-        'is_active',
         'settings',
         'last_activity_at',
         'theme_preference',
@@ -34,7 +33,6 @@ class Dosen extends Authenticatable
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
         'password' => 'hashed',
         'settings' => 'array',
         'last_activity_at' => 'datetime',
