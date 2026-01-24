@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useMotionValue, animate } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 interface AnimatedCurrencyProps {
@@ -21,13 +21,15 @@ export function AnimatedCurrency({
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
     const [displayValue, setDisplayValue] = useState('0');
-    const count = useMotionValue(0);
 
     useEffect(() => {
-        const controls = animate(count, value, {
+        const count = { current: 0 };
+        
+        const controls = animate(0, value, {
             duration,
             ease: [0.25, 0.1, 0.25, 1],
             onUpdate: (latest) => {
+                count.current = latest;
                 setDisplayValue(
                     Math.round(latest).toLocaleString('id-ID', {
                         minimumFractionDigits: decimals,
@@ -37,7 +39,7 @@ export function AnimatedCurrency({
             },
         });
 
-        return controls.stop;
+        return () => controls.stop();
     }, [value, duration, decimals]);
 
     return (
@@ -83,13 +85,15 @@ export function AnimatedCurrencyGlow({
     glowColor = 'emerald',
 }: AnimatedCurrencyProps & { glowColor?: string }) {
     const [displayValue, setDisplayValue] = useState('0');
-    const count = useMotionValue(0);
 
     useEffect(() => {
-        const controls = animate(count, value, {
+        const count = { current: 0 };
+        
+        const controls = animate(0, value, {
             duration,
             ease: [0.25, 0.1, 0.25, 1],
             onUpdate: (latest) => {
+                count.current = latest;
                 setDisplayValue(
                     Math.round(latest).toLocaleString('id-ID', {
                         minimumFractionDigits: decimals,
@@ -99,7 +103,7 @@ export function AnimatedCurrencyGlow({
             },
         });
 
-        return controls.stop;
+        return () => controls.stop();
     }, [value, duration, decimals]);
 
     return (
@@ -159,13 +163,15 @@ export function AnimatedCurrencyShimmer({
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
     const [displayValue, setDisplayValue] = useState('0');
-    const count = useMotionValue(0);
 
     useEffect(() => {
-        const controls = animate(count, value, {
+        const count = { current: 0 };
+        
+        const controls = animate(0, value, {
             duration,
             ease: [0.25, 0.1, 0.25, 1],
             onUpdate: (latest) => {
+                count.current = latest;
                 setDisplayValue(
                     Math.round(latest).toLocaleString('id-ID', {
                         minimumFractionDigits: decimals,
@@ -175,7 +181,7 @@ export function AnimatedCurrencyShimmer({
             },
         });
 
-        return controls.stop;
+        return () => controls.stop();
     }, [value, duration, decimals]);
 
     return (
@@ -223,3 +229,4 @@ export function AnimatedCurrencyShimmer({
         </motion.div>
     );
 }
+
