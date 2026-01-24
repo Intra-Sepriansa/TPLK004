@@ -17,17 +17,44 @@ class NotificationController extends Controller
             return redirect()->route('mahasiswa.login');
         }
 
-        $notifications = AppNotification::forUser('mahasiswa', $mahasiswa->id)
-            ->orderByDesc('created_at')
-            ->paginate(20);
+        $query = AppNotification::forUser('mahasiswa', $mahasiswa->id);
 
-        $unreadCount = AppNotification::forUser('mahasiswa', $mahasiswa->id)
-            ->unread()
-            ->count();
+        // Apply filters
+        if (request('type') && request('type') !== 'all') {
+            $query->where('type', request('type'));
+        }
+
+        if (request('priority') && request('priority') !== 'all') {
+            $query->where('priority', request('priority'));
+        }
+
+        if (request('status')) {
+            if (request('status') === 'unread') {
+                $query->unread();
+            } elseif (request('status') === 'read') {
+                $query->whereNotNull('read_at');
+            }
+        }
+
+        $notifications = $query->orderByDesc('created_at')->paginate(20);
+
+        $baseQuery = AppNotification::forUser('mahasiswa', $mahasiswa->id);
+        
+        $unreadCount = (clone $baseQuery)->unread()->count();
+        
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'unread' => $unreadCount,
+            'read' => (clone $baseQuery)->whereNotNull('read_at')->count(),
+            'today' => (clone $baseQuery)->whereDate('created_at', today())->count(),
+            'thisWeek' => (clone $baseQuery)->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'urgent' => (clone $baseQuery)->where('priority', 'urgent')->count(),
+        ];
 
         return Inertia::render('user/notifications', [
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
+            'stats' => $stats,
         ]);
     }
 
