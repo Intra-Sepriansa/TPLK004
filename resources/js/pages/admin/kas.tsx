@@ -438,7 +438,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 <div className="mt-1">
                                     <AnimatedCurrencyShimmer
                                         value={summary.total_balance}
-                                        duration={2.5}
+                                        duration={2500}
                                         className="text-xl"
                                         gradient="from-emerald-600 via-teal-500 to-cyan-600"
                                     />
@@ -475,7 +475,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 <div className="mt-1">
                                     <AnimatedCurrencyShimmer
                                         value={summary.total_income}
-                                        duration={2.5}
+                                        duration={2500}
                                         className="text-xl"
                                         gradient="from-blue-600 via-cyan-500 to-blue-600"
                                     />
@@ -512,7 +512,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 <div className="mt-1">
                                     <AnimatedCurrencyShimmer
                                         value={summary.total_expense}
-                                        duration={2.5}
+                                        duration={2500}
                                         className="text-xl"
                                         gradient="from-red-600 via-orange-500 to-rose-600"
                                     />
