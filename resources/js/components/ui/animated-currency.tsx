@@ -1,5 +1,5 @@
-import { motion, useMotionValue, animate } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 interface AnimatedCurrencyProps {
     value: number;
@@ -13,34 +13,43 @@ interface AnimatedCurrencyProps {
 
 export function AnimatedCurrency({
     value,
-    duration = 2,
+    duration = 2000,
     className = '',
     prefix = 'Rp ',
     suffix = '',
     decimals = 0,
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
-    const [displayValue, setDisplayValue] = useState('0');
+    const [displayValue, setDisplayValue] = useState(0);
+    const startTime = useRef<number | null>(null);
+    const startValue = useRef(0);
 
     useEffect(() => {
-        const count = { current: 0 };
-        
-        const controls = animate(0, value, {
-            duration,
-            ease: [0.25, 0.1, 0.25, 1],
-            onUpdate: (latest) => {
-                count.current = latest;
-                setDisplayValue(
-                    Math.round(latest).toLocaleString('id-ID', {
-                        minimumFractionDigits: decimals,
-                        maximumFractionDigits: decimals,
-                    })
-                );
-            },
-        });
+        startValue.current = displayValue;
+        startTime.current = null;
 
-        return () => controls.stop();
-    }, [value, duration, decimals]);
+        const animate = (timestamp: number) => {
+            if (!startTime.current) startTime.current = timestamp;
+            const progress = Math.min((timestamp - startTime.current) / duration, 1);
+            
+            // Easing function (ease-out-cubic) - smooth deceleration
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = startValue.current + (value - startValue.current) * easeOut;
+            
+            setDisplayValue(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }, [value, duration]);
+
+    const formattedValue = Math.round(displayValue).toLocaleString('id-ID', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    });
 
     return (
         <motion.span
@@ -54,7 +63,7 @@ export function AnimatedCurrency({
             className={`inline-block ${className}`}
         >
             <motion.span
-                className={`bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold`}
+                className={`bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold tabular-nums`}
                 animate={{
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                 }}
@@ -67,7 +76,7 @@ export function AnimatedCurrency({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}{displayValue}{suffix}
+                {prefix}{formattedValue}{suffix}
             </motion.span>
         </motion.span>
     );
@@ -76,7 +85,7 @@ export function AnimatedCurrency({
 // Variant with pulsing glow effect
 export function AnimatedCurrencyGlow({
     value,
-    duration = 2,
+    duration = 2000,
     className = '',
     prefix = 'Rp ',
     suffix = '',
@@ -84,27 +93,36 @@ export function AnimatedCurrencyGlow({
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
     glowColor = 'emerald',
 }: AnimatedCurrencyProps & { glowColor?: string }) {
-    const [displayValue, setDisplayValue] = useState('0');
+    const [displayValue, setDisplayValue] = useState(0);
+    const startTime = useRef<number | null>(null);
+    const startValue = useRef(0);
 
     useEffect(() => {
-        const count = { current: 0 };
-        
-        const controls = animate(0, value, {
-            duration,
-            ease: [0.25, 0.1, 0.25, 1],
-            onUpdate: (latest) => {
-                count.current = latest;
-                setDisplayValue(
-                    Math.round(latest).toLocaleString('id-ID', {
-                        minimumFractionDigits: decimals,
-                        maximumFractionDigits: decimals,
-                    })
-                );
-            },
-        });
+        startValue.current = displayValue;
+        startTime.current = null;
 
-        return () => controls.stop();
-    }, [value, duration, decimals]);
+        const animate = (timestamp: number) => {
+            if (!startTime.current) startTime.current = timestamp;
+            const progress = Math.min((timestamp - startTime.current) / duration, 1);
+            
+            // Easing function (ease-out-cubic)
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = startValue.current + (value - startValue.current) * easeOut;
+            
+            setDisplayValue(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }, [value, duration]);
+
+    const formattedValue = Math.round(displayValue).toLocaleString('id-ID', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    });
 
     return (
         <motion.div
@@ -133,7 +151,7 @@ export function AnimatedCurrencyGlow({
             
             {/* Text */}
             <motion.span
-                className={`relative bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold`}
+                className={`relative bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold tabular-nums`}
                 animate={{
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                 }}
@@ -146,7 +164,7 @@ export function AnimatedCurrencyGlow({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}{displayValue}{suffix}
+                {prefix}{formattedValue}{suffix}
             </motion.span>
         </motion.div>
     );
@@ -155,34 +173,43 @@ export function AnimatedCurrencyGlow({
 // Variant with shimmer effect
 export function AnimatedCurrencyShimmer({
     value,
-    duration = 2,
+    duration = 2000,
     className = '',
     prefix = 'Rp ',
     suffix = '',
     decimals = 0,
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
-    const [displayValue, setDisplayValue] = useState('0');
+    const [displayValue, setDisplayValue] = useState(0);
+    const startTime = useRef<number | null>(null);
+    const startValue = useRef(0);
 
     useEffect(() => {
-        const count = { current: 0 };
-        
-        const controls = animate(0, value, {
-            duration,
-            ease: [0.25, 0.1, 0.25, 1],
-            onUpdate: (latest) => {
-                count.current = latest;
-                setDisplayValue(
-                    Math.round(latest).toLocaleString('id-ID', {
-                        minimumFractionDigits: decimals,
-                        maximumFractionDigits: decimals,
-                    })
-                );
-            },
-        });
+        startValue.current = displayValue;
+        startTime.current = null;
 
-        return () => controls.stop();
-    }, [value, duration, decimals]);
+        const animate = (timestamp: number) => {
+            if (!startTime.current) startTime.current = timestamp;
+            const progress = Math.min((timestamp - startTime.current) / duration, 1);
+            
+            // Easing function (ease-out-cubic)
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = startValue.current + (value - startValue.current) * easeOut;
+            
+            setDisplayValue(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }, [value, duration]);
+
+    const formattedValue = Math.round(displayValue).toLocaleString('id-ID', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    });
 
     return (
         <motion.div
@@ -211,7 +238,7 @@ export function AnimatedCurrencyShimmer({
             
             {/* Text with gradient */}
             <motion.span
-                className={`relative bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold drop-shadow-lg`}
+                className={`relative bg-gradient-to-r ${gradient} bg-clip-text text-transparent font-bold drop-shadow-lg tabular-nums`}
                 animate={{
                     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
                 }}
@@ -224,9 +251,10 @@ export function AnimatedCurrencyShimmer({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}{displayValue}{suffix}
+                {prefix}{formattedValue}{suffix}
             </motion.span>
         </motion.div>
     );
 }
+
 
