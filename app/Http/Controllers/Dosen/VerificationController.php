@@ -36,7 +36,7 @@ class VerificationController extends Controller
         $recentVerifications = SelfieVerification::whereIn('status', ['approved', 'rejected'])
             ->whereHas('attendanceLog.session', fn($q) => $q->whereIn('course_id', $courseIds))
             ->with(['attendanceLog.mahasiswa', 'attendanceLog.session.course'])
-            ->latest('verified_at')
+            ->orderBy('verified_at', 'desc')
             ->take(10)
             ->get()
             ->map(fn($v) => [
