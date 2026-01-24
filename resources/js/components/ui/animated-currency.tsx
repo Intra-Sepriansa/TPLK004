@@ -1,5 +1,5 @@
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface AnimatedCurrencyProps {
     value: number;
@@ -20,22 +20,25 @@ export function AnimatedCurrency({
     decimals = 0,
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
+    const [displayValue, setDisplayValue] = useState('0');
     const count = useMotionValue(0);
-    const rounded = useTransform(count, (latest) => {
-        return Math.round(latest).toLocaleString('id-ID', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-        });
-    });
 
     useEffect(() => {
         const controls = animate(count, value, {
             duration,
-            ease: [0.25, 0.1, 0.25, 1], // Custom easing for smooth animation
+            ease: [0.25, 0.1, 0.25, 1],
+            onUpdate: (latest) => {
+                setDisplayValue(
+                    Math.round(latest).toLocaleString('id-ID', {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals,
+                    })
+                );
+            },
         });
 
         return controls.stop;
-    }, [value, duration]);
+    }, [value, duration, decimals]);
 
     return (
         <motion.span
@@ -62,9 +65,7 @@ export function AnimatedCurrency({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}
-                <motion.span>{rounded}</motion.span>
-                {suffix}
+                {prefix}{displayValue}{suffix}
             </motion.span>
         </motion.span>
     );
@@ -81,22 +82,25 @@ export function AnimatedCurrencyGlow({
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
     glowColor = 'emerald',
 }: AnimatedCurrencyProps & { glowColor?: string }) {
+    const [displayValue, setDisplayValue] = useState('0');
     const count = useMotionValue(0);
-    const rounded = useTransform(count, (latest) => {
-        return Math.round(latest).toLocaleString('id-ID', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-        });
-    });
 
     useEffect(() => {
         const controls = animate(count, value, {
             duration,
             ease: [0.25, 0.1, 0.25, 1],
+            onUpdate: (latest) => {
+                setDisplayValue(
+                    Math.round(latest).toLocaleString('id-ID', {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals,
+                    })
+                );
+            },
         });
 
         return controls.stop;
-    }, [value, duration]);
+    }, [value, duration, decimals]);
 
     return (
         <motion.div
@@ -138,9 +142,7 @@ export function AnimatedCurrencyGlow({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}
-                <motion.span>{rounded}</motion.span>
-                {suffix}
+                {prefix}{displayValue}{suffix}
             </motion.span>
         </motion.div>
     );
@@ -156,22 +158,25 @@ export function AnimatedCurrencyShimmer({
     decimals = 0,
     gradient = 'from-emerald-600 via-teal-500 to-cyan-600',
 }: AnimatedCurrencyProps) {
+    const [displayValue, setDisplayValue] = useState('0');
     const count = useMotionValue(0);
-    const rounded = useTransform(count, (latest) => {
-        return Math.round(latest).toLocaleString('id-ID', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals,
-        });
-    });
 
     useEffect(() => {
         const controls = animate(count, value, {
             duration,
             ease: [0.25, 0.1, 0.25, 1],
+            onUpdate: (latest) => {
+                setDisplayValue(
+                    Math.round(latest).toLocaleString('id-ID', {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals,
+                    })
+                );
+            },
         });
 
         return controls.stop;
-    }, [value, duration]);
+    }, [value, duration, decimals]);
 
     return (
         <motion.div
@@ -213,9 +218,7 @@ export function AnimatedCurrencyShimmer({
                     backgroundSize: '200% 200%',
                 }}
             >
-                {prefix}
-                <motion.span>{rounded}</motion.span>
-                {suffix}
+                {prefix}{displayValue}{suffix}
             </motion.span>
         </motion.div>
     );
