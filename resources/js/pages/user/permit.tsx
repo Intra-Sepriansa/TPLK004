@@ -9,9 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     FileText, Plus, Clock, CheckCircle, XCircle, Upload, Trash2, Eye, X,
-    HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck
+    HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck, Star
 } from 'lucide-react';
-import { useState, FormEvent, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { useState, FormEvent } from 'react';
 
 interface Props {
     permits: Array<{
@@ -51,13 +53,32 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
     const [showForm, setShowForm] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState(filters.status || 'all');
-    const [isLoaded, setIsLoaded] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
 
-    useEffect(() => {
-        const timer = setTimeout(() => setIsLoaded(true), 100);
-        return () => clearTimeout(timer);
-    }, []);
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2,
+            },
+        },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: 'spring',
+                stiffness: 300,
+                damping: 20,
+            },
+        },
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         attendance_session_id: '',
@@ -105,117 +126,230 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
     return (
         <StudentLayout>
             <Head title="Pengajuan Izin/Sakit" />
-            <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-6 text-white shadow-xl transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
-                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5" />
-                    <div className="relative">
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="flex flex-col gap-6 p-6"
+            >
+                {/* Header with Advanced Animations */}
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                >
+                    {/* Animated Background Particles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, 180, 360],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.4, 1],
+                                rotate: [360, 180, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
+                        />
+                        
+                        {/* Floating Medical Icons */}
+                        {[...Array(15)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{
+                                    opacity: [0, 1, 0],
+                                    scale: [0, 1.5, 0],
+                                    y: [0, -40, -80],
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    delay: i * 0.2,
+                                    ease: "easeOut"
+                                }}
+                                className="absolute"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                }}
+                            >
+                                <HeartPulse className="h-4 w-4 text-white/40" />
+                            </motion.div>
+                        ))}
+                    </div>
+                    
+                    <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                    <HeartPulse className="h-7 w-7" />
-                                </div>
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
+                                >
+                                    <HeartPulse className="h-8 w-8" />
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-teal-100 font-medium">Administrasi</p>
-                                    <h1 className="text-2xl font-bold">Pengajuan Izin/Sakit</h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-white/90 font-medium"
+                                    >
+                                        Administrasi Kehadiran
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-3xl font-bold"
+                                    >
+                                        Pengajuan Izin/Sakit
+                                    </motion.h1>
                                 </div>
                             </div>
-                            <Button 
-                                onClick={() => setShowForm(true)}
-                                className="bg-white/20 hover:bg-white/30 backdrop-blur border-0 shadow-lg"
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Ajukan Izin
-                            </Button>
+                                <Button 
+                                    onClick={() => setShowForm(true)}
+                                    className="bg-white/20 hover:bg-white/30 backdrop-blur border-0 shadow-lg"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Ajukan Izin
+                                </Button>
+                            </motion.div>
                         </div>
-                        <p className="mt-4 text-teal-100">Ajukan izin atau sakit dengan upload surat keterangan</p>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="mt-4 text-white/90 text-lg"
+                        >
+                            Ajukan izin atau sakit dengan upload surat keterangan resmi
+                        </motion.p>
                         
-                        {/* Quick Stats in Header */}
-                        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <BarChart3 className="h-4 w-4 text-teal-200" />
-                                    <p className="text-teal-100 text-xs font-medium">Total Pengajuan</p>
-                                </div>
-                                <p className="text-2xl font-bold">{stats.total}</p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Clock className="h-4 w-4 text-teal-200" />
-                                    <p className="text-teal-100 text-xs font-medium">Menunggu</p>
-                                </div>
-                                <p className="text-2xl font-bold">{stats.pending}</p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <CheckCircle className="h-4 w-4 text-teal-200" />
-                                    <p className="text-teal-100 text-xs font-medium">Disetujui</p>
-                                </div>
-                                <p className="text-2xl font-bold">{stats.approved}</p>
-                            </div>
-                            <div className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <FileCheck className="h-4 w-4 text-teal-200" />
-                                    <p className="text-teal-100 text-xs font-medium">Approval Rate</p>
-                                </div>
-                                <p className="text-2xl font-bold">{approvalRate}%</p>
-                            </div>
-                        </div>
+                        {/* Quick Stats with Dock-Style Animations */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
+                        >
+                            {[
+                                { icon: BarChart3, label: 'Total Pengajuan', value: stats.total },
+                                { icon: Clock, label: 'Menunggu', value: stats.pending },
+                                { icon: CheckCircle, label: 'Disetujui', value: stats.approved },
+                                { icon: FileCheck, label: 'Approval Rate', value: approvalRate, suffix: '%' },
+                            ].map((stat, index) => (
+                                <motion.div
+                                    key={stat.label}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
+                                    whileHover={{ 
+                                        scale: 1.05, 
+                                        y: -5,
+                                        boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
+                                    }}
+                                    className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <motion.div
+                                            whileHover={{ rotate: 360 }}
+                                            transition={{ duration: 0.6 }}
+                                        >
+                                            <stat.icon className="h-5 w-5 text-white/80" />
+                                        </motion.div>
+                                        <p className="text-white/80 text-xs font-medium">{stat.label}</p>
+                                    </div>
+                                    <p className="text-3xl font-bold">
+                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
+                                    </p>
+                                </motion.div>
+                            ))}
+                        </motion.div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Stats Cards */}
-                <div className={`grid gap-4 grid-cols-2 md:grid-cols-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 text-white shadow-lg shadow-slate-500/30 group-hover:scale-110 transition-transform">
-                                <BarChart3 className="h-6 w-6" />
+                {/* Stats Cards with Dock-Style Animations */}
+                <motion.div
+                    variants={containerVariants}
+                    className="grid gap-4 grid-cols-2 md:grid-cols-4"
+                >
+                    {[
+                        { icon: BarChart3, label: 'Total', value: stats.total, gradient: 'from-slate-400 to-slate-600', shadow: 'shadow-slate-500/50', color: 'slate' },
+                        { icon: Clock, label: 'Menunggu', value: stats.pending, gradient: 'from-yellow-400 to-yellow-600', shadow: 'shadow-yellow-500/50', color: 'yellow' },
+                        { icon: CheckCircle, label: 'Disetujui', value: stats.approved, gradient: 'from-emerald-400 to-emerald-600', shadow: 'shadow-emerald-500/50', color: 'emerald' },
+                        { icon: XCircle, label: 'Ditolak', value: stats.rejected, gradient: 'from-red-400 to-red-600', shadow: 'shadow-red-500/50', color: 'red' },
+                    ].map((stat, index) => (
+                        <motion.div
+                            key={stat.label}
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.08, 
+                                y: -10,
+                                boxShadow: `0 20px 40px ${stat.color === 'slate' ? 'rgba(100, 116, 139, 0.3)' : stat.color === 'yellow' ? 'rgba(234, 179, 8, 0.3)' : stat.color === 'emerald' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                            }}
+                            whileTap={{ scale: 0.95 }}
+                            className="group relative rounded-2xl border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 p-5 shadow-lg backdrop-blur dark:border-slate-800/50 dark:from-slate-900/80 dark:to-black/80 overflow-hidden cursor-pointer"
+                        >
+                            {/* Glow Effect */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-current/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                            />
+                            
+                            <div className="relative flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.6 }}
+                                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}
+                                >
+                                    <stat.icon className="h-6 w-6" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                        <AnimatedCounter value={stat.value} duration={1500} />
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">Total</p>
-                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform">
-                                <Clock className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">Menunggu</p>
-                                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
-                                <CheckCircle className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">Disetujui</p>
-                                <p className="text-2xl font-bold text-emerald-600">{stats.approved}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 hover:shadow-lg transition-all group">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-red-600 text-white shadow-lg shadow-red-500/30 group-hover:scale-110 transition-transform">
-                                <XCircle className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 font-medium">Ditolak</p>
-                                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
 
                 {/* Permits List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                <motion.div
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                >
                     <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 text-white">
@@ -264,18 +398,18 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                     const StatusIcon = statusConfig.icon;
                                     
                                     return (
-                                        <div 
-                                            key={permit.id} 
-                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-gray-900/50 hover:shadow-lg transition-all ${
+                                        <motion.div 
+                                            key={permit.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all ${
                                                 permit.status === 'pending' ? 'border-yellow-200 dark:border-yellow-800' :
                                                 permit.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
                                                 permit.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
-                                                'border-slate-200 dark:border-gray-700'
+                                                'border-slate-200 dark:border-slate-700'
                                             }`}
-                                            style={{ 
-                                                animationDelay: `${index * 100}ms`,
-                                                animation: isLoaded ? 'fadeInUp 0.5s ease-out forwards' : 'none'
-                                            }}
                                         >
                                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                                                 <div className="flex-1">
@@ -352,7 +486,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                                     )}
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     );
                                 })}
                             </div>
@@ -366,8 +500,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* Form Modal */}
             {showForm && (
@@ -508,13 +642,6 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                 confirmText="Ya, Batalkan"
                 cancelText="Tidak"
             />
-            
-            <style>{`
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </StudentLayout>
     );
 }

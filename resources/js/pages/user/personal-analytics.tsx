@@ -3,9 +3,10 @@ import { Head } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap, Sparkles, Star, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { useState } from 'react';
 
 interface ActivityDay {
     date: string; count: number; level: number; types: string[]; dayOfWeek: number; week: number; month: number; monthName: string; isFuture?: boolean;
@@ -62,6 +63,8 @@ const cardVariants = {
 };
 
 export default function PersonalAnalytics({ mahasiswa, overview, streakData, courseBreakdown, weeklyTrend, activityGraph, comparison, badges, tips }: Props) {
+    const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+    
     const getStatusColor = (status: string | null) => {
         switch (status) {
             case 'present': return 'bg-green-500';
@@ -140,43 +143,90 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                 variants={containerVariants}
                 className="p-6 space-y-6"
             >
-                {/* Header */}
+                {/* Header with Advanced Animations */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
                 >
-                    <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                    />
-                    <div className="relative">
-                        <div className="flex items-center gap-3">
+                    {/* Animated Background Particles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, 180, 360],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.4, 1],
+                                rotate: [360, 180, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
+                        />
+                        
+                        {/* Floating Sparkles */}
+                        {[...Array(15)].map((_, i) => (
                             <motion.div
-                                whileHover={{ rotate: 10, scale: 1.1 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                key={i}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{
+                                    opacity: [0, 1, 0],
+                                    scale: [0, 1.5, 0],
+                                    y: [0, -30, -60],
+                                }}
+                                transition={{
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    delay: i * 0.2,
+                                    ease: "easeOut"
+                                }}
+                                className="absolute"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                }}
                             >
-                                <BarChart3 className="h-6 w-6" />
+                                <Sparkles className="h-4 w-4 text-white/60" />
+                            </motion.div>
+                        ))}
+                    </div>
+                    
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-4">
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                whileHover={{ rotate: 360, scale: 1.1 }}
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
+                            >
+                                <BarChart3 className="h-8 w-8" />
                             </motion.div>
                             <div>
                                 <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-indigo-100"
+                                    className="text-sm text-white/80 font-medium"
                                 >
-                                    Analisis
+                                    Analisis Akademik
                                 </motion.p>
                                 <motion.h1
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-2xl font-bold"
+                                    className="text-3xl font-bold"
                                 >
                                     Personal Analytics
                                 </motion.h1>
@@ -186,100 +236,215 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="mt-4 text-indigo-100"
+                            className="mt-4 text-white/90 text-lg"
                         >
-                            Analisis aktivitas akademik kamu
+                            Pantau perkembangan dan aktivitas akademik kamu secara real-time
                         </motion.p>
                     </div>
                 </motion.div>
 
-                {/* Overview Cards */}
+                {/* Overview Cards with Dock-Style Animations */}
                 <motion.div
                     variants={containerVariants}
                     className="grid grid-cols-2 md:grid-cols-4 gap-4"
                 >
+                    {/* Rate Kehadiran Card */}
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileHover={{ 
+                            scale: 1.08, 
+                            y: -10,
+                            boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)"
+                        }}
                         whileTap={{ scale: 0.95 }}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        className="group relative rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50 to-white p-5 shadow-lg backdrop-blur dark:border-blue-800/50 dark:from-blue-950/30 dark:to-black/80 overflow-hidden"
                     >
-                        <div className="flex items-center gap-3">
+                        {/* Glow Effect */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            animate={{
+                                scale: [1, 1.2, 1],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                        
+                        <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                whileHover={{ rotate: 360 }}
+                                transition={{ duration: 0.6 }}
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/50"
                             >
-                                {overview.trend_direction === 'up' ? <TrendingUp className="h-5 w-5" /> : overview.trend_direction === 'down' ? <TrendingDown className="h-5 w-5" /> : <BarChart3 className="h-5 w-5" />}
+                                {overview.trend_direction === 'up' ? <TrendingUp className="h-6 w-6" /> : overview.trend_direction === 'down' ? <TrendingDown className="h-6 w-6" /> : <BarChart3 className="h-6 w-6" />}
                             </motion.div>
                             <div>
-                                <p className="text-xs text-slate-500">Rate Kehadiran</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white">
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Rate Kehadiran</p>
+                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                                     <AnimatedCounter value={overview.overall_rate} suffix="%" duration={1500} />
                                 </p>
-                                <p className="text-xs text-slate-500">{overview.trend > 0 ? '+' : ''}{overview.trend}% dari bulan lalu</p>
+                                <p className="text-xs text-slate-500 flex items-center gap-1">
+                                    {overview.trend > 0 ? <TrendingUp className="h-3 w-3 text-green-500" /> : <TrendingDown className="h-3 w-3 text-red-500" />}
+                                    {overview.trend > 0 ? '+' : ''}{overview.trend}% bulan lalu
+                                </p>
                             </div>
                         </div>
                     </motion.div>
+
+                    {/* Streak Card */}
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileHover={{ 
+                            scale: 1.08, 
+                            y: -10,
+                            boxShadow: "0 20px 40px rgba(249, 115, 22, 0.3)"
+                        }}
                         whileTap={{ scale: 0.95 }}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        className="group relative rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50 to-white p-5 shadow-lg backdrop-blur dark:border-orange-800/50 dark:from-orange-950/30 dark:to-black/80 overflow-hidden"
                     >
-                        <div className="flex items-center gap-3">
+                        {/* Animated Fire Particles */}
+                        {activityGraph.currentStreak > 0 && [...Array(5)].map((_, i) => (
                             <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className={`flex h-10 w-10 items-center justify-center rounded-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-slate-100 text-slate-400'}`}
+                                key={i}
+                                initial={{ y: 0, opacity: 0 }}
+                                animate={{
+                                    y: [-10, -40],
+                                    opacity: [0, 1, 0],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    delay: i * 0.3,
+                                    ease: "easeOut"
+                                }}
+                                className="absolute"
+                                style={{
+                                    left: `${20 + i * 15}%`,
+                                    bottom: '10%',
+                                }}
                             >
-                                <Flame className="h-5 w-5" />
+                                <div className="h-2 w-2 rounded-full bg-orange-400" />
+                            </motion.div>
+                        ))}
+                        
+                        <div className="relative flex items-center gap-3">
+                            <motion.div
+                                animate={activityGraph.currentStreak > 0 ? {
+                                    scale: [1, 1.2, 1],
+                                } : {}}
+                                transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className={`flex h-12 w-12 items-center justify-center rounded-xl shadow-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-500 text-white shadow-orange-500/50' : 'bg-slate-300 text-slate-500'}`}
+                            >
+                                <Flame className="h-6 w-6" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-slate-500">Streak Aktivitas</p>
-                                <p className="text-xl font-bold text-slate-900 dark:text-white">
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Streak Aktivitas</p>
+                                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                                     <AnimatedCounter value={activityGraph.currentStreak} duration={1500} /> hari
                                 </p>
                                 <p className="text-xs text-slate-500">Terpanjang: {activityGraph.longestStreak} hari</p>
                             </div>
                         </div>
                     </motion.div>
+
+                    {/* Total Aktivitas Card */}
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileHover={{ 
+                            scale: 1.08, 
+                            y: -10,
+                            boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)"
+                        }}
                         whileTap={{ scale: 0.95 }}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        className="group relative rounded-2xl border border-emerald-200/50 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-lg backdrop-blur dark:border-emerald-800/50 dark:from-emerald-950/30 dark:to-black/80 overflow-hidden"
                     >
-                        <div className="flex items-center gap-3">
+                        {/* Pulsing Glow */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent"
+                            animate={{
+                                opacity: [0.3, 0.6, 0.3],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                        
+                        <div className="relative flex items-center gap-3">
                             <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                whileHover={{ rotate: 360 }}
+                                transition={{ duration: 0.6 }}
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
                             >
-                                <Calendar className="h-5 w-5" />
+                                <Calendar className="h-6 w-6" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-slate-500">Total Aktivitas</p>
-                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total Aktivitas</p>
+                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                                     <AnimatedCounter value={activityGraph.totalActivities} duration={1500} />
                                 </p>
                                 <p className="text-xs text-slate-500">{activityGraph.activeDays} hari aktif</p>
                             </div>
                         </div>
                     </motion.div>
+
+                    {/* Ranking Card */}
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ scale: 1.05, y: -5 }}
+                        whileHover={{ 
+                            scale: 1.08, 
+                            y: -10,
+                            boxShadow: "0 20px 40px rgba(168, 85, 247, 0.3)"
+                        }}
                         whileTap={{ scale: 0.95 }}
-                        className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                        className="group relative rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50 to-white p-5 shadow-lg backdrop-blur dark:border-purple-800/50 dark:from-purple-950/30 dark:to-black/80 overflow-hidden"
                     >
-                        <div className="flex items-center gap-3">
+                        {/* Floating Stars */}
+                        {[...Array(3)].map((_, i) => (
                             <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                                key={i}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{
+                                    opacity: [0, 1, 0],
+                                    scale: [0, 1, 0],
+                                    y: [0, -20],
+                                }}
+                                transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    delay: i * 0.4,
+                                    ease: "easeOut"
+                                }}
+                                className="absolute"
+                                style={{
+                                    left: `${30 + i * 20}%`,
+                                    top: '20%',
+                                }}
                             >
-                                <Users className="h-5 w-5" />
+                                <Star className="h-3 w-3 text-purple-400 fill-purple-400" />
+                            </motion.div>
+                        ))}
+                        
+                        <div className="relative flex items-center gap-3">
+                            <motion.div
+                                whileHover={{ rotate: 360 }}
+                                transition={{ duration: 0.6 }}
+                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/50"
+                            >
+                                <Users className="h-6 w-6" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-slate-500">Ranking</p>
-                                <p className="text-xl font-bold text-purple-600 dark:text-purple-400">#{comparison.rank}</p>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ranking Kelas</p>
+                                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                                    #<AnimatedCounter value={comparison.rank} duration={1500} />
+                                </p>
                                 <p className="text-xs text-slate-500">Top {comparison.percentile}%</p>
                             </div>
                         </div>
