@@ -41,12 +41,14 @@ function ChatContent({ conversations, activeConversation, currentUser, auth, dos
 
     // Determine dashboard URL based on user type
     const getDashboardUrl = () => {
-        if (auth.user) {
-            return '/admin/dashboard'; // Admin user
-        } else if (dosen) {
+        // Check in order: dosen, mahasiswa, then admin
+        // This ensures proper routing based on the authenticated guard
+        if (dosen) {
             return '/dosen/dashboard'; // Dosen user
         } else if (mahasiswa) {
             return '/user/dashboard'; // Mahasiswa user
+        } else if (auth.user) {
+            return '/admin/dashboard'; // Admin user
         } else {
             return '/login'; // Fallback
         }
