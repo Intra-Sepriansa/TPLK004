@@ -318,24 +318,83 @@ export default function StudentSettings() {
             <Head title="Pengaturan" />
 
             <div className="space-y-6 p-6">
-                {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                {/* Header Card dengan animasi */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 to-indigo-600 p-6 text-white shadow-2xl"
+                >
+                    {/* Animated background particles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, 90, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, -90, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                    </div>
                     
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
+                                >
                                     <SettingsIcon className="h-8 w-8" />
-                                </div>
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-purple-100">Pengaturan</p>
-                                    <h1 className="text-2xl font-bold">Kelola Preferensi</h1>
-                                    <p className="text-sm text-purple-100">Sesuaikan pengalaman Anda</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-purple-100"
+                                    >
+                                        Pengaturan
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-2xl font-bold"
+                                    >
+                                        Kelola Preferensi
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-sm text-purple-100"
+                                    >
+                                        Sesuaikan pengalaman Anda
+                                    </motion.p>
                                 </div>
                             </div>
                             <motion.button
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5 }}
                                 onClick={handleReset}
                                 className="px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all duration-300 flex items-center gap-2 backdrop-blur"
                                 whileHover={{ scale: 1.05 }}
@@ -346,12 +405,17 @@ export default function StudentSettings() {
                             </motion.button>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Settings Layout */}
+                {/* Settings Layout dengan animasi */}
                 <div className="flex flex-col lg:flex-row gap-6">
-                    {/* Sidebar */}
-                    <div className="lg:w-64 flex-shrink-0">
+                    {/* Sidebar dengan animasi */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="lg:w-64 flex-shrink-0"
+                    >
                         <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-lg sticky top-24">
                             <SettingsSidebar
                                 activeCategory={activeCategory}
@@ -360,13 +424,23 @@ export default function StudentSettings() {
                                 onSearchChange={setSearchQuery}
                             />
                         </div>
-                    </div>
+                    </motion.div>
 
-                    {/* Main Content Area */}
-                    <div className="flex-1">
+                    {/* Main Content Area dengan animasi */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="flex-1"
+                    >
                         <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-8 shadow-lg min-h-[600px]">
-                            {/* Category Header */}
-                            <div className="mb-8">
+                            {/* Category Header dengan animasi */}
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="mb-8"
+                            >
                                 <div className="flex items-center gap-3 mb-2">
                                     <motion.div 
                                         className={`w-12 h-12 rounded-xl bg-gradient-to-br ${currentCategory.gradient} flex items-center justify-center shadow-lg`}
@@ -385,7 +459,7 @@ export default function StudentSettings() {
                                         </p>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Saving Indicator */}
                             <AnimatePresence>
@@ -406,16 +480,16 @@ export default function StudentSettings() {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={activeCategory}
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.2 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.3 }}
                                 >
                                     {renderContent()}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Toast Notification */}

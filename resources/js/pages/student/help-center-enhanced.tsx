@@ -110,19 +110,26 @@ export default function StudentHelpCenterEnhanced() {
             <Head title="Help Center" />
 
             <div className="min-h-screen bg-[#000000]">
-                {/* Colored Header */}
-                <ColoredHeader
-                    title="Help Center"
-                    subtitle="Find answers and get support"
-                    gradient="multi"
-                    sticky
-                />
+                {/* Colored Header dengan animasi */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <ColoredHeader
+                        title="Help Center"
+                        subtitle="Find answers and get support"
+                        gradient="multi"
+                        sticky
+                    />
+                </motion.div>
 
                 <div className="container mx-auto px-4 py-8">
-                    {/* Search */}
+                    {/* Search dengan animasi */}
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
                         className="mb-8"
                     >
                         <InteractiveSearch
@@ -132,125 +139,133 @@ export default function StudentHelpCenterEnhanced() {
                         />
                     </motion.div>
 
-                    {/* Quick Help Cards */}
+                    {/* Quick Help Cards dengan animasi stagger */}
                     <motion.div
                         variants={staggerContainerVariants}
                         initial="hidden"
                         animate="visible"
                         className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
                     >
-                        <motion.div variants={staggerItemVariants}>
-                            <DarkContainer
-                                variant="secondary"
-                                padding="lg"
-                                rounded="xl"
-                                className="hover-lift hover-glow-purple cursor-pointer"
+                        {[
+                            {
+                                icon: HelpCircle,
+                                title: 'Browse FAQs',
+                                description: 'Find quick answers to common questions',
+                                gradient: 'from-purple-500 to-pink-500',
+                                glow: 'hover-glow-purple'
+                            },
+                            {
+                                icon: MessageSquare,
+                                title: 'Contact Support',
+                                description: 'Get help from our support team',
+                                gradient: 'from-blue-500 to-cyan-500',
+                                glow: 'hover-glow-blue'
+                            },
+                            {
+                                icon: Send,
+                                title: 'Send Feedback',
+                                description: 'Help us improve the platform',
+                                gradient: 'from-pink-500 to-purple-500',
+                                glow: 'hover-glow-pink'
+                            }
+                        ].map((card, index) => (
+                            <motion.div
+                                key={card.title}
+                                variants={staggerItemVariants}
+                                whileHover={{ scale: 1.02, y: -5 }}
+                                whileTap={{ scale: 0.98 }}
                             >
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                                        <HelpCircle className="w-6 h-6 text-white" />
+                                <DarkContainer
+                                    variant="secondary"
+                                    padding="lg"
+                                    rounded="xl"
+                                    className={`${card.glow} cursor-pointer`}
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            transition={{ delay: 0.3 + index * 0.1, type: "spring", stiffness: 200 }}
+                                            className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center flex-shrink-0`}
+                                        >
+                                            <card.icon className="w-6 h-6 text-white" />
+                                        </motion.div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white mb-1 font-display">
+                                                {card.title}
+                                            </h3>
+                                            <p className="text-white/60 text-sm">
+                                                {card.description}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white mb-1 font-display">
-                                            Browse FAQs
-                                        </h3>
-                                        <p className="text-white/60 text-sm">
-                                            Find quick answers to common questions
-                                        </p>
-                                    </div>
-                                </div>
-                            </DarkContainer>
-                        </motion.div>
-
-                        <motion.div variants={staggerItemVariants}>
-                            <DarkContainer
-                                variant="secondary"
-                                padding="lg"
-                                rounded="xl"
-                                className="hover-lift hover-glow-blue cursor-pointer"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                                        <MessageSquare className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white mb-1 font-display">
-                                            Contact Support
-                                        </h3>
-                                        <p className="text-white/60 text-sm">
-                                            Get help from our support team
-                                        </p>
-                                    </div>
-                                </div>
-                            </DarkContainer>
-                        </motion.div>
-
-                        <motion.div variants={staggerItemVariants}>
-                            <DarkContainer
-                                variant="secondary"
-                                padding="lg"
-                                rounded="xl"
-                                className="hover-lift hover-glow-pink cursor-pointer"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                                        <Send className="w-6 h-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white mb-1 font-display">
-                                            Send Feedback
-                                        </h3>
-                                        <p className="text-white/60 text-sm">
-                                            Help us improve the platform
-                                        </p>
-                                    </div>
-                                </div>
-                            </DarkContainer>
-                        </motion.div>
+                                </DarkContainer>
+                            </motion.div>
+                        ))}
                     </motion.div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* FAQ Section */}
-                        <div className="lg:col-span-2">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                            >
-                                <DarkContainer variant="primary" padding="lg" rounded="xl">
-                                    <h2 className="text-2xl font-bold text-white mb-6 font-display">
-                                        Frequently Asked Questions
-                                    </h2>
+                        {/* FAQ Section dengan animasi */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="lg:col-span-2"
+                        >
+                            <DarkContainer variant="primary" padding="lg" rounded="xl">
+                                <motion.h2
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="text-2xl font-bold text-white mb-6 font-display"
+                                >
+                                    Frequently Asked Questions
+                                </motion.h2>
 
-                                    {/* Category Filter */}
+                                {/* Category Filter */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                >
                                     <FAQCategory
                                         categories={categories}
                                         activeCategory={activeCategory}
                                         onCategoryChange={setActiveCategory}
                                         className="mb-6"
                                     />
+                                </motion.div>
 
-                                    {/* FAQ List */}
+                                {/* FAQ List */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.7 }}
+                                >
                                     <InteractiveFAQ
                                         faqs={filteredFAQs}
                                         searchable={false}
                                         groupByCategory={false}
                                     />
-                                </DarkContainer>
-                            </motion.div>
-                        </div>
+                                </motion.div>
+                            </DarkContainer>
+                        </motion.div>
 
-                        {/* Feedback Form */}
-                        <div>
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                            >
-                                <DarkContainer variant="secondary" padding="lg" rounded="xl">
-                                    <h3 className="text-xl font-bold text-white mb-4 font-display">
-                                        Send Us a Message
-                                    </h3>
+                        {/* Feedback Form dengan animasi */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            <DarkContainer variant="secondary" padding="lg" rounded="xl">
+                                <motion.h3
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    className="text-xl font-bold text-white mb-4 font-display"
+                                >
+                                    Send Us a Message
+                                </motion.h3>
 
                                     <form onSubmit={handleSubmitFeedback} className="space-y-4">
                                         {/* Subject */}
@@ -358,7 +373,6 @@ export default function StudentHelpCenterEnhanced() {
                                     </form>
                                 </DarkContainer>
                             </motion.div>
-                        </div>
                     </div>
                 </div>
             </div>

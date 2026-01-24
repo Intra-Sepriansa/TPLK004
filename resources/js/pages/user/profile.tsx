@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import ProfileCard from '@/components/ui/profile-card';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     User,
     Shield,
@@ -198,99 +199,186 @@ export default function StudentProfile() {
             <Head title="Profil" />
 
             <div className="p-6 space-y-6">
-                {/* Success Toast */}
-                <div 
-                    className={`fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100 transition-all duration-300 ease-out ${
-                        (successMessage || (showFlash && flash?.success))
-                            ? 'translate-x-0 opacity-100'
-                            : 'translate-x-full opacity-0 pointer-events-none'
-                    }`}
-                >
-                    <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
-                    <div>
-                        <p className="font-semibold">Berhasil!</p>
-                        <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
-                            {successMessage || flash?.success || ''}
-                        </p>
-                    </div>
-                </div>
+                {/* Success Toast dengan animasi */}
+                <AnimatePresence>
+                    {(successMessage || (showFlash && flash?.success)) && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 100, scale: 0.8 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: 100, scale: 0.8 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100"
+                        >
+                            <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
+                            <div>
+                                <p className="font-semibold">Berhasil!</p>
+                                <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                                    {successMessage || flash?.success || ''}
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                {/* Header Card dengan animasi */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-2xl"
+                >
+                    {/* Animated background particles */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, 90, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, -90, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                        />
+                    </div>
 
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                {/* Avatar */}
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden">
+                                {/* Avatar dengan animasi */}
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                    className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden"
+                                >
                                     <img
                                         src={avatarUrl}
                                         alt={mahasiswa.nama}
                                         className="h-full w-full rounded-2xl object-cover"
                                     />
-                                </div>
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-emerald-100">Profil Mahasiswa</p>
-                                    <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
-                                    <p className="text-sm text-emerald-100">NIM: {mahasiswa.nim}</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-emerald-100"
+                                    >
+                                        Profil Mahasiswa
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-2xl font-bold"
+                                    >
+                                        {mahasiswa.nama}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-sm text-emerald-100"
+                                    >
+                                        NIM: {mahasiswa.nim}
+                                    </motion.p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5 }}
+                                whileHover={{ scale: 1.05 }}
+                                className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur"
+                            >
                                 <CheckCircle2 className="h-4 w-4" />
                                 <span className="text-sm">Akun Aktif</span>
-                            </div>
+                            </motion.div>
                         </div>
 
-                        {/* Quick Stats */}
+                        {/* Quick Stats dengan animasi */}
                         <div className="mt-6 grid grid-cols-3 gap-4">
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <p className="text-xs text-emerald-100">Total Kehadiran</p>
-                                <p className="text-2xl font-bold">{stats.totalAttendance}</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <p className="text-xs text-emerald-100">Rata-rata</p>
-                                <p className="text-2xl font-bold">{stats.attendanceRate}%</p>
-                            </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <p className="text-xs text-emerald-100">Streak</p>
-                                <p className="text-2xl font-bold">{stats.currentStreak} hari</p>
-                            </div>
+                            {[
+                                { label: 'Total Kehadiran', value: stats.totalAttendance, delay: 0.6 },
+                                { label: 'Rata-rata', value: `${stats.attendanceRate}%`, delay: 0.65 },
+                                { label: 'Streak', value: `${stats.currentStreak} hari`, delay: 0.7 },
+                            ].map((stat) => (
+                                <motion.div
+                                    key={stat.label}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: stat.delay }}
+                                    whileHover={{ scale: 1.05, y: -5 }}
+                                    className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                                >
+                                    <p className="text-xs text-emerald-100">{stat.label}</p>
+                                    <p className="text-2xl font-bold">{stat.value}</p>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Badges Section - GitHub Style */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                {/* Badges Section dengan animasi */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                >
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
+                                className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                            >
                                 <Trophy className="h-5 w-5" />
-                            </div>
+                            </motion.div>
                             <div>
                                 <h2 className="font-semibold text-slate-900 dark:text-white">Pencapaian</h2>
                                 <p className="text-sm text-slate-500">{badges.filter(b => b.unlocked).length} dari {badges.length} badge terbuka</p>
                             </div>
                         </div>
-                        <Link 
-                            href="/user/achievements" 
-                            className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-                        >
-                            Lihat Semua
-                            <ChevronRight className="h-4 w-4" />
-                        </Link>
+                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Link 
+                                href="/user/achievements" 
+                                className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                            >
+                                Lihat Semua
+                                <ChevronRight className="h-4 w-4" />
+                            </Link>
+                        </motion.div>
                     </div>
 
-                    {/* Badges Grid - GitHub Style */}
+                    {/* Badges Grid dengan animasi stagger */}
                     <div className="flex flex-wrap gap-3">
-                        {badges.map((badge) => {
+                        {badges.map((badge, index) => {
                             const isCompleted = badge.progress >= badge.target;
                             const shouldShow = badge.unlocked || isCompleted;
                             
                             return (
-                                <div
+                                <motion.div
                                     key={badge.id}
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.4 + index * 0.05, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
                                     onClick={() => router.get(`/user/achievements/${badge.type}`)}
                                     className={cn(
                                         'group relative cursor-pointer',
@@ -298,7 +386,7 @@ export default function StudentProfile() {
                                     )}
                                     title={`${badge.name} - Lv ${badge.level}/${badge.maxLevel}`}
                                 >
-                                    <div className="h-14 w-14 transition-transform hover:scale-110">
+                                    <div className="h-14 w-14 transition-transform">
                                         {shouldShow ? (
                                             <BadgeImageProfile 
                                                 icon={badge.icon} 
@@ -316,20 +404,30 @@ export default function StudentProfile() {
                                             {badge.name}
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Tab Navigation */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                {/* Tab Navigation dengan animasi */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                >
                     <div className="flex gap-2">
-                        {tabs.map(tab => {
+                        {tabs.map((tab, index) => {
                             const Icon = tab.icon;
                             return (
-                                <button
+                                <motion.button
                                     key={tab.key}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 + index * 0.1 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                     onClick={() => setActiveTab(tab.key)}
                                     className={cn(
                                         'flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-all',
@@ -340,35 +438,55 @@ export default function StudentProfile() {
                                 >
                                     <Icon className="h-4 w-4" />
                                     {tab.label}
-                                </button>
+                                </motion.button>
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Tab Content */}
-                {activeTab === 'card' && (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <ProfileCard
-                            name={mahasiswa.nama}
-                            title="Mahasiswa"
-                            handle={mahasiswa.nim}
-                            status="Aktif"
-                            avatarUrl={avatarUrl}
-                            contactText="Edit Profil"
-                            showUserInfo={true}
-                            enableTilt={true}
-                            behindGlowColor="rgba(16, 185, 129, 0.6)"
-                            innerGradient="linear-gradient(145deg, #10b98144 0%, #14b8a644 100%)"
-                            onContactClick={() => setActiveTab('profile')}
-                        />
-                    </div>
-                )}
+                {/* Tab Content dengan AnimatePresence */}
+                <AnimatePresence mode="wait">
+                    {activeTab === 'card' && (
+                        <motion.div
+                            key="card"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="flex flex-col items-center justify-center py-8"
+                        >
+                            <ProfileCard
+                                name={mahasiswa.nama}
+                                title="Mahasiswa"
+                                handle={mahasiswa.nim}
+                                status="Aktif"
+                                avatarUrl={avatarUrl}
+                                contactText="Edit Profil"
+                                showUserInfo={true}
+                                enableTilt={true}
+                                behindGlowColor="rgba(16, 185, 129, 0.6)"
+                                innerGradient="linear-gradient(145deg, #10b98144 0%, #14b8a644 100%)"
+                                onContactClick={() => setActiveTab('profile')}
+                            />
+                        </motion.div>
+                    )}
 
-                {activeTab === 'profile' && (
-                    <div className="grid gap-6 lg:grid-cols-2">
-                        {/* Edit Profile Form */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    {activeTab === 'profile' && (
+                        <motion.div
+                            key="profile"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="grid gap-6 lg:grid-cols-2"
+                        >
+                            {/* Edit Profile Form dengan animasi */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            >
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
                                     <User className="h-5 w-5" />
@@ -468,11 +586,16 @@ export default function StudentProfile() {
                                     {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                                 </Button>
                             </form>
-                        </div>
+                            </motion.div>
 
-                        {/* Account Info Card */}
-                        <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            {/* Account Info Card dengan animasi */}
+                            <div className="space-y-6">
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                                >
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
                                         <IdCard className="h-5 w-5" />
@@ -497,10 +620,15 @@ export default function StudentProfile() {
                                         </span>
                                     </div>
                                 </div>
-                            </div>
+                                </motion.div>
 
-                            {/* Stats Card */}
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-black">
+                                {/* Stats Card dengan animasi */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-black"
+                                >
                                 <div className="flex items-center gap-2 mb-4">
                                     <TrendingUp className="h-5 w-5 text-emerald-400" />
                                     <h2 className="font-semibold">Statistik Kehadiran</h2>
@@ -515,15 +643,27 @@ export default function StudentProfile() {
                                 <p className="text-xs text-slate-400 mt-2">
                                     {stats.totalAttendance} total kehadiran • {stats.currentStreak} hari streak
                                 </p>
+                                </motion.div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </motion.div>
+                    )}
 
-                {activeTab === 'security' && (
-                    <div className="grid gap-6 lg:grid-cols-2">
-                        {/* Change Password Form */}
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                    {activeTab === 'security' && (
+                        <motion.div
+                            key="security"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="grid gap-6 lg:grid-cols-2"
+                        >
+                            {/* Change Password Form dengan animasi */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            >
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
                                     <KeyRound className="h-5 w-5" />
@@ -618,11 +758,16 @@ export default function StudentProfile() {
                                     {passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
                                 </Button>
                             </form>
-                        </div>
+                            </motion.div>
 
-                        {/* Security Tips */}
-                        <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                            {/* Security Tips dengan animasi */}
+                            <div className="space-y-6">
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                                >
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
                                         <AlertCircle className="h-5 w-5" />
@@ -648,10 +793,15 @@ export default function StudentProfile() {
                                         <span>Jangan gunakan password yang sama dengan akun lain</span>
                                     </li>
                                 </ul>
-                            </div>
+                                </motion.div>
 
-                            {/* Account Security Status */}
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-sm">
+                                {/* Account Security Status dengan animasi */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-sm"
+                                >
                                 <div className="flex items-center gap-3 mb-4">
                                     <Shield className="h-6 w-6" />
                                     <h2 className="font-semibold">Status Keamanan</h2>
@@ -663,10 +813,11 @@ export default function StudentProfile() {
                                 <p className="text-sm text-emerald-100">
                                     Password terakhir diubah lebih dari 30 hari yang lalu. Pertimbangkan untuk mengubahnya secara berkala.
                                 </p>
+                                </motion.div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </StudentLayout>
     );
