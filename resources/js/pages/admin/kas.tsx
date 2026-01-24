@@ -8,6 +8,7 @@ import {
     Clock, Award, Target, Zap, TrendingUp as TrendUp
 } from 'lucide-react';
 import { useState } from 'react';
+import { AnimatedCurrencyShimmer } from '@/components/ui/animated-currency';
 
 interface MahasiswaKas {
     id: number;
@@ -434,14 +435,14 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             </motion.div>
                             <div>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-300">Saldo Aktif</p>
-                                <motion.p
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.5, type: 'spring' }}
-                                    className="text-xl font-bold text-emerald-600 dark:text-emerald-400"
-                                >
-                                    {formatCurrency(summary.total_balance)}
-                                </motion.p>
+                                <div className="mt-1">
+                                    <AnimatedCurrencyShimmer
+                                        value={summary.total_balance}
+                                        duration={2.5}
+                                        className="text-xl"
+                                        gradient="from-emerald-600 via-teal-500 to-cyan-600"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -471,14 +472,14 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             </motion.div>
                             <div>
                                 <p className="text-xs text-blue-700 dark:text-blue-300">Total Uang Masuk</p>
-                                <motion.p
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.6, type: 'spring' }}
-                                    className="text-xl font-bold text-blue-600 dark:text-blue-400"
-                                >
-                                    {formatCurrency(summary.total_income)}
-                                </motion.p>
+                                <div className="mt-1">
+                                    <AnimatedCurrencyShimmer
+                                        value={summary.total_income}
+                                        duration={2.5}
+                                        className="text-xl"
+                                        gradient="from-blue-600 via-cyan-500 to-blue-600"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -508,14 +509,14 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             </motion.div>
                             <div>
                                 <p className="text-xs text-red-700 dark:text-red-300">Total Uang Keluar</p>
-                                <motion.p
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.7, type: 'spring' }}
-                                    className="text-xl font-bold text-red-600 dark:text-red-400"
-                                >
-                                    {formatCurrency(summary.total_expense)}
-                                </motion.p>
+                                <div className="mt-1">
+                                    <AnimatedCurrencyShimmer
+                                        value={summary.total_expense}
+                                        duration={2.5}
+                                        className="text-xl"
+                                        gradient="from-red-600 via-orange-500 to-rose-600"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
