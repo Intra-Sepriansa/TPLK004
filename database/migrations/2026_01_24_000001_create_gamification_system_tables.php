@@ -29,7 +29,7 @@ return new class extends Migration
         Schema::create('challenge_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('current_value')->default(0);
             $table->boolean('is_completed')->default(false);
@@ -57,7 +57,7 @@ return new class extends Migration
         Schema::create('reward_redemptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reward_id')->constrained()->onDelete('cascade');
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('points_spent');
             $table->enum('status', ['pending', 'approved', 'delivered', 'cancelled'])->default('pending');
@@ -70,7 +70,7 @@ return new class extends Migration
         // Leaderboard Snapshots (for historical data)
         Schema::create('leaderboard_snapshots', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');
             $table->integer('rank');
             $table->integer('points');

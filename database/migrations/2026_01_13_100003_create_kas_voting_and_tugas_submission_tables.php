@@ -16,7 +16,7 @@ return new class extends Migration
             $table->decimal('amount', 12, 2);
             $table->string('category');
             $table->enum('status', ['open', 'approved', 'rejected', 'closed'])->default('open');
-            $table->integer('created_by'); // mahasiswa_id yang mengajukan
+            $table->unsignedBigInteger('created_by'); // mahasiswa_id yang mengajukan
             $table->timestamp('voting_deadline');
             $table->integer('min_votes')->default(10); // minimum votes untuk valid
             $table->decimal('approval_threshold', 5, 2)->default(60.00); // persentase minimal setuju
@@ -29,7 +29,7 @@ return new class extends Migration
         Schema::create('kas_votes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('kas_voting_id');
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->enum('vote', ['approve', 'reject']);
             $table->text('comment')->nullable();
             $table->timestamps();
@@ -42,7 +42,7 @@ return new class extends Migration
         // Tabel untuk reminder kas
         Schema::create('kas_reminders', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->decimal('amount_due', 12, 2);
             $table->integer('weeks_overdue')->default(1);
             $table->enum('status', ['pending', 'sent', 'acknowledged'])->default('pending');
@@ -57,7 +57,7 @@ return new class extends Migration
         Schema::create('tugas_submissions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('tugas_id');
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->text('content')->nullable(); // text submission
             $table->string('file_path')->nullable(); // file submission
             $table->string('file_name')->nullable();
@@ -65,7 +65,7 @@ return new class extends Migration
             $table->decimal('grade', 5, 2)->nullable(); // nilai 0-100
             $table->string('grade_letter')->nullable(); // A, B, C, D, E
             $table->text('feedback')->nullable(); // feedback dari dosen
-            $table->integer('graded_by')->nullable(); // dosen_id
+            $table->unsignedBigInteger('graded_by')->nullable(); // dosen_id
             $table->timestamp('graded_at')->nullable();
             $table->timestamp('submitted_at')->useCurrent();
             $table->timestamps();

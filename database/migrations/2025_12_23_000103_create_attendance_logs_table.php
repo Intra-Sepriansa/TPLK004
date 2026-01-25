@@ -27,7 +27,7 @@ return new class extends Migration
             $table->foreignId('attendance_session_id')
                 ->constrained('attendance_sessions')
                 ->cascadeOnDelete();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->foreignId('attendance_token_id')
                 ->nullable()
                 ->constrained('attendance_tokens')

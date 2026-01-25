@@ -26,7 +26,7 @@ return new class extends Migration
         // Tabel untuk badge yang dimiliki mahasiswa
         Schema::create('mahasiswa_badges', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('badge_id');
             $table->timestamp('earned_at');
             $table->string('earned_reason')->nullable();
@@ -52,7 +52,7 @@ return new class extends Migration
         // Tabel untuk points history
         Schema::create('point_histories', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->integer('points');
             $table->enum('type', ['earned', 'spent', 'bonus', 'penalty']);
             $table->string('source'); // attendance, badge, streak, etc
@@ -68,7 +68,7 @@ return new class extends Migration
         // Tabel untuk streak tracking
         Schema::create('attendance_streaks', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->integer('current_streak')->default(0);
             $table->integer('longest_streak')->default(0);
             $table->date('last_attendance_date')->nullable();
