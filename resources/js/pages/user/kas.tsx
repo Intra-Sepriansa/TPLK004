@@ -139,30 +139,6 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"
                     />
 
-                    {/* Floating Sparkles */}
-                    {[...Array(5)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                y: [0, -30, 0],
-                                x: [0, Math.random() * 20 - 10, 0],
-                                opacity: [0, 1, 0],
-                            }}
-                            transition={{
-                                duration: 3 + Math.random() * 2,
-                                repeat: Infinity,
-                                delay: i * 0.5,
-                            }}
-                            className="absolute"
-                            style={{
-                                left: `${20 + i * 15}%`,
-                                top: `${30 + Math.random() * 40}%`,
-                            }}
-                        >
-                            <Sparkles className="h-4 w-4 text-white/60" />
-                        </motion.div>
-                    ))}
-
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
