@@ -207,15 +207,6 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         onHoverEnd={() => setHoveredCard(null)}
                         className="relative overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-lg backdrop-blur dark:border-emerald-800/70 dark:from-emerald-950/50 dark:to-teal-950/50"
                     >
-                        {/* Animated Background */}
-                        <motion.div
-                            animate={{
-                                scale: hoveredCard === 'paid' ? 1.5 : 1,
-                                opacity: hoveredCard === 'paid' ? 0.3 : 0.1,
-                            }}
-                            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-emerald-500 blur-3xl"
-                        />
-                        
                         <div className="relative flex items-start gap-4">
                             <motion.div
                                 whileHover={{ rotate: 360, scale: 1.2 }}
@@ -271,15 +262,6 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         onHoverEnd={() => setHoveredCard(null)}
                         className="relative overflow-hidden rounded-2xl border border-red-200/70 bg-gradient-to-br from-red-50 to-orange-50 p-6 shadow-lg backdrop-blur dark:border-red-800/70 dark:from-red-950/50 dark:to-orange-950/50"
                     >
-                        {/* Animated Background */}
-                        <motion.div
-                            animate={{
-                                scale: hoveredCard === 'unpaid' ? 1.5 : 1,
-                                opacity: hoveredCard === 'unpaid' ? 0.3 : 0.1,
-                            }}
-                            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-red-500 blur-3xl"
-                        />
-                        
                         <div className="relative flex items-start gap-4">
                             <motion.div
                                 whileHover={{ rotate: -360, scale: 1.2 }}
