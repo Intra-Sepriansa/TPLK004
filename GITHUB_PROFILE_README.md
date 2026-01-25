@@ -7,7 +7,7 @@
 <img src="https://raw.githubusercontent.com/Trilokia/Trilokia/379277808c61ef204768a61bbc5d25bc7798ccf1/bottom_header.svg" />
 
 <!-- Multi-line Typing Animation with More Effects -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=2500&pause=800&color=00D9FF&center=true&vCenter=true&multiline=true&repeat=true&width=1000&height=140&lines=👋+Welcome+to+my+Digital+Universe!;💻+Crafting+Code+%7C+Building+Dreams;🤖+AI+%2B+ML+%2B+Deep+Learning+Expert;🚀+10%2B+Projects+%7C+1000%2B+Commits;⚡+Always+Learning+%7C+Never+Stopping" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=2500&pause=800&color=00D9FF&center=true&vCenter=true&multiline=true&repeat=true&width=1000&height=140&lines=Welcome+to+my+Digital+Universe!;Crafting+Code+Building+Dreams;AI+ML+Deep+Learning+Expert;50+Projects+5000+Commits;Always+Learning+Never+Stopping" alt="Typing SVG" />
 
 <br/>
 
