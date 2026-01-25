@@ -15,7 +15,7 @@ return new class extends Migration
         if (!Schema::hasTable('user_badges')) {
             Schema::create('user_badges', function (Blueprint $table) {
                 $table->id();
-                $table->integer('mahasiswa_id');
+                $table->unsignedBigInteger('mahasiswa_id');
                 $table->unsignedBigInteger('badge_id');
                 $table->timestamp('earned_at')->useCurrent();
                 $table->timestamps();
@@ -30,7 +30,7 @@ return new class extends Migration
         if (!Schema::hasTable('user_levels')) {
             Schema::create('user_levels', function (Blueprint $table) {
                 $table->id();
-                $table->integer('mahasiswa_id')->unique();
+                $table->unsignedBigInteger('mahasiswa_id')->unique();
                 $table->unsignedBigInteger('current_level_id');
                 $table->integer('total_xp')->default(0);
                 $table->integer('current_level_xp')->default(0);

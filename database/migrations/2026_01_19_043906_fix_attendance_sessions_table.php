@@ -16,7 +16,7 @@ return new class extends Migration
         if (Schema::hasTable('attendance_sessions')) {
             Schema::table('attendance_sessions', function (Blueprint $table) {
                 if (!Schema::hasColumn('attendance_sessions', 'created_by_dosen_id')) {
-                    $table->integer('created_by_dosen_id')->nullable()->after('created_by');
+                    $table->unsignedBigInteger('created_by_dosen_id')->nullable()->after('created_by');
                     $table->foreign('created_by_dosen_id')->references('id')->on('dosen')->nullOnDelete();
                 }
             });

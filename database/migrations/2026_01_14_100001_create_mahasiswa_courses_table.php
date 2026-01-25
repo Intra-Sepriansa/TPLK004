@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('mahasiswa_courses', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->string('name');
             $table->tinyInteger('sks')->comment('2 or 3 only');
             $table->integer('total_meetings');

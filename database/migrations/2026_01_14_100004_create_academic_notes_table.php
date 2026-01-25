@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('academic_notes', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->foreignId('mahasiswa_course_id')->constrained('mahasiswa_courses')->onDelete('cascade');
             $table->integer('meeting_number');
             $table->string('title');

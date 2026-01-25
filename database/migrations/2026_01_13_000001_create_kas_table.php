@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('kas', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id')->nullable(); // null for expense
+            $table->unsignedBigInteger('mahasiswa_id')->nullable(); // null for expense
             $table->enum('type', ['income', 'expense'])->default('income');
             $table->decimal('amount', 12, 2);
             $table->string('description')->nullable();

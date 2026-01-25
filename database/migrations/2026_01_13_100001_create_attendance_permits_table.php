@@ -11,13 +11,13 @@ return new class extends Migration
         // Tabel untuk izin/sakit mahasiswa
         Schema::create('attendance_permits', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id'); // int(11) tanpa unsigned seperti tabel mahasiswa
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('attendance_session_id');
             $table->enum('type', ['izin', 'sakit'])->default('izin');
             $table->text('reason'); // Alasan izin/sakit
             $table->string('attachment')->nullable(); // File surat keterangan
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->integer('approved_by')->nullable(); // int(11) tanpa unsigned seperti tabel dosen
+            $table->unsignedBigInteger('approved_by')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->text('rejection_reason')->nullable();
             $table->timestamps();
@@ -33,7 +33,7 @@ return new class extends Migration
         // Tabel untuk menyimpan nilai keaktifan mahasiswa per mata kuliah
         Schema::create('student_activity_scores', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id'); // int(11) tanpa unsigned
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->unsignedBigInteger('mata_kuliah_id');
             
             $table->foreign('mahasiswa_id')->references('id')->on('mahasiswa')->onDelete('cascade');

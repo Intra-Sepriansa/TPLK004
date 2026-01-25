@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('fraud_alerts', function (Blueprint $table) {
             $table->id();
-            $table->integer('mahasiswa_id');
-            $table->integer('attendance_log_id')->nullable();
-            $table->integer('attendance_session_id')->nullable();
+            $table->unsignedBigInteger('mahasiswa_id');
+            $table->unsignedBigInteger('attendance_log_id')->nullable();
+            $table->unsignedBigInteger('attendance_session_id')->nullable();
             $table->enum('alert_type', [
                 'gps_spoofing',
                 'duplicate_selfie', 
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('description');
             $table->json('evidence')->nullable();
             $table->enum('status', ['pending', 'investigating', 'confirmed', 'dismissed'])->default('pending');
-            $table->integer('reviewed_by')->nullable();
+            $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->text('review_notes')->nullable();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();

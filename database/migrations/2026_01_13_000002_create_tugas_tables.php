@@ -71,7 +71,7 @@ return new class extends Migration
         Schema::create('tugas_reads', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tugas_id')->constrained('tugas')->onDelete('cascade');
-            $table->integer('mahasiswa_id');
+            $table->unsignedBigInteger('mahasiswa_id');
             $table->datetime('read_at');
             
             $table->unique(['tugas_id', 'mahasiswa_id']);
