@@ -111,34 +111,6 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Circles */}
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3],
-                            rotate: [0, 180, 360],
-                        }}
-                        transition={{
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: 'linear',
-                        }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            opacity: [0.2, 0.4, 0.2],
-                            rotate: [360, 180, 0],
-                        }}
-                        transition={{
-                            duration: 10,
-                            repeat: Infinity,
-                            ease: 'linear',
-                        }}
-                        className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"
-                    />
-
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
@@ -226,14 +198,10 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
-                                    >
+                                    <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                                         <ArrowUpRight className="h-3 w-3" />
                                         <span className="font-semibold">{personalStats.paid_count} pertemuan</span>
-                                    </motion.div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -281,14 +249,10 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                        className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400"
-                                    >
+                                    <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                                         <Clock className="h-3 w-3" />
                                         <span className="font-semibold">{personalStats.unpaid_count} pertemuan</span>
-                                    </motion.div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -301,12 +265,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                 transition={{ delay: 1.2 }}
                                 className="mt-4 flex items-center gap-2 rounded-lg bg-red-100 dark:bg-red-900/30 px-3 py-2"
                             >
-                                <motion.div
-                                    animate={{ scale: [1, 1.3, 1] }}
-                                    transition={{ duration: 1.5, repeat: Infinity }}
-                                >
+                                <div>
                                     <Target className="h-4 w-4 text-red-600 dark:text-red-400" />
-                                </motion.div>
+                                </div>
                                 <p className="text-xs font-medium text-red-700 dark:text-red-300">
                                     Segera lunasi pembayaran Anda
                                 </p>
@@ -322,12 +283,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                     className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-black/80"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <motion.div
-                            animate={{ rotate: [0, 360] }}
-                            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                        >
+                        <div>
                             <DollarSign className="h-6 w-6 text-blue-600" />
-                        </motion.div>
+                        </div>
                         <h2 className="font-semibold text-slate-900 dark:text-white text-lg">
                             Saldo Kas Kelas
                         </h2>
@@ -337,12 +295,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="text-center p-5 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800"
                         >
-                            <motion.div
-                                animate={{ scale: [1, 1.1, 1] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >
+                            <div>
                                 <Zap className="h-8 w-8 mx-auto text-blue-600 mb-2" />
-                            </motion.div>
+                            </div>
                             <p className="text-xs text-slate-500 mb-1">Saldo Aktif</p>
                             <AnimatedCurrencyShimmer
                                 value={classSummary.total_balance}
