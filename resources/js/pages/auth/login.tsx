@@ -4,9 +4,9 @@ import InputError from '@/components/input-error';
 import AppLogoIcon from '@/components/app-logo-icon';
 import Orb from '@/components/auth/Orb';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
-    Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight, Moon, Sun, CheckCircle2, Sparkles
+    Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight, Moon, Sun
 } from 'lucide-react';
 
 interface LoginProps {
@@ -41,53 +41,10 @@ const itemVariants = {
     }
 };
 
-// Confetti particle component
-const ConfettiParticle = ({ delay }: { delay: number }) => {
-    const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const randomX = Math.random() * 100 - 50;
-    const randomRotate = Math.random() * 360;
-    
-    return (
-        <motion.div
-            initial={{ 
-                opacity: 1, 
-                y: 0, 
-                x: 0,
-                scale: 1,
-                rotate: 0
-            }}
-            animate={{ 
-                opacity: 0, 
-                y: -300 + Math.random() * 100,
-                x: randomX * 3,
-                scale: 0,
-                rotate: randomRotate
-            }}
-            transition={{ 
-                duration: 1.5 + Math.random() * 0.5,
-                delay,
-                ease: "easeOut"
-            }}
-            className="absolute"
-            style={{
-                left: `${50 + randomX}%`,
-                top: '50%',
-            }}
-        >
-            <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: randomColor }}
-            />
-        </motion.div>
-    );
-};
-
 export default function Login({ status }: LoginProps) {
     const [mode, setMode] = useState<LoginMode>('mahasiswa');
     const [showPassword, setShowPassword] = useState(false);
     const [isDark, setIsDark] = useState(false);
-    const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
     // Forms for each mode
     const adminForm = useForm({ email: '', password: '', remember: false });
@@ -112,11 +69,6 @@ export default function Login({ status }: LoginProps) {
         e.preventDefault();
         const endpoint = mode === 'admin' ? '/login' : mode === 'dosen' ? '/dosen/login' : '/login/mahasiswa';
         currentForm.post(endpoint, {
-            onSuccess: () => {
-                // Show success animation before redirect
-                setShowSuccessAnimation(true);
-                // The redirect will happen automatically after animation
-            },
             onFinish: () => {
                 if (mode === 'admin') {
                     adminForm.reset('password');
@@ -134,150 +86,6 @@ export default function Login({ status }: LoginProps) {
             <Head title="Login" />
             
             <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6 relative overflow-hidden">
-                {/* Success Animation Overlay */}
-                <AnimatePresence>
-                    {showSuccessAnimation && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[100] flex items-center justify-center bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl"
-                        >
-                            {/* Confetti Particles */}
-                            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                {Array.from({ length: 50 }).map((_, i) => (
-                                    <ConfettiParticle key={i} delay={i * 0.02} />
-                                ))}
-                            </div>
-
-                            {/* Success Content */}
-                            <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ 
-                                    type: "spring",
-                                    stiffness: 200,
-                                    damping: 20,
-                                    delay: 0.2
-                                }}
-                                className="relative z-10 text-center"
-                            >
-                                {/* Animated Checkmark Circle */}
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                                    className="relative mx-auto mb-6"
-                                >
-                                    {/* Outer glow rings */}
-                                    <motion.div
-                                        animate={{ 
-                                            scale: [1, 1.5, 1],
-                                            opacity: [0.5, 0, 0.5]
-                                        }}
-                                        transition={{ 
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="absolute inset-0 rounded-full bg-emerald-500/30 blur-xl"
-                                    />
-                                    <motion.div
-                                        animate={{ 
-                                            scale: [1, 1.3, 1],
-                                            opacity: [0.7, 0, 0.7]
-                                        }}
-                                        transition={{ 
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
-                                            delay: 0.5
-                                        }}
-                                        className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg"
-                                    />
-                                    
-                                    {/* Main circle */}
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ delay: 0.4, type: "spring" }}
-                                        className="relative w-32 h-32 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl"
-                                    >
-                                        <motion.div
-                                            initial={{ pathLength: 0, opacity: 0 }}
-                                            animate={{ pathLength: 1, opacity: 1 }}
-                                            transition={{ delay: 0.6, duration: 0.5 }}
-                                        >
-                                            <CheckCircle2 className="w-20 h-20 text-white" strokeWidth={2.5} />
-                                        </motion.div>
-                                    </motion.div>
-
-                                    {/* Sparkles around */}
-                                    {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-                                        <motion.div
-                                            key={angle}
-                                            initial={{ scale: 0, opacity: 0 }}
-                                            animate={{ 
-                                                scale: [0, 1, 0],
-                                                opacity: [0, 1, 0],
-                                                x: Math.cos(angle * Math.PI / 180) * 80,
-                                                y: Math.sin(angle * Math.PI / 180) * 80,
-                                            }}
-                                            transition={{ 
-                                                delay: 0.7 + i * 0.1,
-                                                duration: 1,
-                                                repeat: Infinity,
-                                                repeatDelay: 1
-                                            }}
-                                            className="absolute top-1/2 left-1/2"
-                                        >
-                                            <Sparkles className="w-6 h-6 text-emerald-500" />
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-
-                                {/* Success Text */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.8 }}
-                                >
-                                    <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-3">
-                                        Login Berhasil!
-                                    </h2>
-                                    <p className="text-lg text-slate-600 dark:text-slate-300">
-                                        Selamat datang kembali
-                                    </p>
-                                </motion.div>
-
-                                {/* Loading dots */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 1.2 }}
-                                    className="flex items-center justify-center gap-2 mt-8"
-                                >
-                                    {[0, 1, 2].map((i) => (
-                                        <motion.div
-                                            key={i}
-                                            animate={{ 
-                                                scale: [1, 1.5, 1],
-                                                opacity: [0.5, 1, 0.5]
-                                            }}
-                                            transition={{ 
-                                                duration: 1,
-                                                repeat: Infinity,
-                                                delay: i * 0.2
-                                            }}
-                                            className="w-2 h-2 rounded-full bg-emerald-500"
-                                        />
-                                    ))}
-                                </motion.div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
                 {/* Orb Background Animation - Larger, Brighter, More Interactive */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-60 dark:opacity-50">
                     <div className="w-full h-full">
@@ -323,19 +131,6 @@ export default function Login({ status }: LoginProps) {
                             </motion.div>
                         )}
                     </AnimatePresence>
-                </motion.button>
-
-                {/* Test Animation Button - DEV ONLY */}
-                <motion.button
-                    onClick={() => setShowSuccessAnimation(!showSuccessAnimation)}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.6 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="fixed top-6 right-20 z-50 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all"
-                >
-                    Test Animation
                 </motion.button>
 
                 <motion.div
