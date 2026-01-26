@@ -17,7 +17,6 @@ class MahasiswaController extends Controller
     {
         $search = $request->get('search', '');
         $fakultas = $request->get('fakultas', 'all');
-        $prodi = $request->get('prodi', 'all');
         $kelas = $request->get('kelas', 'all');
         $sortBy = $request->get('sort_by', 'nama');
         $sortDir = $request->get('sort_dir', 'asc');
@@ -33,10 +32,6 @@ class MahasiswaController extends Controller
         
         if ($fakultas !== 'all') {
             $query->where('fakultas', $fakultas);
-        }
-        
-        if ($prodi !== 'all') {
-            $query->where('prodi', $prodi);
         }
         
         if ($kelas !== 'all') {
@@ -55,7 +50,6 @@ class MahasiswaController extends Controller
         
         // Filter options
         $fakultasList = Mahasiswa::distinct()->whereNotNull('fakultas')->pluck('fakultas');
-        $prodiList = Mahasiswa::distinct()->whereNotNull('prodi')->pluck('prodi');
         $kelasList = Mahasiswa::distinct()->whereNotNull('kelas')->pluck('kelas');
         
         // Top performers
@@ -72,7 +66,6 @@ class MahasiswaController extends Controller
             'stats' => $stats,
             'attendanceSummary' => $attendanceSummary,
             'fakultasList' => $fakultasList,
-            'prodiList' => $prodiList,
             'kelasList' => $kelasList,
             'topPerformers' => $topPerformers,
             'lowAttendance' => $lowAttendance,
@@ -80,7 +73,6 @@ class MahasiswaController extends Controller
             'filters' => [
                 'search' => $search,
                 'fakultas' => $fakultas,
-                'prodi' => $prodi,
                 'kelas' => $kelas,
                 'sort_by' => $sortBy,
                 'sort_dir' => $sortDir,
