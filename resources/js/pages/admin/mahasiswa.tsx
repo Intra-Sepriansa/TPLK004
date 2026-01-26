@@ -38,7 +38,6 @@ interface Mahasiswa {
     nama: string;
     nim: string;
     fakultas?: string;
-    prodi?: string;
     kelas?: string;
     semester?: number;
     created_at?: string;
@@ -64,7 +63,6 @@ interface PageProps {
     stats: Stats;
     attendanceSummary: { id: number; nama: string; nim: string; total: number; present: number; late: number }[];
     fakultasList: string[];
-    prodiList: string[];
     kelasList: string[];
     topPerformers: { id: number; nama: string; nim: string; count: number }[];
     lowAttendance: { id: number; nama: string; nim: string; count: number }[];
@@ -72,7 +70,6 @@ interface PageProps {
     filters: {
         search: string;
         fakultas: string;
-        prodi: string;
         kelas: string;
         sort_by: string;
         sort_dir: string;
@@ -85,7 +82,6 @@ export default function AdminMahasiswa({
     stats,
     attendanceSummary,
     fakultasList,
-    prodiList,
     kelasList,
     topPerformers,
     lowAttendance,
@@ -95,7 +91,6 @@ export default function AdminMahasiswa({
 }: PageProps) {
     const [search, setSearch] = useState(filters.search);
     const [fakultas, setFakultas] = useState(filters.fakultas);
-    const [prodi, setProdi] = useState(filters.prodi);
     const [kelas, setKelas] = useState(filters.kelas);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -104,7 +99,6 @@ export default function AdminMahasiswa({
         nama: '',
         nim: '',
         fakultas: '',
-        prodi: '',
         kelas: '',
         semester: 1,
     });
@@ -113,17 +107,16 @@ export default function AdminMahasiswa({
         nama: '',
         nim: '',
         fakultas: '',
-        prodi: '',
         kelas: '',
         semester: 1,
     });
 
     const handleFilter = () => {
-        router.get('/admin/mahasiswa', { search, fakultas, prodi, kelas }, { preserveState: true });
+        router.get('/admin/mahasiswa', { search, fakultas, kelas }, { preserveState: true });
     };
 
     const handleExportPdf = () => {
-        window.open(`/admin/mahasiswa/pdf?fakultas=${fakultas}&prodi=${prodi}`, '_blank');
+        window.open(`/admin/mahasiswa/pdf?fakultas=${fakultas}`, '_blank');
     };
 
     const submitAdd = (e: FormEvent) => {
@@ -143,7 +136,6 @@ export default function AdminMahasiswa({
             nama: m.nama,
             nim: m.nim,
             fakultas: m.fakultas || '',
-            prodi: m.prodi || '',
             kelas: m.kelas || '',
             semester: m.semester || 1,
         });
@@ -442,17 +434,6 @@ export default function AdminMahasiswa({
                             </select>
                         </div>
                         <div>
-                            <Label className="mb-2 block text-sm">Prodi</Label>
-                            <select
-                                value={prodi}
-                                onChange={e => setProdi(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-black"
-                            >
-                                <option value="all">Semua</option>
-                                {prodiList.map(p => <option key={p} value={p}>{p}</option>)}
-                            </select>
-                        </div>
-                        <div>
                             <Label className="mb-2 block text-sm">Kelas</Label>
                             <select
                                 value={kelas}
@@ -537,15 +518,11 @@ export default function AdminMahasiswa({
                                         <Input value={addForm.data.fakultas} onChange={e => addForm.setData('fakultas', e.target.value)} />
                                     </div>
                                     <div>
-                                        <Label>Prodi</Label>
-                                        <Input value={addForm.data.prodi} onChange={e => addForm.setData('prodi', e.target.value)} />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
                                         <Label>Kelas</Label>
                                         <Input value={addForm.data.kelas} onChange={e => addForm.setData('kelas', e.target.value)} />
                                     </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <Label>Semester</Label>
                                         <Input type="number" min={1} max={14} value={addForm.data.semester} onChange={e => addForm.setData('semester', Number(e.target.value))} />
@@ -622,9 +599,8 @@ export default function AdminMahasiswa({
                                                                 <Input placeholder="Nama" value={editForm.data.nama} onChange={e => editForm.setData('nama', e.target.value)} />
                                                                 <Input placeholder="NIM" value={editForm.data.nim} onChange={e => editForm.setData('nim', e.target.value)} />
                                                             </div>
-                                                            <div className="grid grid-cols-3 gap-3">
+                                                            <div className="grid grid-cols-2 gap-3">
                                                                 <Input placeholder="Fakultas" value={editForm.data.fakultas} onChange={e => editForm.setData('fakultas', e.target.value)} />
-                                                                <Input placeholder="Prodi" value={editForm.data.prodi} onChange={e => editForm.setData('prodi', e.target.value)} />
                                                                 <Input placeholder="Kelas" value={editForm.data.kelas} onChange={e => editForm.setData('kelas', e.target.value)} />
                                                             </div>
                                                             <div className="flex gap-2">
@@ -637,7 +613,6 @@ export default function AdminMahasiswa({
                                                     <>
                                                         <td className="px-4 py-3">
                                                             <p className="font-medium text-slate-900 dark:text-white">{m.nama}</p>
-                                                            {m.prodi && <p className="text-xs text-slate-500">{m.prodi}</p>}
                                                         </td>
                                                         <td className="px-4 py-3 text-slate-600">{m.nim}</td>
                                                         <td className="px-4 py-3 text-slate-600">{m.kelas || '-'}</td>
