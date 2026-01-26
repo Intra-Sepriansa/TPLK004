@@ -1,6 +1,12 @@
 # Login Credentials - TPLK004
 
 ## Admin
+### Admin Utama (Intra Sepriansa)
+- **Email**: intrasepriansaa@gmail.com
+- **Password**: intra12345
+- **URL**: http://localhost:8000/login (pilih mode "Admin")
+
+### Admin Default
 - **Email**: admin@tplk004.com
 - **Password**: admin123
 - **URL**: http://localhost:8000/login (pilih mode "Admin")
