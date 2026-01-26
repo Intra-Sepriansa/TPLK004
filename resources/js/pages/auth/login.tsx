@@ -4,7 +4,7 @@ import InputError from '@/components/input-error';
 import AppLogoIcon from '@/components/app-logo-icon';
 import Orb from '@/components/auth/Orb';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Eye, EyeOff, GraduationCap, Lock, User, Shield, Users, ChevronRight, Moon, Sun
 } from 'lucide-react';
