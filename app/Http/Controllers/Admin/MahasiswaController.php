@@ -86,7 +86,6 @@ class MahasiswaController extends Controller
             'nama' => 'required|string|max:255',
             'nim' => 'required|string|max:20|unique:mahasiswa,nim',
             'fakultas' => 'nullable|string|max:100',
-            'prodi' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:20',
             'semester' => 'nullable|integer|min:1|max:14',
         ]);
@@ -98,7 +97,6 @@ class MahasiswaController extends Controller
             'nama' => $request->nama,
             'nim' => $request->nim,
             'fakultas' => $request->fakultas,
-            'prodi' => $request->prodi,
             'kelas' => $request->kelas,
             'semester' => $request->semester,
             'password' => Hash::make($defaultPassword),
@@ -113,12 +111,11 @@ class MahasiswaController extends Controller
             'nama' => 'required|string|max:255',
             'nim' => 'required|string|max:20|unique:mahasiswa,nim,' . $mahasiswa->id,
             'fakultas' => 'nullable|string|max:100',
-            'prodi' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:20',
             'semester' => 'nullable|integer|min:1|max:14',
         ]);
         
-        $mahasiswa->update($request->only(['nama', 'nim', 'fakultas', 'prodi', 'kelas', 'semester']));
+        $mahasiswa->update($request->only(['nama', 'nim', 'fakultas', 'kelas', 'semester']));
         
         return back()->with('success', 'Data mahasiswa berhasil diperbarui.');
     }
@@ -147,8 +144,8 @@ class MahasiswaController extends Controller
             $query->where('fakultas', $request->fakultas);
         }
         
-        if ($request->prodi && $request->prodi !== 'all') {
-            $query->where('prodi', $request->prodi);
+        if ($request->kelas && $request->kelas !== 'all') {
+            $query->where('kelas', $request->kelas);
         }
         
         $mahasiswa = $query->orderBy('nama')->get();
