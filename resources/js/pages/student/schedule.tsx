@@ -12,9 +12,9 @@ import {
     Timer,
     GraduationCap,
     Sparkles,
-    Target
+    Target,
+    CheckCircle
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -61,470 +61,337 @@ const colorVariants: Record<string, { gradient: string; badge: string }> = {
 
 const daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
+// Animation variants - SAMA DENGAN DASHBOARD
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 100,
+            damping: 15,
+        },
+    },
+};
+
+function QuickStatCard({
+    icon: Icon,
+    label,
+    value,
+    suffix,
+    subtext,
+    color,
+}: {
+    icon: React.ElementType;
+    label: string;
+    value: number | string;
+    suffix?: string;
+    subtext?: string;
+    color: 'emerald' | 'amber' | 'sky' | 'violet' | 'rose';
+}) {
+    const colors = {
+        emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+        amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+        sky: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+        violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+        rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    };
+
+    return (
+        <motion.div
+            variants={itemVariants}
+            whileHover={{ scale: 1.05, y: -5 }}
+            whileTap={{ scale: 0.95 }}
+            className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+        >
+            <div className="flex items-center gap-3">
+                <motion.div
+                    whileHover={{ rotate: 10 }}
+                    className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}
+                >
+                    <Icon className="h-5 w-5" />
+                </motion.div>
+                <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        {value}{suffix}
+                    </p>
+                    {subtext && (
+                        <p className="text-[10px] text-gray-400">{subtext}</p>
+                    )}
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 export default function Schedule({ schedules, todaySchedule, nextClass, stats, currentDay }: Props) {
     return (
         <StudentLayout>
             <Head title="Jadwal Kuliah" />
 
-            {/* Black Background Container */}
-            <div className="min-h-screen bg-black p-6">
-                <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Header with Advanced Animations */}
-                    <motion.div
-                        initial={{ opacity: 0, y: -50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ 
-                            duration: 0.8,
-                            type: "spring",
-                            stiffness: 100,
-                            damping: 15
-                        }}
-                        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-8 text-white shadow-2xl"
-                    >
-                        {/* Animated Background Particles */}
-                        <div className="absolute inset-0 overflow-hidden">
-                            <motion.div
-                                animate={{
-                                    scale: [1, 1.2, 1],
-                                    rotate: [0, 90, 0],
-                                    opacity: [0.1, 0.2, 0.1]
-                                }}
-                                transition={{
-                                    duration: 20,
-                                    repeat: Infinity,
-                                    ease: "linear"
-                                }}
-                                className="absolute right-0 top-0 h-64 w-64 rounded-full bg-white blur-3xl"
-                            />
-                            <motion.div
-                                animate={{
-                                    scale: [1, 1.3, 1],
-                                    rotate: [0, -90, 0],
-                                    opacity: [0.1, 0.15, 0.1]
-                                }}
-                                transition={{
-                                    duration: 15,
-                                    repeat: Infinity,
-                                    ease: "linear"
-                                }}
-                                className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-white blur-2xl"
-                            />
-                            {/* Floating Sparkles */}
-                            {[...Array(6)].map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ 
-                                        opacity: [0, 1, 0],
-                                        scale: [0, 1, 0],
-                                        y: [0, -30, -60]
-                                    }}
-                                    transition={{
-                                        duration: 3,
-                                        repeat: Infinity,
-                                        delay: i * 0.5,
-                                        ease: "easeOut"
-                                    }}
-                                    className="absolute rounded-full bg-white/30"
-                                    style={{
-                                        width: `${4 + Math.random() * 8}px`,
-                                        height: `${4 + Math.random() * 8}px`,
-                                        left: `${10 + i * 15}%`,
-                                        top: `${20 + (i % 3) * 25}%`,
-                                    }}
-                                />
-                            ))}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="space-y-6 p-6"
+            >
+                {/* Welcome Card - SAMA DENGAN DASHBOARD */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    
+                    <div className="relative flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                                <CalendarDays className="h-8 w-8" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-emerald-100">Jadwal Kuliah</p>
+                                <h1 className="text-2xl font-bold">Minggu Ini</h1>
+                                <p className="text-sm text-emerald-100">{currentDay}</p>
+                            </div>
                         </div>
-
-                        <div className="relative z-10">
-                            {/* Title Section with Stagger Animation */}
-                            <div className="flex items-start gap-4 mb-8">
-                                <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ 
-                                        type: "spring",
-                                        stiffness: 200,
-                                        damping: 15,
-                                        delay: 0.2
-                                    }}
-                                    whileHover={{ 
-                                        scale: 1.1,
-                                        rotate: 360,
-                                        transition: { duration: 0.6 }
-                                    }}
-                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm cursor-pointer"
-                                >
-                                    <CalendarDays className="h-7 w-7" />
-                                </motion.div>
-                                <div className="flex-1">
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="flex items-center gap-2 mb-1"
-                                    >
-                                        <span className="text-sm font-medium text-blue-100">Akademik</span>
-                                    </motion.div>
-                                    <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        className="text-3xl font-bold mb-2"
-                                    >
-                                        Jadwal Kuliah
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="text-blue-100 text-sm"
-                                    >
-                                        Lihat dan kelola jadwal kuliah dengan mudah dan terorganisir
-                                    </motion.p>
+                        
+                        <div className="hidden sm:flex items-center gap-3">
+                            {stats.classes_today > 0 && (
+                                <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                                    <Clock className="h-5 w-5 text-emerald-200" />
+                                    <span className="font-bold">{stats.classes_today}</span>
+                                    <span className="text-sm text-emerald-100">kelas hari ini</span>
                                 </div>
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.6, type: "spring" }}
-                                    whileHover={{ scale: 1.05 }}
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20"
-                                >
-                                    <Calendar className="h-4 w-4" />
-                                    <span className="font-medium text-sm">{currentDay}</span>
-                                </motion.div>
-                            </div>
-
-                            {/* Stats Grid with Advanced Stagger */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {[
-                                    { icon: BookOpen, label: 'Total Kuliah', value: stats.total_courses, color: 'blue-400/30', delay: 0.1 },
-                                    { icon: Clock, label: 'Hari Ini', value: stats.classes_today, color: 'green-400/30', delay: 0.2 },
-                                    { icon: CalendarDays, label: 'Per Minggu', value: stats.total_classes_per_week, color: 'purple-400/30', delay: 0.3 },
-                                    { icon: TrendingUp, label: 'Tersibuk', value: stats.busiest_day, color: 'orange-400/30', delay: 0.4, isText: true },
-                                ].map((stat, index) => (
-                                    <motion.div
-                                        key={index}
-                                        initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        transition={{ 
-                                            delay: stat.delay,
-                                            type: "spring",
-                                            stiffness: 200,
-                                            damping: 15
-                                        }}
-                                        whileHover={{ 
-                                            scale: 1.05,
-                                            y: -5,
-                                            transition: { type: "spring", stiffness: 400, damping: 10 }
-                                        }}
-                                        className="flex items-center gap-3 cursor-pointer"
-                                    >
-                                        <motion.div
-                                            whileHover={{ rotate: 360 }}
-                                            transition={{ duration: 0.6 }}
-                                            className={cn("flex h-10 w-10 items-center justify-center rounded-xl", `bg-${stat.color}`)}
-                                        >
-                                            <stat.icon className="h-5 w-5" />
-                                        </motion.div>
-                                        <div>
-                                            <p className="text-xs text-blue-100">{stat.label}</p>
-                                            <motion.p
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                transition={{ delay: stat.delay + 0.2, type: "spring" }}
-                                                className={stat.isText ? "text-xl font-bold" : "text-2xl font-bold"}
-                                            >
-                                                {stat.value}
-                                            </motion.p>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
+                            )}
                         </div>
-                    </motion.div>
+                    </div>
 
-                    {/* Next Class Card with Advanced Animation */}
-                    {nextClass && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ 
-                                duration: 0.6,
-                                type: "spring",
-                                stiffness: 100,
-                                delay: 0.5
-                            }}
-                            whileHover={{ 
-                                scale: 1.02,
-                                y: -5,
-                                transition: { type: "spring", stiffness: 400, damping: 10 }
-                            }}
-                        >
-                            <Card className="relative overflow-hidden border-2 border-slate-800 bg-gradient-to-br from-slate-900 to-slate-800 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
-                                {/* Animated Glow Effect */}
-                                <motion.div
-                                    animate={{
-                                        opacity: [0.3, 0.6, 0.3],
-                                        scale: [1, 1.1, 1]
-                                    }}
-                                    transition={{
-                                        duration: 3,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
-                                    className={cn(
-                                        "absolute inset-0 bg-gradient-to-r opacity-10 blur-xl",
-                                        colorVariants[nextClass.color].gradient
-                                    )}
-                                />
-                                
-                                <CardHeader className="relative z-10">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <motion.div
-                                                animate={{ rotate: 360 }}
-                                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                                className={cn(
-                                                    "p-3 rounded-xl bg-gradient-to-br shadow-lg",
-                                                    colorVariants[nextClass.color].gradient
-                                                )}
-                                            >
-                                                <Sparkles className="h-6 w-6 text-white" />
-                                            </motion.div>
-                                            <div>
-                                                <CardTitle className="text-2xl text-white">Kelas Selanjutnya</CardTitle>
-                                                <p className="text-sm text-slate-400">
-                                                    {nextClass.is_today ? '🔥 Hari ini' : `📅 ${nextClass.day}`}
+                    {/* Mobile CTA */}
+                    <div className="mt-4 flex gap-2 sm:hidden">
+                        <div className="flex-1 flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
+                            <Clock className="h-4 w-4" />
+                            <span className="text-sm">{stats.classes_today} kelas hari ini</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Quick Stats - SAMA DENGAN DASHBOARD */}
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                >
+                    <QuickStatCard
+                        icon={BookOpen}
+                        label="Total Mata Kuliah"
+                        value={stats.total_courses}
+                        subtext="semester ini"
+                        color="emerald"
+                    />
+                    <QuickStatCard
+                        icon={CalendarDays}
+                        label="Kelas Per Minggu"
+                        value={stats.total_classes_per_week}
+                        subtext="total pertemuan"
+                        color="sky"
+                    />
+                    <QuickStatCard
+                        icon={Clock}
+                        label="Kelas Hari Ini"
+                        value={stats.classes_today}
+                        subtext={currentDay}
+                        color="amber"
+                    />
+                    <QuickStatCard
+                        icon={TrendingUp}
+                        label="Hari Tersibuk"
+                        value={stats.busiest_day}
+                        subtext="paling banyak"
+                        color="violet"
+                    />
+                </motion.div>
+
+                {/* Main Content Grid */}
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Left Column - Schedule */}
+                    <div className="space-y-6 lg:col-span-2">
+                        {/* Next Class */}
+                        {nextClass && (
+                            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="h-5 w-5 text-amber-600" />
+                                        <h2 className="font-semibold text-gray-900 dark:text-white">
+                                            Kelas Selanjutnya
+                                        </h2>
+                                    </div>
+                                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-900/30 dark:text-amber-400">
+                                        {nextClass.is_today ? 'Hari ini' : nextClass.day}
+                                    </span>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                                            {nextClass.course_name}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            {nextClass.course_code}
+                                        </p>
+                                        <div className="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                            <div className="flex items-center gap-1">
+                                                <Clock className="h-4 w-4" />
+                                                {nextClass.time_range}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="h-4 w-4" />
+                                                {nextClass.ruangan}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Schedule Tabs */}
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                            <div className="flex items-center gap-2 mb-4">
+                                <Target className="h-5 w-5 text-sky-600" />
+                                <h2 className="font-semibold text-gray-900 dark:text-white">
+                                    Jadwal Mingguan
+                                </h2>
+                            </div>
+
+                            <Tabs defaultValue={currentDay} className="w-full">
+                                <TabsList className="grid w-full grid-cols-7 bg-gray-100 dark:bg-gray-900 p-1">
+                                    {daysOrder.map((day) => (
+                                        <TabsTrigger 
+                                            key={day} 
+                                            value={day}
+                                            className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                                        >
+                                            {day.substring(0, 3)}
+                                        </TabsTrigger>
+                                    ))}
+                                </TabsList>
+                                {daysOrder.map((day) => (
+                                    <TabsContent key={day} value={day} className="space-y-3 mt-4">
+                                        {schedules[day] && schedules[day].length > 0 ? (
+                                            schedules[day].map((schedule, index) => (
+                                                <motion.div
+                                                    key={schedule.id}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                                                >
+                                                    <div className={cn('flex h-9 w-9 items-center justify-center rounded-full', colorVariants[schedule.color].badge)}>
+                                                        <GraduationCap className="h-4 w-4" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                            {schedule.course_name}
+                                                        </p>
+                                                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                            <Clock className="h-3 w-3" />
+                                                            {schedule.time_range}
+                                                            <span>•</span>
+                                                            <MapPin className="h-3 w-3" />
+                                                            {schedule.ruangan}
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-900 mb-2">
+                                                    <Calendar className="h-6 w-6 text-gray-400" />
+                                                </div>
+                                                <p className="text-sm text-gray-500">
+                                                    Tidak ada kelas pada hari {day}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </TabsContent>
+                                ))}
+                            </Tabs>
+                        </div>
+                    </div>
+
+                    {/* Right Column - Today's Schedule */}
+                    <div className="space-y-6">
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                            <div className="flex items-center gap-2 mb-4">
+                                <CheckCircle className="h-5 w-5 text-emerald-600" />
+                                <h2 className="font-semibold text-gray-900 dark:text-white">
+                                    Jadwal Hari Ini
+                                </h2>
+                            </div>
+
+                            <div className="space-y-3">
+                                {todaySchedule && todaySchedule.length > 0 ? (
+                                    todaySchedule.map((schedule) => (
+                                        <div
+                                            key={schedule.id}
+                                            className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50"
+                                        >
+                                            <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', colorVariants[schedule.color].badge)}>
+                                                <BookOpen className="h-4 w-4" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {schedule.course_name}
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {schedule.time_range}
+                                                </p>
+                                                <p className="text-xs text-gray-400">
+                                                    {schedule.ruangan}
                                                 </p>
                                             </div>
                                         </div>
-                                        <motion.div
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            <Badge className={cn("text-base px-4 py-2", colorVariants[nextClass.color].badge)}>
-                                                <Clock className="h-4 w-4 mr-2" />
-                                                {nextClass.time_range}
-                                            </Badge>
-                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className="text-center py-8">
+                                        <p className="text-sm text-gray-500">
+                                            Tidak ada kelas hari ini
+                                        </p>
                                     </div>
-                                </CardHeader>
-                                <CardContent className="relative z-10">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <h3 className="font-bold text-2xl text-white">
-                                                {nextClass.course_name}
-                                            </h3>
-                                            <p className="text-sm text-slate-400 mt-1">
-                                                {nextClass.course_code}
-                                            </p>
-                                        </div>
-                                        <div className="grid grid-cols-3 gap-4">
-                                            <motion.div
-                                                whileHover={{ x: 5 }}
-                                                className="flex items-center gap-2 text-sm"
-                                            >
-                                                <User className="h-4 w-4 text-slate-500" />
-                                                <span className="text-slate-300">{nextClass.dosen_name}</span>
-                                            </motion.div>
-                                            <motion.div
-                                                whileHover={{ x: 5 }}
-                                                className="flex items-center gap-2 text-sm"
-                                            >
-                                                <MapPin className="h-4 w-4 text-slate-500" />
-                                                <span className="text-slate-300">{nextClass.ruangan}</span>
-                                            </motion.div>
-                                            <motion.div
-                                                whileHover={{ x: 5 }}
-                                                className="flex items-center gap-2 text-sm"
-                                            >
-                                                <Timer className="h-4 w-4 text-slate-500" />
-                                                <span className="text-slate-300">{nextClass.duration}</span>
-                                            </motion.div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    )}
+                                )}
+                            </div>
+                        </div>
 
-                    {/* Schedule Tabs with Advanced Animation */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ 
-                            duration: 0.6,
-                            type: "spring",
-                            stiffness: 100,
-                            delay: 0.6
-                        }}
-                    >
-                        <Card className="bg-slate-900 border-slate-800 backdrop-blur-sm shadow-2xl">
-                            <CardHeader>
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.7 }}
-                                >
-                                    <CardTitle className="text-2xl flex items-center gap-2 text-white">
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        >
-                                            <Target className="h-6 w-6 text-blue-500" />
-                                        </motion.div>
-                                        Jadwal Mingguan
-                                    </CardTitle>
-                                </motion.div>
-                            </CardHeader>
-                            <CardContent>
-                                <Tabs defaultValue={currentDay} className="w-full">
-                                    <TabsList className="grid w-full grid-cols-7 bg-slate-800 p-1 border border-slate-700">
-                                        {daysOrder.map((day, index) => (
-                                            <motion.div
-                                                key={day}
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.8 + index * 0.05 }}
-                                            >
-                                                <TabsTrigger 
-                                                    value={day}
-                                                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white text-slate-400 hover:text-white transition-all"
-                                                >
-                                                    {day.substring(0, 3)}
-                                                </TabsTrigger>
-                                            </motion.div>
-                                        ))}
-                                    </TabsList>
-                                    {daysOrder.map((day) => (
-                                        <TabsContent key={day} value={day} className="space-y-4 mt-6">
-                                            {schedules[day] && schedules[day].length > 0 ? (
-                                                schedules[day].map((schedule, index) => (
-                                                    <motion.div
-                                                        key={schedule.id}
-                                                        initial={{ opacity: 0, x: -50, scale: 0.9 }}
-                                                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                                                        transition={{ 
-                                                            duration: 0.4,
-                                                            delay: index * 0.1,
-                                                            type: "spring",
-                                                            stiffness: 200
-                                                        }}
-                                                        whileHover={{ 
-                                                            scale: 1.02,
-                                                            x: 10,
-                                                            transition: { type: "spring", stiffness: 400, damping: 10 }
-                                                        }}
-                                                    >
-                                                        <Card className="relative overflow-hidden hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group border-l-4 border-slate-800 bg-slate-800/50">
-                                                            <motion.div
-                                                                initial={{ opacity: 0 }}
-                                                                whileHover={{ opacity: 0.1 }}
-                                                                transition={{ duration: 0.3 }}
-                                                                className={cn(
-                                                                    "absolute inset-0 bg-gradient-to-r",
-                                                                    colorVariants[schedule.color].gradient
-                                                                )}
-                                                            />
-                                                            <CardContent className="p-6 relative">
-                                                                <div className="flex items-start justify-between">
-                                                                    <div className="flex-1 space-y-3">
-                                                                        <div className="flex items-center gap-3">
-                                                                            <motion.div
-                                                                                whileHover={{ scale: 1.1 }}
-                                                                                whileTap={{ scale: 0.95 }}
-                                                                            >
-                                                                                <Badge className={cn("text-sm px-3 py-1", colorVariants[schedule.color].badge)}>
-                                                                                    <Clock className="h-3 w-3 mr-1" />
-                                                                                    {schedule.time_range}
-                                                                                </Badge>
-                                                                            </motion.div>
-                                                                            <span className="text-xs text-slate-500">{schedule.duration}</span>
-                                                                        </div>
-                                                                        <div>
-                                                                            <h4 className="font-bold text-lg text-white">
-                                                                                {schedule.course_name}
-                                                                            </h4>
-                                                                            <p className="text-sm text-slate-400">
-                                                                                {schedule.course_code}
-                                                                            </p>
-                                                                        </div>
-                                                                        <div className="flex flex-wrap gap-4 text-sm text-slate-400">
-                                                                            <motion.div
-                                                                                whileHover={{ x: 5 }}
-                                                                                className="flex items-center gap-2"
-                                                                            >
-                                                                                <User className="h-4 w-4" />
-                                                                                <span>{schedule.dosen_name}</span>
-                                                                            </motion.div>
-                                                                            <motion.div
-                                                                                whileHover={{ x: 5 }}
-                                                                                className="flex items-center gap-2"
-                                                                            >
-                                                                                <MapPin className="h-4 w-4" />
-                                                                                <span>{schedule.ruangan}</span>
-                                                                            </motion.div>
-                                                                        </div>
-                                                                        {schedule.notes && (
-                                                                            <p className="text-sm text-slate-500 italic">{schedule.notes}</p>
-                                                                        )}
-                                                                    </div>
-                                                                    <motion.div
-                                                                        whileHover={{ 
-                                                                            rotate: 360,
-                                                                            scale: 1.1
-                                                                        }}
-                                                                        transition={{ duration: 0.6 }}
-                                                                        className={cn(
-                                                                            "p-3 rounded-xl bg-gradient-to-br shadow-lg",
-                                                                            colorVariants[schedule.color].gradient
-                                                                        )}
-                                                                    >
-                                                                        <GraduationCap className="h-6 w-6 text-white" />
-                                                                    </motion.div>
-                                                                </div>
-                                                            </CardContent>
-                                                        </Card>
-                                                    </motion.div>
-                                                ))
-                                            ) : (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.9 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    transition={{ duration: 0.5 }}
-                                                    className="text-center py-16"
-                                                >
-                                                    <motion.div
-                                                        animate={{ 
-                                                            scale: [1, 1.1, 1],
-                                                            rotate: [0, 5, -5, 0]
-                                                        }}
-                                                        transition={{ 
-                                                            duration: 2,
-                                                            repeat: Infinity,
-                                                            ease: "easeInOut"
-                                                        }}
-                                                        className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800 mb-4"
-                                                    >
-                                                        <Calendar className="h-10 w-10 text-slate-600" />
-                                                    </motion.div>
-                                                    <h3 className="font-semibold text-xl mb-2 text-slate-300">
-                                                        Tidak Ada Kelas
-                                                    </h3>
-                                                    <p className="text-slate-500">
-                                                        Tidak ada jadwal kuliah pada hari {day}
-                                                    </p>
-                                                </motion.div>
-                                            )}
-                                        </TabsContent>
-                                    ))}
-                                </Tabs>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                        {/* Quick Info */}
+                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+                                Informasi
+                            </h3>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Total Mata Kuliah</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{stats.total_courses}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Kelas Minggu Ini</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{stats.total_classes_per_week}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-500">Hari Tersibuk</span>
+                                    <span className="font-medium text-gray-900 dark:text-white">{stats.busiest_day}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }
