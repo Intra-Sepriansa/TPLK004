@@ -1,18 +1,28 @@
 /**
  * Student Enhanced Help Center Page
- * Dark theme dengan FAQ, troubleshooting, dan feedback form
+ * Consistent UI with other student pages - Fixed version
  */
 
 import { useState } from 'react';
 import { Head } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-import { HelpCircle, MessageSquare, Send, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Search, BookOpen, AlertCircle, Mail, Phone,
+  Clock, ChevronDown, ChevronUp, Sparkles, MessageSquare, Send, CheckCircle
+} from 'lucide-react';
 import StudentLayout from '@/layouts/student-layout';
-import DarkContainer from '@/components/ui/dark-container';
-import ColoredHeader from '@/components/ui/colored-header';
-import InteractiveSearch from '@/components/ui/interactive-search';
-import InteractiveFAQ, { FAQCategory, type FAQItem } from '@/components/ui/interactive-faq';
-import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
+interface FAQItem {
+    id: string;
+    question: string;
+    answer: string;
+    category: string;
+}
 
 const mockFAQs: FAQItem[] = [
     {
@@ -63,11 +73,24 @@ const mockFAQs: FAQItem[] = [
         answer: 'Buka menu Pengaturan > Security, klik "Change Password", masukkan password lama dan password baru, lalu save.',
         category: 'Account',
     },
+    {
+        id: '9',
+        question: 'Kenapa saya tidak bisa scan QR code?',
+        answer: 'Pastikan Anda memberikan izin akses kamera ke browser. Jika masih bermasalah, coba refresh halaman atau gunakan browser lain.',
+        category: 'Technical',
+    },
+    {
+        id: '10',
+        question: 'Bagaimana cara melihat leaderboard?',
+        answer: 'Buka menu Leaderboard untuk melihat ranking kehadiran Anda dibandingkan dengan teman sekelas. Ranking diupdate secara real-time.',
+        category: 'Gamification',
+    },
 ];
 
 export default function StudentHelpCenterEnhanced() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
+    const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
     const [feedbackForm, setFeedbackForm] = useState({
         subject: '',
         category: 'general',
@@ -87,10 +110,6 @@ export default function StudentHelpCenterEnhanced() {
         return matchesCategory && matchesSearch;
     });
 
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-    };
-
     const handleSubmitFeedback = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -105,274 +124,365 @@ export default function StudentHelpCenterEnhanced() {
         setTimeout(() => setSubmitSuccess(false), 3000);
     };
 
+    const getCategoryColor = (category: string) => {
+        const colors: Record<string, string> = {
+            'Attendance': 'from-blue-500 to-blue-600',
+            'Tasks': 'from-purple-500 to-purple-600',
+            'Academic': 'from-green-500 to-green-600',
+            'Communication': 'from-pink-500 to-pink-600',
+            'Analytics': 'from-orange-500 to-orange-600',
+            'Gamification': 'from-yellow-500 to-yellow-600',
+            'Account': 'from-indigo-500 to-indigo-600',
+            'Technical': 'from-red-500 to-red-600',
+        };
+        return colors[category] || 'from-slate-500 to-slate-600';
+    };
+
     return (
         <StudentLayout>
             <Head title="Help Center" />
 
-            <div className="min-h-screen bg-[#000000]">
-                {/* Colored Header dengan animasi */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <ColoredHeader
-                        title="Help Center"
-                        subtitle="Find answers and get support"
-                        gradient="multi"
-                        sticky
-                    />
-                </motion.div>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-6">
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Help Center
+                        </h1>
+                        <p className="text-slate-600 dark:text-slate-400 mt-1">
+                            Find answers and get support
+                        </p>
+                    </motion.div>
 
-                <div className="container mx-auto px-4 py-8">
-                    {/* Search dengan animasi */}
+                    {/* Search Bar */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="mb-8"
+                        transition={{ delay: 0.1 }}
                     >
-                        <InteractiveSearch
-                            placeholder="Search for help..."
-                            onSearch={handleSearch}
-                            className="max-w-2xl mx-auto"
-                        />
+                        <Card>
+                            <CardContent className="pt-6">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search for help..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-10 h-12 text-lg"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
                     </motion.div>
 
-                    {/* Quick Help Cards dengan animasi stagger */}
-                    <motion.div
-                        variants={staggerContainerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-                    >
+                    {/* Quick Help Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             {
-                                icon: HelpCircle,
+                                icon: BookOpen,
                                 title: 'Browse FAQs',
                                 description: 'Find quick answers to common questions',
-                                gradient: 'from-purple-500 to-pink-500',
-                                glow: 'hover-glow-purple'
+                                gradient: 'from-purple-500 to-purple-600',
+                                count: mockFAQs.length,
                             },
                             {
                                 icon: MessageSquare,
                                 title: 'Contact Support',
                                 description: 'Get help from our support team',
-                                gradient: 'from-blue-500 to-cyan-500',
-                                glow: 'hover-glow-blue'
+                                gradient: 'from-blue-500 to-blue-600',
+                                count: '24/7',
                             },
                             {
-                                icon: Send,
+                                icon: Sparkles,
                                 title: 'Send Feedback',
                                 description: 'Help us improve the platform',
-                                gradient: 'from-pink-500 to-purple-500',
-                                glow: 'hover-glow-pink'
+                                gradient: 'from-pink-500 to-pink-600',
+                                count: 'Quick',
                             }
                         ].map((card, index) => (
                             <motion.div
                                 key={card.title}
-                                variants={staggerItemVariants}
-                                whileHover={{ scale: 1.02, y: -5 }}
-                                whileTap={{ scale: 0.98 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2 + index * 0.1 }}
                             >
-                                <DarkContainer
-                                    variant="secondary"
-                                    padding="lg"
-                                    rounded="xl"
-                                    className={`${card.glow} cursor-pointer`}
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <motion.div
-                                            initial={{ scale: 0, rotate: -180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
-                                            transition={{ delay: 0.3 + index * 0.1, type: "spring", stiffness: 200 }}
-                                            className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center flex-shrink-0`}
-                                        >
-                                            <card.icon className="w-6 h-6 text-white" />
-                                        </motion.div>
-                                        <div>
-                                            <h3 className="text-lg font-bold text-white mb-1 font-display">
-                                                {card.title}
-                                            </h3>
-                                            <p className="text-white/60 text-sm">
-                                                {card.description}
-                                            </p>
+                                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                                    <CardContent className="pt-6">
+                                        <div className="flex items-start gap-4">
+                                            <div className={`p-3 rounded-xl bg-gradient-to-br ${card.gradient}`}>
+                                                <card.icon className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-lg mb-1">
+                                                    {card.title}
+                                                </h3>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {card.description}
+                                                </p>
+                                                <Badge variant="outline" className="mt-2">
+                                                    {card.count}
+                                                </Badge>
+                                            </div>
                                         </div>
-                                    </div>
-                                </DarkContainer>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
                         ))}
-                    </motion.div>
+                    </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* FAQ Section dengan animasi */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="lg:col-span-2"
-                        >
-                            <DarkContainer variant="primary" padding="lg" rounded="xl">
-                                <motion.h2
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="text-2xl font-bold text-white mb-6 font-display"
-                                >
-                                    Frequently Asked Questions
-                                </motion.h2>
-
-                                {/* Category Filter */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6 }}
-                                >
-                                    <FAQCategory
-                                        categories={categories}
-                                        activeCategory={activeCategory}
-                                        onCategoryChange={setActiveCategory}
-                                        className="mb-6"
-                                    />
-                                </motion.div>
-
-                                {/* FAQ List */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.7 }}
-                                >
-                                    <InteractiveFAQ
-                                        faqs={filteredFAQs}
-                                        searchable={false}
-                                        groupByCategory={false}
-                                    />
-                                </motion.div>
-                            </DarkContainer>
-                        </motion.div>
-
-                        {/* Feedback Form dengan animasi */}
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 }}
-                        >
-                            <DarkContainer variant="secondary" padding="lg" rounded="xl">
-                                <motion.h3
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6 }}
-                                    className="text-xl font-bold text-white mb-4 font-display"
-                                >
-                                    Send Us a Message
-                                </motion.h3>
-
-                                    <form onSubmit={handleSubmitFeedback} className="space-y-4">
-                                        {/* Subject */}
-                                        <div>
-                                            <label className="block text-white/80 text-sm font-medium mb-2">
-                                                Subject
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={feedbackForm.subject}
-                                                onChange={e =>
-                                                    setFeedbackForm(prev => ({
-                                                        ...prev,
-                                                        subject: e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full px-4 py-3 rounded-lg glass border border-white/10 bg-transparent text-white placeholder:text-white/40 focus:border-purple-500/50 focus:glow-purple outline-none transition-all duration-300"
-                                                placeholder="What's your question about?"
-                                                required
-                                            />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* FAQ Section */}
+                        <div className="lg:col-span-2 space-y-6">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                            >
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Frequently Asked Questions</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {/* Category Filter */}
+                                        <div className="flex flex-wrap gap-2 mb-6">
+                                            {categories.map((category) => (
+                                                <Button
+                                                    key={category}
+                                                    variant={activeCategory === category ? 'default' : 'outline'}
+                                                    size="sm"
+                                                    onClick={() => setActiveCategory(category)}
+                                                    className={activeCategory === category ? 'bg-gradient-to-r from-blue-600 to-purple-600' : ''}
+                                                >
+                                                    {category}
+                                                </Button>
+                                            ))}
                                         </div>
 
-                                        {/* Category */}
-                                        <div>
-                                            <label className="block text-white/80 text-sm font-medium mb-2">
-                                                Category
-                                            </label>
-                                            <select
-                                                value={feedbackForm.category}
-                                                onChange={e =>
-                                                    setFeedbackForm(prev => ({
-                                                        ...prev,
-                                                        category: e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full px-4 py-3 rounded-lg glass border border-white/10 bg-transparent text-white focus:border-purple-500/50 focus:glow-purple outline-none transition-all duration-300"
-                                            >
-                                                <option value="general">General</option>
-                                                <option value="technical">Technical Issue</option>
-                                                <option value="feature">Feature Request</option>
-                                                <option value="bug">Bug Report</option>
-                                            </select>
-                                        </div>
-
-                                        {/* Message */}
-                                        <div>
-                                            <label className="block text-white/80 text-sm font-medium mb-2">
-                                                Message
-                                            </label>
-                                            <textarea
-                                                value={feedbackForm.message}
-                                                onChange={e =>
-                                                    setFeedbackForm(prev => ({
-                                                        ...prev,
-                                                        message: e.target.value,
-                                                    }))
-                                                }
-                                                rows={6}
-                                                className="w-full px-4 py-3 rounded-lg glass border border-white/10 bg-transparent text-white placeholder:text-white/40 focus:border-purple-500/50 focus:glow-purple outline-none transition-all duration-300 resize-none"
-                                                placeholder="Describe your issue or question..."
-                                                required
-                                            />
-                                        </div>
-
-                                        {/* Submit Button */}
-                                        <motion.button
-                                            type="submit"
-                                            disabled={isSubmitting}
-                                            className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:from-purple-500 hover:to-pink-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                        >
-                                            {isSubmitting ? (
-                                                <>
+                                        {/* FAQ List */}
+                                        <div className="space-y-3">
+                                            <AnimatePresence>
+                                                {filteredFAQs.map((faq, index) => (
                                                     <motion.div
-                                                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                                                        animate={{ rotate: 360 }}
-                                                        transition={{
-                                                            duration: 1,
-                                                            repeat: Infinity,
-                                                            ease: 'linear',
-                                                        }}
-                                                    />
-                                                    <span>Sending...</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Send className="w-5 h-5" />
-                                                    <span>Send Message</span>
-                                                </>
-                                            )}
-                                        </motion.button>
+                                                        key={faq.id}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        transition={{ delay: index * 0.05 }}
+                                                    >
+                                                        <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                                                            <button
+                                                                onClick={() => setExpandedFAQ(expandedFAQ === faq.id ? null : faq.id)}
+                                                                className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                                                            >
+                                                                <div className="flex items-center gap-3 flex-1 text-left">
+                                                                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${getCategoryColor(faq.category)}`} />
+                                                                    <span className="font-medium">{faq.question}</span>
+                                                                </div>
+                                                                {expandedFAQ === faq.id ? (
+                                                                    <ChevronUp className="w-5 h-5 text-slate-400" />
+                                                                ) : (
+                                                                    <ChevronDown className="w-5 h-5 text-slate-400" />
+                                                                )}
+                                                            </button>
+                                                            <AnimatePresence>
+                                                                {expandedFAQ === faq.id && (
+                                                                    <motion.div
+                                                                        initial={{ height: 0, opacity: 0 }}
+                                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                                        exit={{ height: 0, opacity: 0 }}
+                                                                        transition={{ duration: 0.2 }}
+                                                                    >
+                                                                        <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+                                                                            <p className="text-slate-600 dark:text-slate-400">
+                                                                                {faq.answer}
+                                                                            </p>
+                                                                            <Badge variant="outline" className="mt-2">
+                                                                                {faq.category}
+                                                                            </Badge>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
 
-                                        {/* Success Message */}
-                                        {submitSuccess && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="flex items-center gap-2 px-4 py-3 rounded-lg bg-green-500/20 border border-green-500/30 text-green-400"
-                                            >
-                                                <CheckCircle className="w-5 h-5" />
-                                                <span className="text-sm">Message sent successfully!</span>
-                                            </motion.div>
-                                        )}
-                                    </form>
-                                </DarkContainer>
+                                            {filteredFAQs.length === 0 && (
+                                                <div className="text-center py-12">
+                                                    <AlertCircle className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700 mb-3" />
+                                                    <p className="text-slate-600 dark:text-slate-400">
+                                                        No FAQs found matching your search
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
+                        </div>
+
+                        {/* Sidebar */}
+                        <div className="space-y-6">
+                            {/* Contact Info */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <Card className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">Contact Support</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div className="flex items-start gap-3">
+                                            <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-medium">Email</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    support@unpam.ac.id
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <Phone className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-medium">Phone</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    (021) 7412566
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm font-medium">Hours</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    Mon-Fri: 8AM - 5PM
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Feedback Form */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg">Send Us a Message</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <form onSubmit={handleSubmitFeedback} className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">
+                                                    Subject
+                                                </label>
+                                                <Input
+                                                    type="text"
+                                                    value={feedbackForm.subject}
+                                                    onChange={e =>
+                                                        setFeedbackForm(prev => ({
+                                                            ...prev,
+                                                            subject: e.target.value,
+                                                        }))
+                                                    }
+                                                    placeholder="What's your question about?"
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">
+                                                    Category
+                                                </label>
+                                                <select
+                                                    value={feedbackForm.category}
+                                                    onChange={e =>
+                                                        setFeedbackForm(prev => ({
+                                                            ...prev,
+                                                            category: e.target.value,
+                                                        }))
+                                                    }
+                                                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-background"
+                                                >
+                                                    <option value="general">General</option>
+                                                    <option value="technical">Technical Issue</option>
+                                                    <option value="feature">Feature Request</option>
+                                                    <option value="bug">Bug Report</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">
+                                                    Message
+                                                </label>
+                                                <Textarea
+                                                    value={feedbackForm.message}
+                                                    onChange={e =>
+                                                        setFeedbackForm(prev => ({
+                                                            ...prev,
+                                                            message: e.target.value,
+                                                        }))
+                                                    }
+                                                    rows={6}
+                                                    placeholder="Describe your issue or question..."
+                                                    required
+                                                />
+                                            </div>
+
+                                            <Button
+                                                type="submit"
+                                                disabled={isSubmitting}
+                                                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                                            >
+                                                {isSubmitting ? (
+                                                    <>
+                                                        <motion.div
+                                                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{
+                                                                duration: 1,
+                                                                repeat: Infinity,
+                                                                ease: 'linear',
+                                                            }}
+                                                        />
+                                                        Sending...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Send className="w-4 h-4 mr-2" />
+                                                        Send Message
+                                                    </>
+                                                )}
+                                            </Button>
+
+                                            <AnimatePresence>
+                                                {submitSuccess && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="flex items-center gap-2 px-4 py-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400"
+                                                    >
+                                                        <CheckCircle className="w-5 h-5" />
+                                                        <span className="text-sm">Message sent successfully!</span>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
             </div>
