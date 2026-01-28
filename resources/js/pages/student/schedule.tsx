@@ -7,12 +7,13 @@ import {
     User, 
     BookOpen, 
     TrendingUp,
-    ChevronRight,
     CalendarDays,
     Timer,
-    GraduationCap
+    GraduationCap,
+    Sparkles,
+    Target
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -44,17 +45,17 @@ interface Props {
     currentDay: string;
 }
 
-const colorVariants: Record<string, { bg: string; border: string; text: string; badge: string }> = {
-    blue: { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
-    green: { bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-300', badge: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
-    purple: { bg: 'bg-purple-50 dark:bg-purple-950/30', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300' },
-    orange: { bg: 'bg-orange-50 dark:bg-orange-950/30', border: 'border-orange-200 dark:border-orange-800', text: 'text-orange-700 dark:text-orange-300', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
-    pink: { bg: 'bg-pink-50 dark:bg-pink-950/30', border: 'border-pink-200 dark:border-pink-800', text: 'text-pink-700 dark:text-pink-300', badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' },
-    indigo: { bg: 'bg-indigo-50 dark:bg-indigo-950/30', border: 'border-indigo-200 dark:border-indigo-800', text: 'text-indigo-700 dark:text-indigo-300', badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' },
-    teal: { bg: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300' },
-    cyan: { bg: 'bg-cyan-50 dark:bg-cyan-950/30', border: 'border-cyan-200 dark:border-cyan-800', text: 'text-cyan-700 dark:text-cyan-300', badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300' },
-    amber: { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' },
-    rose: { bg: 'bg-rose-50 dark:bg-rose-950/30', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-700 dark:text-rose-300', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' },
+const colorVariants: Record<string, { gradient: string; badge: string }> = {
+    blue: { gradient: 'from-blue-500 to-blue-600', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300' },
+    green: { gradient: 'from-green-500 to-green-600', badge: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
+    purple: { gradient: 'from-purple-500 to-purple-600', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300' },
+    orange: { gradient: 'from-orange-500 to-orange-600', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' },
+    pink: { gradient: 'from-pink-500 to-pink-600', badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300' },
+    indigo: { gradient: 'from-indigo-500 to-indigo-600', badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' },
+    teal: { gradient: 'from-teal-500 to-teal-600', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300' },
+    cyan: { gradient: 'from-cyan-500 to-cyan-600', badge: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300' },
+    amber: { gradient: 'from-amber-500 to-amber-600', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300' },
+    rose: { gradient: 'from-rose-500 to-rose-600', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' },
 };
 
 const daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
@@ -64,258 +65,282 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
         <>
             <Head title="Jadwal Kuliah" />
 
-            <div className="space-y-6">
-                {/* Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Jadwal Kuliah</h1>
-                            <p className="text-muted-foreground mt-1">
-                                Lihat jadwal kuliah mingguan Anda
-                            </p>
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-6">
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3">
+                                    <CalendarDays className="h-10 w-10 text-blue-600" />
+                                    Jadwal Kuliah
+                                </h1>
+                                <p className="text-slate-600 dark:text-slate-400 mt-2">
+                                    Lihat jadwal kuliah mingguan Anda
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg">
+                                <Calendar className="h-5 w-5 text-blue-600" />
+                                <span className="font-semibold text-slate-700 dark:text-slate-300">{currentDay}</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="h-4 w-4" />
-                            <span className="font-medium">{currentDay}</span>
-                        </div>
+                    </motion.div>
+
+                    {/* Stats Cards */}
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.1 }}
+                        >
+                            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/20 hover:shadow-xl transition-all duration-300">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400">Total Mata Kuliah</p>
+                                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                                                {stats.total_courses}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">Semester ini</p>
+                                        </div>
+                                        <BookOpen className="h-12 w-12 text-blue-600/20" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                        >
+                            <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-500/20 hover:shadow-xl transition-all duration-300">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400">Kelas Per Minggu</p>
+                                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+                                                {stats.total_classes_per_week}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">Total pertemuan</p>
+                                        </div>
+                                        <CalendarDays className="h-12 w-12 text-purple-600/20" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                        >
+                            <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/20 hover:shadow-xl transition-all duration-300">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400">Kelas Hari Ini</p>
+                                            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+                                                {stats.classes_today}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">Pertemuan {currentDay}</p>
+                                        </div>
+                                        <Clock className="h-12 w-12 text-green-600/20" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}
+                        >
+                            <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border-orange-500/20 hover:shadow-xl transition-all duration-300">
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400">Hari Tersibuk</p>
+                                            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
+                                                {stats.busiest_day}
+                                            </p>
+                                            <p className="text-xs text-slate-500 mt-1">Paling banyak kelas</p>
+                                        </div>
+                                        <TrendingUp className="h-12 w-12 text-orange-600/20" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </div>
-                </motion.div>
 
-                {/* Stats Cards */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {/* Next Class Card */}
+                    {nextClass && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5 }}
+                        >
+                            <Card className="relative overflow-hidden border-2 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 hover:shadow-2xl transition-all duration-300">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn(
+                                                "p-3 rounded-xl bg-gradient-to-br shadow-lg",
+                                                colorVariants[nextClass.color].gradient
+                                            )}>
+                                                <Sparkles className="h-6 w-6 text-white" />
+                                            </div>
+                                            <div>
+                                                <CardTitle className="text-2xl">Kelas Selanjutnya</CardTitle>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {nextClass.is_today ? '🔥 Hari ini' : `📅 ${nextClass.day}`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Badge className={cn("text-base px-4 py-2", colorVariants[nextClass.color].badge)}>
+                                            <Clock className="h-4 w-4 mr-2" />
+                                            {nextClass.time_range}
+                                        </Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <h3 className="font-bold text-2xl text-slate-800 dark:text-slate-200">
+                                                {nextClass.course_name}
+                                            </h3>
+                                            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                                {nextClass.course_code}
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <User className="h-4 w-4 text-slate-500" />
+                                                <span className="text-slate-700 dark:text-slate-300">{nextClass.dosen_name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <MapPin className="h-4 w-4 text-slate-500" />
+                                                <span className="text-slate-700 dark:text-slate-300">{nextClass.ruangan}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Timer className="h-4 w-4 text-slate-500" />
+                                                <span className="text-slate-700 dark:text-slate-300">{nextClass.duration}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )}
+
+                    {/* Schedule Tabs */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
                     >
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Mata Kuliah</CardTitle>
-                                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+                            <CardHeader>
+                                <CardTitle className="text-2xl flex items-center gap-2">
+                                    <Target className="h-6 w-6 text-blue-600" />
+                                    Jadwal Mingguan
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats.total_courses}</div>
-                                <p className="text-xs text-muted-foreground">Semester ini</p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Kelas Per Minggu</CardTitle>
-                                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{stats.total_classes_per_week}</div>
-                                <p className="text-xs text-muted-foreground">Total pertemuan</p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
-                    >
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Kelas Hari Ini</CardTitle>
-                                <Clock className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{stats.classes_today}</div>
-                                <p className="text-xs text-muted-foreground">Pertemuan {currentDay}</p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}
-                    >
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Hari Tersibuk</CardTitle>
-                                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{stats.busiest_day}</div>
-                                <p className="text-xs text-muted-foreground">Paling banyak kelas</p>
+                                <Tabs defaultValue={currentDay} className="w-full">
+                                    <TabsList className="grid w-full grid-cols-7 bg-slate-100 dark:bg-slate-800 p-1">
+                                        {daysOrder.map((day) => (
+                                            <TabsTrigger 
+                                                key={day} 
+                                                value={day}
+                                                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
+                                            >
+                                                {day.substring(0, 3)}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
+                                    {daysOrder.map((day) => (
+                                        <TabsContent key={day} value={day} className="space-y-4 mt-6">
+                                            {schedules[day] && schedules[day].length > 0 ? (
+                                                schedules[day].map((schedule, index) => (
+                                                    <motion.div
+                                                        key={schedule.id}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                    >
+                                                        <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 group border-l-4">
+                                                            <div className={cn(
+                                                                "absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity",
+                                                                colorVariants[schedule.color].gradient
+                                                            )}></div>
+                                                            <CardContent className="p-6 relative">
+                                                                <div className="flex items-start justify-between">
+                                                                    <div className="flex-1 space-y-3">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <Badge className={cn("text-sm px-3 py-1", colorVariants[schedule.color].badge)}>
+                                                                                <Clock className="h-3 w-3 mr-1" />
+                                                                                {schedule.time_range}
+                                                                            </Badge>
+                                                                            <span className="text-xs text-slate-500">{schedule.duration}</span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <h4 className="font-bold text-lg text-slate-800 dark:text-slate-200">
+                                                                                {schedule.course_name}
+                                                                            </h4>
+                                                                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                {schedule.course_code}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-4 text-sm text-slate-600 dark:text-slate-400">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <User className="h-4 w-4" />
+                                                                                <span>{schedule.dosen_name}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <MapPin className="h-4 w-4" />
+                                                                                <span>{schedule.ruangan}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        {schedule.notes && (
+                                                                            <p className="text-sm text-slate-500 italic">{schedule.notes}</p>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className={cn(
+                                                                        "p-3 rounded-xl bg-gradient-to-br shadow-lg",
+                                                                        colorVariants[schedule.color].gradient
+                                                                    )}>
+                                                                        <GraduationCap className="h-6 w-6 text-white" />
+                                                                    </div>
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    </motion.div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-16">
+                                                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+                                                        <Calendar className="h-10 w-10 text-slate-400" />
+                                                    </div>
+                                                    <h3 className="font-semibold text-xl mb-2 text-slate-700 dark:text-slate-300">
+                                                        Tidak Ada Kelas
+                                                    </h3>
+                                                    <p className="text-slate-500">
+                                                        Tidak ada jadwal kuliah pada hari {day}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </TabsContent>
+                                    ))}
+                                </Tabs>
                             </CardContent>
                         </Card>
                     </motion.div>
                 </div>
-
-                {/* Next Class Card */}
-                {nextClass && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.5, delay: 0.5 }}
-                    >
-                        <Card className={cn(
-                            "border-2",
-                            colorVariants[nextClass.color].border,
-                            colorVariants[nextClass.color].bg
-                        )}>
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className={cn(
-                                            "p-2 rounded-lg",
-                                            colorVariants[nextClass.color].badge
-                                        )}>
-                                            <GraduationCap className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <CardTitle className="text-lg">Kelas Selanjutnya</CardTitle>
-                                            <CardDescription>
-                                                {nextClass.is_today ? 'Hari ini' : nextClass.day}
-                                            </CardDescription>
-                                        </div>
-                                    </div>
-                                    <Badge variant="secondary" className={colorVariants[nextClass.color].badge}>
-                                        {nextClass.time_range}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-3">
-                                    <div>
-                                        <h3 className={cn("font-semibold text-lg", colorVariants[nextClass.color].text)}>
-                                            {nextClass.course_name}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground">{nextClass.course_code}</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div className="flex items-center gap-2">
-                                            <User className="h-4 w-4 text-muted-foreground" />
-                                            <span>{nextClass.dosen_name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                                            <span>{nextClass.ruangan}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Timer className="h-4 w-4 text-muted-foreground" />
-                                            <span>{nextClass.duration}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
-
-                {/* Schedule Tabs */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                >
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Jadwal Mingguan</CardTitle>
-                            <CardDescription>
-                                Lihat jadwal kuliah per hari
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Tabs defaultValue={currentDay} className="w-full">
-                                <TabsList className="grid w-full grid-cols-7">
-                                    {daysOrder.map((day) => (
-                                        <TabsTrigger 
-                                            key={day} 
-                                            value={day}
-                                            className="text-xs"
-                                        >
-                                            {day.substring(0, 3)}
-                                        </TabsTrigger>
-                                    ))}
-                                </TabsList>
-                                {daysOrder.map((day, dayIndex) => (
-                                    <TabsContent key={day} value={day} className="space-y-4 mt-4">
-                                        {schedules[day] && schedules[day].length > 0 ? (
-                                            schedules[day].map((schedule, index) => (
-                                                <motion.div
-                                                    key={schedule.id}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                                                >
-                                                    <Card className={cn(
-                                                        "border-l-4 hover:shadow-md transition-shadow",
-                                                        colorVariants[schedule.color].border
-                                                    )}>
-                                                        <CardContent className="p-4">
-                                                            <div className="flex items-start justify-between">
-                                                                <div className="flex-1 space-y-2">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Badge 
-                                                                            variant="secondary"
-                                                                            className={colorVariants[schedule.color].badge}
-                                                                        >
-                                                                            {schedule.time_range}
-                                                                        </Badge>
-                                                                        <span className="text-xs text-muted-foreground">
-                                                                            {schedule.duration}
-                                                                        </span>
-                                                                    </div>
-                                                                    <div>
-                                                                        <h4 className="font-semibold text-base">
-                                                                            {schedule.course_name}
-                                                                        </h4>
-                                                                        <p className="text-sm text-muted-foreground">
-                                                                            {schedule.course_code}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <User className="h-3.5 w-3.5" />
-                                                                            <span>{schedule.dosen_name}</span>
-                                                                        </div>
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <MapPin className="h-3.5 w-3.5" />
-                                                                            <span>{schedule.ruangan}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                    {schedule.notes && (
-                                                                        <p className="text-sm text-muted-foreground italic">
-                                                                            {schedule.notes}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                </motion.div>
-                                            ))
-                                        ) : (
-                                            <div className="text-center py-12">
-                                                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                                <h3 className="font-semibold text-lg mb-2">Tidak Ada Kelas</h3>
-                                                <p className="text-muted-foreground">
-                                                    Tidak ada jadwal kuliah pada hari {day}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </TabsContent>
-                                ))}
-                            </Tabs>
-                        </CardContent>
-                    </Card>
-                </motion.div>
             </div>
         </>
     );
