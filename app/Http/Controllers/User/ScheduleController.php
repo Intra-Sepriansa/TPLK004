@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Models\Schedule;
 use App\Models\MahasiswaCourse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,40 +15,47 @@ class ScheduleController extends Controller
     {
         $mahasiswa = $request->user('mahasiswa');
         
-        // Get enrolled courses
-        $enrolledCourseIds = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
-            ->pluck('course_id')
-            ->toArray();
+        // Get enrolled courses from mahasiswa_courses table
+        $enrolledCourses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
 
-        // Get schedules for enrolled courses
-        $schedules = Schedule::with(['course', 'dosen'])
-            ->whereIn('course_id', $enrolledCourseIds)
-            ->active()
-            ->orderBy('hari')
-            ->orderBy('jam_mulai')
-            ->get()
-            ->groupBy('hari');
+        // Map schedule day to Indonesian
+        $dayMapping = [
+            'monday' => 'Senin',
+            'tuesday' => 'Selasa',
+            'wednesday' => 'Rabu',
+            'thursday' => 'Kamis',
+            'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
+            'sunday' => 'Minggu',
+        ];
+
+        // Transform mahasiswa_courses to schedule format
+        $schedules = $enrolledCourses->map(function ($course) use ($dayMapping) {
+            $startTime = \Carbon\Carbon::parse($course->schedule_time);
+            $endTime = $startTime->copy()->addMinutes($course->sks * 50); // Assume 50 min per SKS
+            
+            return [
+                'id' => $course->id,
+                'course_name' => $course->name,
+                'course_code' => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
+                'dosen_name' => 'Dosen', // Default since we don't have dosen relation
+                'ruangan' => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
+                'time_range' => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
+                'jam_mulai' => $startTime->format('H:i'),
+                'jam_selesai' => $endTime->format('H:i'),
+                'duration' => ($course->sks * 50) . ' menit',
+                'notes' => 'SKS: ' . $course->sks . ' | Mode: ' . ucfirst($course->mode),
+                'color' => $this->getColorForCourse($course->id),
+                'hari' => $dayMapping[$course->schedule_day] ?? 'Senin',
+            ];
+        })->groupBy('hari');
 
         // Days of week in order
         $daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         
         // Organize schedules by day
         $organizedSchedules = collect($daysOrder)->mapWithKeys(function ($day) use ($schedules) {
-            return [$day => $schedules->get($day, collect())->map(function ($schedule) {
-                return [
-                    'id' => $schedule->id,
-                    'course_name' => $schedule->course->nama,
-                    'course_code' => $schedule->course->kode,
-                    'dosen_name' => $schedule->dosen->nama,
-                    'ruangan' => $schedule->ruangan,
-                    'time_range' => $schedule->time_range,
-                    'jam_mulai' => $schedule->jam_mulai->format('H:i'),
-                    'jam_selesai' => $schedule->jam_selesai->format('H:i'),
-                    'duration' => $schedule->duration,
-                    'notes' => $schedule->notes,
-                    'color' => $this->getColorForCourse($schedule->course_id),
-                ];
-            })];
+            return [$day => $schedules->get($day, collect())];
         });
 
         // Get today's schedule
@@ -61,12 +67,10 @@ class ScheduleController extends Controller
 
         // Statistics
         $stats = [
-            'total_courses' => count($enrolledCourseIds),
-            'total_classes_per_week' => Schedule::whereIn('course_id', $enrolledCourseIds)
-                ->active()
-                ->count(),
+            'total_courses' => $enrolledCourses->count(),
+            'total_classes_per_week' => $enrolledCourses->count(),
             'classes_today' => $todaySchedule->count(),
-            'busiest_day' => $organizedSchedules->map->count()->sortDesc()->keys()->first(),
+            'busiest_day' => $organizedSchedules->map->count()->sortDesc()->keys()->first() ?? 'Senin',
         ];
 
         return Inertia::render('student/schedule', [
