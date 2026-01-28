@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('event_type');
             $table->text('message');
-            $table->integer('mahasiswa_id')->nullable();
+            $table->unsignedBigInteger('mahasiswa_id')->nullable();
             $table->foreignId('attendance_session_id')
                 ->nullable()
                 ->constrained('attendance_sessions')
@@ -20,9 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['event_type', 'created_at']);
-        });
-
-        Schema::table('audit_logs', function (Blueprint $table) {
+            
             $table->foreign('mahasiswa_id')
                 ->references('id')
                 ->on('mahasiswa')
