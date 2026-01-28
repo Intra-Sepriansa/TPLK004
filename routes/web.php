@@ -275,6 +275,9 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     // Personal Analytics
     Route::get('user/personal-analytics', [\App\Http\Controllers\User\PersonalAnalyticsController::class, 'index'])->name('user.personal-analytics');
     
+    // Schedule (Jadwal Kuliah)
+    Route::get('user/schedule', [\App\Http\Controllers\User\ScheduleController::class, 'index'])->name('user.schedule');
+    
     // Notifications
     Route::get('user/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('user.notifications');
     Route::post('user/notifications/{id}/read', [\App\Http\Controllers\User\NotificationController::class, 'markAsRead'])->name('user.notifications.read');

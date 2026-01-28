@@ -35,6 +35,7 @@ import {
     Bell,
     Settings,
     HelpCircle,
+    CalendarDays,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -47,6 +48,11 @@ const studentNavItems: NavItem[] = [
         title: 'Absen',
         href: '/user/absen',
         icon: QrCode,
+    },
+    {
+        title: 'Jadwal Kuliah',
+        href: '/user/schedule',
+        icon: CalendarDays,
     },
     {
         title: 'Rekapan',
