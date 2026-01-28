@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'last_activity_at')) {
-                $table->timestamp('last_activity_at')->nullable()->after('avatar_url');
+                $table->timestamp('last_activity_at')->nullable();
             }
         });
 
