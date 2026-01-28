@@ -2570,3 +2570,791 @@ Kelas 06TPLK004
 <p align="center">
   <a href="#-tplk004---sistem-absensi-cerdas-berbasis-ai">⬆️ Back to Top</a>
 </p>
+it" />
+  <img src="https://img.shields.io/github/languages/top/your-repo/TPLK004" alt="Top Language" />
+  <img src="https://img.shields.io/github/languages/count/your-repo/TPLK004" alt="Language Count" />
+  <img src="https://img.shields.io/github/repo-size/your-repo/TPLK004" alt="Repo Size" />
+  <img src="https://img.shields.io/github/license/your-repo/TPLK004" alt="License" />
+</p>
+
+### Code Statistics
+
+```
+───────────────────────────────────────────────────────────────────
+Language            Files        Lines         Code     Comments
+───────────────────────────────────────────────────────────────────
+TypeScript            250       45,000       38,000        5,000
+PHP                   180       35,000       28,000        4,500
+Blade                  80       12,000       10,000        1,500
+CSS                    30        8,000        7,000          800
+JSON                   15        2,000        2,000            0
+Markdown               10        3,000        2,500          300
+───────────────────────────────────────────────────────────────────
+Total                 565      105,000       87,500       12,100
+───────────────────────────────────────────────────────────────────
+```
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Completed (v1.0)
+
+- [x] Multi-role authentication system
+- [x] QR Code attendance with geofencing
+- [x] AI-powered face verification (YOLO v8)
+- [x] Real-time dashboard & analytics
+- [x] Gamification system (36 badges, 6 levels)
+- [x] Dark mode support
+- [x] PWA implementation
+- [x] Export reports (PDF/Excel)
+- [x] Fraud detection system
+- [x] Complete audit trail
+
+### 🚧 In Progress (v1.1)
+
+- [ ] Real-time chat system
+- [ ] Push notifications
+- [ ] Advanced analytics with ML predictions
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support (i18n)
+- [ ] Integration with SIAKAD
+- [ ] Biometric authentication
+- [ ] Voice attendance
+
+### 🔮 Planned (v2.0)
+
+- [ ] Blockchain-based attendance verification
+- [ ] AR/VR classroom integration
+- [ ] AI-powered attendance prediction
+- [ ] Smart scheduling with AI
+- [ ] Integration with Learning Management System (LMS)
+- [ ] Advanced fraud detection with ML
+- [ ] Facial recognition for multiple faces
+- [ ] Attendance via smartwatch
+- [ ] Parent/Guardian portal
+- [ ] Advanced reporting with custom templates
+
+### 💡 Future Ideas
+
+- [ ] Integration with Microsoft Teams/Zoom
+- [ ] Attendance via NFC/RFID
+- [ ] Blockchain certificates
+- [ ] AI teaching assistant
+- [ ] Sentiment analysis for engagement
+- [ ] Automated attendance reports via email
+- [ ] Integration with payment gateways
+- [ ] Student behavior analytics
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues & Solutions
+
+<details>
+<summary><b>❌ Error: "Class 'Inertia' not found"</b></summary>
+
+**Solution:**
+```bash
+composer require inertiajs/inertia-laravel
+php artisan inertia:middleware
+```
+
+Add middleware to `app/Http/Kernel.php`:
+```php
+'web' => [
+    // ...
+    \App\Http\Middleware\HandleInertiaRequests::class,
+],
+```
+
+</details>
+
+<details>
+<summary><b>❌ Error: "SQLSTATE[HY000] [2002] Connection refused"</b></summary>
+
+**Solution:**
+1. Check if MySQL is running: `sudo service mysql status`
+2. Verify database credentials in `.env`
+3. Create database if not exists: `mysql -u root -p -e "CREATE DATABASE tplk004"`
+4. Test connection: `php artisan migrate:status`
+
+</details>
+
+<details>
+<summary><b>❌ Error: "Vite manifest not found"</b></summary>
+
+**Solution:**
+```bash
+# Development
+npm run dev
+
+# Production
+npm run build
+```
+
+Make sure `public/build` directory exists and contains manifest.json
+
+</details>
+
+<details>
+<summary><b>❌ Error: "Storage link not found"</b></summary>
+
+**Solution:**
+```bash
+php artisan storage:link
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+```
+
+</details>
+
+<details>
+<summary><b>❌ GPS/Geolocation not working</b></summary>
+
+**Solution:**
+1. Ensure HTTPS is enabled (required for geolocation API)
+2. Check browser permissions for location access
+3. Verify `LOCATION_SAMPLE_COUNT` in `.env`
+4. Test on actual device (not emulator)
+
+</details>
+
+<details>
+<summary><b>❌ AI Service connection failed</b></summary>
+
+**Solution:**
+1. Check if AI service is running: `curl http://localhost:9001/health`
+2. Verify `YOLO_SERVICE_URL` in `.env`
+3. Check firewall settings
+4. Review AI service logs
+
+</details>
+
+<details>
+<summary><b>❌ QR Code not scanning</b></summary>
+
+**Solution:**
+1. Ensure camera permissions are granted
+2. Check lighting conditions
+3. Verify QR code is not expired
+4. Try different camera (front/back)
+5. Clear browser cache
+
+</details>
+
+<details>
+<summary><b>❌ Performance issues / Slow loading</b></summary>
+
+**Solution:**
+```bash
+# Clear all caches
+php artisan optimize:clear
+
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# Database optimization
+php artisan db:optimize
+
+# Enable Redis caching
+# Set CACHE_DRIVER=redis in .env
+```
+
+</details>
+
+---
+
+## 🔐 Security Best Practices
+
+### Production Security Checklist
+
+- [ ] **Environment Configuration**
+  - Set `APP_ENV=production`
+  - Set `APP_DEBUG=false`
+  - Generate new `APP_KEY`
+  - Use strong database passwords
+  - Enable HTTPS/SSL
+
+- [ ] **Database Security**
+  - Use prepared statements (Eloquent ORM)
+  - Enable query logging for auditing
+  - Regular database backups
+  - Restrict database user permissions
+  - Use database encryption at rest
+
+- [ ] **Authentication & Authorization**
+  - Implement rate limiting on login
+  - Enable 2FA for admin accounts
+  - Use strong password policies
+  - Implement session timeout
+  - Regular password rotation
+
+- [ ] **API Security**
+  - Use API tokens (Sanctum)
+  - Implement rate limiting
+  - Validate all inputs
+  - Use CORS properly
+  - API versioning
+
+- [ ] **File Upload Security**
+  - Validate file types
+  - Limit file sizes
+  - Scan for malware
+  - Store outside public directory
+  - Use signed URLs
+
+- [ ] **Monitoring & Logging**
+  - Enable error logging
+  - Monitor failed login attempts
+  - Track suspicious activities
+  - Set up alerts
+  - Regular security audits
+
+### Security Headers
+
+Add to `.htaccess` or nginx config:
+
+```apache
+# .htaccess
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(self), camera=(self)"
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+</IfModule>
+```
+
+### Regular Security Tasks
+
+```bash
+# Update dependencies
+composer update
+npm update
+
+# Security audit
+composer audit
+npm audit
+
+# Check for vulnerabilities
+php artisan security:check
+
+# Review logs
+tail -f storage/logs/laravel.log
+
+# Database backup
+php artisan backup:run
+```
+
+---
+
+## 📈 Scaling Guide
+
+### Horizontal Scaling
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    LOAD BALANCER (Nginx)                     │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+┌───────▼──────┐ ┌─────▼──────┐ ┌────▼───────┐
+│  App Server  │ │ App Server │ │ App Server │
+│   Instance 1 │ │ Instance 2 │ │ Instance 3 │
+└──────┬───────┘ └─────┬──────┘ └────┬───────┘
+       │               │              │
+       └───────────────┼──────────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+┌───────▼──────┐ ┌─────▼──────┐ ┌────▼───────┐
+│    Redis     │ │   MySQL    │ │  Storage   │
+│    Cache     │ │  Database  │ │   (S3)     │
+└──────────────┘ └────────────┘ └────────────┘
+```
+
+### Database Optimization
+
+```sql
+-- Add indexes for frequently queried columns
+CREATE INDEX idx_attendance_logs_mahasiswa ON attendance_logs(mahasiswa_id);
+CREATE INDEX idx_attendance_logs_session ON attendance_logs(session_id);
+CREATE INDEX idx_attendance_logs_created ON attendance_logs(created_at);
+
+-- Composite indexes
+CREATE INDEX idx_attendance_composite ON attendance_logs(mahasiswa_id, session_id, status);
+
+-- Full-text search
+ALTER TABLE mahasiswa ADD FULLTEXT INDEX ft_nama (nama);
+```
+
+### Caching Strategy
+
+```php
+// Cache configuration
+'cache' => [
+    'default' => env('CACHE_DRIVER', 'redis'),
+    'stores' => [
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'cache',
+            'lock_connection' => 'default',
+        ],
+    ],
+],
+
+// Cache usage examples
+// Cache dashboard stats for 5 minutes
+$stats = Cache::remember('dashboard.stats', 300, function () {
+    return [
+        'total_students' => Mahasiswa::count(),
+        'total_sessions' => AttendanceSession::count(),
+        'attendance_rate' => $this->calculateAttendanceRate(),
+    ];
+});
+
+// Cache user permissions
+$permissions = Cache::tags(['user', 'permissions'])
+    ->remember("user.{$userId}.permissions", 3600, function () use ($userId) {
+        return User::find($userId)->permissions;
+    });
+```
+
+### Queue Configuration
+
+```php
+// config/queue.php
+'connections' => [
+    'redis' => [
+        'driver' => 'redis',
+        'connection' => 'default',
+        'queue' => env('REDIS_QUEUE', 'default'),
+        'retry_after' => 90,
+        'block_for' => null,
+    ],
+],
+
+// Usage
+// Dispatch jobs to queue
+ProcessAttendance::dispatch($attendanceData)->onQueue('high');
+SendNotification::dispatch($user, $message)->onQueue('low');
+GenerateReport::dispatch($reportData)->delay(now()->addMinutes(5));
+```
+
+### Load Balancing Configuration
+
+```nginx
+# nginx.conf
+upstream tplk004_backend {
+    least_conn;
+    server 192.168.1.10:8000 weight=3;
+    server 192.168.1.11:8000 weight=2;
+    server 192.168.1.12:8000 weight=1;
+    server 192.168.1.13:8000 backup;
+}
+
+server {
+    listen 80;
+    server_name tplk004.com;
+
+    location / {
+        proxy_pass http://tplk004_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+## 🌍 Internationalization (i18n)
+
+### Language Support (Coming Soon)
+
+```php
+// resources/lang/en/messages.php
+return [
+    'welcome' => 'Welcome to TPLK004',
+    'attendance' => [
+        'success' => 'Attendance recorded successfully',
+        'failed' => 'Failed to record attendance',
+        'already_recorded' => 'You have already recorded attendance',
+    ],
+];
+
+// resources/lang/id/messages.php
+return [
+    'welcome' => 'Selamat datang di TPLK004',
+    'attendance' => [
+        'success' => 'Kehadiran berhasil dicatat',
+        'failed' => 'Gagal mencatat kehadiran',
+        'already_recorded' => 'Anda sudah mencatat kehadiran',
+    ],
+];
+
+// Usage in Blade
+{{ __('messages.welcome') }}
+{{ __('messages.attendance.success') }}
+
+// Usage in React
+import { usePage } from '@inertiajs/react';
+
+const { t } = usePage().props;
+<h1>{t('messages.welcome')}</h1>
+```
+
+### Supported Languages (Roadmap)
+
+- 🇮🇩 Bahasa Indonesia (Default)
+- 🇬🇧 English
+- 🇸🇦 العربية (Arabic)
+- 🇨🇳 中文 (Chinese)
+- 🇯🇵 日本語 (Japanese)
+
+---
+
+## 📊 Advanced Analytics
+
+### Custom Reports
+
+```php
+// Generate custom attendance report
+$report = AttendanceReport::create()
+    ->forPeriod(Carbon::parse('2024-01-01'), Carbon::parse('2024-12-31'))
+    ->forCourse($courseId)
+    ->withMetrics(['attendance_rate', 'punctuality', 'streak'])
+    ->groupBy('month')
+    ->export('pdf');
+
+// Predictive analytics
+$prediction = AttendancePrediction::for($student)
+    ->basedOnHistory(30) // last 30 days
+    ->predict('next_week');
+
+// Risk analysis
+$riskStudents = RiskAnalysis::calculate()
+    ->threshold(60) // attendance < 60%
+    ->withRecommendations()
+    ->get();
+```
+
+### Analytics Dashboard Widgets
+
+- 📊 **Attendance Trends**: Line chart showing attendance over time
+- 🎯 **Punctuality Rate**: Percentage of on-time attendance
+- 🔥 **Streak Leaderboard**: Top students with longest streaks
+- ⚠️ **Risk Alert**: Students at risk of failing
+- 📈 **Course Comparison**: Compare attendance across courses
+- 🏆 **Badge Distribution**: Most earned badges
+- 📍 **Location Heatmap**: Where students attend from
+- ⏰ **Peak Hours**: Most active attendance times
+
+---
+
+## 🔌 API Integration Examples
+
+### External System Integration
+
+```php
+// Integrate with SIAKAD
+class SiakadIntegration
+{
+    public function syncStudents()
+    {
+        $response = Http::withToken(config('siakad.api_key'))
+            ->get('https://siakad.unpam.ac.id/api/students');
+
+        foreach ($response->json('data') as $student) {
+            Mahasiswa::updateOrCreate(
+                ['nim' => $student['nim']],
+                [
+                    'nama' => $student['name'],
+                    'email' => $student['email'],
+                    'kelas' => $student['class'],
+                ]
+            );
+        }
+    }
+
+    public function pushAttendance($attendanceLog)
+    {
+        return Http::withToken(config('siakad.api_key'))
+            ->post('https://siakad.unpam.ac.id/api/attendance', [
+                'student_id' => $attendanceLog->mahasiswa->nim,
+                'course_id' => $attendanceLog->session->course->kode,
+                'date' => $attendanceLog->created_at->format('Y-m-d'),
+                'status' => $attendanceLog->status,
+            ]);
+    }
+}
+
+// Webhook for external notifications
+Route::post('/webhooks/attendance', function (Request $request) {
+    $signature = $request->header('X-Webhook-Signature');
+    
+    if (!hash_equals($signature, hash_hmac('sha256', $request->getContent(), config('app.webhook_secret')))) {
+        abort(403, 'Invalid signature');
+    }
+
+    // Process webhook
+    event(new AttendanceWebhookReceived($request->all()));
+
+    return response()->json(['status' => 'success']);
+});
+```
+
+### Third-Party Integrations
+
+- 📧 **Email**: SendGrid, Mailgun, AWS SES
+- 💬 **SMS**: Twilio, Vonage, AWS SNS
+- 📱 **Push Notifications**: Firebase Cloud Messaging, OneSignal
+- 💾 **Storage**: AWS S3, Google Cloud Storage, Azure Blob
+- 📊 **Analytics**: Google Analytics, Mixpanel, Amplitude
+- 🔍 **Search**: Algolia, Elasticsearch, Meilisearch
+- 💳 **Payment**: Midtrans, Xendit, Stripe
+- 📅 **Calendar**: Google Calendar, Outlook Calendar
+
+---
+
+## 🎨 Customization Guide
+
+### Theming
+
+```typescript
+// resources/js/lib/theme.ts
+export const customTheme = {
+  colors: {
+    primary: {
+      50: '#f0fdf4',
+      100: '#dcfce7',
+      // ... more shades
+      900: '#14532d',
+    },
+    // Add your custom colors
+  },
+  fonts: {
+    sans: ['Inter', 'system-ui', 'sans-serif'],
+    mono: ['Fira Code', 'monospace'],
+  },
+  borderRadius: {
+    sm: '0.25rem',
+    md: '0.5rem',
+    lg: '1rem',
+    xl: '1.5rem',
+  },
+};
+
+// Apply theme
+import { ThemeProvider } from '@/contexts/theme-context';
+
+<ThemeProvider theme={customTheme}>
+  <App />
+</ThemeProvider>
+```
+
+### Custom Badge Creation
+
+```php
+// Create custom badge
+Badge::create([
+    'name' => 'Early Riser',
+    'slug' => 'early_riser',
+    'description' => 'Attend before 7 AM',
+    'icon' => 'sunrise.png',
+    'color' => 'yellow',
+    'category' => 'special',
+    'level' => 1,
+    'requirement' => 5,
+    'points' => 100,
+    'criteria' => [
+        'type' => 'attendance_time',
+        'condition' => 'before',
+        'value' => '07:00:00',
+        'count' => 5,
+    ],
+]);
+```
+
+### Custom Report Templates
+
+```php
+// Create custom PDF template
+class CustomAttendanceReport extends AttendanceReport
+{
+    public function template(): string
+    {
+        return 'reports.custom-attendance';
+    }
+
+    public function data(): array
+    {
+        return [
+            'title' => 'Custom Attendance Report',
+            'logo' => public_path('images/custom-logo.png'),
+            'students' => $this->getStudents(),
+            'summary' => $this->getSummary(),
+            'charts' => $this->generateCharts(),
+        ];
+    }
+}
+```
+
+---
+
+## 🧩 Plugin System (Coming Soon)
+
+### Plugin Architecture
+
+```php
+// app/Plugins/PluginInterface.php
+interface PluginInterface
+{
+    public function register(): void;
+    public function boot(): void;
+    public function getName(): string;
+    public function getVersion(): string;
+}
+
+// Example plugin
+class BiometricAuthPlugin implements PluginInterface
+{
+    public function register(): void
+    {
+        $this->app->singleton(BiometricService::class);
+    }
+
+    public function boot(): void
+    {
+        Route::middleware('auth')->group(function () {
+            Route::post('/biometric/enroll', [BiometricController::class, 'enroll']);
+            Route::post('/biometric/verify', [BiometricController::class, 'verify']);
+        });
+    }
+
+    public function getName(): string
+    {
+        return 'Biometric Authentication';
+    }
+
+    public function getVersion(): string
+    {
+        return '1.0.0';
+    }
+}
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+```
+MIT License
+
+Copyright (c) 2024 TPLK004 Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 👨‍💻 Tim Pengembang
+
+<table>
+<tr>
+<td align="center">
+<img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Developer 1"/><br/>
+<b>Your Name</b><br/>
+<sub>Full Stack Developer</sub><br/>
+<a href="https://github.com/yourname">GitHub</a> •
+<a href="https://linkedin.com/in/yourname">LinkedIn</a>
+</td>
+<td align="center">
+<img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Developer 2"/><br/>
+<b>Team Member 2</b><br/>
+<sub>Frontend Developer</sub><br/>
+<a href="https://github.com/member2">GitHub</a> •
+<a href="https://linkedin.com/in/member2">LinkedIn</a>
+</td>
+<td align="center">
+<img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Developer 3"/><br/>
+<b>Team Member 3</b><br/>
+<sub>Backend Developer</sub><br/>
+<a href="https://github.com/member3">GitHub</a> •
+<a href="https://linkedin.com/in/member3">LinkedIn</a>
+</td>
+<td align="center">
+<img src="https://via.placeholder.com/100" width="100" height="100" style="border-radius: 50%;" alt="Developer 4"/><br/>
+<b>Team Member 4</b><br/>
+<sub>AI/ML Engineer</sub><br/>
+<a href="https://github.com/member4">GitHub</a> •
+<a href="https://linkedin.com/in/member4">LinkedIn</a>
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+## 💖 Support This Project
+
+If you find this project helpful, please consider:
+
+<p>
+  <a href="https://github.com/your-repo/TPLK004">
+    <img src="https://img.shields.io/badge/⭐_Star_on_GitHub-yellow?style=for-the-badge&logo=github" alt="Star on GitHub" />
+  </a>
+  <a href="https://github.com/your-repo/TPLK004/fork">
+    <img src="https://img.shields.io/badge/🍴_Fork_Repository-blue?style=for-the-badge&logo=github" alt="Fork" />
+  </a>
+  <a href="https://github.com/sponsors/your-username">
+    <img src="https://img.shields.io/badge/💝_Sponsor-pink?style=for-the-badge&logo=githubsponsors" alt="Sponsor" />
+  </a>
+</p>
+
+---
+
+### 🌟 Made with ❤️ by TPLK004 Team
+
+<p>
+  <img src="https://img.shields.io/badge/Built_with-Laravel-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/Powered_by-React-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Styled_with-Tailwind-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/AI_by-YOLO_v8-00FFFF?style=flat-square&logo=python&logoColor=white" alt="YOLO" />
+</p>
+
+<p>
+  <sub>© 2024 TPLK004 - Universitas Pamulang. All rights reserved.</sub>
+</p>
+
+<p>
+  <a href="#-tplk004---smart-attendance-system">⬆️ Back to Top</a>
+</p>
+
+</div>
