@@ -68,115 +68,104 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
 
             <div className="p-6 space-y-6">
                 <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Header */}
+                    {/* Header with Stats - Similar to Informasi Tugas */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5 }}
+                        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-8 text-white shadow-2xl"
                     >
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-3">
-                                    <CalendarDays className="h-10 w-10 text-blue-600" />
-                                    Jadwal Kuliah
-                                </h1>
-                                <p className="text-slate-600 dark:text-slate-400 mt-2">
-                                    Lihat jadwal kuliah mingguan Anda
-                                </p>
+                        {/* Background Pattern */}
+                        <div className="absolute inset-0 opacity-10">
+                            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-white blur-3xl" />
+                            <div className="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-white blur-2xl" />
+                        </div>
+
+                        <div className="relative z-10">
+                            {/* Title Section */}
+                            <div className="flex items-start gap-4 mb-8">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+                                    <CalendarDays className="h-7 w-7" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-sm font-medium text-blue-100">Akademik</span>
+                                    </div>
+                                    <h1 className="text-3xl font-bold mb-2">Jadwal Kuliah</h1>
+                                    <p className="text-blue-100 text-sm">
+                                        Lihat dan kelola jadwal kuliah dengan mudah dan terorganisir
+                                    </p>
+                                </div>
+                                <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                                    <Calendar className="h-4 w-4" />
+                                    <span className="font-medium text-sm">{currentDay}</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg">
-                                <Calendar className="h-5 w-5 text-blue-600" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{currentDay}</span>
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="flex items-center gap-3"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-400/30">
+                                        <BookOpen className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-100">Total Kuliah</p>
+                                        <p className="text-2xl font-bold">{stats.total_courses}</p>
+                                    </div>
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="flex items-center gap-3"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-400/30">
+                                        <Clock className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-100">Hari Ini</p>
+                                        <p className="text-2xl font-bold">{stats.classes_today}</p>
+                                    </div>
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="flex items-center gap-3"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-400/30">
+                                        <CalendarDays className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-100">Per Minggu</p>
+                                        <p className="text-2xl font-bold">{stats.total_classes_per_week}</p>
+                                    </div>
+                                </motion.div>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="flex items-center gap-3"
+                                >
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-400/30">
+                                        <TrendingUp className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-blue-100">Tersibuk</p>
+                                        <p className="text-xl font-bold">{stats.busiest_day}</p>
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
                     </motion.div>
-
-                    {/* Stats Cards */}
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.1 }}
-                        >
-                            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-blue-500/20 hover:shadow-xl transition-all duration-300">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">Total Mata Kuliah</p>
-                                            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-                                                {stats.total_courses}
-                                            </p>
-                                            <p className="text-xs text-slate-500 mt-1">Semester ini</p>
-                                        </div>
-                                        <BookOpen className="h-12 w-12 text-blue-600/20" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.2 }}
-                        >
-                            <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border-purple-500/20 hover:shadow-xl transition-all duration-300">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">Kelas Per Minggu</p>
-                                            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
-                                                {stats.total_classes_per_week}
-                                            </p>
-                                            <p className="text-xs text-slate-500 mt-1">Total pertemuan</p>
-                                        </div>
-                                        <CalendarDays className="h-12 w-12 text-purple-600/20" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                        >
-                            <Card className="bg-gradient-to-br from-green-500/10 to-green-600/10 border-green-500/20 hover:shadow-xl transition-all duration-300">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">Kelas Hari Ini</p>
-                                            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
-                                                {stats.classes_today}
-                                            </p>
-                                            <p className="text-xs text-slate-500 mt-1">Pertemuan {currentDay}</p>
-                                        </div>
-                                        <Clock className="h-12 w-12 text-green-600/20" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                        >
-                            <Card className="bg-gradient-to-br from-orange-500/10 to-orange-600/10 border-orange-500/20 hover:shadow-xl transition-all duration-300">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">Hari Tersibuk</p>
-                                            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
-                                                {stats.busiest_day}
-                                            </p>
-                                            <p className="text-xs text-slate-500 mt-1">Paling banyak kelas</p>
-                                        </div>
-                                        <TrendingUp className="h-12 w-12 text-orange-600/20" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    </div>
 
                     {/* Next Class Card */}
                     {nextClass && (
