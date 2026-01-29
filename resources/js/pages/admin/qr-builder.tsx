@@ -639,7 +639,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 </div>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
                     <div className="space-y-6">
                         <motion.div 
