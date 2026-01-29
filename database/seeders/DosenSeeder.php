@@ -17,7 +17,6 @@ class DosenSeeder extends Seeder
                 'email' => 'ahmad.fauzi@unpam.ac.id',
                 'phone' => '081234567890',
                 'password' => Hash::make('password'),
-                'is_active' => true,
             ],
             [
                 'nama' => 'Dr. Siti Nurhaliza, M.T',
@@ -25,7 +24,6 @@ class DosenSeeder extends Seeder
                 'email' => 'siti.nurhaliza@unpam.ac.id',
                 'phone' => '081234567891',
                 'password' => Hash::make('password'),
-                'is_active' => true,
             ],
             [
                 'nama' => 'Prof. Budi Santoso, Ph.D',
@@ -33,7 +31,13 @@ class DosenSeeder extends Seeder
                 'email' => 'budi.santoso@unpam.ac.id',
                 'phone' => '081234567892',
                 'password' => Hash::make('password'),
-                'is_active' => true,
+            ],
+            [
+                'nama' => 'Intra Sepriansa, S.Kom',
+                'nidn' => '0412019801',
+                'email' => 'intra.sepriansa@unpam.ac.id',
+                'phone' => '081234567893',
+                'password' => Hash::make('dosen123'),
             ],
         ];
 
