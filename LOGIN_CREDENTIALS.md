@@ -12,25 +12,29 @@
 - **URL**: http://localhost:8000/login (pilih mode "Admin")
 
 ## Dosen
-- **NIDN**: 0401018901 (atau NIDN dosen lainnya)
-- **Password**: dosen123
 - **URL**: http://localhost:8000/login (pilih mode "Dosen")
 
-### Daftar Dosen:
-1. SANTI RAHAYU S.KOM., M.KOM. - NIDN: 0401018901
-2. INES HEIDIANI IKASARI S.SI., M.KOM. - NIDN: 0402018902
-3. OKTA IRAWATI S.KOM., M.KOM. - NIDN: 0403018903
-4. ANDIN EKA SAFITRI S.KOM., M.KOM. - NIDN: 0404018904
-5. GALUH SAPUTRI S.KOM., M.KOM. - NIDN: 0405018905
-6. HADI ZAKARIA S.KOM., M.KOM., M.M. - NIDN: 0406018906
-7. YULIANA S.KOM., M.KOM. - NIDN: 0407018907
-8. IR. TRI PRASETYO S.KOM., S.T., M.KOM. - NIDN: 0408018908
+### Dosen UNPAM (Password: dosen123):
+1. SANTI RAHAYU S.KOM., M.KOM. - NIDN: `0401018901` - Password: `dosen123`
+2. INES HEIDIANI IKASARI S.SI., M.KOM. - NIDN: `0402018902` - Password: `dosen123`
+3. OKTA IRAWATI S.KOM., M.KOM. - NIDN: `0403018903` - Password: `dosen123`
+4. ANDIN EKA SAFITRI S.KOM., M.KOM. - NIDN: `0404018904` - Password: `dosen123`
+5. GALUH SAPUTRI S.KOM., M.KOM. - NIDN: `0405018905` - Password: `dosen123`
+6. HADI ZAKARIA S.KOM., M.KOM., M.M. - NIDN: `0406018906` - Password: `dosen123`
+7. YULIANA S.KOM., M.KOM. - NIDN: `0407018907` - Password: `dosen123`
+8. IR. TRI PRASETYO S.KOM., S.T., M.KOM. - NIDN: `0408018908` - Password: `dosen123`
 
-### Dosen Seeder (untuk testing):
-1. Dr. Ahmad Fauzi, M.Kom - NIDN: 0412018901 - Password: password
-2. Dr. Siti Nurhaliza, M.T - NIDN: 0415028902 - Password: password
-3. Prof. Budi Santoso, Ph.D - NIDN: 0420038903 - Password: password
-4. **Intra Sepriansa, S.Kom - NIDN: 0412019801 - Password: dosen123** ✅
+### Dosen Seeder (Password: password):
+9. Dr. Ahmad Fauzi, M.Kom - NIDN: `0412018901` - Password: `password`
+10. Dr. Siti Nurhaliza, M.T - NIDN: `0415028902` - Password: `password`
+11. Prof. Budi Santoso, Ph.D - NIDN: `0420038903` - Password: `password`
+
+### Dosen Custom (Password: dosen123):
+12. **Intra Sepriansa, S.Kom - NIDN: `0412019801` - Password: `dosen123`** ⭐
+
+**Total: 12 Dosen tersedia**
+
+Lihat `DAFTAR_DOSEN_LENGKAP.md` untuk detail lengkap semua dosen.
 
 ## Mahasiswa
 - **NIM**: [NIM Mahasiswa]
