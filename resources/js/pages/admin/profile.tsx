@@ -55,9 +55,9 @@ export default function AdminProfile() {
         }
     }, [flash?.success]);
 
-    const avatarUrl = avatarPreview || (auth.user as any).avatar_url 
+    const avatarUrl = avatarPreview || ((auth.user as any).avatar_url 
         ? `${(auth.user as any).avatar_url.startsWith('http') ? '' : '/storage/'}${(auth.user as any).avatar_url}`
-        : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`;
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth.user.name)}&background=3b82f6&color=fff&size=400&bold=true`);
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
