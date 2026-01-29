@@ -26,6 +26,12 @@
 7. YULIANA S.KOM., M.KOM. - NIDN: 0407018907
 8. IR. TRI PRASETYO S.KOM., S.T., M.KOM. - NIDN: 0408018908
 
+### Dosen Seeder (untuk testing):
+1. Dr. Ahmad Fauzi, M.Kom - NIDN: 0412018901 - Password: password
+2. Dr. Siti Nurhaliza, M.T - NIDN: 0415028902 - Password: password
+3. Prof. Budi Santoso, Ph.D - NIDN: 0420038903 - Password: password
+4. **Intra Sepriansa, S.Kom - NIDN: 0412019801 - Password: dosen123** ✅
+
 ## Mahasiswa
 - **NIM**: [NIM Mahasiswa]
 - **Password**: tplk004#[2 digit terakhir NIM]
