@@ -661,7 +661,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     <BarChart data={hourlyData}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="#94a3b8" interval={3} /><YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} /><Bar dataKey="tokens" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
                                 </ResponsiveContainer>
                             </div>
-                        </div>
+                        </motion.div>
                         <motion.div 
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
