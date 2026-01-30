@@ -38,7 +38,7 @@ const containerVariants = {
         transition: {
             staggerChildren: 0.06,
             delayChildren: 0.1,
-            when: "beforeChildren",
+            when: "beforeChildren" as const,
         },
     },
 };
@@ -56,7 +56,7 @@ const itemVariants = {
         scale: 1,
         rotateX: 0,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 120,
             damping: 18,
             mass: 0.8,
@@ -75,7 +75,7 @@ const cardVariants = {
         y: 0,
         scale: 1,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 100,
             damping: 15,
             delay: i * 0.05,
@@ -86,7 +86,7 @@ const cardVariants = {
         y: -5,
         rotateY: 2,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 400,
             damping: 25,
         },
@@ -107,7 +107,7 @@ const modalVariants = {
         scale: 1,
         y: 0,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 300,
             damping: 30,
         },
@@ -140,7 +140,7 @@ const badgeVariants = {
         scale: 1,
         opacity: 1,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 500,
             damping: 25,
             delay: i * 0.05,
@@ -552,7 +552,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             </SelectContent>
                         </Select>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Tugas List */}
                 <motion.div 
