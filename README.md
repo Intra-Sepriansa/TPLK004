@@ -3283,6 +3283,1659 @@ SOFTWARE.
 
 ---
 
+## 🔌 Complete API Reference
+
+### Base URL
+```
+Production: https://tplk004.com/api
+Development: http://localhost:8000/api
+```
+
+### Authentication
+
+All API requests require authentication using Bearer tokens.
+
+```http
+Authorization: Bearer {your-token-here}
+```
+
+#### Get API Token
+
+```http
+POST /api/auth/token
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "token": "1|abc123...",
+    "type": "Bearer",
+    "expires_in": 3600
+  }
+}
+```
+
+---
+
+### 📊 Dashboard API
+
+#### Get Dashboard Statistics
+
+```http
+GET /api/dashboard/stats
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_students": 1250,
+    "total_sessions": 450,
+    "attendance_rate": 87.5,
+    "active_sessions": 12,
+    "today_attendance": 340,
+    "pending_verifications": 23
+  }
+}
+```
+
+#### Get Attendance Trends
+
+```http
+GET /api/dashboard/trends?period=week
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `period`: `day`, `week`, `month`, `year`
+- `start_date`: YYYY-MM-DD (optional)
+- `end_date`: YYYY-MM-DD (optional)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    "datasets": [
+      {
+        "label": "Present",
+        "data": [85, 92, 88, 90, 87]
+      },
+      {
+        "label": "Late",
+        "data": [10, 5, 8, 7, 9]
+      },
+      {
+        "label": "Absent",
+        "data": [5, 3, 4, 3, 4]
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 👥 Student Management API
+
+#### List All Students
+
+```http
+GET /api/students?page=1&per_page=20&search=john
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `page`: Page number (default: 1)
+- `per_page`: Items per page (default: 20, max: 100)
+- `search`: Search by name or NIM
+- `kelas`: Filter by class
+- `sort_by`: `nama`, `nim`, `created_at`
+- `sort_order`: `asc`, `desc`
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "current_page": 1,
+    "data": [
+      {
+        "id": 1,
+        "nim": "2024010001",
+        "nama": "John Doe",
+        "email": "john@example.com",
+        "kelas": "06TPLK004",
+        "fakultas": "Ilmu Komputer",
+        "attendance_rate": 92.5,
+        "total_points": 1250,
+        "level": 4,
+        "badges_count": 12,
+        "created_at": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "total": 1250,
+    "per_page": 20,
+    "last_page": 63
+  }
+}
+```
+
+#### Get Student Detail
+
+```http
+GET /api/students/{id}
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "nim": "2024010001",
+    "nama": "John Doe",
+    "email": "john@example.com",
+    "phone": "+62812345678",
+    "kelas": "06TPLK004",
+    "fakultas": "Ilmu Komputer",
+    "avatar_url": "https://example.com/avatars/1.jpg",
+    "attendance_stats": {
+      "total_sessions": 50,
+      "present": 45,
+      "late": 3,
+      "absent": 2,
+      "rate": 92.5
+    },
+    "gamification": {
+      "total_points": 1250,
+      "level": 4,
+      "level_name": "Teladan",
+      "badges": 12,
+      "current_streak": 7
+    },
+    "recent_attendance": [
+      {
+        "date": "2024-01-20",
+        "course": "Pemrograman Web",
+        "status": "present",
+        "check_in_time": "08:05:00"
+      }
+    ]
+  }
+}
+```
+
+#### Create Student
+
+```http
+POST /api/students
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "nim": "2024010100",
+  "nama": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "password123",
+  "kelas": "06TPLK004",
+  "fakultas": "Ilmu Komputer",
+  "phone": "+62812345679"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Student created successfully",
+  "data": {
+    "id": 1251,
+    "nim": "2024010100",
+    "nama": "Jane Smith",
+    "email": "jane@example.com"
+  }
+}
+```
+
+#### Update Student
+
+```http
+PUT /api/students/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "nama": "Jane Smith Updated",
+  "email": "jane.new@example.com",
+  "phone": "+62812345680"
+}
+```
+
+#### Delete Student
+
+```http
+DELETE /api/students/{id}
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Student deleted successfully"
+}
+```
+
+#### Bulk Import Students
+
+```http
+POST /api/students/import
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+
+file: students.xlsx
+```
+
+**Excel Format:**
+| NIM | Nama | Email | Kelas | Fakultas | Phone |
+|-----|------|-------|-------|----------|-------|
+| 2024010001 | John Doe | john@example.com | 06TPLK004 | Ilmu Komputer | +62812345678 |
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Import completed",
+  "data": {
+    "total": 100,
+    "success": 95,
+    "failed": 5,
+    "errors": [
+      {
+        "row": 10,
+        "nim": "2024010010",
+        "error": "Duplicate NIM"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 📅 Attendance Session API
+
+#### List Sessions
+
+```http
+GET /api/sessions?status=active&date=2024-01-20
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `status`: `active`, `closed`, `scheduled`
+- `date`: YYYY-MM-DD
+- `course_id`: Filter by course
+- `dosen_id`: Filter by lecturer
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "course": {
+        "id": 1,
+        "nama": "Pemrograman Web",
+        "kode": "TI101"
+      },
+      "dosen": {
+        "id": 1,
+        "nama": "Dr. Ahmad Fauzi",
+        "nidn": "0412018901"
+      },
+      "session_date": "2024-01-20",
+      "start_time": "08:00:00",
+      "end_time": "10:00:00",
+      "status": "active",
+      "qr_code": "https://example.com/qr/abc123.png",
+      "token": "ABC123XYZ",
+      "location": {
+        "latitude": -6.2088,
+        "longitude": 106.8456,
+        "radius": 100,
+        "address": "Gedung A, Lantai 2"
+      },
+      "stats": {
+        "total_students": 40,
+        "present": 35,
+        "late": 3,
+        "absent": 2
+      }
+    }
+  ]
+}
+```
+
+#### Create Session
+
+```http
+POST /api/sessions
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "course_id": 1,
+  "session_date": "2024-01-20",
+  "start_time": "08:00:00",
+  "end_time": "10:00:00",
+  "location": {
+    "latitude": -6.2088,
+    "longitude": 106.8456,
+    "radius": 100,
+    "address": "Gedung A, Lantai 2"
+  },
+  "notes": "Pertemuan ke-5: React Hooks"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Session created successfully",
+  "data": {
+    "id": 451,
+    "token": "XYZ789ABC",
+    "qr_code": "https://example.com/qr/xyz789.png",
+    "expires_at": "2024-01-20T10:00:00Z"
+  }
+}
+```
+
+#### Activate Session
+
+```http
+POST /api/sessions/{id}/activate
+Authorization: Bearer {token}
+```
+
+#### Close Session
+
+```http
+POST /api/sessions/{id}/close
+Authorization: Bearer {token}
+```
+
+#### Regenerate QR Code
+
+```http
+POST /api/sessions/{id}/regenerate-qr
+Authorization: Bearer {token}
+```
+
+---
+
+### ✅ Attendance Submission API
+
+#### Submit Attendance
+
+```http
+POST /api/attendance/submit
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+
+token: ABC123XYZ
+location: {"latitude": -6.2088, "longitude": 106.8456, "accuracy": 10}
+selfie: [file]
+device_info: {"model": "iPhone 13", "os": "iOS 16"}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Attendance submitted successfully",
+  "data": {
+    "id": 1234,
+    "status": "present",
+    "check_in_time": "08:05:23",
+    "points_earned": 10,
+    "badges_unlocked": [
+      {
+        "id": 1,
+        "name": "Early Bird I",
+        "points": 50
+      }
+    ],
+    "streak": {
+      "current": 8,
+      "record": 15
+    }
+  }
+}
+```
+
+**Error Responses:**
+
+```json
+// Invalid token
+{
+  "success": false,
+  "error": "INVALID_TOKEN",
+  "message": "QR code is invalid or expired"
+}
+
+// Outside geofence
+{
+  "success": false,
+  "error": "LOCATION_INVALID",
+  "message": "You are outside the allowed area",
+  "data": {
+    "your_location": {"lat": -6.2100, "lng": 106.8500},
+    "required_location": {"lat": -6.2088, "lng": 106.8456},
+    "distance": 150,
+    "max_distance": 100
+  }
+}
+
+// Face not detected
+{
+  "success": false,
+  "error": "FACE_NOT_DETECTED",
+  "message": "No face detected in selfie. Please try again."
+}
+
+// Already submitted
+{
+  "success": false,
+  "error": "ALREADY_SUBMITTED",
+  "message": "You have already submitted attendance for this session"
+}
+```
+
+---
+
+### 🎮 Gamification API
+
+#### Get User Badges
+
+```http
+GET /api/gamification/badges
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_badges": 36,
+    "unlocked": 12,
+    "locked": 24,
+    "badges": [
+      {
+        "id": 1,
+        "name": "Streak Master",
+        "description": "Hadir berturut-turut",
+        "category": "streak",
+        "level": 1,
+        "icon": "/images/badges/streak_master.png",
+        "color": "orange",
+        "points": 50,
+        "requirement": "3 hari streak",
+        "is_unlocked": true,
+        "unlocked_at": "2024-01-15T10:30:00Z",
+        "progress": {
+          "current": 3,
+          "required": 3,
+          "percentage": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "Streak Master II",
+        "description": "Hadir berturut-turut",
+        "category": "streak",
+        "level": 2,
+        "icon": "/images/badges/streak_master_2.png",
+        "color": "orange",
+        "points": 100,
+        "requirement": "5 hari streak",
+        "is_unlocked": false,
+        "progress": {
+          "current": 3,
+          "required": 5,
+          "percentage": 60
+        }
+      }
+    ]
+  }
+}
+```
+
+#### Get Leaderboard
+
+```http
+GET /api/gamification/leaderboard?period=week&limit=100
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `period`: `day`, `week`, `month`, `all`
+- `limit`: Number of results (default: 50, max: 100)
+- `kelas`: Filter by class
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "period": "week",
+    "updated_at": "2024-01-20T15:30:00Z",
+    "my_rank": 15,
+    "leaderboard": [
+      {
+        "rank": 1,
+        "student": {
+          "id": 1,
+          "nim": "2024010001",
+          "nama": "John Doe",
+          "avatar_url": "https://example.com/avatars/1.jpg"
+        },
+        "points": 1250,
+        "level": 5,
+        "badges": 18,
+        "attendance_rate": 98.5,
+        "streak": 15
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 📊 Analytics & Reports API
+
+#### Get Attendance Report
+
+```http
+GET /api/reports/attendance?start_date=2024-01-01&end_date=2024-01-31&format=json
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `start_date`: YYYY-MM-DD (required)
+- `end_date`: YYYY-MM-DD (required)
+- `format`: `json`, `pdf`, `excel`, `csv`
+- `course_id`: Filter by course
+- `student_id`: Filter by student
+- `group_by`: `day`, `week`, `month`, `course`, `student`
+
+**Response (JSON):**
+```json
+{
+  "success": true,
+  "data": {
+    "period": {
+      "start": "2024-01-01",
+      "end": "2024-01-31"
+    },
+    "summary": {
+      "total_sessions": 50,
+      "total_attendances": 1850,
+      "average_rate": 92.5,
+      "present": 1700,
+      "late": 100,
+      "absent": 50
+    },
+    "by_course": [
+      {
+        "course": "Pemrograman Web",
+        "sessions": 10,
+        "attendance_rate": 95.0
+      }
+    ],
+    "by_student": [
+      {
+        "student": "John Doe",
+        "nim": "2024010001",
+        "attendance_rate": 98.0
+      }
+    ]
+  }
+}
+```
+
+**Response (PDF/Excel/CSV):**
+Returns file download with appropriate Content-Type header.
+
+---
+
+### 🔔 Notifications API
+
+#### Get Notifications
+
+```http
+GET /api/notifications?unread=true&page=1
+Authorization: Bearer {token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "unread_count": 5,
+    "notifications": [
+      {
+        "id": "uuid-123",
+        "type": "attendance_reminder",
+        "title": "Sesi Absensi Aktif",
+        "message": "Jangan lupa absen untuk mata kuliah Pemrograman Web",
+        "data": {
+          "session_id": 451,
+          "course": "Pemrograman Web",
+          "expires_at": "2024-01-20T10:00:00Z"
+        },
+        "read_at": null,
+        "created_at": "2024-01-20T08:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+#### Mark as Read
+
+```http
+POST /api/notifications/{id}/read
+Authorization: Bearer {token}
+```
+
+#### Mark All as Read
+
+```http
+POST /api/notifications/read-all
+Authorization: Bearer {token}
+```
+
+---
+
+### 🔍 Search API
+
+#### Global Search
+
+```http
+GET /api/search?q=john&type=students,courses
+Authorization: Bearer {token}
+```
+
+**Query Parameters:**
+- `q`: Search query (required, min 3 characters)
+- `type`: Comma-separated types: `students`, `courses`, `sessions`, `dosen`
+- `limit`: Results per type (default: 10)
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "students": [
+      {
+        "id": 1,
+        "nim": "2024010001",
+        "nama": "John Doe",
+        "kelas": "06TPLK004"
+      }
+    ],
+    "courses": [
+      {
+        "id": 1,
+        "kode": "TI101",
+        "nama": "Pemrograman Web"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 📈 Rate Limiting
+
+All API endpoints are rate-limited to prevent abuse:
+
+| Endpoint Type | Rate Limit |
+|---------------|------------|
+| Authentication | 5 requests/minute |
+| Read Operations | 60 requests/minute |
+| Write Operations | 30 requests/minute |
+| File Uploads | 10 requests/minute |
+
+**Rate Limit Headers:**
+```
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1642680000
+```
+
+**Rate Limit Exceeded Response:**
+```json
+{
+  "success": false,
+  "error": "RATE_LIMIT_EXCEEDED",
+  "message": "Too many requests. Please try again later.",
+  "retry_after": 60
+}
+```
+
+---
+
+### 🔒 API Security
+
+#### API Key Authentication (Alternative)
+
+For server-to-server communication:
+
+```http
+GET /api/endpoint
+X-API-Key: your-api-key-here
+```
+
+#### Webhook Signatures
+
+All webhook payloads are signed with HMAC-SHA256:
+
+```
+X-Signature: sha256=abc123...
+```
+
+Verify signature:
+```php
+$signature = hash_hmac('sha256', $payload, $secret);
+if (!hash_equals($signature, $_SERVER['HTTP_X_SIGNATURE'])) {
+    throw new Exception('Invalid signature');
+}
+```
+
+---
+
+### 📝 API Response Format
+
+All API responses follow this standard format:
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... },
+  "meta": {
+    "timestamp": "2024-01-20T15:30:00Z",
+    "version": "1.0.0"
+  }
+}
+```
+
+**Error Response:**
+```json
+{
+  "success": false,
+  "error": "ERROR_CODE",
+  "message": "Human-readable error message",
+  "errors": {
+    "field_name": ["Validation error message"]
+  },
+  "meta": {
+    "timestamp": "2024-01-20T15:30:00Z",
+    "version": "1.0.0"
+  }
+}
+```
+
+### HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | OK - Request successful |
+| 201 | Created - Resource created |
+| 204 | No Content - Successful, no response body |
+| 400 | Bad Request - Invalid request |
+| 401 | Unauthorized - Authentication required |
+| 403 | Forbidden - Insufficient permissions |
+| 404 | Not Found - Resource not found |
+| 422 | Unprocessable Entity - Validation failed |
+| 429 | Too Many Requests - Rate limit exceeded |
+| 500 | Internal Server Error - Server error |
+| 503 | Service Unavailable - Maintenance mode |
+
+
+---
+
+---
+
+## 🌐 Production Deployment Guide
+
+### Pre-Deployment Checklist
+
+- [ ] **Code Quality**
+  - [ ] All tests passing
+  - [ ] No console.log() in production code
+  - [ ] Code linted and formatted
+  - [ ] Security vulnerabilities fixed
+  - [ ] Performance optimized
+
+- [ ] **Environment Configuration**
+  - [ ] `.env.production` configured
+  - [ ] `APP_ENV=production`
+  - [ ] `APP_DEBUG=false`
+  - [ ] Strong `APP_KEY` generated
+  - [ ] Database credentials secured
+  - [ ] Mail service configured
+  - [ ] Storage configured (S3/local)
+
+- [ ] **Security**
+  - [ ] SSL certificate installed
+  - [ ] HTTPS enforced
+  - [ ] Security headers configured
+  - [ ] CORS properly configured
+  - [ ] Rate limiting enabled
+  - [ ] Firewall rules set
+
+- [ ] **Performance**
+  - [ ] Assets minified and compressed
+  - [ ] Images optimized
+  - [ ] Caching configured (Redis)
+  - [ ] CDN configured
+  - [ ] Database indexed
+  - [ ] Query optimization done
+
+- [ ] **Monitoring**
+  - [ ] Error tracking (Sentry)
+  - [ ] Performance monitoring (New Relic)
+  - [ ] Uptime monitoring
+  - [ ] Log aggregation
+  - [ ] Backup system configured
+
+---
+
+## 🐳 Docker Deployment
+
+### Docker Compose Setup
+
+Create `docker-compose.prod.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: tplk004-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./storage:/var/www/storage
+    networks:
+      - tplk004-network
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: tplk004-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/ssl:/etc/nginx/ssl
+    networks:
+      - tplk004-network
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: tplk004-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - tplk004-network
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:alpine
+    container_name: tplk004-redis
+    restart: unless-stopped
+    networks:
+      - tplk004-network
+    ports:
+      - "6379:6379"
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: tplk004-ai
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    networks:
+      - tplk004-network
+    environment:
+      - MODEL_PATH=/models/yolov8m.pt
+      - DEVICE=cpu
+    volumes:
+      - ./ai-service/models:/models
+
+networks:
+  tplk004-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+```
+
+### Dockerfile.prod
+
+```dockerfile
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    nginx
+
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy application files
+COPY . /var/www
+
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Install Node.js and build assets
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
+RUN npm install
+RUN npm run build
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www
+RUN chmod -R 755 /var/www/storage
+RUN chmod -R 755 /var/www/bootstrap/cache
+
+# Expose port
+EXPOSE 9000
+
+CMD ["php-fpm"]
+```
+
+### Deploy Commands
+
+```bash
+# Build and start containers
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Run migrations
+docker-compose exec app php artisan migrate --force
+
+# Seed database (if needed)
+docker-compose exec app php artisan db:seed --force
+
+# Optimize application
+docker-compose exec app php artisan optimize
+docker-compose exec app php artisan config:cache
+docker-compose exec app php artisan route:cache
+docker-compose exec app php artisan view:cache
+
+# Set permissions
+docker-compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker-compose exec app chmod -R 775 storage bootstrap/cache
+
+# View logs
+docker-compose logs -f app
+```
+
+---
+
+## ☁️ Cloud Platform Deployments
+
+### 1. Railway Deployment
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template)
+
+#### Step-by-Step:
+
+1. **Install Railway CLI**
+```bash
+npm install -g @railway/cli
+```
+
+2. **Login to Railway**
+```bash
+railway login
+```
+
+3. **Initialize Project**
+```bash
+railway init
+```
+
+4. **Add MySQL Database**
+```bash
+railway add mysql
+```
+
+5. **Add Redis**
+```bash
+railway add redis
+```
+
+6. **Configure Environment Variables**
+```bash
+railway variables set APP_ENV=production
+railway variables set APP_DEBUG=false
+railway variables set APP_KEY=$(php artisan key:generate --show)
+```
+
+7. **Deploy**
+```bash
+railway up
+```
+
+8. **Run Migrations**
+```bash
+railway run php artisan migrate --force
+```
+
+#### railway.json
+
+```json
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "composer install --no-dev --optimize-autoloader && npm install && npm run build"
+  },
+  "deploy": {
+    "startCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
+```
+
+---
+
+### 2. Render Deployment
+
+#### render.yaml
+
+```yaml
+services:
+  - type: web
+    name: tplk004-web
+    env: php
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+      php artisan migrate --force
+      php artisan optimize
+    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tplk004-db
+          property: connectionString
+
+databases:
+  - name: tplk004-db
+    databaseName: tplk004
+    user: tplk004_user
+```
+
+#### Deploy Steps:
+
+1. Connect GitHub repository
+2. Select "Web Service"
+3. Configure build command
+4. Add environment variables
+5. Deploy!
+
+---
+
+### 3. DigitalOcean App Platform
+
+#### .do/app.yaml
+
+```yaml
+name: tplk004
+services:
+  - name: web
+    github:
+      repo: your-username/TPLK004
+      branch: main
+      deploy_on_push: true
+    build_command: |
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+    run_command: php artisan serve --host=0.0.0.0 --port=8080
+    environment_slug: php
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    envs:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        type: SECRET
+      - key: DATABASE_URL
+        type: SECRET
+
+databases:
+  - name: db
+    engine: MYSQL
+    version: "8"
+    size: db-s-1vcpu-1gb
+```
+
+---
+
+### 4. AWS Elastic Beanstalk
+
+#### .ebextensions/01_laravel.config
+
+```yaml
+option_settings:
+  aws:elasticbeanstalk:container:php:phpini:
+    document_root: /public
+    memory_limit: 512M
+    max_execution_time: 60
+
+  aws:elasticbeanstalk:application:environment:
+    APP_ENV: production
+    APP_DEBUG: false
+    CACHE_DRIVER: redis
+    SESSION_DRIVER: redis
+    QUEUE_CONNECTION: sqs
+
+container_commands:
+  01_install_dependencies:
+    command: "composer install --no-dev --optimize-autoloader"
+  02_build_assets:
+    command: "npm install && npm run build"
+  03_migrate:
+    command: "php artisan migrate --force"
+    leader_only: true
+  04_optimize:
+    command: "php artisan optimize"
+  05_storage_link:
+    command: "php artisan storage:link"
+```
+
+#### Deploy Commands:
+
+```bash
+# Initialize EB
+eb init -p php-8.2 tplk004
+
+# Create environment
+eb create tplk004-prod
+
+# Deploy
+eb deploy
+
+# Open application
+eb open
+```
+
+---
+
+### 5. Vercel (Frontend Only)
+
+For deploying frontend separately:
+
+#### vercel.json
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "public/build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/build/(.*)",
+      "dest": "/build/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
+```
+
+---
+
+## 🔧 Server Configuration
+
+### Nginx Configuration
+
+#### /etc/nginx/sites-available/tplk004
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name tplk004.com www.tplk004.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name tplk004.com www.tplk004.com;
+    root /var/www/tplk004/public;
+
+    # SSL Configuration
+    ssl_certificate /etc/letsencrypt/live/tplk004.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tplk004.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
+
+    # Gzip Compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json;
+
+    # Index
+    index index.php index.html;
+
+    # Character Set
+    charset utf-8;
+
+    # Logging
+    access_log /var/log/nginx/tplk004-access.log;
+    error_log /var/log/nginx/tplk004-error.log;
+
+    # Root Location
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # PHP-FPM
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+    }
+
+    # Static Assets
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Deny Access to Hidden Files
+    location ~ /\. {
+        deny all;
+    }
+
+    # Client Max Body Size (for file uploads)
+    client_max_body_size 20M;
+}
+```
+
+### Apache Configuration
+
+#### /etc/apache2/sites-available/tplk004.conf
+
+```apache
+<VirtualHost *:80>
+    ServerName tplk004.com
+    ServerAlias www.tplk004.com
+    Redirect permanent / https://tplk004.com/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName tplk004.com
+    ServerAlias www.tplk004.com
+    DocumentRoot /var/www/tplk004/public
+
+    # SSL Configuration
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/tplk004.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/tplk004.com/privkey.pem
+
+    # Security Headers
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # Directory Configuration
+    <Directory /var/www/tplk004/public>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # Logging
+    ErrorLog ${APACHE_LOG_DIR}/tplk004-error.log
+    CustomLog ${APACHE_LOG_DIR}/tplk004-access.log combined
+</VirtualHost>
+```
+
+---
+
+## 🔐 SSL Certificate Setup
+
+### Let's Encrypt (Free SSL)
+
+```bash
+# Install Certbot
+sudo apt-get update
+sudo apt-get install certbot python3-certbot-nginx
+
+# Obtain Certificate
+sudo certbot --nginx -d tplk004.com -d www.tplk004.com
+
+# Auto-renewal (runs twice daily)
+sudo certbot renew --dry-run
+
+# Add to crontab for auto-renewal
+0 0,12 * * * certbot renew --quiet
+```
+
+---
+
+## 📊 Monitoring & Logging
+
+### Error Tracking with Sentry
+
+```bash
+composer require sentry/sentry-laravel
+```
+
+#### config/sentry.php
+
+```php
+return [
+    'dsn' => env('SENTRY_LARAVEL_DSN'),
+    'environment' => env('APP_ENV', 'production'),
+    'release' => env('APP_VERSION', '1.0.0'),
+    'traces_sample_rate' => 1.0,
+];
+```
+
+### Performance Monitoring with New Relic
+
+```bash
+# Install New Relic PHP Agent
+wget -O - https://download.newrelic.com/548C16BF.gpg | sudo apt-key add -
+echo "deb http://apt.newrelic.com/debian/ newrelic non-free" | sudo tee /etc/apt/sources.list.d/newrelic.list
+sudo apt-get update
+sudo apt-get install newrelic-php5
+
+# Configure
+sudo newrelic-install install
+```
+
+### Log Aggregation with Papertrail
+
+```bash
+# Install remote_syslog2
+wget https://github.com/papertrail/remote_syslog2/releases/download/v0.20/remote_syslog_linux_amd64.tar.gz
+tar xzf remote_syslog_linux_amd64.tar.gz
+sudo cp remote_syslog/remote_syslog /usr/local/bin
+```
+
+#### /etc/log_files.yml
+
+```yaml
+files:
+  - /var/www/tplk004/storage/logs/laravel.log
+destination:
+  host: logs.papertrailapp.com
+  port: YOUR_PORT
+  protocol: tls
+```
+
+---
+
+## 🔄 CI/CD Pipeline
+
+### GitHub Actions Workflow
+
+#### .github/workflows/deploy.yml
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Run Tests
+        run: php artisan test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/tplk004
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            npm install
+            npm run build
+            php artisan migrate --force
+            php artisan optimize
+            sudo systemctl reload php8.2-fpm
+            sudo systemctl reload nginx
+```
+
+---
+
+## 🔄 Zero-Downtime Deployment
+
+### Blue-Green Deployment Script
+
+```bash
+#!/bin/bash
+
+# Configuration
+BLUE_DIR="/var/www/tplk004-blue"
+GREEN_DIR="/var/www/tplk004-green"
+CURRENT_LINK="/var/www/tplk004"
+
+# Determine current and next environment
+if [ "$(readlink $CURRENT_LINK)" == "$BLUE_DIR" ]; then
+    CURRENT="blue"
+    NEXT="green"
+    NEXT_DIR=$GREEN_DIR
+else
+    CURRENT="green"
+    NEXT="blue"
+    NEXT_DIR=$BLUE_DIR
+fi
+
+echo "Current environment: $CURRENT"
+echo "Deploying to: $NEXT"
+
+# Deploy to next environment
+cd $NEXT_DIR
+git pull origin main
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+php artisan migrate --force
+php artisan optimize
+
+# Health check
+if curl -f http://localhost:8000/health; then
+    echo "Health check passed"
+    
+    # Switch symlink
+    ln -sfn $NEXT_DIR $CURRENT_LINK
+    
+    # Reload services
+    sudo systemctl reload php8.2-fpm
+    sudo systemctl reload nginx
+    
+    echo "Deployment successful!"
+else
+    echo "Health check failed. Rollback!"
+    exit 1
+fi
+```
+
+---
+
+## 📦 Backup Strategy
+
+### Automated Backup Script
+
+```bash
+#!/bin/bash
+
+# Configuration
+BACKUP_DIR="/backups/tplk004"
+DATE=$(date +%Y%m%d_%H%M%S)
+DB_NAME="tplk004"
+DB_USER="root"
+DB_PASS="password"
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# Database backup
+mysqldump -u$DB_USER -p$DB_PASS $DB_NAME | gzip > $BACKUP_DIR/db_$DATE.sql.gz
+
+# Files backup
+tar -czf $BACKUP_DIR/files_$DATE.tar.gz /var/www/tplk004/storage
+
+# Upload to S3
+aws s3 cp $BACKUP_DIR/db_$DATE.sql.gz s3://tplk004-backups/
+aws s3 cp $BACKUP_DIR/files_$DATE.tar.gz s3://tplk004-backups/
+
+# Delete old backups (keep last 30 days)
+find $BACKUP_DIR -type f -mtime +30 -delete
+
+echo "Backup completed: $DATE"
+```
+
+### Add to Crontab
+
+```bash
+# Daily backup at 2 AM
+0 2 * * * /usr/local/bin/backup-tplk004.sh
+```
+
+---
+
+
 ## 👨‍💻 Tim Pengembang
 
 <table>
