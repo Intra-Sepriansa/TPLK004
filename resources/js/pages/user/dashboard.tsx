@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import StudentLayout from '@/layouts/student-layout';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { AchievementBadge } from '@/components/ui/achievement-badge';
@@ -22,6 +22,11 @@ import {
     Tooltip,
     ResponsiveContainer,
     Legend,
+    RadarChart,
+    PolarGrid,
+    PolarAngleAxis,
+    PolarRadiusAxis,
+    Radar,
 } from 'recharts';
 import {
     Calendar,
@@ -40,6 +45,13 @@ import {
     Zap,
     BarChart3,
     PieChart as PieChartIcon,
+    Target,
+    Trophy,
+    Star,
+    Sparkles,
+    Activity,
+    BookOpen,
+    MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -122,32 +134,61 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.05,
+            delayChildren: 0.1,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
         opacity: 1,
         y: 0,
+        scale: 1,
         transition: {
             type: 'spring' as const,
-            stiffness: 100,
+            stiffness: 120,
             damping: 15,
         },
     },
 };
 
 const cardHoverVariants = {
-    rest: { scale: 1 },
+    rest: { scale: 1, y: 0 },
     hover: {
         scale: 1.02,
+        y: -5,
         transition: {
             type: 'spring' as const,
             stiffness: 400,
             damping: 17,
+        },
+    },
+    tap: {
+        scale: 0.98,
+    },
+};
+
+const floatingVariants = {
+    float: {
+        y: [0, -10, 0],
+        transition: {
+            duration: 3,
+            repeat: Infinity,
+            ease: "easeInOut",
+        },
+    },
+};
+
+const pulseVariants = {
+    pulse: {
+        scale: [1, 1.05, 1],
+        opacity: [1, 0.8, 1],
+        transition: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut" as const,
         },
     },
 };
@@ -214,6 +255,7 @@ function QuickStatCard({
     suffix,
     subtext,
     color,
+    trend,
 }: {
     icon: React.ElementType;
     label: string;
@@ -221,6 +263,7 @@ function QuickStatCard({
     suffix?: string;
     subtext?: string;
     color: 'emerald' | 'amber' | 'sky' | 'violet' | 'rose';
+    trend?: 'up' | 'down' | 'neutral';
 }) {
     const colors = {
         emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -230,30 +273,80 @@ function QuickStatCard({
         rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
     };
 
+    const gradients = {
+        emerald: 'from-emerald-500/20 to-emerald-600/20',
+        amber: 'from-amber-500/20 to-amber-600/20',
+        sky: 'from-sky-500/20 to-sky-600/20',
+        violet: 'from-violet-500/20 to-violet-600/20',
+        rose: 'from-rose-500/20 to-rose-600/20',
+    };
+
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
-            className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+            initial="rest"
+            whileHover="hover"
+            whileTap="tap"
+            className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-2xl transition-all cursor-pointer group"
         >
-            <div className="flex items-center gap-3">
+            {/* Animated Background Gradient */}
+            <motion.div
+                className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity', gradients[color])}
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+            />
+            
+            <div className="relative flex items-center gap-3">
                 <motion.div
-                    whileHover={{ rotate: 10 }}
-                    className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}
+                    whileHover={{ rotate: 360, scale: 1.1 }}
+                    transition={{ duration: 0.6 }}
+                    className={cn('flex h-12 w-12 items-center justify-center rounded-xl shadow-lg', colors[color])}
                 >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-6 w-6" />
                 </motion.div>
-                <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                        <AnimatedCounter value={value} suffix={suffix} />
-                    </p>
+                <div className="flex-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+                    <div className="flex items-baseline gap-2">
+                        <motion.p 
+                            className="text-2xl font-bold text-gray-900 dark:text-white"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                        >
+                            <AnimatedCounter value={value} suffix={suffix} />
+                        </motion.p>
+                        {trend && (
+                            <motion.span
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className={cn(
+                                    'text-xs font-medium',
+                                    trend === 'up' && 'text-emerald-600',
+                                    trend === 'down' && 'text-rose-600',
+                                    trend === 'neutral' && 'text-gray-400'
+                                )}
+                            >
+                                {trend === 'up' && '↑'}
+                                {trend === 'down' && '↓'}
+                                {trend === 'neutral' && '→'}
+                            </motion.span>
+                        )}
+                    </div>
                     {subtext && (
-                        <p className="text-[10px] text-gray-400">{subtext}</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">{subtext}</p>
                     )}
                 </div>
             </div>
+
+            {/* Sparkle Effect on Hover */}
+            <motion.div
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
+                initial={{ scale: 0, rotate: 0 }}
+                whileHover={{ scale: 1, rotate: 180 }}
+                transition={{ duration: 0.3 }}
+            >
+                <Sparkles className="h-4 w-4 text-amber-400" />
+            </motion.div>
         </motion.div>
     );
 }
@@ -326,14 +419,70 @@ export default function UserDashboard() {
                 animate="visible"
                 className="space-y-6 p-6"
             >
-                {/* Welcome Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                {/* Welcome Card - Enhanced */}
+                <motion.div 
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-2xl"
+                >
+                    {/* Animated Background Elements */}
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 90, 0],
+                            opacity: [0.1, 0.2, 0.1]
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.1, 0.15, 0.1]
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                    />
                     
-                    <div className="relative flex items-center justify-between">
+                    {/* Floating Sparkles */}
+                    {[...Array(5)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ 
+                                opacity: [0, 1, 0],
+                                scale: [0, 1, 0],
+                                y: [0, -30, -60],
+                            }}
+                            transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                delay: i * 0.6,
+                            }}
+                            className="absolute rounded-full bg-white/40"
+                            style={{
+                                width: `${4 + Math.random() * 6}px`,
+                                height: `${4 + Math.random() * 6}px`,
+                                left: `${20 + i * 15}%`,
+                                top: `${30 + (i % 2) * 30}%`,
+                            }}
+                        />
+                    ))}
+                    
+                    <div className="relative flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                            <motion.div 
+                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur ring-4 ring-white/30"
+                            >
                                 {mahasiswa.avatar_url ? (
                                     <img
                                         src={mahasiswa.avatar_url}
@@ -343,27 +492,62 @@ export default function UserDashboard() {
                                 ) : (
                                     <User className="h-8 w-8" />
                                 )}
-                            </div>
+                            </motion.div>
                             <div>
-                                <p className="text-sm text-emerald-100">Selamat datang,</p>
-                                <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
-                                <p className="text-sm text-emerald-100">NIM: {mahasiswa.nim}</p>
+                                <motion.p 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-sm text-emerald-100 font-medium"
+                                >
+                                    Selamat datang kembali,
+                                </motion.p>
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-2xl font-bold"
+                                >
+                                    {mahasiswa.nama}
+                                </motion.h1>
+                                <motion.p 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="text-sm text-emerald-100"
+                                >
+                                    NIM: {mahasiswa.nim}
+                                </motion.p>
                             </div>
                         </div>
                         
                         <div className="hidden sm:flex items-center gap-3">
                             {stats.currentStreak > 0 && (
-                                <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
-                                    <Flame className="h-5 w-5 text-orange-300" />
-                                    <span className="font-bold">{stats.currentStreak}</span>
+                                <motion.div 
+                                    variants={pulseVariants}
+                                    animate="pulse"
+                                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur ring-2 ring-white/30"
+                                >
+                                    <motion.div
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <Flame className="h-5 w-5 text-orange-300" />
+                                    </motion.div>
+                                    <span className="font-bold text-lg">{stats.currentStreak}</span>
                                     <span className="text-sm text-emerald-100">hari streak</span>
-                                </div>
+                                </motion.div>
                             )}
                             <Link href="/user/absen">
-                                <Button className="bg-white text-emerald-600 hover:bg-emerald-50">
-                                    <QrCode className="h-4 w-4 mr-2" />
-                                    Absen Sekarang
-                                </Button>
+                                <motion.div
+                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg font-semibold">
+                                        <QrCode className="h-4 w-4 mr-2" />
+                                        Absen Sekarang
+                                    </Button>
+                                </motion.div>
                             </Link>
                         </div>
                     </div>
@@ -371,15 +555,19 @@ export default function UserDashboard() {
                     {/* Mobile CTA */}
                     <div className="mt-4 flex gap-2 sm:hidden">
                         <Link href="/user/absen" className="flex-1">
-                            <Button className="w-full bg-white text-emerald-600 hover:bg-emerald-50">
-                                <QrCode className="h-4 w-4 mr-2" />
-                                Absen Sekarang
-                            </Button>
+                            <motion.div
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Button className="w-full bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg">
+                                    <QrCode className="h-4 w-4 mr-2" />
+                                    Absen Sekarang
+                                </Button>
+                            </motion.div>
                         </Link>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Quick Stats */}
+                {/* Quick Stats - Enhanced */}
                 <motion.div
                     variants={containerVariants}
                     className="grid grid-cols-2 gap-3 sm:grid-cols-4"
@@ -390,6 +578,7 @@ export default function UserDashboard() {
                         value={stats.totalAttendance}
                         subtext={`dari ${stats.totalSessions} sesi`}
                         color="emerald"
+                        trend="up"
                     />
                     <QuickStatCard
                         icon={TrendingUp}
@@ -398,6 +587,7 @@ export default function UserDashboard() {
                         suffix="%"
                         subtext="kehadiran"
                         color="sky"
+                        trend={stats.attendanceRate >= 75 ? "up" : "down"}
                     />
                     <QuickStatCard
                         icon={Flame}
@@ -406,6 +596,7 @@ export default function UserDashboard() {
                         suffix=" hari"
                         subtext={`terbaik: ${stats.longestStreak}`}
                         color="amber"
+                        trend={stats.currentStreak > 0 ? "up" : "neutral"}
                     />
                     <QuickStatCard
                         icon={Zap}
@@ -414,6 +605,7 @@ export default function UserDashboard() {
                         suffix="%"
                         subtext="minggu ini"
                         color="violet"
+                        trend={stats.onTimeRate >= 80 ? "up" : "neutral"}
                     />
                 </motion.div>
 
