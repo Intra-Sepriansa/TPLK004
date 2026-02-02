@@ -721,9 +721,9 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     ))
                                 )}
                             </div>
-                        </div>
-                    </div>
-                </div>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
 
                 <motion.div 
                     variants={itemVariants}
