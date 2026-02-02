@@ -1260,10 +1260,6 @@ MAIL_PASSWORD=
 
 ## 🎮 Sistem Gamifikasi
 
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=20&duration=2500&pause=500&color=F59E0B&center=true&vCenter=true&width=700&lines=🏆+12+Badge+Types+×+3+Levels+%3D+36+Badges!;🎯+Easy+Requirements+for+Quick+Unlocking;✨+Blur+Effect+for+Locked+Badges;🔥+Independent+Level+Progression" alt="Gamification" />
-</p>
-
 ### 🏅 Complete Badge Collection
 
 Sistem badge kami memiliki **12 tipe badge** dengan **3 level** masing-masing, total **36 badge** yang bisa dikumpulkan!
