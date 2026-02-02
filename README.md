@@ -11,9 +11,6 @@
   <em>Next-Generation Smart Attendance System with AI & Gamification</em>
 </p>
 
-<!-- Animated Typing Effect -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=2800&pause=500&color=10B981&center=true&vCenter=true&width=1100&height=80&lines=🤖+AI-Powered+Face+Recognition+System;📍+GPS+Geofencing+%2B+Anti-Spoofing;🔒+Multi-Layer+Fraud+Prevention;📊+Real-time+Analytics+%26+Insights;🎮+36+Badges+•+6+Levels+•+Leaderboard;🌙+Dark+Mode+•+PWA+•+Mobile-First;⚡+Lightning+Fast+•+95%2B+Lighthouse+Score" alt="Animated Features" />
-
 </div>
 
 <!-- Badges Section -->
