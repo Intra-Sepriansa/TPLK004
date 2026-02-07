@@ -1,0 +1,591 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TPLK004 - Sistem Absensi & Manajemen Akademik API",
+    "description": "API Documentation untuk Sistem Absensi QR Code dengan Gamifikasi, Manajemen Tugas, dan Analytics. Sistem ini menyediakan endpoint untuk autentikasi, manajemen absensi, tugas, gamifikasi, dan berbagai fitur akademik lainnya.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "TPLK004 Support Team",
+      "email": "admin@unpam.ac.id"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "https://your-production-url.com",
+      "description": "Production Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints untuk autentikasi (Login, Logout, Register)"
+    },
+    {
+      "name": "Attendance",
+      "description": "Endpoints untuk manajemen absensi (QR Code, Token, Logs)"
+    },
+    {
+      "name": "Courses",
+      "description": "Endpoints untuk manajemen mata kuliah"
+    },
+    {
+      "name": "Tasks",
+      "description": "Endpoints untuk manajemen tugas dan submission"
+    },
+    {
+      "name": "Gamification",
+      "description": "Endpoints untuk sistem gamifikasi (Badges, Points, Leaderboard)"
+    },
+    {
+      "name": "Analytics",
+      "description": "Endpoints untuk analytics dan reporting"
+    },
+    {
+      "name": "Notifications",
+      "description": "Endpoints untuk notifikasi"
+    },
+    {
+      "name": "Chat",
+      "description": "Endpoints untuk sistem chat dan messaging"
+    },
+    {
+      "name": "Users",
+      "description": "Endpoints untuk manajemen user (Mahasiswa, Dosen, Admin)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter token in format: Bearer {token}"
+      },
+      "sanctum": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "laravel_session",
+        "description": "Laravel Sanctum session authentication"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          },
+          "errors": {
+            "type": "object"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@unpam.ac.id"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["mahasiswa", "dosen", "admin"],
+            "example": "mahasiswa"
+          },
+          "avatar_url": {
+            "type": "string",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "points": {
+            "type": "integer",
+            "example": 1250
+          },
+          "level": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login user",
+        "description": "Authenticate user dan mendapatkan access token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password", "role"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "mahasiswa@unpam.ac.id"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "password123"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": ["mahasiswa", "dosen", "admin"],
+                    "example": "mahasiswa"
+                  },
+                  "remember": {
+                    "type": "boolean",
+                    "example": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Login berhasil"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "1|abcdef123456..."
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Logout user",
+        "description": "Revoke access token dan logout user",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logout berhasil"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/user": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get authenticated user",
+        "description": "Mendapatkan data user yang sedang login",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "User data retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/sessions": {
+      "get": {
+        "tags": ["Attendance"],
+        "summary": "Get all attendance sessions",
+        "description": "Mendapatkan daftar sesi absensi dengan filter dan pagination",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "query",
+            "description": "Filter by course ID",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by status",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "closed", "scheduled"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "meeting_number": {
+                            "type": "integer"
+                          },
+                          "course_name": {
+                            "type": "string"
+                          },
+                          "is_active": {
+                            "type": "boolean"
+                          },
+                          "start_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "end_at": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/attendance/scan": {
+      "post": {
+        "tags": ["Attendance"],
+        "summary": "Scan QR code untuk absensi",
+        "description": "Submit QR code token untuk mencatat kehadiran",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "example": "ABC123XYZ"
+                  },
+                  "latitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -6.2088
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 106.8456
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Attendance recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Absensi berhasil dicatat"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "attendance_id": {
+                          "type": "integer"
+                        },
+                        "points_earned": {
+                          "type": "integer"
+                        },
+                        "badges_unlocked": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid or expired token"
+          },
+          "409": {
+            "description": "Already attended"
+          }
+        }
+      }
+    },
+    "/api/tasks": {
+      "get": {
+        "tags": ["Tasks"],
+        "summary": "Get all tasks",
+        "description": "Mendapatkan daftar tugas dengan filter",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["published", "draft", "closed"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tasks retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Tasks"],
+        "summary": "Create new task (Dosen only)",
+        "description": "Membuat tugas baru",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["course_id", "judul", "deskripsi", "jenis", "deadline"],
+                "properties": {
+                  "course_id": {
+                    "type": "integer"
+                  },
+                  "judul": {
+                    "type": "string"
+                  },
+                  "deskripsi": {
+                    "type": "string"
+                  },
+                  "jenis": {
+                    "type": "string",
+                    "enum": ["tugas", "quiz", "project", "presentasi", "lainnya"]
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task created successfully"
+          }
+        }
+      }
+    },
+    "/api/gamification/profile": {
+      "get": {
+        "tags": ["Gamification"],
+        "summary": "Get gamification profile",
+        "description": "Mendapatkan profil gamifikasi user (points, level, badges)",
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "points": {
+                          "type": "integer",
+                          "example": 1250
+                        },
+                        "level": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "rank": {
+                          "type": "integer",
+                          "example": 12
+                        },
+                        "total_badges": {
+                          "type": "integer",
+                          "example": 8
+                        },
+                        "streak_days": {
+                          "type": "integer",
+                          "example": 15
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/gamification/leaderboard": {
+      "get": {
+        "tags": ["Gamification"],
+        "summary": "Get leaderboard",
+        "description": "Mendapatkan leaderboard dengan filter",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["global", "course", "class"],
+              "default": "global"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["all_time", "monthly", "weekly"],
+              "default": "all_time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leaderboard retrieved successfully"
+          }
+        }
+      }
+    }
+  }
+}
