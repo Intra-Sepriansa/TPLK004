@@ -4,7 +4,7 @@ import { QrCode, RefreshCw, Clock, Zap, Activity, CheckCircle, XCircle, Timer, C
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QRCode from 'qrcode';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface Session {
     id: number;
@@ -75,7 +75,7 @@ const formatCountdown = (seconds: number) => {
 };
 
 // Advanced Animation Variants - UPGRADED
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -87,10 +87,10 @@ const containerVariants = {
     },
 };
 
-const itemVariants = {
-    hidden: { 
-        opacity: 0, 
-        y: 60, 
+const itemVariants: Variants = {
+    hidden: {
+        opacity: 0,
+        y: 60,
         scale: 0.8,
         rotateX: -15,
     },
@@ -108,9 +108,9 @@ const itemVariants = {
     },
 };
 
-const headerVariants = {
-    hidden: { 
-        opacity: 0, 
+const headerVariants: Variants = {
+    hidden: {
+        opacity: 0,
         scale: 0.8,
         y: -50,
     },
@@ -127,10 +127,10 @@ const headerVariants = {
     },
 };
 
-const qrVariants = {
-    hidden: { 
-        opacity: 0, 
-        scale: 0, 
+const qrVariants: Variants = {
+    hidden: {
+        opacity: 0,
+        scale: 0,
         rotate: -180,
         y: 50,
     },
@@ -158,7 +158,7 @@ const qrVariants = {
     },
 };
 
-const pulseVariants = {
+const pulseVariants: Variants = {
     pulse: {
         scale: [1, 1.08, 1],
         opacity: [1, 0.7, 1],
@@ -175,7 +175,7 @@ const pulseVariants = {
     },
 };
 
-const glowVariants = {
+const glowVariants: Variants = {
     glow: {
         boxShadow: [
             '0 0 20px rgba(59, 130, 246, 0.3)',
@@ -190,7 +190,7 @@ const glowVariants = {
     },
 };
 
-const floatVariants = {
+const floatVariants: Variants = {
     float: {
         y: [0, -10, 0],
         transition: {
@@ -213,24 +213,24 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
     const ttlLabel = useMemo(() => formatTtl(tokenTtlSeconds), [tokenTtlSeconds]);
 
     useEffect(() => {
-        if (!token) { 
-            setQrUrl(null); 
-            return; 
+        if (!token) {
+            setQrUrl(null);
+            return;
         }
-        
+
         // Generate QR code
-        QRCode.toDataURL(token, { 
+        QRCode.toDataURL(token, {
             width: 300,
             margin: 2,
             errorCorrectionLevel: 'M'
         })
-        .then(url => {
-            setQrUrl(url);
-        })
-        .catch(err => {
-            console.error('QR Code generation error:', err);
-            setQrUrl(null);
-        });
+            .then((url: string) => {
+                setQrUrl(url);
+            })
+            .catch((err: unknown) => {
+                console.error('QR Code generation error:', err);
+                setQrUrl(null);
+            });
     }, [token]);
 
     useEffect(() => {
@@ -257,14 +257,14 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         try {
             const res = await fetch(`/attendance-sessions/${activeSession.id}/token`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json', 
+                headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}) 
+                    ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {})
                 },
                 body: JSON.stringify(force ? { force: true } : {}),
             });
-            
+
             if (res.ok) {
                 const data = await res.json();
                 console.log('Token generated:', data);
@@ -283,9 +283,9 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         } catch (error) {
             console.error('Error generating token:', error);
             alert('Terjadi kesalahan saat generate token. Cek console untuk detail.');
-        } finally { 
-            rotatingRef.current = false; 
-            if (!silent) setLoading(false); 
+        } finally {
+            rotatingRef.current = false;
+            if (!silent) setLoading(false);
         }
     };
 
@@ -295,14 +295,14 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
     return (
         <AppLayout>
             <Head title="QR Builder" />
-            <motion.div 
+            <motion.div
                 className="p-6 space-y-6"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
                 {/* Header with Advanced Animation */}
-                <motion.div 
+                <motion.div
                     variants={headerVariants}
                     initial="hidden"
                     animate="visible"
@@ -337,13 +337,13 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                         }}
                         className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
                     />
-                    
+
                     {/* Floating Sparkles with Enhanced Animation */}
                     {[...Array(8)].map((_, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{ 
+                            animate={{
                                 opacity: [0, 1, 0],
                                 scale: [0, 1.5, 0],
                                 y: [0, -40, -80],
@@ -364,20 +364,20 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             }}
                         />
                     ))}
-                    
+
                     <div className="relative">
                         <div className="flex items-center gap-3">
-                            <motion.div 
+                            <motion.div
                                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
-                                transition={{ 
+                                transition={{
                                     type: "spring",
                                     stiffness: 200,
                                     delay: 0.3
                                 }}
-                                whileHover={{ 
-                                    scale: 1.2, 
+                                whileHover={{
+                                    scale: 1.2,
                                     rotate: 360,
                                     transition: { duration: 0.6 }
                                 }}
@@ -385,7 +385,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 <QrCode className="h-6 w-6" />
                             </motion.div>
                             <div>
-                                <motion.p 
+                                <motion.p
                                     className="text-sm text-blue-100"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -393,7 +393,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 >
                                     Generator Token
                                 </motion.p>
-                                <motion.h1 
+                                <motion.h1
                                     className="text-2xl font-bold"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -403,7 +403,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 </motion.h1>
                             </div>
                         </div>
-                        <motion.p 
+                        <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6, type: "spring" }}
@@ -415,7 +415,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 </motion.div>
 
                 {/* Stats Cards with Stagger Animation */}
-                <motion.div 
+                <motion.div
                     className="grid gap-4 md:grid-cols-4"
                     variants={containerVariants}
                 >
@@ -426,16 +426,16 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 </motion.div>
 
                 <div className="grid gap-6 lg:grid-cols-2">
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                        whileHover={{ 
+                        whileHover={{
                             scale: 1.01,
                             boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
                         }}
                     >
                         <div className="flex items-center justify-between mb-6">
-                            <motion.div 
+                            <motion.div
                                 className="flex items-center gap-2"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -450,11 +450,11 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 <h2 className="font-semibold text-slate-900 dark:text-white">QR Code Generator</h2>
                             </motion.div>
                             {activeSession && (
-                                <motion.span 
+                                <motion.span
                                     className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700"
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ 
+                                    transition={{
                                         type: "spring",
                                         stiffness: 500,
                                         delay: 0.4
@@ -478,8 +478,8 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 <p className="text-sm text-slate-400 mb-4">
                                     Aktifkan sesi absensi terlebih dahulu untuk generate QR code
                                 </p>
-                                <a 
-                                    href="/attendance-sessions" 
+                                <a
+                                    href="/attendance-sessions"
                                     className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                 >
                                     <Play className="h-4 w-4" />
@@ -498,7 +498,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 <div className="flex flex-col items-center">
                                     <AnimatePresence mode="wait">
                                         {qrUrl ? (
-                                            <motion.div 
+                                            <motion.div
                                                 key="qr-code"
                                                 variants={qrVariants}
                                                 initial="hidden"
@@ -506,15 +506,15 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 exit="exit"
                                                 className="relative"
                                             >
-                                                <motion.img 
-                                                    src={qrUrl} 
-                                                    alt="QR" 
+                                                <motion.img
+                                                    src={qrUrl}
+                                                    alt="QR"
                                                     className="h-64 w-64 rounded-2xl border-4 border-white shadow-lg"
                                                     variants={timeLeft !== null && timeLeft <= 30 ? pulseVariants : {}}
                                                     animate={timeLeft !== null && timeLeft <= 30 ? "pulse" : ""}
                                                 />
                                                 {timeLeft !== null && timeLeft <= 30 && (
-                                                    <motion.div 
+                                                    <motion.div
                                                         initial={{ scale: 0 }}
                                                         animate={{ scale: 1 }}
                                                         className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-white text-xs font-bold"
@@ -538,7 +538,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 />
                                             </motion.div>
                                         ) : (
-                                            <motion.div 
+                                            <motion.div
                                                 key="placeholder"
                                                 initial={{ opacity: 0, scale: 0.9 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -547,11 +547,11 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                             >
                                                 <div className="text-center">
                                                     <motion.div
-                                                        animate={{ 
+                                                        animate={{
                                                             rotate: 360,
                                                             scale: [1, 1.1, 1]
                                                         }}
-                                                        transition={{ 
+                                                        transition={{
                                                             rotate: { duration: 3, repeat: Infinity, ease: "linear" },
                                                             scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                                                         }}
@@ -565,7 +565,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     </AnimatePresence>
                                 </div>
                                 {token && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.3 }}
@@ -573,15 +573,15 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     >
                                         <p className="text-xs uppercase tracking-wider text-slate-400">Token Aktif</p>
                                         <div className="flex items-center justify-center gap-2">
-                                            <motion.code 
+                                            <motion.code
                                                 className="px-4 py-2 rounded-lg bg-black text-white font-mono text-lg tracking-wider"
                                                 whileHover={{ scale: 1.05 }}
                                                 transition={{ type: "spring", stiffness: 400 }}
                                             >
                                                 {token}
                                             </motion.code>
-                                            <motion.button 
-                                                onClick={copyToken} 
+                                            <motion.button
+                                                onClick={copyToken}
                                                 className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 transition-colors"
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.9 }}
@@ -595,7 +595,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                             </motion.button>
                                         </div>
                                         {timeLeft !== null && (
-                                            <motion.p 
+                                            <motion.p
                                                 className="text-sm text-slate-500"
                                                 animate={timeLeft <= 30 ? { scale: [1, 1.05, 1] } : {}}
                                                 transition={{ duration: 1, repeat: timeLeft <= 30 ? Infinity : 0 }}
@@ -608,9 +608,9 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     </motion.div>
                                 )}
                                 <div className="flex gap-3 justify-center">
-                                    <motion.button 
-                                        onClick={() => void generateToken({ force: true })} 
-                                        disabled={loading} 
+                                    <motion.button
+                                        onClick={() => void generateToken({ force: true })}
+                                        disabled={loading}
                                         className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-6 py-3 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all disabled:opacity-50"
                                         whileHover={{ scale: 1.05, y: -2 }}
                                         whileTap={{ scale: 0.95 }}
@@ -624,8 +624,8 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                         {loading ? 'Generating...' : 'Generate QR'}
                                     </motion.button>
                                     {qrUrl && (
-                                        <motion.button 
-                                            onClick={downloadQr} 
+                                        <motion.button
+                                            onClick={downloadQr}
                                             className="flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 transition-colors"
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
@@ -642,12 +642,12 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     </motion.div>
 
                     <div className="space-y-6">
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                             whileHover={{ scale: 1.01 }}
                         >
-                            <motion.div 
+                            <motion.div
                                 className="flex items-center gap-2 mb-4"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -662,12 +662,12 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 </ResponsiveContainer>
                             </div>
                         </motion.div>
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                             whileHover={{ scale: 1.01 }}
                         >
-                            <motion.div 
+                            <motion.div
                                 className="p-4 border-b border-slate-200 dark:border-slate-800"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -680,7 +680,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             </motion.div>
                             <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-64 overflow-y-auto">
                                 {initialTokens.length === 0 ? (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         className="p-8 text-center"
@@ -690,8 +690,8 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     </motion.div>
                                 ) : (
                                     initialTokens.map((t, index) => (
-                                        <motion.div 
-                                            key={t.id} 
+                                        <motion.div
+                                            key={t.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
@@ -699,7 +699,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                             className="p-3 flex items-center justify-between"
                                         >
                                             <div className="flex items-center gap-3">
-                                                <motion.div 
+                                                <motion.div
                                                     className={`flex h-8 w-8 items-center justify-center rounded-lg ${t.is_expired ? 'bg-slate-100 text-slate-400' : 'bg-emerald-100 text-emerald-600'}`}
                                                     whileHover={{ rotate: 360 }}
                                                     transition={{ duration: 0.5 }}
@@ -711,7 +711,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                     <p className="text-xs text-slate-500">{t.created_at}</p>
                                                 </div>
                                             </div>
-                                            <motion.span 
+                                            <motion.span
                                                 className={`text-xs px-2 py-1 rounded-full ${t.is_expired ? 'bg-slate-100 text-slate-500' : 'bg-emerald-100 text-emerald-700'}`}
                                                 whileHover={{ scale: 1.1 }}
                                             >
@@ -722,15 +722,15 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 )}
                             </div>
                         </motion.div>
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
 
-                <motion.div 
+                <motion.div
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                     whileHover={{ scale: 1.005 }}
                 >
-                    <motion.div 
+                    <motion.div
                         className="p-4 border-b border-slate-200 dark:border-slate-800"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -746,8 +746,8 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             <thead><tr className="bg-slate-50 dark:bg-black/50"><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Pertemuan</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Status</th></tr></thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                 {sessions.map((s, index) => (
-                                    <motion.tr 
-                                        key={s.id} 
+                                    <motion.tr
+                                        key={s.id}
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.05 }}
@@ -758,7 +758,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                         <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">#{s.meeting_number}</td>
                                         <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{s.start_at ?? '-'}</td>
                                         <td className="px-4 py-3">
-                                            <motion.span 
+                                            <motion.span
                                                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${s.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}
                                                 whileHover={{ scale: 1.05 }}
                                             >
@@ -778,42 +778,42 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
 }
 
 function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; label: string; value: number; color: string; delay?: number }) {
-    const colors: Record<string, string> = { 
-        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 
-        emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', 
-        green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400', 
-        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' 
+    const colors: Record<string, string> = {
+        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+        emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+        green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
     };
-    
+
     return (
-        <motion.div 
-            initial={{ 
-                opacity: 0, 
-                y: 50, 
+        <motion.div
+            initial={{
+                opacity: 0,
+                y: 50,
                 scale: 0.7,
                 rotateY: -90,
             }}
-            animate={{ 
-                opacity: 1, 
-                y: 0, 
+            animate={{
+                opacity: 1,
+                y: 0,
                 scale: 1,
                 rotateY: 0,
             }}
-            transition={{ 
+            transition={{
                 delay,
                 type: 'spring',
                 stiffness: 200,
                 damping: 20,
                 mass: 0.8,
             }}
-            whileHover={{ 
+            whileHover={{
                 scale: 1.08,
                 y: -8,
                 rotateY: 5,
-                transition: { 
-                    type: 'spring', 
-                    stiffness: 400, 
-                    damping: 10 
+                transition: {
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 10
                 }
             }}
             whileTap={{ scale: 0.95 }}
@@ -821,9 +821,9 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; l
             style={{ perspective: 1000 }}
         >
             <div className="flex items-center gap-3">
-                <motion.div 
+                <motion.div
                     className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
-                    whileHover={{ 
+                    whileHover={{
                         rotate: 360,
                         scale: 1.2,
                     }}
@@ -832,7 +832,7 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; l
                     <Icon className="h-5 w-5" />
                 </motion.div>
                 <div>
-                    <motion.p 
+                    <motion.p
                         className="text-sm text-slate-500"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -840,12 +840,12 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; l
                     >
                         {label}
                     </motion.p>
-                    <motion.p 
+                    <motion.p
                         className="text-xl font-bold text-slate-900 dark:text-white"
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ 
-                            delay: delay + 0.2, 
+                        transition={{
+                            delay: delay + 0.2,
                             type: 'spring',
                             stiffness: 300,
                         }}
