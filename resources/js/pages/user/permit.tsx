@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     FileText, Plus, Clock, CheckCircle, XCircle, Upload, Trash2, Eye, X,
     HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck, Star,
-    ArrowLeft, ArrowRight
+    ArrowLeft, ArrowRight, ClipboardList, Stethoscope
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -547,8 +547,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                         <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <motion.div 
-                                    animate={{ rotate: [0, 360] }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
                                     className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 text-white shadow-lg"
                                 >
                                     <HeartPulse className="h-6 w-6" />
@@ -647,8 +646,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                             </Label>
                                             <div className="grid grid-cols-2 gap-3">
                                                 {[
-                                                    { value: 'izin', label: 'Izin', icon: '📝', color: 'blue' },
-                                                    { value: 'sakit', label: 'Sakit', icon: '🏥', color: 'red' }
+                                                    { value: 'izin', label: 'Izin', icon: ClipboardList, color: 'blue' },
+                                                    { value: 'sakit', label: 'Sakit', icon: Stethoscope, color: 'red' }
                                                 ].map((type) => (
                                                     <motion.button
                                                         key={type.value}
@@ -658,11 +657,25 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                                         onClick={() => setData('type', type.value as any)}
                                                         className={`p-4 rounded-xl border-2 transition-all ${
                                                             data.type === type.value
-                                                                ? `border-${type.color}-500 bg-${type.color}-50 dark:bg-${type.color}-950/30`
-                                                                : 'border-gray-200 hover:border-teal-300'
+                                                                ? type.color === 'blue'
+                                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
+                                                                    : 'border-red-500 bg-red-50 dark:bg-red-950/30'
+                                                                : 'border-gray-200 hover:border-teal-300 dark:border-gray-700'
                                                         }`}
                                                     >
-                                                        <div className="text-3xl mb-1">{type.icon}</div>
+                                                        <motion.div
+                                                            whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                                                            transition={{ duration: 0.5 }}
+                                                            className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
+                                                                type.color === 'blue' 
+                                                                    ? 'bg-blue-100 dark:bg-blue-900/30' 
+                                                                    : 'bg-red-100 dark:bg-red-900/30'
+                                                            }`}
+                                                        >
+                                                            <type.icon className={`h-6 w-6 ${
+                                                                type.color === 'blue' ? 'text-blue-600' : 'text-red-600'
+                                                            }`} />
+                                                        </motion.div>
                                                         <div className="text-sm font-medium">{type.label}</div>
                                                     </motion.button>
                                                 ))}
