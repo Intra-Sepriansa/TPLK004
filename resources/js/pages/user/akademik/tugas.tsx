@@ -13,7 +13,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
-    Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag
+    Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag,
+    LayoutList, CalendarDays, Columns3, Paperclip, Tag, X
 } from 'lucide-react';
 import { useState, FormEvent, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
@@ -33,6 +34,8 @@ interface Task {
     is_overdue: boolean;
     completed_at: string | null;
     created_at: string;
+    tags?: string[];
+    attachments?: { name: string; url: string; size: number }[];
 }
 
 interface Course {
@@ -64,6 +67,9 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>('list');
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [tagInput, setTagInput] = useState('');
 
     // Mouse position for parallax
     const mouseX = useMotionValue(0);
@@ -99,7 +105,26 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         description: '',
         deadline: '',
         priority: 'medium' as 'high' | 'medium' | 'low',
+        tags: [] as string[],
+        attachments: [] as File[],
     });
+
+    const addTag = () => {
+        if (tagInput.trim() && !data.tags.includes(tagInput.trim())) {
+            setData('tags', [...data.tags, tagInput.trim()]);
+            setTagInput('');
+        }
+    };
+
+    const removeTag = (tag: string) => {
+        setData('tags', data.tags.filter(t => t !== tag));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setData('attachments', Array.from(e.target.files));
+        }
+    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -144,6 +169,236 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         setData('mahasiswa_course_id', courseId);
         const course = courses.find(c => c.id === parseInt(courseId));
         setSelectedCourse(course || null);
+    };
+
+    // Helper Components
+    const TaskCard = ({ task, onToggle, onDelete }: { task: Task; onToggle: (id: number) => void; onDelete: (id: number) => void }) => (
+        <div 
+            className={`p-4 rounded-lg border transition-all ${
+                task.status === 'completed' 
+                    ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' 
+                    : task.is_overdue 
+                        ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800'
+                        : 'hover:bg-muted/50'
+            }`}
+        >
+            <div className="flex items-start gap-3">
+                <Checkbox
+                    checked={task.status === 'completed'}
+                    onCheckedChange={() => onToggle(task.id)}
+                    className="mt-1"
+                />
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <div>
+                            <p className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+                                {task.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <Badge variant="outline" className="text-xs">
+                                    <BookOpen className="h-3 w-3 mr-1" />
+                                    {task.course_name}
+                                </Badge>
+                                {task.meeting_number && (
+                                    <Badge variant="secondary" className="text-xs">
+                                        P{task.meeting_number}
+                                    </Badge>
+                                )}
+                                {task.priority && (
+                                    <Badge 
+                                        variant="outline" 
+                                        className={`text-xs ${
+                                            task.priority === 'high' 
+                                                ? 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950/30' 
+                                                : task.priority === 'medium'
+                                                    ? 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/30'
+                                                    : 'border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/30'
+                                        }`}
+                                    >
+                                        <Flag className="h-3 w-3 mr-1" />
+                                        {task.priority === 'high' ? 'Tinggi' : task.priority === 'medium' ? 'Sedang' : 'Rendah'}
+                                    </Badge>
+                                )}
+                                {task.tags && task.tags.map((tag, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-xs">
+                                        <Tag className="h-3 w-3 mr-1" />
+                                        {tag}
+                                    </Badge>
+                                ))}
+                                {task.status === 'completed' ? (
+                                    <Badge className="bg-emerald-500 text-xs">
+                                        <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                    </Badge>
+                                ) : task.is_overdue ? (
+                                    <Badge variant="destructive" className="text-xs">
+                                        <AlertTriangle className="h-3 w-3 mr-1" /> Terlambat
+                                    </Badge>
+                                ) : null}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            {task.deadline_formatted && task.status !== 'completed' && (
+                                <div className={`text-right ${task.is_overdue ? 'text-red-600' : task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                                    <div className="flex items-center gap-1 text-xs">
+                                        <Calendar className="h-3 w-3" />
+                                        {task.deadline_formatted}
+                                    </div>
+                                    {task.days_remaining !== null && !task.is_overdue && (
+                                        <p className="text-xs">{task.days_remaining} hari lagi</p>
+                                    )}
+                                </div>
+                            )}
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                onClick={() => onDelete(task.id)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    {task.description && (
+                        <p className="text-sm text-muted-foreground mt-2">{task.description}</p>
+                    )}
+                    {task.attachments && task.attachments.length > 0 && (
+                        <div className="flex items-center gap-2 mt-2">
+                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">{task.attachments.length} lampiran</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
+    const EmptyState = ({ onAddTask }: { onAddTask: () => void }) => (
+        <div className="text-center py-12">
+            <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-3 opacity-50" />
+            <p className="text-muted-foreground">Belum ada tugas</p>
+            <Button variant="outline" className="mt-4" onClick={onAddTask}>
+                <Plus className="h-4 w-4 mr-2" /> Tambah Tugas Pertama
+            </Button>
+        </div>
+    );
+
+    const CalendarView = ({ tasks }: { tasks: Task[] }) => {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+        
+        const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        const emptyDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
+        
+        const getTasksForDay = (day: number) => {
+            return tasks.filter(task => {
+                if (!task.deadline) return false;
+                const taskDate = new Date(task.deadline);
+                return taskDate.getDate() === day && 
+                       taskDate.getMonth() === currentMonth && 
+                       taskDate.getFullYear() === currentYear;
+            });
+        };
+        
+        return (
+            <div className="space-y-4">
+                <div className="text-center">
+                    <h3 className="text-lg font-semibold">
+                        {new Date(currentYear, currentMonth).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                    </h3>
+                </div>
+                <div className="grid grid-cols-7 gap-2">
+                    {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => (
+                        <div key={day} className="text-center text-sm font-medium text-muted-foreground p-2">
+                            {day}
+                        </div>
+                    ))}
+                    {emptyDays.map(i => (
+                        <div key={`empty-${i}`} className="aspect-square" />
+                    ))}
+                    {days.map(day => {
+                        const dayTasks = getTasksForDay(day);
+                        const isToday = day === today.getDate() && currentMonth === today.getMonth();
+                        
+                        return (
+                            <motion.div
+                                key={day}
+                                whileHover={{ scale: 1.05 }}
+                                className={`aspect-square border rounded-lg p-2 ${
+                                    isToday ? 'bg-violet-50 border-violet-300 dark:bg-violet-950/30' : 'hover:bg-muted/50'
+                                }`}
+                            >
+                                <div className="text-sm font-medium mb-1">{day}</div>
+                                {dayTasks.length > 0 && (
+                                    <div className="space-y-1">
+                                        {dayTasks.slice(0, 2).map(task => (
+                                            <div
+                                                key={task.id}
+                                                className={`text-xs p-1 rounded truncate ${
+                                                    task.priority === 'high' 
+                                                        ? 'bg-red-100 text-red-700 dark:bg-red-950/50' 
+                                                        : task.priority === 'medium'
+                                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50'
+                                                            : 'bg-blue-100 text-blue-700 dark:bg-blue-950/50'
+                                                }`}
+                                            >
+                                                {task.title}
+                                            </div>
+                                        ))}
+                                        {dayTasks.length > 2 && (
+                                            <div className="text-xs text-muted-foreground">+{dayTasks.length - 2} lagi</div>
+                                        )}
+                                    </div>
+                                )}
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
+    const KanbanBoard = ({ tasks, onToggle, onDelete }: { tasks: Task[]; onToggle: (id: number) => void; onDelete: (id: number) => void }) => {
+        const pendingTasks = tasks.filter(t => t.status === 'pending');
+        const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
+        const completedTasks = tasks.filter(t => t.status === 'completed');
+        
+        const KanbanColumn = ({ title, tasks, color }: { title: string; tasks: Task[]; color: string }) => (
+            <div className="flex-1 min-w-[280px]">
+                <div className={`p-3 rounded-t-lg ${color}`}>
+                    <h3 className="font-semibold text-white flex items-center justify-between">
+                        {title}
+                        <Badge variant="secondary" className="bg-white/20 text-white">
+                            {tasks.length}
+                        </Badge>
+                    </h3>
+                </div>
+                <div className="border border-t-0 rounded-b-lg p-3 space-y-3 min-h-[400px] bg-muted/20">
+                    {tasks.map((task, index) => (
+                        <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
+                        >
+                            <TaskCard task={task} onToggle={onToggle} onDelete={onDelete} />
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        );
+        
+        return (
+            <div className="flex gap-4 overflow-x-auto pb-4">
+                <KanbanColumn title="Pending" tasks={pendingTasks} color="bg-amber-500" />
+                <KanbanColumn title="In Progress" tasks={inProgressTasks} color="bg-blue-500" />
+                <KanbanColumn title="Completed" tasks={completedTasks} color="bg-emerald-500" />
+            </div>
+        );
     };
 
     return (
@@ -383,6 +638,51 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         </SelectContent>
                                     </Select>
                                 </div>
+                                <div className="space-y-2">
+                                    <Label>Tags (Opsional)</Label>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={tagInput}
+                                            onChange={(e) => setTagInput(e.target.value)}
+                                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                                            placeholder="Tambah tag..."
+                                        />
+                                        <Button type="button" onClick={addTag} size="sm">
+                                            <Plus className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    {data.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {data.tags.map((tag, idx) => (
+                                                <Badge key={idx} variant="secondary" className="gap-1">
+                                                    <Tag className="h-3 w-3" />
+                                                    {tag}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeTag(tag)}
+                                                        className="ml-1 hover:text-red-500"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Lampiran (Opsional)</Label>
+                                    <Input
+                                        type="file"
+                                        multiple
+                                        onChange={handleFileChange}
+                                        className="cursor-pointer"
+                                    />
+                                    {data.attachments.length > 0 && (
+                                        <div className="text-sm text-muted-foreground">
+                                            {data.attachments.length} file dipilih
+                                        </div>
+                                    )}
+                                </div>
                                 <DialogFooter>
                                     <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Batal</Button>
                                     <Button type="submit" disabled={processing}>
@@ -542,22 +842,67 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 {/* Filters */}
                 <Card>
                     <CardContent className="p-4">
-                        <div className="flex flex-wrap gap-4 items-center">
-                            <div className="flex items-center gap-2">
-                                <Filter className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm font-medium">Filter:</span>
+                        <div className="flex flex-wrap gap-4 items-center justify-between">
+                            <div className="flex flex-wrap gap-4 items-center">
+                                <div className="flex items-center gap-2">
+                                    <Filter className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-medium">Filter:</span>
+                                </div>
+                                <Select value={filters.course_id || 'all'} onValueChange={(v) => handleFilter('course_id', v)}>
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Semua Matkul" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Matkul</SelectItem>
+                                        {courses.map((c) => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
-                            <Select value={filters.course_id || 'all'} onValueChange={(v) => handleFilter('course_id', v)}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Semua Matkul" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Matkul</SelectItem>
-                                    {courses.map((c) => (
-                                        <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            
+                            {/* View Mode Toggle */}
+                            <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setViewMode('list')}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                        viewMode === 'list' 
+                                            ? 'bg-white dark:bg-gray-800 text-violet-600 shadow-sm' 
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <LayoutList className="h-4 w-4" />
+                                    List
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setViewMode('calendar')}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                        viewMode === 'calendar' 
+                                            ? 'bg-white dark:bg-gray-800 text-violet-600 shadow-sm' 
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <CalendarDays className="h-4 w-4" />
+                                    Calendar
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setViewMode('kanban')}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${
+                                        viewMode === 'kanban' 
+                                            ? 'bg-white dark:bg-gray-800 text-violet-600 shadow-sm' 
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <Columns3 className="h-4 w-4" />
+                                    Kanban
+                                </motion.button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -658,122 +1003,42 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 {/* Tasks List */}
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">Daftar Tugas</CardTitle>
+                        <CardTitle className="text-lg">
+                            {viewMode === 'list' ? 'Daftar Tugas' : viewMode === 'calendar' ? 'Kalender Tugas' : 'Kanban Board'}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue={filters.status || 'all'} onValueChange={(v) => handleFilter('status', v)}>
-                            <TabsList className="mb-4">
-                                <TabsTrigger value="all">Semua</TabsTrigger>
-                                <TabsTrigger value="pending">Pending</TabsTrigger>
-                                <TabsTrigger value="completed">Selesai</TabsTrigger>
-                                <TabsTrigger value="overdue">Terlambat</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value={filters.status || 'all'}>
-                                {tasks.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {tasks.map((task) => (
-                                            <div 
-                                                key={task.id} 
-                                                className={`p-4 rounded-lg border transition-all ${
-                                                    task.status === 'completed' 
-                                                        ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' 
-                                                        : task.is_overdue 
-                                                            ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800'
-                                                            : 'hover:bg-muted/50'
-                                                }`}
-                                            >
-                                                <div className="flex items-start gap-3">
-                                                    <Checkbox
-                                                        checked={task.status === 'completed'}
-                                                        onCheckedChange={() => handleToggle(task.id)}
-                                                        className="mt-1"
-                                                    />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <div>
-                                                                <p className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
-                                                                    {task.title}
-                                                                </p>
-                                                                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                                                    <Badge variant="outline" className="text-xs">
-                                                                        <BookOpen className="h-3 w-3 mr-1" />
-                                                                        {task.course_name}
-                                                                    </Badge>
-                                                                    {task.meeting_number && (
-                                                                        <Badge variant="secondary" className="text-xs">
-                                                                            P{task.meeting_number}
-                                                                        </Badge>
-                                                                    )}
-                                                                    {task.priority && (
-                                                                        <Badge 
-                                                                            variant="outline" 
-                                                                            className={`text-xs ${
-                                                                                task.priority === 'high' 
-                                                                                    ? 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950/30' 
-                                                                                    : task.priority === 'medium'
-                                                                                        ? 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/30'
-                                                                                        : 'border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/30'
-                                                                            }`}
-                                                                        >
-                                                                            <Flag className="h-3 w-3 mr-1" />
-                                                                            {task.priority === 'high' ? 'Tinggi' : task.priority === 'medium' ? 'Sedang' : 'Rendah'}
-                                                                        </Badge>
-                                                                    )}
-                                                                    {task.status === 'completed' ? (
-                                                                        <Badge className="bg-emerald-500 text-xs">
-                                                                            <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
-                                                                        </Badge>
-                                                                    ) : task.is_overdue ? (
-                                                                        <Badge variant="destructive" className="text-xs">
-                                                                            <AlertTriangle className="h-3 w-3 mr-1" /> Terlambat
-                                                                        </Badge>
-                                                                    ) : null}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center gap-2 shrink-0">
-                                                                {task.deadline_formatted && task.status !== 'completed' && (
-                                                                    <div className={`text-right ${task.is_overdue ? 'text-red-600' : task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                                                                        <div className="flex items-center gap-1 text-xs">
-                                                                            <Calendar className="h-3 w-3" />
-                                                                            {task.deadline_formatted}
-                                                                        </div>
-                                                                        {task.days_remaining !== null && !task.is_overdue && (
-                                                                            <p className="text-xs">{task.days_remaining} hari lagi</p>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                                <Button 
-                                                                    variant="ghost" 
-                                                                    size="icon" 
-                                                                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                                                    onClick={() => openDeleteDialog(task.id)}
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                        {task.description && (
-                                                            <p className="text-sm text-muted-foreground mt-2">{task.description}</p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-3 opacity-50" />
-                                        <p className="text-muted-foreground">Belum ada tugas</p>
-                                        <Button variant="outline" className="mt-4" onClick={() => setShowForm(true)}>
-                                            <Plus className="h-4 w-4 mr-2" /> Tambah Tugas Pertama
-                                        </Button>
-                                    </div>
-                                )}
-                            </TabsContent>
-                        </Tabs>
+                        {viewMode === 'list' && (
+                            <Tabs defaultValue={filters.status || 'all'} onValueChange={(v) => handleFilter('status', v)}>
+                                <TabsList className="mb-4">
+                                    <TabsTrigger value="all">Semua</TabsTrigger>
+                                    <TabsTrigger value="pending">Pending</TabsTrigger>
+                                    <TabsTrigger value="completed">Selesai</TabsTrigger>
+                                    <TabsTrigger value="overdue">Terlambat</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value={filters.status || 'all'}>
+                                    {tasks.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {tasks.map((task) => (
+                                                <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={openDeleteDialog} />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <EmptyState onAddTask={() => setShowForm(true)} />
+                                    )}
+                                </TabsContent>
+                            </Tabs>
+                        )}
+                        
+                        {viewMode === 'calendar' && (
+                            <CalendarView tasks={tasks} />
+                        )}
+                        
+                        {viewMode === 'kanban' && (
+                            <KanbanBoard tasks={tasks} onToggle={handleToggle} onDelete={openDeleteDialog} />
+                        )}
                     </CardContent>
                 </Card>
-
                 {/* Delete Confirmation Dialog */}
                 <ConfirmDialog
                     open={deleteDialog.open}
