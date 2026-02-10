@@ -135,6 +135,7 @@ const scheduleItemVariants = {
 export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames, today }: Props) {
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    // Enhanced animations with 3D effects, parallax, particles, and glow
 
     useEffect(() => {
         // Track mouse for parallax effect
