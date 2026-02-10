@@ -236,7 +236,7 @@ export default function UserRekapan() {
                 {/* Header Card */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
                 >
                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
