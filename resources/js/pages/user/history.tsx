@@ -39,7 +39,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 interface AttendanceRecord {
     id: number;
@@ -109,14 +109,22 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { 
+        opacity: 0, 
+        y: 40,
+        scale: 0.9,
+        rotateX: -10,
+    },
     visible: {
         opacity: 1,
         y: 0,
+        scale: 1,
+        rotateX: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 400,
-            damping: 17,
+            stiffness: 100,
+            damping: 15,
+            mass: 0.8,
         },
     },
 };
@@ -129,6 +137,19 @@ const cardVariants = {
         transition: {
             type: 'spring' as const,
             stiffness: 300,
+            damping: 20,
+        },
+    },
+    hover: {
+        scale: 1.03,
+        y: -8,
+        rotateY: 5,
+        rotateX: 5,
+        z: 50,
+        boxShadow: "0 25px 50px -12px rgba(139, 92, 246, 0.4)",
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
             damping: 20,
         },
     },
@@ -196,6 +217,19 @@ export default function AttendanceHistory() {
 
     const hasActiveFilters = searchQuery || statusFilter !== 'all' || courseFilter !== 'all' || selectedDate;
 
+    // Mouse position for parallax
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { innerWidth, innerHeight } = window;
+        mouseX.set((clientX / innerWidth - 0.5) * 20);
+        mouseY.set((clientY / innerHeight - 0.5) * 20);
+    };
+
     const courseChartData = useMemo(() => {
         const courseStats: Record<string, { present: number; late: number; absent: number }> = {};
         records.forEach(record => {
@@ -234,29 +268,87 @@ export default function AttendanceHistory() {
         <StudentLayout>
             <Head title="Riwayat Kehadiran" />
 
+            {/* Floating Particles Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                {[...Array(25)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-violet-500/20 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            y: [0, -40, 0],
+                            x: [0, Math.random() * 30 - 15, 0],
+                            scale: [1, 1.5, 1],
+                            opacity: [0.2, 0.6, 0.2],
+                        }}
+                        transition={{
+                            duration: 4 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: Math.random() * 3,
+                            ease: "easeInOut",
+                        }}
+                    />
+                ))}
+            </div>
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="p-6 space-y-6"
+                className="p-6 space-y-6 relative z-10"
+                onMouseMove={handleMouseMove}
+                style={{
+                    perspective: "1500px",
+                    transformStyle: "preserve-3d",
+                }}
             >
                 {/* Header Card */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    style={{
+                        x: smoothMouseX,
+                        y: smoothMouseY,
+                    }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
                 >
+                    {/* Animated gradient overlay */}
                     <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                        animate={{
+                            x: ['-100%', '200%'],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            repeatDelay: 2,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    
+                    {/* Floating orbs */}
+                    <motion.div
+                        animate={{ 
+                            scale: [1, 1.2, 1], 
+                            rotate: [0, 180, 360],
+                            opacity: [0.3, 0.5, 0.3] 
+                        }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
                     />
                     <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                        animate={{ 
+                            scale: [1, 1.3, 1], 
+                            rotate: [360, 180, 0],
+                            opacity: [0.2, 0.4, 0.2] 
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                         className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
                     />
                     
-                    <div className="relative">
+                    <div className="relative z-10">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <motion.p
