@@ -34,7 +34,7 @@ import {
     Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 interface MahasiswaInfo {
     id: number;
@@ -107,20 +107,45 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { 
+        opacity: 0, 
+        y: 40,
+        scale: 0.9,
+        rotateX: -10,
+    },
     visible: {
         opacity: 1,
         y: 0,
+        scale: 1,
+        rotateX: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 100,
+            damping: 15,
+            mass: 0.8,
+        },
+    },
+};
+
+const cardHoverVariants = {
+    hover: {
+        scale: 1.03,
+        y: -8,
+        rotateY: 5,
+        rotateX: 5,
+        z: 50,
+        boxShadow: "0 25px 50px -12px rgba(139, 92, 246, 0.4)",
         transition: {
             type: 'spring',
             stiffness: 400,
-            damping: 17,
+            damping: 20,
         },
     },
 };
@@ -168,16 +193,50 @@ function StatCard({
         rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
     };
 
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const rotateX = useTransform(y, [-100, 100], [10, -10]);
+    const rotateY = useTransform(x, [-100, 100], [-10, 10]);
+
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05, y: -5 }}
+            whileHover={{ 
+                scale: 1.08, 
+                y: -10,
+                rotateZ: 2,
+                boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.3)"
+            }}
             whileTap={{ scale: 0.95 }}
-            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+            style={{ 
+                rotateX, 
+                rotateY,
+                transformStyle: "preserve-3d",
+            }}
+            onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                x.set(e.clientX - centerX);
+                y.set(e.clientY - centerY);
+            }}
+            onMouseLeave={() => {
+                x.set(0);
+                y.set(0);
+            }}
+            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer relative overflow-hidden"
         >
-            <div className="flex items-center gap-3">
+            {/* Animated glow background */}
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-purple-500/10 opacity-0"
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+            />
+            
+            <div className="flex items-center gap-3 relative z-10">
                 <motion.div
-                    whileHover={{ rotate: 10 }}
+                    whileHover={{ rotate: 360, scale: 1.2 }}
+                    transition={{ duration: 0.6 }}
                     className={cn('flex h-12 w-12 items-center justify-center rounded-xl', colors[color])}
                 >
                     <Icon className="h-6 w-6" />
@@ -209,6 +268,19 @@ export default function UserRekapan() {
         recentLogs = [],
     } = props as unknown as PageProps;
 
+    // Mouse position for parallax
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { innerWidth, innerHeight } = window;
+        mouseX.set((clientX / innerWidth - 0.5) * 20);
+        mouseY.set((clientY / innerHeight - 0.5) * 20);
+    };
+
     // Transform data for charts
     const courseChartData = courseSummary.map(c => ({
         name: c.courseName.length > 12 ? c.courseName.substring(0, 12) + '...' : c.courseName,
@@ -227,29 +299,127 @@ export default function UserRekapan() {
         <StudentLayout>
             <Head title="Rekapan Kehadiran" />
 
+            {/* Floating Particles Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                {[...Array(25)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-violet-500/20 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            y: [0, -40, 0],
+                            x: [0, Math.random() * 30 - 15, 0],
+                            scale: [1, 1.5, 1],
+                            opacity: [0.2, 0.6, 0.2],
+                        }}
+                        transition={{
+                            duration: 4 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: Math.random() * 3,
+                            ease: "easeInOut",
+                        }}
+                    />
+                ))}
+            </div>
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="space-y-6 p-6"
+                className="space-y-6 p-6 relative z-10"
+                onMouseMove={handleMouseMove}
+                style={{
+                    perspective: "1500px",
+                    transformStyle: "preserve-3d",
+                }}
             >
                 {/* Header Card */}
                 <motion.div
                     variants={itemVariants}
+                    style={{
+                        x: smoothMouseX,
+                        y: smoothMouseY,
+                    }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
                 >
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    {/* Animated gradient overlay */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                        animate={{
+                            x: ['-100%', '200%'],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            repeatDelay: 2,
+                            ease: "easeInOut"
+                        }}
+                    />
                     
-                    <div className="relative">
+                    {/* Floating orbs */}
+                    <motion.div 
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 180, 360],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                    />
+                    <motion.div 
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [360, 180, 0],
+                        }}
+                        transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                    />
+                    
+                    <div className="relative z-10">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <p className="text-sm text-violet-200">Rekapan Kehadiran</p>
-                                <h1 className="text-2xl font-bold">{mahasiswa.nama}</h1>
-                                <p className="text-sm text-violet-200">NIM: {mahasiswa.nim}</p>
+                                <motion.p 
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-sm text-violet-200"
+                                >
+                                    Rekapan Kehadiran
+                                </motion.p>
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4, type: "spring" }}
+                                    className="text-2xl font-bold"
+                                >
+                                    {mahasiswa.nama}
+                                </motion.h1>
+                                <motion.p 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="text-sm text-violet-200"
+                                >
+                                    NIM: {mahasiswa.nim}
+                                </motion.p>
                             </div>
                             <motion.div
-                                whileHover={{ rotate: 10, scale: 1.1 }}
+                                whileHover={{ 
+                                    rotate: 360, 
+                                    scale: 1.2,
+                                    boxShadow: "0 0 30px rgba(255, 255, 255, 0.5)"
+                                }}
+                                transition={{ duration: 0.6 }}
                                 className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
                             >
                                 <FileText className="h-7 w-7" />
@@ -257,50 +427,36 @@ export default function UserRekapan() {
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
-                            >
-                                <p className="text-xs text-violet-200">Total Sesi</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.totalSessions} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
-                            >
-                                <p className="text-xs text-violet-200">Kehadiran</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.attendanceRate} suffix="%" duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
-                            >
-                                <p className="text-xs text-violet-200">Tepat Waktu</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.onTimeRate} suffix="%" duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur"
-                            >
-                                <p className="text-xs text-violet-200">Bulan Ini</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.thisMonthPresent} duration={1500} />/{stats.thisMonthTotal}
-                                </p>
-                            </motion.div>
+                            {[
+                                { label: "Total Sesi", value: stats.totalSessions, delay: 0.2 },
+                                { label: "Kehadiran", value: stats.attendanceRate, suffix: "%", delay: 0.3 },
+                                { label: "Tepat Waktu", value: stats.onTimeRate, suffix: "%", delay: 0.4 },
+                                { label: "Bulan Ini", value: stats.thisMonthPresent, extra: `/${stats.thisMonthTotal}`, delay: 0.5 },
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ 
+                                        delay: item.delay, 
+                                        duration: 0.5,
+                                        type: "spring",
+                                        stiffness: 200
+                                    }}
+                                    whileHover={{ 
+                                        scale: 1.1, 
+                                        y: -5,
+                                        boxShadow: "0 10px 30px rgba(255, 255, 255, 0.2)"
+                                    }}
+                                    className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                                >
+                                    <p className="text-xs text-violet-200">{item.label}</p>
+                                    <p className="text-2xl font-bold">
+                                        <AnimatedCounter value={item.value} suffix={item.suffix || ""} duration={1500} />
+                                        {item.extra || ""}
+                                    </p>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 </motion.div>
@@ -323,36 +479,75 @@ export default function UserRekapan() {
                         {/* Course Summary Table */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            whileHover={{ ...cardHoverVariants.hover }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
+                            style={{ transformStyle: "preserve-3d" }}
                         >
-                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800">
+                            {/* Glow effect on hover */}
+                            <motion.div
+                                className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl opacity-0 blur-xl"
+                                whileHover={{ opacity: 0.3 }}
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <motion.div whileHover={{ rotate: 10 }}>
+                                    <motion.div 
+                                        whileHover={{ rotate: 360, scale: 1.2 }}
+                                        transition={{ duration: 0.6 }}
+                                    >
                                         <BookOpen className="h-5 w-5 text-violet-600" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Ringkasan per Mata Kuliah
                                     </h2>
                                 </div>
-                                <span className="text-sm text-slate-500">{courseSummary.length} mata kuliah</span>
+                                <motion.span 
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.5, type: "spring" }}
+                                    className="text-sm text-slate-500"
+                                >
+                                    {courseSummary.length} mata kuliah
+                                </motion.span>
                             </div>
 
-                            <div className="divide-y divide-slate-100 dark:divide-gray-800">
+                            <div className="divide-y divide-slate-100 dark:divide-gray-800 relative z-10">
                                 {courseSummary.length === 0 ? (
-                                    <div className="p-8 text-center">
-                                        <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
+                                    <motion.div 
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="p-8 text-center"
+                                    >
+                                        <motion.div
+                                            animate={{ 
+                                                rotate: [0, 10, -10, 0],
+                                                scale: [1, 1.1, 1]
+                                            }}
+                                            transition={{ duration: 3, repeat: Infinity }}
+                                        >
+                                            <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
+                                        </motion.div>
                                         <p className="mt-3 text-slate-500">Belum ada data mata kuliah</p>
-                                    </div>
+                                    </motion.div>
                                 ) : (
                                     courseSummary.map((course, index) => (
                                         <motion.div
                                             key={course.courseId}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
-                                            className="p-4"
+                                            initial={{ opacity: 0, x: -30, rotateY: -10 }}
+                                            animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                                            transition={{ 
+                                                delay: index * 0.08,
+                                                type: "spring",
+                                                stiffness: 150
+                                            }}
+                                            whileHover={{ 
+                                                x: 10, 
+                                                scale: 1.02,
+                                                backgroundColor: 'rgba(139, 92, 246, 0.08)',
+                                                boxShadow: "inset 4px 0 0 rgba(139, 92, 246, 0.5)"
+                                            }}
+                                            className="p-4 cursor-pointer"
                                         >
                                             <div className="flex items-center justify-between mb-2">
                                                 <h3 className="font-medium text-slate-900 dark:text-white truncate max-w-[200px]">
@@ -392,29 +587,49 @@ export default function UserRekapan() {
                         {courseChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.02 }}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                                whileHover={{ ...cardHoverVariants.hover }}
+                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
+                                style={{ transformStyle: "preserve-3d" }}
                             >
-                                <div className="flex items-center gap-2 mb-4">
-                                    <motion.div whileHover={{ rotate: 10 }}>
+                                {/* Animated background gradient */}
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5"
+                                    animate={{
+                                        backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+                                    }}
+                                    transition={{
+                                        duration: 10,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                    }}
+                                    style={{ backgroundSize: "200% 200%" }}
+                                />
+                                
+                                <div className="flex items-center gap-2 mb-4 relative z-10">
+                                    <motion.div 
+                                        whileHover={{ rotate: 360, scale: 1.2 }}
+                                        transition={{ duration: 0.6 }}
+                                    >
                                         <TrendingUp className="h-5 w-5 text-indigo-600" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Grafik per Mata Kuliah
                                     </h2>
                                 </div>
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <BarChart data={courseChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
-                                        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} />
-                                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                                        <Tooltip content={<CustomTooltip />} />
-                                        <Legend />
-                                        <Bar dataKey="Hadir" fill="#10b981" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="Terlambat" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                                        <Bar dataKey="Ditolak" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                <div className="relative z-10">
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <BarChart data={courseChartData}>
+                                            <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                            <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} />
+                                            <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                                            <Tooltip content={<CustomTooltip />} />
+                                            <Legend />
+                                            <Bar dataKey="Hadir" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                            <Bar dataKey="Terlambat" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                                            <Bar dataKey="Ditolak" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </motion.div>
                         )}
 
