@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     FileText, Plus, Clock, CheckCircle, XCircle, Upload, Trash2, Eye, X,
-    HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck, Star
+    HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck, Star,
+    ArrowLeft, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -54,6 +55,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState(filters.status || 'all');
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [formStep, setFormStep] = useState(1);
+    const [dragActive, setDragActive] = useState(false);
 
     // Animation variants
     const containerVariants = {
@@ -94,8 +97,37 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
             onSuccess: () => {
                 reset();
                 setShowForm(false);
+                setFormStep(1);
             },
         });
+    };
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            setData('attachment', e.dataTransfer.files[0]);
+        }
+    };
+
+    const nextStep = () => {
+        if (formStep < 3) setFormStep(formStep + 1);
+    };
+
+    const prevStep = () => {
+        if (formStep > 1) setFormStep(formStep - 1);
     };
 
     const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
@@ -506,109 +538,327 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
             {/* Form Modal */}
             {showForm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900 max-h-[90vh] overflow-y-auto">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900 max-h-[90vh] overflow-hidden flex flex-col"
+                    >
                         <div className="flex items-start justify-between mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 text-white shadow-lg">
+                                <motion.div 
+                                    animate={{ rotate: [0, 360] }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 text-white shadow-lg"
+                                >
                                     <HeartPulse className="h-6 w-6" />
-                                </div>
+                                </motion.div>
                                 <div>
                                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">Ajukan Izin/Sakit</h3>
                                     <p className="text-sm text-slate-500">Isi form berikut dengan lengkap</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowForm(false)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <button onClick={() => { setShowForm(false); setFormStep(1); }} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                 <X className="h-5 w-5 text-slate-400" />
                             </button>
                         </div>
-                        
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Sesi Perkuliahan</Label>
-                                <Select value={data.attendance_session_id} onValueChange={(v) => setData('attendance_session_id', v)}>
-                                    <SelectTrigger className="rounded-xl">
-                                        <SelectValue placeholder="Pilih sesi perkuliahan" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableSessions.map((s) => (
-                                            <SelectItem key={s.id} value={String(s.id)}>
-                                                {s.mata_kuliah} - {s.tanggal_display}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.attendance_session_id && <p className="text-sm text-red-500">{errors.attendance_session_id}</p>}
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Jenis Pengajuan</Label>
-                                <Select value={data.type} onValueChange={(v: 'izin' | 'sakit') => setData('type', v)}>
-                                    <SelectTrigger className="rounded-xl">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="izin">📝 Izin</SelectItem>
-                                        <SelectItem value="sakit">🏥 Sakit</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Alasan</Label>
-                                <Textarea
-                                    value={data.reason}
-                                    onChange={(e) => setData('reason', e.target.value)}
-                                    placeholder="Jelaskan alasan izin/sakit dengan detail..."
-                                    rows={4}
-                                    className="rounded-xl resize-none"
-                                />
-                                {errors.reason && <p className="text-sm text-red-500">{errors.reason}</p>}
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Surat Keterangan (Opsional)</Label>
-                                <div className="border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-xl p-6 text-center hover:border-teal-400 transition-colors">
-                                    <Input
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        onChange={(e) => setData('attachment', e.target.files?.[0] || null)}
-                                        className="hidden"
-                                        id="attachment"
-                                    />
-                                    <label htmlFor="attachment" className="cursor-pointer">
-                                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                                            <Upload className="h-6 w-6 text-teal-600" />
-                                        </div>
-                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                            {data.attachment ? data.attachment.name : 'Klik untuk upload'}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-1">JPG, PNG, PDF (max 5MB)</p>
-                                    </label>
+
+                        {/* Progress Steps */}
+                        <div className="flex items-center justify-between mb-6 px-4">
+                            {[1, 2, 3].map((step) => (
+                                <div key={step} className="flex items-center flex-1">
+                                    <motion.div
+                                        animate={{
+                                            scale: formStep === step ? 1.1 : 1,
+                                            backgroundColor: formStep >= step ? '#14b8a6' : '#e5e7eb'
+                                        }}
+                                        className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold"
+                                    >
+                                        {formStep > step ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                        ) : (
+                                            step
+                                        )}
+                                    </motion.div>
+                                    {step < 3 && (
+                                        <motion.div
+                                            animate={{
+                                                backgroundColor: formStep > step ? '#14b8a6' : '#e5e7eb'
+                                            }}
+                                            className="flex-1 h-1 mx-2"
+                                        />
+                                    )}
                                 </div>
-                                {errors.attachment && <p className="text-sm text-red-500">{errors.attachment}</p>}
-                            </div>
+                            ))}
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto">
+                            <AnimatePresence mode="wait">
+                                {/* Step 1: Session Selection */}
+                                {formStep === 1 && (
+                                    <motion.div
+                                        key="step1"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="text-center mb-4">
+                                            <h3 className="text-lg font-semibold text-teal-600">Pilih Sesi Perkuliahan</h3>
+                                            <p className="text-sm text-muted-foreground">Pilih sesi yang ingin kamu ajukan izin/sakit</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2">
+                                                <Calendar className="h-4 w-4 text-teal-600" />
+                                                Sesi Perkuliahan
+                                            </Label>
+                                            <Select value={data.attendance_session_id} onValueChange={(v) => setData('attendance_session_id', v)}>
+                                                <SelectTrigger className="h-12 border-2 hover:border-teal-300 transition-colors rounded-xl">
+                                                    <SelectValue placeholder="Pilih sesi perkuliahan" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableSessions.map((s) => (
+                                                        <SelectItem key={s.id} value={String(s.id)}>
+                                                            <div className="flex items-center gap-2">
+                                                                <Calendar className="h-4 w-4 text-teal-600" />
+                                                                {s.mata_kuliah} - {s.tanggal_display}
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.attendance_session_id && (
+                                                <motion.p
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="text-sm text-red-500 flex items-center gap-1"
+                                                >
+                                                    <AlertTriangle className="h-3 w-3" />
+                                                    {errors.attendance_session_id}
+                                                </motion.p>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-teal-600" />
+                                                Jenis Pengajuan
+                                            </Label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {[
+                                                    { value: 'izin', label: 'Izin', icon: '📝', color: 'blue' },
+                                                    { value: 'sakit', label: 'Sakit', icon: '🏥', color: 'red' }
+                                                ].map((type) => (
+                                                    <motion.button
+                                                        key={type.value}
+                                                        type="button"
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => setData('type', type.value as any)}
+                                                        className={`p-4 rounded-xl border-2 transition-all ${
+                                                            data.type === type.value
+                                                                ? `border-${type.color}-500 bg-${type.color}-50 dark:bg-${type.color}-950/30`
+                                                                : 'border-gray-200 hover:border-teal-300'
+                                                        }`}
+                                                    >
+                                                        <div className="text-3xl mb-1">{type.icon}</div>
+                                                        <div className="text-sm font-medium">{type.label}</div>
+                                                    </motion.button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {/* Step 2: Reason */}
+                                {formStep === 2 && (
+                                    <motion.div
+                                        key="step2"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="text-center mb-4">
+                                            <h3 className="text-lg font-semibold text-teal-600">Alasan Pengajuan</h3>
+                                            <p className="text-sm text-muted-foreground">Jelaskan alasan izin/sakit dengan detail</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-teal-600" />
+                                                Alasan
+                                            </Label>
+                                            <Textarea
+                                                value={data.reason}
+                                                onChange={(e) => setData('reason', e.target.value)}
+                                                placeholder="Jelaskan alasan izin/sakit dengan detail..."
+                                                rows={6}
+                                                className="border-2 hover:border-teal-300 focus:border-teal-500 transition-colors resize-none rounded-xl"
+                                            />
+                                            {errors.reason && (
+                                                <motion.p
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="text-sm text-red-500 flex items-center gap-1"
+                                                >
+                                                    <AlertTriangle className="h-3 w-3" />
+                                                    {errors.reason}
+                                                </motion.p>
+                                            )}
+                                        </div>
+
+                                        <div className="p-4 bg-teal-50 dark:bg-teal-950/20 rounded-xl border border-teal-200 dark:border-teal-800">
+                                            <p className="text-sm text-teal-700 dark:text-teal-300 flex items-start gap-2">
+                                                <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
+                                                <span>Pastikan alasan yang kamu berikan jelas dan detail agar mudah disetujui oleh dosen</span>
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+
+                                {/* Step 3: Attachment */}
+                                {formStep === 3 && (
+                                    <motion.div
+                                        key="step3"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="text-center mb-4">
+                                            <h3 className="text-lg font-semibold text-teal-600">Surat Keterangan</h3>
+                                            <p className="text-sm text-muted-foreground">Upload surat keterangan (opsional)</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2">
+                                                <Upload className="h-4 w-4 text-teal-600" />
+                                                Surat Keterangan (Opsional)
+                                            </Label>
+                                            <div
+                                                onDragEnter={handleDrag}
+                                                onDragLeave={handleDrag}
+                                                onDragOver={handleDrag}
+                                                onDrop={handleDrop}
+                                                className={`relative border-2 border-dashed rounded-xl p-8 transition-all ${
+                                                    dragActive
+                                                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/20'
+                                                        : 'border-gray-300 hover:border-teal-400'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="file"
+                                                    accept="image/*,.pdf"
+                                                    onChange={(e) => setData('attachment', e.target.files?.[0] || null)}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    id="attachment"
+                                                />
+                                                <div className="text-center">
+                                                    <motion.div
+                                                        animate={{ y: [0, -10, 0] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                        className="mx-auto w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mb-3"
+                                                    >
+                                                        <Upload className="h-6 w-6 text-teal-600" />
+                                                    </motion.div>
+                                                    <p className="text-sm font-medium mb-1">
+                                                        {data.attachment ? data.attachment.name : 'Drag & drop file atau klik untuk upload'}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        JPG, PNG, PDF (max 5MB)
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {data.attachment && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="flex items-center gap-3 p-3 bg-teal-50 dark:bg-teal-950/20 rounded-lg"
+                                                >
+                                                    <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
+                                                        <FileCheck className="h-4 w-4 text-teal-600" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium truncate">{data.attachment.name}</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {(data.attachment.size / 1024).toFixed(2)} KB
+                                                        </p>
+                                                    </div>
+                                                    <CheckCircle className="h-5 w-5 text-emerald-500" />
+                                                </motion.div>
+                                            )}
+                                            {errors.attachment && (
+                                                <motion.p
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="text-sm text-red-500 flex items-center gap-1"
+                                                >
+                                                    <AlertTriangle className="h-3 w-3" />
+                                                    {errors.attachment}
+                                                </motion.p>
+                                            )}
+                                        </div>
+
+                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                                            <p className="text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
+                                                <Star className="h-4 w-4 mt-0.5 shrink-0" />
+                                                <span>Upload surat keterangan resmi untuk mempercepat proses persetujuan</span>
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                             
-                            <div className="flex gap-3 pt-4">
-                                <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1 rounded-xl">
+                            <div className="flex gap-3 pt-4 border-t">
+                                {formStep > 1 && (
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <Button type="button" variant="outline" onClick={prevStep} className="gap-2 rounded-xl">
+                                            <ArrowLeft className="h-4 w-4" />
+                                            Kembali
+                                        </Button>
+                                    </motion.div>
+                                )}
+                                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setFormStep(1); }} className="flex-1 rounded-xl">
                                     Batal
                                 </Button>
-                                <Button 
-                                    type="submit" 
-                                    disabled={processing}
-                                    className="flex-1 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-lg shadow-teal-500/30"
-                                >
-                                    {processing ? (
-                                        <>Mengirim...</>
-                                    ) : (
-                                        <>
-                                            <Send className="h-4 w-4 mr-2" />
-                                            Kirim Pengajuan
-                                        </>
-                                    )}
-                                </Button>
+                                {formStep < 3 ? (
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <Button type="button" onClick={nextStep} className="gap-2 rounded-xl bg-teal-600 hover:bg-teal-700">
+                                            Lanjut
+                                            <ArrowRight className="h-4 w-4" />
+                                        </Button>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <Button 
+                                            type="submit" 
+                                            disabled={processing}
+                                            className="gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-lg shadow-teal-500/30"
+                                        >
+                                            {processing ? (
+                                                <>
+                                                    <motion.div
+                                                        animate={{ rotate: 360 }}
+                                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                    >
+                                                        <Clock className="h-4 w-4" />
+                                                    </motion.div>
+                                                    Mengirim...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="h-4 w-4" />
+                                                    Kirim Pengajuan
+                                                </>
+                                            )}
+                                        </Button>
+                                    </motion.div>
+                                )}
                             </div>
                         </form>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
