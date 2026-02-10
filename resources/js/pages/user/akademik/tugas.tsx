@@ -15,7 +15,7 @@ import {
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
     Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag,
     LayoutList, CalendarDays, Columns3, Paperclip, Tag, X, Search, 
-    ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3
+    ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3, ArrowRight, FileText
 } from 'lucide-react';
 import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
@@ -75,6 +75,8 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'created'>('deadline');
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [showTaskDetail, setShowTaskDetail] = useState(false);
+    const [formStep, setFormStep] = useState(1);
+    const [dragActive, setDragActive] = useState(false);
 
     // Mouse position for parallax
     const mouseX = useMotionValue(0);
@@ -138,12 +140,41 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 reset();
                 setShowForm(false);
                 setSelectedCourse(null);
+                setFormStep(1);
             },
             onError: () => {
                 setToast({ type: 'error', message: 'Gagal menambahkan tugas' });
                 setTimeout(() => setToast(null), 3000);
             },
         });
+    };
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
+        
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            setData('attachments', Array.from(e.dataTransfer.files));
+        }
+    };
+
+    const nextStep = () => {
+        if (formStep < 3) setFormStep(formStep + 1);
+    };
+
+    const prevStep = () => {
+        if (formStep > 1) setFormStep(formStep - 1);
     };
 
     const handleToggle = (id: number) => {
@@ -642,145 +673,395 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                     </Button>
                                 </motion.div>
                             </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
                             <DialogHeader>
-                                <DialogTitle>Tambah Tugas Baru</DialogTitle>
+                                <DialogTitle className="flex items-center gap-3">
+                                    <motion.div
+                                        animate={{ rotate: [0, 360] }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg"
+                                    >
+                                        <Plus className="h-5 w-5 text-white" />
+                                    </motion.div>
+                                    Tambah Tugas Baru
+                                </DialogTitle>
                                 <DialogDescription>Catat tugas untuk mata kuliah tertentu</DialogDescription>
                             </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Mata Kuliah</Label>
-                                    <Select value={data.mahasiswa_course_id} onValueChange={handleCourseSelect}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Pilih mata kuliah" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {courses.map((c) => (
-                                                <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.mahasiswa_course_id && <p className="text-sm text-red-500">{errors.mahasiswa_course_id}</p>}
-                                </div>
-                                {selectedCourse && (
-                                    <div className="space-y-2">
-                                        <Label>Pertemuan (Opsional)</Label>
-                                        <Select value={data.meeting_number} onValueChange={(v) => setData('meeting_number', v)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Pilih pertemuan" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {Array.from({ length: selectedCourse.total_meetings }, (_, i) => (
-                                                    <SelectItem key={i + 1} value={String(i + 1)}>Pertemuan {i + 1}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+
+                            {/* Progress Steps */}
+                            <div className="flex items-center justify-between mb-6 px-4">
+                                {[1, 2, 3].map((step) => (
+                                    <div key={step} className="flex items-center flex-1">
+                                        <motion.div
+                                            animate={{
+                                                scale: formStep === step ? 1.1 : 1,
+                                                backgroundColor: formStep >= step ? '#8b5cf6' : '#e5e7eb'
+                                            }}
+                                            className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold"
+                                        >
+                                            {formStep > step ? (
+                                                <CheckCircle className="h-5 w-5" />
+                                            ) : (
+                                                step
+                                            )}
+                                        </motion.div>
+                                        {step < 3 && (
+                                            <motion.div
+                                                animate={{
+                                                    backgroundColor: formStep > step ? '#8b5cf6' : '#e5e7eb'
+                                                }}
+                                                className="flex-1 h-1 mx-2"
+                                            />
+                                        )}
                                     </div>
-                                )}
-                                <div className="space-y-2">
-                                    <Label>Judul Tugas</Label>
-                                    <Input
-                                        value={data.title}
-                                        onChange={(e) => setData('title', e.target.value)}
-                                        placeholder="Contoh: Tugas Bab 3"
-                                    />
-                                    {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Deskripsi (Opsional)</Label>
-                                    <Textarea
-                                        value={data.description}
-                                        onChange={(e) => setData('description', e.target.value)}
-                                        placeholder="Detail tugas..."
-                                        rows={3}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Deadline (Opsional)</Label>
-                                    <Input
-                                        type="date"
-                                        value={data.deadline}
-                                        onChange={(e) => setData('deadline', e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Prioritas</Label>
-                                    <Select value={data.priority} onValueChange={(v: 'high' | 'medium' | 'low') => setData('priority', v)}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="high">
-                                                <div className="flex items-center gap-2">
-                                                    <Flag className="h-4 w-4 text-red-500" />
-                                                    <span>Tinggi</span>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="medium">
-                                                <div className="flex items-center gap-2">
-                                                    <Flag className="h-4 w-4 text-amber-500" />
-                                                    <span>Sedang</span>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="low">
-                                                <div className="flex items-center gap-2">
-                                                    <Flag className="h-4 w-4 text-blue-500" />
-                                                    <span>Rendah</span>
-                                                </div>
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Tags (Opsional)</Label>
-                                    <div className="flex gap-2">
-                                        <Input
-                                            value={tagInput}
-                                            onChange={(e) => setTagInput(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                                            placeholder="Tambah tag..."
-                                        />
-                                        <Button type="button" onClick={addTag} size="sm">
-                                            <Plus className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    {data.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mt-2">
-                                            {data.tags.map((tag, idx) => (
-                                                <Badge key={idx} variant="secondary" className="gap-1">
-                                                    <Tag className="h-3 w-3" />
-                                                    {tag}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeTag(tag)}
-                                                        className="ml-1 hover:text-red-500"
+                                ))}
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <AnimatePresence mode="wait">
+                                    {/* Step 1: Basic Info */}
+                                    {formStep === 1 && (
+                                        <motion.div
+                                            key="step1"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-4"
+                                        >
+                                            <div className="text-center mb-4">
+                                                <h3 className="text-lg font-semibold text-violet-600">Informasi Dasar</h3>
+                                                <p className="text-sm text-muted-foreground">Pilih mata kuliah dan judul tugas</p>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <BookOpen className="h-4 w-4 text-violet-600" />
+                                                    Mata Kuliah
+                                                </Label>
+                                                <Select value={data.mahasiswa_course_id} onValueChange={handleCourseSelect}>
+                                                    <SelectTrigger className="h-12 border-2 hover:border-violet-300 transition-colors">
+                                                        <SelectValue placeholder="Pilih mata kuliah" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {courses.map((c) => (
+                                                            <SelectItem key={c.id} value={String(c.id)}>
+                                                                <div className="flex items-center gap-2">
+                                                                    <BookOpen className="h-4 w-4 text-violet-600" />
+                                                                    {c.name}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                                {errors.mahasiswa_course_id && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-sm text-red-500 flex items-center gap-1"
                                                     >
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
-                                        </div>
+                                                        <AlertTriangle className="h-3 w-3" />
+                                                        {errors.mahasiswa_course_id}
+                                                    </motion.p>
+                                                )}
+                                            </div>
+
+                                            {selectedCourse && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    className="space-y-2"
+                                                >
+                                                    <Label className="flex items-center gap-2">
+                                                        <Calendar className="h-4 w-4 text-violet-600" />
+                                                        Pertemuan (Opsional)
+                                                    </Label>
+                                                    <Select value={data.meeting_number} onValueChange={(v) => setData('meeting_number', v)}>
+                                                        <SelectTrigger className="h-12 border-2 hover:border-violet-300 transition-colors">
+                                                            <SelectValue placeholder="Pilih pertemuan" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {Array.from({ length: selectedCourse.total_meetings }, (_, i) => (
+                                                                <SelectItem key={i + 1} value={String(i + 1)}>
+                                                                    Pertemuan {i + 1}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </motion.div>
+                                            )}
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <ListTodo className="h-4 w-4 text-violet-600" />
+                                                    Judul Tugas
+                                                </Label>
+                                                <Input
+                                                    value={data.title}
+                                                    onChange={(e) => setData('title', e.target.value)}
+                                                    placeholder="Contoh: Tugas Bab 3"
+                                                    className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                />
+                                                {errors.title && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-sm text-red-500 flex items-center gap-1"
+                                                    >
+                                                        <AlertTriangle className="h-3 w-3" />
+                                                        {errors.title}
+                                                    </motion.p>
+                                                )}
+                                            </div>
+                                        </motion.div>
                                     )}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Lampiran (Opsional)</Label>
-                                    <Input
-                                        type="file"
-                                        multiple
-                                        onChange={handleFileChange}
-                                        className="cursor-pointer"
-                                    />
-                                    {data.attachments.length > 0 && (
-                                        <div className="text-sm text-muted-foreground">
-                                            {data.attachments.length} file dipilih
-                                        </div>
+
+                                    {/* Step 2: Details */}
+                                    {formStep === 2 && (
+                                        <motion.div
+                                            key="step2"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-4"
+                                        >
+                                            <div className="text-center mb-4">
+                                                <h3 className="text-lg font-semibold text-violet-600">Detail Tugas</h3>
+                                                <p className="text-sm text-muted-foreground">Tambahkan deskripsi, deadline, dan prioritas</p>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-violet-600" />
+                                                    Deskripsi (Opsional)
+                                                </Label>
+                                                <Textarea
+                                                    value={data.description}
+                                                    onChange={(e) => setData('description', e.target.value)}
+                                                    placeholder="Detail tugas..."
+                                                    rows={4}
+                                                    className="border-2 hover:border-violet-300 focus:border-violet-500 transition-colors resize-none"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <Calendar className="h-4 w-4 text-violet-600" />
+                                                    Deadline (Opsional)
+                                                </Label>
+                                                <Input
+                                                    type="date"
+                                                    value={data.deadline}
+                                                    onChange={(e) => setData('deadline', e.target.value)}
+                                                    className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <Flag className="h-4 w-4 text-violet-600" />
+                                                    Prioritas
+                                                </Label>
+                                                <div className="grid grid-cols-3 gap-3">
+                                                    {[
+                                                        { value: 'high', label: 'Tinggi', color: 'red', icon: '🔥' },
+                                                        { value: 'medium', label: 'Sedang', color: 'amber', icon: '⚡' },
+                                                        { value: 'low', label: 'Rendah', color: 'blue', icon: '💧' }
+                                                    ].map((priority) => (
+                                                        <motion.button
+                                                            key={priority.value}
+                                                            type="button"
+                                                            whileHover={{ scale: 1.05 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                            onClick={() => setData('priority', priority.value as any)}
+                                                            className={`p-4 rounded-xl border-2 transition-all ${
+                                                                data.priority === priority.value
+                                                                    ? `border-${priority.color}-500 bg-${priority.color}-50 dark:bg-${priority.color}-950/30`
+                                                                    : 'border-gray-200 hover:border-violet-300'
+                                                            }`}
+                                                        >
+                                                            <div className="text-2xl mb-1">{priority.icon}</div>
+                                                            <div className="text-sm font-medium">{priority.label}</div>
+                                                        </motion.button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </motion.div>
                                     )}
-                                </div>
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Batal</Button>
-                                    <Button type="submit" disabled={processing}>
-                                        {processing ? 'Menyimpan...' : 'Simpan'}
+
+                                    {/* Step 3: Tags & Files */}
+                                    {formStep === 3 && (
+                                        <motion.div
+                                            key="step3"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="space-y-4"
+                                        >
+                                            <div className="text-center mb-4">
+                                                <h3 className="text-lg font-semibold text-violet-600">Tags & Lampiran</h3>
+                                                <p className="text-sm text-muted-foreground">Tambahkan tags dan file pendukung</p>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <Tag className="h-4 w-4 text-violet-600" />
+                                                    Tags (Opsional)
+                                                </Label>
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        value={tagInput}
+                                                        onChange={(e) => setTagInput(e.target.value)}
+                                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                                                        placeholder="Tambah tag..."
+                                                        className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                    />
+                                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                                        <Button type="button" onClick={addTag} size="lg" className="h-12 bg-violet-600 hover:bg-violet-700">
+                                                            <Plus className="h-4 w-4" />
+                                                        </Button>
+                                                    </motion.div>
+                                                </div>
+                                                {data.tags.length > 0 && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        className="flex flex-wrap gap-2 mt-3 p-3 bg-violet-50 dark:bg-violet-950/20 rounded-lg"
+                                                    >
+                                                        {data.tags.map((tag, idx) => (
+                                                            <motion.div
+                                                                key={idx}
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                                exit={{ scale: 0 }}
+                                                            >
+                                                                <Badge variant="secondary" className="gap-1 py-1.5 px-3">
+                                                                    <Tag className="h-3 w-3" />
+                                                                    {tag}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => removeTag(tag)}
+                                                                        className="ml-1 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <X className="h-3 w-3" />
+                                                                    </button>
+                                                                </Badge>
+                                                            </motion.div>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="flex items-center gap-2">
+                                                    <Paperclip className="h-4 w-4 text-violet-600" />
+                                                    Lampiran (Opsional)
+                                                </Label>
+                                                <div
+                                                    onDragEnter={handleDrag}
+                                                    onDragLeave={handleDrag}
+                                                    onDragOver={handleDrag}
+                                                    onDrop={handleDrop}
+                                                    className={`relative border-2 border-dashed rounded-xl p-8 transition-all ${
+                                                        dragActive
+                                                            ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/20'
+                                                            : 'border-gray-300 hover:border-violet-400'
+                                                    }`}
+                                                >
+                                                    <input
+                                                        type="file"
+                                                        multiple
+                                                        onChange={handleFileChange}
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    />
+                                                    <div className="text-center">
+                                                        <motion.div
+                                                            animate={{ y: [0, -10, 0] }}
+                                                            transition={{ duration: 2, repeat: Infinity }}
+                                                            className="mx-auto w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mb-3"
+                                                        >
+                                                            <Paperclip className="h-6 w-6 text-violet-600" />
+                                                        </motion.div>
+                                                        <p className="text-sm font-medium mb-1">
+                                                            Drag & drop file atau klik untuk upload
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Mendukung berbagai format file
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {data.attachments.length > 0 && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        className="space-y-2 mt-3"
+                                                    >
+                                                        {Array.from(data.attachments).map((file, idx) => (
+                                                            <motion.div
+                                                                key={idx}
+                                                                initial={{ opacity: 0, x: -20 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                className="flex items-center gap-3 p-3 bg-violet-50 dark:bg-violet-950/20 rounded-lg"
+                                                            >
+                                                                <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                                                                    <Paperclip className="h-4 w-4 text-violet-600" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                    <p className="text-xs text-muted-foreground">
+                                                                        {(file.size / 1024).toFixed(2)} KB
+                                                                    </p>
+                                                                </div>
+                                                                <CheckCircle className="h-5 w-5 text-emerald-500" />
+                                                            </motion.div>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <DialogFooter className="gap-2">
+                                    {formStep > 1 && (
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Button type="button" variant="outline" onClick={prevStep} className="gap-2">
+                                                <ArrowLeft className="h-4 w-4" />
+                                                Kembali
+                                            </Button>
+                                        </motion.div>
+                                    )}
+                                    <Button type="button" variant="outline" onClick={() => { setShowForm(false); setFormStep(1); }}>
+                                        Batal
                                     </Button>
+                                    {formStep < 3 ? (
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Button type="button" onClick={nextStep} className="gap-2 bg-violet-600 hover:bg-violet-700">
+                                                Lanjut
+                                                <ArrowRight className="h-4 w-4" />
+                                            </Button>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Button type="submit" disabled={processing} className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700">
+                                                {processing ? (
+                                                    <>
+                                                        <motion.div
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                        >
+                                                            <Clock className="h-4 w-4" />
+                                                        </motion.div>
+                                                        Menyimpan...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <CheckCircle className="h-4 w-4" />
+                                                        Simpan Tugas
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </motion.div>
+                                    )}
                                 </DialogFooter>
                             </form>
                         </DialogContent>
