@@ -14,9 +14,10 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
     Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag,
-    LayoutList, CalendarDays, Columns3, Paperclip, Tag, X
+    LayoutList, CalendarDays, Columns3, Paperclip, Tag, X, Search, 
+    ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3
 } from 'lucide-react';
-import { useState, FormEvent, useEffect } from 'react';
+import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 
 interface Task {
@@ -70,6 +71,10 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>('list');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'created'>('deadline');
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [showTaskDetail, setShowTaskDetail] = useState(false);
 
     // Mouse position for parallax
     const mouseX = useMotionValue(0);
@@ -171,9 +176,75 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         setSelectedCourse(course || null);
     };
 
+    // Filter and Sort Tasks
+    const filteredAndSortedTasks = useMemo(() => {
+        let filtered = [...tasks];
+        
+        // Search filter
+        if (searchQuery) {
+            filtered = filtered.filter(task => 
+                task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                task.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                task.course_name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+        
+        // Tags filter
+        if (selectedTags.length > 0) {
+            filtered = filtered.filter(task => 
+                task.tags?.some(tag => selectedTags.includes(tag))
+            );
+        }
+        
+        // Sort
+        filtered.sort((a, b) => {
+            if (sortBy === 'deadline') {
+                if (!a.deadline) return 1;
+                if (!b.deadline) return -1;
+                return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+            } else if (sortBy === 'priority') {
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return (priorityOrder[a.priority || 'low'] || 2) - (priorityOrder[b.priority || 'low'] || 2);
+            } else {
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            }
+        });
+        
+        return filtered;
+    }, [tasks, searchQuery, selectedTags, sortBy]);
+
+    // Get all unique tags
+    const allTags = useMemo(() => {
+        const tags = new Set<string>();
+        tasks.forEach(task => {
+            task.tags?.forEach(tag => tags.add(tag));
+        });
+        return Array.from(tags);
+    }, [tasks]);
+
+    const handleDuplicateTask = (task: Task) => {
+        setData({
+            mahasiswa_course_id: String(task.course_id),
+            meeting_number: task.meeting_number ? String(task.meeting_number) : '',
+            title: `${task.title} (Copy)`,
+            description: task.description || '',
+            deadline: task.deadline || '',
+            priority: task.priority || 'medium',
+            tags: task.tags || [],
+            attachments: [],
+        });
+        setShowForm(true);
+    };
+
+    const handleViewTask = (task: Task) => {
+        setSelectedTask(task);
+        setShowTaskDetail(true);
+    };
+
     // Helper Components
     const TaskCard = ({ task, onToggle, onDelete }: { task: Task; onToggle: (id: number) => void; onDelete: (id: number) => void }) => (
-        <div 
+        <motion.div 
+            whileHover={{ scale: 1.01 }}
             className={`p-4 rounded-lg border transition-all ${
                 task.status === 'completed' 
                     ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' 
@@ -190,7 +261,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 />
                 <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                        <div>
+                        <div className="flex-1">
                             <p className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
                                 {task.title}
                             </p>
@@ -236,9 +307,9 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                 ) : null}
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                             {task.deadline_formatted && task.status !== 'completed' && (
-                                <div className={`text-right ${task.is_overdue ? 'text-red-600' : task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-600' : 'text-muted-foreground'}`}>
+                                <div className={`text-right mr-2 ${task.is_overdue ? 'text-red-600' : task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-600' : 'text-muted-foreground'}`}>
                                     <div className="flex items-center gap-1 text-xs">
                                         <Calendar className="h-3 w-3" />
                                         {task.deadline_formatted}
@@ -248,14 +319,36 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                     )}
                                 </div>
                             )}
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                onClick={() => onDelete(task.id)}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                    onClick={() => handleViewTask(task)}
+                                >
+                                    <Eye className="h-4 w-4" />
+                                </Button>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-violet-500 hover:text-violet-600 hover:bg-violet-50"
+                                    onClick={() => handleDuplicateTask(task)}
+                                >
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                    onClick={() => onDelete(task.id)}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </motion.div>
                         </div>
                     </div>
                     {task.description && (
@@ -269,7 +362,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 
     const EmptyState = ({ onAddTask }: { onAddTask: () => void }) => (
@@ -841,27 +934,96 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
 
                 {/* Filters */}
                 <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 space-y-4">
+                        {/* Search and Sort */}
                         <div className="flex flex-wrap gap-4 items-center justify-between">
-                            <div className="flex flex-wrap gap-4 items-center">
-                                <div className="flex items-center gap-2">
-                                    <Filter className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-medium">Filter:</span>
-                                </div>
-                                <Select value={filters.course_id || 'all'} onValueChange={(v) => handleFilter('course_id', v)}>
-                                    <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Semua Matkul" />
+                            <div className="flex-1 min-w-[200px] max-w-md relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Cari tugas..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                                    <SelectTrigger className="w-[160px]">
+                                        <ArrowUpDown className="h-4 w-4 mr-2" />
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="all">Semua Matkul</SelectItem>
-                                        {courses.map((c) => (
-                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
-                                        ))}
+                                        <SelectItem value="deadline">Sort by Deadline</SelectItem>
+                                        <SelectItem value="priority">Sort by Priority</SelectItem>
+                                        <SelectItem value="created">Sort by Created</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </div>
+
+                        {/* Filters Row */}
+                        <div className="flex flex-wrap gap-4 items-center">
+                            <div className="flex items-center gap-2">
+                                <Filter className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm font-medium">Filter:</span>
+                            </div>
+                            <Select value={filters.course_id || 'all'} onValueChange={(v) => handleFilter('course_id', v)}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Semua Matkul" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Matkul</SelectItem>
+                                    {courses.map((c) => (
+                                        <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             
-                            {/* View Mode Toggle */}
+                            {/* Tags Filter */}
+                            {allTags.length > 0 && (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm text-muted-foreground">Tags:</span>
+                                    {allTags.map(tag => (
+                                        <motion.button
+                                            key={tag}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => {
+                                                setSelectedTags(prev => 
+                                                    prev.includes(tag) 
+                                                        ? prev.filter(t => t !== tag)
+                                                        : [...prev, tag]
+                                                );
+                                            }}
+                                            className={`px-2 py-1 rounded-md text-xs transition-colors ${
+                                                selectedTags.includes(tag)
+                                                    ? 'bg-violet-500 text-white'
+                                                    : 'bg-muted hover:bg-muted/80'
+                                            }`}
+                                        >
+                                            <Tag className="h-3 w-3 inline mr-1" />
+                                            {tag}
+                                        </motion.button>
+                                    ))}
+                                    {selectedTags.length > 0 && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setSelectedTags([])}
+                                            className="h-7 text-xs"
+                                        >
+                                            Clear
+                                        </Button>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                            
+                        {/* View Mode Toggle */}
+                        <div className="flex items-center justify-between pt-2 border-t">
+                            <div className="text-sm text-muted-foreground">
+                                Menampilkan {filteredAndSortedTasks.length} dari {tasks.length} tugas
+                            </div>
                             <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
@@ -1017,9 +1179,9 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                     <TabsTrigger value="overdue">Terlambat</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value={filters.status || 'all'}>
-                                    {tasks.length > 0 ? (
+                                    {filteredAndSortedTasks.length > 0 ? (
                                         <div className="space-y-3">
-                                            {tasks.map((task) => (
+                                            {filteredAndSortedTasks.map((task) => (
                                                 <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={openDeleteDialog} />
                                             ))}
                                         </div>
@@ -1031,14 +1193,157 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         )}
                         
                         {viewMode === 'calendar' && (
-                            <CalendarView tasks={tasks} />
+                            <CalendarView tasks={filteredAndSortedTasks} />
                         )}
                         
                         {viewMode === 'kanban' && (
-                            <KanbanBoard tasks={tasks} onToggle={handleToggle} onDelete={openDeleteDialog} />
+                            <KanbanBoard tasks={filteredAndSortedTasks} onToggle={handleToggle} onDelete={openDeleteDialog} />
                         )}
                     </CardContent>
                 </Card>
+                {/* Task Detail Modal */}
+                <Dialog open={showTaskDetail} onOpenChange={setShowTaskDetail}>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                        {selectedTask && (
+                            <>
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-2">
+                                        {selectedTask.title}
+                                        {selectedTask.priority && (
+                                            <Badge 
+                                                variant="outline" 
+                                                className={`text-xs ${
+                                                    selectedTask.priority === 'high' 
+                                                        ? 'border-red-500 text-red-600 bg-red-50' 
+                                                        : selectedTask.priority === 'medium'
+                                                            ? 'border-amber-500 text-amber-600 bg-amber-50'
+                                                            : 'border-blue-500 text-blue-600 bg-blue-50'
+                                                }`}
+                                            >
+                                                <Flag className="h-3 w-3 mr-1" />
+                                                {selectedTask.priority === 'high' ? 'Tinggi' : selectedTask.priority === 'medium' ? 'Sedang' : 'Rendah'}
+                                            </Badge>
+                                        )}
+                                    </DialogTitle>
+                                    <DialogDescription>Detail lengkap tugas</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Mata Kuliah</Label>
+                                            <p className="font-medium">{selectedTask.course_name}</p>
+                                        </div>
+                                        {selectedTask.meeting_number && (
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground">Pertemuan</Label>
+                                                <p className="font-medium">Pertemuan {selectedTask.meeting_number}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {selectedTask.deadline && (
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Deadline</Label>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                                <p className="font-medium">{selectedTask.deadline_formatted}</p>
+                                                {selectedTask.days_remaining !== null && !selectedTask.is_overdue && (
+                                                    <Badge variant="outline" className="text-xs">
+                                                        {selectedTask.days_remaining} hari lagi
+                                                    </Badge>
+                                                )}
+                                                {selectedTask.is_overdue && (
+                                                    <Badge variant="destructive" className="text-xs">
+                                                        Terlambat
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div>
+                                        <Label className="text-xs text-muted-foreground">Status</Label>
+                                        <div className="mt-1">
+                                            {selectedTask.status === 'completed' ? (
+                                                <Badge className="bg-emerald-500">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                                </Badge>
+                                            ) : selectedTask.status === 'in_progress' ? (
+                                                <Badge className="bg-blue-500">
+                                                    <Clock className="h-3 w-3 mr-1" /> In Progress
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary">
+                                                    <Clock className="h-3 w-3 mr-1" /> Pending
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {selectedTask.description && (
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Deskripsi</Label>
+                                            <p className="mt-1 text-sm">{selectedTask.description}</p>
+                                        </div>
+                                    )}
+                                    
+                                    {selectedTask.tags && selectedTask.tags.length > 0 && (
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Tags</Label>
+                                            <div className="flex flex-wrap gap-2 mt-1">
+                                                {selectedTask.tags.map((tag, idx) => (
+                                                    <Badge key={idx} variant="outline">
+                                                        <Tag className="h-3 w-3 mr-1" />
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {selectedTask.attachments && selectedTask.attachments.length > 0 && (
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Lampiran</Label>
+                                            <div className="space-y-2 mt-1">
+                                                {selectedTask.attachments.map((file, idx) => (
+                                                    <div key={idx} className="flex items-center gap-2 p-2 border rounded-lg">
+                                                        <Paperclip className="h-4 w-4 text-muted-foreground" />
+                                                        <span className="text-sm flex-1">{file.name}</span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {(file.size / 1024).toFixed(2)} KB
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="pt-4 border-t">
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>Dibuat: {new Date(selectedTask.created_at).toLocaleDateString('id-ID')}</span>
+                                            {selectedTask.completed_at && (
+                                                <span>Selesai: {new Date(selectedTask.completed_at).toLocaleDateString('id-ID')}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setShowTaskDetail(false)}>
+                                        Tutup
+                                    </Button>
+                                    <Button onClick={() => {
+                                        handleDuplicateTask(selectedTask);
+                                        setShowTaskDetail(false);
+                                    }}>
+                                        <Copy className="h-4 w-4 mr-2" />
+                                        Duplikat
+                                    </Button>
+                                </DialogFooter>
+                            </>
+                        )}
+                    </DialogContent>
+                </Dialog>
+
                 {/* Delete Confirmation Dialog */}
                 <ConfirmDialog
                     open={deleteDialog.open}
