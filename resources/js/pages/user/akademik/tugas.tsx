@@ -29,6 +29,7 @@ interface Task {
     deadline_formatted: string | null;
     days_remaining: number | null;
     status: 'pending' | 'in_progress' | 'completed';
+    priority?: 'high' | 'medium' | 'low';
     is_overdue: boolean;
     completed_at: string | null;
     created_at: string;
@@ -97,6 +98,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         title: '',
         description: '',
         deadline: '',
+        priority: 'medium' as 'high' | 'medium' | 'low',
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -353,6 +355,34 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         onChange={(e) => setData('deadline', e.target.value)}
                                     />
                                 </div>
+                                <div className="space-y-2">
+                                    <Label>Prioritas</Label>
+                                    <Select value={data.priority} onValueChange={(v: 'high' | 'medium' | 'low') => setData('priority', v)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="high">
+                                                <div className="flex items-center gap-2">
+                                                    <Flag className="h-4 w-4 text-red-500" />
+                                                    <span>Tinggi</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="medium">
+                                                <div className="flex items-center gap-2">
+                                                    <Flag className="h-4 w-4 text-amber-500" />
+                                                    <span>Sedang</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="low">
+                                                <div className="flex items-center gap-2">
+                                                    <Flag className="h-4 w-4 text-blue-500" />
+                                                    <span>Rendah</span>
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                                 <DialogFooter>
                                     <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Batal</Button>
                                     <Button type="submit" disabled={processing}>
@@ -365,32 +395,148 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     </div>
                 </motion.div>
 
-                {/* Stats */}
+                {/* Stats with Advanced Animations */}
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                    <Card>
-                        <CardContent className="p-4 text-center">
-                            <p className="text-2xl font-bold">{stats.total}</p>
-                            <p className="text-sm text-muted-foreground">Total Tugas</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800">
-                        <CardContent className="p-4 text-center">
-                            <p className="text-2xl font-bold text-emerald-600">{stats.completed}</p>
-                            <p className="text-sm text-emerald-600/80">Selesai</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
-                        <CardContent className="p-4 text-center">
-                            <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
-                            <p className="text-sm text-amber-600/80">Pending</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800">
-                        <CardContent className="p-4 text-center">
-                            <p className="text-2xl font-bold text-red-600">{stats.overdue}</p>
-                            <p className="text-sm text-red-600/80">Terlambat</p>
-                        </CardContent>
-                    </Card>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        whileHover={{ 
+                            scale: 1.05, 
+                            rotateY: 5,
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
+                        }}
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                        <Card className="relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-purple-500/10"
+                                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                                transition={{ duration: 3, repeat: Infinity }}
+                            />
+                            <CardContent className="p-4 text-center relative z-10">
+                                <motion.p 
+                                    className="text-2xl font-bold"
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                >
+                                    {stats.total}
+                                </motion.p>
+                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                                    <Target className="h-3 w-3" />
+                                    Total Tugas
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        whileHover={{ 
+                            scale: 1.05, 
+                            rotateY: 5,
+                            boxShadow: "0 20px 40px rgba(16,185,129,0.3)"
+                        }}
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                        <Card className="bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-green-400/20"
+                                animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.3, 0.6, 0.3]
+                                }}
+                                transition={{ duration: 2.5, repeat: Infinity }}
+                            />
+                            <CardContent className="p-4 text-center relative z-10">
+                                <motion.p 
+                                    className="text-2xl font-bold text-emerald-600"
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+                                >
+                                    {stats.completed}
+                                </motion.p>
+                                <p className="text-sm text-emerald-600/80 flex items-center justify-center gap-1">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Selesai
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        whileHover={{ 
+                            scale: 1.05, 
+                            rotateY: 5,
+                            boxShadow: "0 20px 40px rgba(245,158,11,0.3)"
+                        }}
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                        <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-400/20"
+                                animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.3, 0.6, 0.3]
+                                }}
+                                transition={{ duration: 2.5, repeat: Infinity }}
+                            />
+                            <CardContent className="p-4 text-center relative z-10">
+                                <motion.p 
+                                    className="text-2xl font-bold text-amber-600"
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
+                                >
+                                    {stats.pending}
+                                </motion.p>
+                                <p className="text-sm text-amber-600/80 flex items-center justify-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    Pending
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        whileHover={{ 
+                            scale: 1.05, 
+                            rotateY: 5,
+                            boxShadow: "0 20px 40px rgba(239,68,68,0.3)"
+                        }}
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                        <Card className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-rose-400/20"
+                                animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.3, 0.6, 0.3]
+                                }}
+                                transition={{ duration: 2.5, repeat: Infinity }}
+                            />
+                            <CardContent className="p-4 text-center relative z-10">
+                                <motion.p 
+                                    className="text-2xl font-bold text-red-600"
+                                    animate={{ scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
+                                >
+                                    {stats.overdue}
+                                </motion.p>
+                                <p className="text-sm text-red-600/80 flex items-center justify-center gap-1">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    Terlambat
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
                 </div>
 
                 {/* Filters */}
@@ -415,6 +561,99 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* Progress Tracker per Mata Kuliah */}
+                {courses.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <Card className="relative overflow-hidden">
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5"
+                                animate={{ x: ['-100%', '100%'] }}
+                                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                            />
+                            <CardHeader className="relative z-10">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <motion.div
+                                        animate={{ rotate: [0, 360] }}
+                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                    >
+                                        <Target className="h-5 w-5 text-violet-600" />
+                                    </motion.div>
+                                    Progress per Mata Kuliah
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 relative z-10">
+                                {courses.map((course, index) => {
+                                    const courseTasks = tasks.filter(t => t.course_id === course.id);
+                                    const completedTasks = courseTasks.filter(t => t.status === 'completed').length;
+                                    const totalTasks = courseTasks.length;
+                                    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+                                    
+                                    return (
+                                        <motion.div
+                                            key={course.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.6 + index * 0.1 }}
+                                            whileHover={{ scale: 1.02, x: 5 }}
+                                            className="space-y-2 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen className="h-4 w-4 text-violet-600" />
+                                                    <span className="font-medium text-sm">{course.name}</span>
+                                                </div>
+                                                <motion.span 
+                                                    className="text-sm font-semibold text-violet-600"
+                                                    animate={{ scale: [1, 1.1, 1] }}
+                                                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                                                >
+                                                    {completedTasks}/{totalTasks}
+                                                </motion.span>
+                                            </div>
+                                            <div className="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${progress}%` }}
+                                                    transition={{ 
+                                                        duration: 1.5, 
+                                                        delay: 0.7 + index * 0.1,
+                                                        type: "spring",
+                                                        stiffness: 50
+                                                    }}
+                                                    className={`h-full rounded-full relative ${
+                                                        progress === 100 
+                                                            ? 'bg-gradient-to-r from-emerald-500 to-green-500' 
+                                                            : progress >= 50 
+                                                                ? 'bg-gradient-to-r from-violet-500 to-purple-500'
+                                                                : 'bg-gradient-to-r from-amber-500 to-orange-500'
+                                                    }`}
+                                                >
+                                                    <motion.div
+                                                        className="absolute inset-0 bg-white/30"
+                                                        animate={{ x: ['-100%', '200%'] }}
+                                                        transition={{ 
+                                                            duration: 2, 
+                                                            repeat: Infinity,
+                                                            ease: "linear"
+                                                        }}
+                                                    />
+                                                </motion.div>
+                                            </div>
+                                            {totalTasks === 0 && (
+                                                <p className="text-xs text-muted-foreground">Belum ada tugas</p>
+                                            )}
+                                        </motion.div>
+                                    );
+                                })}
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
 
                 {/* Tasks List */}
                 <Card>
@@ -463,6 +702,21 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                                     {task.meeting_number && (
                                                                         <Badge variant="secondary" className="text-xs">
                                                                             P{task.meeting_number}
+                                                                        </Badge>
+                                                                    )}
+                                                                    {task.priority && (
+                                                                        <Badge 
+                                                                            variant="outline" 
+                                                                            className={`text-xs ${
+                                                                                task.priority === 'high' 
+                                                                                    ? 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950/30' 
+                                                                                    : task.priority === 'medium'
+                                                                                        ? 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/30'
+                                                                                        : 'border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/30'
+                                                                            }`}
+                                                                        >
+                                                                            <Flag className="h-3 w-3 mr-1" />
+                                                                            {task.priority === 'high' ? 'Tinggi' : task.priority === 'medium' ? 'Sedang' : 'Rendah'}
                                                                         </Badge>
                                                                     )}
                                                                     {task.status === 'completed' ? (
