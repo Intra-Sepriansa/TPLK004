@@ -13,9 +13,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { 
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
-    Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle
+    Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag
 } from 'lucide-react';
 import { useState, FormEvent, useEffect } from 'react';
+import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 
 interface Task {
     id: number;
@@ -62,6 +63,19 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+
+    // Mouse position for parallax
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { innerWidth, innerHeight } = window;
+        mouseX.set((clientX / innerWidth - 0.5) * 20);
+        mouseY.set((clientY / innerHeight - 0.5) * 20);
+    };
 
     // Show flash message as toast
     useEffect(() => {
@@ -133,39 +147,151 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     return (
         <StudentLayout>
             <Head title="Tugas Akademik" />
-            <div className="flex flex-col gap-6 p-4 md:p-6">
-                {/* Toast Notification */}
-                {toast && (
-                    <div className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg transition-all duration-300 ${
-                        toast.type === 'success' 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
-                            : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                    }`}>
-                        {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-                        <span className="text-sm font-medium">{toast.message}</span>
-                    </div>
-                )}
+            
+            {/* Floating Particles Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                {[...Array(25)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-2 h-2 bg-amber-500/20 rounded-full"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            y: [0, -40, 0],
+                            x: [0, Math.random() * 30 - 15, 0],
+                            scale: [1, 1.5, 1],
+                            opacity: [0.2, 0.6, 0.2],
+                        }}
+                        transition={{
+                            duration: 4 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: Math.random() * 3,
+                            ease: "easeInOut",
+                        }}
+                    />
+                ))}
+            </div>
 
-                {/* Header */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/user/akademik" className="p-2 hover:bg-muted rounded-lg transition-colors">
-                            <ArrowLeft className="h-5 w-5" />
-                        </Link>
-                        <div>
-                            <h1 className="text-2xl font-bold flex items-center gap-2">
-                                <ListTodo className="h-7 w-7 text-amber-600" />
-                                Tugas Akademik
-                            </h1>
-                            <p className="text-muted-foreground">Kelola tugas per mata kuliah</p>
+            <div 
+                className="flex flex-col gap-6 p-4 md:p-6 relative z-10"
+                onMouseMove={handleMouseMove}
+                style={{
+                    perspective: "1500px",
+                }}
+            >
+                {/* Toast Notification */}
+                <AnimatePresence>
+                    {toast && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${
+                                toast.type === 'success' 
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
+                                    : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                            }`}
+                        >
+                            {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                            <span className="text-sm font-medium">{toast.message}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Header with Gradient */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{
+                        x: smoothMouseX,
+                        y: smoothMouseY,
+                    }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 p-6 text-white shadow-lg"
+                >
+                    {/* Animated gradient overlay */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                        animate={{
+                            x: ['-100%', '200%'],
+                        }}
+                        transition={{
+                            duration: 3,
+                            repeat: Infinity,
+                            repeatDelay: 2,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    
+                    {/* Floating orbs */}
+                    <motion.div
+                        animate={{ 
+                            scale: [1, 1.2, 1], 
+                            rotate: [0, 180, 360],
+                            opacity: [0.3, 0.5, 0.3] 
+                        }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                    />
+                    <motion.div
+                        animate={{ 
+                            scale: [1, 1.3, 1], 
+                            rotate: [360, 180, 0],
+                            opacity: [0.2, 0.4, 0.2] 
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                    />
+                    
+                    <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-4">
+                            <Link href="/user/akademik">
+                                <motion.div
+                                    whileHover={{ scale: 1.2, rotate: -10 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <ArrowLeft className="h-5 w-5" />
+                                </motion.div>
+                            </Link>
+                            <div>
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-2xl font-bold flex items-center gap-2"
+                                >
+                                    <motion.div
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                                    >
+                                        <ListTodo className="h-7 w-7" />
+                                    </motion.div>
+                                    Tugas Akademik
+                                </motion.h1>
+                                <motion.p 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-amber-100"
+                                >
+                                    Kelola tugas per mata kuliah
+                                </motion.p>
+                            </div>
                         </div>
-                    </div>
-                    <Dialog open={showForm} onOpenChange={setShowForm}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-gradient-to-r from-amber-500 to-orange-600">
-                                <Plus className="h-4 w-4 mr-2" /> Tambah Tugas
-                            </Button>
-                        </DialogTrigger>
+                        <Dialog open={showForm} onOpenChange={setShowForm}>
+                            <DialogTrigger asChild>
+                                <motion.div
+                                    whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(255,255,255,0.3)" }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button className="bg-white text-amber-600 hover:bg-amber-50">
+                                        <Plus className="h-4 w-4 mr-2" /> Tambah Tugas
+                                    </Button>
+                                </motion.div>
+                            </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Tambah Tugas Baru</DialogTitle>
@@ -236,7 +362,8 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             </form>
                         </DialogContent>
                     </Dialog>
-                </div>
+                    </div>
+                </motion.div>
 
                 {/* Stats */}
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
