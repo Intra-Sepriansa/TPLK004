@@ -128,53 +128,75 @@ const CHART_COLORS = {
     absent: '#f43f5e',
 };
 
-// Animation variants
+// Animation variants - UPGRADED
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.05,
-            delayChildren: 0.1,
+            staggerChildren: 0.04,
+            delayChildren: 0.05,
+            when: "beforeChildren" as const,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    hidden: { 
+        opacity: 0, 
+        y: 30, 
+        scale: 0.92,
+        rotateX: -8,
+    },
     visible: {
         opacity: 1,
         y: 0,
         scale: 1,
+        rotateX: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 120,
+            stiffness: 100,
             damping: 15,
+            mass: 0.8,
         },
     },
 };
 
 const cardHoverVariants = {
-    rest: { scale: 1, y: 0 },
+    rest: { 
+        scale: 1, 
+        y: 0,
+        rotateY: 0,
+        rotateX: 0,
+    },
     hover: {
-        scale: 1.02,
-        y: -5,
+        scale: 1.03,
+        y: -8,
+        rotateY: 3,
+        rotateX: 2,
         transition: {
             type: 'spring' as const,
             stiffness: 400,
-            damping: 17,
+            damping: 20,
         },
     },
     tap: {
-        scale: 0.98,
+        scale: 0.97,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 500,
+            damping: 30,
+        },
     },
 };
 
 const floatingVariants = {
     float: {
-        y: [0, -10, 0],
+        y: [0, -12, 0],
+        x: [0, 3, 0],
+        rotate: [0, 2, -2, 0],
         transition: {
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut",
         },
@@ -183,12 +205,69 @@ const floatingVariants = {
 
 const pulseVariants = {
     pulse: {
-        scale: [1, 1.05, 1],
-        opacity: [1, 0.8, 1],
+        scale: [1, 1.08, 1],
+        opacity: [1, 0.85, 1],
+        boxShadow: [
+            '0 0 0 0 rgba(16, 185, 129, 0)',
+            '0 0 0 15px rgba(16, 185, 129, 0.2)',
+            '0 0 0 0 rgba(16, 185, 129, 0)',
+        ],
         transition: {
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut" as const,
+        },
+    },
+};
+
+const shimmerVariants = {
+    shimmer: {
+        backgroundPosition: ['200% 0', '-200% 0'],
+        transition: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "linear",
+        },
+    },
+};
+
+const slideInVariants = {
+    hidden: { 
+        x: -50, 
+        opacity: 0,
+        scale: 0.9,
+    },
+    visible: (i: number) => ({
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 120,
+            damping: 18,
+            delay: i * 0.08,
+        },
+    }),
+};
+
+const bounceVariants = {
+    bounce: {
+        y: [0, -15, 0],
+        transition: {
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+        },
+    },
+};
+
+const rotateVariants = {
+    rotate: {
+        rotate: [0, 360],
+        transition: {
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
         },
     },
 };
@@ -274,11 +353,19 @@ function QuickStatCard({
     };
 
     const gradients = {
-        emerald: 'from-emerald-500/20 to-emerald-600/20',
-        amber: 'from-amber-500/20 to-amber-600/20',
-        sky: 'from-sky-500/20 to-sky-600/20',
-        violet: 'from-violet-500/20 to-violet-600/20',
-        rose: 'from-rose-500/20 to-rose-600/20',
+        emerald: 'from-emerald-500/20 via-emerald-400/10 to-emerald-600/20',
+        amber: 'from-amber-500/20 via-amber-400/10 to-amber-600/20',
+        sky: 'from-sky-500/20 via-sky-400/10 to-sky-600/20',
+        violet: 'from-violet-500/20 via-violet-400/10 to-violet-600/20',
+        rose: 'from-rose-500/20 via-rose-400/10 to-rose-600/20',
+    };
+
+    const glowColors = {
+        emerald: 'rgba(16, 185, 129, 0.3)',
+        amber: 'rgba(245, 158, 11, 0.3)',
+        sky: 'rgba(14, 165, 233, 0.3)',
+        violet: 'rgba(139, 92, 246, 0.3)',
+        rose: 'rgba(244, 63, 94, 0.3)',
     };
 
     return (
@@ -287,19 +374,51 @@ function QuickStatCard({
             initial="rest"
             whileHover="hover"
             whileTap="tap"
-            className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-2xl transition-all cursor-pointer group"
+            className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-4 shadow-lg hover:shadow-2xl transition-all cursor-pointer group perspective-1000"
+            style={{ transformStyle: 'preserve-3d' }}
         >
             {/* Animated Background Gradient */}
             <motion.div
-                className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity', gradients[color])}
+                className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500', gradients[color])}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileHover={{ opacity: 1, scale: 1 }}
+            />
+            
+            {/* Shimmer Effect */}
+            <motion.div
+                className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+                    backgroundSize: '200% 100%',
+                }}
+                animate={{
+                    backgroundPosition: ['200% 0', '-200% 0'],
+                }}
+                transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                }}
+            />
+
+            {/* Glow Effect on Hover */}
+            <motion.div
+                className="absolute inset-0 rounded-2xl"
                 initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
+                whileHover={{ 
+                    opacity: 1,
+                    boxShadow: `0 0 30px ${glowColors[color]}`,
+                }}
+                transition={{ duration: 0.3 }}
             />
             
             <div className="relative flex items-center gap-3">
                 <motion.div
-                    whileHover={{ rotate: 360, scale: 1.1 }}
-                    transition={{ duration: 0.6 }}
+                    whileHover={{ 
+                        rotate: [0, -10, 10, -10, 0],
+                        scale: 1.15,
+                    }}
+                    transition={{ duration: 0.5 }}
                     className={cn('flex h-12 w-12 items-center justify-center rounded-xl shadow-lg', colors[color])}
                 >
                     <Icon className="h-6 w-6" />
@@ -309,16 +428,17 @@ function QuickStatCard({
                     <div className="flex items-baseline gap-2">
                         <motion.p 
                             className="text-2xl font-bold text-gray-900 dark:text-white"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                         >
                             <AnimatedCounter value={value} suffix={suffix} />
                         </motion.p>
                         {trend && (
                             <motion.span
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                initial={{ opacity: 0, x: -10, scale: 0 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
                                 className={cn(
                                     'text-xs font-medium',
                                     trend === 'up' && 'text-emerald-600',
@@ -333,20 +453,48 @@ function QuickStatCard({
                         )}
                     </div>
                     {subtext && (
-                        <p className="text-[10px] text-gray-400 mt-0.5">{subtext}</p>
+                        <motion.p 
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="text-[10px] text-gray-400 mt-0.5"
+                        >
+                            {subtext}
+                        </motion.p>
                     )}
                 </div>
             </div>
 
             {/* Sparkle Effect on Hover */}
+            <AnimatePresence>
+                <motion.div
+                    className="absolute top-2 right-2"
+                    initial={{ scale: 0, rotate: 0, opacity: 0 }}
+                    whileHover={{ 
+                        scale: [0, 1.2, 1],
+                        rotate: [0, 180, 360],
+                        opacity: [0, 1, 1],
+                    }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                </motion.div>
+            </AnimatePresence>
+
+            {/* Corner Accent */}
             <motion.div
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100"
-                initial={{ scale: 0, rotate: 0 }}
-                whileHover={{ scale: 1, rotate: 180 }}
-                transition={{ duration: 0.3 }}
-            >
-                <Sparkles className="h-4 w-4 text-amber-400" />
-            </motion.div>
+                className="absolute -bottom-2 -right-2 w-16 h-16 rounded-full opacity-20"
+                style={{ background: `radial-gradient(circle, ${glowColors[color]}, transparent)` }}
+                animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [0.2, 0.3, 0.2],
+                }}
+                transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
+            />
         </motion.div>
     );
 }
@@ -419,93 +567,128 @@ export default function UserDashboard() {
                 animate="visible"
                 className="space-y-6 p-6"
             >
-                {/* Welcome Card - Enhanced */}
+                {/* Welcome Card - Enhanced with Advanced Animations */}
                 <motion.div 
                     variants={itemVariants}
+                    whileHover={{ scale: 1.01, rotateY: 1 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d' }}
                 >
-                    {/* Animated Background Elements */}
+                    {/* Animated Background Elements with Enhanced Motion */}
                     <motion.div 
                         animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0],
-                            opacity: [0.1, 0.2, 0.1]
+                            scale: [1, 1.3, 1],
+                            rotate: [0, 120, 0],
+                            opacity: [0.08, 0.15, 0.08]
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, -120, 0],
+                            opacity: [0.08, 0.12, 0.08]
                         }}
                         transition={{
                             duration: 20,
                             repeat: Infinity,
                             ease: "linear"
                         }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div 
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0],
-                            opacity: [0.1, 0.15, 0.1]
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"
                     />
                     
-                    {/* Floating Sparkles */}
-                    {[...Array(5)].map((_, i) => (
+                    {/* Enhanced Floating Sparkles with Physics */}
+                    {[...Array(8)].map((_, i) => (
                         <motion.div
                             key={i}
-                            initial={{ opacity: 0, scale: 0 }}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
                             animate={{ 
-                                opacity: [0, 1, 0],
-                                scale: [0, 1, 0],
-                                y: [0, -30, -60],
+                                opacity: [0, 1, 0.8, 0],
+                                scale: [0, 1.5, 1, 0],
+                                y: [0, -40, -80, -120],
+                                x: [0, Math.sin(i) * 30, Math.cos(i) * 20, 0],
+                                rotate: [0, 180, 360],
                             }}
                             transition={{
-                                duration: 3,
+                                duration: 4 + Math.random() * 2,
                                 repeat: Infinity,
-                                delay: i * 0.6,
+                                delay: i * 0.5,
+                                ease: "easeOut"
                             }}
-                            className="absolute rounded-full bg-white/40"
+                            className="absolute rounded-full bg-white/50 shadow-lg"
                             style={{
-                                width: `${4 + Math.random() * 6}px`,
-                                height: `${4 + Math.random() * 6}px`,
-                                left: `${20 + i * 15}%`,
-                                top: `${30 + (i % 2) * 30}%`,
+                                width: `${4 + Math.random() * 8}px`,
+                                height: `${4 + Math.random() * 8}px`,
+                                left: `${15 + i * 10}%`,
+                                top: `${25 + (i % 3) * 25}%`,
+                                filter: 'blur(1px)',
                             }}
                         />
                     ))}
                     
+                    {/* Gradient Orbs */}
+                    <motion.div
+                        animate={{
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
+                            scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full bg-gradient-to-br from-white/10 to-transparent blur-3xl"
+                    />
+                    
                     <div className="relative flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-4">
                             <motion.div 
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur ring-4 ring-white/30"
+                                whileHover={{ 
+                                    scale: 1.15, 
+                                    rotate: [0, -5, 5, 0],
+                                    boxShadow: "0 0 30px rgba(255,255,255,0.5)"
+                                }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur ring-4 ring-white/30 cursor-pointer"
                             >
                                 {mahasiswa.avatar_url ? (
-                                    <img
+                                    <motion.img
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                                         src={mahasiswa.avatar_url}
                                         alt={mahasiswa.nama}
                                         className="h-14 w-14 rounded-xl object-cover"
                                     />
                                 ) : (
-                                    <User className="h-8 w-8" />
+                                    <motion.div
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                    >
+                                        <User className="h-8 w-8" />
+                                    </motion.div>
                                 )}
                             </motion.div>
                             <div>
                                 <motion.p 
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
+                                    transition={{ delay: 0.2, type: "spring" }}
                                     className="text-sm text-emerald-100 font-medium"
                                 >
                                     Selamat datang kembali,
                                 </motion.p>
                                 <motion.h1 
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
+                                    initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
                                     className="text-2xl font-bold"
                                 >
                                     {mahasiswa.nama}
@@ -513,7 +696,7 @@ export default function UserDashboard() {
                                 <motion.p 
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
+                                    transition={{ delay: 0.4, type: "spring" }}
                                     className="text-sm text-emerald-100"
                                 >
                                     NIM: {mahasiswa.nim}
@@ -524,39 +707,65 @@ export default function UserDashboard() {
                         <div className="hidden sm:flex items-center gap-3">
                             {stats.currentStreak > 0 && (
                                 <motion.div 
-                                    variants={pulseVariants}
-                                    animate="pulse"
-                                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur ring-2 ring-white/30"
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.05, y: -3 }}
+                                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur ring-2 ring-white/30 cursor-pointer"
                                 >
                                     <motion.div
-                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        animate={{ 
+                                            rotate: [0, 15, -15, 0],
+                                            scale: [1, 1.1, 1],
+                                        }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     >
                                         <Flame className="h-5 w-5 text-orange-300" />
                                     </motion.div>
-                                    <span className="font-bold text-lg">{stats.currentStreak}</span>
+                                    <motion.span 
+                                        className="font-bold text-lg"
+                                        animate={{ scale: [1, 1.1, 1] }}
+                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                    >
+                                        {stats.currentStreak}
+                                    </motion.span>
                                     <span className="text-sm text-emerald-100">hari streak</span>
                                 </motion.div>
                             )}
                             <Link href="/user/absen">
                                 <motion.div
-                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.08, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    <Button className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg font-semibold">
-                                        <QrCode className="h-4 w-4 mr-2" />
-                                        Absen Sekarang
+                                    <Button className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-xl font-semibold relative overflow-hidden group">
+                                        <motion.div
+                                            className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-teal-400/20"
+                                            initial={{ x: '-100%' }}
+                                            whileHover={{ x: '100%' }}
+                                            transition={{ duration: 0.5 }}
+                                        />
+                                        <QrCode className="h-4 w-4 mr-2 relative z-10" />
+                                        <span className="relative z-10">Absen Sekarang</span>
                                     </Button>
                                 </motion.div>
                             </Link>
                         </div>
                     </div>
 
-                    {/* Mobile CTA */}
-                    <div className="mt-4 flex gap-2 sm:hidden">
+                    {/* Mobile CTA with Enhanced Animation */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        className="mt-4 flex gap-2 sm:hidden"
+                    >
                         <Link href="/user/absen" className="flex-1">
                             <motion.div
                                 whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.02 }}
                             >
                                 <Button className="w-full bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg">
                                     <QrCode className="h-4 w-4 mr-2" />
@@ -564,7 +773,7 @@ export default function UserDashboard() {
                                 </Button>
                             </motion.div>
                         </Link>
-                    </div>
+                    </motion.div>
                 </motion.div>
 
                 {/* Quick Stats - Enhanced */}
