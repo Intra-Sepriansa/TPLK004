@@ -50,21 +50,8 @@ const itemVariants = {
         y: 0,
         transition: {
             type: "spring",
-            stiffness: 400,
-            damping: 17
-        }
-    }
-};
-
-const cardHoverVariants = {
-    rest: { scale: 1, y: 0 },
-    hover: {
-        scale: 1.05,
-        y: -5,
-        transition: {
-            type: "spring",
-            stiffness: 400,
-            damping: 17
+            stiffness: 300,
+            damping: 15
         }
     }
 };
@@ -121,55 +108,49 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                 animate="visible"
                 variants={containerVariants}
             >
-                {/* Header with Advanced Animation */}
+                {/* Header with Black Background and Dock Animations */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white shadow-xl"
                 >
-                    {/* Animated Background Circles */}
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3],
-                            rotate: [0, 90, 0]
-                        }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.3, 1],
-                            opacity: [0.2, 0.4, 0.2],
-                            rotate: [0, -90, 0]
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.1, 1],
-                            opacity: [0.15, 0.3, 0.15]
-                        }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="absolute right-1/4 top-1/2 h-24 w-24 rounded-full bg-white/10"
-                    />
+                    {/* Animated Background Orbs */}
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                    
+                    {/* Floating Icons with Pulse Animation */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[Calendar, Users, Clock].map((Icon, i) => (
+                            <Icon 
+                                key={i}
+                                className="absolute text-white/20 animate-pulse"
+                                style={{
+                                    left: `${15 + i * 25}%`,
+                                    top: `${20 + (i % 2) * 40}%`,
+                                    animationDelay: `${i * 0.5}s`,
+                                    animationDuration: '2s'
+                                }}
+                                size={24}
+                            />
+                        ))}
+                    </div>
                     
                     <div className="relative">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
                                 <motion.div 
-                                    whileHover={{ scale: 1.1, y: -3 }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
                                 >
-                                    <Calendar className="h-8 w-8" />
+                                    <Calendar className="h-7 w-7" />
                                 </motion.div>
                                 <div>
                                     <motion.p 
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-emerald-100"
+                                        className="text-sm text-gray-300 font-medium"
                                     >
                                         Manajemen Sesi
                                     </motion.p>
@@ -177,15 +158,16 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-3xl font-bold"
+                                        className="text-2xl font-bold flex items-center gap-2"
                                     >
                                         Sesi Absen
+                                        <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
                                     </motion.h1>
                                     <motion.p 
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="text-sm text-emerald-100"
+                                        className="text-sm text-gray-300"
                                     >
                                         Kelola sesi absensi mata kuliah Anda
                                     </motion.p>
@@ -205,7 +187,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                 whileTap={{ scale: 0.95 }}
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 }}
+                                transition={{ delay: 0.5, type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <Plus className="h-5 w-5" />
                                 Buat Sesi Baru
@@ -214,32 +196,29 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                     </div>
                 </motion.div>
 
-                {/* Stats with Advanced Animations */}
+                {/* Stats with Dock Animations */}
                 <motion.div 
                     className="grid grid-cols-2 gap-4 sm:grid-cols-4"
                     variants={containerVariants}
                 >
                     {[
-                        { icon: Calendar, label: 'Total Sesi', value: totalSessions, color: 'indigo', gradient: 'from-gray-900 to-black' },
+                        { icon: Calendar, label: 'Total Sesi', value: totalSessions, color: 'indigo', gradient: 'from-blue-500 to-indigo-600' },
                         { icon: Play, label: 'Sesi Aktif', value: activeSessions, color: 'emerald', gradient: 'from-emerald-500 to-teal-500' },
-                        { icon: Users, label: 'Total Kehadiran', value: totalAttendance, color: 'sky', gradient: 'from-gray-900 to-black' },
+                        { icon: Users, label: 'Total Kehadiran', value: totalAttendance, color: 'sky', gradient: 'from-violet-500 to-purple-600' },
                         { icon: Clock, label: 'Terlambat', value: totalLate, color: 'amber', gradient: 'from-amber-500 to-orange-500' },
                     ].map((stat, index) => (
                         <motion.div
                             key={stat.label}
                             variants={itemVariants}
-                            whileHover="hover"
-                            initial="rest"
+                            whileHover={{ scale: 1.05, y: -4 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/70 cursor-pointer"
                         >
-                            <motion.div 
-                                className="flex items-center gap-4"
-                                variants={cardHoverVariants}
-                            >
+                            <div className="flex items-center gap-4">
                                 <motion.div 
                                     className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg`}
-                                    whileHover={{ scale: 1.1, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 >
                                     <stat.icon className="h-6 w-6" />
                                 </motion.div>
@@ -251,15 +230,15 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                         transition={{ 
                                             delay: 0.2 + index * 0.1,
                                             type: "spring",
-                                            stiffness: 400,
-                                            damping: 17
+                                            stiffness: 300,
+                                            damping: 15
                                         }}
                                     >
                                         {stat.value}
                                     </motion.p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</p>
                                 </div>
-                            </motion.div>
+                            </div>
                             <motion.div
                                 className="mt-3 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
                                 initial={{ opacity: 0, x: -10 }}
