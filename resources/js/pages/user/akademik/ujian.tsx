@@ -148,27 +148,50 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
     // Edit exam
     const handleEditExam = () => {
         if (!editingExam) return;
-        setCustomExams(prev => prev.map(exam => 
-            exam.id === editingExam.id 
-                ? {
-                    ...exam,
-                    course_name: formData.course_name,
-                    type: formData.type,
-                    date: formData.date,
-                    date_formatted: new Date(formData.date).toLocaleDateString('id-ID', { 
-                        weekday: 'long', 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                    }),
-                    time: formData.time,
-                    location: formData.location,
-                    duration: formData.duration,
-                    notes: formData.notes,
-                    days_remaining: Math.ceil((new Date(formData.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+        
+        // Update custom exams
+        if (editingExam.course_id === 0) {
+            setCustomExams(prev => prev.map(exam => 
+                exam.id === editingExam.id 
+                    ? {
+                        ...exam,
+                        course_name: formData.course_name,
+                        type: formData.type,
+                        date: formData.date,
+                        date_formatted: new Date(formData.date).toLocaleDateString('id-ID', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        }),
+                        time: formData.time,
+                        location: formData.location,
+                        duration: formData.duration,
+                        notes: formData.notes,
+                        days_remaining: Math.ceil((new Date(formData.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+                    }
+                    : exam
+            ));
+        } else {
+            // Update backend exams (stored in local state for UI purposes)
+            const updatedExam = {
+                ...editingExam,
+                time: formData.time,
+                location: formData.location,
+                duration: formData.duration,
+                notes: formData.notes,
+            };
+            
+            // Store in a separate state for backend exam modifications
+            setCustomExams(prev => {
+                const existing = prev.find(e => e.id === editingExam.id);
+                if (existing) {
+                    return prev.map(e => e.id === editingExam.id ? updatedExam : e);
                 }
-                : exam
-        ));
+                return [...prev, updatedExam];
+            });
+        }
+        
         setIsEditDialogOpen(false);
         setEditingExam(null);
         resetForm();
@@ -194,6 +217,15 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         setIsEditDialogOpen(true);
     };
 
+    // Merge backend exams with custom modifications
+    const getMergedExam = (exam: Exam): Exam => {
+        const customMod = customExams.find(e => e.id === exam.id && e.course_id !== 0);
+        if (customMod) {
+            return { ...exam, ...customMod };
+        }
+        return exam;
+    };
+
     // Reset form
     const resetForm = () => {
         setFormData({
@@ -208,7 +240,10 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
     };
 
     // Combine all exams
-    const allExams = [...upcomingExams, ...customExams].sort((a, b) => 
+    const allExams = [
+        ...upcomingExams.map(getMergedExam),
+        ...customExams.filter(e => e.course_id === 0)
+    ].sort((a, b) => 
         new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
@@ -555,19 +590,30 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                 </p>
                                                                 <p className="text-xs text-muted-foreground">hari</p>
                                                             </motion.div>
-                                                            {/* Toggle Completion Button */}
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                onClick={() => toggleExamCompletion(exam.id)}
-                                                                className={`p-2 rounded-lg transition-colors ${
-                                                                    completedExams[exam.id]
-                                                                        ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
-                                                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                                                                }`}
-                                                            >
-                                                                <CheckCircle2 className="h-5 w-5" />
-                                                            </motion.button>
+                                                            <div className="flex gap-2">
+                                                                {/* Toggle Completion Button */}
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    onClick={() => toggleExamCompletion(exam.id)}
+                                                                    className={`p-2 rounded-lg transition-colors ${
+                                                                        completedExams[exam.id]
+                                                                            ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
+                                                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                                                                    }`}
+                                                                >
+                                                                    <CheckCircle2 className="h-5 w-5" />
+                                                                </motion.button>
+                                                                {/* Edit button */}
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    onClick={() => openEditDialog(getMergedExam(exam))}
+                                                                    className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
+                                                                >
+                                                                    <Edit className="h-5 w-5" />
+                                                                </motion.button>
+                                                            </div>
                                                         </div>
                                                     </motion.div>
                                                 ))}
@@ -990,7 +1036,12 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-2xl">
-                            <Edit className="h-6 w-6 text-blue-500" />
+                            <motion.div
+                                whileHover={{ scale: 1.2, rotate: 15 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            >
+                                <Edit className="h-6 w-6 text-blue-500" />
+                            </motion.div>
                             Edit Ujian
                         </DialogTitle>
                     </DialogHeader>
@@ -999,9 +1050,13 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-6 py-4"
                     >
-                        {/* Same form fields as Add Dialog */}
+                        {/* Basic Info - Disabled for backend exams */}
                         <div className="space-y-4">
-                            <div>
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.1 }}
+                            >
                                 <Label htmlFor="edit_course_name" className="text-base font-semibold">
                                     Nama Mata Kuliah
                                 </Label>
@@ -1010,15 +1065,30 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     value={formData.course_name}
                                     onChange={(e) => setFormData({ ...formData, course_name: e.target.value })}
                                     className="mt-2 h-12 text-base"
+                                    disabled={editingExam?.course_id !== 0}
                                 />
-                            </div>
+                                {editingExam?.course_id !== 0 && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Nama mata kuliah dari sistem tidak dapat diubah
+                                    </p>
+                                )}
+                            </motion.div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="grid grid-cols-2 gap-4"
+                            >
                                 <div>
                                     <Label htmlFor="edit_type" className="text-base font-semibold">
                                         Jenis Ujian
                                     </Label>
-                                    <Select value={formData.type} onValueChange={(value: 'UTS' | 'UAS') => setFormData({ ...formData, type: value })}>
+                                    <Select 
+                                        value={formData.type} 
+                                        onValueChange={(value: 'UTS' | 'UAS') => setFormData({ ...formData, type: value })}
+                                        disabled={editingExam?.course_id !== 0}
+                                    >
                                         <SelectTrigger className="mt-2 h-12">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -1027,6 +1097,11 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                             <SelectItem value="UAS">UAS</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    {editingExam?.course_id !== 0 && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Tidak dapat diubah
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <Label htmlFor="edit_duration" className="text-base font-semibold">
@@ -1040,8 +1115,20 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                         className="mt-2 h-12 text-base"
                                     />
                                 </div>
-                            </div>
+                            </motion.div>
+                        </div>
 
+                        {/* Schedule - Date disabled for backend exams */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="space-y-4 pt-4 border-t"
+                        >
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Calendar className="h-5 w-5 text-blue-500" />
+                                Jadwal Ujian
+                            </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="edit_date" className="text-base font-semibold">
@@ -1053,7 +1140,13 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                         value={formData.date}
                                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                                         className="mt-2 h-12 text-base"
+                                        disabled={editingExam?.course_id !== 0}
                                     />
+                                    {editingExam?.course_id !== 0 && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Tanggal dari sistem tidak dapat diubah
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <Label htmlFor="edit_time" className="text-base font-semibold">
@@ -1068,7 +1161,19 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     />
                                 </div>
                             </div>
+                        </motion.div>
 
+                        {/* Location & Notes - Always editable */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="space-y-4 pt-4 border-t"
+                        >
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Target className="h-5 w-5 text-purple-500" />
+                                Detail Tambahan
+                            </h3>
                             <div>
                                 <Label htmlFor="edit_location" className="text-base font-semibold">
                                     Lokasi
@@ -1077,6 +1182,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     id="edit_location"
                                     value={formData.location}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    placeholder="Contoh: Ruang 301, Gedung A"
                                     className="mt-2 h-12 text-base"
                                 />
                             </div>
@@ -1089,12 +1195,32 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     id="edit_notes"
                                     value={formData.notes}
                                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    placeholder="Catatan tambahan tentang ujian..."
                                     className="mt-2 w-full min-h-[100px] px-3 py-2 text-base rounded-md border border-input bg-background"
                                 />
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="flex gap-3 pt-4">
+                        {/* Info banner for backend exams */}
+                        {editingExam?.course_id !== 0 && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800"
+                            >
+                                <p className="text-sm text-blue-900 dark:text-blue-100">
+                                    ℹ️ Ujian ini dari sistem. Anda hanya bisa mengedit jam, lokasi, durasi, dan catatan.
+                                </p>
+                            </motion.div>
+                        )}
+
+                        {/* Actions */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="flex gap-3 pt-4"
+                        >
                             <Button
                                 onClick={handleEditExam}
                                 disabled={!formData.course_name || !formData.date}
@@ -1114,7 +1240,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             >
                                 <X className="h-5 w-5" />
                             </Button>
-                        </div>
+                        </motion.div>
                     </motion.div>
                 </DialogContent>
             </Dialog>
@@ -1314,28 +1440,27 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
                                     >
                                         <CheckCircle2 className="h-5 w-5" />
                                     </motion.button>
-                                    {/* Edit & Delete for custom exams */}
+                                    {/* Edit button for all exams */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => onEdit?.(exam)}
+                                        className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
+                                        title="Edit ujian"
+                                    >
+                                        <Edit className="h-5 w-5" />
+                                    </motion.button>
+                                    {/* Delete only for custom exams */}
                                     {isCustom && (
-                                        <>
-                                            <motion.button
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                onClick={() => onEdit?.(exam)}
-                                                className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
-                                                title="Edit ujian"
-                                            >
-                                                <Edit className="h-5 w-5" />
-                                            </motion.button>
-                                            <motion.button
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                onClick={() => onDelete?.(exam.id)}
-                                                className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors"
-                                                title="Hapus ujian"
-                                            >
-                                                <Trash2 className="h-5 w-5" />
-                                            </motion.button>
-                                        </>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => onDelete?.(exam.id)}
+                                            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors"
+                                            title="Hapus ujian"
+                                        >
+                                            <Trash2 className="h-5 w-5" />
+                                        </motion.button>
                                     )}
                                 </div>
                             </div>
