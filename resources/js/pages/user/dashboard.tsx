@@ -820,23 +820,74 @@ export default function UserDashboard() {
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Left Column - Upcoming & Activity */}
                     <div className="space-y-6 lg:col-span-2">
-                        {/* Upcoming Session */}
+                        {/* Upcoming Session - Enhanced */}
                         {nextSession && (
-                            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                                <div className="flex items-center justify-between mb-4">
+                            <motion.div 
+                                variants={itemVariants}
+                                whileHover={{ 
+                                    scale: 1.02, 
+                                    y: -4,
+                                    boxShadow: "0 20px 25px -5px rgba(245, 158, 11, 0.2)",
+                                }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-sm backdrop-blur dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30 relative overflow-hidden group"
+                            >
+                                {/* Animated shine effect */}
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                    animate={{ x: ['-100%', '100%'] }}
+                                    transition={{ 
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                        repeatDelay: 2,
+                                    }}
+                                />
+                                
+                                <div className="flex items-center justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-2">
-                                        <Clock className="h-5 w-5 text-amber-600" />
+                                        <motion.div
+                                            animate={{ 
+                                                rotate: [0, 10, -10, 0],
+                                            }}
+                                            transition={{ 
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                ease: "easeInOut",
+                                            }}
+                                        >
+                                            <Clock className="h-5 w-5 text-amber-600" />
+                                        </motion.div>
                                         <h2 className="font-semibold text-gray-900 dark:text-white">
                                             Sesi Berikutnya
                                         </h2>
                                     </div>
-                                    <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-medium dark:bg-amber-900/30 dark:text-amber-400">
+                                    <motion.span 
+                                        className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-medium shadow-lg"
+                                        animate={{ 
+                                            scale: [1, 1.05, 1],
+                                            boxShadow: [
+                                                '0 0 0 0 rgba(245, 158, 11, 0.4)',
+                                                '0 0 0 8px rgba(245, 158, 11, 0)',
+                                                '0 0 0 0 rgba(245, 158, 11, 0)',
+                                            ],
+                                        }}
+                                        transition={{ 
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        }}
+                                    >
                                         Segera
-                                    </span>
+                                    </motion.span>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                    >
                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                                             {nextSession.course_name}
                                         </h3>
@@ -850,236 +901,481 @@ export default function UserDashboard() {
                                                 minute: '2-digit',
                                             })}
                                         </p>
-                                    </div>
-                                    <div className="text-center">
+                                    </motion.div>
+                                    <motion.div 
+                                        className="text-center"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                    >
                                         <p className="text-xs text-gray-500 mb-2">Dimulai dalam</p>
                                         <CountdownTimer targetDate={new Date(nextSession.start_at)} />
-                                    </div>
+                                    </motion.div>
                                 </div>
 
-                                <Link href="/user/absen" className="block mt-4">
-                                    <Button className="w-full" variant="outline">
-                                        <MapPin className="h-4 w-4 mr-2" />
-                                        Persiapkan Absensi
-                                    </Button>
+                                <Link href="/user/absen" className="block mt-4 relative z-10">
+                                    <motion.div
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-lg relative overflow-hidden group">
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100"
+                                                transition={{ duration: 0.3 }}
+                                            />
+                                            <MapPin className="h-4 w-4 mr-2 relative z-10" />
+                                            <span className="relative z-10">Persiapkan Absensi</span>
+                                        </Button>
+                                    </motion.div>
                                 </Link>
-                            </div>
+                            </motion.div>
                         )}
 
-                        {/* This Week Progress */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* This Week Progress - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.01, 
+                                y: -3,
+                                boxShadow: "0 10px 20px -5px rgba(14, 165, 233, 0.2)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated background gradient */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <Calendar className="h-5 w-5 text-sky-600" />
+                                    <motion.div
+                                        whileHover={{ 
+                                            scale: 1.2,
+                                            rotate: [0, -10, 10, 0],
+                                        }}
+                                        transition={{ duration: 0.5 }}
+                                    >
+                                        <Calendar className="h-5 w-5 text-sky-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Progress Minggu Ini
                                     </h2>
                                 </div>
-                                <span className="text-sm text-gray-500">
+                                <motion.span 
+                                    className="text-sm text-gray-500"
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                >
                                     {stats.thisWeekAttendance}/{stats.thisWeekTotal} sesi
-                                </span>
+                                </motion.span>
                             </div>
 
-                            <Progress
-                                value={stats.thisWeekTotal > 0 ? (stats.thisWeekAttendance / stats.thisWeekTotal) * 100 : 0}
-                                className="h-3"
-                                indicatorClassName="bg-gradient-to-r from-sky-500 to-emerald-500"
-                            />
+                            <motion.div
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{ duration: 0.8, delay: 0.3 }}
+                                style={{ transformOrigin: 'left' }}
+                                className="relative z-10"
+                            >
+                                <Progress
+                                    value={stats.thisWeekTotal > 0 ? (stats.thisWeekAttendance / stats.thisWeekTotal) * 100 : 0}
+                                    className="h-3"
+                                    indicatorClassName="bg-gradient-to-r from-sky-500 to-emerald-500"
+                                />
+                            </motion.div>
 
-                            <div className="mt-4 grid grid-cols-7 gap-1">
+                            <div className="mt-4 grid grid-cols-7 gap-1 relative z-10">
                                 {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day, i) => (
-                                    <div key={day} className="text-center">
+                                    <motion.div 
+                                        key={day} 
+                                        className="text-center"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 + i * 0.05, type: "spring", stiffness: 200 }}
+                                    >
                                         <p className="text-[10px] text-gray-400 mb-1">{day}</p>
-                                        <div className={cn(
-                                            'h-8 w-8 mx-auto rounded-lg flex items-center justify-center text-xs font-medium',
-                                            i < stats.thisWeekAttendance
-                                                ? 'bg-emerald-500 text-white'
-                                                : i < stats.thisWeekTotal
-                                                    ? 'bg-gray-100 text-gray-400 dark:bg-gray-800'
-                                                    : 'bg-gray-50 text-gray-300 dark:bg-gray-900'
-                                        )}>
+                                        <motion.div 
+                                            className={cn(
+                                                'h-8 w-8 mx-auto rounded-lg flex items-center justify-center text-xs font-medium',
+                                                i < stats.thisWeekAttendance
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : i < stats.thisWeekTotal
+                                                        ? 'bg-gray-100 text-gray-400 dark:bg-gray-800'
+                                                        : 'bg-gray-50 text-gray-300 dark:bg-gray-900'
+                                            )}
+                                            whileHover={{ 
+                                                scale: 1.15,
+                                                rotate: i < stats.thisWeekAttendance ? [0, -5, 5, 0] : 0,
+                                            }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                        >
                                             {i < stats.thisWeekAttendance ? '✓' : '-'}
-                                        </div>
-                                    </div>
+                                        </motion.div>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Weekly Attendance Chart */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* Weekly Attendance Chart - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.01, 
+                                y: -3,
+                                boxShadow: "0 10px 20px -5px rgba(99, 102, 241, 0.2)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated gradient background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <BarChart3 className="h-5 w-5 text-indigo-600" />
+                                    <motion.div
+                                        whileHover={{ 
+                                            scale: 1.2,
+                                            rotate: [0, -10, 10, 0],
+                                        }}
+                                        transition={{ duration: 0.5 }}
+                                    >
+                                        <BarChart3 className="h-5 w-5 text-indigo-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Tren Kehadiran Mingguan
                                     </h2>
                                 </div>
                             </div>
 
-                            <ResponsiveContainer width="100%" height={250}>
-                                <BarChart data={weeklyData}>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
-                                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Bar dataKey="Hadir" fill={CHART_COLORS.present} radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="Terlambat" fill={CHART_COLORS.late} radius={[4, 4, 0, 0]} />
-                                    <Bar dataKey="Tidak Hadir" fill={CHART_COLORS.absent} radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                className="relative z-10"
+                            >
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <BarChart data={weeklyData}>
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Bar dataKey="Hadir" fill={CHART_COLORS.present} radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="Terlambat" fill={CHART_COLORS.late} radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="Tidak Hadir" fill={CHART_COLORS.absent} radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </motion.div>
+                        </motion.div>
 
-                        {/* Monthly Trend Chart */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* Monthly Trend Chart - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.01, 
+                                y: -3,
+                                boxShadow: "0 10px 20px -5px rgba(16, 185, 129, 0.2)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated gradient background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <TrendingUp className="h-5 w-5 text-emerald-600" />
+                                    <motion.div
+                                        whileHover={{ 
+                                            scale: 1.2,
+                                            y: [-2, 2, -2],
+                                        }}
+                                        transition={{ 
+                                            y: { duration: 1, repeat: Infinity },
+                                            scale: { duration: 0.3 }
+                                        }}
+                                    >
+                                        <TrendingUp className="h-5 w-5 text-emerald-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Tren Kehadiran 6 Bulan Terakhir
                                     </h2>
                                 </div>
                             </div>
 
-                            <ResponsiveContainer width="100%" height={250}>
-                                <AreaChart data={monthlyData}>
-                                    <defs>
-                                        <linearGradient id="colorHadir" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor={CHART_COLORS.present} stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor={CHART_COLORS.present} stopOpacity={0} />
-                                        </linearGradient>
-                                        <linearGradient id="colorTerlambat" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor={CHART_COLORS.late} stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor={CHART_COLORS.late} stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
-                                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="Hadir"
-                                        stroke={CHART_COLORS.present}
-                                        fillOpacity={1}
-                                        fill="url(#colorHadir)"
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="Terlambat"
-                                        stroke={CHART_COLORS.late}
-                                        fillOpacity={1}
-                                        fill="url(#colorTerlambat)"
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                className="relative z-10"
+                            >
+                                <ResponsiveContainer width="100%" height={250}>
+                                    <AreaChart data={monthlyData}>
+                                        <defs>
+                                            <linearGradient id="colorHadir" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor={CHART_COLORS.present} stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor={CHART_COLORS.present} stopOpacity={0} />
+                                            </linearGradient>
+                                            <linearGradient id="colorTerlambat" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor={CHART_COLORS.late} stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor={CHART_COLORS.late} stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                        <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="Hadir"
+                                            stroke={CHART_COLORS.present}
+                                            fillOpacity={1}
+                                            fill="url(#colorHadir)"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="Terlambat"
+                                            stroke={CHART_COLORS.late}
+                                            fillOpacity={1}
+                                            fill="url(#colorTerlambat)"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </motion.div>
+                        </motion.div>
 
-                        {/* Recent Activity */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* Recent Activity - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.01, 
+                                y: -3,
+                                boxShadow: "0 10px 20px -5px rgba(139, 92, 246, 0.2)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated gradient background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <Bell className="h-5 w-5 text-violet-600" />
+                                    <motion.div
+                                        animate={{ 
+                                            rotate: [0, 15, -15, 0],
+                                        }}
+                                        transition={{ 
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        }}
+                                    >
+                                        <Bell className="h-5 w-5 text-violet-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Aktivitas Terbaru
                                     </h2>
                                 </div>
                                 <Link href="/user/rekapan" className="text-sm text-emerald-600 hover:underline">
-                                    Lihat semua
+                                    <motion.span
+                                        whileHover={{ x: 3 }}
+                                        transition={{ type: "spring", stiffness: 400 }}
+                                    >
+                                        Lihat semua
+                                    </motion.span>
                                 </Link>
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 relative z-10">
                                 {recentActivity.length === 0 ? (
-                                    <p className="text-sm text-gray-500 text-center py-4">
+                                    <motion.p 
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="text-sm text-gray-500 text-center py-4"
+                                    >
                                         Belum ada aktivitas
-                                    </p>
+                                    </motion.p>
                                 ) : (
-                                    recentActivity.slice(0, 5).map((activity) => {
+                                    recentActivity.slice(0, 5).map((activity, index) => {
                                         const Icon = activityIcons[activity.type] || CheckCircle;
                                         const colorClass = activityColors[activity.status || 'success'];
                                         return (
-                                            <div
+                                            <motion.div
                                                 key={activity.id}
-                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ 
+                                                    delay: index * 0.1,
+                                                    type: "spring",
+                                                    stiffness: 200,
+                                                }}
+                                                whileHover={{ 
+                                                    scale: 1.02, 
+                                                    x: 5,
+                                                    backgroundColor: "rgba(0,0,0,0.02)",
+                                                }}
+                                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors cursor-pointer"
                                             >
-                                                <div className={cn('flex h-9 w-9 items-center justify-center rounded-full', colorClass)}>
+                                                <motion.div 
+                                                    className={cn('flex h-9 w-9 items-center justify-center rounded-full', colorClass)}
+                                                    whileHover={{ 
+                                                        scale: 1.15,
+                                                        rotate: [0, -10, 10, 0],
+                                                    }}
+                                                    transition={{ duration: 0.5 }}
+                                                >
                                                     <Icon className="h-4 w-4" />
-                                                </div>
+                                                </motion.div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm text-gray-900 dark:text-white truncate">
                                                         {activity.message}
                                                     </p>
                                                     <p className="text-xs text-gray-400">{activity.time}</p>
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         );
                                     })
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Right Column - Achievements & Quick Links */}
                     <div className="space-y-6">
-                        {/* Attendance Distribution Pie Chart */}
+                        {/* Attendance Distribution Pie Chart - Enhanced */}
                         {pieData.length > 0 && (
-                            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <PieChartIcon className="h-5 w-5 text-violet-600" />
+                            <motion.div 
+                                variants={itemVariants}
+                                whileHover={{ 
+                                    scale: 1.02, 
+                                    y: -4,
+                                    boxShadow: "0 10px 20px -5px rgba(139, 92, 246, 0.2)",
+                                }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                            >
+                                {/* Animated gradient background */}
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
+                                    transition={{ duration: 0.3 }}
+                                />
+                                
+                                <div className="flex items-center gap-2 mb-4 relative z-10">
+                                    <motion.div
+                                        whileHover={{ 
+                                            scale: 1.2,
+                                            rotate: 360,
+                                        }}
+                                        transition={{ duration: 0.6 }}
+                                    >
+                                        <PieChartIcon className="h-5 w-5 text-violet-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Distribusi Kehadiran
                                     </h2>
                                 </div>
 
-                                <ResponsiveContainer width="100%" height={200}>
-                                    <PieChart>
-                                        <Pie
-                                            data={pieData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={50}
-                                            outerRadius={80}
-                                            paddingAngle={3}
-                                            dataKey="value"
-                                        >
-                                            {pieData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip content={<CustomTooltip />} />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.2, duration: 0.5 }}
+                                    className="relative z-10"
+                                >
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <PieChart>
+                                            <Pie
+                                                data={pieData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={50}
+                                                outerRadius={80}
+                                                paddingAngle={3}
+                                                dataKey="value"
+                                            >
+                                                {pieData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip content={<CustomTooltip />} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </motion.div>
 
-                                <div className="flex justify-center gap-4 mt-2">
+                                <div className="flex justify-center gap-4 mt-2 relative z-10">
                                     {pieData.map((entry, index) => (
-                                        <div key={index} className="flex items-center gap-2 text-xs">
-                                            <div
+                                        <motion.div 
+                                            key={index} 
+                                            className="flex items-center gap-2 text-xs"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 + index * 0.1 }}
+                                            whileHover={{ scale: 1.1 }}
+                                        >
+                                            <motion.div
                                                 className="h-3 w-3 rounded-full"
                                                 style={{ backgroundColor: entry.color }}
+                                                whileHover={{ scale: 1.3 }}
                                             />
                                             <span className="text-gray-600 dark:text-gray-400">
                                                 {entry.name}: {entry.value}
                                             </span>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
 
-                        {/* Achievements */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <div className="flex items-center justify-between mb-4">
+                        {/* Achievements - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.02, 
+                                y: -4,
+                                boxShadow: "0 10px 20px -5px rgba(245, 158, 11, 0.2)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated gradient background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <Award className="h-5 w-5 text-amber-600" />
+                                    <motion.div
+                                        animate={{ 
+                                            rotate: [0, -10, 10, -10, 0],
+                                            scale: [1, 1.1, 1],
+                                        }}
+                                        transition={{ 
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        }}
+                                    >
+                                        <Award className="h-5 w-5 text-amber-600" />
+                                    </motion.div>
                                     <h2 className="font-semibold text-gray-900 dark:text-white">
                                         Pencapaian
                                     </h2>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-3 gap-3 relative z-10">
                                 {(achievements.length > 0 ? achievements : [
                                     { type: 'streak' as const, value: stats.currentStreak, unlocked: stats.currentStreak >= 3 },
                                     { type: 'perfect' as const, unlocked: stats.attendanceRate === 100 },
@@ -1088,10 +1384,22 @@ export default function UserDashboard() {
                                     { type: 'champion' as const, unlocked: false },
                                     { type: 'legend' as const, unlocked: false },
                                 ]).slice(0, 6).map((achievement, i) => (
-                                    <div
+                                    <motion.div
                                         key={i}
+                                        initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                        transition={{ 
+                                            delay: i * 0.1,
+                                            type: "spring",
+                                            stiffness: 200,
+                                        }}
+                                        whileHover={{ 
+                                            scale: achievement.unlocked ? 1.15 : 1.05,
+                                            y: -5,
+                                            rotate: achievement.unlocked ? [0, -5, 5, 0] : 0,
+                                        }}
                                         className={cn(
-                                            'flex flex-col items-center p-2 rounded-xl transition-all',
+                                            'flex flex-col items-center p-2 rounded-xl transition-all cursor-pointer',
                                             achievement.unlocked
                                                 ? 'bg-white dark:bg-gray-900'
                                                 : 'opacity-40 grayscale'
@@ -1102,80 +1410,228 @@ export default function UserDashboard() {
                                             value={achievement.unlocked ? achievement.value : undefined}
                                             size="sm"
                                         />
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
 
-                            <Link href="/user/achievements" className="block mt-4">
-                                <Button variant="ghost" className="w-full text-sm">
-                                    Lihat Semua Pencapaian
-                                    <ChevronRight className="h-4 w-4 ml-1" />
-                                </Button>
+                            <Link href="/user/achievements" className="block mt-4 relative z-10">
+                                <motion.div
+                                    whileHover={{ scale: 1.02, x: 3 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <Button variant="ghost" className="w-full text-sm">
+                                        Lihat Semua Pencapaian
+                                        <motion.div
+                                            animate={{ x: [0, 3, 0] }}
+                                            transition={{ 
+                                                duration: 1.5,
+                                                repeat: Infinity,
+                                                ease: "easeInOut",
+                                            }}
+                                        >
+                                            <ChevronRight className="h-4 w-4 ml-1" />
+                                        </motion.div>
+                                    </Button>
+                                </motion.div>
                             </Link>
-                        </div>
+                        </motion.div>
 
-                        {/* Quick Links */}
-                        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">
+                        {/* Quick Links - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.01, 
+                                y: -3,
+                                boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black relative overflow-hidden group"
+                        >
+                            {/* Animated gradient background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 group-hover:opacity-100"
+                                transition={{ duration: 0.3 }}
+                            />
+                            
+                            <h2 className="font-semibold text-gray-900 dark:text-white mb-4 relative z-10">
                                 Menu Cepat
                             </h2>
 
-                            <div className="space-y-2">
-                                <Link href="/user/absen">
-                                    <Button variant="ghost" className="w-full justify-start">
-                                        <QrCode className="h-4 w-4 mr-3 text-emerald-600" />
-                                        Absensi
-                                        <ChevronRight className="h-4 w-4 ml-auto" />
-                                    </Button>
-                                </Link>
-                                <Link href="/user/rekapan">
-                                    <Button variant="ghost" className="w-full justify-start">
-                                        <FileText className="h-4 w-4 mr-3 text-sky-600" />
-                                        Rekapan
-                                        <ChevronRight className="h-4 w-4 ml-auto" />
-                                    </Button>
-                                </Link>
-                                <Link href="/user/bukti-masuk">
-                                    <Button variant="ghost" className="w-full justify-start">
-                                        <Camera className="h-4 w-4 mr-3 text-violet-600" />
-                                        Bukti Masuk
-                                        <ChevronRight className="h-4 w-4 ml-auto" />
-                                    </Button>
-                                </Link>
-                                <Link href="/user/profile">
-                                    <Button variant="ghost" className="w-full justify-start">
-                                        <User className="h-4 w-4 mr-3 text-amber-600" />
-                                        Profil
-                                        <ChevronRight className="h-4 w-4 ml-auto" />
-                                    </Button>
-                                </Link>
+                            <div className="space-y-2 relative z-10">
+                                {[
+                                    { href: "/user/absen", icon: QrCode, label: "Absensi", color: "text-emerald-600" },
+                                    { href: "/user/rekapan", icon: FileText, label: "Rekapan", color: "text-sky-600" },
+                                    { href: "/user/bukti-masuk", icon: Camera, label: "Bukti Masuk", color: "text-violet-600" },
+                                    { href: "/user/profile", icon: User, label: "Profil", color: "text-amber-600" },
+                                ].map((item, index) => (
+                                    <Link key={item.href} href={item.href}>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ 
+                                                delay: index * 0.1,
+                                                type: "spring",
+                                                stiffness: 200,
+                                            }}
+                                            whileHover={{ 
+                                                scale: 1.03, 
+                                                x: 5,
+                                                backgroundColor: "rgba(0,0,0,0.02)",
+                                            }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <Button variant="ghost" className="w-full justify-start relative overflow-hidden group/btn">
+                                                <motion.div
+                                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100"
+                                                    animate={{ x: ['-100%', '100%'] }}
+                                                    transition={{ 
+                                                        duration: 1.5,
+                                                        repeat: Infinity,
+                                                        ease: "linear",
+                                                    }}
+                                                />
+                                                <motion.div
+                                                    whileHover={{ 
+                                                        scale: 1.2,
+                                                        rotate: [0, -10, 10, 0],
+                                                    }}
+                                                    transition={{ duration: 0.5 }}
+                                                    className="relative z-10"
+                                                >
+                                                    <item.icon className={cn("h-4 w-4 mr-3", item.color)} />
+                                                </motion.div>
+                                                <span className="relative z-10">{item.label}</span>
+                                                <motion.div
+                                                    animate={{ x: [0, 3, 0] }}
+                                                    transition={{ 
+                                                        duration: 1.5,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut",
+                                                    }}
+                                                    className="ml-auto relative z-10"
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                </motion.div>
+                                            </Button>
+                                        </motion.div>
+                                    </Link>
+                                ))}
                             </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Attendance Rate Card */}
-                        <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-slate-800 dark:to-black">
-                            <p className="text-sm text-gray-400">Tingkat Kehadiran</p>
-                            <div className="flex items-end gap-2 mt-2">
-                                <span className="text-4xl font-bold">
+                        {/* Attendance Rate Card - Enhanced */}
+                        <motion.div 
+                            variants={itemVariants}
+                            whileHover={{ 
+                                scale: 1.03, 
+                                y: -5,
+                                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="rounded-2xl border border-gray-200 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-lg dark:from-slate-800 dark:to-black relative overflow-hidden group cursor-pointer"
+                        >
+                            {/* Animated background orbs */}
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.1, 0.2, 0.1],
+                                    x: [0, 20, 0],
+                                    y: [0, -20, 0],
+                                }}
+                                transition={{
+                                    duration: 8,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className="absolute top-0 right-0 w-32 h-32 rounded-full bg-emerald-500/20 blur-3xl"
+                            />
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.1, 0.15, 0.1],
+                                    x: [0, -20, 0],
+                                    y: [0, 20, 0],
+                                }}
+                                transition={{
+                                    duration: 10,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                    delay: 1,
+                                }}
+                                className="absolute bottom-0 left-0 w-40 h-40 rounded-full bg-sky-500/20 blur-3xl"
+                            />
+                            
+                            <motion.p 
+                                className="text-sm text-gray-400 relative z-10"
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                            >
+                                Tingkat Kehadiran
+                            </motion.p>
+                            <div className="flex items-end gap-2 mt-2 relative z-10">
+                                <motion.span 
+                                    className="text-4xl font-bold"
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ 
+                                        type: "spring",
+                                        stiffness: 200,
+                                        delay: 0.3,
+                                    }}
+                                >
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
-                                </span>
+                                </motion.span>
                                 {stats.attendanceRate >= 75 ? (
-                                    <span className="text-emerald-400 text-sm mb-1">Bagus!</span>
+                                    <motion.span 
+                                        className="text-emerald-400 text-sm mb-1 flex items-center gap-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <motion.div
+                                            animate={{ scale: [1, 1.2, 1] }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                        >
+                                            ✨
+                                        </motion.div>
+                                        Bagus!
+                                    </motion.span>
                                 ) : (
-                                    <span className="text-amber-400 text-sm mb-1">Perlu ditingkatkan</span>
+                                    <motion.span 
+                                        className="text-amber-400 text-sm mb-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Perlu ditingkatkan
+                                    </motion.span>
                                 )}
                             </div>
-                            <Progress
-                                value={stats.attendanceRate}
-                                className="mt-4 h-2 bg-gray-700"
-                                indicatorClassName={cn(
-                                    stats.attendanceRate >= 75 ? 'bg-emerald-500' : 'bg-amber-500'
-                                )}
-                            />
-                            <p className="text-xs text-gray-400 mt-2">
+                            <motion.div
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{ duration: 1, delay: 0.6 }}
+                                style={{ transformOrigin: 'left' }}
+                                className="relative z-10"
+                            >
+                                <Progress
+                                    value={stats.attendanceRate}
+                                    className="mt-4 h-2 bg-gray-700"
+                                    indicatorClassName={cn(
+                                        stats.attendanceRate >= 75 ? 'bg-emerald-500' : 'bg-amber-500'
+                                    )}
+                                />
+                            </motion.div>
+                            <motion.p 
+                                className="text-xs text-gray-400 mt-2 relative z-10"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.7 }}
+                            >
                                 Minimal 75% untuk memenuhi syarat kehadiran
-                            </p>
-                        </div>
+                            </motion.p>
+                        </motion.div>
                     </div>
                 </div>
             </motion.div>
