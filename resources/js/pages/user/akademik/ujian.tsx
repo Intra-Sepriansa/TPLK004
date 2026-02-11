@@ -70,6 +70,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingExam, setEditingExam] = useState<Exam | null>(null);
+    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [isProgressDetailOpen, setIsProgressDetailOpen] = useState(false);
     const [formData, setFormData] = useState({
         course_name: '',
         type: 'UTS' as 'UTS' | 'UAS',
@@ -700,6 +702,10 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                 scale: 1.02,
                                                 boxShadow: "0 10px 30px rgba(16, 185, 129, 0.1)"
                                             }}
+                                            onClick={() => {
+                                                setSelectedCourse(course);
+                                                setIsProgressDetailOpen(true);
+                                            }}
                                             className="p-3 rounded-lg border hover:border-emerald-300 dark:hover:border-emerald-700 transition-all cursor-pointer"
                                         >
                                             <div className="flex items-center justify-between mb-2">
@@ -1028,6 +1034,240 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             </Button>
                         </motion.div>
                     </motion.div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Progress Detail Dialog */}
+            <Dialog open={isProgressDetailOpen} onOpenChange={setIsProgressDetailOpen}>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-2xl">
+                            <motion.div
+                                whileHover={{ scale: 1.2, rotate: 15 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            >
+                                <BookOpen className="h-6 w-6 text-emerald-500" />
+                            </motion.div>
+                            Detail Progress Mata Kuliah
+                        </DialogTitle>
+                    </DialogHeader>
+                    {selectedCourse && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-6 py-4"
+                        >
+                            {/* Course Info */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="text-xl font-bold">{selectedCourse.name}</h3>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {selectedCourse.sks} SKS • {selectedCourse.current_meeting} dari {selectedCourse.total_meetings} pertemuan
+                                        </p>
+                                    </div>
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 200 }}
+                                        className="text-center"
+                                    >
+                                        <div className="text-4xl font-bold text-emerald-600">
+                                            {Math.round((selectedCourse.current_meeting / selectedCourse.total_meetings) * 100)}%
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Progress</p>
+                                    </motion.div>
+                                </div>
+
+                                {/* Progress Bar with Details */}
+                                <div className="relative pt-2">
+                                    <Progress 
+                                        value={(selectedCourse.current_meeting / selectedCourse.total_meetings) * 100} 
+                                        className="h-6" 
+                                    />
+                                    {/* UTS Marker */}
+                                    <div
+                                        className="absolute top-2 h-6 w-1 bg-amber-500 rounded"
+                                        style={{ left: `${(selectedCourse.uts_meeting / selectedCourse.total_meetings) * 100}%` }}
+                                    />
+                                    {/* UAS Marker */}
+                                    <div
+                                        className="absolute top-2 h-6 w-1 bg-red-500 rounded"
+                                        style={{ left: `${(selectedCourse.uas_meeting / selectedCourse.total_meetings) * 100}%` }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Exam Status Cards */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* UTS Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className={`p-4 rounded-xl border-2 ${
+                                        selectedCourse.uts_passed
+                                            ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30'
+                                            : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
+                                            <Target className="h-5 w-5 text-amber-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold">UTS</h4>
+                                            <p className="text-xs text-muted-foreground">Ujian Tengah Semester</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Pertemuan:</span>
+                                            <span className="font-medium">P{selectedCourse.uts_meeting}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Status:</span>
+                                            {selectedCourse.uts_passed ? (
+                                                <Badge className="bg-emerald-500 hover:bg-emerald-600">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                                </Badge>
+                                            ) : selectedCourse.current_meeting >= selectedCourse.uts_meeting ? (
+                                                <Badge variant="destructive">
+                                                    <AlertTriangle className="h-3 w-3 mr-1" /> Terlewat
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary">
+                                                    <Clock className="h-3 w-3 mr-1" /> Menunggu
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Sisa Pertemuan:</span>
+                                            <span className="font-medium">
+                                                {Math.max(0, selectedCourse.uts_meeting - selectedCourse.current_meeting)} pertemuan
+                                            </span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* UAS Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className={`p-4 rounded-xl border-2 ${
+                                        selectedCourse.uas_passed
+                                            ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30'
+                                            : 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/30'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
+                                            <GraduationCap className="h-5 w-5 text-red-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold">UAS</h4>
+                                            <p className="text-xs text-muted-foreground">Ujian Akhir Semester</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Pertemuan:</span>
+                                            <span className="font-medium">P{selectedCourse.uas_meeting}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Status:</span>
+                                            {selectedCourse.uas_passed ? (
+                                                <Badge className="bg-emerald-500 hover:bg-emerald-600">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                                </Badge>
+                                            ) : selectedCourse.current_meeting >= selectedCourse.uas_meeting ? (
+                                                <Badge variant="destructive">
+                                                    <AlertTriangle className="h-3 w-3 mr-1" /> Terlewat
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary">
+                                                    <Clock className="h-3 w-3 mr-1" /> Menunggu
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-muted-foreground">Sisa Pertemuan:</span>
+                                            <span className="font-medium">
+                                                {Math.max(0, selectedCourse.uas_meeting - selectedCourse.current_meeting)} pertemuan
+                                            </span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+
+                            {/* Meeting Timeline */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="space-y-3"
+                            >
+                                <h4 className="font-semibold flex items-center gap-2">
+                                    <Calendar className="h-5 w-5 text-blue-500" />
+                                    Timeline Pertemuan
+                                </h4>
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                    {Array.from({ length: selectedCourse.total_meetings }, (_, i) => i + 1).map((meeting) => (
+                                        <motion.div
+                                            key={meeting}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.4 + meeting * 0.02 }}
+                                            className={`flex items-center gap-3 p-2 rounded-lg ${
+                                                meeting <= selectedCourse.current_meeting
+                                                    ? 'bg-emerald-50 dark:bg-emerald-950/30'
+                                                    : 'bg-gray-50 dark:bg-gray-900/30'
+                                            }`}
+                                        >
+                                            <div className={`flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${
+                                                meeting <= selectedCourse.current_meeting
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                                            }`}>
+                                                {meeting}
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-medium">Pertemuan {meeting}</p>
+                                                {meeting === selectedCourse.uts_meeting && (
+                                                    <Badge variant="secondary" className="text-xs mt-1">
+                                                        <Target className="h-3 w-3 mr-1" /> UTS
+                                                    </Badge>
+                                                )}
+                                                {meeting === selectedCourse.uas_meeting && (
+                                                    <Badge variant="default" className="text-xs mt-1">
+                                                        <GraduationCap className="h-3 w-3 mr-1" /> UAS
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            {meeting <= selectedCourse.current_meeting && (
+                                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+
+                            {/* Close Button */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <Button
+                                    onClick={() => setIsProgressDetailOpen(false)}
+                                    className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                                >
+                                    Tutup
+                                </Button>
+                            </motion.div>
+                        </motion.div>
+                    )}
                 </DialogContent>
             </Dialog>
 
