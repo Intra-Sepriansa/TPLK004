@@ -68,26 +68,52 @@ const colorVariants: Record<string, { gradient: string; badge: string }> = {
 
 const daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
-// Simple dock-style animations
+// Enhanced animations with more dynamic effects
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.05,
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { 
+        opacity: 0, 
+        y: 30,
+        scale: 0.95,
+    },
     visible: {
         opacity: 1,
         y: 0,
+        scale: 1,
         transition: {
             type: 'spring' as const,
-            stiffness: 200,
+            stiffness: 260,
             damping: 20,
+            mass: 0.8,
+        },
+    },
+};
+
+const headerVariants = {
+    hidden: { 
+        opacity: 0, 
+        y: -30,
+        scale: 0.9,
+    },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 25,
+            delay: 0.1,
         },
     },
 };
@@ -118,26 +144,72 @@ function QuickStatCard({
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05, y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer"
+            whileHover={{ 
+                scale: 1.08, 
+                y: -8,
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer relative overflow-hidden group"
         >
-            <div className="flex items-center gap-3">
+            {/* Animated background gradient on hover */}
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100"
+                transition={{ duration: 0.3 }}
+            />
+            
+            <div className="flex items-center gap-3 relative z-10">
                 <motion.div
-                    whileHover={{ scale: 1.2, y: -2 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    whileHover={{ 
+                        scale: 1.3, 
+                        y: -4,
+                        rotate: [0, -10, 10, -10, 0],
+                    }}
+                    transition={{ 
+                        type: "spring", 
+                        stiffness: 400, 
+                        damping: 10,
+                        rotate: {
+                            duration: 0.5,
+                            ease: "easeInOut",
+                        }
+                    }}
                     className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colors[color])}
                 >
                     <Icon className="h-5 w-5" />
                 </motion.div>
                 <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white">
+                    <motion.p 
+                        className="text-xs text-slate-500 dark:text-slate-400"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        {label}
+                    </motion.p>
+                    <motion.p 
+                        className="text-xl font-bold text-slate-900 dark:text-white"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ 
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 15,
+                            delay: 0.3,
+                        }}
+                    >
                         {value}{suffix}
-                    </p>
+                    </motion.p>
                     {subtext && (
-                        <p className="text-[10px] text-slate-400">{subtext}</p>
+                        <motion.p 
+                            className="text-[10px] text-slate-400"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            {subtext}
+                        </motion.p>
                     )}
                 </div>
             </div>
@@ -201,34 +273,117 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
             >
                 {/* Header Card */}
                 <motion.div
-                    variants={itemVariants}
+                    variants={headerVariants}
+                    whileHover={{ 
+                        scale: 1.02,
+                        boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg"
                 >
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    {/* Animated background elements */}
+                    <motion.div 
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                        animate={{ 
+                            scale: [1, 1.2, 1],
+                            opacity: [0.1, 0.2, 0.1],
+                        }}
+                        transition={{ 
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                    />
+                    <motion.div 
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        animate={{ 
+                            scale: [1, 1.3, 1],
+                            opacity: [0.1, 0.15, 0.1],
+                        }}
+                        transition={{ 
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                    />
                     
                     <div className="relative flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.1, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                whileHover={{ 
+                                    scale: 1.15, 
+                                    y: -4,
+                                    rotate: [0, -5, 5, 0],
+                                }}
+                                transition={{ 
+                                    type: "spring", 
+                                    stiffness: 400, 
+                                    damping: 10,
+                                    rotate: {
+                                        duration: 0.5,
+                                    }
+                                }}
                                 className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
                             >
                                 <CalendarDays className="h-8 w-8" />
                             </motion.div>
                             <div>
-                                <p className="text-sm text-emerald-100">Jadwal Kuliah</p>
-                                <h1 className="text-2xl font-bold">Minggu Ini</h1>
-                                <p className="text-sm text-emerald-100">{currentDay}</p>
+                                <motion.p 
+                                    className="text-sm text-emerald-100"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    Jadwal Kuliah
+                                </motion.p>
+                                <motion.h1 
+                                    className="text-2xl font-bold"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                >
+                                    Minggu Ini
+                                </motion.h1>
+                                <motion.p 
+                                    className="text-sm text-emerald-100"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    {currentDay}
+                                </motion.p>
                             </div>
                         </div>
                         
                         {stats.classes_today > 0 && (
-                            <div className="hidden sm:flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
-                                <Clock className="h-5 w-5 text-emerald-200" />
+                            <motion.div 
+                                className="hidden sm:flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur"
+                                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                transition={{ 
+                                    delay: 0.6,
+                                    type: "spring",
+                                    stiffness: 300,
+                                }}
+                                whileHover={{ 
+                                    scale: 1.1,
+                                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                                }}
+                            >
+                                <motion.div
+                                    animate={{ rotate: [0, 10, -10, 0] }}
+                                    transition={{ 
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <Clock className="h-5 w-5 text-emerald-200" />
+                                </motion.div>
                                 <span className="font-bold">{stats.classes_today}</span>
                                 <span className="text-sm text-emerald-100">kelas hari ini</span>
-                            </div>
+                            </motion.div>
                         )}
                     </div>
                 </motion.div>
@@ -274,8 +429,21 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                     className="flex flex-col sm:flex-row gap-4"
                 >
                     <div className="flex-1">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                        <motion.div 
+                            className="relative"
+                            whileHover={{ scale: 1.01 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                        >
+                            <motion.div
+                                animate={{ x: [0, 3, 0] }}
+                                transition={{ 
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            >
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            </motion.div>
                             <Input
                                 type="text"
                                 placeholder="Cari mata kuliah, kode, atau dosen..."
@@ -283,28 +451,46 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-10 h-12"
                             />
-                            {searchQuery && (
-                                <motion.button
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
-                                >
-                                    <X className="h-4 w-4" />
-                                </motion.button>
-                            )}
-                        </div>
+                            <AnimatePresence>
+                                {searchQuery && (
+                                    <motion.button
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        exit={{ scale: 0, rotate: 180 }}
+                                        whileHover={{ scale: 1.2, rotate: 90 }}
+                                        whileTap={{ scale: 0.8 }}
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </motion.button>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
                     </div>
                     <motion.button
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ 
+                            scale: 1.08, 
+                            y: -4,
+                            boxShadow: "0 10px 25px -5px rgba(16, 185, 129, 0.3)",
+                        }}
+                        whileTap={{ scale: 0.92 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
                         onClick={exportSchedule}
-                        className="flex items-center justify-center gap-2 px-6 h-12 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors"
+                        className="flex items-center justify-center gap-2 px-6 h-12 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors relative overflow-hidden group"
                     >
-                        <Download className="h-4 w-4" />
-                        <span>Export</span>
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-100"
+                            transition={{ duration: 0.3 }}
+                        />
+                        <motion.div
+                            whileHover={{ y: -2 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                            className="relative z-10"
+                        >
+                            <Download className="h-4 w-4" />
+                        </motion.div>
+                        <span className="relative z-10">Export</span>
                     </motion.button>
                 </motion.div>
 
@@ -312,15 +498,39 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                 {nextClass && (
                     <motion.div
                         variants={itemVariants}
-                        whileHover={{ scale: 1.01, y: -2 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                        className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30"
+                        whileHover={{ 
+                            scale: 1.02, 
+                            y: -4,
+                            boxShadow: "0 20px 25px -5px rgba(245, 158, 11, 0.2)",
+                        }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-sm dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30 relative overflow-hidden group"
                     >
-                        <div className="flex items-center justify-between mb-4">
+                        {/* Animated shine effect */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            animate={{ x: ['-100%', '100%'] }}
+                            transition={{ 
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "linear",
+                                repeatDelay: 2,
+                            }}
+                        />
+                        
+                        <div className="flex items-center justify-between mb-4 relative z-10">
                             <div className="flex items-center gap-2">
                                 <motion.div
-                                    whileHover={{ scale: 1.2, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    whileHover={{ 
+                                        scale: 1.3, 
+                                        y: -3,
+                                        rotate: [0, -10, 10, 0],
+                                    }}
+                                    transition={{ 
+                                        type: "spring", 
+                                        stiffness: 400, 
+                                        damping: 10,
+                                    }}
                                 >
                                     <Target className="h-5 w-5 text-amber-600" />
                                 </motion.div>
@@ -328,41 +538,88 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     Kelas Selanjutnya
                                 </h2>
                             </div>
-                            <Badge className="bg-amber-500 hover:bg-amber-600">
-                                {nextClass.is_today ? 'Hari ini' : nextClass.day}
-                            </Badge>
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                transition={{ 
+                                    type: "spring",
+                                    stiffness: 300,
+                                    damping: 20,
+                                    delay: 0.3,
+                                }}
+                            >
+                                <Badge className="bg-amber-500 hover:bg-amber-600">
+                                    {nextClass.is_today ? 'Hari ini' : nextClass.day}
+                                </Badge>
+                            </motion.div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                                <motion.h3 
+                                    className="text-lg font-bold text-slate-900 dark:text-white"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
                                     {nextClass.course_name}
-                                </h3>
-                                <p className="text-sm text-slate-500 mt-1">
+                                </motion.h3>
+                                <motion.p 
+                                    className="text-sm text-slate-500 mt-1"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
                                     {nextClass.course_code} • {nextClass.dosen_name}
-                                </p>
-                                <div className="flex items-center gap-4 mt-3 text-sm text-slate-600 dark:text-slate-400">
-                                    <div className="flex items-center gap-1">
+                                </motion.p>
+                                <motion.div 
+                                    className="flex items-center gap-4 mt-3 text-sm text-slate-600 dark:text-slate-400"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <motion.div 
+                                        className="flex items-center gap-1"
+                                        whileHover={{ scale: 1.1, x: 3 }}
+                                    >
                                         <Clock className="h-4 w-4" />
                                         {nextClass.time_range}
-                                    </div>
-                                    <div className="flex items-center gap-1">
+                                    </motion.div>
+                                    <motion.div 
+                                        className="flex items-center gap-1"
+                                        whileHover={{ scale: 1.1, x: 3 }}
+                                    >
                                         <MapPin className="h-4 w-4" />
                                         {nextClass.ruangan}
-                                    </div>
-                                </div>
+                                    </motion.div>
+                                </motion.div>
                             </div>
                             <motion.button
-                                whileHover={{ scale: 1.05, x: 3 }}
+                                whileHover={{ 
+                                    scale: 1.08, 
+                                    x: 5,
+                                    boxShadow: "0 10px 20px -5px rgba(245, 158, 11, 0.4)",
+                                }}
                                 whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                 onClick={() => {
                                     setSelectedSchedule(nextClass);
                                     setIsDetailOpen(true);
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors relative overflow-hidden group"
                             >
-                                <span>Detail</span>
-                                <ChevronRight className="h-4 w-4" />
+                                <span className="relative z-10">Detail</span>
+                                <motion.div
+                                    animate={{ x: [0, 3, 0] }}
+                                    transition={{ 
+                                        duration: 1.5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                    }}
+                                    className="relative z-10"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </motion.div>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -411,19 +668,41 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                                             key={schedule.id}
                                                             initial={{ opacity: 0, x: -20 }}
                                                             animate={{ opacity: 1, x: 0 }}
-                                                            exit={{ opacity: 0, x: 20 }}
+                                                            exit={{ opacity: 0, x: 20, scale: 0.9 }}
                                                             transition={{ duration: 0.2, delay: index * 0.05 }}
-                                                            whileHover={{ scale: 1.02, x: 5 }}
+                                                            whileHover={{ 
+                                                                scale: 1.03, 
+                                                                x: 8,
+                                                                boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
+                                                            }}
+                                                            whileTap={{ scale: 0.98 }}
                                                             onClick={() => {
                                                                 setSelectedSchedule(schedule);
                                                                 setIsDetailOpen(true);
                                                             }}
-                                                            className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-emerald-300 dark:border-slate-800 dark:hover:border-emerald-700 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-all cursor-pointer"
+                                                            className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-emerald-300 dark:border-slate-800 dark:hover:border-emerald-700 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-all cursor-pointer relative overflow-hidden group"
                                                         >
-                                                            <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colorVariants[schedule.color].badge)}>
+                                                            {/* Hover gradient effect */}
+                                                            <motion.div
+                                                                className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-sky-500/5 opacity-0 group-hover:opacity-100"
+                                                                transition={{ duration: 0.3 }}
+                                                            />
+                                                            
+                                                            <motion.div 
+                                                                className={cn('flex h-10 w-10 items-center justify-center rounded-xl', colorVariants[schedule.color].badge)}
+                                                                whileHover={{ 
+                                                                    scale: 1.2, 
+                                                                    rotate: [0, -5, 5, 0],
+                                                                }}
+                                                                transition={{ 
+                                                                    type: "spring",
+                                                                    stiffness: 400,
+                                                                    damping: 10,
+                                                                }}
+                                                            >
                                                                 <GraduationCap className="h-5 w-5" />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
+                                                            </motion.div>
+                                                            <div className="flex-1 min-w-0 relative z-10">
                                                                 <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                                                                     {schedule.course_name}
                                                                 </p>
@@ -431,17 +710,33 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                                                     {schedule.course_code}
                                                                 </p>
                                                                 <div className="flex items-center gap-3 mt-2 text-xs text-slate-600 dark:text-slate-400">
-                                                                    <div className="flex items-center gap-1">
+                                                                    <motion.div 
+                                                                        className="flex items-center gap-1"
+                                                                        whileHover={{ scale: 1.1 }}
+                                                                    >
                                                                         <Clock className="h-3 w-3" />
                                                                         {schedule.time_range}
-                                                                    </div>
-                                                                    <div className="flex items-center gap-1">
+                                                                    </motion.div>
+                                                                    <motion.div 
+                                                                        className="flex items-center gap-1"
+                                                                        whileHover={{ scale: 1.1 }}
+                                                                    >
                                                                         <MapPin className="h-3 w-3" />
                                                                         {schedule.ruangan}
-                                                                    </div>
+                                                                    </motion.div>
                                                                 </div>
                                                             </div>
-                                                            <ChevronRight className="h-5 w-5 text-slate-400" />
+                                                            <motion.div
+                                                                animate={{ x: [0, 3, 0] }}
+                                                                transition={{ 
+                                                                    duration: 1.5,
+                                                                    repeat: Infinity,
+                                                                    ease: "easeInOut",
+                                                                }}
+                                                                className="relative z-10"
+                                                            >
+                                                                <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-emerald-500" />
+                                                            </motion.div>
                                                         </motion.div>
                                                     ))
                                                 ) : (
@@ -491,16 +786,38 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.1 }}
-                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            whileHover={{ 
+                                                scale: 1.04, 
+                                                y: -3,
+                                                boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
+                                            }}
+                                            whileTap={{ scale: 0.98 }}
                                             onClick={() => {
                                                 setSelectedSchedule(schedule);
                                                 setIsDetailOpen(true);
                                             }}
-                                            className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer"
+                                            className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer relative overflow-hidden group"
                                         >
-                                            <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', colorVariants[schedule.color].badge)}>
+                                            {/* Animated border on hover */}
+                                            <motion.div
+                                                className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-sky-500 opacity-0 group-hover:opacity-100"
+                                                transition={{ duration: 0.3 }}
+                                            />
+                                            
+                                            <motion.div 
+                                                className={cn('flex h-8 w-8 items-center justify-center rounded-lg', colorVariants[schedule.color].badge)}
+                                                whileHover={{ 
+                                                    scale: 1.2,
+                                                    rotate: [0, -10, 10, 0],
+                                                }}
+                                                transition={{ 
+                                                    type: "spring",
+                                                    stiffness: 400,
+                                                    damping: 10,
+                                                }}
+                                            >
                                                 <BookOpen className="h-4 w-4" />
-                                            </div>
+                                            </motion.div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                                                     {schedule.course_name}
