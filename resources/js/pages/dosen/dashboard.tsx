@@ -26,21 +26,15 @@ import {
     Image,
     QrCode,
     FileText,
-    Download,
     BarChart3,
     Settings,
-    Plus,
     Eye,
-    UserCheck,
     ClipboardList,
-    Award,
-    Target,
     Zap,
-    Bell,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface DosenInfo {
     id: number;

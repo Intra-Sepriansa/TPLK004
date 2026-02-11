@@ -129,6 +129,21 @@ class DashboardController extends Controller
                 'time' => $log->scanned_at?->diffForHumans(),
             ]);
 
+        // Today's schedule
+        $todaySchedule = AttendanceSession::whereIn('course_id', $courseIds)
+            ->whereDate('start_at', today())
+            ->with('course')
+            ->orderBy('start_at')
+            ->get()
+            ->map(fn($s) => [
+                'id' => $s->id,
+                'course_name' => $s->course->nama ?? '-',
+                'meeting_number' => $s->meeting_number,
+                'time' => $s->start_at?->format('H:i') . ' - ' . $s->end_at?->format('H:i'),
+                'room' => $s->room ?? 'TBA',
+                'student_count' => Mahasiswa::whereHas('attendanceLogs', fn($q) => $q->where('session_id', $s->id))->count(),
+            ]);
+
         return Inertia::render('dosen/dashboard', [
             'dosen' => [
                 'id' => $dosen->id,
@@ -145,12 +160,15 @@ class DashboardController extends Controller
                 'thisMonthSessions' => $thisMonthSessions,
                 'attendanceRate' => $attendanceRate,
                 'pendingCount' => $pendingCount,
+                'todaySessionsCount' => $activeSessions->count(),
+                'averageAttendanceRate' => $attendanceRate,
             ],
             'pendingVerifications' => $pendingVerifications,
             'activeSessions' => $activeSessions,
             'monthlyTrend' => $monthlyTrend,
             'courseStats' => $courseStats,
             'recentActivity' => $recentActivity,
+            'todaySchedule' => $todaySchedule,
         ]);
     }
 }
