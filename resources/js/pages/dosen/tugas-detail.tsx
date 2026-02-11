@@ -111,10 +111,10 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     </Button>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Main Content - Enhanced with Glassmorphism */}
+                <div className="grid grid-cols-1 gap-6">
+                    {/* Main Content - Enhanced with Glassmorphism - Full Width */}
                     <motion.div 
-                        className="lg:col-span-2 space-y-6"
+                        className="space-y-6"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
@@ -176,7 +176,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                 
                                 {/* Enhanced Meta Info with Better Design */}
                                 <motion.div 
-                                    className="flex items-center gap-3 flex-wrap"
+                                    className="flex items-center gap-3 flex-wrap mb-8"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.4 }}
@@ -224,6 +224,96 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                             </span>
                                         </motion.div>
                                     )}
+                                </motion.div>
+                                
+                                {/* Enhanced Stats Cards - Moved inside header */}
+                                <motion.div 
+                                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    {/* Sisa Waktu Card */}
+                                    <motion.div 
+                                        className={`p-5 rounded-2xl border backdrop-blur-sm ${
+                                            tugas.is_overdue 
+                                                ? 'bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 border-red-200/50 dark:border-red-800/50' 
+                                                : tugas.days_until_deadline <= 3
+                                                ? 'bg-gradient-to-br from-amber-50/90 to-orange-50/90 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-800/50'
+                                                : 'bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-emerald-900/30 dark:to-green-900/30 border-emerald-200/50 dark:border-emerald-800/50'
+                                        }`}
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Sisa Waktu</span>
+                                            <div className={`p-2 rounded-lg ${
+                                                tugas.is_overdue ? 'bg-red-500' : tugas.days_until_deadline <= 3 ? 'bg-amber-500' : 'bg-emerald-500'
+                                            } text-white`}>
+                                                <Clock className="h-4 w-4" />
+                                            </div>
+                                        </div>
+                                        <p className={`text-2xl font-bold ${
+                                            tugas.is_overdue 
+                                                ? 'text-red-600 dark:text-red-400' 
+                                                : tugas.days_until_deadline <= 3 
+                                                ? 'text-amber-600 dark:text-amber-400' 
+                                                : 'text-emerald-600 dark:text-emerald-400'
+                                        }`}>
+                                            {tugas.is_overdue ? 'Lewat' : `${tugas.days_until_deadline} Hari`}
+                                        </p>
+                                        <p className="text-xs text-slate-500 mt-1">
+                                            {tugas.is_overdue ? 'Deadline terlewati' : 'Hingga deadline'}
+                                        </p>
+                                    </motion.div>
+                                    
+                                    {/* Diskusi Count Card */}
+                                    <motion.div 
+                                        className="p-5 rounded-2xl bg-gradient-to-br from-blue-50/90 to-cyan-50/90 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Total Diskusi</span>
+                                            <div className="p-2 rounded-lg bg-blue-500 text-white">
+                                                <MessageSquare className="h-4 w-4" />
+                                            </div>
+                                        </div>
+                                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{diskusi.length}</p>
+                                        <p className="text-xs text-slate-500 mt-1">Pesan diskusi</p>
+                                    </motion.div>
+                                    
+                                    {/* Jenis Tugas Card */}
+                                    <motion.div 
+                                        className="p-5 rounded-2xl bg-gradient-to-br from-purple-50/90 to-pink-50/90 dark:from-purple-900/30 dark:to-pink-900/30 border border-purple-200/50 dark:border-purple-800/50 backdrop-blur-sm"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Jenis Tugas</span>
+                                            <div className="p-2 rounded-lg bg-purple-500 text-white">
+                                                <FileText className="h-4 w-4" />
+                                            </div>
+                                        </div>
+                                        <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 capitalize">{tugas.jenis}</p>
+                                        <p className="text-xs text-slate-500 mt-1">Tipe assignment</p>
+                                    </motion.div>
+                                    
+                                    {/* Status Card */}
+                                    <motion.div 
+                                        className="p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 to-violet-50/90 dark:from-indigo-900/30 dark:to-violet-900/30 border border-indigo-200/50 dark:border-indigo-800/50 backdrop-blur-sm"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                    >
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Status</span>
+                                            <div className="p-2 rounded-lg bg-indigo-500 text-white">
+                                                <CheckCircle className="h-4 w-4" />
+                                            </div>
+                                        </div>
+                                        <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 capitalize">{tugas.status}</p>
+                                        <p className="text-xs text-slate-500 mt-1">Status tugas</p>
+                                    </motion.div>
                                 </motion.div>
                                 
                                 {/* Enhanced Description Section */}
@@ -300,95 +390,23 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                 </motion.div>
                             </div>
                         </div>
-                    </motion.div>
-
-                    {/* Enhanced Sidebar */}
-                    <motion.div 
-                        className="space-y-6"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                        {/* Enhanced Info Card */}
-                        <div className="relative overflow-hidden rounded-3xl border border-slate-200/50 bg-white/90 shadow-xl backdrop-blur-xl dark:border-gray-800/50 dark:bg-black/90">
-                            {/* Gradient Background */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10" />
-                            
-                            <div className="relative p-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50">
-                                        <TrendingUp className="h-5 w-5" />
-                                    </div>
-                                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Informasi</h3>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    {/* Sisa Waktu Card */}
-                                    <motion.div 
-                                        className={`p-5 rounded-2xl border backdrop-blur-sm ${
-                                            tugas.is_overdue 
-                                                ? 'bg-gradient-to-br from-red-50/90 to-rose-50/90 dark:from-red-900/30 dark:to-rose-900/30 border-red-200/50 dark:border-red-800/50' 
-                                                : tugas.days_until_deadline <= 3
-                                                ? 'bg-gradient-to-br from-amber-50/90 to-orange-50/90 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-800/50'
-                                                : 'bg-gradient-to-br from-emerald-50/90 to-green-50/90 dark:from-emerald-900/30 dark:to-green-900/30 border-emerald-200/50 dark:border-emerald-800/50'
-                                        }`}
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                    >
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Sisa Waktu</span>
-                                            <div className={`p-2 rounded-lg ${
-                                                tugas.is_overdue ? 'bg-red-500' : tugas.days_until_deadline <= 3 ? 'bg-amber-500' : 'bg-emerald-500'
-                                            } text-white`}>
-                                                <Clock className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                        <p className={`text-2xl font-bold ${
-                                            tugas.is_overdue 
-                                                ? 'text-red-600 dark:text-red-400' 
-                                                : tugas.days_until_deadline <= 3 
-                                                ? 'text-amber-600 dark:text-amber-400' 
-                                                : 'text-emerald-600 dark:text-emerald-400'
-                                        }`}>
-                                            {tugas.is_overdue ? 'Sudah Lewat' : `${tugas.days_until_deadline} Hari`}
-                                        </p>
-                                        <p className="text-xs text-slate-500 mt-2">
-                                            {tugas.is_overdue ? 'Deadline telah terlewati' : 'Hingga deadline'}
-                                        </p>
-                                    </motion.div>
-                                    
-                                    {/* Diskusi Count Card */}
-                                    <motion.div 
-                                        className="p-5 rounded-2xl bg-gradient-to-br from-blue-50/90 to-cyan-50/90 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm"
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                    >
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Diskusi</span>
-                                            <div className="p-2 rounded-lg bg-blue-500 text-white">
-                                                <MessageSquare className="h-4 w-4" />
-                                            </div>
-                                        </div>
-                                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{diskusi.length}</p>
-                                        <p className="text-xs text-slate-500 mt-2">Pesan dalam diskusi</p>
-                                    </motion.div>
-                                </div>
-                                
-                                {/* Enhanced Action Button */}
-                                <motion.div
-                                    className="mt-6"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    <Button
-                                        onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)}
-                                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/50 py-6 text-base font-semibold"
-                                    >
-                                        <Award className="h-5 w-5 mr-2" /> Penilaian Submission
-                                    </Button>
-                                </motion.div>
-                            </div>
-                        </div>
+                        
+                        {/* Enhanced Action Button - Moved to bottom of header */}
+                        <motion.div
+                            className="mt-6"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 }}
+                        >
+                            <Button
+                                onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)}
+                                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/50 py-6 text-base font-semibold"
+                            >
+                                <Award className="h-5 w-5 mr-2" /> Penilaian Submission
+                            </Button>
+                        </motion.div>
                     </motion.div>
                 </div>
 
