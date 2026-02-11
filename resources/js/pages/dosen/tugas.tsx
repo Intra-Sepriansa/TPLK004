@@ -148,9 +148,11 @@ const badgeVariants = {
     }),
     hover: {
         scale: 1.1,
-        rotate: [0, -5, 5, 0],
+        y: -2,
         transition: {
-            duration: 0.3,
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 15,
         },
     },
 };
@@ -310,7 +312,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                         className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5"
                     />
                     
-                    {/* Floating Icons with Advanced Animation */}
+                    {/* Floating Icons with Pulse Animation */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         {[FileText, ClipboardList, ListTodo].map((Icon, i) => (
                             <motion.div
@@ -319,11 +321,9 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 animate={{ 
                                     opacity: [0.1, 0.3, 0.1],
                                     scale: [1, 1.2, 1],
-                                    y: [0, -15, 0],
-                                    rotate: [0, 10, -10, 0],
                                 }}
                                 transition={{
-                                    duration: 4 + i,
+                                    duration: 2,
                                     repeat: Infinity,
                                     delay: i * 0.5,
                                     ease: "easeInOut"
@@ -344,19 +344,10 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             <div className="flex items-center gap-4">
                                 <motion.div 
                                     className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
-                                    animate={{
-                                        y: [0, -10, 0],
-                                        rotate: [0, 5, -5, 0],
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
                                     whileHover={{ 
                                         scale: 1.2, 
-                                        rotate: 360,
-                                        transition: { duration: 0.6 }
+                                        y: -2,
+                                        transition: { type: "spring", stiffness: 300, damping: 15 }
                                     }}
                                 >
                                     <ClipboardList className="h-7 w-7" />
@@ -377,12 +368,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         className="text-2xl font-bold flex items-center gap-2"
                                     >
                                         Informasi Tugas
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        >
-                                            <Sparkles className="h-6 w-6" />
-                                        </motion.div>
+                                        <Sparkles className="h-6 w-6" />
                                     </motion.h1>
                                 </div>
                             </div>
@@ -437,8 +423,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 >
                                     <div className="flex items-center gap-2 mb-1">
                                         <motion.div
-                                            animate={{ rotate: [0, 10, -10, 0] }}
-                                            transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         >
                                             <stat.icon className={cn("h-4 w-4", stat.color)} />
                                         </motion.div>
@@ -490,8 +476,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                     )}
                                     whileHover={{ 
                                         scale: 1.2,
-                                        rotate: 360,
-                                        transition: { duration: 0.6 }
+                                        y: -2,
+                                        transition: { type: "spring", stiffness: 300, damping: 15 }
                                     }}
                                 >
                                     <stat.icon className="h-6 w-6" />
@@ -588,13 +574,9 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         transition={{ duration: 2, repeat: Infinity }}
                                         className="absolute inset-0 bg-gradient-to-r from-gray-900 to-black rounded-full"
                                     />
-                                    <motion.div 
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                        className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-gray-900 to-black rounded-full"
-                                    >
+                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-gray-900 to-black rounded-full">
                                         <FileText className="h-12 w-12 text-white" />
-                                    </motion.div>
+                                    </div>
                                 </div>
                                 <motion.p 
                                     initial={{ opacity: 0, y: 10 }}
@@ -704,9 +686,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                                 <motion.div
                                                                     animate={{ 
                                                                         scale: [1, 1.2, 1],
-                                                                        rotate: [0, 10, -10, 0]
                                                                     }}
-                                                                    transition={{ duration: 1, repeat: Infinity }}
+                                                                    transition={{ duration: 2, repeat: Infinity }}
                                                                 >
                                                                     <AlertTriangle className="h-3 w-3" />
                                                                 </motion.div>
@@ -855,16 +836,17 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         <div className="flex items-center gap-3">
                                             <motion.div 
                                                 className="p-2 bg-white/20 rounded-lg"
-                                                whileHover={{ scale: 1.1, rotate: 180 }}
-                                                transition={{ duration: 0.3 }}
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             >
                                                 <Plus className="h-5 w-5 text-white" />
                                             </motion.div>
                                             <h2 className="text-xl font-bold text-white">Tambah Tugas Baru</h2>
                                         </div>
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 90 }}
-                                            whileTap={{ scale: 0.9 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         >
                                             <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)} className="text-white hover:bg-white/20">
                                                 <X className="h-5 w-5" />
@@ -984,16 +966,17 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         <div className="flex items-center gap-3">
                                             <motion.div 
                                                 className="p-2 bg-white/20 rounded-lg"
-                                                whileHover={{ scale: 1.1, rotate: 180 }}
-                                                transition={{ duration: 0.3 }}
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             >
                                                 <Pencil className="h-5 w-5 text-white" />
                                             </motion.div>
                                             <h2 className="text-xl font-bold text-white">Edit Tugas</h2>
                                         </div>
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 90 }}
-                                            whileTap={{ scale: 0.9 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         >
                                             <Button variant="ghost" size="icon" onClick={() => setShowEdit(false)} className="text-white hover:bg-white/20">
                                                 <X className="h-5 w-5" />
