@@ -126,7 +126,7 @@ const itemVariants = {
         scale: 1,
         rotateX: 0,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 100,
             damping: 15,
             mass: 0.8,
@@ -139,7 +139,7 @@ const cardHoverVariants = {
         scale: 1.02,
         y: -4,
         transition: {
-            type: 'spring',
+            type: 'spring' as const,
             stiffness: 300,
             damping: 15,
         },
