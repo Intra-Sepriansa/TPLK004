@@ -7,9 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
     GraduationCap, ArrowLeft, Calendar, Clock, AlertTriangle, 
-    CheckCircle2, BookOpen, Target, TrendingUp, Sparkles
+    CheckCircle2, BookOpen, Target, CheckCheck
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
 
 interface Exam {
@@ -56,7 +56,7 @@ interface Props {
 
 export default function AcademicExams({ upcomingExams, examsByMonth, courses, preparationChecklist }: Props) {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [completedExams, setCompletedExams] = useState<Record<number, boolean>>({});
 
     // Animation variants
     const containerVariants = {
@@ -88,7 +88,11 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         const rect = e.currentTarget.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width;
         const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x, y });
+    };
+
+    // Toggle exam completion
+    const toggleExamCompletion = (examId: number) => {
+        setCompletedExams(prev => ({ ...prev, [examId]: !prev[examId] }));
     };
 
     // Calculate stats
@@ -98,6 +102,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         warning: upcomingExams.filter(e => e.is_warning).length,
         uts: upcomingExams.filter(e => e.type === 'UTS').length,
         uas: upcomingExams.filter(e => e.type === 'UAS').length,
+        completed: Object.values(completedExams).filter(Boolean).length,
     };
 
     const toggleCheck = (examId: number, itemId: number) => {
@@ -234,10 +239,11 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
-                                className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
+                                className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4"
                             >
                                 {[
                                     { icon: Calendar, label: 'Total Ujian', value: stats.total, color: 'white' },
+                                    { icon: CheckCheck, label: 'Selesai', value: stats.completed, color: 'emerald' },
                                     { icon: AlertTriangle, label: 'Segera', value: stats.critical, color: 'red' },
                                     { icon: Target, label: 'UTS', value: stats.uts, color: 'amber' },
                                     { icon: GraduationCap, label: 'UAS', value: stats.uas, color: 'rose' },
@@ -302,6 +308,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                             preparationChecklist={preparationChecklist}
                                             toggleCheck={toggleCheck}
                                             getCheckedCount={getCheckedCount}
+                                            isCompleted={completedExams[exam.id] || false}
+                                            toggleCompletion={toggleExamCompletion}
                                         />
                                     ))}
                                 </div>
@@ -346,28 +354,62 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                             scale: 1.02,
                                                             boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
                                                         }}
-                                                        className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
-                                                            exam.is_critical 
-                                                                ? 'border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20' 
-                                                                : exam.is_warning 
-                                                                    ? 'border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20'
-                                                                    : 'hover:border-blue-300 dark:hover:border-blue-700'
+                                                        className={`relative flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                                                            completedExams[exam.id]
+                                                                ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20'
+                                                                : exam.is_critical 
+                                                                    ? 'border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/20' 
+                                                                    : exam.is_warning 
+                                                                        ? 'border-amber-200 bg-amber-50/50 dark:border-amber-800 dark:bg-amber-950/20'
+                                                                        : 'hover:border-blue-300 dark:hover:border-blue-700'
                                                         }`}
                                                     >
-                                                        <div className="flex items-center gap-3">
+                                                        {/* Completion Overlay */}
+                                                        {completedExams[exam.id] && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0 }}
+                                                                animate={{ opacity: 1 }}
+                                                                className="absolute inset-0 bg-emerald-500/5 rounded-lg"
+                                                            />
+                                                        )}
+                                                        
+                                                        <div className="flex items-center gap-3 relative z-10">
                                                             <motion.div 
                                                                 whileHover={{ rotate: 360, scale: 1.1 }}
                                                                 transition={{ duration: 0.5 }}
-                                                                className={`p-2 rounded-lg ${exam.type === 'UTS' ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-purple-100 dark:bg-purple-900/50'}`}
+                                                                className={`p-2 rounded-lg ${
+                                                                    completedExams[exam.id]
+                                                                        ? 'bg-emerald-100 dark:bg-emerald-900/50'
+                                                                        : exam.type === 'UTS' 
+                                                                            ? 'bg-blue-100 dark:bg-blue-900/50' 
+                                                                            : 'bg-purple-100 dark:bg-purple-900/50'
+                                                                }`}
                                                             >
-                                                                <Target className={`h-5 w-5 ${exam.type === 'UTS' ? 'text-blue-600' : 'text-purple-600'}`} />
+                                                                {completedExams[exam.id] ? (
+                                                                    <CheckCheck className="h-5 w-5 text-emerald-600" />
+                                                                ) : (
+                                                                    <Target className={`h-5 w-5 ${exam.type === 'UTS' ? 'text-blue-600' : 'text-purple-600'}`} />
+                                                                )}
                                                             </motion.div>
                                                             <div>
                                                                 <div className="flex items-center gap-2">
                                                                     <Badge variant={exam.type === 'UTS' ? 'secondary' : 'default'} className="text-xs">
                                                                         {exam.type}
                                                                     </Badge>
-                                                                    <span className="font-medium">{exam.course_name}</span>
+                                                                    {completedExams[exam.id] && (
+                                                                        <motion.div
+                                                                            initial={{ scale: 0, rotate: -180 }}
+                                                                            animate={{ scale: 1, rotate: 0 }}
+                                                                            transition={{ type: "spring", stiffness: 200 }}
+                                                                        >
+                                                                            <Badge className="text-xs bg-emerald-500 hover:bg-emerald-600">
+                                                                                <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                                                            </Badge>
+                                                                        </motion.div>
+                                                                    )}
+                                                                    <span className={`font-medium ${completedExams[exam.id] ? 'line-through text-muted-foreground' : ''}`}>
+                                                                        {exam.course_name}
+                                                                    </span>
                                                                 </div>
                                                                 <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                                                                     <Clock className="h-3 w-3" />
@@ -375,15 +417,38 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <motion.div 
-                                                            whileHover={{ scale: 1.1 }}
-                                                            className={`text-right ${exam.is_critical ? 'text-red-600' : exam.is_warning ? 'text-amber-600' : 'text-blue-600'}`}
-                                                        >
-                                                            <p className="text-xl font-bold">
-                                                                <AnimatedCounter value={exam.days_remaining} duration={1000} />
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">hari</p>
-                                                        </motion.div>
+                                                        <div className="flex items-center gap-3 relative z-10">
+                                                            <motion.div 
+                                                                whileHover={{ scale: 1.1 }}
+                                                                className={`text-right ${
+                                                                    completedExams[exam.id]
+                                                                        ? 'text-emerald-600'
+                                                                        : exam.is_critical 
+                                                                            ? 'text-red-600' 
+                                                                            : exam.is_warning 
+                                                                                ? 'text-amber-600' 
+                                                                                : 'text-blue-600'
+                                                                }`}
+                                                            >
+                                                                <p className="text-xl font-bold">
+                                                                    <AnimatedCounter value={exam.days_remaining} duration={1000} />
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground">hari</p>
+                                                            </motion.div>
+                                                            {/* Toggle Completion Button */}
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                onClick={() => toggleExamCompletion(exam.id)}
+                                                                className={`p-2 rounded-lg transition-colors ${
+                                                                    completedExams[exam.id]
+                                                                        ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
+                                                                        : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                                                                }`}
+                                                            >
+                                                                <CheckCircle2 className="h-5 w-5" />
+                                                            </motion.button>
+                                                        </div>
                                                     </motion.div>
                                                 ))}
                                             </div>
@@ -620,9 +685,11 @@ interface MagneticExamCardProps {
     preparationChecklist: ChecklistItem[];
     toggleCheck: (examId: number, itemId: number) => void;
     getCheckedCount: (examId: number) => number;
+    isCompleted: boolean;
+    toggleCompletion: (examId: number) => void;
 }
 
-function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, toggleCheck, getCheckedCount }: MagneticExamCardProps) {
+function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, toggleCheck, getCheckedCount, isCompleted, toggleCompletion }: MagneticExamCardProps) {
     const [rotateX, setRotateX] = useState(0);
     const [rotateY, setRotateY] = useState(0);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -674,9 +741,11 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
             >
                 <Card 
                     className={`overflow-hidden relative ${
-                        exam.is_critical 
-                            ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/40' 
-                            : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40'
+                        isCompleted
+                            ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40'
+                            : exam.is_critical 
+                                ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/40' 
+                                : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40'
                     }`}
                 >
                     {/* Glow Effect */}
@@ -689,18 +758,41 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
                             repeat: Infinity,
                             ease: "easeInOut"
                         }}
-                        className={`absolute inset-0 ${exam.is_critical ? 'bg-red-500/10' : 'bg-amber-500/10'} blur-xl`}
+                        className={`absolute inset-0 ${
+                            isCompleted
+                                ? 'bg-emerald-500/10'
+                                : exam.is_critical 
+                                    ? 'bg-red-500/10' 
+                                    : 'bg-amber-500/10'
+                        } blur-xl`}
                     />
                     
-                    <div className={`h-1 ${exam.is_critical ? 'bg-red-500' : 'bg-amber-500'}`} />
+                    <div className={`h-1 ${
+                        isCompleted
+                            ? 'bg-emerald-500'
+                            : exam.is_critical 
+                                ? 'bg-red-500' 
+                                : 'bg-amber-500'
+                    }`} />
                     <CardContent className="p-4 relative z-10">
                         <div className="flex items-start justify-between">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
                                     <Badge variant={exam.type === 'UTS' ? 'secondary' : 'default'}>
                                         {exam.type}
                                     </Badge>
-                                    {exam.is_critical && (
+                                    {isCompleted && (
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            transition={{ type: "spring", stiffness: 200 }}
+                                        >
+                                            <Badge className="text-xs bg-emerald-500 hover:bg-emerald-600">
+                                                <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                            </Badge>
+                                        </motion.div>
+                                    )}
+                                    {!isCompleted && exam.is_critical && (
                                         <motion.div
                                             animate={{ scale: [1, 1.1, 1] }}
                                             transition={{ duration: 1, repeat: Infinity }}
@@ -711,21 +803,45 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
                                         </motion.div>
                                     )}
                                 </div>
-                                <h3 className="font-semibold">{exam.course_name}</h3>
+                                <h3 className={`font-semibold ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+                                    {exam.course_name}
+                                </h3>
                                 <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                                     <Calendar className="h-4 w-4" />
                                     <span>{exam.date_formatted}</span>
                                 </div>
                             </div>
-                            <motion.div 
-                                whileHover={{ scale: 1.1 }}
-                                className={`text-right ${exam.is_critical ? 'text-red-600' : 'text-amber-600'}`}
-                            >
-                                <p className="text-3xl font-bold">
-                                    <AnimatedCounter value={exam.days_remaining} duration={1000} />
-                                </p>
-                                <p className="text-xs">hari lagi</p>
-                            </motion.div>
+                            <div className="flex flex-col items-end gap-2">
+                                <motion.div 
+                                    whileHover={{ scale: 1.1 }}
+                                    className={`text-right ${
+                                        isCompleted
+                                            ? 'text-emerald-600'
+                                            : exam.is_critical 
+                                                ? 'text-red-600' 
+                                                : 'text-amber-600'
+                                    }`}
+                                >
+                                    <p className="text-3xl font-bold">
+                                        <AnimatedCounter value={exam.days_remaining} duration={1000} />
+                                    </p>
+                                    <p className="text-xs">hari lagi</p>
+                                </motion.div>
+                                {/* Toggle Completion Button */}
+                                <motion.button
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => toggleCompletion(exam.id)}
+                                    className={`p-2 rounded-lg transition-colors ${
+                                        isCompleted
+                                            ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
+                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                                    }`}
+                                    title={isCompleted ? 'Tandai belum selesai' : 'Tandai sudah selesai'}
+                                >
+                                    <CheckCircle2 className="h-5 w-5" />
+                                </motion.button>
+                            </div>
                         </div>
 
                         {/* Preparation Checklist */}
