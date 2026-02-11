@@ -3,7 +3,10 @@ import StudentLayout from '@/layouts/student-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Clock, CheckCircle2, ArrowLeft, Monitor, Building2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, CheckCircle2, ArrowLeft, Monitor, Building2, MapPin, User, BookOpen, Filter, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -135,6 +138,10 @@ const scheduleItemVariants = {
 export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames, today }: Props) {
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [filterMode, setFilterMode] = useState<'all' | 'online' | 'offline'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
     // Enhanced animations with 3D effects, parallax, particles, and glow
 
     useEffect(() => {
@@ -149,6 +156,40 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
+
+    // Filter schedules
+    const filterSchedules = (schedule: ScheduleItem[]) => {
+        return schedule.filter(item => {
+            const matchesMode = filterMode === 'all' || item.mode === filterMode;
+            const matchesSearch = item.course_name.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesMode && matchesSearch;
+        });
+    };
+
+    // Export schedule as text
+    const exportSchedule = () => {
+        let text = `JADWAL MINGGUAN - ${today.date}\n\n`;
+        days.forEach(day => {
+            const schedule = weeklySchedule[day] || [];
+            if (schedule.length > 0) {
+                text += `${dayNames[day].toUpperCase()}\n`;
+                schedule.forEach(item => {
+                    text += `- ${item.course_name}\n`;
+                    text += `  Waktu: ${item.time}\n`;
+                    text += `  Mode: ${item.mode === 'offline' ? 'Offline' : 'Online'}\n`;
+                    text += `  Pertemuan: ${item.meeting_number}/${item.total_meetings}\n\n`;
+                });
+            }
+        });
+        
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jadwal-mingguan-${new Date().toISOString().split('T')[0]}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <StudentLayout>
@@ -366,6 +407,73 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     </motion.div>
                 </motion.div>
 
+                {/* Filter and Search Bar */}
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col sm:flex-row gap-4"
+                >
+                    {/* Search */}
+                    <div className="flex-1">
+                        <div className="relative">
+                            <Input
+                                type="text"
+                                placeholder="Cari mata kuliah..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 h-12"
+                            />
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            {searchQuery && (
+                                <motion.button
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                                >
+                                    <X className="h-4 w-4" />
+                                </motion.button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Filter Buttons */}
+                    <div className="flex gap-2">
+                        {[
+                            { value: 'all' as const, label: 'Semua', icon: Calendar },
+                            { value: 'online' as const, label: 'Online', icon: Monitor },
+                            { value: 'offline' as const, label: 'Offline', icon: Building2 },
+                        ].map((filter) => (
+                            <motion.button
+                                key={filter.value}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setFilterMode(filter.value)}
+                                className={`flex items-center gap-2 px-4 h-12 rounded-lg border-2 transition-all ${
+                                    filterMode === filter.value
+                                        ? 'bg-blue-500 text-white border-blue-500'
+                                        : 'bg-background border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                                }`}
+                            >
+                                <filter.icon className="h-4 w-4" />
+                                <span className="hidden sm:inline">{filter.label}</span>
+                            </motion.button>
+                        ))}
+                        
+                        {/* Export Button */}
+                        <motion.button
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={exportSchedule}
+                            className="flex items-center gap-2 px-4 h-12 rounded-lg border-2 border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 transition-all"
+                        >
+                            <Download className="h-4 w-4" />
+                            <span className="hidden sm:inline">Export</span>
+                        </motion.button>
+                    </div>
+                </motion.div>
+
                 {/* Weekly Schedule */}
                 <motion.div 
                     className="grid gap-4 md:grid-cols-5"
@@ -373,7 +481,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                 >
                     {days.map((day, dayIndex) => {
                         const isToday = day === currentDay;
-                        const schedule = weeklySchedule[day] || [];
+                        const schedule = filterSchedules(weeklySchedule[day] || []);
                         
                         return (
                             <motion.div
@@ -423,6 +531,10 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                                                     exit={{ opacity: 0, x: -20, scale: 0.9 }}
                                                     whileHover="hover"
                                                     layout
+                                                    onClick={() => {
+                                                        setSelectedSchedule(item);
+                                                        setIsDetailOpen(true);
+                                                    }}
                                                     className={`p-3 rounded-lg border cursor-pointer ${
                                                         item.is_completed 
                                                             ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800' 
@@ -634,6 +746,174 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     </Card>
                 </motion.div>
             </motion.div>
+
+            {/* Schedule Detail Dialog */}
+            <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-2xl">
+                            <motion.div
+                                whileHover={{ scale: 1.2, rotate: 15 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            >
+                                <BookOpen className="h-6 w-6 text-blue-500" />
+                            </motion.div>
+                            Detail Jadwal Kuliah
+                        </DialogTitle>
+                    </DialogHeader>
+                    {selectedSchedule && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-6 py-4"
+                        >
+                            {/* Course Info */}
+                            <div className="space-y-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-bold">{selectedSchedule.course_name}</h3>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Badge 
+                                                variant={selectedSchedule.mode === 'offline' ? 'default' : 'secondary'}
+                                                className={`${selectedSchedule.mode === 'offline' ? 'bg-emerald-500' : ''}`}
+                                            >
+                                                {selectedSchedule.mode === 'offline' ? (
+                                                    <><Building2 className="h-3 w-3 mr-1" /> Offline</>
+                                                ) : (
+                                                    <><Monitor className="h-3 w-3 mr-1" /> Online</>
+                                                )}
+                                            </Badge>
+                                            {selectedSchedule.is_completed && (
+                                                <Badge className="bg-emerald-500 hover:bg-emerald-600">
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: "spring", stiffness: 200 }}
+                                        className="text-center"
+                                    >
+                                        <div className="text-4xl font-bold text-blue-600">
+                                            {selectedSchedule.progress}%
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Progress</p>
+                                    </motion.div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <div>
+                                    <div className="flex items-center justify-between text-sm mb-2">
+                                        <span className="text-muted-foreground">Pertemuan</span>
+                                        <span className="font-medium">
+                                            {selectedSchedule.meeting_number} dari {selectedSchedule.total_meetings}
+                                        </span>
+                                    </div>
+                                    <Progress value={selectedSchedule.progress} className="h-3" />
+                                </div>
+                            </div>
+
+                            {/* Schedule Details */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Time Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="p-4 rounded-xl border-2 border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30"
+                                >
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
+                                            <Clock className="h-5 w-5 text-blue-600" />
+                                        </div>
+                                        <h4 className="font-semibold">Waktu</h4>
+                                    </div>
+                                    <p className="text-2xl font-bold">{selectedSchedule.time}</p>
+                                </motion.div>
+
+                                {/* Mode Card */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className={`p-4 rounded-xl border-2 ${
+                                        selectedSchedule.mode === 'offline'
+                                            ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30'
+                                            : 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <div className={`p-2 rounded-lg ${
+                                            selectedSchedule.mode === 'offline'
+                                                ? 'bg-emerald-100 dark:bg-emerald-900/50'
+                                                : 'bg-blue-100 dark:bg-blue-900/50'
+                                        }`}>
+                                            {selectedSchedule.mode === 'offline' ? (
+                                                <Building2 className="h-5 w-5 text-emerald-600" />
+                                            ) : (
+                                                <Monitor className="h-5 w-5 text-blue-600" />
+                                            )}
+                                        </div>
+                                        <h4 className="font-semibold">Mode</h4>
+                                    </div>
+                                    <p className="text-2xl font-bold capitalize">{selectedSchedule.mode}</p>
+                                </motion.div>
+                            </div>
+
+                            {/* Additional Info */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 space-y-3"
+                            >
+                                <h4 className="font-semibold flex items-center gap-2">
+                                    <MapPin className="h-5 w-5 text-gray-600" />
+                                    Informasi Tambahan
+                                </h4>
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground">Pertemuan Saat Ini:</span>
+                                        <span className="font-medium">Pertemuan {selectedSchedule.meeting_number}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground">Total Pertemuan:</span>
+                                        <span className="font-medium">{selectedSchedule.total_meetings} pertemuan</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground">Sisa Pertemuan:</span>
+                                        <span className="font-medium">
+                                            {selectedSchedule.total_meetings - selectedSchedule.meeting_number} pertemuan
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-muted-foreground">Status:</span>
+                                        <Badge variant={selectedSchedule.is_completed ? 'default' : 'secondary'}>
+                                            {selectedSchedule.is_completed ? 'Selesai' : 'Berlangsung'}
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </motion.div>
+
+                            {/* Close Button */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <Button
+                                    onClick={() => setIsDetailOpen(false)}
+                                    className="w-full h-12 text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                                >
+                                    Tutup
+                                </Button>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </StudentLayout>
     );
 }
