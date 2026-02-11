@@ -127,28 +127,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
     pending: { label: 'Pending', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },
 };
 
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-        },
-    },
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            type: 'spring',
-            stiffness: 100,
-            damping: 15,
-        },
-    },
-};
+// Animation variants removed - using inline animations for better TypeScript compatibility
 
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
@@ -180,89 +159,160 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
         <DosenLayout>
             <Head title="Dashboard Dosen" />
 
-            <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={containerVariants}
-                className="p-6 space-y-6"
-            >
-                {/* Header - Clean & Simple */}
+            <div className="space-y-6 p-6">
+                {/* Header - Black Background with Same Style */}
                 <motion.div
-                    variants={itemVariants}
-                    className="rounded-2xl bg-black p-6 text-white shadow-lg border border-gray-800"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white shadow-xl"
                 >
-                    <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 text-2xl font-bold">
-                                {dosen.initials}
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                    
+                    {/* Floating Icons */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[BookOpen, Users, Calendar].map((Icon, i) => (
+                            <Icon 
+                                key={i}
+                                className="absolute text-white/20 animate-pulse"
+                                style={{
+                                    left: `${15 + i * 25}%`,
+                                    top: `${20 + (i % 2) * 40}%`,
+                                    animationDelay: `${i * 0.5}s`,
+                                    animationDuration: '2s'
+                                }}
+                                size={24}
+                            />
+                        ))}
+                    </div>
+                    
+                    <div className="relative">
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg animate-bounce" style={{ animationDuration: '2s' }}>
+                                    {dosen.initials}
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-300 font-medium">Selamat Datang,</p>
+                                    <h1 className="text-2xl font-bold">{dosen.nama}</h1>
+                                    <p className="text-sm text-gray-400">NIDN: {dosen.nidn}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-sm text-gray-400">Selamat Datang,</p>
-                                <h1 className="text-2xl font-bold">{dosen.nama}</h1>
-                                <p className="text-sm text-gray-400">NIDN: {dosen.nidn}</p>
+                            
+                            <div className="flex items-center gap-3">
+                                {stats.pendingCount > 0 && (
+                                    <Link href="/dosen/verify">
+                                        <Button className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg">
+                                            <AlertCircle className="h-4 w-4 mr-2" />
+                                            {stats.pendingCount} Verifikasi Pending
+                                        </Button>
+                                    </Link>
+                                )}
+                                
+                                {todaySchedule.length > 0 && (
+                                    <div className="hidden sm:flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 backdrop-blur">
+                                        <Calendar className="h-4 w-4 text-emerald-400" />
+                                        <span className="text-sm font-medium">{todaySchedule.length} kelas hari ini</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         
-                        <div className="flex items-center gap-3">
-                            {stats.pendingCount > 0 && (
-                                <Link href="/dosen/verify">
-                                    <Button className="bg-amber-500 hover:bg-amber-600 text-white">
-                                        <AlertCircle className="h-4 w-4 mr-2" />
-                                        {stats.pendingCount} Verifikasi Pending
-                                    </Button>
-                                </Link>
-                            )}
-                            
-                            {todaySchedule.length > 0 && (
-                                <div className="hidden sm:flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2">
-                                    <Calendar className="h-4 w-4 text-emerald-400" />
-                                    <span className="text-sm font-medium">{todaySchedule.length} kelas hari ini</span>
+                        {/* Quick Stats in Header */}
+                        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                                { icon: BookOpen, label: 'Mata Kuliah', value: stats.totalCourses, color: 'text-white' },
+                                { icon: Users, label: 'Mahasiswa', value: stats.totalStudents, color: 'text-blue-200' },
+                                { icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, color: 'text-purple-200' },
+                                { icon: TrendingUp, label: 'Kehadiran', value: stats.attendanceRate, suffix: '%', color: 'text-emerald-200' },
+                            ].map((stat, i) => (
+                                <div key={i} className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <stat.icon className={cn("h-4 w-4", stat.color)} />
+                                        <p className="text-gray-300 text-xs font-medium">{stat.label}</p>
+                                    </div>
+                                    <p className="text-2xl font-bold">
+                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
+                                    </p>
                                 </div>
-                            )}
+                            ))}
                         </div>
                     </div>
+                </motion.div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {[
-                            { icon: BookOpen, label: 'Mata Kuliah', value: stats.totalCourses },
-                            { icon: Users, label: 'Mahasiswa', value: stats.totalStudents },
-                            { icon: Calendar, label: 'Total Sesi', value: stats.totalSessions },
-                            { icon: TrendingUp, label: 'Kehadiran', value: stats.attendanceRate, suffix: '%' },
-                        ].map((stat, i) => (
-                            <div key={i} className="rounded-xl bg-white/5 p-3 border border-white/10">
-                                <div className="flex items-center gap-2 text-gray-400 mb-1">
-                                    <stat.icon className="h-4 w-4" />
-                                    <span className="text-xs font-medium">{stat.label}</span>
+                {/* Stats Cards */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                >
+                    {[
+                        { icon: BookOpen, label: 'Mata Kuliah', value: stats.totalCourses, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/25' },
+                        { icon: Users, label: 'Mahasiswa', value: stats.totalStudents, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
+                        { icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, color: 'from-violet-500 to-purple-600', shadow: 'shadow-violet-500/25' },
+                        { icon: TrendingUp, label: 'Kehadiran', value: stats.attendanceRate, suffix: '%', color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
+                    ].map((stat, i) => (
+                        <motion.div 
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={cn(
+                                    'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg transition-transform duration-300 group-hover:scale-110',
+                                    stat.color, stat.shadow
+                                )}>
+                                    <stat.icon className="h-6 w-6" />
                                 </div>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
-                                </p>
+                                <div>
+                                    <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
+                                    </p>
+                                    <p className="text-sm text-slate-500">{stat.label}</p>
+                                </div>
                             </div>
-                        ))}
-                    </div>
+                        </motion.div>
+                    ))}
                 </motion.div>
 
                 {/* Quick Actions */}
                 <motion.div
-                    variants={itemVariants}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Zap className="h-5 w-5 text-amber-600" />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Aksi Cepat</h2>
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                            <Zap className="h-4 w-4" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Aksi Cepat</h2>
+                            <p className="text-xs text-slate-500">Akses cepat ke fitur utama</p>
+                        </div>
                     </div>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                        {quickActions.map((action) => (
+                        {quickActions.map((action, index) => (
                             <Link key={action.href} href={action.href}>
-                                <div className={cn("relative rounded-xl bg-gradient-to-br p-4 text-white cursor-pointer hover:scale-105 transition-transform", action.color)}>
+                                <div className={cn(
+                                    "relative rounded-xl bg-gradient-to-br p-4 text-white cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group",
+                                    action.color
+                                )}>
                                     {action.badge && action.badge > 0 && (
-                                        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/30 text-xs font-bold">
+                                        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/30 backdrop-blur text-xs font-bold animate-pulse">
                                             {action.badge}
                                         </div>
                                     )}
-                                    <action.icon className="h-6 w-6 mb-3" />
+                                    
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 mb-3 group-hover:scale-110 transition-transform">
+                                        <action.icon className="h-5 w-5" />
+                                    </div>
                                     <p className="text-sm font-semibold mb-1">{action.label}</p>
                                     <p className="text-xs opacity-90">{action.description}</p>
                                 </div>
@@ -274,23 +324,33 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                 {/* Today's Schedule */}
                 {todaySchedule.length > 0 && (
                     <motion.div
-                        variants={itemVariants}
-                        className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm dark:border-indigo-800 dark:bg-black"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.6 }}
+                        className="rounded-2xl border border-indigo-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-indigo-800/70 dark:bg-black/70"
                     >
                         <div className="flex items-center gap-2 mb-4">
-                            <Calendar className="h-5 w-5 text-indigo-600" />
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Jadwal Hari Ini</h2>
-                            <span className="ml-auto px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                                <Calendar className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="font-semibold text-slate-900 dark:text-white">Jadwal Hari Ini</h2>
+                                <p className="text-xs text-slate-500">{todaySchedule.length} kelas terjadwal</p>
+                            </div>
+                            <span className="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-medium">
                                 {todaySchedule.length} kelas
                             </span>
                         </div>
                         
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            {todaySchedule.map((schedule) => (
-                                <div key={schedule.id} className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800">
+                            {todaySchedule.map((schedule, index) => (
+                                <div 
+                                    key={schedule.id} 
+                                    className="p-4 rounded-xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-950/20 dark:to-purple-950/20 border border-indigo-200 dark:border-indigo-800 hover:scale-105 transition-all duration-300 cursor-pointer group"
+                                >
                                     <div className="flex items-start justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white text-xs font-bold">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white text-xs font-bold group-hover:scale-110 transition-transform">
                                                 {schedule.meeting_number}
                                             </div>
                                             <div>
@@ -316,40 +376,53 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                 <div className="grid gap-6 lg:grid-cols-2">
                     {/* Active Sessions */}
                     <motion.div
-                        variants={itemVariants}
-                        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.7 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <Play className="h-5 w-5 text-emerald-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Sesi Aktif</h2>
+                                <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 text-white">
+                                    <Play className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">Sesi Aktif</h2>
+                                    <p className="text-xs text-slate-500">{activeSessions.length} sesi berlangsung</p>
+                                </div>
                             </div>
-                            <Link href="/dosen/courses" className="text-sm text-indigo-600 hover:underline">
-                                Lihat Semua
+                            <Link href="/dosen/courses" className="text-sm text-indigo-600 hover:underline flex items-center gap-1">
+                                Lihat Semua <ChevronRight className="h-3 w-3" />
                             </Link>
                         </div>
                         {activeSessions.length === 0 ? (
-                            <div className="text-center py-8 text-slate-500">
-                                <Calendar className="h-10 w-10 mx-auto mb-2 text-slate-300" />
-                                <p>Tidak ada sesi aktif</p>
+                            <div className="text-center py-12">
+                                <div className="relative mx-auto w-16 h-16 mb-4">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full opacity-20 animate-ping" />
+                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full">
+                                        <Calendar className="h-8 w-8 text-white" />
+                                    </div>
+                                </div>
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Tidak ada sesi aktif</p>
+                                <p className="text-xs text-slate-500 mt-1">Buat sesi baru untuk memulai</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {activeSessions.map((session) => (
+                                {activeSessions.map((session, index) => (
                                     <Link key={session.id} href={`/dosen/sessions/${session.id}`}>
-                                        <div className="flex items-center gap-4 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white font-bold">
+                                        <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20 border border-emerald-200 dark:border-emerald-800 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 text-white font-bold shadow-lg group-hover:scale-110 transition-transform">
                                                 {session.meeting_number}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-slate-900 dark:text-white truncate">{session.title}</p>
-                                                <p className="text-sm text-slate-500">{session.course}</p>
+                                                <p className="font-semibold text-slate-900 dark:text-white truncate">{session.title}</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">{session.course}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-sm font-medium text-emerald-600">{session.attendance_count} hadir</p>
+                                                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{session.attendance_count} hadir</p>
                                                 <p className="text-xs text-slate-500">{session.start_at} - {session.end_at}</p>
                                             </div>
-                                            <ChevronRight className="h-4 w-4 text-slate-400" />
+                                            <ChevronRight className="h-5 w-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
                                         </div>
                                     </Link>
                                 ))}
@@ -359,41 +432,58 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
 
                     {/* Pending Verifications */}
                     <motion.div
-                        variants={itemVariants}
-                        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.8 }}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2">
-                                <Image className="h-5 w-5 text-amber-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Pending</h2>
+                                <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+                                    <Image className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi Pending</h2>
+                                    <p className="text-xs text-slate-500">{pendingVerifications.length} menunggu verifikasi</p>
+                                </div>
                             </div>
-                            <Link href="/dosen/verify" className="text-sm text-indigo-600 hover:underline">
-                                Lihat Semua
+                            <Link href="/dosen/verify" className="text-sm text-indigo-600 hover:underline flex items-center gap-1">
+                                Lihat Semua <ChevronRight className="h-3 w-3" />
                             </Link>
                         </div>
                         {pendingVerifications.length === 0 ? (
-                            <div className="text-center py-8 text-slate-500">
-                                <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-emerald-400" />
-                                <p>Semua selfie sudah diverifikasi</p>
+                            <div className="text-center py-12">
+                                <div className="relative mx-auto w-16 h-16 mb-4">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full opacity-20 animate-ping" />
+                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full">
+                                        <CheckCircle2 className="h-8 w-8 text-white" />
+                                    </div>
+                                </div>
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Semua selfie sudah diverifikasi</p>
+                                <p className="text-xs text-slate-500 mt-1">Kerja bagus! 🎉</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
-                                {pendingVerifications.map((v) => (
+                                {pendingVerifications.map((v, index) => (
                                     <Link key={v.id} href="/dosen/verify">
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors dark:bg-amber-900/20 dark:hover:bg-amber-900/30">
+                                        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
                                             {v.selfie_url ? (
-                                                <img src={v.selfie_url} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                                                <img src={v.selfie_url} alt="" className="h-14 w-14 rounded-xl object-cover ring-2 ring-amber-300 shadow-lg group-hover:scale-110 transition-transform" />
                                             ) : (
-                                                <div className="h-12 w-12 rounded-lg bg-slate-200 flex items-center justify-center">
-                                                    <Image className="h-5 w-5 text-slate-400" />
+                                                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-amber-200 to-orange-200 flex items-center justify-center shadow-lg">
+                                                    <Image className="h-6 w-6 text-amber-600" />
                                                 </div>
                                             )}
                                             <div className="flex-1 min-w-0">
-                                                <p className="font-medium text-slate-900 dark:text-white truncate">{v.mahasiswa}</p>
-                                                <p className="text-sm text-slate-500">{v.nim} • {v.course}</p>
+                                                <p className="font-semibold text-slate-900 dark:text-white truncate">{v.mahasiswa}</p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">{v.nim}</p>
+                                                <p className="text-xs text-slate-500">{v.course}</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-xs text-slate-500">{v.scanned_at}</p>
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-medium">
+                                                    <Clock className="h-3 w-3" /> Pending
+                                                </span>
+                                                <p className="text-xs text-slate-500 mt-1">{v.scanned_at}</p>
                                             </div>
                                         </div>
                                     </Link>
@@ -408,12 +498,19 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {/* Monthly Trend */}
                     {monthlyTrend.length > 0 && (
                         <motion.div
-                            variants={itemVariants}
-                            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.9 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                         >
                             <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="h-5 w-5 text-indigo-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Tren Kehadiran 6 Bulan</h2>
+                                <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                                    <TrendingUp className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">Tren Kehadiran</h2>
+                                    <p className="text-xs text-slate-500">6 bulan terakhir</p>
+                                </div>
                             </div>
                             <ResponsiveContainer width="100%" height={250}>
                                 <AreaChart data={monthlyTrend}>
@@ -436,12 +533,19 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {/* Course Stats */}
                     {courseStats.length > 0 && (
                         <motion.div
-                            variants={itemVariants}
-                            className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 1.0 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                         >
                             <div className="flex items-center gap-2 mb-4">
-                                <BookOpen className="h-5 w-5 text-purple-600" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Statistik per Mata Kuliah</h2>
+                                <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                                    <BookOpen className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">Statistik Mata Kuliah</h2>
+                                    <p className="text-xs text-slate-500">{courseStats.length} mata kuliah</p>
+                                </div>
                             </div>
                             <ResponsiveContainer width="100%" height={250}>
                                 <BarChart data={courseStats.map(c => ({ name: c.name.length > 12 ? c.name.substring(0, 12) + '...' : c.name, Hadir: c.present, Terlambat: c.late, Absen: c.absent }))}>
@@ -461,28 +565,44 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
 
                 {/* Recent Activity */}
                 <motion.div
-                    variants={itemVariants}
-                    className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 1.1 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                 >
                     <div className="flex items-center gap-2 mb-4">
-                        <Clock className="h-5 w-5 text-slate-600" />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2>
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-slate-500 to-gray-600 text-white">
+                            <Clock className="h-4 w-4" />
+                        </div>
+                        <div>
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Terbaru</h2>
+                            <p className="text-xs text-slate-500">Real-time updates</p>
+                        </div>
                     </div>
                     {recentActivity.length === 0 ? (
-                        <p className="text-center py-8 text-slate-500">Belum ada aktivitas</p>
+                        <div className="text-center py-12">
+                            <div className="relative mx-auto w-16 h-16 mb-4">
+                                <div className="absolute inset-0 bg-gradient-to-r from-slate-500 to-gray-500 rounded-full opacity-20 animate-ping" />
+                                <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-slate-500 to-gray-500 rounded-full">
+                                    <Clock className="h-8 w-8 text-white" />
+                                </div>
+                            </div>
+                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Belum ada aktivitas</p>
+                            <p className="text-xs text-slate-500 mt-1">Aktivitas akan muncul di sini</p>
+                        </div>
                     ) : (
                         <div className="divide-y divide-slate-100 dark:divide-gray-800">
-                            {recentActivity.map((activity) => (
-                                <div key={activity.id} className="flex items-center gap-4 py-3">
-                                    <div className={cn('flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium', statusConfig[activity.status]?.color || 'bg-slate-100 text-slate-600')}>
+                            {recentActivity.map((activity, index) => (
+                                <div key={activity.id} className="flex items-center gap-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-lg px-2 -mx-2 transition-colors cursor-pointer">
+                                    <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold shadow-lg', statusConfig[activity.status]?.color || 'bg-slate-100 text-slate-600')}>
                                         {activity.mahasiswa.charAt(0)}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{activity.mahasiswa}</p>
-                                        <p className="text-xs text-slate-500">{activity.nim} • {activity.course}</p>
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{activity.mahasiswa}</p>
+                                        <p className="text-xs text-slate-600 dark:text-slate-400">{activity.nim} • {activity.course}</p>
                                     </div>
                                     <div className="text-right">
-                                        <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', statusConfig[activity.status]?.color || 'bg-slate-100 text-slate-600')}>
+                                        <span className={cn('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium', statusConfig[activity.status]?.color || 'bg-slate-100 text-slate-600')}>
                                             {statusConfig[activity.status]?.label || activity.status}
                                         </span>
                                         <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
@@ -492,7 +612,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         </div>
                     )}
                 </motion.div>
-            </motion.div>
+            </div>
         </DosenLayout>
     );
 }
