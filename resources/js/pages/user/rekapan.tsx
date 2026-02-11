@@ -34,7 +34,7 @@ import {
     Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface MahasiswaInfo {
     id: number;
@@ -136,16 +136,12 @@ const itemVariants = {
 
 const cardHoverVariants = {
     hover: {
-        scale: 1.03,
-        y: -8,
-        rotateY: 5,
-        rotateX: 5,
-        z: 50,
-        boxShadow: "0 25px 50px -12px rgba(139, 92, 246, 0.4)",
+        scale: 1.02,
+        y: -4,
         transition: {
             type: 'spring',
-            stiffness: 400,
-            damping: 20,
+            stiffness: 300,
+            damping: 15,
         },
     },
 };
@@ -193,46 +189,16 @@ function StatCard({
         rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
     };
 
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-    const rotateX = useTransform(y, [-100, 100], [10, -10]);
-    const rotateY = useTransform(x, [-100, 100], [-10, 10]);
-
     return (
         <motion.div
             variants={itemVariants}
             whileHover={{ 
-                scale: 1.08, 
-                y: -10,
-                rotateZ: 2,
-                boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.3)"
+                scale: 1.05, 
+                y: -4,
             }}
-            whileTap={{ scale: 0.95 }}
-            style={{ 
-                rotateX, 
-                rotateY,
-                transformStyle: "preserve-3d",
-            }}
-            onMouseMove={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                x.set(e.clientX - centerX);
-                y.set(e.clientY - centerY);
-            }}
-            onMouseLeave={() => {
-                x.set(0);
-                y.set(0);
-            }}
+            whileTap={{ scale: 0.98 }}
             className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer relative overflow-hidden"
         >
-            {/* Animated glow background */}
-            <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-purple-500/10 opacity-0"
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-            />
-            
             <div className="flex items-center gap-3 relative z-10">
                 <motion.div
                     whileHover={{ scale: 1.2, y: -2 }}
@@ -268,19 +234,6 @@ export default function UserRekapan() {
         recentLogs = [],
     } = props as unknown as PageProps;
 
-    // Mouse position for parallax
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const { clientX, clientY } = e;
-        const { innerWidth, innerHeight } = window;
-        mouseX.set((clientX / innerWidth - 0.5) * 20);
-        mouseY.set((clientY / innerHeight - 0.5) * 20);
-    };
-
     // Transform data for charts
     const courseChartData = courseSummary.map(c => ({
         name: c.courseName.length > 12 ? c.courseName.substring(0, 12) + '...' : c.courseName,
@@ -299,91 +252,23 @@ export default function UserRekapan() {
         <StudentLayout>
             <Head title="Rekapan Kehadiran" />
 
-            {/* Floating Particles Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                {[...Array(25)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-2 h-2 bg-violet-500/20 rounded-full"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -40, 0],
-                            x: [0, Math.random() * 30 - 15, 0],
-                            scale: [1, 1.5, 1],
-                            opacity: [0.2, 0.6, 0.2],
-                        }}
-                        transition={{
-                            duration: 4 + Math.random() * 3,
-                            repeat: Infinity,
-                            delay: Math.random() * 3,
-                            ease: "easeInOut",
-                        }}
-                    />
-                ))}
-            </div>
+            {/* Subtle Background Gradient */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10" />
 
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
                 className="space-y-6 p-6 relative z-10"
-                onMouseMove={handleMouseMove}
-                style={{
-                    perspective: "1500px",
-                    transformStyle: "preserve-3d",
-                }}
             >
                 {/* Header Card */}
                 <motion.div
                     variants={itemVariants}
-                    style={{
-                        x: smoothMouseX,
-                        y: smoothMouseY,
-                    }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
                 >
-                    {/* Animated gradient overlay */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                        animate={{
-                            x: ['-100%', '200%'],
-                        }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            repeatDelay: 2,
-                            ease: "easeInOut"
-                        }}
-                    />
-                    
-                    {/* Floating orbs */}
-                    <motion.div 
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 180, 360],
-                        }}
-                        transition={{
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                    />
-                    <motion.div 
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [360, 180, 0],
-                        }}
-                        transition={{
-                            duration: 10,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                    />
+                    {/* Subtle background decoration */}
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
                     
                     <div className="relative z-10">
                         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -414,12 +299,8 @@ export default function UserRekapan() {
                                 </motion.p>
                             </div>
                             <motion.div
-                                whileHover={{ 
-                                    rotate: 360, 
-                                    scale: 1.2,
-                                    boxShadow: "0 0 30px rgba(255, 255, 255, 0.5)"
-                                }}
-                                transition={{ duration: 0.6 }}
+                                whileHover={{ scale: 1.1, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
                             >
                                 <FileText className="h-7 w-7" />
@@ -435,18 +316,16 @@ export default function UserRekapan() {
                             ].map((item, i) => (
                                 <motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                     transition={{ 
                                         delay: item.delay, 
-                                        duration: 0.5,
                                         type: "spring",
                                         stiffness: 200
                                     }}
                                     whileHover={{ 
-                                        scale: 1.1, 
-                                        y: -5,
-                                        boxShadow: "0 10px 30px rgba(255, 255, 255, 0.2)"
+                                        scale: 1.05, 
+                                        y: -3,
                                     }}
                                     className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                                 >
@@ -479,16 +358,10 @@ export default function UserRekapan() {
                         {/* Course Summary Table */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ ...cardHoverVariants.hover }}
+                            whileHover={{ scale: 1.01, y: -2 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
-                            style={{ transformStyle: "preserve-3d" }}
                         >
-                            {/* Glow effect on hover */}
-                            <motion.div
-                                className="absolute -inset-1 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl opacity-0 blur-xl"
-                                whileHover={{ opacity: 0.3 }}
-                                transition={{ duration: 0.3 }}
-                            />
                             
                             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800 relative z-10">
                                 <div className="flex items-center gap-2">
@@ -519,35 +392,25 @@ export default function UserRekapan() {
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="p-8 text-center"
                                     >
-                                        <motion.div
-                                            animate={{ 
-                                                rotate: [0, 10, -10, 0],
-                                                scale: [1, 1.1, 1]
-                                            }}
-                                            transition={{ duration: 3, repeat: Infinity }}
-                                        >
-                                            <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
-                                        </motion.div>
+                                        <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
                                         <p className="mt-3 text-slate-500">Belum ada data mata kuliah</p>
                                     </motion.div>
                                 ) : (
                                     courseSummary.map((course, index) => (
                                         <motion.div
                                             key={course.courseId}
-                                            initial={{ opacity: 0, x: -30, rotateY: -10 }}
-                                            animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
                                             transition={{ 
-                                                delay: index * 0.08,
+                                                delay: index * 0.05,
                                                 type: "spring",
-                                                stiffness: 150
+                                                stiffness: 200
                                             }}
                                             whileHover={{ 
-                                                x: 10, 
-                                                scale: 1.02,
-                                                backgroundColor: 'rgba(139, 92, 246, 0.08)',
-                                                boxShadow: "inset 4px 0 0 rgba(139, 92, 246, 0.5)"
+                                                x: 3, 
+                                                scale: 1.005,
                                             }}
-                                            className="p-4 cursor-pointer"
+                                            className="p-4 cursor-pointer border-l-2 border-transparent hover:border-violet-500 transition-colors"
                                         >
                                             <div className="flex items-center justify-between mb-2">
                                                 <h3 className="font-medium text-slate-900 dark:text-white truncate max-w-[200px]">
@@ -587,23 +450,10 @@ export default function UserRekapan() {
                         {courseChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ ...cardHoverVariants.hover }}
+                                whileHover={{ scale: 1.01, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
-                                style={{ transformStyle: "preserve-3d" }}
                             >
-                                {/* Animated background gradient */}
-                                <motion.div
-                                    className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5"
-                                    animate={{
-                                        backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-                                    }}
-                                    transition={{
-                                        duration: 10,
-                                        repeat: Infinity,
-                                        ease: "linear"
-                                    }}
-                                    style={{ backgroundSize: "200% 200%" }}
-                                />
                                 
                                 <div className="flex items-center gap-2 mb-4 relative z-10">
                                     <motion.div 
@@ -637,11 +487,15 @@ export default function UserRekapan() {
                         {trendChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.01, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                             >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <motion.div whileHover={{ rotate: 10 }}>
+                                    <motion.div 
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    >
                                         <Calendar className="h-5 w-5 text-sky-600" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
@@ -667,11 +521,15 @@ export default function UserRekapan() {
                         {distribution.some(d => d.value > 0) && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.01, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                             >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <motion.div whileHover={{ rotate: 10 }}>
+                                    <motion.div 
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    >
                                         <Award className="h-5 w-5 text-amber-600" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
@@ -712,7 +570,8 @@ export default function UserRekapan() {
                         {/* Attendance Rate Card */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.05, y: -5 }}
+                            whileHover={{ scale: 1.02, y: -3 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-gray-900 dark:to-black"
                         >
                             <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
@@ -721,13 +580,9 @@ export default function UserRekapan() {
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
                                 </span>
                                 {stats.attendanceRate >= 75 ? (
-                                    <motion.span
-                                        animate={{ scale: [1, 1.1, 1] }}
-                                        transition={{ repeat: Infinity, duration: 2 }}
-                                        className="text-emerald-400 text-sm mb-1 flex items-center gap-1"
-                                    >
+                                    <span className="text-emerald-400 text-sm mb-1 flex items-center gap-1">
                                         <Zap className="h-4 w-4" /> Bagus!
-                                    </motion.span>
+                                    </span>
                                 ) : (
                                     <span className="text-amber-400 text-sm mb-1">Perlu ditingkatkan</span>
                                 )}
@@ -744,12 +599,16 @@ export default function UserRekapan() {
                         {/* Recent Activity */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.01, y: -2 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                         >
                             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800">
                                 <div className="flex items-center gap-2">
-                                    <motion.div whileHover={{ rotate: 10 }}>
+                                    <motion.div 
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    >
                                         <Clock className="h-5 w-5 text-sky-600" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
@@ -806,7 +665,8 @@ export default function UserRekapan() {
                         {/* Quick Links */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.02 }}
+                            whileHover={{ scale: 1.01, y: -2 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                         >
                             <h2 className="font-semibold text-slate-900 dark:text-white mb-3">
