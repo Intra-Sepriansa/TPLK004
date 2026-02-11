@@ -1,10 +1,10 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { Calendar, Play, Pause, Plus, Search, Filter, Clock, Users, CheckCircle, XCircle, AlertTriangle, TrendingUp, BarChart3, RefreshCw, Copy, Trash2, Edit, Eye, Download, Zap, Timer, BookOpen } from 'lucide-react';
+import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, TrendingUp, BarChart3, RefreshCw, Copy, Trash2, Edit, Download, Zap, Timer, BookOpen, Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Session {
     id: number;
@@ -170,21 +170,60 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
         <AppLayout>
             <Head title="Sesi Absen" />
             <div className="p-6 space-y-6">
-                {/* Header */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+                {/* Header - Black Background with Dock Animations */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white shadow-xl">
+                    {/* Animated Background Orbs */}
+                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
                     <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                    
+                    {/* Floating Icons with Pulse Animation */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[Calendar, Users, Clock].map((Icon, i) => (
+                            <Icon 
+                                key={i}
+                                className="absolute text-white/20 animate-pulse"
+                                style={{
+                                    left: `${15 + i * 25}%`,
+                                    top: `${20 + (i % 2) * 40}%`,
+                                    animationDelay: `${i * 0.5}s`,
+                                    animationDuration: '2s'
+                                }}
+                                size={24}
+                            />
+                        ))}
+                    </div>
+                    
                     <div className="relative">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"><Calendar className="h-6 w-6" /></div>
-                                <div><p className="text-sm text-blue-100">Manajemen Kehadiran</p><h1 className="text-2xl font-bold">Sesi Absen</h1></div>
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <motion.div 
+                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                >
+                                    <Calendar className="h-7 w-7" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-sm text-gray-300 font-medium">Manajemen Kehadiran</p>
+                                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                                        Sesi Absen
+                                        <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
+                                    </h1>
+                                </div>
                             </div>
-                            <button onClick={() => setShowCreateModal(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-medium hover:bg-white/30 transition-colors backdrop-blur">
-                                <Plus className="h-4 w-4" />Buat Sesi Baru
-                            </button>
+                            <motion.button 
+                                onClick={() => setShowCreateModal(true)} 
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-medium hover:bg-white/30 transition-colors backdrop-blur shadow-lg"
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            >
+                                <Plus className="h-4 w-4" />
+                                Buat Sesi Baru
+                            </motion.button>
                         </div>
-                        <p className="mt-4 text-blue-100">Kelola sesi absensi, pantau kehadiran real-time, dan analisis performa</p>
+                        <p className="mt-4 text-gray-300">Kelola sesi absensi, pantau kehadiran real-time, dan analisis performa</p>
                     </div>
                 </div>
 
@@ -217,26 +256,41 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     </div>
                 )}
 
-                {/* Stats Grid */}
+                {/* Stats Grid with Dock Animations */}
                 <motion.div 
                     className="grid gap-4 md:grid-cols-5"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ staggerChildren: 0.1 }}
                 >
-                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <motion.div 
+                        whileHover={{ scale: 1.05, y: -4 }} 
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
                         <StatCard icon={Calendar} label="Total Sesi" value={stats.total_sessions} sub="Semua waktu" color="blue" />
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <motion.div 
+                        whileHover={{ scale: 1.05, y: -4 }} 
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
                         <StatCard icon={Zap} label="Sesi Aktif" value={stats.active_sessions} sub="Saat ini" color="emerald" />
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <motion.div 
+                        whileHover={{ scale: 1.05, y: -4 }} 
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
                         <StatCard icon={Clock} label="Hari Ini" value={stats.today_sessions} sub={`${stats.today_attendance} kehadiran`} color="amber" />
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <motion.div 
+                        whileHover={{ scale: 1.05, y: -4 }} 
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
                         <StatCard icon={Users} label="Rata-rata" value={stats.avg_attendance_per_session} sub="Per sesi" color="purple" />
                     </motion.div>
-                    <motion.div whileHover={{ scale: 1.05, y: -4 }} transition={{ type: "spring", stiffness: 300 }}>
+                    <motion.div 
+                        whileHover={{ scale: 1.05, y: -4 }} 
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
                         <StatCard icon={CheckCircle} label="Completion" value={`${stats.completion_rate}%`} sub="Sesi selesai" color="green" />
                     </motion.div>
                 </motion.div>
@@ -436,92 +490,286 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     )}
                 </motion.div>
 
-                {/* Create Modal */}
+                {/* Create Modal - Enhanced Design */}
+                <AnimatePresence>
                 {showCreateModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Buat Sesi Absen Baru</h3>
-                            <form onSubmit={handleCreate} className="space-y-4">
+                    <motion.div 
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div 
+                            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl dark:bg-slate-900 overflow-hidden"
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        >
+                            {/* Modal Header */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white">
+                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 animate-pulse" />
+                                <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-white/10" />
+                                <div className="relative flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <motion.div 
+                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <Plus className="h-6 w-6" />
+                                        </motion.div>
+                                        <div>
+                                            <h3 className="text-xl font-bold">Buat Sesi Absen Baru</h3>
+                                            <p className="text-sm text-gray-300">Isi form di bawah untuk membuat sesi baru</p>
+                                        </div>
+                                    </div>
+                                    <motion.button
+                                        onClick={() => setShowCreateModal(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                                        whileHover={{ scale: 1.1, rotate: 90 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </motion.button>
+                                </div>
+                            </div>
+
+                            {/* Modal Body */}
+                            <form onSubmit={handleCreate} className="p-6 space-y-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mata Kuliah</label>
-                                    <select value={createForm.data.course_id} onChange={e => createForm.setData('course_id', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
+                                    <select 
+                                        value={createForm.data.course_id} 
+                                        onChange={e => createForm.setData('course_id', e.target.value)} 
+                                        className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                        required
+                                    >
                                         <option value="">Pilih Mata Kuliah</option>
                                         {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
                                     </select>
                                 </div>
+                                
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pertemuan Ke</label>
-                                        <input type="number" min="1" max="21" value={createForm.data.meeting_number} onChange={e => createForm.setData('meeting_number', parseInt(e.target.value))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pertemuan Ke</label>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="21" 
+                                            value={createForm.data.meeting_number} 
+                                            onChange={e => createForm.setData('meeting_number', parseInt(e.target.value))} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Judul (Opsional)</label>
-                                        <input type="text" value={createForm.data.title} onChange={e => createForm.setData('title', e.target.value)} placeholder="Materi pertemuan" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul (Opsional)</label>
+                                        <input 
+                                            type="text" 
+                                            value={createForm.data.title} 
+                                            onChange={e => createForm.setData('title', e.target.value)} 
+                                            placeholder="Materi pertemuan" 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                        />
                                     </div>
                                 </div>
+                                
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mulai</label>
-                                        <input type="datetime-local" value={createForm.data.start_at} onChange={e => createForm.setData('start_at', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mulai</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={createForm.data.start_at} 
+                                            onChange={e => createForm.setData('start_at', e.target.value)} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Selesai</label>
-                                        <input type="datetime-local" value={createForm.data.end_at} onChange={e => createForm.setData('end_at', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selesai</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={createForm.data.end_at} 
+                                            onChange={e => createForm.setData('end_at', e.target.value)} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                 </div>
-                                <label className="flex items-center gap-2">
-                                    <input type="checkbox" checked={createForm.data.auto_activate} onChange={e => createForm.setData('auto_activate', e.target.checked)} className="rounded border-slate-300" />
-                                    <span className="text-sm text-slate-700 dark:text-slate-300">Aktifkan langsung setelah dibuat</span>
-                                </label>
-                                <div className="flex justify-end gap-3 pt-4">
-                                    <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium">Batal</button>
-                                    <button type="submit" disabled={createForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white hover:from-gray-800 hover:to-gray-900 text-sm font-medium disabled:opacity-50">{createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}</button>
+                                
+                                <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4 border-2 border-blue-200 dark:border-blue-800">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={createForm.data.auto_activate} 
+                                            onChange={e => createForm.setData('auto_activate', e.target.checked)} 
+                                            className="h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" 
+                                        />
+                                        <div>
+                                            <span className="text-sm font-semibold text-slate-900 dark:text-white">Aktifkan langsung setelah dibuat</span>
+                                            <p className="text-xs text-slate-600 dark:text-slate-400">Sesi akan langsung aktif dan mahasiswa bisa absen</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                
+                                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                    <motion.button 
+                                        type="button" 
+                                        onClick={() => setShowCreateModal(false)} 
+                                        className="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold transition-colors"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        Batal
+                                    </motion.button>
+                                    <motion.button 
+                                        type="submit" 
+                                        disabled={createForm.processing} 
+                                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white hover:from-gray-800 hover:to-gray-900 text-sm font-semibold disabled:opacity-50 shadow-lg transition-all"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        {createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}
+                                    </motion.button>
                                 </div>
                             </form>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 )}
+                </AnimatePresence>
 
-                {/* Edit Modal */}
+                {/* Edit Modal - Enhanced Design */}
+                <AnimatePresence>
                 {showEditModal && editSession && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-black">
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Edit Sesi Absen</h3>
-                            <form onSubmit={handleUpdate} className="space-y-4">
+                    <motion.div 
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div 
+                            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl dark:bg-slate-900 overflow-hidden"
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        >
+                            {/* Modal Header */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white">
+                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 animate-pulse" />
+                                <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-white/10" />
+                                <div className="relative flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <motion.div 
+                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <Edit className="h-6 w-6" />
+                                        </motion.div>
+                                        <div>
+                                            <h3 className="text-xl font-bold">Edit Sesi Absen</h3>
+                                            <p className="text-sm text-gray-300">Perbarui informasi sesi absensi</p>
+                                        </div>
+                                    </div>
+                                    <motion.button
+                                        onClick={() => { setShowEditModal(false); setEditSession(null); }}
+                                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                                        whileHover={{ scale: 1.1, rotate: 90 }}
+                                        whileTap={{ scale: 0.9 }}
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </motion.button>
+                                </div>
+                            </div>
+
+                            {/* Modal Body */}
+                            <form onSubmit={handleUpdate} className="p-6 space-y-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mata Kuliah</label>
-                                    <select value={editForm.data.course_id} onChange={e => editForm.setData('course_id', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
+                                    <select 
+                                        value={editForm.data.course_id} 
+                                        onChange={e => editForm.setData('course_id', e.target.value)} 
+                                        className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                        required
+                                    >
                                         {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
                                     </select>
                                 </div>
+                                
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pertemuan Ke</label>
-                                        <input type="number" min="1" max="21" value={editForm.data.meeting_number} onChange={e => editForm.setData('meeting_number', parseInt(e.target.value))} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pertemuan Ke</label>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="21" 
+                                            value={editForm.data.meeting_number} 
+                                            onChange={e => editForm.setData('meeting_number', parseInt(e.target.value))} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Judul</label>
-                                        <input type="text" value={editForm.data.title} onChange={e => editForm.setData('title', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul</label>
+                                        <input 
+                                            type="text" 
+                                            value={editForm.data.title} 
+                                            onChange={e => editForm.setData('title', e.target.value)} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                        />
                                     </div>
                                 </div>
+                                
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mulai</label>
-                                        <input type="datetime-local" value={editForm.data.start_at} onChange={e => editForm.setData('start_at', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mulai</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={editForm.data.start_at} 
+                                            onChange={e => editForm.setData('start_at', e.target.value)} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Selesai</label>
-                                        <input type="datetime-local" value={editForm.data.end_at} onChange={e => editForm.setData('end_at', e.target.value)} className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white" required />
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selesai</label>
+                                        <input 
+                                            type="datetime-local" 
+                                            value={editForm.data.end_at} 
+                                            onChange={e => editForm.setData('end_at', e.target.value)} 
+                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
+                                            required 
+                                        />
                                     </div>
                                 </div>
-                                <div className="flex justify-end gap-3 pt-4">
-                                    <button type="button" onClick={() => { setShowEditModal(false); setEditSession(null); }} className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-medium">Batal</button>
-                                    <button type="submit" disabled={editForm.processing} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-900 to-black text-white hover:from-gray-800 hover:to-gray-900 text-sm font-medium disabled:opacity-50">{editForm.processing ? 'Menyimpan...' : 'Simpan'}</button>
+                                
+                                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                    <motion.button 
+                                        type="button" 
+                                        onClick={() => { setShowEditModal(false); setEditSession(null); }} 
+                                        className="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold transition-colors"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        Batal
+                                    </motion.button>
+                                    <motion.button 
+                                        type="submit" 
+                                        disabled={editForm.processing} 
+                                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white hover:from-gray-800 hover:to-gray-900 text-sm font-semibold disabled:opacity-50 shadow-lg transition-all"
+                                        whileHover={{ scale: 1.02, y: -2 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        {editForm.processing ? 'Menyimpan...' : 'Simpan'}
+                                    </motion.button>
                                 </div>
                             </form>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 )}
+                </AnimatePresence>
 
                 {/* Delete Confirmation Dialog */}
                 <ConfirmDialog
@@ -540,10 +788,29 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
 }
 
 function StatCard({ icon: Icon, label, value, sub, color }: { icon: any; label: string; value: number | string; sub: string; color: string }) {
-    const colors: Record<string, string> = { blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' };
+    const colors: Record<string, string> = { 
+        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', 
+        emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', 
+        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 
+        purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400', 
+        green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
+    };
     return (
-        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
-            <div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}><Icon className="h-5 w-5" /></div><div><p className="text-xs text-slate-500">{label}</p><p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p><p className="text-xs text-slate-400">{sub}</p></div></div>
+        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-300">
+            <div className="flex items-center gap-3">
+                <motion.div 
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
+                    whileHover={{ scale: 1.2, y: -2 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                >
+                    <Icon className="h-5 w-5" />
+                </motion.div>
+                <div>
+                    <p className="text-xs text-slate-500">{label}</p>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p>
+                    <p className="text-xs text-slate-400">{sub}</p>
+                </div>
+            </div>
         </div>
     );
 }
