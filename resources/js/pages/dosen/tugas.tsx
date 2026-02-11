@@ -5,16 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     AlertTriangle, Award, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
-    MoreHorizontal, Pencil, Plus, Search, Trash2, Sparkles, X, Filter, TrendingUp, Target,
-    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Users, Presentation, Lightbulb, Rocket
+    MoreHorizontal, Pencil, Plus, Search, Trash2, Sparkles, X, Filter, Target,
+    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Users, Presentation, Lightbulb, Rocket,
+    Download, Copy, Archive, BarChart3, Grid3x3, List, ArrowUpDown, TrendingUp, UserCheck, Send
 } from 'lucide-react';
 
 type Course = { id: number; nama: string };
@@ -23,10 +23,14 @@ type Tugas = {
     deadline_display: string; prioritas: string; status: string;
     course: { id: number; nama: string }; created_by: string; created_by_type: string;
     is_overdue: boolean; days_until_deadline: number; diskusi_count: number; created_at: string;
+    submission_count?: number; total_students?: number; view_count?: number; late_submissions?: number;
 };
 type Props = {
     tugasList: Tugas[]; courses: Course[];
-    stats: { total: number; published: number; draft: number; overdue: number };
+    stats: { 
+        total: number; published: number; draft: number; overdue: number;
+        total_submissions?: number; avg_completion_rate?: number; pending_review?: number;
+    };
     filters: { search: string; course_id: string; status: string };
 };
 
@@ -96,17 +100,42 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
     const [showCreate, setShowCreate] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     const [editTugas, setEditTugas] = useState<Tugas | null>(null);
-    const [isLoaded, setIsLoaded] = useState(false);
     const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'submissions'>('deadline');
+    const [priorityFilter, setPriorityFilter] = useState<string>('all');
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const [form, setForm] = useState({
         course_id: '', judul: '', deskripsi: '', instruksi: '',
         jenis: 'tugas', deadline: '', prioritas: 'sedang', status: 'draft',
     });
 
+    // Calculate completion rate for a tugas
+    const getCompletionRate = (tugas: Tugas) => {
+        if (!tugas.total_students || tugas.total_students === 0) return 0;
+        return Math.round(((tugas.submission_count || 0) / tugas.total_students) * 100);
+    };
+
+    // Sort tugas list
+    const sortedTugasList = [...tugasList].sort((a, b) => {
+        if (sortBy === 'deadline') {
+            return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+        } else if (sortBy === 'priority') {
+            const priorityOrder = { tinggi: 3, sedang: 2, rendah: 1 };
+            return priorityOrder[b.prioritas as keyof typeof priorityOrder] - priorityOrder[a.prioritas as keyof typeof priorityOrder];
+        } else if (sortBy === 'submissions') {
+            return (b.submission_count || 0) - (a.submission_count || 0);
+        }
+        return 0;
+    });
+
+    // Filter by priority
+    const filteredTugasList = priorityFilter === 'all' 
+        ? sortedTugasList 
+        : sortedTugasList.filter(t => t.prioritas === priorityFilter);
+
     useEffect(() => { 
-        const timer = setTimeout(() => setIsLoaded(true), 100);
-        return () => clearTimeout(timer);
+        // Add any initialization logic here
     }, []);
 
     const handleCreate = () => {
@@ -141,6 +170,35 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
             prioritas: tugas.prioritas, status: tugas.status,
         });
         setShowEdit(true);
+    };
+
+    const handleDuplicate = (tugas: Tugas) => {
+        setForm({
+            course_id: String(tugas.course.id),
+            judul: `${tugas.judul} (Copy)`,
+            deskripsi: tugas.deskripsi,
+            instruksi: '',
+            jenis: tugas.jenis,
+            deadline: '',
+            prioritas: tugas.prioritas,
+            status: 'draft',
+        });
+        setShowCreate(true);
+    };
+
+    const handleArchive = (id: number) => {
+        router.patch(`/dosen/tugas/${id}`, { status: 'closed' });
+    };
+
+    const handleExport = (tugas: Tugas) => {
+        // Export tugas data as JSON
+        const dataStr = JSON.stringify(tugas, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `tugas-${tugas.id}-${tugas.judul.replace(/\s+/g, '-')}.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
     };
 
     const getPriorityBadge = (p: string) => {
@@ -269,16 +327,44 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     </div>
                 </motion.div>
 
-                {/* Stats Cards - Simplified */}
+                {/* Enhanced Stats Cards with More Details */}
                 <motion.div 
                     className="grid grid-cols-2 md:grid-cols-4 gap-4"
                     variants={containerVariants}
                 >
                     {[
-                        { icon: FileText, label: 'Total Tugas', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/25' },
-                        { icon: CheckCircle, label: 'Published', value: stats.published, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
-                        { icon: Clock, label: 'Draft', value: stats.draft, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
-                        { icon: AlertTriangle, label: 'Overdue', value: stats.overdue, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },
+                        { 
+                            icon: FileText, 
+                            label: 'Total Tugas', 
+                            value: stats.total, 
+                            subtitle: `${stats.published} aktif`,
+                            color: 'from-blue-500 to-indigo-600', 
+                            shadow: 'shadow-blue-500/25' 
+                        },
+                        { 
+                            icon: Send, 
+                            label: 'Total Submissions', 
+                            value: stats.total_submissions || 0, 
+                            subtitle: `${stats.pending_review || 0} pending`,
+                            color: 'from-emerald-500 to-teal-600', 
+                            shadow: 'shadow-emerald-500/25' 
+                        },
+                        { 
+                            icon: BarChart3, 
+                            label: 'Completion Rate', 
+                            value: `${stats.avg_completion_rate || 0}%`, 
+                            subtitle: 'rata-rata',
+                            color: 'from-purple-500 to-violet-600', 
+                            shadow: 'shadow-purple-500/25' 
+                        },
+                        { 
+                            icon: AlertTriangle, 
+                            label: 'Overdue', 
+                            value: stats.overdue, 
+                            subtitle: 'perlu perhatian',
+                            color: 'from-red-500 to-rose-600', 
+                            shadow: 'shadow-red-500/25' 
+                        },
                     ].map((stat, i) => (
                         <motion.div 
                             key={i}
@@ -287,7 +373,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             transition={{ duration: 0.2 }}
                             className="rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 cursor-pointer"
                         >
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-start justify-between mb-3">
                                 <div 
                                     className={cn(
                                         'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg',
@@ -296,28 +382,52 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 >
                                     <stat.icon className="h-6 w-6" />
                                 </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                        {stat.value}
-                                    </p>
-                                    <p className="text-sm text-slate-500">{stat.label}</p>
-                                </div>
+                            </div>
+                            <div>
+                                <p className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
+                                    {stat.value}
+                                </p>
+                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{stat.label}</p>
+                                <p className="text-xs text-slate-500 mt-1">{stat.subtitle}</p>
                             </div>
                         </motion.div>
                     ))}
                 </motion.div>
 
-                {/* Filters - Simplified */}
+                {/* Enhanced Filters with View Mode and Sorting */}
                 <motion.div 
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-gray-900 to-black text-white">
-                            <Filter className="h-4 w-4" />
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-lg bg-gradient-to-br from-gray-900 to-black text-white">
+                                <Filter className="h-4 w-4" />
+                            </div>
+                            <h3 className="font-semibold text-slate-900 dark:text-white">Filter & Pencarian</h3>
                         </div>
-                        <h3 className="font-semibold text-slate-900 dark:text-white">Filter & Pencarian</h3>
+                        
+                        {/* View Mode Toggle */}
+                        <div className="flex items-center gap-2 bg-slate-100 dark:bg-gray-800 rounded-lg p-1">
+                            <Button
+                                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setViewMode('list')}
+                                className="h-8 px-3"
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setViewMode('grid')}
+                                className="h-8 px-3"
+                            >
+                                <Grid3x3 className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </div>
+                    
                     <div className="flex flex-wrap gap-4">
                         <div className="relative flex-1 min-w-[200px]">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -329,6 +439,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 className="pl-10 bg-slate-50 dark:bg-gray-900 border-slate-200 dark:border-slate-700" 
                             />
                         </div>
+                        
                         <Select value={courseId} onValueChange={(v) => { setCourseId(v); router.get('/dosen/tugas', { search, course_id: v, status }, { preserveState: true }); }}>
                             <SelectTrigger className="w-48 bg-slate-50 dark:bg-gray-900"><SelectValue placeholder="Semua Mata Kuliah" /></SelectTrigger>
                             <SelectContent>
@@ -336,6 +447,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 {courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}
                             </SelectContent>
                         </Select>
+                        
                         <Select value={status} onValueChange={(v) => { setStatus(v); router.get('/dosen/tugas', { search, course_id: courseId, status: v }, { preserveState: true }); }}>
                             <SelectTrigger className="w-40 bg-slate-50 dark:bg-gray-900"><SelectValue placeholder="Semua Status" /></SelectTrigger>
                             <SelectContent>
@@ -343,6 +455,28 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 <SelectItem value="published">Published</SelectItem>
                                 <SelectItem value="draft">Draft</SelectItem>
                                 <SelectItem value="closed">Closed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        
+                        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                            <SelectTrigger className="w-40 bg-slate-50 dark:bg-gray-900"><SelectValue placeholder="Prioritas" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua Prioritas</SelectItem>
+                                <SelectItem value="tinggi">Tinggi</SelectItem>
+                                <SelectItem value="sedang">Sedang</SelectItem>
+                                <SelectItem value="rendah">Rendah</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        
+                        <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                            <SelectTrigger className="w-48 bg-slate-50 dark:bg-gray-900">
+                                <ArrowUpDown className="h-4 w-4 mr-2" />
+                                <SelectValue placeholder="Urutkan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="deadline">Deadline</SelectItem>
+                                <SelectItem value="priority">Prioritas</SelectItem>
+                                <SelectItem value="submissions">Submissions</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -387,9 +521,13 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 </Button>
                             </div>
                         ) : (
-                            <div className="space-y-4">
-                                {tugasList.map((tugas, index) => {
+                            <div className={cn(
+                                viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'
+                            )}>
+                                {filteredTugasList.map((tugas, index) => {
                                     const isHovered = hoveredCard === tugas.id;
+                                    const completionRate = getCompletionRate(tugas);
+                                    
                                     return (
                                         <motion.div 
                                             key={tugas.id}
@@ -432,6 +570,51 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                     </h3>
                                                     <p className="text-sm text-slate-500 line-clamp-2 mt-2">{tugas.deskripsi}</p>
                                                     
+                                                    {/* Progress Bar - Completion Rate */}
+                                                    {tugas.total_students && tugas.total_students > 0 && (
+                                                        <div className="mt-4 space-y-2">
+                                                            <div className="flex items-center justify-between text-xs">
+                                                                <span className="text-slate-600 dark:text-slate-400 font-medium">
+                                                                    Progress Pengumpulan
+                                                                </span>
+                                                                <span className="font-bold text-slate-900 dark:text-white">
+                                                                    {completionRate}%
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                                                                <motion.div 
+                                                                    className={cn(
+                                                                        "h-full rounded-full",
+                                                                        completionRate >= 80 ? "bg-gradient-to-r from-emerald-500 to-green-500" :
+                                                                        completionRate >= 50 ? "bg-gradient-to-r from-blue-500 to-indigo-500" :
+                                                                        "bg-gradient-to-r from-amber-500 to-orange-500"
+                                                                    )}
+                                                                    initial={{ width: 0 }}
+                                                                    animate={{ width: `${completionRate}%` }}
+                                                                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                                                                />
+                                                            </div>
+                                                            <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400">
+                                                                <span className="flex items-center gap-1">
+                                                                    <UserCheck className="h-3 w-3" />
+                                                                    {tugas.submission_count || 0}/{tugas.total_students} submit
+                                                                </span>
+                                                                {tugas.late_submissions && tugas.late_submissions > 0 && (
+                                                                    <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
+                                                                        <Clock className="h-3 w-3" />
+                                                                        {tugas.late_submissions} terlambat
+                                                                    </span>
+                                                                )}
+                                                                {tugas.view_count && (
+                                                                    <span className="flex items-center gap-1">
+                                                                        <Eye className="h-3 w-3" />
+                                                                        {tugas.view_count} views
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    
                                                     {/* Meta Info */}
                                                     <div className="flex items-center gap-3 mt-4 flex-wrap">
                                                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm dark:bg-blue-900/30 dark:text-blue-300">
@@ -458,7 +641,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                     </div>
                                                 </div>
                                                 
-                                                {/* Actions */}
+                                                {/* Enhanced Actions */}
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button 
@@ -472,15 +655,26 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                                             <MoreHorizontal className="h-4 w-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-48">
+                                                    <DropdownMenuContent align="end" className="w-56">
                                                         <DropdownMenuItem onClick={() => router.visit(`/dosen/tugas/${tugas.id}`)} className="cursor-pointer">
                                                             <Eye className="mr-2 h-4 w-4 text-blue-500" /> Lihat Detail
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)} className="cursor-pointer">
                                                             <Award className="mr-2 h-4 w-4 text-purple-500" /> Penilaian
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
                                                         <DropdownMenuItem onClick={() => openEdit(tugas)} className="cursor-pointer">
                                                             <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleDuplicate(tugas)} className="cursor-pointer">
+                                                            <Copy className="mr-2 h-4 w-4 text-indigo-500" /> Duplicate
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleExport(tugas)} className="cursor-pointer">
+                                                            <Download className="mr-2 h-4 w-4 text-green-500" /> Export Data
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => handleArchive(tugas.id)} className="cursor-pointer">
+                                                            <Archive className="mr-2 h-4 w-4 text-slate-500" /> Archive
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => openDeleteDialog(tugas.id)} className="cursor-pointer text-red-600">
                                                             <Trash2 className="mr-2 h-4 w-4" /> Hapus
