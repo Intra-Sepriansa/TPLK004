@@ -49,7 +49,6 @@ const itemVariants = {
         y: 0,
         transition: {
             duration: 0.3,
-            ease: "easeOut",
         },
     },
 };
@@ -78,7 +77,6 @@ const modalVariants = {
         y: 0,
         transition: {
             duration: 0.2,
-            ease: "easeOut",
         },
     },
     exit: {
