@@ -14,7 +14,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import {
     AlertTriangle, Award, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
     MoreHorizontal, Pencil, Plus, Search, Trash2, Sparkles, X, Filter, TrendingUp, Target,
-    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Users
+    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Users, Presentation, Lightbulb, Rocket
 } from 'lucide-react';
 
 type Course = { id: number; nama: string };
@@ -242,17 +242,18 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
     };
 
     const getJenisBadge = (j: string) => {
-        const styles: Record<string, { bg: string; emoji: string }> = {
-            tugas: { bg: 'from-blue-500 to-indigo-500', emoji: '📝' },
-            quiz: { bg: 'from-purple-500 to-violet-500', emoji: '❓' },
-            project: { bg: 'from-orange-500 to-red-500', emoji: '🚀' },
-            presentasi: { bg: 'from-pink-500 to-rose-500', emoji: '🎤' },
-            lainnya: { bg: 'from-gray-500 to-slate-500', emoji: '📌' },
+        const styles: Record<string, { bg: string; icon: any }> = {
+            tugas: { bg: 'from-blue-500 to-indigo-500', icon: FileText },
+            quiz: { bg: 'from-purple-500 to-violet-500', icon: FileCheck },
+            project: { bg: 'from-orange-500 to-red-500', icon: Rocket },
+            presentasi: { bg: 'from-pink-500 to-rose-500', icon: Presentation },
+            lainnya: { bg: 'from-gray-500 to-slate-500', icon: Lightbulb },
         };
         const style = styles[j] || styles.lainnya;
+        const Icon = style.icon;
         return (
-            <span className={cn('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r', style.bg)}>
-                {style.emoji} {j}
+            <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-white bg-gradient-to-r', style.bg)}>
+                <Icon className="h-3 w-3" /> {j}
             </span>
         );
     };
@@ -266,10 +267,10 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                 initial="hidden"
                 animate="visible"
             >
-                {/* Header */}
+                {/* Header with Black Background */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 p-6 text-white shadow-xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white shadow-xl"
                     whileHover={{ scale: 1.01 }}
                     transition={{ type: "spring", stiffness: 300 }}
                 >
@@ -357,7 +358,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-indigo-100 font-medium"
+                                        className="text-sm text-white/70 font-medium"
                                     >
                                         Manajemen
                                     </motion.p>
@@ -391,7 +392,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="mt-4 text-indigo-100"
+                            className="mt-4 text-white/70"
                         >
                             Kelola dan pantau tugas untuk mahasiswa
                         </motion.p>
@@ -428,7 +429,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         >
                                             <stat.icon className={cn("h-4 w-4", stat.color)} />
                                         </motion.div>
-                                        <p className="text-indigo-100 text-xs font-medium">{stat.label}</p>
+                                        <p className="text-white/70 text-xs font-medium">{stat.label}</p>
                                     </div>
                                     <motion.p 
                                         className="text-2xl font-bold"
@@ -854,73 +855,201 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                         </motion.div>
                                     </div>
                                 </motion.div>
-                            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                                <div>
-                                    <Label className="text-slate-700 dark:text-slate-300">Mata Kuliah</Label>
+                            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900">
+                                {/* Mata Kuliah */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                >
+                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                        <motion.div 
+                                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <BookOpen className="h-3.5 w-3.5" />
+                                        </motion.div>
+                                        Mata Kuliah
+                                    </Label>
                                     <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
-                                        <SelectTrigger className="mt-1"><SelectValue placeholder="Pilih mata kuliah" /></SelectTrigger>
+                                        <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-blue-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
+                                            <SelectValue placeholder="Pilih mata kuliah" />
+                                        </SelectTrigger>
                                         <SelectContent>{courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}</SelectContent>
                                     </Select>
-                                </div>
-                                <div>
-                                    <Label className="text-slate-700 dark:text-slate-300">Judul</Label>
-                                    <Input value={form.judul} onChange={(e) => setForm({ ...form, judul: e.target.value })} className="mt-1" placeholder="Masukkan judul tugas" />
-                                </div>
-                                <div>
-                                    <Label className="text-slate-700 dark:text-slate-300">Deskripsi</Label>
-                                    <Textarea value={form.deskripsi} onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} rows={3} className="mt-1" placeholder="Jelaskan tugas secara detail" />
-                                </div>
+                                </motion.div>
+
+                                {/* Judul */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.15 }}
+                                >
+                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                        <motion.div 
+                                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md"
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <FileText className="h-3.5 w-3.5" />
+                                        </motion.div>
+                                        Judul
+                                    </Label>
+                                    <Input 
+                                        value={form.judul} 
+                                        onChange={(e) => setForm({ ...form, judul: e.target.value })} 
+                                        className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-emerald-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
+                                        placeholder="Masukkan judul tugas" 
+                                    />
+                                </motion.div>
+
+                                {/* Deskripsi */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                        <motion.div 
+                                            className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md"
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <MessageSquare className="h-3.5 w-3.5" />
+                                        </motion.div>
+                                        Deskripsi
+                                    </Label>
+                                    <Textarea 
+                                        value={form.deskripsi} 
+                                        onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} 
+                                        rows={3} 
+                                        className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-violet-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
+                                        placeholder="Jelaskan tugas secara detail" 
+                                    />
+                                </motion.div>
+
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-slate-700 dark:text-slate-300">Jenis</Label>
+                                    {/* Jenis */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.25 }}
+                                    >
+                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                            <motion.div 
+                                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md"
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            >
+                                                <ClipboardList className="h-3.5 w-3.5" />
+                                            </motion.div>
+                                            Jenis
+                                        </Label>
                                         <Select value={form.jenis} onValueChange={(v) => setForm({ ...form, jenis: v })}>
-                                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-amber-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="tugas">📝 Tugas</SelectItem>
-                                                <SelectItem value="quiz">❓ Quiz</SelectItem>
-                                                <SelectItem value="project">🚀 Project</SelectItem>
-                                                <SelectItem value="presentasi">🎤 Presentasi</SelectItem>
-                                                <SelectItem value="lainnya">📌 Lainnya</SelectItem>
+                                                <SelectItem value="tugas"><span className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Tugas</span></SelectItem>
+                                                <SelectItem value="quiz"><span className="flex items-center gap-2"><FileCheck className="h-3.5 w-3.5" /> Quiz</span></SelectItem>
+                                                <SelectItem value="project"><span className="flex items-center gap-2"><Rocket className="h-3.5 w-3.5" /> Project</span></SelectItem>
+                                                <SelectItem value="presentasi"><span className="flex items-center gap-2"><Presentation className="h-3.5 w-3.5" /> Presentasi</span></SelectItem>
+                                                <SelectItem value="lainnya"><span className="flex items-center gap-2"><Lightbulb className="h-3.5 w-3.5" /> Lainnya</span></SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-slate-700 dark:text-slate-300">Prioritas</Label>
+                                    </motion.div>
+
+                                    {/* Prioritas */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                            <motion.div 
+                                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md"
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            >
+                                                <Zap className="h-3.5 w-3.5" />
+                                            </motion.div>
+                                            Prioritas
+                                        </Label>
                                         <Select value={form.prioritas} onValueChange={(v) => setForm({ ...form, prioritas: v })}>
-                                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-rose-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="rendah">🟢 Rendah</SelectItem>
-                                                <SelectItem value="sedang">🟡 Sedang</SelectItem>
-                                                <SelectItem value="tinggi">🔴 Tinggi</SelectItem>
+                                                <SelectItem value="rendah"><span className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Rendah</span></SelectItem>
+                                                <SelectItem value="sedang"><span className="flex items-center gap-2"><Target className="h-3.5 w-3.5 text-amber-500" /> Sedang</span></SelectItem>
+                                                <SelectItem value="tinggi"><span className="flex items-center gap-2"><Zap className="h-3.5 w-3.5 text-red-500" /> Tinggi</span></SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                    </motion.div>
                                 </div>
+
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label className="text-slate-700 dark:text-slate-300">Deadline</Label>
-                                        <Input type="datetime-local" value={form.deadline} onChange={(e) => setForm({ ...form, deadline: e.target.value })} className="mt-1" />
-                                    </div>
-                                    <div>
-                                        <Label className="text-slate-700 dark:text-slate-300">Status</Label>
+                                    {/* Deadline */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.35 }}
+                                    >
+                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                            <motion.div 
+                                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-md"
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            >
+                                                <Calendar className="h-3.5 w-3.5" />
+                                            </motion.div>
+                                            Deadline
+                                        </Label>
+                                        <Input 
+                                            type="datetime-local" 
+                                            value={form.deadline} 
+                                            onChange={(e) => setForm({ ...form, deadline: e.target.value })} 
+                                            className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-cyan-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
+                                        />
+                                    </motion.div>
+
+                                    {/* Status */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                                            <motion.div 
+                                                className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                            >
+                                                <CheckCircle className="h-3.5 w-3.5" />
+                                            </motion.div>
+                                            Status
+                                        </Label>
                                         <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-green-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
+                                                <SelectValue />
+                                            </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="draft">📋 Draft</SelectItem>
-                                                <SelectItem value="published">✅ Published</SelectItem>
+                                                <SelectItem value="draft"><span className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Draft</span></SelectItem>
+                                                <SelectItem value="published"><span className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5" /> Published</span></SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                    </motion.div>
                                 </div>
                             </div>
-                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-gray-800/50">
                                 <div className="flex gap-3">
                                     <motion.div 
                                         className="flex-1"
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                        <Button variant="outline" onClick={() => setShowCreate(false)} className="w-full">Batal</Button>
+                                        <Button variant="outline" onClick={() => setShowCreate(false)} className="w-full border-2">Batal</Button>
                                     </motion.div>
                                     <motion.div 
                                         className="flex-1"
