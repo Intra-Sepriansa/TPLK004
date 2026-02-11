@@ -255,20 +255,8 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     <div>
                         <h1 className="text-2xl font-bold flex items-center gap-2">
                             <motion.div
-                                animate={{ 
-                                    rotate: [0, 15, -15, 0],
-                                    scale: [1, 1.2, 1.2, 1]
-                                }}
-                                transition={{ 
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    repeatDelay: 2
-                                }}
-                                whileHover={{
-                                    rotate: 360,
-                                    scale: 1.3,
-                                    transition: { duration: 0.6 }
-                                }}
+                                whileHover={{ scale: 1.2, y: -3 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <Calendar className="h-7 w-7 text-blue-600" />
                             </motion.div>
@@ -387,14 +375,8 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                         className="flex items-center gap-2 cursor-pointer"
                     >
                         <motion.div
-                            animate={{ 
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 360]
-                            }}
-                            transition={{ 
-                                scale: { duration: 1.5, repeat: Infinity },
-                                rotate: { duration: 3, repeat: Infinity, ease: "linear" }
-                            }}
+                            whileHover={{ scale: 1.3, y: -2 }}
+                            transition={{ type: "spring", stiffness: 300 }}
                         >
                             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                         </motion.div>
@@ -546,15 +528,8 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                                                 <div className="flex items-start justify-between gap-2 mb-2">
                                                     <div className="flex items-center gap-1.5">
                                                         <motion.div
-                                                            animate={{ 
-                                                                rotate: [0, 5, -5, 0],
-                                                                scale: [1, 1.1, 1]
-                                                            }}
-                                                            transition={{ 
-                                                                duration: 2,
-                                                                repeat: Infinity,
-                                                                repeatDelay: 5
-                                                            }}
+                                                            whileHover={{ scale: 1.2, y: -2 }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                                         >
                                                             {item.mode === 'offline' ? (
                                                                 <Building2 className="h-4 w-4 text-emerald-600" />
@@ -640,14 +615,8 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                                             className="text-center py-6 text-muted-foreground"
                                         >
                                             <motion.div
-                                                animate={{ 
-                                                    rotate: [0, 10, -10, 0],
-                                                    scale: [1, 1.1, 1]
-                                                }}
-                                                transition={{ 
-                                                    duration: 3,
-                                                    repeat: Infinity
-                                                }}
+                                                whileHover={{ scale: 1.2, y: -3 }}
+                                                transition={{ type: "spring", stiffness: 300 }}
                                             >
                                                 <Calendar className="h-8 w-8 mx-auto mb-2 opacity-30" />
                                             </motion.div>
@@ -706,20 +675,8 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                             <div className="flex items-start gap-3">
                                 <motion.div 
                                     className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg relative"
-                                    animate={{ 
-                                        rotate: [0, 5, -5, 0],
-                                        scale: [1, 1.05, 1],
-                                        boxShadow: [
-                                            "0 0 0 0 rgba(59, 130, 246, 0.4)",
-                                            "0 0 0 8px rgba(59, 130, 246, 0)",
-                                            "0 0 0 0 rgba(59, 130, 246, 0)"
-                                        ]
-                                    }}
-                                    transition={{ 
-                                        duration: 3,
-                                        repeat: Infinity,
-                                        repeatDelay: 2
-                                    }}
+                                    whileHover={{ scale: 1.1, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 >
                                     <Calendar className="h-5 w-5 text-blue-600" />
                                 </motion.div>
