@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import DosenLayout from '@/layouts/dosen-layout';
-import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, XCircle, RefreshCw, Eye, X, Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, XCircle, RefreshCw, Eye, X, Sparkles, TrendingUp, AlertCircle, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -544,135 +544,200 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                 className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
                             >
                                 <motion.div 
-                                    className="w-full max-w-2xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-900 pointer-events-auto"
+                                    className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl dark:bg-gray-900 pointer-events-auto overflow-hidden"
                                     onClick={(e) => e.stopPropagation()}
                                 >
-                                    <div className="flex items-center justify-between mb-6">
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.1 }}
-                                        >
-                                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Buat Sesi Absen Baru</h3>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Isi form di bawah untuk membuat sesi baru</p>
-                                        </motion.div>
-                                        <motion.button
-                                            onClick={() => setShowCreateModal(false)}
-                                            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
-                                            whileHover={{ scale: 1.05, rotate: 15 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            initial={{ opacity: 0, rotate: -90 }}
-                                            animate={{ opacity: 1, rotate: 0 }}
-                                            transition={{ delay: 0.2 }}
-                                        >
-                                            <X className="h-5 w-5" />
-                                        </motion.button>
-                                    </div>
+                                    {/* Colorful Gradient Header */}
+                                    <motion.div 
+                                        className="relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-6 text-white"
+                                        initial={{ opacity: 0, y: -20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        {/* Animated Background Orbs */}
+                                        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 animate-pulse" />
+                                        <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-white/10" />
+                                        
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <motion.div 
+                                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                                    whileHover={{ scale: 1.2, y: -2 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                >
+                                                    <Calendar className="h-7 w-7" />
+                                                </motion.div>
+                                                <div>
+                                                    <h3 className="text-2xl font-bold">Buat Sesi Absen Baru</h3>
+                                                    <p className="text-sm text-white/80 mt-1">Isi form di bawah untuk membuat sesi baru</p>
+                                                </div>
+                                            </div>
+                                            <motion.button
+                                                onClick={() => setShowCreateModal(false)}
+                                                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur"
+                                                whileHover={{ scale: 1.1, rotate: 90 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <X className="h-5 w-5" />
+                                            </motion.button>
+                                        </div>
+                                    </motion.div>
 
-                                    <form onSubmit={handleCreate} className="space-y-5">
+                                    <form onSubmit={handleCreate} className="p-8 space-y-6">
+                                        {/* Mata Kuliah with Blue Icon Badge */}
                                         <motion.div
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.2 }}
                                         >
-                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
-                                            <motion.select 
+                                            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                <motion.div 
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md"
+                                                    whileHover={{ scale: 1.2, y: -2 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                >
+                                                    <BookOpen className="h-4 w-4" />
+                                                </motion.div>
+                                                Mata Kuliah
+                                            </label>
+                                            <select 
                                                 value={createForm.data.course_id} 
                                                 onChange={e => createForm.setData('course_id', e.target.value)} 
-                                                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
+                                                className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
                                                 required
-                                                whileFocus={{ scale: 1.01 }}
                                             >
                                                 <option value="">Pilih Mata Kuliah</option>
                                                 {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
-                                            </motion.select>
+                                            </select>
                                         </motion.div>
 
                                         <div className="grid grid-cols-2 gap-4">
+                                            {/* Pertemuan Ke with Violet Icon Badge */}
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.25 }}
                                             >
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pertemuan Ke</label>
-                                                <motion.input 
+                                                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                    <motion.div 
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md"
+                                                        whileHover={{ scale: 1.2, y: -2 }}
+                                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                    >
+                                                        <Calendar className="h-4 w-4" />
+                                                    </motion.div>
+                                                    Pertemuan Ke
+                                                </label>
+                                                <input 
                                                     type="number" 
                                                     min="1" 
                                                     max="21" 
                                                     value={createForm.data.meeting_number} 
                                                     onChange={e => createForm.setData('meeting_number', parseInt(e.target.value))} 
-                                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
+                                                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-4 focus:ring-violet-500/20 focus:border-violet-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
                                                     required
-                                                    whileFocus={{ scale: 1.01 }}
                                                 />
                                             </motion.div>
+
+                                            {/* Judul with Amber Icon Badge */}
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.3 }}
                                             >
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul (Opsional)</label>
-                                                <motion.input 
+                                                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                    <motion.div 
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-md"
+                                                        whileHover={{ scale: 1.2, y: -2 }}
+                                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                    >
+                                                        <Sparkles className="h-4 w-4" />
+                                                    </motion.div>
+                                                    Judul (Opsional)
+                                                </label>
+                                                <input 
                                                     type="text" 
                                                     value={createForm.data.title} 
                                                     onChange={e => createForm.setData('title', e.target.value)} 
                                                     placeholder="Materi pertemuan" 
-                                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                                    whileFocus={{ scale: 1.01 }}
+                                                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                                 />
                                             </motion.div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
+                                            {/* Mulai with Green Icon Badge */}
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.35 }}
                                             >
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mulai</label>
-                                                <motion.input 
+                                                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                    <motion.div 
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
+                                                        whileHover={{ scale: 1.2, y: -2 }}
+                                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                    >
+                                                        <Play className="h-4 w-4" />
+                                                    </motion.div>
+                                                    Mulai
+                                                </label>
+                                                <input 
                                                     type="datetime-local" 
                                                     value={createForm.data.start_at} 
                                                     onChange={e => createForm.setData('start_at', e.target.value)} 
-                                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
+                                                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-4 focus:ring-green-500/20 focus:border-green-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
                                                     required
-                                                    whileFocus={{ scale: 1.01 }}
                                                 />
                                             </motion.div>
+
+                                            {/* Selesai with Rose Icon Badge */}
                                             <motion.div
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.4 }}
                                             >
-                                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selesai</label>
-                                                <motion.input 
+                                                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                    <motion.div 
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md"
+                                                        whileHover={{ scale: 1.2, y: -2 }}
+                                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                                    >
+                                                        <Pause className="h-4 w-4" />
+                                                    </motion.div>
+                                                    Selesai
+                                                </label>
+                                                <input 
                                                     type="datetime-local" 
                                                     value={createForm.data.end_at} 
                                                     onChange={e => createForm.setData('end_at', e.target.value)} 
-                                                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
+                                                    className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition-all focus:ring-4 focus:ring-rose-500/20 focus:border-rose-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
                                                     required
-                                                    whileFocus={{ scale: 1.01 }}
                                                 />
                                             </motion.div>
                                         </div>
 
+                                        {/* Checkbox with Emerald Gradient Background */}
                                         <motion.label 
-                                            className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                                            className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 cursor-pointer transition-all shadow-sm"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 0.45 }}
-                                            whileHover={{ scale: 1.01 }}
-                                            whileTap={{ scale: 0.99 }}
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            whileTap={{ scale: 0.98 }}
                                         >
                                             <input 
                                                 type="checkbox" 
                                                 checked={createForm.data.auto_activate} 
                                                 onChange={e => createForm.setData('auto_activate', e.target.checked)} 
-                                                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" 
+                                                className="rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500 h-5 w-5" 
                                             />
                                             <div>
-                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Aktifkan langsung setelah dibuat</span>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sesi akan langsung aktif dan mahasiswa bisa absen</p>
+                                                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                                                    <CheckCircle className="h-4 w-4" />
+                                                    Aktifkan langsung setelah dibuat
+                                                </span>
+                                                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">Sesi akan langsung aktif dan mahasiswa bisa absen</p>
                                             </div>
                                         </motion.label>
 
@@ -708,25 +773,30 @@ export default function DosenSesiAbsen({ dosen, sessions, courses }: PageProps) 
                                                 type="button" 
                                                 onClick={() => setShowCreateModal(false)} 
                                                 className="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold transition-colors dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-                                                whileHover={{ scale: 1.05 }}
+                                                whileHover={{ scale: 1.05, y: -2 }}
                                                 whileTap={{ scale: 0.95 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             >
                                                 Batal
                                             </motion.button>
                                             <motion.button 
                                                 type="submit" 
                                                 disabled={createForm.processing} 
-                                                className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 text-sm font-semibold disabled:opacity-50 shadow-lg disabled:cursor-not-allowed"
-                                                whileHover={{ scale: createForm.processing ? 1 : 1.05 }}
+                                                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-700 text-sm font-semibold disabled:opacity-50 shadow-lg disabled:cursor-not-allowed"
+                                                whileHover={{ scale: createForm.processing ? 1 : 1.05, y: createForm.processing ? 0 : -2 }}
                                                 whileTap={{ scale: createForm.processing ? 1 : 0.95 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             >
                                                 {createForm.processing ? (
-                                                    <span className="flex items-center gap-2">
+                                                    <>
                                                         <RefreshCw className="h-4 w-4 animate-spin" />
                                                         Menyimpan...
-                                                    </span>
+                                                    </>
                                                 ) : (
-                                                    'Buat Sesi'
+                                                    <>
+                                                        <CheckCircle className="h-4 w-4" />
+                                                        Buat Sesi
+                                                    </>
                                                 )}
                                             </motion.button>
                                         </motion.div>
