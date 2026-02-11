@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, CheckCircle2, ArrowLeft, Monitor, Building2, MapPin, User, BookOpen, Filter, X, Download } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, ArrowLeft, Monitor, Building2, MapPin, BookOpen, X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -35,7 +35,7 @@ interface Props {
     };
 }
 
-// Advanced Animation Variants with 3D Effects
+// Simple Animation Variants
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -51,20 +51,15 @@ const containerVariants = {
 const itemVariants = {
     hidden: { 
         opacity: 0, 
-        y: 60,
-        scale: 0.8,
-        rotateX: -15,
+        y: 20,
     },
     visible: {
         opacity: 1,
         y: 0,
-        scale: 1,
-        rotateX: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 100,
-            damping: 15,
-            mass: 0.8,
+            stiffness: 200,
+            damping: 20,
         },
     },
 };
@@ -72,90 +67,43 @@ const itemVariants = {
 const cardVariants = {
     hidden: { 
         opacity: 0, 
-        y: 40,
-        scale: 0.85,
-        rotateY: -10,
+        y: 20,
     },
     visible: (i: number) => ({
         opacity: 1,
         y: 0,
-        scale: 1,
-        rotateY: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 120,
-            damping: 18,
-            delay: i * 0.08,
+            stiffness: 200,
+            damping: 20,
+            delay: i * 0.05,
         },
     }),
-    hover: {
-        y: -12,
-        scale: 1.05,
-        rotateY: 5,
-        rotateX: 5,
-        z: 50,
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-        transition: {
-            type: 'spring' as const,
-            stiffness: 400,
-            damping: 20,
-        },
-    },
 };
 
 const scheduleItemVariants = {
     hidden: { 
         opacity: 0, 
-        x: -30,
-        scale: 0.85,
-        rotateZ: -5,
+        x: -10,
     },
     visible: (i: number) => ({
         opacity: 1,
         x: 0,
-        scale: 1,
-        rotateZ: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 150,
+            stiffness: 200,
             damping: 20,
-            delay: i * 0.06,
+            delay: i * 0.03,
         },
     }),
-    hover: {
-        scale: 1.05,
-        x: 8,
-        rotateZ: 2,
-        boxShadow: "0 10px 30px -10px rgba(0, 0, 0, 0.2)",
-        transition: {
-            type: 'spring' as const,
-            stiffness: 400,
-            damping: 20,
-        },
-    },
 };
 
 export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames, today }: Props) {
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [filterMode, setFilterMode] = useState<'all' | 'online' | 'offline'>('all');
     const [searchQuery, setSearchQuery] = useState('');
-    // Enhanced animations with 3D effects, parallax, particles, and glow
-
-    useEffect(() => {
-        // Track mouse for parallax effect
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({
-                x: (e.clientX / window.innerWidth - 0.5) * 20,
-                y: (e.clientY / window.innerHeight - 0.5) * 20,
-            });
-        };
-        
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
 
     // Filter schedules
     const filterSchedules = (schedule: ScheduleItem[]) => {
@@ -195,58 +143,24 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
         <StudentLayout>
             <Head title="Jadwal Kuliah" />
             
-            {/* Animated Background Particles */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                {[...Array(20)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-2 h-2 bg-blue-500/20 rounded-full"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -30, 0],
-                            x: [0, Math.random() * 20 - 10, 0],
-                            scale: [1, 1.5, 1],
-                            opacity: [0.2, 0.5, 0.2],
-                        }}
-                        transition={{
-                            duration: 3 + Math.random() * 2,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                        }}
-                    />
-                ))}
-            </div>
+            {/* Subtle Background Gradient */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden bg-gradient-to-br from-blue-50/30 to-emerald-50/30 dark:from-blue-950/10 dark:to-emerald-950/10" />
 
             <motion.div 
                 className="flex flex-col gap-6 p-4 md:p-6 relative"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                style={{
-                    perspective: "1000px",
-                    transformStyle: "preserve-3d",
-                }}
             >
-                {/* Header with Parallax */}
+                {/* Header */}
                 <motion.div 
                     variants={itemVariants}
                     className="flex items-center gap-4 relative"
-                    style={{
-                        x: mousePosition.x * 0.5,
-                        y: mousePosition.y * 0.5,
-                    }}
                 >
                     <motion.div
-                        whileHover={{ 
-                            scale: 1.2, 
-                            rotate: -10,
-                            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
-                        }}
-                        whileTap={{ scale: 0.9, rotate: 0 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        whileHover={{ scale: 1.1, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                     >
                         <Link href="/user/akademik" className="p-2 hover:bg-muted rounded-lg transition-colors">
                             <ArrowLeft className="h-5 w-5" />
@@ -255,7 +169,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     <div>
                         <h1 className="text-2xl font-bold flex items-center gap-2">
                             <motion.div
-                                whileHover={{ scale: 1.2, y: -3 }}
+                                whileHover={{ scale: 1.2, y: -2 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <Calendar className="h-7 w-7 text-blue-600" />
@@ -277,115 +191,46 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                             {today.day}, {today.date}
                         </motion.p>
                     </div>
-                    
-                    {/* Floating Glow Effect */}
-                    <motion.div
-                        className="absolute -inset-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-3xl -z-10 blur-xl"
-                        animate={{
-                            scale: [1, 1.1, 1],
-                            opacity: [0.3, 0.6, 0.3],
-                        }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    />
                 </motion.div>
 
-                {/* Legend with Enhanced Animations */}
+                {/* Legend */}
                 <motion.div 
                     variants={itemVariants}
                     className="flex flex-wrap gap-4 text-sm relative"
                 >
-                    {/* Animated Background Wave */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-emerald-500/5 rounded-2xl -z-10"
-                        animate={{
-                            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                        }}
-                        transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: "200% 200%"
-                        }}
-                    />
-                    
                     {[
                         { color: 'bg-blue-500', label: 'Online' },
                         { color: 'bg-emerald-500', label: 'Offline (Kamis)' },
                     ].map((item, i) => (
                         <motion.div 
                             key={i}
-                            initial={{ opacity: 0, x: -30, scale: 0.8 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
                             transition={{ 
-                                delay: 0.3 + i * 0.1,
+                                delay: 0.2 + i * 0.05,
                                 type: "spring",
                                 stiffness: 200
                             }}
-                            whileHover={{ 
-                                scale: 1.15, 
-                                x: 10,
-                                transition: { type: "spring", stiffness: 400 }
-                            }}
+                            whileHover={{ scale: 1.05, x: 3 }}
                             className="flex items-center gap-2 cursor-pointer"
                         >
-                            <motion.div 
-                                className={`w-3 h-3 rounded-full ${item.color} relative`}
-                                animate={{ 
-                                    scale: [1, 1.3, 1],
-                                    opacity: [1, 0.6, 1],
-                                    boxShadow: [
-                                        "0 0 0 0 rgba(59, 130, 246, 0.7)",
-                                        "0 0 0 8px rgba(59, 130, 246, 0)",
-                                        "0 0 0 0 rgba(59, 130, 246, 0)"
-                                    ]
-                                }}
-                                transition={{ 
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    delay: i * 0.4
-                                }}
-                            />
-                            <motion.span
-                                whileHover={{ x: 5 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                            >
-                                {item.label}
-                            </motion.span>
+                            <div className={`w-3 h-3 rounded-full ${item.color}`} />
+                            <span>{item.label}</span>
                         </motion.div>
                     ))}
                     <motion.div 
-                        initial={{ opacity: 0, x: -30, scale: 0.8 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ 
-                            delay: 0.5,
+                            delay: 0.3,
                             type: "spring",
                             stiffness: 200
                         }}
-                        whileHover={{ 
-                            scale: 1.15, 
-                            x: 10,
-                            transition: { type: "spring", stiffness: 400 }
-                        }}
+                        whileHover={{ scale: 1.05, x: 3 }}
                         className="flex items-center gap-2 cursor-pointer"
                     >
-                        <motion.div
-                            whileHover={{ scale: 1.3, y: -2 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                        >
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                        </motion.div>
-                        <motion.span
-                            whileHover={{ x: 5 }}
-                            transition={{ type: "spring", stiffness: 300 }}
-                        >
-                            Selesai
-                        </motion.span>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        <span>Selesai</span>
                     </motion.div>
                 </motion.div>
 
@@ -467,10 +312,11 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                         
                         return (
                             <motion.div
-                                key={day}
+                                key={dayIndex}
                                 custom={dayIndex}
                                 variants={cardVariants}
-                                whileHover="hover"
+                                whileHover={{ scale: 1.02, y: -3 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <Card 
                                     className={`${isToday ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : ''} overflow-hidden`}
@@ -510,8 +356,9 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                                                     variants={scheduleItemVariants}
                                                     initial="hidden"
                                                     animate="visible"
-                                                    exit={{ opacity: 0, x: -20, scale: 0.9 }}
-                                                    whileHover="hover"
+                                                    exit={{ opacity: 0, x: -10, scale: 0.95 }}
+                                                    whileHover={{ scale: 1.02, x: 3 }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                                     layout
                                                     onClick={() => {
                                                         setSelectedSchedule(item);
@@ -614,12 +461,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                                             transition={{ type: 'spring', stiffness: 200 }}
                                             className="text-center py-6 text-muted-foreground"
                                         >
-                                            <motion.div
-                                                whileHover={{ scale: 1.2, y: -3 }}
-                                                transition={{ type: "spring", stiffness: 300 }}
-                                            >
-                                                <Calendar className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                                            </motion.div>
+                                            <Calendar className="h-8 w-8 mx-auto mb-2 opacity-30" />
                                             <p className="text-xs">Tidak ada jadwal</p>
                                         </motion.div>
                                     )}
@@ -631,55 +473,19 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     })}
                 </motion.div>
 
-                {/* Info Card with Glow Effect */}
+                {/* Info Card */}
                 <motion.div
                     variants={itemVariants}
-                    whileHover={{ 
-                        scale: 1.02, 
-                        y: -4,
-                        boxShadow: "0 20px 40px -10px rgba(59, 130, 246, 0.3)"
-                    }}
-                    transition={{ type: 'spring', stiffness: 300 }}
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                     className="relative"
                 >
-                    {/* Animated Glow Background */}
-                    <motion.div
-                        className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-emerald-500 rounded-xl opacity-20 blur-lg -z-10"
-                        animate={{
-                            scale: [1, 1.05, 1],
-                            opacity: [0.2, 0.4, 0.2],
-                        }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    />
-                    
                     <Card className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-950/30 dark:to-emerald-950/30 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-                        {/* Animated Shine Effect */}
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                            animate={{
-                                x: ['-100%', '200%'],
-                            }}
-                            transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                repeatDelay: 2,
-                                ease: "easeInOut"
-                            }}
-                        />
-                        
                         <CardContent className="p-4 relative">
                             <div className="flex items-start gap-3">
-                                <motion.div 
-                                    className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg relative"
-                                    whileHover={{ scale: 1.1, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                >
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
                                     <Calendar className="h-5 w-5 text-blue-600" />
-                                </motion.div>
+                                </div>
                                 <div>
                                     <motion.p 
                                         className="font-medium"
@@ -709,12 +515,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-2xl">
-                            <motion.div
-                                whileHover={{ scale: 1.2, rotate: 15 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            >
-                                <BookOpen className="h-6 w-6 text-blue-500" />
-                            </motion.div>
+                            <BookOpen className="h-6 w-6 text-blue-500" />
                             Detail Jadwal Kuliah
                         </DialogTitle>
                     </DialogHeader>
