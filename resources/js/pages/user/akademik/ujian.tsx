@@ -313,10 +313,10 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     </motion.div>
                                 </Link>
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    whileHover={{ scale: 1.15, y: -3 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                                 >
                                     <GraduationCap className="h-8 w-8" />
@@ -379,8 +379,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     >
                                         <div className="flex items-center gap-2 mb-2">
                                             <motion.div
-                                                whileHover={{ rotate: 360 }}
-                                                transition={{ duration: 0.6 }}
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             >
                                                 <stat.icon className="h-5 w-5 text-white/80" />
                                             </motion.div>
@@ -444,8 +444,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                 className="font-semibold flex items-center gap-2"
                             >
                                 <motion.div
-                                    whileHover={{ scale: 1.2, rotate: 360 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 >
                                     <Calendar className="h-5 w-5 text-blue-500" />
                                 </motion.div>
@@ -495,8 +495,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                         
                                                         <div className="flex items-center gap-3 relative z-10">
                                                             <motion.div 
-                                                                whileHover={{ rotate: 360, scale: 1.1 }}
-                                                                transition={{ duration: 0.5 }}
+                                                                whileHover={{ scale: 1.15, y: -2 }}
+                                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                                                 className={`p-2 rounded-lg ${
                                                                     completedExams[exam.id]
                                                                         ? 'bg-emerald-100 dark:bg-emerald-900/50'
@@ -634,8 +634,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             <CardHeader className="pb-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <motion.div
-                                        whileHover={{ rotate: 360, scale: 1.2 }}
-                                        transition={{ duration: 0.6 }}
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <BookOpen className="h-5 w-5 text-emerald-600" />
                                     </motion.div>
@@ -752,8 +752,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                         <CardContent className="p-4 relative z-10">
                             <div className="flex items-start gap-3">
                                 <motion.div 
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg"
                                 >
                                     <Target className="h-5 w-5 text-blue-600" />
@@ -796,9 +796,9 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
 
             {/* Floating Action Button */}
             <motion.button
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                whileHover={{ scale: 1.1, rotate: 90 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.1, y: -5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsAddDialogOpen(true)}
                 className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full shadow-2xl hover:shadow-red-500/50 transition-all"
@@ -812,8 +812,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-2xl">
                             <motion.div
-                                animate={{ rotate: [0, 360] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                whileHover={{ scale: 1.2, rotate: 15 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <GraduationCap className="h-6 w-6 text-red-500" />
                             </motion.div>
