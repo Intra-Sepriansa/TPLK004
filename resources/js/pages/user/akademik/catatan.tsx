@@ -77,7 +77,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
             opacity: 1,
             y: 0,
             transition: {
-                type: 'spring',
+                type: 'spring' as const,
                 stiffness: 300,
                 damping: 20,
             },
@@ -91,6 +91,18 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         const y = (e.clientY - rect.top) / rect.height;
         setMousePosition({ x, y });
     };
+
+    // Group notes by course
+    const notesByCourse = notes.reduce((acc, note) => {
+        if (!acc[note.course_name]) {
+            acc[note.course_name] = {
+                mode: note.course_mode,
+                notes: [],
+            };
+        }
+        acc[note.course_name].notes.push(note);
+        return acc;
+    }, {} as Record<string, { mode: 'online' | 'offline'; notes: Note[] }>);
 
     // Calculate stats
     const stats = {
@@ -208,18 +220,6 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         setSelectedCourse(null);
         reset();
     };
-
-    // Group notes by course
-    const notesByCourse = notes.reduce((acc, note) => {
-        if (!acc[note.course_name]) {
-            acc[note.course_name] = {
-                mode: note.course_mode,
-                notes: [],
-            };
-        }
-        acc[note.course_name].notes.push(note);
-        return acc;
-    }, {} as Record<string, { mode: 'online' | 'offline'; notes: Note[] }>);
 
     return (
         <StudentLayout>
