@@ -555,8 +555,9 @@ export default function UserAbsensi() {
                             className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-xl backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100"
                         >
                             <motion.div
-                                animate={{ rotate: [0, 10, -10, 10, 0] }}
-                                transition={{ duration: 0.5, delay: 0.2 }}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
                             >
                                 <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                             </motion.div>

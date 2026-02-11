@@ -612,7 +612,6 @@ export default function UserDashboard() {
                                 scale: [0, 1.5, 1, 0],
                                 y: [0, -40, -80, -120],
                                 x: [0, Math.sin(i) * 30, Math.cos(i) * 20, 0],
-                                rotate: [0, 180, 360],
                             }}
                             transition={{
                                 duration: 4 + Math.random() * 2,
@@ -669,8 +668,8 @@ export default function UserDashboard() {
                                     />
                                 ) : (
                                     <motion.div
-                                        animate={{ rotate: [0, 10, -10, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <User className="h-8 w-8" />
                                     </motion.div>
@@ -715,7 +714,6 @@ export default function UserDashboard() {
                                 >
                                     <motion.div
                                         animate={{ 
-                                            rotate: [0, 15, -15, 0],
                                             scale: [1, 1.1, 1],
                                         }}
                                         transition={{ duration: 2, repeat: Infinity }}

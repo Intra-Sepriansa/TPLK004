@@ -610,19 +610,17 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     <motion.div
                         animate={{ 
                             scale: [1, 1.2, 1], 
-                            rotate: [0, 180, 360],
                             opacity: [0.3, 0.5, 0.3] 
                         }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
                     />
                     <motion.div
                         animate={{ 
                             scale: [1, 1.3, 1], 
-                            rotate: [360, 180, 0],
                             opacity: [0.2, 0.4, 0.2] 
                         }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
                         className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
                     />
                     
@@ -677,8 +675,8 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-3">
                                     <motion.div
-                                        animate={{ rotate: [0, 360] }}
-                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg"
                                     >
                                         <Plus className="h-5 w-5 text-white" />
@@ -1366,8 +1364,8 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             <CardHeader className="relative z-10">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <motion.div
-                                        animate={{ rotate: [0, 360] }}
-                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <Target className="h-5 w-5 text-violet-600" />
                                     </motion.div>

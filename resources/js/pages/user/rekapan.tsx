@@ -235,8 +235,8 @@ function StatCard({
             
             <div className="flex items-center gap-3 relative z-10">
                 <motion.div
-                    whileHover={{ rotate: 360, scale: 1.2 }}
-                    transition={{ duration: 0.6 }}
+                    whileHover={{ scale: 1.2, y: -2 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                     className={cn('flex h-12 w-12 items-center justify-center rounded-xl', colors[color])}
                 >
                     <Icon className="h-6 w-6" />
@@ -493,8 +493,8 @@ export default function UserRekapan() {
                             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div 
-                                        whileHover={{ rotate: 360, scale: 1.2 }}
-                                        transition={{ duration: 0.6 }}
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <BookOpen className="h-5 w-5 text-violet-600" />
                                     </motion.div>
@@ -607,8 +607,8 @@ export default function UserRekapan() {
                                 
                                 <div className="flex items-center gap-2 mb-4 relative z-10">
                                     <motion.div 
-                                        whileHover={{ rotate: 360, scale: 1.2 }}
-                                        transition={{ duration: 0.6 }}
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <TrendingUp className="h-5 w-5 text-indigo-600" />
                                     </motion.div>

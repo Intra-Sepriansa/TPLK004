@@ -325,7 +325,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    whileHover={{ scale: 1.15, y: -3 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                                 >
                                     <NotebookPen className="h-8 w-8" />
@@ -479,8 +479,8 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <motion.div
-                                            whileHover={{ rotate: 360 }}
-                                            transition={{ duration: 0.6 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         >
                                             <stat.icon className="h-5 w-5 text-white/80" />
                                         </motion.div>
@@ -550,8 +550,8 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
                                     <div className="flex items-center gap-2">
                                         <motion.div
-                                            whileHover={{ rotate: 360, scale: 1.2 }}
-                                            transition={{ duration: 0.6 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                             className={`p-2 rounded-lg ${mode === 'offline' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-blue-100 dark:bg-blue-900/30'}`}
                                         >
                                             {mode === 'offline' ? (

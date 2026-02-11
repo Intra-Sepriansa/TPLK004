@@ -456,8 +456,8 @@ export default function AttendanceHistory() {
                     >
                         <div className="flex items-center gap-3 mb-4">
                             <motion.div
-                                animate={{ rotate: [0, 10, -10, 10, 0] }}
-                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                whileHover={{ scale: 1.2, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                             >
                                 <Flame className="h-6 w-6" />
                             </motion.div>

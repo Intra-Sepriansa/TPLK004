@@ -115,8 +115,8 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
                                 <motion.div
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.15, y: -3 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl shadow-lg"
                                 >
                                     <Wallet className="h-8 w-8" />
@@ -181,8 +181,8 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                     >
                         <div className="relative flex items-start gap-4">
                             <motion.div
-                                whileHover={{ rotate: 360, scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
+                                whileHover={{ scale: 1.2, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
                             >
                                 <CheckCircle className="h-7 w-7" />
@@ -232,8 +232,8 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                     >
                         <div className="relative flex items-start gap-4">
                             <motion.div
-                                whileHover={{ rotate: -360, scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
+                                whileHover={{ scale: 1.2, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/50"
                             >
                                 <XCircle className="h-7 w-7" />
@@ -408,8 +408,8 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                     >
                                         <div className="flex items-center gap-3">
                                             <motion.div
-                                                whileHover={{ rotate: 360 }}
-                                                transition={{ duration: 0.5 }}
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                                 className={cn(
                                                     'flex h-10 w-10 items-center justify-center rounded-xl',
                                                     record.status === 'paid'
@@ -484,8 +484,8 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                     >
                                         <div className="flex items-center gap-3">
                                             <motion.div
-                                                whileHover={{ rotate: -360 }}
-                                                transition={{ duration: 0.5 }}
+                                                whileHover={{ scale: 1.2, y: -2 }}
+                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                                 className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-900/30"
                                             >
                                                 <ArrowDownRight className="h-5 w-5" />

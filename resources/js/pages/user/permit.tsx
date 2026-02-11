@@ -230,7 +230,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    whileHover={{ scale: 1.15, y: -3 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                                 >
                                     <HeartPulse className="h-8 w-8" />
@@ -306,8 +306,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                 >
                                     <div className="flex items-center gap-2 mb-2">
                                         <motion.div
-                                            whileHover={{ rotate: 360 }}
-                                            transition={{ duration: 0.6 }}
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                         >
                                             <stat.icon className="h-5 w-5 text-white/80" />
                                         </motion.div>
@@ -359,8 +359,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             
                             <div className="relative flex items-center gap-3">
                                 <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}
                                 >
                                     <stat.icon className="h-6 w-6" />
@@ -853,8 +853,8 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                             {processing ? (
                                                 <>
                                                     <motion.div
-                                                        animate={{ rotate: 360 }}
-                                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                        animate={{ scale: [1, 1.2, 1] }}
+                                                        transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
                                                     >
                                                         <Clock className="h-4 w-4" />
                                                     </motion.div>

@@ -288,7 +288,7 @@ export default function AcademicCourses({ courses }: Props) {
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
+                                    whileHover={{ scale: 1.15, y: -3 }}
                                     className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                                 >
                                     <BookOpen className="h-8 w-8" />
@@ -453,8 +453,8 @@ export default function AcademicCourses({ courses }: Props) {
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <motion.div
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.6 }}
+                                    whileHover={{ scale: 1.2, y: -2 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 >
                                     <stat.icon className="h-5 w-5 text-white/80" />
                                 </motion.div>
@@ -478,8 +478,8 @@ export default function AcademicCourses({ courses }: Props) {
                     <div className="p-4">
                         <div className="flex items-start gap-3">
                             <motion.div 
-                                whileHover={{ rotate: 360, scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
+                                whileHover={{ scale: 1.2, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg"
                             >
                                 <GraduationCap className="h-5 w-5 text-emerald-600" />
@@ -618,7 +618,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <motion.div whileHover={{ scale: 1.2, rotate: 360 }} transition={{ duration: 0.6 }}>
+                        <motion.div whileHover={{ scale: 1.2, y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 15 }}>
                             {course.mode === 'offline' ? (
                                 <Building2 className="h-5 w-5 text-emerald-600" />
                             ) : (

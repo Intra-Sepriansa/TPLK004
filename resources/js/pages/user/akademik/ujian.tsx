@@ -445,8 +445,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     className="font-semibold flex items-center gap-2"
                                 >
                                     <motion.div
-                                        animate={{ rotate: [0, -10, 10, -10, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
                                         <AlertTriangle className="h-5 w-5 text-amber-500" />
                                     </motion.div>
