@@ -7,10 +7,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
     GraduationCap, ArrowLeft, Calendar, Clock, AlertTriangle, 
-    CheckCircle2, BookOpen, Target, CheckCheck
+    CheckCircle2, BookOpen, Target, CheckCheck, Plus, Edit, Trash2, Save, X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Exam {
     id: number;
@@ -19,6 +24,10 @@ interface Exam {
     type: 'UTS' | 'UAS';
     date: string;
     date_formatted: string;
+    time?: string; // Jam ujian
+    location?: string; // Lokasi ujian
+    duration?: number; // Durasi dalam menit
+    notes?: string; // Catatan tambahan
     days_remaining: number;
     meeting_number: number;
     is_warning: boolean;
@@ -57,6 +66,19 @@ interface Props {
 export default function AcademicExams({ upcomingExams, examsByMonth, courses, preparationChecklist }: Props) {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
     const [completedExams, setCompletedExams] = useState<Record<number, boolean>>({});
+    const [customExams, setCustomExams] = useState<Exam[]>([]);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [editingExam, setEditingExam] = useState<Exam | null>(null);
+    const [formData, setFormData] = useState({
+        course_name: '',
+        type: 'UTS' as 'UTS' | 'UAS',
+        date: '',
+        time: '',
+        location: '',
+        duration: 120,
+        notes: '',
+    });
 
     // Animation variants
     const containerVariants = {
@@ -95,13 +117,108 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         setCompletedExams(prev => ({ ...prev, [examId]: !prev[examId] }));
     };
 
+    // Add custom exam
+    const handleAddExam = () => {
+        const newExam: Exam = {
+            id: Date.now(),
+            course_id: 0,
+            course_name: formData.course_name,
+            type: formData.type,
+            date: formData.date,
+            date_formatted: new Date(formData.date).toLocaleDateString('id-ID', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            }),
+            time: formData.time,
+            location: formData.location,
+            duration: formData.duration,
+            notes: formData.notes,
+            days_remaining: Math.ceil((new Date(formData.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+            meeting_number: 0,
+            is_warning: false,
+            is_critical: false,
+        };
+        setCustomExams(prev => [...prev, newExam]);
+        setIsAddDialogOpen(false);
+        resetForm();
+    };
+
+    // Edit exam
+    const handleEditExam = () => {
+        if (!editingExam) return;
+        setCustomExams(prev => prev.map(exam => 
+            exam.id === editingExam.id 
+                ? {
+                    ...exam,
+                    course_name: formData.course_name,
+                    type: formData.type,
+                    date: formData.date,
+                    date_formatted: new Date(formData.date).toLocaleDateString('id-ID', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }),
+                    time: formData.time,
+                    location: formData.location,
+                    duration: formData.duration,
+                    notes: formData.notes,
+                    days_remaining: Math.ceil((new Date(formData.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+                }
+                : exam
+        ));
+        setIsEditDialogOpen(false);
+        setEditingExam(null);
+        resetForm();
+    };
+
+    // Delete exam
+    const handleDeleteExam = (examId: number) => {
+        setCustomExams(prev => prev.filter(exam => exam.id !== examId));
+    };
+
+    // Open edit dialog
+    const openEditDialog = (exam: Exam) => {
+        setEditingExam(exam);
+        setFormData({
+            course_name: exam.course_name,
+            type: exam.type,
+            date: exam.date,
+            time: exam.time || '',
+            location: exam.location || '',
+            duration: exam.duration || 120,
+            notes: exam.notes || '',
+        });
+        setIsEditDialogOpen(true);
+    };
+
+    // Reset form
+    const resetForm = () => {
+        setFormData({
+            course_name: '',
+            type: 'UTS',
+            date: '',
+            time: '',
+            location: '',
+            duration: 120,
+            notes: '',
+        });
+    };
+
+    // Combine all exams
+    const allExams = [...upcomingExams, ...customExams].sort((a, b) => 
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
     // Calculate stats
     const stats = {
-        total: upcomingExams.length,
-        critical: upcomingExams.filter(e => e.is_critical).length,
-        warning: upcomingExams.filter(e => e.is_warning).length,
-        uts: upcomingExams.filter(e => e.type === 'UTS').length,
-        uas: upcomingExams.filter(e => e.type === 'UAS').length,
+        total: allExams.length,
+        critical: allExams.filter(e => e.is_critical).length,
+        warning: allExams.filter(e => e.is_warning).length,
+        uts: allExams.filter(e => e.type === 'UTS').length,
+        uas: allExams.filter(e => e.type === 'UAS').length,
         completed: Object.values(completedExams).filter(Boolean).length,
     };
 
@@ -299,7 +416,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     Perlu Perhatian
                                 </motion.h2>
                                 <div className="grid gap-4 md:grid-cols-2">
-                                    {upcomingExams.filter(e => e.is_critical || e.is_warning).map((exam, index) => (
+                                    {allExams.filter(e => e.is_critical || e.is_warning).map((exam, index) => (
                                         <MagneticExamCard 
                                             key={exam.id}
                                             exam={exam}
@@ -310,6 +427,9 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                             getCheckedCount={getCheckedCount}
                                             isCompleted={completedExams[exam.id] || false}
                                             toggleCompletion={toggleExamCompletion}
+                                            isCustom={exam.course_id === 0}
+                                            onEdit={openEditDialog}
+                                            onDelete={handleDeleteExam}
                                         />
                                     ))}
                                 </div>
@@ -673,6 +793,331 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                     </Card>
                 </motion.div>
             </motion.div>
+
+            {/* Floating Action Button */}
+            <motion.button
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setIsAddDialogOpen(true)}
+                className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full shadow-2xl hover:shadow-red-500/50 transition-all"
+            >
+                <Plus className="h-6 w-6" />
+            </motion.button>
+
+            {/* Add Exam Dialog */}
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-2xl">
+                            <motion.div
+                                animate={{ rotate: [0, 360] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            >
+                                <GraduationCap className="h-6 w-6 text-red-500" />
+                            </motion.div>
+                            Tambah Ujian Baru
+                        </DialogTitle>
+                    </DialogHeader>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-6 py-4"
+                    >
+                        {/* Step 1: Basic Info */}
+                        <div className="space-y-4">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.1 }}
+                            >
+                                <Label htmlFor="course_name" className="text-base font-semibold">
+                                    Nama Mata Kuliah
+                                </Label>
+                                <Input
+                                    id="course_name"
+                                    value={formData.course_name}
+                                    onChange={(e) => setFormData({ ...formData, course_name: e.target.value })}
+                                    placeholder="Contoh: Pemrograman Web"
+                                    className="mt-2 h-12 text-base"
+                                />
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="grid grid-cols-2 gap-4"
+                            >
+                                <div>
+                                    <Label htmlFor="type" className="text-base font-semibold">
+                                        Jenis Ujian
+                                    </Label>
+                                    <Select value={formData.type} onValueChange={(value: 'UTS' | 'UAS') => setFormData({ ...formData, type: value })}>
+                                        <SelectTrigger className="mt-2 h-12">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="UTS">UTS (Ujian Tengah Semester)</SelectItem>
+                                            <SelectItem value="UAS">UAS (Ujian Akhir Semester)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="duration" className="text-base font-semibold">
+                                        Durasi (menit)
+                                    </Label>
+                                    <Input
+                                        id="duration"
+                                        type="number"
+                                        value={formData.duration}
+                                        onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Step 2: Schedule */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="space-y-4 pt-4 border-t"
+                        >
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Calendar className="h-5 w-5 text-blue-500" />
+                                Jadwal Ujian
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="date" className="text-base font-semibold">
+                                        Tanggal
+                                    </Label>
+                                    <Input
+                                        id="date"
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="time" className="text-base font-semibold">
+                                        Jam
+                                    </Label>
+                                    <Input
+                                        id="time"
+                                        type="time"
+                                        value={formData.time}
+                                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Step 3: Location & Notes */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="space-y-4 pt-4 border-t"
+                        >
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Target className="h-5 w-5 text-purple-500" />
+                                Detail Tambahan
+                            </h3>
+                            <div>
+                                <Label htmlFor="location" className="text-base font-semibold">
+                                    Lokasi
+                                </Label>
+                                <Input
+                                    id="location"
+                                    value={formData.location}
+                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    placeholder="Contoh: Ruang 301, Gedung A"
+                                    className="mt-2 h-12 text-base"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="notes" className="text-base font-semibold">
+                                    Catatan
+                                </Label>
+                                <textarea
+                                    id="notes"
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    placeholder="Catatan tambahan tentang ujian..."
+                                    className="mt-2 w-full min-h-[100px] px-3 py-2 text-base rounded-md border border-input bg-background"
+                                />
+                            </div>
+                        </motion.div>
+
+                        {/* Actions */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="flex gap-3 pt-4"
+                        >
+                            <Button
+                                onClick={handleAddExam}
+                                disabled={!formData.course_name || !formData.date}
+                                className="flex-1 h-12 text-base bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
+                            >
+                                <Save className="h-5 w-5 mr-2" />
+                                Simpan Ujian
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setIsAddDialogOpen(false);
+                                    resetForm();
+                                }}
+                                className="h-12 px-6"
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </motion.div>
+                    </motion.div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Exam Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-2xl">
+                            <Edit className="h-6 w-6 text-blue-500" />
+                            Edit Ujian
+                        </DialogTitle>
+                    </DialogHeader>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-6 py-4"
+                    >
+                        {/* Same form fields as Add Dialog */}
+                        <div className="space-y-4">
+                            <div>
+                                <Label htmlFor="edit_course_name" className="text-base font-semibold">
+                                    Nama Mata Kuliah
+                                </Label>
+                                <Input
+                                    id="edit_course_name"
+                                    value={formData.course_name}
+                                    onChange={(e) => setFormData({ ...formData, course_name: e.target.value })}
+                                    className="mt-2 h-12 text-base"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="edit_type" className="text-base font-semibold">
+                                        Jenis Ujian
+                                    </Label>
+                                    <Select value={formData.type} onValueChange={(value: 'UTS' | 'UAS') => setFormData({ ...formData, type: value })}>
+                                        <SelectTrigger className="mt-2 h-12">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="UTS">UTS</SelectItem>
+                                            <SelectItem value="UAS">UAS</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="edit_duration" className="text-base font-semibold">
+                                        Durasi (menit)
+                                    </Label>
+                                    <Input
+                                        id="edit_duration"
+                                        type="number"
+                                        value={formData.duration}
+                                        onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="edit_date" className="text-base font-semibold">
+                                        Tanggal
+                                    </Label>
+                                    <Input
+                                        id="edit_date"
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="edit_time" className="text-base font-semibold">
+                                        Jam
+                                    </Label>
+                                    <Input
+                                        id="edit_time"
+                                        type="time"
+                                        value={formData.time}
+                                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                        className="mt-2 h-12 text-base"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <Label htmlFor="edit_location" className="text-base font-semibold">
+                                    Lokasi
+                                </Label>
+                                <Input
+                                    id="edit_location"
+                                    value={formData.location}
+                                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                    className="mt-2 h-12 text-base"
+                                />
+                            </div>
+
+                            <div>
+                                <Label htmlFor="edit_notes" className="text-base font-semibold">
+                                    Catatan
+                                </Label>
+                                <textarea
+                                    id="edit_notes"
+                                    value={formData.notes}
+                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                    className="mt-2 w-full min-h-[100px] px-3 py-2 text-base rounded-md border border-input bg-background"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                            <Button
+                                onClick={handleEditExam}
+                                disabled={!formData.course_name || !formData.date}
+                                className="flex-1 h-12 text-base bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                            >
+                                <Save className="h-5 w-5 mr-2" />
+                                Simpan Perubahan
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setIsEditDialogOpen(false);
+                                    setEditingExam(null);
+                                    resetForm();
+                                }}
+                                className="h-12 px-6"
+                            >
+                                <X className="h-5 w-5" />
+                            </Button>
+                        </div>
+                    </motion.div>
+                </DialogContent>
+            </Dialog>
         </StudentLayout>
     );
 }
@@ -687,9 +1132,12 @@ interface MagneticExamCardProps {
     getCheckedCount: (examId: number) => number;
     isCompleted: boolean;
     toggleCompletion: (examId: number) => void;
+    isCustom?: boolean;
+    onEdit?: (exam: Exam) => void;
+    onDelete?: (examId: number) => void;
 }
 
-function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, toggleCheck, getCheckedCount, isCompleted, toggleCompletion }: MagneticExamCardProps) {
+function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, toggleCheck, getCheckedCount, isCompleted, toggleCompletion, isCustom, onEdit, onDelete }: MagneticExamCardProps) {
     const [rotateX, setRotateX] = useState(0);
     const [rotateY, setRotateY] = useState(0);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -806,9 +1254,33 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
                                 <h3 className={`font-semibold ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
                                     {exam.course_name}
                                 </h3>
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>{exam.date_formatted}</span>
+                                <div className="space-y-1 mt-1">
+                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <Calendar className="h-4 w-4" />
+                                        <span>{exam.date_formatted}</span>
+                                    </div>
+                                    {exam.time && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="flex items-center gap-1 text-sm text-muted-foreground"
+                                        >
+                                            <Clock className="h-4 w-4" />
+                                            <span>{exam.time}</span>
+                                            {exam.duration && <span className="text-xs">({exam.duration} menit)</span>}
+                                        </motion.div>
+                                    )}
+                                    {exam.location && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="flex items-center gap-1 text-sm text-muted-foreground"
+                                        >
+                                            <Target className="h-4 w-4" />
+                                            <span>{exam.location}</span>
+                                        </motion.div>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex flex-col items-end gap-2">
@@ -827,25 +1299,60 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
                                     </p>
                                     <p className="text-xs">hari lagi</p>
                                 </motion.div>
-                                {/* Toggle Completion Button */}
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => toggleCompletion(exam.id)}
-                                    className={`p-2 rounded-lg transition-colors ${
-                                        isCompleted
-                                            ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
-                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                                    }`}
-                                    title={isCompleted ? 'Tandai belum selesai' : 'Tandai sudah selesai'}
-                                >
-                                    <CheckCircle2 className="h-5 w-5" />
-                                </motion.button>
+                                <div className="flex gap-2">
+                                    {/* Toggle Completion Button */}
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => toggleCompletion(exam.id)}
+                                        className={`p-2 rounded-lg transition-colors ${
+                                            isCompleted
+                                                ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
+                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
+                                        }`}
+                                        title={isCompleted ? 'Tandai belum selesai' : 'Tandai sudah selesai'}
+                                    >
+                                        <CheckCircle2 className="h-5 w-5" />
+                                    </motion.button>
+                                    {/* Edit & Delete for custom exams */}
+                                    {isCustom && (
+                                        <>
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={() => onEdit?.(exam)}
+                                                className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
+                                                title="Edit ujian"
+                                            >
+                                                <Edit className="h-5 w-5" />
+                                            </motion.button>
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={() => onDelete?.(exam.id)}
+                                                className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors"
+                                                title="Hapus ujian"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                            </motion.button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
                         {/* Preparation Checklist */}
                         <div className="mt-4 pt-4 border-t border-dashed">
+                            {exam.notes && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800"
+                                >
+                                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Catatan:</p>
+                                    <p className="text-sm text-blue-700 dark:text-blue-300">{exam.notes}</p>
+                                </motion.div>
+                            )}
                             <div className="flex items-center justify-between mb-2">
                                 <p className="text-sm font-medium">Persiapan</p>
                                 <span className="text-xs text-muted-foreground">
