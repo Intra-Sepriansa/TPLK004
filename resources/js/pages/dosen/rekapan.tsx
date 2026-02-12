@@ -191,34 +191,40 @@ export default function DosenRekapan({
                 {/* Header */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-lg"
                 >
+                    {/* Animated Background Orbs */}
                     <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl"
                     />
                     <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-blue-500/20 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{ scale: [1, 1.25, 1], opacity: [0.25, 0.45, 0.25] }}
+                        transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                        className="absolute top-1/2 left-1/2 h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-500/20 blur-3xl"
                     />
 
                     <div className="relative">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             <motion.div
-                                whileHover={{ rotate: 10, scale: 1.1 }}
+                                whileHover={{ scale: 1.1, y: -2 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50"
                             >
-                                <ClipboardList className="h-6 w-6" />
+                                <ClipboardList className="h-8 w-8" />
                             </motion.div>
                             <div>
                                 <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-indigo-100"
+                                    className="text-sm text-gray-400"
                                 >
                                     Laporan
                                 </motion.p>
@@ -226,7 +232,7 @@ export default function DosenRekapan({
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-2xl font-bold"
+                                    className="text-3xl font-bold"
                                 >
                                     Rekapan Kehadiran
                                 </motion.h1>
@@ -236,7 +242,7 @@ export default function DosenRekapan({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="mt-4 text-indigo-100"
+                            className="mt-4 text-gray-400"
                         >
                             Lihat dan cetak laporan kehadiran mahasiswa
                         </motion.p>
