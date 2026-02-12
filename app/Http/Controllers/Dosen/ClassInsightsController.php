@@ -19,10 +19,10 @@ class ClassInsightsController extends Controller
         $dosen = Auth::guard('dosen')->user();
         $courseId = $request->get('course_id');
 
-        $courses = $dosen->courses()->get(['mata_kuliah.id', 'mata_kuliah.nama', 'mata_kuliah.sks']);
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
 
         $insights = null;
-        if ($courseId && $dosen->courses()->where('mata_kuliah.id', $courseId)->exists()) {
+        if ($courseId && MataKuliah::where('id', $courseId)->where('dosen_id', $dosen->id)->exists()) {
             $insights = $this->getClassInsights($courseId);
         }
 
@@ -179,8 +179,7 @@ class ClassInsightsController extends Controller
 
     private function getCourseComparison(int $dosenId): array
     {
-        $dosen = \App\Models\Dosen::find($dosenId);
-        $courses = $dosen->courses;
+        $courses = MataKuliah::where('dosen_id', $dosenId)->get();
 
         return $courses->map(function ($course) {
             $sessions = AttendanceSession::where('course_id', $course->id)->pluck('id');

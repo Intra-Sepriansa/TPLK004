@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceSession;
+use App\Models\MataKuliah;
 use App\Models\SessionTemplate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class SessionTemplateController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $courses = $dosen->courses()->get(['mata_kuliah.id', 'mata_kuliah.nama', 'mata_kuliah.sks']);
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
 
         return Inertia::render('dosen/session-templates', [
             'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],

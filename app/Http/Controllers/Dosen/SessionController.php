@@ -19,7 +19,9 @@ class SessionController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $session->course_id)->exists()) {
+        // Check if dosen teaches this course
+        $course = MataKuliah::find($session->course_id);
+        if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403, 'Anda tidak memiliki akses ke sesi ini.');
         }
 
@@ -79,10 +81,10 @@ class SessionController extends Controller
             'auto_activate' => 'nullable|boolean',
         ]);
 
-        // Check if dosen has access to this course
-        if (!$dosen->courses()->where('mata_kuliah.id', $validated['course_id'])->exists()) {
-            // If dosen doesn't have explicit course assignment, allow anyway for now
-            // This can be restricted later if needed
+        // Check if dosen teaches this course
+        $course = MataKuliah::find($validated['course_id']);
+        if (!$course || $course->dosen_id !== $dosen->id) {
+            abort(403, 'Anda tidak memiliki akses ke mata kuliah ini.');
         }
 
         $session = AttendanceSession::create([
@@ -103,7 +105,8 @@ class SessionController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $session->course_id)->exists()) {
+        $course = MataKuliah::find($session->course_id);
+        if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -115,7 +118,8 @@ class SessionController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $session->course_id)->exists()) {
+        $course = MataKuliah::find($session->course_id);
+        if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -127,7 +131,8 @@ class SessionController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $session->course_id)->exists()) {
+        $course = MataKuliah::find($session->course_id);
+        if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403);
         }
 
