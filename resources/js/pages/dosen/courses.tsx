@@ -31,7 +31,6 @@ interface Course {
     nama: string;
     kode: string;
     sks: number;
-    role: string;
     totalSessions: number;
     totalStudents: number;
     attendanceRate: number;
@@ -361,10 +360,7 @@ export default function DosenCourses({ dosen, courses }: PageProps) {
                                         </div>
 
                                         {/* Footer */}
-                                        <div className="flex items-center justify-between mt-5 pt-4 border-t-2 border-slate-100 dark:border-gray-800">
-                                            <span className="text-xs text-slate-500 capitalize font-medium px-2 py-1 rounded-full bg-slate-100 dark:bg-gray-800">
-                                                {course.role}
-                                            </span>
+                                        <div className="flex items-center justify-end mt-5 pt-4 border-t-2 border-slate-100 dark:border-gray-800">
                                             <motion.div 
                                                 whileHover={{ x: 5 }}
                                                 className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 font-medium text-sm"
