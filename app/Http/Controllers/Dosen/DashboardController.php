@@ -43,12 +43,14 @@ class DashboardController extends Controller
             ->whereYear('start_at', now()->year)
             ->count();
 
-        // Attendance rate
-        $totalLogs = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))->count();
-        $presentLogs = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
+        // Attendance rate: (jumlah mahasiswa yang absen / total mahasiswa) × 100
+        // Count unique students who have attended (present or late)
+        $attendedStudents = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
             ->whereIn('status', ['present', 'late'])
-            ->count();
-        $attendanceRate = $totalLogs > 0 ? round(($presentLogs / $totalLogs) * 100) : 0;
+            ->distinct('mahasiswa_id')
+            ->count('mahasiswa_id');
+        
+        $attendanceRate = $totalStudents > 0 ? (int) round(($attendedStudents / $totalStudents) * 100) : 0;
 
         // Pending verifications
         $pendingVerifications = SelfieVerification::where('status', 'pending')
@@ -91,22 +93,24 @@ class DashboardController extends Controller
             $date = now()->subMonths($i);
             $month = $date->format('M Y');
             
-            $logs = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
-                ->whereMonth('scanned_at', $date->month)
-                ->whereYear('scanned_at', $date->year)
-                ->count();
-            
-            $present = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
+            // Count unique students who attended in this month
+            $attendedInMonth = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
                 ->whereMonth('scanned_at', $date->month)
                 ->whereYear('scanned_at', $date->year)
                 ->whereIn('status', ['present', 'late'])
+                ->distinct('mahasiswa_id')
+                ->count('mahasiswa_id');
+            
+            $totalLogs = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
+                ->whereMonth('scanned_at', $date->month)
+                ->whereYear('scanned_at', $date->year)
                 ->count();
             
             $monthlyTrend[] = [
                 'month' => $month,
-                'total' => $logs,
-                'present' => $present,
-                'rate' => $logs > 0 ? round(($present / $logs) * 100) : 0,
+                'total' => $totalLogs,
+                'present' => $attendedInMonth,
+                'rate' => $totalStudents > 0 ? (int) round(($attendedInMonth / $totalStudents) * 100) : 0,
             ];
         }
 
