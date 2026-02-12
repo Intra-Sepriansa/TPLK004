@@ -141,37 +141,31 @@ export default function DosenVerify({ dosen, pendingVerifications, recentVerific
                 variants={containerVariants}
                 className="p-6 space-y-6"
             >
-                {/* Header */}
+                {/* Enhanced Header with Black Gradient */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl border border-gray-800"
                 >
-                    <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                    />
+                    {/* Animated Background Orbs */}
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-3xl animate-pulse" />
+                    <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                    <div className="absolute top-1/2 left-1/2 h-48 w-48 rounded-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
 
-                    <div className="relative">
-                        <div className="flex items-center gap-3">
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-4 mb-6">
                             <motion.div
-                                whileHover={{ rotate: 10, scale: 1.1 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50"
                             >
-                                <BadgeCheck className="h-6 w-6" />
+                                <BadgeCheck className="h-8 w-8" />
                             </motion.div>
                             <div>
                                 <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-indigo-100"
+                                    className="text-sm text-gray-400"
                                 >
                                     Verifikasi
                                 </motion.p>
@@ -179,65 +173,41 @@ export default function DosenVerify({ dosen, pendingVerifications, recentVerific
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-2xl font-bold"
+                                    className="text-3xl font-bold"
                                 >
                                     Selfie Kehadiran
                                 </motion.h1>
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-3 gap-4">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <motion.div whileHover={{ rotate: 10 }}>
-                                        <Clock className="h-4 w-4" />
-                                    </motion.div>
-                                    <span className="text-xs">Pending</span>
-                                </div>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.pending} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <motion.div whileHover={{ rotate: 10 }}>
-                                        <CheckCircle2 className="h-4 w-4" />
-                                    </motion.div>
-                                    <span className="text-xs">Disetujui Hari Ini</span>
-                                </div>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.approvedToday} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <motion.div whileHover={{ rotate: 10 }}>
-                                        <XCircle className="h-4 w-4" />
-                                    </motion.div>
-                                    <span className="text-xs">Ditolak Hari Ini</span>
-                                </div>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.rejectedToday} duration={1500} />
-                                </p>
-                            </motion.div>
+                        {/* Stats Grid - Inside Header */}
+                        <div className="grid grid-cols-3 gap-4">
+                            {[
+                                { icon: Clock, label: 'Pending', value: stats.pending, iconBg: 'bg-amber-500' },
+                                { icon: CheckCircle2, label: 'Disetujui Hari Ini', value: stats.approvedToday, iconBg: 'bg-emerald-500' },
+                                { icon: XCircle, label: 'Ditolak Hari Ini', value: stats.rejectedToday, iconBg: 'bg-red-500' },
+                            ].map((stat, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ delay: 0.4 + i * 0.1, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.03, y: -4 }}
+                                    className="group relative rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer"
+                                >
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className={`p-2.5 rounded-xl ${stat.iconBg} shadow-lg`}>
+                                                <stat.icon className="h-5 w-5 text-white" />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-400 mb-2">{stat.label}</p>
+                                        <p className="text-2xl font-bold">
+                                            <AnimatedCounter value={stat.value} duration={1500} />
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 </motion.div>
