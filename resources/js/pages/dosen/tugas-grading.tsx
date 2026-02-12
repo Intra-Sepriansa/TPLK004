@@ -602,58 +602,116 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
 
                 {/* Grade Dialog */}
                 <Dialog open={showGradeDialog} onOpenChange={setShowGradeDialog}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
-                            <DialogTitle className="text-xl text-indigo-700 flex items-center gap-2">
-                                <Award className="h-5 w-5" /> Beri Nilai
-                            </DialogTitle>
+                            <div className="relative overflow-hidden rounded-t-xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 p-6 -m-6 mb-4">
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                    className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"
+                                />
+                                <div className="relative">
+                                    <DialogTitle className="text-2xl text-white flex items-center gap-3">
+                                        <motion.div
+                                            whileHover={{ rotate: 10, scale: 1.1 }}
+                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                        >
+                                            <Award className="h-6 w-6" />
+                                        </motion.div>
+                                        <span>Beri Nilai</span>
+                                    </DialogTitle>
+                                    <p className="text-white/80 mt-2 ml-15">Berikan penilaian untuk submission mahasiswa</p>
+                                </div>
+                            </div>
                         </DialogHeader>
                         {selectedSubmission && (
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black text-white font-bold text-lg">
+                            <div className="space-y-6">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-5 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-black"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xl shadow-lg">
                                             {selectedSubmission.mahasiswa.nama.charAt(0)}
                                         </div>
-                                        <div>
-                                            <p className="font-semibold">{selectedSubmission.mahasiswa.nama}</p>
-                                            <p className="text-sm text-muted-foreground">{selectedSubmission.mahasiswa.nim}</p>
+                                        <div className="flex-1">
+                                            <p className="font-bold text-lg text-gray-900 dark:text-white">{selectedSubmission.mahasiswa.nama}</p>
+                                            <p className="text-sm font-mono text-gray-500">{selectedSubmission.mahasiswa.nim}</p>
                                         </div>
+                                        {getStatusBadge(selectedSubmission.status, selectedSubmission.is_late)}
                                     </div>
                                     {selectedSubmission.is_late && (
-                                        <div className="mt-3 p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
-                                            <AlertTriangle className="h-4 w-4" />
-                                            Submission terlambat - akan ada pengurangan nilai
-                                        </div>
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm flex items-center gap-2"
+                                        >
+                                            <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                                            <span className="font-medium">Submission terlambat - pertimbangkan pengurangan nilai</span>
+                                        </motion.div>
                                     )}
-                                </div>
-                                <div>
-                                    <Label>Nilai (0-100)</Label>
+                                </motion.div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-base font-semibold flex items-center gap-2">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600">
+                                            <Award className="h-4 w-4 text-white" />
+                                        </div>
+                                        Nilai (0-{tugas.max_grade})
+                                    </Label>
                                     <Input
                                         type="number"
                                         min="0"
-                                        max="100"
+                                        max={tugas.max_grade}
                                         value={gradeForm.grade}
                                         onChange={(e) => setGradeForm({ ...gradeForm, grade: e.target.value })}
-                                        className="text-2xl font-bold text-center"
+                                        className="text-3xl font-bold text-center border-2 h-16 focus:ring-4 focus:ring-emerald-500/20"
+                                        placeholder="0"
                                     />
+                                    <div className="flex items-center justify-between text-xs text-gray-500">
+                                        <span>Minimum: 0</span>
+                                        <span>Maximum: {tugas.max_grade}</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    <Label>Feedback (Opsional)</Label>
+
+                                <div className="space-y-2">
+                                    <Label className="text-base font-semibold flex items-center gap-2">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600">
+                                            <MessageSquare className="h-4 w-4 text-white" />
+                                        </div>
+                                        Feedback (Opsional)
+                                    </Label>
                                     <Textarea
                                         value={gradeForm.feedback}
                                         onChange={(e) => setGradeForm({ ...gradeForm, feedback: e.target.value })}
-                                        placeholder="Berikan feedback untuk mahasiswa..."
-                                        rows={4}
+                                        placeholder="Berikan feedback konstruktif untuk mahasiswa..."
+                                        rows={5}
+                                        className="border-2 focus:ring-4 focus:ring-blue-500/20 resize-none"
                                     />
+                                    <p className="text-xs text-gray-500">Feedback akan membantu mahasiswa memahami penilaian Anda</p>
                                 </div>
-                                <Button
-                                    onClick={handleGrade}
-                                    className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
-                                    disabled={!gradeForm.grade}
-                                >
-                                    <Save className="h-4 w-4 mr-2" /> Simpan Nilai
-                                </Button>
+
+                                <div className="flex gap-3 pt-2">
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
+                                        <Button
+                                            onClick={handleGrade}
+                                            className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-base font-semibold shadow-lg shadow-emerald-500/30"
+                                            disabled={!gradeForm.grade}
+                                        >
+                                            <Save className="h-5 w-5 mr-2" /> Simpan Nilai
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setShowGradeDialog(false)}
+                                            className="h-12 px-6 border-2"
+                                        >
+                                            Batal
+                                        </Button>
+                                    </motion.div>
+                                </div>
                             </div>
                         )}
                     </DialogContent>
@@ -661,92 +719,169 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
 
                 {/* Detail Dialog */}
                 <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
                         <DialogHeader>
-                            <DialogTitle className="text-xl text-indigo-700 flex items-center gap-2">
-                                <FileText className="h-5 w-5" /> Detail Submission
-                            </DialogTitle>
+                            <div className="relative overflow-hidden rounded-t-xl bg-gradient-to-br from-blue-500 via-cyan-600 to-teal-600 p-6 -m-6 mb-4">
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                    className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"
+                                />
+                                <div className="relative">
+                                    <DialogTitle className="text-2xl text-white flex items-center gap-3">
+                                        <motion.div
+                                            whileHover={{ rotate: 10, scale: 1.1 }}
+                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                        >
+                                            <FileText className="h-6 w-6" />
+                                        </motion.div>
+                                        <span>Detail Submission</span>
+                                    </DialogTitle>
+                                    <p className="text-white/80 mt-2 ml-15">Informasi lengkap submission mahasiswa</p>
+                                </div>
+                            </div>
                         </DialogHeader>
                         {selectedSubmission && (
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-gray-900/50">
+                            <div className="space-y-5 overflow-y-auto pr-2">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-5 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-black"
+                                >
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-black text-white font-bold text-lg">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 text-white font-bold text-2xl shadow-lg">
                                                 {selectedSubmission.mahasiswa.nama.charAt(0)}
                                             </div>
                                             <div>
-                                                <p className="font-semibold">{selectedSubmission.mahasiswa.nama}</p>
-                                                <p className="text-sm text-muted-foreground">{selectedSubmission.mahasiswa.nim}</p>
+                                                <p className="font-bold text-lg text-gray-900 dark:text-white">{selectedSubmission.mahasiswa.nama}</p>
+                                                <p className="text-sm font-mono text-gray-500">{selectedSubmission.mahasiswa.nim}</p>
                                             </div>
                                         </div>
                                         {getStatusBadge(selectedSubmission.status, selectedSubmission.is_late)}
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                                        <p className="text-blue-600 dark:text-blue-400 font-medium">Waktu Submit</p>
-                                        <p className="text-slate-700 dark:text-slate-300">{selectedSubmission.submitted_at}</p>
-                                    </div>
-                                    {selectedSubmission.graded_at && (
-                                        <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                                            <p className="text-emerald-600 dark:text-emerald-400 font-medium">Waktu Dinilai</p>
-                                            <p className="text-slate-700 dark:text-slate-300">{selectedSubmission.graded_at}</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="p-4 rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20"
+                                    >
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                            <p className="text-blue-600 dark:text-blue-400 font-semibold">Waktu Submit</p>
                                         </div>
+                                        <p className="text-gray-900 dark:text-white font-medium">{selectedSubmission.submitted_at}</p>
+                                    </motion.div>
+                                    {selectedSubmission.graded_at && (
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="p-4 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20"
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <CheckCircle className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                                <p className="text-emerald-600 dark:text-emerald-400 font-semibold">Waktu Dinilai</p>
+                                            </div>
+                                            <p className="text-gray-900 dark:text-white font-medium">{selectedSubmission.graded_at}</p>
+                                        </motion.div>
                                     )}
                                 </div>
 
                                 {selectedSubmission.content && (
-                                    <div>
-                                        <Label className="text-slate-600">Jawaban:</Label>
-                                        <div className="mt-2 p-4 rounded-xl bg-white dark:bg-gray-900 border whitespace-pre-wrap">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        <Label className="text-base font-semibold flex items-center gap-2 mb-3">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+                                                <FileText className="h-4 w-4 text-white" />
+                                            </div>
+                                            Jawaban Mahasiswa
+                                        </Label>
+                                        <div className="p-5 rounded-xl bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 whitespace-pre-wrap max-h-60 overflow-y-auto">
                                             {selectedSubmission.content}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
 
                                 {selectedSubmission.file_path && (
-                                    <div>
-                                        <Label className="text-slate-600">File Lampiran:</Label>
-                                        <a
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        <Label className="text-base font-semibold flex items-center gap-2 mb-3">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+                                                <Download className="h-4 w-4 text-white" />
+                                            </div>
+                                            File Lampiran
+                                        </Label>
+                                        <motion.a
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            whileTap={{ scale: 0.98 }}
                                             href={selectedSubmission.file_path}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="mt-2 flex items-center gap-2 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition-colors"
+                                            className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:border-indigo-400 transition-all"
                                         >
-                                            <Download className="h-5 w-5" />
-                                            <span>{selectedSubmission.file_name || 'Download File'}</span>
-                                        </a>
-                                    </div>
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                                                <Download className="h-6 w-6" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="font-semibold">{selectedSubmission.file_name || 'Download File'}</p>
+                                                <p className="text-xs text-gray-500">Klik untuk download</p>
+                                            </div>
+                                        </motion.a>
+                                    </motion.div>
                                 )}
 
                                 {selectedSubmission.grade !== null && (
-                                    <div className="p-4 rounded-xl bg-gradient-to-r from-gray-900 to-black dark:from-black/20 dark:to-black/20">
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-medium text-slate-700 dark:text-slate-300">Nilai:</span>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="p-5 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-800"
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                                <Award className="h-5 w-5 text-emerald-600" />
+                                                Nilai
+                                            </span>
                                             {getGradeBadge(selectedSubmission.grade, selectedSubmission.grade_letter)}
                                         </div>
                                         {selectedSubmission.feedback && (
-                                            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                    <MessageSquare className="h-4 w-4" /> Feedback:
+                                            <div className="mt-4 pt-4 border-t-2 border-emerald-200 dark:border-emerald-800">
+                                                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
+                                                    <MessageSquare className="h-4 w-4" /> Feedback Dosen
                                                 </p>
-                                                <p className="mt-1 text-slate-700 dark:text-slate-300">{selectedSubmission.feedback}</p>
+                                                <p className="text-gray-900 dark:text-white">{selectedSubmission.feedback}</p>
                                             </div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 )}
 
-                                <Button
-                                    onClick={() => {
-                                        setShowDetailDialog(false);
-                                        openGradeDialog(selectedSubmission);
-                                    }}
-                                    className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900"
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                 >
-                                    <Award className="h-4 w-4 mr-2" /> {selectedSubmission.grade !== null ? 'Edit Nilai' : 'Beri Nilai'}
-                                </Button>
+                                    <Button
+                                        onClick={() => {
+                                            setShowDetailDialog(false);
+                                            openGradeDialog(selectedSubmission);
+                                        }}
+                                        className="w-full h-12 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-base font-semibold shadow-lg shadow-indigo-500/30"
+                                    >
+                                        <Award className="h-5 w-5 mr-2" /> {selectedSubmission.grade !== null ? 'Edit Nilai' : 'Beri Nilai'}
+                                    </Button>
+                                </motion.div>
                             </div>
                         )}
                     </DialogContent>
