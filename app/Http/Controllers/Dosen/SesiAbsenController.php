@@ -15,15 +15,9 @@ class SesiAbsenController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        // Get courses taught by this dosen
-        $courses = $dosen->courses()->select('mata_kuliah.id', 'mata_kuliah.nama', 'mata_kuliah.sks')->get();
+        // Get courses taught by this dosen using dosen_id
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->select('id', 'nama', 'sks')->get();
         $courseIds = $courses->pluck('id')->toArray();
-        
-        // If dosen has no assigned courses, show all courses (for flexibility)
-        if (empty($courseIds)) {
-            $courses = MataKuliah::select('id', 'nama', 'sks')->get();
-            $courseIds = $courses->pluck('id')->toArray();
-        }
         
         // Get sessions for these courses
         $sessions = AttendanceSession::whereIn('course_id', $courseIds)

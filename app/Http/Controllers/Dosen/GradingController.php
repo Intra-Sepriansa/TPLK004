@@ -21,12 +21,13 @@ class GradingController extends Controller
         $dosen = Auth::guard('dosen')->user();
         $courseId = $request->get('course_id');
 
-        $courses = $dosen->courses()->get(['mata_kuliah.id', 'mata_kuliah.nama', 'mata_kuliah.sks']);
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
 
         $grades = null;
         if ($courseId) {
             // Verify dosen has access to this course
-            if (!$dosen->courses()->where('mata_kuliah.id', $courseId)->exists()) {
+            $course = MataKuliah::find($courseId);
+            if (!$course || $course->dosen_id !== $dosen->id) {
                 abort(403);
             }
             $grades = $this->gradingService->calculateClassGrades($courseId);
@@ -44,12 +45,12 @@ class GradingController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
 
-        if (!$dosen->courses()->where('mata_kuliah.id', $courseId)->exists()) {
+        $course = MataKuliah::find($courseId);
+        if (!$course || $course->dosen_id !== $dosen->id) {
             abort(403);
         }
 
         $csv = $this->gradingService->exportGrades($courseId, 'csv');
-        $course = MataKuliah::find($courseId);
         $filename = sprintf('nilai_kehadiran_%s_%s.csv', 
             str_replace(' ', '_', $course->nama ?? 'course'),
             now()->format('Y-m-d')
@@ -78,10 +79,10 @@ class GradingController extends Controller
             'reason' => 'required|string|max:500',
         ]);
 
-        $log = AttendanceLog::with('session')->findOrFail($validated['log_id']);
+        $log = AttendanceLog::with('session.course')->findOrFail($validated['log_id']);
 
         // Verify dosen has access
-        if (!$dosen->courses()->where('mata_kuliah.id', $log->session->course_id)->exists()) {
+        if (!$log->session->course || $log->session->course->dosen_id !== $dosen->id) {
             abort(403);
         }
 

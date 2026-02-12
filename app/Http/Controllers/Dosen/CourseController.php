@@ -18,7 +18,8 @@ class CourseController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        $courses = $dosen->courses()->get()->map(function ($course) {
+        // Get courses using dosen_id from mata_kuliah table
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get()->map(function ($course) {
             $totalSessions = AttendanceSession::where('course_id', $course->id)->count();
             $totalLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))->count();
             $presentLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))
@@ -27,13 +28,17 @@ class CourseController extends Controller
             $students = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($course) {
                 $q->whereHas('session', fn($s) => $s->where('course_id', $course->id));
             })->count();
+            
+            // If no attendance logs, count all students
+            if ($students === 0) {
+                $students = Mahasiswa::count();
+            }
 
             return [
                 'id' => $course->id,
                 'nama' => $course->nama,
                 'kode' => $course->kode ?? '-',
                 'sks' => $course->sks,
-                'role' => $course->pivot->role,
                 'totalSessions' => $totalSessions,
                 'totalStudents' => $students,
                 'attendanceRate' => $totalLogs > 0 ? round(($presentLogs / $totalLogs) * 100) : 0,
@@ -54,8 +59,8 @@ class CourseController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        // Verify dosen has access to this course
-        if (!$dosen->courses()->where('mata_kuliah.id', $course->id)->exists()) {
+        // Verify dosen has access to this course (check dosen_id)
+        if ($course->dosen_id !== $dosen->id) {
             abort(403, 'Anda tidak memiliki akses ke mata kuliah ini.');
         }
 
@@ -137,7 +142,7 @@ class CourseController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $course->id)->exists()) {
+        if ($course->dosen_id !== $dosen->id) {
             abort(403);
         }
 
@@ -174,7 +179,7 @@ class CourseController extends Controller
     {
         $dosen = Auth::guard('dosen')->user();
         
-        if (!$dosen->courses()->where('mata_kuliah.id', $course->id)->exists()) {
+        if ($course->dosen_id !== $dosen->id) {
             abort(403);
         }
 

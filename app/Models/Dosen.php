@@ -80,6 +80,14 @@ class Dosen extends Authenticatable
     }
 
     /**
+     * Get courses taught by this dosen (using dosen_id in mata_kuliah table)
+     */
+    public function mataKuliah()
+    {
+        return $this->hasMany(MataKuliah::class, 'dosen_id');
+    }
+
+    /**
      * Get participant avatar for chat
      */
     public function getParticipantAvatar(): ?string
