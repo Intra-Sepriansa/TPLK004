@@ -27,15 +27,8 @@ class DashboardController extends Controller
         // Stats
         $totalCourses = $courses->count();
         
-        // Get unique students who have attended any session of this dosen's courses
-        $totalStudents = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($courseIds) {
-            $q->whereHas('session', fn($s) => $s->whereIn('course_id', $courseIds));
-        })->distinct()->count();
-        
-        // If no attendance logs, count all students (assuming all students take all courses)
-        if ($totalStudents === 0) {
-            $totalStudents = Mahasiswa::count();
-        }
+        // Total students = all students in the system (same as admin mahasiswa menu)
+        $totalStudents = Mahasiswa::count();
 
         $totalSessions = AttendanceSession::whereIn('course_id', $courseIds)->count();
         $thisMonthSessions = AttendanceSession::whereIn('course_id', $courseIds)
