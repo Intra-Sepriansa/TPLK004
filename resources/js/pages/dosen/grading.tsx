@@ -15,6 +15,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Input } from '@/components/ui/input';
 
+interface Session {
+    id: number;
+    meeting_number: number;
+    title: string;
+    date: string;
+}
+
 interface Grade {
     mahasiswa_id: number;
     nama: string;
@@ -37,8 +44,8 @@ interface Grade {
 
 interface Props {
     dosen: { id: number; nama: string };
-    courses: Array<{ id: number; nama: string; sks: number }>;
-    selectedCourseId: number | null;
+    course: { id: number; nama: string; kode: string; sks: number } | null;
+    sessions: Session[];
     grades: {
         course: { id: number; nama: string; sks: number };
         summary: {
@@ -52,7 +59,7 @@ interface Props {
     } | null;
 }
 
-export default function Grading({ dosen, courses, selectedCourseId, grades }: Props) {
+export default function Grading({ dosen, course, sessions, grades }: Props) {
     const [overrideModal, setOverrideModal] = useState<{ open: boolean; logId: number | null; currentStatus: string }>({
         open: false, logId: null, currentStatus: ''
     });
@@ -62,6 +69,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [filterGrade, setFilterGrade] = useState<string>('all');
     const [filterUAS, setFilterUAS] = useState<string>('all');
+    const [filterSession, setFilterSession] = useState<string>('all');
 
     const overrideForm = useForm({ log_id: 0, status: '', reason: '' });
 
@@ -77,7 +85,15 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                            (filterUAS === 'can' && g.can_take_uas) || 
                            (filterUAS === 'cannot' && !g.can_take_uas);
             
-            return matchSearch && matchGrade && matchUAS;
+            // Filter by session - check if student attended specific session
+            let matchSession = true;
+            if (filterSession !== 'all') {
+                const sessionNum = parseInt(filterSession);
+                const sessionDetail = g.details.find(d => d.meeting === sessionNum);
+                matchSession = sessionDetail !== undefined;
+            }
+            
+            return matchSearch && matchGrade && matchUAS && matchSession;
         });
 
         // Sort
@@ -103,22 +119,14 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
         });
 
         return filtered;
-    }, [grades, searchQuery, sortBy, sortOrder, filterGrade, filterUAS]);
-
-    const handleCourseChange = (courseId: string) => {
-        router.get('/dosen/grading', { course_id: courseId }, { preserveState: true });
-    };
+    }, [grades, searchQuery, sortBy, sortOrder, filterGrade, filterUAS, filterSession]);
 
     const handleExportCsv = () => {
-        if (selectedCourseId) {
-            window.location.href = `/dosen/grading/export/${selectedCourseId}`;
-        }
+        window.location.href = '/dosen/grading/export';
     };
 
     const handleExportPdf = () => {
-        if (selectedCourseId) {
-            window.location.href = `/dosen/grading/export-pdf/${selectedCourseId}`;
-        }
+        window.location.href = '/dosen/grading/export-pdf';
     };
 
     const handleOverride = () => {
@@ -210,42 +218,40 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                     >
                                         Nilai Kehadiran
                                     </motion.h1>
+                                    {course && (
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.4 }}
+                                            className="text-sm text-gray-300 mt-1"
+                                        >
+                                            {course.nama} ({course.sks} SKS)
+                                        </motion.p>
+                                    )}
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Select value={String(selectedCourseId || '')} onValueChange={handleCourseChange}>
-                                    <SelectTrigger className="w-[250px] bg-white/10 border-white/20 text-white backdrop-blur hover:bg-white/20 transition-colors">
-                                        <SelectValue placeholder="Pilih Mata Kuliah" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {courses.map(c => (
-                                            <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {grades && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                <Button className="bg-white/10 hover:bg-white/20 text-white border-0 backdrop-blur">
-                                                    <Download className="h-4 w-4 mr-2" />
-                                                    Export
-                                                </Button>
-                                            </motion.div>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-48">
-                                            <DropdownMenuItem onClick={handleExportCsv} className="cursor-pointer">
-                                                <FileSpreadsheet className="h-4 w-4 mr-2" />
-                                                Export CSV
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={handleExportPdf} className="cursor-pointer">
-                                                <FileText className="h-4 w-4 mr-2" />
-                                                Export PDF
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                            </div>
+                            {grades && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                            <Button className="bg-white/10 hover:bg-white/20 text-white border-0 backdrop-blur">
+                                                <Download className="h-4 w-4 mr-2" />
+                                                Export
+                                            </Button>
+                                        </motion.div>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-48">
+                                        <DropdownMenuItem onClick={handleExportCsv} className="cursor-pointer">
+                                            <FileSpreadsheet className="h-4 w-4 mr-2" />
+                                            Export CSV
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleExportPdf} className="cursor-pointer">
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            Export PDF
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
                         </div>
                         <motion.p
                             initial={{ opacity: 0, y: 10 }}
@@ -258,7 +264,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                     </div>
                 </motion.div>
 
-                {!selectedCourseId && (
+                {!course && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -272,7 +278,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                             >
                                 <GraduationCap className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                             </motion.div>
-                            <p className="text-gray-500">Pilih mata kuliah untuk melihat nilai kehadiran</p>
+                            <p className="text-gray-500">Anda belum memiliki mata kuliah yang diajarkan</p>
                         </div>
                     </motion.div>
                 )}
@@ -435,20 +441,22 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                     </div>
                                 </div>
 
-                                {/* Sort By */}
+                                {/* Filter Session */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Urutkan
+                                        Pertemuan
                                     </label>
-                                    <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                                    <Select value={filterSession} onValueChange={setFilterSession}>
                                         <SelectTrigger className="border-2">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="name">Nama</SelectItem>
-                                            <SelectItem value="nim">NIM</SelectItem>
-                                            <SelectItem value="rate">Persentase</SelectItem>
-                                            <SelectItem value="grade">Grade</SelectItem>
+                                            <SelectItem value="all">Semua Pertemuan</SelectItem>
+                                            {sessions.map(s => (
+                                                <SelectItem key={s.id} value={String(s.meeting_number)}>
+                                                    Pertemuan {s.meeting_number}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -515,6 +523,7 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                             setSearchQuery('');
                                             setFilterGrade('all');
                                             setFilterUAS('all');
+                                            setFilterSession('all');
                                             setSortBy('name');
                                             setSortOrder('asc');
                                         }}

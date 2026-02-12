@@ -19,38 +19,56 @@ class GradingController extends Controller
     public function index(Request $request)
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseId = $request->get('course_id');
-
-        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
-
-        $grades = null;
-        if ($courseId) {
-            // Verify dosen has access to this course
-            $course = MataKuliah::find($courseId);
-            if (!$course || $course->dosen_id !== $dosen->id) {
-                abort(403);
-            }
-            $grades = $this->gradingService->calculateClassGrades($courseId);
+        
+        // Get dosen's course (1 dosen = 1 mata kuliah)
+        $course = MataKuliah::where('dosen_id', $dosen->id)->first();
+        
+        if (!$course) {
+            return Inertia::render('dosen/grading', [
+                'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
+                'course' => null,
+                'sessions' => [],
+                'grades' => null,
+            ]);
         }
+
+        // Get all sessions for this course
+        $sessions = \App\Models\AttendanceSession::where('course_id', $course->id)
+            ->orderBy('meeting_number', 'asc')
+            ->get(['id', 'meeting_number', 'title', 'start_at'])
+            ->map(fn($s) => [
+                'id' => $s->id,
+                'meeting_number' => $s->meeting_number,
+                'title' => $s->title,
+                'date' => $s->start_at?->format('d M Y'),
+            ]);
+
+        // Calculate grades for all students
+        $grades = $this->gradingService->calculateClassGrades($course->id);
 
         return Inertia::render('dosen/grading', [
             'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
-            'courses' => $courses,
-            'selectedCourseId' => $courseId,
+            'course' => [
+                'id' => $course->id,
+                'nama' => $course->nama,
+                'kode' => $course->kode,
+                'sks' => $course->sks,
+            ],
+            'sessions' => $sessions,
             'grades' => $grades,
         ]);
     }
 
-    public function export(Request $request, int $courseId)
+    public function export(Request $request)
     {
         $dosen = Auth::guard('dosen')->user();
+        $course = MataKuliah::where('dosen_id', $dosen->id)->first();
 
-        $course = MataKuliah::find($courseId);
-        if (!$course || $course->dosen_id !== $dosen->id) {
-            abort(403);
+        if (!$course) {
+            abort(404, 'Mata kuliah tidak ditemukan');
         }
 
-        $csv = $this->gradingService->exportGrades($courseId, 'csv');
+        $csv = $this->gradingService->exportGrades($course->id, 'csv');
         $filename = sprintf('nilai_kehadiran_%s_%s.csv', 
             str_replace(' ', '_', $course->nama ?? 'course'),
             now()->format('Y-m-d')
@@ -61,16 +79,16 @@ class GradingController extends Controller
             ->header('Content-Disposition', "attachment; filename={$filename}");
     }
 
-    public function exportPdf(Request $request, int $courseId)
+    public function exportPdf(Request $request)
     {
         $dosen = Auth::guard('dosen')->user();
+        $course = MataKuliah::where('dosen_id', $dosen->id)->first();
 
-        $course = MataKuliah::find($courseId);
-        if (!$course || $course->dosen_id !== $dosen->id) {
-            abort(403);
+        if (!$course) {
+            abort(404, 'Mata kuliah tidak ditemukan');
         }
 
-        $grades = $this->gradingService->calculateClassGrades($courseId);
+        $grades = $this->gradingService->calculateClassGrades($course->id);
 
         $data = [
             'course' => $course,
