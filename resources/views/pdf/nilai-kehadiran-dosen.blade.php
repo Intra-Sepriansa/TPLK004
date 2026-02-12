@@ -164,24 +164,24 @@
         </div>
     </div>
 
-    @if($grades && count($grades) > 0)
+    @if($grades && isset($grades['grades']) && count($grades['grades']) > 0)
         <div class="summary">
             <div class="summary-grid">
                 <div class="summary-item">
                     <div class="summary-label">Total Mahasiswa</div>
-                    <div class="summary-value">{{ count($grades) }}</div>
+                    <div class="summary-value">{{ $grades['summary']['total_students'] }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Pertemuan</div>
+                    <div class="summary-value">{{ $grades['summary']['total_sessions'] }}</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Rata-rata Kehadiran</div>
-                    <div class="summary-value">{{ number_format(collect($grades)->avg('attendance_rate'), 1) }}%</div>
+                    <div class="summary-value">{{ number_format($grades['summary']['average_attendance_rate'], 1) }}%</div>
                 </div>
                 <div class="summary-item">
-                    <div class="summary-label">Lulus (≥75%)</div>
-                    <div class="summary-value">{{ collect($grades)->where('attendance_rate', '>=', 75)->count() }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-label">Tidak Lulus (<75%)</div>
-                    <div class="summary-value">{{ collect($grades)->where('attendance_rate', '<', 75)->count() }}</div>
+                    <div class="summary-label">Tidak Bisa UAS</div>
+                    <div class="summary-value">{{ $grades['summary']['students_at_risk'] }}</div>
                 </div>
             </div>
         </div>
@@ -192,36 +192,32 @@
                     <th class="text-center" style="width: 30px;">No</th>
                     <th style="width: 100px;">NIM</th>
                     <th>Nama Mahasiswa</th>
-                    <th class="text-center" style="width: 50px;">Hadir</th>
-                    <th class="text-center" style="width: 50px;">Terlambat</th>
-                    <th class="text-center" style="width: 50px;">Izin</th>
-                    <th class="text-center" style="width: 50px;">Sakit</th>
-                    <th class="text-center" style="width: 50px;">Alpha</th>
-                    <th class="text-center" style="width: 50px;">Total</th>
-                    <th class="text-center" style="width: 60px;">Kehadiran</th>
-                    <th class="text-center" style="width: 40px;">Nilai</th>
+                    <th class="text-center" style="width: 60px;">Hadir</th>
+                    <th class="text-center" style="width: 60px;">Total Sesi</th>
+                    <th class="text-center" style="width: 70px;">Kehadiran</th>
+                    <th class="text-center" style="width: 50px;">Poin</th>
+                    <th class="text-center" style="width: 50px;">Nilai</th>
                     <th class="text-center" style="width: 40px;">Huruf</th>
+                    <th class="text-center" style="width: 50px;">UAS</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($grades as $index => $grade)
+                @foreach($grades['grades'] as $index => $grade)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $grade['nim'] }}</td>
                     <td>{{ $grade['nama'] }}</td>
-                    <td class="text-center">{{ $grade['present'] }}</td>
-                    <td class="text-center">{{ $grade['late'] }}</td>
-                    <td class="text-center">{{ $grade['permit'] }}</td>
-                    <td class="text-center">{{ $grade['sick'] }}</td>
-                    <td class="text-center">{{ $grade['absent'] }}</td>
-                    <td class="text-center"><strong>{{ $grade['total'] }}</strong></td>
+                    <td class="text-center">{{ $grade['attended_sessions'] }}</td>
+                    <td class="text-center">{{ $grade['total_sessions'] }}</td>
                     <td class="text-center"><strong>{{ number_format($grade['attendance_rate'], 1) }}%</strong></td>
-                    <td class="text-center"><strong>{{ number_format($grade['final_grade'], 1) }}</strong></td>
+                    <td class="text-center">{{ number_format($grade['average_points'], 1) }}</td>
+                    <td class="text-center"><strong>{{ number_format($grade['attendance_grade'], 1) }}</strong></td>
                     <td class="text-center">
                         <span class="grade-{{ strtolower($grade['grade_letter']) }}">
                             {{ $grade['grade_letter'] }}
                         </span>
                     </td>
+                    <td class="text-center">{{ $grade['can_take_uas'] ? 'Ya' : 'Tidak' }}</td>
                 </tr>
                 @endforeach
             </tbody>
