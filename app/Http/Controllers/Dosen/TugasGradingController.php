@@ -7,6 +7,7 @@ use App\Models\Tugas;
 use App\Models\TugasSubmission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 
@@ -33,7 +34,7 @@ class TugasGradingController extends Controller
                     'nim' => $s->mahasiswa->nim,
                 ],
                 'content' => $s->content,
-                'file_path' => $s->file_path ? \Storage::url($s->file_path) : null,
+                'file_path' => $s->file_path ? Storage::url($s->file_path) : null,
                 'file_name' => $s->file_name,
                 'status' => $s->status,
                 'grade' => $s->grade,
