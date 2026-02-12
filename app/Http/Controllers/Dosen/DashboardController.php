@@ -19,14 +19,23 @@ class DashboardController extends Controller
     public function index(): Response
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseIds = $dosen->courses()->pluck('mata_kuliah.id');
+        
+        // Get courses taught by this dosen (using dosen_id in mata_kuliah table)
+        $courses = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->get();
+        $courseIds = $courses->pluck('id');
 
         // Stats
-        $totalCourses = $courseIds->count();
+        $totalCourses = $courses->count();
         
+        // Get unique students who have attended any session of this dosen's courses
         $totalStudents = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($courseIds) {
             $q->whereHas('session', fn($s) => $s->whereIn('course_id', $courseIds));
-        })->count();
+        })->distinct()->count();
+        
+        // If no attendance logs, count all students (assuming all students take all courses)
+        if ($totalStudents === 0) {
+            $totalStudents = Mahasiswa::count();
+        }
 
         $totalSessions = AttendanceSession::whereIn('course_id', $courseIds)->count();
         $thisMonthSessions = AttendanceSession::whereIn('course_id', $courseIds)
@@ -102,9 +111,10 @@ class DashboardController extends Controller
         }
 
         // Course stats
-        $courseStats = $dosen->courses()->get()->map(fn($c) => [
+        $courseStats = $courses->map(fn($c) => [
             'id' => $c->id,
             'name' => $c->nama,
+            'sks' => $c->sks,
             'sessions' => AttendanceSession::where('course_id', $c->id)->count(),
             'present' => AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $c->id))
                 ->where('status', 'present')->count(),

@@ -370,34 +370,71 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     variants={itemVariants}
                     className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-black"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <Zap className="h-5 w-5 text-amber-600" />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Aksi Cepat</h2>
+                    <div className="flex items-center gap-3 mb-6">
+                        <motion.div
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg"
+                        >
+                            <Zap className="h-5 w-5 text-white" />
+                        </motion.div>
+                        <div>
+                            <h2 className="font-semibold text-slate-900 dark:text-white">Aksi Cepat</h2>
+                            <p className="text-xs text-slate-500">Akses fitur utama dengan cepat</p>
+                        </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                         {quickActions.map((action, index) => (
                             <Link key={action.href} href={action.href}>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.05 }}
-                                    whileHover={{ scale: 1.05, y: -3 }}
+                                    whileHover={{ 
+                                        scale: 1.05, 
+                                        y: -5,
+                                        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)"
+                                    }}
                                     whileTap={{ scale: 0.95 }}
                                     className={cn(
-                                        "relative rounded-xl bg-gradient-to-br p-4 text-white cursor-pointer",
+                                        "relative rounded-2xl bg-gradient-to-br p-5 text-white cursor-pointer shadow-lg overflow-hidden group",
                                         action.color
                                     )}
                                 >
+                                    {/* Hover effect overlay */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        initial={false}
+                                    />
+                                    
                                     {action.badge && action.badge > 0 && (
-                                        <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/30 text-xs font-bold">
+                                        <motion.div 
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/30 backdrop-blur text-xs font-bold shadow-lg"
+                                        >
                                             {action.badge}
-                                        </div>
+                                        </motion.div>
                                     )}
                                     
-                                    <action.icon className="h-6 w-6 mb-3" />
-                                    <p className="text-sm font-semibold mb-1">{action.label}</p>
-                                    <p className="text-xs opacity-90">{action.description}</p>
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 5 }}
+                                        className="relative z-10"
+                                    >
+                                        <action.icon className="h-8 w-8 mb-3" />
+                                    </motion.div>
+                                    <p className="text-sm font-bold mb-1 relative z-10">{action.label}</p>
+                                    <p className="text-xs opacity-90 relative z-10">{action.description}</p>
+                                    
+                                    {/* Decorative gradient orb */}
+                                    <motion.div
+                                        animate={{ 
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.2, 0.3, 0.2]
+                                        }}
+                                        transition={{ duration: 3, repeat: Infinity }}
+                                        className="absolute -bottom-4 -right-4 w-20 h-20 rounded-full bg-white/20 blur-2xl"
+                                    />
                                 </motion.div>
                             </Link>
                         ))}
