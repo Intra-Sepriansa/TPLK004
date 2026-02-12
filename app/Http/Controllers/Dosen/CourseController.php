@@ -29,10 +29,8 @@ class CourseController extends Controller
                 $q->whereHas('session', fn($s) => $s->where('course_id', $course->id));
             })->count();
             
-            // If no attendance logs, count all students
-            if ($students === 0) {
-                $students = Mahasiswa::count();
-            }
+            // Total students = all students in system
+            $totalStudents = Mahasiswa::count();
 
             return [
                 'id' => $course->id,
@@ -40,7 +38,7 @@ class CourseController extends Controller
                 'kode' => $course->kode ?? '-',
                 'sks' => $course->sks,
                 'totalSessions' => $totalSessions,
-                'totalStudents' => $students,
+                'totalStudents' => $totalStudents,
                 'attendanceRate' => $totalLogs > 0 ? round(($presentLogs / $totalLogs) * 100) : 0,
             ];
         });
@@ -101,6 +99,7 @@ class CourseController extends Controller
 
         // Stats
         $totalSessions = $sessions->count();
+        $totalStudents = Mahasiswa::count(); // Total students in system
         $totalLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))->count();
         $presentLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))
             ->whereIn('status', ['present', 'late'])->count();
@@ -130,7 +129,7 @@ class CourseController extends Controller
             'students' => $students,
             'stats' => [
                 'totalSessions' => $totalSessions,
-                'totalStudents' => $students->count(),
+                'totalStudents' => $totalStudents,
                 'attendanceRate' => $totalLogs > 0 ? round(($presentLogs / $totalLogs) * 100) : 0,
                 'lateRate' => $totalLogs > 0 ? round(($lateLogs / $totalLogs) * 100) : 0,
             ],

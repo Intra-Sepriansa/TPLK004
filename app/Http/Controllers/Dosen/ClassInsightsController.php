@@ -150,6 +150,7 @@ class ClassInsightsController extends Controller
             ->toArray();
 
         // Overall stats
+        $totalStudents = Mahasiswa::count(); // Total students in system
         $totalLogs = AttendanceLog::whereIn('attendance_session_id', $sessionIds)->count();
         $presentLogs = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
             ->whereIn('status', ['present', 'late'])->count();
@@ -162,8 +163,7 @@ class ClassInsightsController extends Controller
             ],
             'summary' => [
                 'total_sessions' => $sessions->count(),
-                'total_students' => AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-                    ->distinct('mahasiswa_id')->count('mahasiswa_id'),
+                'total_students' => $totalStudents,
                 'average_attendance' => $totalLogs > 0 
                     ? round(($presentLogs / $totalLogs) * 100, 1) 
                     : 0,
