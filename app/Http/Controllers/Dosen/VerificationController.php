@@ -15,7 +15,7 @@ class VerificationController extends Controller
     public function index(): Response
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseIds = $dosen->courses()->pluck('mata_kuliah.id');
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
 
         $pendingVerifications = SelfieVerification::where('status', 'pending')
             ->whereHas('attendanceLog.session', fn($q) => $q->whereIn('course_id', $courseIds))
@@ -72,7 +72,7 @@ class VerificationController extends Controller
     public function approve(SelfieVerification $verification): \Illuminate\Http\RedirectResponse
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseIds = $dosen->courses()->pluck('mata_kuliah.id');
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
 
         if (!$verification->attendanceLog?->session || 
             !$courseIds->contains($verification->attendanceLog->session->course_id)) {
@@ -95,7 +95,7 @@ class VerificationController extends Controller
     public function reject(SelfieVerification $verification, Request $request): \Illuminate\Http\RedirectResponse
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseIds = $dosen->courses()->pluck('mata_kuliah.id');
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
 
         if (!$verification->attendanceLog?->session || 
             !$courseIds->contains($verification->attendanceLog->session->course_id)) {

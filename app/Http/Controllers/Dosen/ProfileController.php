@@ -18,7 +18,7 @@ class ProfileController extends Controller
         $dosen = Auth::guard('dosen')->user();
 
         $stats = [
-            'totalCourses' => $dosen->courses()->count(),
+            'totalCourses' => \App\Models\MataKuliah::where('dosen_id', $dosen->id)->count(),
             'totalSessions' => $dosen->sessions()->count(),
             'totalVerifications' => $dosen->selfieVerifications()->count(),
         ];
