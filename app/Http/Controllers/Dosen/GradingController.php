@@ -61,6 +61,35 @@ class GradingController extends Controller
             ->header('Content-Disposition', "attachment; filename={$filename}");
     }
 
+    public function exportPdf(Request $request, int $courseId)
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        $course = MataKuliah::find($courseId);
+        if (!$course || $course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        $grades = $this->gradingService->calculateClassGrades($courseId);
+
+        $data = [
+            'course' => $course,
+            'dosen' => $dosen,
+            'grades' => $grades,
+            'generated_at' => now()->format('d F Y H:i:s'),
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.nilai-kehadiran-dosen', $data);
+        $pdf->setPaper('a4', 'landscape');
+
+        $filename = sprintf('nilai_kehadiran_%s_%s.pdf', 
+            str_replace(' ', '_', $course->nama ?? 'course'),
+            now()->format('Y-m-d')
+        );
+
+        return $pdf->download($filename);
+    }
+
     public function studentReport(int $mahasiswaId)
     {
         $dosen = Auth::guard('dosen')->user();

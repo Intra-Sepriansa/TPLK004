@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
     GraduationCap, Download, Users, Award, AlertTriangle, 
     CheckCircle, TrendingUp, X, Search, Filter, FileSpreadsheet,
-    ArrowUpDown, Eye, Edit, BarChart3, FileText, Mail, Printer
+    ArrowUpDown, Eye, BarChart3, FileText, Printer
 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -108,9 +109,15 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
         router.get('/dosen/grading', { course_id: courseId }, { preserveState: true });
     };
 
-    const handleExport = () => {
+    const handleExportCsv = () => {
         if (selectedCourseId) {
             window.location.href = `/dosen/grading/export/${selectedCourseId}`;
+        }
+    };
+
+    const handleExportPdf = () => {
+        if (selectedCourseId) {
+            window.location.href = `/dosen/grading/export-pdf/${selectedCourseId}`;
         }
     };
 
@@ -217,15 +224,26 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                     </SelectContent>
                                 </Select>
                                 {grades && (
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button 
-                                            onClick={handleExport} 
-                                            className="bg-white/10 hover:bg-white/20 text-white border-0 backdrop-blur"
-                                        >
-                                            <Download className="h-4 w-4 mr-2" />
-                                            Export
-                                        </Button>
-                                    </motion.div>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                                <Button className="bg-white/10 hover:bg-white/20 text-white border-0 backdrop-blur">
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Export
+                                                </Button>
+                                            </motion.div>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-48">
+                                            <DropdownMenuItem onClick={handleExportCsv} className="cursor-pointer">
+                                                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                                                Export CSV
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleExportPdf} className="cursor-pointer">
+                                                <FileText className="h-4 w-4 mr-2" />
+                                                Export PDF
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 )}
                             </div>
                         </div>
@@ -533,19 +551,20 @@ export default function Grading({ dosen, courses, selectedCourseId, grades }: Pr
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
-                                            onClick={handleExport}
+                                            onClick={handleExportCsv}
                                             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white text-sm font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all"
                                         >
                                             <FileSpreadsheet className="h-4 w-4" />
-                                            Excel
+                                            CSV
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
+                                            onClick={handleExportPdf}
                                             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 text-white text-sm font-medium shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all"
                                         >
-                                            <Printer className="h-4 w-4" />
-                                            Print
+                                            <FileText className="h-4 w-4" />
+                                            PDF
                                         </motion.button>
                                     </div>
                                 </div>

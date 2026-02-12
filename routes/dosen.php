@@ -77,6 +77,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     // Grading
     Route::get('/grading', [\App\Http\Controllers\Dosen\GradingController::class, 'index'])->name('grading');
     Route::get('/grading/export/{courseId}', [\App\Http\Controllers\Dosen\GradingController::class, 'export'])->name('grading.export');
+    Route::get('/grading/export-pdf/{courseId}', [\App\Http\Controllers\Dosen\GradingController::class, 'exportPdf'])->name('grading.export-pdf');
     Route::get('/grading/student/{mahasiswaId}', [\App\Http\Controllers\Dosen\GradingController::class, 'studentReport'])->name('grading.student');
     Route::post('/grading/override', [\App\Http\Controllers\Dosen\GradingController::class, 'override'])->name('grading.override');
     
