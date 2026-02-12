@@ -140,18 +140,19 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
         <DosenLayout>
             <Head title="Persetujuan Izin" />
             <div className="space-y-6 p-6">
-                {/* Header */}
-                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-6 text-white shadow-xl transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
-                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                {/* Header with Black Gradient */}
+                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl border border-gray-800 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                    {/* Animated Background Orbs */}
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-3xl animate-pulse" />
+                    <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                    <div className="absolute top-1/2 left-1/2 h-48 w-48 rounded-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
                     
                     {/* Floating Icons */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         {[Shield, FileCheck, ClipboardCheck].map((Icon, i) => (
                             <Icon 
                                 key={i}
-                                className="absolute text-white/20 animate-pulse"
+                                className="absolute text-white/10 animate-pulse"
                                 style={{
                                     left: `${15 + i * 25}%`,
                                     top: `${20 + (i % 2) * 40}%`,
@@ -163,15 +164,15 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                         ))}
                     </div>
                     
-                    <div className="relative">
+                    <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg animate-bounce" style={{ animationDuration: '2s' }}>
-                                    <Shield className="h-7 w-7" />
+                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50">
+                                    <Shield className="h-8 w-8" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-emerald-100 font-medium">Persetujuan</p>
-                                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                                    <p className="text-sm text-gray-400 font-medium">Persetujuan</p>
+                                    <h1 className="text-3xl font-bold flex items-center gap-2">
                                         Izin & Sakit
                                         <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
                                     </h1>
@@ -181,7 +182,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 value={filters.session_id || 'all'}
                                 onValueChange={(v) => router.get('/dosen/permits', { ...filters, session_id: v === 'all' ? null : v }, { preserveState: true })}
                             >
-                                <SelectTrigger className="w-[220px] bg-white/20 border-white/30 text-white">
+                                <SelectTrigger className="w-[220px] bg-white/10 border-white/20 text-white backdrop-blur-sm hover:bg-white/15">
                                     <SelectValue placeholder="Filter Sesi" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -194,22 +195,26 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <p className="mt-4 text-emerald-100">Kelola pengajuan izin dan sakit mahasiswa</p>
+                        <p className="mt-4 text-gray-400">Kelola pengajuan izin dan sakit mahasiswa</p>
                         
                         {/* Quick Stats in Header */}
                         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[
-                                { icon: FileText, label: 'Total', value: stats.total, color: 'text-white' },
-                                { icon: Clock, label: 'Menunggu', value: stats.pending, color: 'text-amber-200' },
-                                { icon: CheckCircle, label: 'Disetujui', value: stats.approved, color: 'text-emerald-200' },
-                                { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'text-red-200' },
+                                { icon: FileText, label: 'Total', value: stats.total, iconBg: 'bg-blue-500' },
+                                { icon: Clock, label: 'Menunggu', value: stats.pending, iconBg: 'bg-amber-500' },
+                                { icon: CheckCircle, label: 'Disetujui', value: stats.approved, iconBg: 'bg-emerald-500' },
+                                { icon: XCircle, label: 'Ditolak', value: stats.rejected, iconBg: 'bg-red-500' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white/10 backdrop-blur rounded-xl p-3 hover:bg-white/20 transition-all hover:scale-105 cursor-pointer">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <stat.icon className={cn("h-4 w-4", stat.color)} />
-                                        <p className="text-emerald-100 text-xs font-medium">{stat.label}</p>
+                                <div key={i} className="relative rounded-2xl bg-white/10 backdrop-blur-sm p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className={`p-2.5 rounded-xl ${stat.iconBg} shadow-lg`}>
+                                                <stat.icon className="h-5 w-5 text-white" />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs font-medium text-gray-400 mb-2">{stat.label}</p>
+                                        <p className="text-2xl font-bold">{stat.value}</p>
                                     </div>
-                                    <p className="text-2xl font-bold">{stat.value}</p>
                                 </div>
                             ))}
                         </div>
