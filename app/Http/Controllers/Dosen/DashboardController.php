@@ -151,7 +151,7 @@ class DashboardController extends Controller
                 'meeting_number' => $s->meeting_number,
                 'time' => $s->start_at?->format('H:i') . ' - ' . $s->end_at?->format('H:i'),
                 'room' => $s->room ?? 'TBA',
-                'student_count' => Mahasiswa::whereHas('attendanceLogs', fn($q) => $q->where('session_id', $s->id))->count(),
+                'student_count' => Mahasiswa::whereHas('attendanceLogs', fn($q) => $q->where('attendance_session_id', $s->id))->count(),
             ]);
 
         return Inertia::render('dosen/dashboard', [
