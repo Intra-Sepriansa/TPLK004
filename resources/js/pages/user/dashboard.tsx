@@ -567,96 +567,178 @@ export default function UserDashboard() {
                 animate="visible"
                 className="space-y-6 p-6"
             >
-                {/* Welcome Card - Enhanced with Advanced Animations */}
+                {/* Welcome Card - ULTRA ADVANCED with Student Theme */}
                 <motion.div 
                     variants={itemVariants}
                     whileHover={{ scale: 1.01, rotateY: 1 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d' }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated Background Elements with Enhanced Motion */}
-                    <motion.div 
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, 120, 0],
-                            opacity: [0.08, 0.15, 0.08]
-                        }}
-                        transition={{
-                            duration: 25,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"
-                    />
+                    {/* Ultra Advanced Animated Background Orbs */}
                     <motion.div 
                         animate={{
                             scale: [1, 1.4, 1],
-                            rotate: [0, -120, 0],
-                            opacity: [0.08, 0.12, 0.08]
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
                         }}
                         transition={{
                             duration: 20,
                             repeat: Infinity,
-                            ease: "linear"
+                            ease: "easeInOut"
                         }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                            x: [0, 30, 0],
+                            y: [0, -20, 0],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2,
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
                     
-                    {/* Enhanced Floating Sparkles with Physics */}
-                    {[...Array(8)].map((_, i) => (
+                    {/* 30 Floating Particles with Advanced Physics */}
+                    {[...Array(30)].map((_, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, scale: 0, y: 0 }}
                             animate={{ 
-                                opacity: [0, 1, 0.8, 0],
-                                scale: [0, 1.5, 1, 0],
-                                y: [0, -40, -80, -120],
-                                x: [0, Math.sin(i) * 30, Math.cos(i) * 20, 0],
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
                             }}
                             transition={{
-                                duration: 4 + Math.random() * 2,
+                                duration: 5 + Math.random() * 3,
                                 repeat: Infinity,
-                                delay: i * 0.5,
+                                delay: i * 0.3,
                                 ease: "easeOut"
                             }}
-                            className="absolute rounded-full bg-white/50 shadow-lg"
+                            className="absolute rounded-full shadow-lg"
                             style={{
-                                width: `${4 + Math.random() * 8}px`,
-                                height: `${4 + Math.random() * 8}px`,
-                                left: `${15 + i * 10}%`,
-                                top: `${25 + (i % 3) * 25}%`,
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 3) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0 
+                                    ? 'rgba(255, 255, 255, 0.6)' 
+                                    : i % 3 === 1 
+                                        ? 'rgba(6, 182, 212, 0.5)' 
+                                        : 'rgba(59, 130, 246, 0.5)',
                                 filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
                             }}
                         />
                     ))}
                     
-                    {/* Gradient Orbs */}
+                    {/* Floating Icons with Advanced Animations */}
                     <motion.div
                         animate={{
-                            x: [0, 50, 0],
-                            y: [0, -30, 0],
-                            scale: [1, 1.2, 1],
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
                         }}
                         transition={{
-                            duration: 8,
+                            duration: 6,
                             repeat: Infinity,
                             ease: "easeInOut"
                         }}
-                        className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full bg-gradient-to-br from-white/10 to-transparent blur-3xl"
-                    />
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <BookOpen className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <Target className="h-20 w-20" />
+                    </motion.div>
+                    
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
                     
                     <div className="relative flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-5">
                             <motion.div 
                                 whileHover={{ 
-                                    scale: 1.15, 
-                                    rotate: [0, -5, 5, 0],
-                                    boxShadow: "0 0 30px rgba(255,255,255,0.5)"
+                                    scale: 1.2, 
+                                    rotate: [0, -8, 8, 0],
+                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
                                 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur ring-4 ring-white/30 cursor-pointer"
+                                whileTap={{ scale: 0.92 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
                             >
+                                {/* Glow effect behind avatar */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0.8, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                />
                                 {mahasiswa.avatar_url ? (
                                     <motion.img
                                         initial={{ scale: 0, rotate: -180 }}
@@ -664,14 +746,15 @@ export default function UserDashboard() {
                                         transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                                         src={mahasiswa.avatar_url}
                                         alt={mahasiswa.nama}
-                                        className="h-14 w-14 rounded-xl object-cover"
+                                        className="relative h-16 w-16 rounded-xl object-cover shadow-lg"
                                     />
                                 ) : (
                                     <motion.div
-                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        whileHover={{ scale: 1.15, y: -3 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="relative"
                                     >
-                                        <User className="h-8 w-8" />
+                                        <User className="h-10 w-10" />
                                     </motion.div>
                                 )}
                             </motion.div>
@@ -680,7 +763,7 @@ export default function UserDashboard() {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2, type: "spring" }}
-                                    className="text-sm text-emerald-100 font-medium"
+                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
                                 >
                                     Selamat datang kembali,
                                 </motion.p>
@@ -688,18 +771,31 @@ export default function UserDashboard() {
                                     initial={{ opacity: 0, x: -20, scale: 0.9 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
                                     transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
-                                    className="text-2xl font-bold"
+                                    className="text-3xl font-extrabold tracking-tight"
                                 >
                                     {mahasiswa.nama}
                                 </motion.h1>
-                                <motion.p 
+                                <motion.div
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4, type: "spring" }}
-                                    className="text-sm text-emerald-100"
+                                    className="flex items-center gap-2 mt-1"
                                 >
-                                    NIM: {mahasiswa.nim}
-                                </motion.p>
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.7, 1, 0.7],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="h-2 w-2 rounded-full bg-cyan-300"
+                                    />
+                                    <p className="text-sm text-cyan-100 font-mono">
+                                        NIM: {mahasiswa.nim}
+                                    </p>
+                                </motion.div>
                             </div>
                         </div>
                         
@@ -709,25 +805,38 @@ export default function UserDashboard() {
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                                    whileHover={{ scale: 1.05, y: -3 }}
-                                    className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur ring-2 ring-white/30 cursor-pointer"
+                                    whileHover={{ scale: 1.08, y: -4 }}
+                                    className="relative flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl ring-2 ring-white/40 cursor-pointer shadow-xl"
                                 >
                                     <motion.div
                                         animate={{ 
-                                            scale: [1, 1.1, 1],
+                                            scale: [1, 1.15, 1],
+                                            rotate: [0, 5, -5, 0],
                                         }}
                                         transition={{ duration: 2, repeat: Infinity }}
                                     >
-                                        <Flame className="h-5 w-5 text-orange-300" />
+                                        <Flame className="h-6 w-6 text-orange-300" />
                                     </motion.div>
                                     <motion.span 
-                                        className="font-bold text-lg"
-                                        animate={{ scale: [1, 1.1, 1] }}
+                                        className="font-extrabold text-xl"
+                                        animate={{ scale: [1, 1.12, 1] }}
                                         transition={{ duration: 1.5, repeat: Infinity }}
                                     >
                                         {stats.currentStreak}
                                     </motion.span>
-                                    <span className="text-sm text-emerald-100">hari streak</span>
+                                    <span className="text-sm text-cyan-100 font-semibold">hari streak</span>
+                                    {/* Pulse effect */}
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.5, 1],
+                                            opacity: [0.5, 0, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="absolute inset-0 rounded-full bg-orange-300/30"
+                                    />
                                 </motion.div>
                             )}
                             <Link href="/user/absen">
@@ -735,39 +844,70 @@ export default function UserDashboard() {
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
-                                    whileHover={{ scale: 1.08, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
+                                    whileHover={{ scale: 1.1, y: -4 }}
+                                    whileTap={{ scale: 0.93 }}
                                 >
-                                    <Button className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-xl font-semibold relative overflow-hidden group">
+                                    <Button className="bg-white text-blue-600 hover:bg-cyan-50 shadow-2xl font-bold text-base px-6 py-6 relative overflow-hidden group">
                                         <motion.div
-                                            className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 to-teal-400/20"
+                                            className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 to-blue-400/30"
                                             initial={{ x: '-100%' }}
                                             whileHover={{ x: '100%' }}
-                                            transition={{ duration: 0.5 }}
+                                            transition={{ duration: 0.6 }}
                                         />
-                                        <QrCode className="h-4 w-4 mr-2 relative z-10" />
+                                        <motion.div
+                                            whileHover={{ rotate: 360 }}
+                                            transition={{ duration: 0.6 }}
+                                            className="relative z-10"
+                                        >
+                                            <QrCode className="h-5 w-5 mr-2" />
+                                        </motion.div>
                                         <span className="relative z-10">Absen Sekarang</span>
+                                        {/* Sparkle effect */}
+                                        <motion.div
+                                            animate={{
+                                                scale: [0, 1, 0],
+                                                rotate: [0, 180, 360],
+                                                opacity: [0, 1, 0],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                delay: 0.5,
+                                            }}
+                                            className="absolute top-1 right-1"
+                                        >
+                                            <Sparkles className="h-3 w-3 text-cyan-400" />
+                                        </motion.div>
                                     </Button>
                                 </motion.div>
                             </Link>
                         </div>
                     </div>
 
-                    {/* Mobile CTA with Enhanced Animation */}
+                    {/* Mobile CTA with Ultra Enhanced Animation */}
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7 }}
-                        className="mt-4 flex gap-2 sm:hidden"
+                        className="mt-6 flex gap-2 sm:hidden"
                     >
                         <Link href="/user/absen" className="flex-1">
                             <motion.div
                                 whileTap={{ scale: 0.95 }}
-                                whileHover={{ scale: 1.02 }}
+                                whileHover={{ scale: 1.03 }}
                             >
-                                <Button className="w-full bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg">
-                                    <QrCode className="h-4 w-4 mr-2" />
-                                    Absen Sekarang
+                                <Button className="w-full bg-white text-blue-600 hover:bg-cyan-50 shadow-xl font-bold py-6 relative overflow-hidden group">
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-400/20"
+                                        animate={{ x: ['-100%', '100%'] }}
+                                        transition={{ 
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                        }}
+                                    />
+                                    <QrCode className="h-5 w-5 mr-2 relative z-10" />
+                                    <span className="relative z-10">Absen Sekarang</span>
                                 </Button>
                             </motion.div>
                         </Link>
@@ -784,7 +924,7 @@ export default function UserDashboard() {
                         label="Total Kehadiran"
                         value={stats.totalAttendance}
                         subtext={`dari ${stats.totalSessions} sesi`}
-                        color="emerald"
+                        color="sky"
                         trend="up"
                     />
                     <QuickStatCard
@@ -793,7 +933,7 @@ export default function UserDashboard() {
                         value={stats.attendanceRate}
                         suffix="%"
                         subtext="kehadiran"
-                        color="sky"
+                        color="emerald"
                         trend={stats.attendanceRate >= 75 ? "up" : "down"}
                     />
                     <QuickStatCard
@@ -1519,38 +1659,38 @@ export default function UserDashboard() {
                             </div>
                         </motion.div>
 
-                        {/* Attendance Rate Card - Enhanced */}
+                        {/* Attendance Rate Card - Enhanced with Student Theme */}
                         <motion.div 
                             variants={itemVariants}
                             whileHover={{ 
                                 scale: 1.03, 
                                 y: -5,
-                                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3)",
+                                boxShadow: "0 20px 25px -5px rgba(6, 182, 212, 0.4)",
                             }}
                             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                            className="rounded-2xl border border-gray-200 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-lg dark:from-slate-800 dark:to-black relative overflow-hidden group cursor-pointer"
+                            className="rounded-2xl border border-cyan-200 bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-6 text-white shadow-lg dark:border-cyan-800 relative overflow-hidden group cursor-pointer"
                         >
                             {/* Animated background orbs */}
                             <motion.div
                                 animate={{
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.1, 0.2, 0.1],
-                                    x: [0, 20, 0],
-                                    y: [0, -20, 0],
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.15, 0.25, 0.15],
+                                    x: [0, 30, 0],
+                                    y: [0, -25, 0],
                                 }}
                                 transition={{
                                     duration: 8,
                                     repeat: Infinity,
                                     ease: "easeInOut"
                                 }}
-                                className="absolute top-0 right-0 w-32 h-32 rounded-full bg-emerald-500/20 blur-3xl"
+                                className="absolute top-0 right-0 w-40 h-40 rounded-full bg-cyan-400/30 blur-3xl"
                             />
                             <motion.div
                                 animate={{
-                                    scale: [1, 1.3, 1],
-                                    opacity: [0.1, 0.15, 0.1],
-                                    x: [0, -20, 0],
-                                    y: [0, 20, 0],
+                                    scale: [1, 1.4, 1],
+                                    opacity: [0.15, 0.2, 0.15],
+                                    x: [0, -25, 0],
+                                    y: [0, 25, 0],
                                 }}
                                 transition={{
                                     duration: 10,
@@ -1558,11 +1698,37 @@ export default function UserDashboard() {
                                     ease: "easeInOut",
                                     delay: 1,
                                 }}
-                                className="absolute bottom-0 left-0 w-40 h-40 rounded-full bg-sky-500/20 blur-3xl"
+                                className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-400/30 blur-3xl"
                             />
                             
+                            {/* Floating particles */}
+                            {[...Array(10)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    animate={{
+                                        y: [0, -30, -60, -90],
+                                        x: [0, Math.sin(i) * 20, Math.cos(i) * 15, 0],
+                                        opacity: [0, 0.6, 0.4, 0],
+                                        scale: [0, 1.2, 0.8, 0],
+                                    }}
+                                    transition={{
+                                        duration: 4 + Math.random() * 2,
+                                        repeat: Infinity,
+                                        delay: i * 0.4,
+                                        ease: "easeOut"
+                                    }}
+                                    className="absolute rounded-full bg-white/40"
+                                    style={{
+                                        width: `${3 + Math.random() * 6}px`,
+                                        height: `${3 + Math.random() * 6}px`,
+                                        left: `${20 + i * 8}%`,
+                                        bottom: '10%',
+                                    }}
+                                />
+                            ))}
+                            
                             <motion.p 
-                                className="text-sm text-gray-400 relative z-10"
+                                className="text-sm text-cyan-100 font-semibold relative z-10"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
@@ -1571,7 +1737,7 @@ export default function UserDashboard() {
                             </motion.p>
                             <div className="flex items-end gap-2 mt-2 relative z-10">
                                 <motion.span 
-                                    className="text-4xl font-bold"
+                                    className="text-5xl font-extrabold"
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ 
@@ -1584,22 +1750,25 @@ export default function UserDashboard() {
                                 </motion.span>
                                 {stats.attendanceRate >= 75 ? (
                                     <motion.span 
-                                        className="text-emerald-400 text-sm mb-1 flex items-center gap-1"
+                                        className="text-cyan-200 text-sm mb-2 flex items-center gap-1 font-semibold"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.5 }}
                                     >
                                         <motion.div
-                                            animate={{ scale: [1, 1.2, 1] }}
+                                            animate={{ 
+                                                scale: [1, 1.3, 1],
+                                                rotate: [0, 15, -15, 0],
+                                            }}
                                             transition={{ duration: 1.5, repeat: Infinity }}
                                         >
                                             ✨
                                         </motion.div>
-                                        Bagus!
+                                        Luar Biasa!
                                     </motion.span>
                                 ) : (
                                     <motion.span 
-                                        className="text-amber-400 text-sm mb-1"
+                                        className="text-amber-300 text-sm mb-2 font-semibold"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.5 }}
@@ -1617,14 +1786,16 @@ export default function UserDashboard() {
                             >
                                 <Progress
                                     value={stats.attendanceRate}
-                                    className="mt-4 h-2 bg-gray-700"
+                                    className="mt-4 h-3 bg-white/20 backdrop-blur"
                                     indicatorClassName={cn(
-                                        stats.attendanceRate >= 75 ? 'bg-emerald-500' : 'bg-amber-500'
+                                        stats.attendanceRate >= 75 
+                                            ? 'bg-gradient-to-r from-cyan-300 to-teal-300' 
+                                            : 'bg-gradient-to-r from-amber-300 to-orange-300'
                                     )}
                                 />
                             </motion.div>
                             <motion.p 
-                                className="text-xs text-gray-400 mt-2 relative z-10"
+                                className="text-xs text-cyan-100 mt-3 relative z-10 font-medium"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.7 }}
