@@ -21,6 +21,9 @@ interface Notification {
     action_url: string | null;
     read_at: string | null;
     created_at: string;
+    created_by_type?: string;
+    created_by_id?: number;
+    metadata?: any;
 }
 
 interface Mahasiswa {
@@ -509,6 +512,13 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                                             <div className="flex items-center gap-2 flex-wrap mb-1">
                                                 <span className="font-semibold text-gray-900 dark:text-white">{notif.title}</span>
                                                 {getPriorityBadge(notif.priority)}
+                                                {/* Show "Terkirim" badge for sent notifications */}
+                                                {(notif as any).created_by_type === 'dosen' && (notif as any).created_by_id === dosen.id && (
+                                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center gap-1">
+                                                        <Send className="h-3 w-3" />
+                                                        Terkirim
+                                                    </span>
+                                                )}
                                                 {!notif.read_at && (
                                                     <motion.span
                                                         animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}

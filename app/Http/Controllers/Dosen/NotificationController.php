@@ -17,9 +17,32 @@ class NotificationController extends Controller
             return redirect()->route('login');
         }
 
-        $notifications = AppNotification::forUser('dosen', $dosen->id)
+        // Get notifications FOR this dosen (received)
+        $receivedNotifications = AppNotification::forUser('dosen', $dosen->id)
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->get();
+
+        // Get notifications SENT BY this dosen
+        $sentNotifications = AppNotification::where('created_by_type', 'dosen')
+            ->where('created_by_id', $dosen->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Merge and paginate
+        $allNotifications = $receivedNotifications->merge($sentNotifications)
+            ->sortByDesc('created_at')
+            ->values();
+
+        // Paginate manually
+        $perPage = 20;
+        $currentPage = request()->get('page', 1);
+        $notifications = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allNotifications->forPage($currentPage, $perPage),
+            $allNotifications->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         $unreadCount = AppNotification::forUser('dosen', $dosen->id)
             ->unread()
@@ -34,20 +57,13 @@ class NotificationController extends Controller
             $mahasiswa = \App\Models\Mahasiswa::all();
         }
 
-        // Get sent notifications by this dosen
-        $sentNotifications = AppNotification::where('created_by_type', 'dosen')
-            ->where('created_by_id', $dosen->id)
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-
         return Inertia::render('dosen/notifications', [
             'dosen' => $dosen,
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
             'course' => $course,
             'mahasiswa' => $mahasiswa,
-            'sentNotifications' => $sentNotifications,
+            'sentNotifications' => $sentNotifications->take(10),
         ]);
     }
 
