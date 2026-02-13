@@ -535,152 +535,419 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                 </motion.div>
             </motion.div>
 
-            {/* Form Modal */}
+            {/* Ultra Advanced Form Modal */}
+            <AnimatePresence>
             {showForm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+                    onClick={() => { setShowForm(false); setFormStep(1); }}
+                >
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900 max-h-[90vh] overflow-hidden flex flex-col"
+                        initial={{ opacity: 0, scale: 0.85, y: 30, rotateX: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+                        exit={{ opacity: 0, scale: 0.85, y: 30, rotateX: 10 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                        className="w-full max-w-3xl rounded-3xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 p-8 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col border-2 border-slate-200/50 dark:border-gray-800/50"
+                        style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex items-start justify-between mb-6">
-                            <div className="flex items-center gap-3">
-                                <motion.div 
-                                    whileHover={{ scale: 1.1, rotate: 5 }}
-                                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 text-white shadow-lg"
-                                >
-                                    <HeartPulse className="h-6 w-6" />
-                                </motion.div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Ajukan Izin/Sakit</h3>
-                                    <p className="text-sm text-slate-500">Isi form berikut dengan lengkap</p>
-                                </div>
-                            </div>
-                            <button onClick={() => { setShowForm(false); setFormStep(1); }} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                <X className="h-5 w-5 text-slate-400" />
-                            </button>
+                        {/* Animated Background Orbs */}
+                        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.3, 1],
+                                    rotate: [0, 90, 180],
+                                    opacity: [0.05, 0.1, 0.05],
+                                }}
+                                transition={{
+                                    duration: 15,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 blur-3xl"
+                            />
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.4, 1],
+                                    rotate: [180, 90, 0],
+                                    opacity: [0.05, 0.08, 0.05],
+                                }}
+                                transition={{
+                                    duration: 18,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                }}
+                                className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 blur-3xl"
+                            />
                         </div>
 
-                        {/* Progress Steps */}
-                        <div className="flex items-center justify-between mb-6 px-4">
-                            {[1, 2, 3].map((step) => (
-                                <div key={step} className="flex items-center flex-1">
+                        {/* Header with Close Button */}
+                        <div className="relative flex items-start justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <motion.div 
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+                                    whileHover={{ scale: 1.15, rotate: [0, -10, 10, -10, 0] }}
+                                    className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-500 text-white shadow-2xl shadow-teal-500/30"
+                                >
+                                    {/* Glow Effect */}
                                     <motion.div
                                         animate={{
-                                            scale: formStep === step ? 1.1 : 1,
-                                            backgroundColor: formStep >= step ? '#14b8a6' : '#e5e7eb'
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.5, 0.8, 0.5],
                                         }}
-                                        className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold"
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-teal-400 to-cyan-500 blur-xl"
+                                    />
+                                    <HeartPulse className="relative h-8 w-8" />
+                                </motion.div>
+                                <div>
+                                    <motion.h3 
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-2xl font-bold text-slate-900 dark:text-white"
                                     >
-                                        {formStep > step ? (
-                                            <CheckCircle className="h-5 w-5" />
-                                        ) : (
-                                            step
-                                        )}
-                                    </motion.div>
-                                    {step < 3 && (
-                                        <motion.div
-                                            animate={{
-                                                backgroundColor: formStep > step ? '#14b8a6' : '#e5e7eb'
-                                            }}
-                                            className="flex-1 h-1 mx-2"
-                                        />
-                                    )}
+                                        Ajukan Izin/Sakit
+                                    </motion.h3>
+                                    <motion.p 
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 font-medium"
+                                    >
+                                        Isi form berikut dengan lengkap dan jelas
+                                    </motion.p>
                                 </div>
-                            ))}
+                            </div>
+                            <motion.button 
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                                whileHover={{ scale: 1.1, rotate: 90 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => { setShowForm(false); setFormStep(1); }} 
+                                className="p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group"
+                            >
+                                <X className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                            </motion.button>
+                        </div>
+
+                        {/* Ultra Advanced Progress Steps */}
+                        <div className="relative mb-10 px-6">
+                            <div className="flex items-center justify-between">
+                                {[
+                                    { step: 1, label: 'Pilih Sesi', icon: Calendar },
+                                    { step: 2, label: 'Alasan', icon: FileText },
+                                    { step: 3, label: 'Lampiran', icon: Upload }
+                                ].map((item, index) => (
+                                    <div key={item.step} className="flex items-center flex-1">
+                                        <div className="relative flex flex-col items-center">
+                                            {/* Step Circle with Advanced Animations */}
+                                            <motion.div
+                                                animate={{
+                                                    scale: formStep === item.step ? [1, 1.15, 1] : 1,
+                                                    boxShadow: formStep === item.step 
+                                                        ? ['0 0 0 0 rgba(20, 184, 166, 0)', '0 0 0 15px rgba(20, 184, 166, 0.1)', '0 0 0 0 rgba(20, 184, 166, 0)']
+                                                        : '0 0 0 0 rgba(20, 184, 166, 0)',
+                                                }}
+                                                transition={{
+                                                    scale: { duration: 0.3 },
+                                                    boxShadow: { duration: 2, repeat: formStep === item.step ? Infinity : 0 }
+                                                }}
+                                                className={`relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl font-bold text-lg transition-all duration-500 ${
+                                                    formStep >= item.step
+                                                        ? 'bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-500 text-white shadow-xl shadow-teal-500/30'
+                                                        : 'bg-slate-200 dark:bg-gray-800 text-slate-400 dark:text-gray-600'
+                                                }`}
+                                            >
+                                                <AnimatePresence mode="wait">
+                                                    {formStep > item.step ? (
+                                                        <motion.div
+                                                            key="check"
+                                                            initial={{ scale: 0, rotate: -180 }}
+                                                            animate={{ scale: 1, rotate: 0 }}
+                                                            exit={{ scale: 0, rotate: 180 }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                        >
+                                                            <CheckCircle className="h-6 w-6" />
+                                                        </motion.div>
+                                                    ) : (
+                                                        <motion.div
+                                                            key="icon"
+                                                            initial={{ scale: 0, rotate: -180 }}
+                                                            animate={{ scale: 1, rotate: 0 }}
+                                                            exit={{ scale: 0, rotate: 180 }}
+                                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                        >
+                                                            <item.icon className="h-6 w-6" />
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                                
+                                                {/* Pulse Ring for Active Step */}
+                                                {formStep === item.step && (
+                                                    <motion.div
+                                                        initial={{ scale: 1, opacity: 0.5 }}
+                                                        animate={{ scale: 1.5, opacity: 0 }}
+                                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                                        className="absolute inset-0 rounded-2xl bg-teal-400"
+                                                    />
+                                                )}
+                                            </motion.div>
+                                            
+                                            {/* Step Label */}
+                                            <motion.p
+                                                animate={{
+                                                    color: formStep >= item.step ? '#14b8a6' : '#94a3b8',
+                                                    fontWeight: formStep === item.step ? 700 : 500,
+                                                }}
+                                                className="mt-3 text-xs text-center whitespace-nowrap"
+                                            >
+                                                {item.label}
+                                            </motion.p>
+                                        </div>
+                                        
+                                        {/* Connecting Line */}
+                                        {index < 2 && (
+                                            <div className="relative flex-1 h-1 mx-3 mt-[-30px]">
+                                                <div className="absolute inset-0 bg-slate-200 dark:bg-gray-800 rounded-full" />
+                                                <motion.div
+                                                    initial={{ width: '0%' }}
+                                                    animate={{
+                                                        width: formStep > item.step ? '100%' : '0%',
+                                                    }}
+                                                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                                                    className="absolute inset-0 bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-500 rounded-full"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                         
-                        <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto">
+                        {/* Form Content with Advanced Animations */}
+                        <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                             <AnimatePresence mode="wait">
-                                {/* Step 1: Session Selection */}
+                                {/* Step 1: Session Selection - Ultra Enhanced */}
                                 {formStep === 1 && (
                                     <motion.div
                                         key="step1"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-4"
+                                        initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                        className="space-y-6"
                                     >
-                                        <div className="text-center mb-4">
-                                            <h3 className="text-lg font-semibold text-teal-600">Pilih Sesi Perkuliahan</h3>
-                                            <p className="text-sm text-muted-foreground">Pilih sesi yang ingin kamu ajukan izin/sakit</p>
-                                        </div>
+                                        {/* Step Header with Animation */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border-2 border-teal-200/50 dark:border-teal-800/50"
+                                        >
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.1, 1],
+                                                    rotate: [0, 5, -5, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className="inline-block mb-3"
+                                            >
+                                                <Calendar className="h-12 w-12 text-teal-600 dark:text-teal-400" />
+                                            </motion.div>
+                                            <h3 className="text-xl font-bold text-teal-700 dark:text-teal-300 mb-2">Pilih Sesi Perkuliahan</h3>
+                                            <p className="text-sm text-teal-600 dark:text-teal-400">Pilih sesi yang ingin kamu ajukan izin/sakit</p>
+                                        </motion.div>
 
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2">
-                                                <Calendar className="h-4 w-4 text-teal-600" />
+                                        {/* Session Selection with Enhanced Styling */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                                    transition={{ type: "spring", stiffness: 400 }}
+                                                >
+                                                    <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                                                </motion.div>
                                                 Sesi Perkuliahan
                                             </Label>
                                             <Select value={data.attendance_session_id} onValueChange={(v) => setData('attendance_session_id', v)}>
-                                                <SelectTrigger className="h-12 border-2 hover:border-teal-300 transition-colors rounded-xl">
-                                                    <SelectValue placeholder="Pilih sesi perkuliahan" />
+                                                <SelectTrigger className="h-14 border-2 hover:border-teal-400 focus:border-teal-500 transition-all rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md">
+                                                    <SelectValue placeholder="🎓 Pilih sesi perkuliahan" />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="rounded-xl">
                                                     {availableSessions.map((s) => (
-                                                        <SelectItem key={s.id} value={String(s.id)}>
-                                                            <div className="flex items-center gap-2">
-                                                                <Calendar className="h-4 w-4 text-teal-600" />
-                                                                {s.mata_kuliah} - {s.tanggal_display}
+                                                        <SelectItem key={s.id} value={String(s.id)} className="rounded-lg my-1">
+                                                            <div className="flex items-center gap-3 py-1">
+                                                                <div className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30">
+                                                                    <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-semibold text-slate-900 dark:text-white">{s.mata_kuliah}</p>
+                                                                    <p className="text-xs text-slate-500">{s.tanggal_display}</p>
+                                                                </div>
                                                             </div>
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            {errors.attendance_session_id && (
-                                                <motion.p
-                                                    initial={{ opacity: 0, y: -10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="text-sm text-red-500 flex items-center gap-1"
-                                                >
-                                                    <AlertTriangle className="h-3 w-3" />
-                                                    {errors.attendance_session_id}
-                                                </motion.p>
-                                            )}
-                                        </div>
+                                            <AnimatePresence>
+                                                {errors.attendance_session_id && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+                                                    >
+                                                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                        {errors.attendance_session_id}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
 
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2">
-                                                <FileText className="h-4 w-4 text-teal-600" />
+                                        {/* Type Selection with Ultra Advanced Cards */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                                    transition={{ type: "spring", stiffness: 400 }}
+                                                >
+                                                    <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                                                </motion.div>
                                                 Jenis Pengajuan
                                             </Label>
-                                            <div className="grid grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-2 gap-4">
                                                 {[
-                                                    { value: 'izin', label: 'Izin', icon: ClipboardList, color: 'blue' },
-                                                    { value: 'sakit', label: 'Sakit', icon: Stethoscope, color: 'red' }
-                                                ].map((type) => (
+                                                    { value: 'izin', label: 'Izin', icon: ClipboardList, color: 'blue', gradient: 'from-blue-400 to-blue-600', emoji: '📝' },
+                                                    { value: 'sakit', label: 'Sakit', icon: Stethoscope, color: 'red', gradient: 'from-red-400 to-red-600', emoji: '🏥' }
+                                                ].map((type, index) => (
                                                     <motion.button
                                                         key={type.value}
                                                         type="button"
-                                                        whileHover={{ scale: 1.05 }}
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        transition={{ delay: 0.4 + index * 0.1, type: "spring", stiffness: 300 }}
+                                                        whileHover={{ scale: 1.05, y: -5 }}
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={() => setData('type', type.value as any)}
-                                                        className={`p-4 rounded-xl border-2 transition-all ${
+                                                        className={`relative p-6 rounded-2xl border-2 transition-all duration-300 overflow-hidden group ${
                                                             data.type === type.value
                                                                 ? type.color === 'blue'
-                                                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/30'
-                                                                    : 'border-red-500 bg-red-50 dark:bg-red-950/30'
-                                                                : 'border-gray-200 hover:border-teal-300 dark:border-gray-700'
+                                                                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/30 shadow-xl shadow-blue-500/20'
+                                                                    : 'border-red-500 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/30 shadow-xl shadow-red-500/20'
+                                                                : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-teal-300 dark:hover:border-teal-600'
                                                         }`}
                                                     >
-                                                        <motion.div
-                                                            whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                                                            transition={{ duration: 0.5 }}
-                                                            className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-                                                                type.color === 'blue' 
-                                                                    ? 'bg-blue-100 dark:bg-blue-900/30' 
-                                                                    : 'bg-red-100 dark:bg-red-900/30'
-                                                            }`}
-                                                        >
-                                                            <type.icon className={`h-6 w-6 ${
-                                                                type.color === 'blue' ? 'text-blue-600' : 'text-red-600'
-                                                            }`} />
-                                                        </motion.div>
-                                                        <div className="text-sm font-medium">{type.label}</div>
+                                                        {/* Animated Background Gradient */}
+                                                        {data.type === type.value && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, scale: 0 }}
+                                                                animate={{ opacity: 0.1, scale: 1 }}
+                                                                className={`absolute inset-0 bg-gradient-to-br ${type.gradient}`}
+                                                            />
+                                                        )}
+                                                        
+                                                        {/* Floating Particles */}
+                                                        {data.type === type.value && [...Array(5)].map((_, i) => (
+                                                            <motion.div
+                                                                key={i}
+                                                                initial={{ opacity: 0, y: 0 }}
+                                                                animate={{
+                                                                    opacity: [0, 1, 0],
+                                                                    y: [0, -30, -60],
+                                                                    x: [0, Math.random() * 20 - 10, 0],
+                                                                }}
+                                                                transition={{
+                                                                    duration: 2,
+                                                                    repeat: Infinity,
+                                                                    delay: i * 0.3,
+                                                                }}
+                                                                className="absolute w-2 h-2 rounded-full bg-current"
+                                                                style={{
+                                                                    left: `${20 + i * 15}%`,
+                                                                    bottom: '20%',
+                                                                }}
+                                                            />
+                                                        ))}
+                                                        
+                                                        <div className="relative">
+                                                            <motion.div
+                                                                whileHover={{ rotate: [0, -15, 15, -15, 0], scale: 1.1 }}
+                                                                transition={{ duration: 0.6 }}
+                                                                className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
+                                                                    data.type === type.value
+                                                                        ? type.color === 'blue' 
+                                                                            ? 'bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/30' 
+                                                                            : 'bg-gradient-to-br from-red-400 to-red-600 shadow-red-500/30'
+                                                                        : 'bg-slate-100 dark:bg-gray-700'
+                                                                }`}
+                                                            >
+                                                                <type.icon className={`h-8 w-8 ${
+                                                                    data.type === type.value ? 'text-white' : 'text-slate-400 dark:text-gray-500'
+                                                                }`} />
+                                                            </motion.div>
+                                                            <div className="text-center">
+                                                                <p className="text-lg font-bold mb-1 flex items-center justify-center gap-2">
+                                                                    <span>{type.emoji}</span>
+                                                                    <span className={data.type === type.value ? 
+                                                                        (type.color === 'blue' ? 'text-blue-700 dark:text-blue-300' : 'text-red-700 dark:text-red-300')
+                                                                        : 'text-slate-700 dark:text-slate-300'
+                                                                    }>
+                                                                        {type.label}
+                                                                    </span>
+                                                                </p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                    {type.value === 'izin' ? 'Keperluan pribadi' : 'Kondisi kesehatan'}
+                                                                </p>
+                                                            </div>
+                                                            
+                                                            {/* Checkmark Indicator */}
+                                                            <AnimatePresence>
+                                                                {data.type === type.value && (
+                                                                    <motion.div
+                                                                        initial={{ scale: 0, rotate: -180 }}
+                                                                        animate={{ scale: 1, rotate: 0 }}
+                                                                        exit={{ scale: 0, rotate: 180 }}
+                                                                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                                        className="absolute top-3 right-3"
+                                                                    >
+                                                                        <div className={`p-1.5 rounded-full ${
+                                                                            type.color === 'blue' ? 'bg-blue-500' : 'bg-red-500'
+                                                                        } shadow-lg`}>
+                                                                            <CheckCircle className="h-4 w-4 text-white" />
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
                                                     </motion.button>
                                                 ))}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     </motion.div>
                                 )}
 
