@@ -37,6 +37,9 @@ import {
     Image,
     BadgeCheck,
     XCircle,
+    User,
+    FileText,
+    Award,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
@@ -217,19 +220,6 @@ export default function AttendanceHistory() {
 
     const hasActiveFilters = searchQuery || statusFilter !== 'all' || courseFilter !== 'all' || selectedDate;
 
-    // Mouse position for parallax
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const { clientX, clientY } = e;
-        const { innerWidth, innerHeight } = window;
-        mouseX.set((clientX / innerWidth - 0.5) * 20);
-        mouseY.set((clientY / innerHeight - 0.5) * 20);
-    };
-
     const courseChartData = useMemo(() => {
         const courseStats: Record<string, { present: number; late: number; absent: number }> = {};
         records.forEach(record => {
@@ -268,173 +258,291 @@ export default function AttendanceHistory() {
         <StudentLayout>
             <Head title="Riwayat Kehadiran" />
 
-            {/* Floating Particles Background */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                {[...Array(25)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-2 h-2 bg-violet-500/20 rounded-full"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -40, 0],
-                            x: [0, Math.random() * 30 - 15, 0],
-                            scale: [1, 1.5, 1],
-                            opacity: [0.2, 0.6, 0.2],
-                        }}
-                        transition={{
-                            duration: 4 + Math.random() * 3,
-                            repeat: Infinity,
-                            delay: Math.random() * 3,
-                            ease: "easeInOut",
-                        }}
-                    />
-                ))}
-            </div>
-
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="p-6 space-y-6 relative z-10"
-                onMouseMove={handleMouseMove}
-                style={{
-                    perspective: "1500px",
-                    transformStyle: "preserve-3d",
-                }}
+                className="p-6 space-y-6"
             >
-                {/* Header Card */}
+                {/* Header Card - ULTRA ADVANCED matching Dashboard */}
                 <motion.div
-                    variants={cardVariants}
-                    style={{
-                        x: smoothMouseX,
-                        y: smoothMouseY,
-                    }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-6 text-white shadow-lg"
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.01, rotateY: 1 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated gradient overlay */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div 
                         animate={{
-                            x: ['-100%', '200%'],
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
                         }}
                         transition={{
-                            duration: 3,
+                            duration: 20,
                             repeat: Infinity,
-                            repeatDelay: 2,
                             ease: "easeInOut"
                         }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
                     />
-                    
-                    {/* Floating orbs */}
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.2, 1], 
-                            rotate: [0, 180, 360],
-                            opacity: [0.3, 0.5, 0.3] 
-                        }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.3, 1], 
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.5, 1],
                             rotate: [360, 180, 0],
-                            opacity: [0.2, 0.4, 0.2] 
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
                         }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                            x: [0, 30, 0],
+                            y: [0, -20, 0],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2,
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
                     
-                    <div className="relative z-10">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
+                    {/* 30 Floating Particles with Advanced Physics */}
+                    {[...Array(30)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
+                            animate={{ 
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
+                            }}
+                            transition={{
+                                duration: 5 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute rounded-full shadow-lg"
+                            style={{
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 3) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0 
+                                    ? 'rgba(255, 255, 255, 0.6)' 
+                                    : i % 3 === 1 
+                                        ? 'rgba(6, 182, 212, 0.5)' 
+                                        : 'rgba(59, 130, 246, 0.5)',
+                                filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                            }}
+                        />
+                    ))}
+                    
+                    {/* Floating Icons with Advanced Animations */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <FileText className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <Award className="h-20 w-20" />
+                    </motion.div>
+                    
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
+                    
+                    <div className="relative flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-5">
+                            <motion.div 
+                                whileHover={{ 
+                                    scale: 1.2, 
+                                    rotate: [0, -8, 8, 0],
+                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                }}
+                                whileTap={{ scale: 0.92 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                            >
+                                {/* Glow effect behind avatar */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0.8, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                />
+                                <motion.div
+                                    whileHover={{ scale: 1.15, y: -3 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    className="relative"
+                                >
+                                    <User className="h-10 w-10" />
+                                </motion.div>
+                            </motion.div>
                             <div>
-                                <motion.p
+                                <motion.p 
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-sm text-sky-100"
+                                    transition={{ delay: 0.2, type: "spring" }}
+                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
                                 >
                                     Riwayat Kehadiran
                                 </motion.p>
-                                <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-2xl font-bold"
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
+                                    className="text-3xl font-extrabold tracking-tight"
                                 >
                                     {mahasiswa.nama}
                                 </motion.h1>
-                                <motion.p
+                                <motion.div
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-sm text-sky-100"
+                                    transition={{ delay: 0.4, type: "spring" }}
+                                    className="flex items-center gap-2 mt-1"
                                 >
-                                    NIM: {mahasiswa.nim}
-                                </motion.p>
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.7, 1, 0.7],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="h-2 w-2 rounded-full bg-cyan-300"
+                                    />
+                                    <p className="text-sm text-cyan-100 font-mono">
+                                        NIM: {mahasiswa.nim}
+                                    </p>
+                                </motion.div>
                             </div>
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5 }}
-                            >
-                                <PDFGenerator student={mahasiswa} records={filteredRecords} stats={stats} />
-                            </motion.div>
                         </div>
+                        
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            <PDFGenerator student={mahasiswa} records={filteredRecords} stats={stats} />
+                        </motion.div>
+                    </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-sky-100">Total Record</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.total} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-sky-100">Hadir</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.present} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-sky-100">Terlambat</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.late} duration={1500} />
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-sky-100">Tidak Hadir</p>
-                                <p className="text-2xl font-bold">
-                                    <AnimatedCounter value={stats.absent} duration={1500} />
-                                </p>
-                            </motion.div>
-                        </div>
+                    <div className="relative mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Total Record</p>
+                            <p className="text-2xl font-bold">
+                                <AnimatedCounter value={stats.total} duration={1500} />
+                            </p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Hadir</p>
+                            <p className="text-2xl font-bold">
+                                <AnimatedCounter value={stats.present} duration={1500} />
+                            </p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Terlambat</p>
+                            <p className="text-2xl font-bold">
+                                <AnimatedCounter value={stats.late} duration={1500} />
+                            </p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Tidak Hadir</p>
+                            <p className="text-2xl font-bold">
+                                <AnimatedCounter value={stats.absent} duration={1500} />
+                            </p>
+                        </motion.div>
                     </div>
                 </motion.div>
 
