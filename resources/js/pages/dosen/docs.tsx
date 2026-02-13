@@ -301,20 +301,115 @@ export default function DosenDocs({ dosen }: Props) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mb-8"
+                    className="mb-8 relative"
                 >
-                    <div className={`rounded-2xl p-6 transition-all duration-300 ${
+                    {/* Confetti particles when 100% */}
+                    {stats.overallProgress === 100 && (
+                        <>
+                            {[...Array(30)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ 
+                                        opacity: 0, 
+                                        y: 0, 
+                                        x: 0,
+                                        scale: 0,
+                                        rotate: 0
+                                    }}
+                                    animate={{ 
+                                        opacity: [0, 1, 1, 0],
+                                        y: [0, -100 - Math.random() * 200],
+                                        x: [-50 + Math.random() * 100, -100 + Math.random() * 200],
+                                        scale: [0, 1, 1, 0.5],
+                                        rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)]
+                                    }}
+                                    transition={{
+                                        duration: 2 + Math.random() * 2,
+                                        delay: Math.random() * 0.5,
+                                        repeat: Infinity,
+                                        repeatDelay: 3 + Math.random() * 2
+                                    }}
+                                    className="absolute pointer-events-none z-10"
+                                    style={{
+                                        left: `${20 + Math.random() * 60}%`,
+                                        top: '50%',
+                                        width: '8px',
+                                        height: '8px',
+                                        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                                        background: [
+                                            '#10b981', '#3b82f6', '#f59e0b', 
+                                            '#ef4444', '#8b5cf6', '#ec4899'
+                                        ][Math.floor(Math.random() * 6)]
+                                    }}
+                                />
+                            ))}
+                        </>
+                    )}
+
+                    <div className={`rounded-2xl p-6 transition-all duration-300 relative overflow-hidden ${
                         stats.overallProgress === 100 
-                            ? 'bg-white dark:bg-black border-2 border-green-500 shadow-lg shadow-green-500/20' 
+                            ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-teal-950/30 border-2 border-green-500 shadow-2xl shadow-green-500/30' 
                             : 'bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-lg'
                     }`}>
-                        <div className="flex items-center gap-6">
-                            <ProgressIndicator
-                                value={stats.overallProgress}
-                                size="lg"
-                                label="Progress Keseluruhan"
-                                celebrateOnComplete
-                            />
+                        {/* Animated gradient overlay when 100% */}
+                        {stats.overallProgress === 100 && (
+                            <>
+                                <motion.div
+                                    className="absolute inset-0 opacity-30"
+                                    animate={{
+                                        background: [
+                                            'radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                                        ]
+                                    }}
+                                    transition={{
+                                        duration: 8,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                    }}
+                                />
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                    animate={{
+                                        x: ['-100%', '200%']
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                        repeatDelay: 1
+                                    }}
+                                />
+                            </>
+                        )}
+
+                        <div className="flex items-center gap-6 relative z-10">
+                            <div className="relative">
+                                <ProgressIndicator
+                                    value={stats.overallProgress}
+                                    size="lg"
+                                    label="Progress Keseluruhan"
+                                    celebrateOnComplete
+                                />
+                                {/* Pulsing glow when 100% */}
+                                {stats.overallProgress === 100 && (
+                                    <motion.div
+                                        className="absolute inset-0 rounded-full bg-green-500/30 blur-xl"
+                                        animate={{
+                                            scale: [1, 1.3, 1],
+                                            opacity: [0.5, 0.8, 0.5]
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    />
+                                )}
+                            </div>
                             <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-2">
                                     <h3 className="text-xl font-bold text-gray-900 dark:text-white font-display">
@@ -322,27 +417,93 @@ export default function DosenDocs({ dosen }: Props) {
                                     </h3>
                                     {stats.overallProgress === 100 && (
                                         <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ type: 'spring', stiffness: 200 }}
-                                            className="flex items-center gap-2 px-3 py-1 bg-green-500 text-white rounded-full text-sm font-bold shadow-lg"
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ 
+                                                scale: 1, 
+                                                rotate: 0,
+                                            }}
+                                            transition={{ 
+                                                type: 'spring', 
+                                                stiffness: 200,
+                                                damping: 15
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white rounded-full text-sm font-bold shadow-lg relative overflow-hidden"
                                         >
-                                            <CheckCircle className="w-4 h-4" />
-                                            Semua Selesai!
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                                animate={{
+                                                    x: ['-100%', '200%']
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "linear"
+                                                }}
+                                            />
+                                            <motion.div
+                                                animate={{ 
+                                                    rotate: [0, 360],
+                                                    scale: [1, 1.2, 1]
+                                                }}
+                                                transition={{
+                                                    rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                                                    scale: { duration: 1, repeat: Infinity, ease: "easeInOut" }
+                                                }}
+                                            >
+                                                <Award className="w-5 h-5" />
+                                            </motion.div>
+                                            <span className="relative z-10">Semua Selesai!</span>
                                         </motion.div>
                                     )}
                                 </div>
-                                <p className={`mb-4 ${stats.overallProgress === 100 ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                <motion.p 
+                                    className={`mb-4 font-medium ${stats.overallProgress === 100 ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}
+                                    animate={stats.overallProgress === 100 ? {
+                                        scale: [1, 1.02, 1],
+                                    } : {}}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                >
                                     {stats.overallProgress === 100 
                                         ? '🎉 Selamat! Anda telah menyelesaikan semua panduan dokumentasi!'
                                         : `Anda telah menyelesaikan ${stats.completedGuides} dari ${stats.totalGuides} panduan`
                                     }
-                                </p>
-                                <LinearProgressBar
-                                    value={stats.overallProgress}
-                                    height="md"
-                                    gradient
-                                />
+                                </motion.p>
+                                <div className="relative">
+                                    <LinearProgressBar
+                                        value={stats.overallProgress}
+                                        height="md"
+                                        gradient
+                                    />
+                                    {/* Sparkle effect on progress bar when 100% */}
+                                    {stats.overallProgress === 100 && (
+                                        <>
+                                            {[...Array(5)].map((_, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full"
+                                                    style={{
+                                                        left: `${i * 25}%`,
+                                                        boxShadow: '0 0 10px rgba(255, 255, 255, 0.8)'
+                                                    }}
+                                                    animate={{
+                                                        scale: [0, 1.5, 0],
+                                                        opacity: [0, 1, 0]
+                                                    }}
+                                                    transition={{
+                                                        duration: 1.5,
+                                                        repeat: Infinity,
+                                                        delay: i * 0.3,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                />
+                                            ))}
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

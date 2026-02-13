@@ -1,6 +1,7 @@
 /**
- * Dosen Documentation Detail Page
+ * Dosen Documentation Detail Page - Enhanced Version
  * Menampilkan detail guide dengan sections dan progress tracking
+ * With advanced UI/UX and animations
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -13,11 +14,16 @@ import {
     BookOpen,
     ChevronRight,
     Award,
+    Sparkles,
+    Star,
+    Trophy,
+    Zap,
+    Check,
 } from 'lucide-react';
 import DosenLayout from '@/layouts/dosen-layout';
 import DarkContainer from '@/components/ui/dark-container';
 import { SkeletonGrid } from '@/components/ui/skeleton-loader';
-import { fadeInVariants, slideUpVariants } from '@/lib/animations';
+import { fadeInVariants, slideUpVariants, staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 import { toast } from 'sonner';
 
 interface GuideSection {
@@ -264,75 +270,173 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
             <Head title={guide.title} />
 
             <div className="space-y-6 p-6">
-                {/* Header */}
+                {/* Enhanced Header with Gradient Background */}
                 <motion.div
                     variants={fadeInVariants}
                     initial="hidden"
                     animate="visible"
+                    className="relative overflow-hidden"
                 >
-                    <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-lg">
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4 font-medium"
+                    <div className="relative bg-gradient-to-br from-gray-900 via-black to-gray-800 border border-gray-800 rounded-3xl p-8 shadow-2xl">
+                        {/* Animated Background Orbs */}
+                        <motion.div
+                            animate={{ 
+                                scale: [1, 1.2, 1], 
+                                opacity: [0.3, 0.5, 0.3],
+                                x: [0, 20, 0],
+                                y: [0, -15, 0]
+                            }}
+                            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{ 
+                                scale: [1, 1.3, 1], 
+                                opacity: [0.2, 0.4, 0.2],
+                                x: [0, -20, 0],
+                                y: [0, 15, 0]
+                            }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                            className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-teal-500/20 blur-3xl"
+                        />
+
+                        {/* Floating Icons */}
+                        <motion.div
+                            animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute top-6 right-24 opacity-10"
                         >
-                            <ArrowLeft className="w-4 h-4 text-emerald-500" />
-                            <span>Back to Documentation</span>
-                        </button>
+                            <BookOpen className="h-12 w-12" />
+                        </motion.div>
 
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{guide.title}</h1>
-                                <p className="text-gray-600 dark:text-gray-400 mb-4">{guide.description}</p>
-                                
-                                <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-emerald-500" />
-                                        <span className="font-medium">{guide.estimatedReadTime} min read</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <BookOpen className="w-4 h-4 text-teal-500" />
-                                        <span className="font-medium">{guide.sections.length} sections</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Award className="w-4 h-4 text-purple-500" />
-                                        <span className="font-medium">{completionPercentage}% complete</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="relative z-10">
+                            <motion.button
+                                onClick={handleBack}
+                                whileHover={{ x: -5, scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 font-medium group"
+                            >
+                                <motion.div
+                                    animate={{ x: [0, -5, 0] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                >
+                                    <ArrowLeft className="w-5 h-5 text-emerald-500" />
+                                </motion.div>
+                                <span>Back to Documentation</span>
+                            </motion.button>
 
-                            {/* Progress Circle */}
-                            <div className="relative w-24 h-24">
-                                <svg className="w-24 h-24 transform -rotate-90">
-                                    <circle
-                                        cx="48"
-                                        cy="48"
-                                        r="40"
-                                        stroke="currentColor"
-                                        strokeWidth="8"
-                                        fill="none"
-                                        className="text-white/10"
-                                    />
-                                    <circle
-                                        cx="48"
-                                        cy="48"
-                                        r="40"
-                                        stroke="url(#gradient)"
-                                        strokeWidth="8"
-                                        fill="none"
-                                        strokeDasharray={`${2 * Math.PI * 40}`}
-                                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - completionPercentage / 100)}`}
-                                        className="transition-all duration-500"
-                                    />
-                                    <defs>
-                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#3b82f6" />
-                                            <stop offset="100%" stopColor="#06b6d4" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-xl font-bold text-gray-900 dark:text-white">{completionPercentage}%</span>
+                            <div className="flex items-start justify-between gap-6">
+                                <div className="flex-1">
+                                    <motion.h1 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent mb-3"
+                                    >
+                                        {guide.title}
+                                    </motion.h1>
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-gray-400 mb-6 text-lg leading-relaxed"
+                                    >
+                                        {guide.description}
+                                    </motion.p>
+                                    
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="flex flex-wrap items-center gap-4 text-sm"
+                                    >
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                                            <Clock className="w-4 h-4 text-emerald-400" />
+                                            <span className="font-medium text-gray-300">{guide.estimatedReadTime} min read</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                                            <BookOpen className="w-4 h-4 text-teal-400" />
+                                            <span className="font-medium text-gray-300">{guide.sections.length} sections</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                                            <Award className="w-4 h-4 text-purple-400" />
+                                            <span className="font-medium text-gray-300">{completionPercentage}% complete</span>
+                                        </div>
+                                    </motion.div>
                                 </div>
+
+                                {/* Enhanced Progress Circle */}
+                                <motion.div 
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
+                                    className="relative"
+                                >
+                                    <div className="relative w-32 h-32">
+                                        {/* Glow effect */}
+                                        {completionPercentage === 100 && (
+                                            <motion.div
+                                                className="absolute inset-0 rounded-full bg-green-500/30 blur-xl"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.5, 0.8, 0.5]
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
+                                        )}
+                                        <svg className="w-32 h-32 transform -rotate-90">
+                                            <circle
+                                                cx="64"
+                                                cy="64"
+                                                r="56"
+                                                stroke="currentColor"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                className="text-white/10"
+                                            />
+                                            <motion.circle
+                                                cx="64"
+                                                cy="64"
+                                                r="56"
+                                                stroke="url(#gradient)"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={`${2 * Math.PI * 56}`}
+                                                initial={{ strokeDashoffset: 2 * Math.PI * 56 }}
+                                                animate={{ strokeDashoffset: 2 * Math.PI * 56 * (1 - completionPercentage / 100) }}
+                                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                                strokeLinecap="round"
+                                            />
+                                            <defs>
+                                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#10b981" />
+                                                    <stop offset="50%" stopColor="#14b8a6" />
+                                                    <stop offset="100%" stopColor="#06b6d4" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                            {completionPercentage === 100 ? (
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ type: "spring", stiffness: 200 }}
+                                                >
+                                                    <Trophy className="w-10 h-10 text-green-400" />
+                                                </motion.div>
+                                            ) : (
+                                                <>
+                                                    <span className="text-3xl font-bold text-white">{completionPercentage}%</span>
+                                                    <span className="text-xs text-gray-400 mt-1">Progress</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
                     </div>
@@ -340,197 +444,426 @@ export default function DosenDocsDetail({ guideId }: { guideId: string }) {
 
                 {/* Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* Sidebar - Sections List */}
+                    {/* Enhanced Sidebar - Sections List */}
                     <motion.div
                         variants={slideUpVariants}
                         initial="hidden"
                         animate="visible"
                         className="lg:col-span-1"
                     >
-                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-lg sticky top-24">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Sections</h3>
-                            <div className="space-y-2">
-                                {guide.sections.map((section) => (
-                                    <button
+                        <div className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-gray-200/70 dark:border-gray-800/70 rounded-2xl p-5 shadow-xl sticky top-24">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                                    <BookOpen className="w-5 h-5 text-white" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Sections</h3>
+                            </div>
+                            
+                            <motion.div 
+                                variants={staggerContainerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="space-y-2"
+                            >
+                                {guide.sections.map((section, index) => (
+                                    <motion.button
                                         key={section.id}
+                                        variants={staggerItemVariants}
                                         onClick={() => setActiveSection(section.id)}
-                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
+                                        whileHover={{ scale: 1.02, x: 5 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className={`w-full text-left px-4 py-3.5 rounded-xl transition-all duration-300 relative overflow-hidden group ${
                                             activeSection === section.id
                                                 ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
-                                                : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
+                                                : 'bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md'
                                         }`}
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
+                                        {/* Animated background on hover */}
+                                        {activeSection !== section.id && (
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                            />
+                                        )}
+                                        
+                                        <div className="flex items-center justify-between relative z-10">
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
                                                 {completedSections.includes(section.id) ? (
-                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                                    <motion.div
+                                                        initial={{ scale: 0, rotate: -180 }}
+                                                        animate={{ scale: 1, rotate: 0 }}
+                                                        transition={{ type: "spring", stiffness: 200 }}
+                                                        className="flex-shrink-0"
+                                                    >
+                                                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                                                            <Check className="w-3 h-3 text-white" />
+                                                        </div>
+                                                    </motion.div>
                                                 ) : (
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                                                        activeSection === section.id ? 'border-white' : 'border-current'
-                                                    }`} />
+                                                    <div className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                                                        activeSection === section.id ? 'border-white bg-white/20' : 'border-current'
+                                                    }`}>
+                                                        <span className="text-xs font-bold">{index + 1}</span>
+                                                    </div>
                                                 )}
-                                                <span className="text-sm font-medium">{section.title}</span>
+                                                <span className="text-sm font-medium truncate">{section.title}</span>
                                             </div>
                                             {activeSection === section.id && (
-                                                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                                                <motion.div
+                                                    initial={{ x: -10, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    transition={{ delay: 0.1 }}
+                                                >
+                                                    <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                                                </motion.div>
                                             )}
                                         </div>
-                                    </button>
+                                    </motion.button>
                                 ))}
+                            </motion.div>
+
+                            {/* Progress Summary */}
+                            <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-800">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Overall Progress</span>
+                                    <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{completionPercentage}%</span>
+                                </div>
+                                <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${completionPercentage}%` }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
+                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Main Content */}
+                    {/* Enhanced Main Content */}
                     <motion.div
                         variants={fadeInVariants}
                         initial="hidden"
                         animate="visible"
                         className="lg:col-span-3"
                     >
-                        <DarkContainer variant="primary" padding="lg" rounded="xl">
+                        <div className="bg-white/80 dark:bg-black/80 backdrop-blur-xl border border-gray-200/70 dark:border-gray-800/70 rounded-2xl shadow-xl overflow-hidden">
                             <AnimatePresence mode="wait">
                                 {activeContent && (
                                     <motion.div
                                         key={activeContent.id}
-                                        ref={contentRef}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="overflow-y-auto pr-4 custom-scrollbar"
-                                        style={{ 
-                                            maxHeight: 'calc(100vh - 400px)',
-                                            minHeight: '400px',
-                                            scrollBehavior: 'smooth' 
-                                        }}
+                                        className="p-8"
                                     >
-                                        <div className="flex items-center justify-between mb-6">
+                                        {/* Section Header */}
+                                        <div className="flex items-start justify-between mb-8 pb-6 border-b border-gray-200 dark:border-gray-800">
                                             <div className="flex-1">
-                                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{activeContent.title}</h2>
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="flex items-center gap-3 mb-3"
+                                                >
+                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                                                        <Sparkles className="w-5 h-5 text-white" />
+                                                    </div>
+                                                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{activeContent.title}</h2>
+                                                </motion.div>
+                                                
                                                 {!completedSections.includes(activeContent.id) && scrollProgress > 0 && (
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                                        <div className="h-1.5 w-32 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, scale: 0.9 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        className="flex items-center gap-3 mt-3"
+                                                    >
+                                                        <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner">
                                                             <motion.div
-                                                                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                                                                className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full relative overflow-hidden"
                                                                 initial={{ width: 0 }}
                                                                 animate={{ width: `${scrollProgress}%` }}
                                                                 transition={{ duration: 0.3 }}
-                                                            />
+                                                            >
+                                                                <motion.div
+                                                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                                                    animate={{ x: ['-100%', '200%'] }}
+                                                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                                                />
+                                                            </motion.div>
                                                         </div>
-                                                        <span>{scrollProgress}% read</span>
-                                                    </div>
+                                                        <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 min-w-[60px]">{scrollProgress}% read</span>
+                                                    </motion.div>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-3 flex-shrink-0">
+                                            
+                                            <div className="flex items-center gap-3 flex-shrink-0 ml-4">
                                                 {/* Section Complete Button */}
                                                 {!completedSections.includes(activeContent.id) ? (
-                                                    <button
+                                                    <motion.button
                                                         onClick={() => handleSectionComplete(activeContent.id, false)}
-                                                        className="px-4 py-2 rounded-xl transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 font-medium shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 text-sm"
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="px-5 py-2.5 rounded-xl transition-all duration-300 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 font-medium shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 text-sm flex items-center gap-2"
                                                     >
-                                                        <span className="flex items-center gap-2">
-                                                            <CheckCircle className="w-4 h-4" />
-                                                            Tandai Selesai
-                                                        </span>
-                                                    </button>
+                                                        <CheckCircle className="w-4 h-4" />
+                                                        Tandai Selesai
+                                                    </motion.button>
                                                 ) : (
-                                                    <div className="px-4 py-2 rounded-xl bg-green-600 text-white font-medium flex items-center gap-2 shadow-lg text-sm">
+                                                    <motion.div
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ type: "spring", stiffness: 200 }}
+                                                        className="px-5 py-2.5 rounded-xl bg-green-600 text-white font-medium flex items-center gap-2 shadow-lg text-sm"
+                                                    >
                                                         <CheckCircle className="w-4 h-4" />
                                                         <span>Selesai</span>
-                                                    </div>
+                                                    </motion.div>
                                                 )}
                                                 
                                                 {/* Guide Complete Button */}
                                                 {isGuideCompleted ? (
-                                                    <div className="px-6 py-2 rounded-xl bg-green-600 text-white font-bold flex items-center gap-2 shadow-lg">
-                                                        <CheckCircle className="w-5 h-5" />
-                                                        <span>Guide Selesai</span>
-                                                    </div>
-                                                ) : completionPercentage === 100 && (
-                                                    <button
-                                                        onClick={handleManualComplete}
-                                                        className="px-6 py-2 rounded-xl transition-all duration-300 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
+                                                    <motion.div
+                                                        initial={{ scale: 0, rotate: -180 }}
+                                                        animate={{ scale: 1, rotate: 0 }}
+                                                        transition={{ type: "spring", stiffness: 200 }}
+                                                        className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold flex items-center gap-2 shadow-lg"
                                                     >
-                                                        <span className="flex items-center gap-2">
-                                                            <Award className="w-4 h-4" />
-                                                            Selesaikan Guide
-                                                        </span>
-                                                    </button>
+                                                        <Trophy className="w-5 h-5" />
+                                                        <span>Guide Selesai</span>
+                                                    </motion.div>
+                                                ) : completionPercentage === 100 && (
+                                                    <motion.button
+                                                        onClick={handleManualComplete}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        className="px-6 py-2.5 rounded-xl transition-all duration-300 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50 flex items-center gap-2"
+                                                    >
+                                                        <Award className="w-4 h-4" />
+                                                        Selesaikan Guide
+                                                    </motion.button>
                                                 )}
                                             </div>
                                         </div>
 
-                                        <div className="prose prose-slate dark:prose-invert max-w-none">
-                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                                {activeContent.content}
-                                            </p>
+                                        {/* Content Area with Enhanced Typography */}
+                                        <div
+                                            ref={contentRef}
+                                            className="overflow-y-auto pr-4 custom-scrollbar"
+                                            style={{ 
+                                                maxHeight: 'calc(100vh - 450px)',
+                                                minHeight: '400px',
+                                                scrollBehavior: 'smooth' 
+                                            }}
+                                        >
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="prose prose-lg dark:prose-invert max-w-none"
+                                            >
+                                                {/* Enhanced Content Display */}
+                                                <div className="text-gray-700 dark:text-gray-300 leading-relaxed space-y-4">
+                                                    {activeContent.content.split('\n\n').map((paragraph, idx) => {
+                                                        // Check if it's a heading (starts with **)
+                                                        if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
+                                                            const headingText = paragraph.replace(/\*\*/g, '');
+                                                            return (
+                                                                <motion.h3
+                                                                    key={idx}
+                                                                    initial={{ opacity: 0, x: -20 }}
+                                                                    animate={{ opacity: 1, x: 0 }}
+                                                                    transition={{ delay: idx * 0.1 }}
+                                                                    className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4 flex items-center gap-3"
+                                                                >
+                                                                    <div className="w-1.5 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
+                                                                    {headingText}
+                                                                </motion.h3>
+                                                            );
+                                                        }
+                                                        
+                                                        // Check if it's a list item (starts with number or bullet)
+                                                        if (paragraph.match(/^\d+\.\s/) || paragraph.startsWith('•') || paragraph.startsWith('-')) {
+                                                            const items = paragraph.split('\n').filter(item => item.trim());
+                                                            return (
+                                                                <motion.ul
+                                                                    key={idx}
+                                                                    initial={{ opacity: 0, y: 10 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    transition={{ delay: idx * 0.1 }}
+                                                                    className="space-y-3 my-6"
+                                                                >
+                                                                    {items.map((item, itemIdx) => {
+                                                                        const cleanItem = item.replace(/^[\d+\.\-•]\s*/, '');
+                                                                        return (
+                                                                            <motion.li
+                                                                                key={itemIdx}
+                                                                                initial={{ opacity: 0, x: -10 }}
+                                                                                animate={{ opacity: 1, x: 0 }}
+                                                                                transition={{ delay: (idx * 0.1) + (itemIdx * 0.05) }}
+                                                                                className="flex items-start gap-3 p-4 bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-800/50 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                                                                            >
+                                                                                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                                                                                    <Check className="w-3.5 h-3.5 text-white" />
+                                                                                </div>
+                                                                                <span className="flex-1 text-gray-700 dark:text-gray-300 leading-relaxed">{cleanItem}</span>
+                                                                            </motion.li>
+                                                                        );
+                                                                    })}
+                                                                </motion.ul>
+                                                            );
+                                                        }
+                                                        
+                                                        // Regular paragraph
+                                                        return (
+                                                            <motion.p
+                                                                key={idx}
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: idx * 0.1 }}
+                                                                className="text-base leading-relaxed text-gray-700 dark:text-gray-300 mb-4"
+                                                            >
+                                                                {paragraph}
+                                                            </motion.p>
+                                                        );
+                                                    })}
+                                                </div>
 
-                                            {/* Steps */}
-                                            {activeContent.steps && activeContent.steps.length > 0 && (
-                                                <div className="mt-6 space-y-4">
-                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Steps</h3>
-                                                    {activeContent.steps.map((step, index) => (
-                                                        <div key={index} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                                                                    <span className="text-white font-bold text-sm">{index + 1}</span>
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <h4 className="font-bold text-gray-900 dark:text-white mb-1">{step.title}</h4>
-                                                                    <p className="text-gray-600 dark:text-gray-400 text-sm">{step.description}</p>
-                                                                </div>
+                                                {/* Enhanced Steps Section */}
+                                                {activeContent.steps && activeContent.steps.length > 0 && (
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.3 }}
+                                                        className="mt-10 space-y-4"
+                                                    >
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg">
+                                                                <Zap className="w-5 h-5 text-white" />
                                                             </div>
+                                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Langkah-Langkah</h3>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                                        {activeContent.steps.map((step, index) => (
+                                                            <motion.div
+                                                                key={index}
+                                                                initial={{ opacity: 0, x: -20 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                transition={{ delay: 0.4 + (index * 0.1) }}
+                                                                whileHover={{ scale: 1.02, x: 5 }}
+                                                                className="relative bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-black border-2 border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 group"
+                                                            >
+                                                                {/* Step Number Badge */}
+                                                                <div className="absolute -left-4 -top-4">
+                                                                    <motion.div
+                                                                        whileHover={{ rotate: 360, scale: 1.1 }}
+                                                                        transition={{ duration: 0.6 }}
+                                                                        className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-xl shadow-blue-500/50"
+                                                                    >
+                                                                        <span className="text-white font-bold text-lg">{index + 1}</span>
+                                                                    </motion.div>
+                                                                </div>
+                                                                
+                                                                {/* Animated background glow */}
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                                
+                                                                <div className="relative z-10 ml-6">
+                                                                    <h4 className="font-bold text-xl text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                                                                        {step.title}
+                                                                        <motion.div
+                                                                            animate={{ x: [0, 5, 0] }}
+                                                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                                                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                        >
+                                                                            <ChevronRight className="w-5 h-5 text-blue-500" />
+                                                                        </motion.div>
+                                                                    </h4>
+                                                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{step.description}</p>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
 
-                                            {/* FAQs */}
-                                            {activeContent.faqs && activeContent.faqs.length > 0 && (
-                                                <div className="mt-6 space-y-4">
-                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Frequently Asked Questions</h3>
-                                                    {activeContent.faqs.map((faq, index) => (
-                                                        <div key={index} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                                                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h4>
-                                                            <p className="text-gray-600 dark:text-gray-400">{faq.answer}</p>
+                                                {/* Enhanced FAQs Section */}
+                                                {activeContent.faqs && activeContent.faqs.length > 0 && (
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.5 }}
+                                                        className="mt-10 space-y-4"
+                                                    >
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                                                                <Star className="w-5 h-5 text-white" />
+                                                            </div>
+                                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Pertanyaan Umum</h3>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
+                                                        {activeContent.faqs.map((faq, index) => (
+                                                            <motion.div
+                                                                key={index}
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: 0.6 + (index * 0.1) }}
+                                                                whileHover={{ scale: 1.01 }}
+                                                                className="bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-900 dark:to-purple-950/20 border-2 border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300"
+                                                            >
+                                                                <h4 className="font-bold text-lg text-gray-900 dark:text-white mb-3 flex items-start gap-3">
+                                                                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                                        <span className="text-white text-xs font-bold">Q</span>
+                                                                    </div>
+                                                                    <span className="flex-1">{faq.question}</span>
+                                                                </h4>
+                                                                <div className="ml-9 pl-3 border-l-2 border-purple-200 dark:border-purple-800">
+                                                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{faq.answer}</p>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </motion.div>
 
-                                        {/* Navigation */}
-                                        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-                                            <button
-                                                onClick={() => {
-                                                    const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
-                                                    if (currentIndex > 0) {
-                                                        setActiveSection(guide.sections[currentIndex - 1].id);
-                                                    }
-                                                }}
-                                                disabled={guide.sections.findIndex(s => s.id === activeSection) === 0}
-                                                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                                            {/* Enhanced Navigation */}
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.7 }}
+                                                className="flex items-center justify-between mt-10 pt-8 border-t-2 border-gray-200 dark:border-gray-800"
                                             >
-                                                ← Previous
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
-                                                    if (currentIndex < guide.sections.length - 1) {
-                                                        setActiveSection(guide.sections[currentIndex + 1].id);
-                                                    }
-                                                }}
-                                                disabled={guide.sections.findIndex(s => s.id === activeSection) === guide.sections.length - 1}
-                                                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                                            >
-                                                Next →
-                                            </button>
+                                                <motion.button
+                                                    onClick={() => {
+                                                        const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
+                                                        if (currentIndex > 0) {
+                                                            setActiveSection(guide.sections[currentIndex - 1].id);
+                                                        }
+                                                    }}
+                                                    disabled={guide.sections.findIndex(s => s.id === activeSection) === 0}
+                                                    whileHover={{ scale: 1.05, x: -5 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="px-6 py-3 rounded-xl bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 font-medium flex items-center gap-2"
+                                                >
+                                                    <ArrowLeft className="w-4 h-4" />
+                                                    Previous
+                                                </motion.button>
+                                                <motion.button
+                                                    onClick={() => {
+                                                        const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
+                                                        if (currentIndex < guide.sections.length - 1) {
+                                                            setActiveSection(guide.sections[currentIndex + 1].id);
+                                                        }
+                                                    }}
+                                                    disabled={guide.sections.findIndex(s => s.id === activeSection) === guide.sections.length - 1}
+                                                    whileHover={{ scale: 1.05, x: 5 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 font-medium flex items-center gap-2 shadow-lg shadow-emerald-500/30"
+                                                >
+                                                    Next
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </motion.button>
+                                            </motion.div>
                                         </div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
-                        </DarkContainer>
+                        </div>
                     </motion.div>
                 </div>
             </div>
