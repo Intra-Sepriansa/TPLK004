@@ -8,13 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { TugasCreateModalEnhanced } from '@/components/dosen/tugas-create-modal-enhanced';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     AlertTriangle, Award, BookOpen, Calendar, CheckCircle, Clock, Eye, FileText, MessageSquare,
     MoreHorizontal, Pencil, Plus, Search, Trash2, Sparkles, X, Filter, Target,
-    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Users, Presentation, Lightbulb, Rocket,
-    Download, Copy, Archive, BarChart3, Grid3x3, List, ArrowUpDown, TrendingUp, UserCheck, Send
+    ClipboardList, Zap, ChevronRight, ListTodo, FileCheck, Timer, Presentation, Lightbulb, Rocket,
+    Download, Copy, Archive, BarChart3, Grid3x3, List, ArrowUpDown, UserCheck, Send
 } from 'lucide-react';
 
 type Course = { id: number; nama: string };
@@ -697,180 +698,15 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     </div>
                 </motion.div>
 
-                {/* Create Modal */}
-                <AnimatePresence>
-                    {showCreate && (
-                        <motion.div 
-                            className="fixed inset-0 z-50 flex items-center justify-center"
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                        >
-                            <motion.div 
-                                variants={backdropVariants}
-                                className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-                                onClick={() => setShowCreate(false)} 
-                            />
-                            <motion.div 
-                                variants={modalVariants}
-                                className="relative w-full max-w-lg mx-4 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
-                            >
-                                <div className="bg-gradient-to-r from-gray-900 to-black p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-white/20 rounded-lg">
-                                                <Plus className="h-5 w-5 text-white" />
-                                            </div>
-                                            <h2 className="text-xl font-bold text-white">Tambah Tugas Baru</h2>
-                                        </div>
-                                        <Button variant="ghost" size="icon" onClick={() => setShowCreate(false)} className="text-white hover:bg-white/20">
-                                            <X className="h-5 w-5" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900">
-                                {/* Mata Kuliah */}
-                                <div>
-                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
-                                            <BookOpen className="h-3.5 w-3.5" />
-                                        </div>
-                                        Mata Kuliah
-                                    </Label>
-                                    <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
-                                        <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-blue-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
-                                            <SelectValue placeholder="Pilih mata kuliah" />
-                                        </SelectTrigger>
-                                        <SelectContent>{courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}</SelectContent>
-                                    </Select>
-                                </div>
-
-                                {/* Judul */}
-                                <div>
-                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
-                                            <FileText className="h-3.5 w-3.5" />
-                                        </div>
-                                        Judul
-                                    </Label>
-                                    <Input 
-                                        value={form.judul} 
-                                        onChange={(e) => setForm({ ...form, judul: e.target.value })} 
-                                        className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-emerald-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
-                                        placeholder="Masukkan judul tugas" 
-                                    />
-                                </div>
-
-                                {/* Deskripsi */}
-                                <div>
-                                    <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
-                                            <MessageSquare className="h-3.5 w-3.5" />
-                                        </div>
-                                        Deskripsi
-                                    </Label>
-                                    <Textarea 
-                                        value={form.deskripsi} 
-                                        onChange={(e) => setForm({ ...form, deskripsi: e.target.value })} 
-                                        rows={3} 
-                                        className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-violet-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
-                                        placeholder="Jelaskan tugas secara detail" 
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    {/* Jenis */}
-                                    <div>
-                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md">
-                                                <ClipboardList className="h-3.5 w-3.5" />
-                                            </div>
-                                            Jenis
-                                        </Label>
-                                        <Select value={form.jenis} onValueChange={(v) => setForm({ ...form, jenis: v })}>
-                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-amber-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="tugas"><span className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Tugas</span></SelectItem>
-                                                <SelectItem value="quiz"><span className="flex items-center gap-2"><FileCheck className="h-3.5 w-3.5" /> Quiz</span></SelectItem>
-                                                <SelectItem value="project"><span className="flex items-center gap-2"><Rocket className="h-3.5 w-3.5" /> Project</span></SelectItem>
-                                                <SelectItem value="presentasi"><span className="flex items-center gap-2"><Presentation className="h-3.5 w-3.5" /> Presentasi</span></SelectItem>
-                                                <SelectItem value="lainnya"><span className="flex items-center gap-2"><Lightbulb className="h-3.5 w-3.5" /> Lainnya</span></SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    {/* Prioritas */}
-                                    <div>
-                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md">
-                                                <Zap className="h-3.5 w-3.5" />
-                                            </div>
-                                            Prioritas
-                                        </Label>
-                                        <Select value={form.prioritas} onValueChange={(v) => setForm({ ...form, prioritas: v })}>
-                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-rose-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="rendah"><span className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5 text-emerald-500" /> Rendah</span></SelectItem>
-                                                <SelectItem value="sedang"><span className="flex items-center gap-2"><Target className="h-3.5 w-3.5 text-amber-500" /> Sedang</span></SelectItem>
-                                                <SelectItem value="tinggi"><span className="flex items-center gap-2"><Zap className="h-3.5 w-3.5 text-red-500" /> Tinggi</span></SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    {/* Deadline */}
-                                    <div>
-                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-md">
-                                                <Calendar className="h-3.5 w-3.5" />
-                                            </div>
-                                            Deadline
-                                        </Label>
-                                        <Input 
-                                            type="datetime-local" 
-                                            value={form.deadline} 
-                                            onChange={(e) => setForm({ ...form, deadline: e.target.value })} 
-                                            className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-cyan-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white" 
-                                        />
-                                    </div>
-
-                                    {/* Status */}
-                                    <div>
-                                        <Label className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
-                                                <CheckCircle className="h-3.5 w-3.5" />
-                                            </div>
-                                            Status
-                                        </Label>
-                                        <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                                            <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700 focus:ring-4 focus:ring-green-500/20 bg-white dark:bg-gray-800 text-slate-900 dark:text-white">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="draft"><span className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Draft</span></SelectItem>
-                                                <SelectItem value="published"><span className="flex items-center gap-2"><CheckCircle className="h-3.5 w-3.5" /> Published</span></SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-gray-800/50">
-                                <div className="flex gap-3">
-                                    <Button variant="outline" onClick={() => setShowCreate(false)} className="flex-1 border-2">Batal</Button>
-                                    <Button onClick={handleCreate} className="flex-1 bg-gradient-to-r from-gray-900 to-black hover:from-gray-800 hover:to-gray-900">
-                                        <Plus className="mr-2 h-4 w-4" /> Simpan
-                                    </Button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-                </AnimatePresence>
+                {/* Create Modal Enhanced */}
+                <TugasCreateModalEnhanced
+                    isOpen={showCreate}
+                    onClose={() => setShowCreate(false)}
+                    form={form}
+                    setForm={setForm}
+                    courses={courses}
+                    onSubmit={handleCreate}
+                />
 
                 {/* Edit Modal */}
                 <AnimatePresence>
