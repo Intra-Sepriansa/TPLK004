@@ -76,12 +76,12 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
             opacity: 1,
             y: 0,
             transition: {
-                type: 'spring',
+                type: 'spring' as const,
                 stiffness: 300,
                 damping: 20,
             },
         },
-    };
+    } as const;
 
     const { data, setData, post, processing, errors, reset } = useForm({
         attendance_session_id: '',
@@ -736,7 +736,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                         </div>
                         
                         {/* Form Content with Advanced Animations */}
-                        <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-teal-500 scrollbar-track-slate-200 dark:scrollbar-track-gray-800">
                             <AnimatePresence mode="wait">
                                 {/* Step 1: Session Selection - Ultra Enhanced */}
                                 {formStep === 1 && (
@@ -951,142 +951,414 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                     </motion.div>
                                 )}
 
-                                {/* Step 2: Reason */}
+                                {/* Step 2: Reason - Ultra Enhanced */}
                                 {formStep === 2 && (
                                     <motion.div
                                         key="step2"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-4"
+                                        initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                        className="space-y-6"
                                     >
-                                        <div className="text-center mb-4">
-                                            <h3 className="text-lg font-semibold text-teal-600">Alasan Pengajuan</h3>
-                                            <p className="text-sm text-muted-foreground">Jelaskan alasan izin/sakit dengan detail</p>
-                                        </div>
+                                        {/* Step Header with Animation */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200/50 dark:border-purple-800/50"
+                                        >
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.1, 1],
+                                                    rotate: [0, -5, 5, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className="inline-block mb-3"
+                                            >
+                                                <FileText className="h-12 w-12 text-purple-600 dark:text-purple-400" />
+                                            </motion.div>
+                                            <h3 className="text-xl font-bold text-purple-700 dark:text-purple-300 mb-2">Alasan Pengajuan</h3>
+                                            <p className="text-sm text-purple-600 dark:text-purple-400">Jelaskan alasan izin/sakit dengan detail dan jelas</p>
+                                        </motion.div>
 
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2">
-                                                <FileText className="h-4 w-4 text-teal-600" />
-                                                Alasan
-                                            </Label>
-                                            <Textarea
-                                                value={data.reason}
-                                                onChange={(e) => setData('reason', e.target.value)}
-                                                placeholder="Jelaskan alasan izin/sakit dengan detail..."
-                                                rows={6}
-                                                className="border-2 hover:border-teal-300 focus:border-teal-500 transition-colors resize-none rounded-xl"
-                                            />
-                                            {errors.reason && (
-                                                <motion.p
-                                                    initial={{ opacity: 0, y: -10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="text-sm text-red-500 flex items-center gap-1"
+                                        {/* Textarea with Character Counter */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label className="flex items-center justify-between text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                <span className="flex items-center gap-2">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                                    </motion.div>
+                                                    Alasan Detail
+                                                </span>
+                                                <motion.span 
+                                                    animate={{
+                                                        color: data.reason.length < 20 ? '#ef4444' : data.reason.length < 50 ? '#f59e0b' : '#10b981'
+                                                    }}
+                                                    className="text-xs font-mono"
                                                 >
-                                                    <AlertTriangle className="h-3 w-3" />
-                                                    {errors.reason}
-                                                </motion.p>
-                                            )}
-                                        </div>
+                                                    {data.reason.length}/500
+                                                </motion.span>
+                                            </Label>
+                                            <div className="relative">
+                                                <Textarea
+                                                    value={data.reason}
+                                                    onChange={(e) => setData('reason', e.target.value)}
+                                                    placeholder="Contoh: Saya tidak dapat mengikuti perkuliahan karena sakit demam tinggi dan harus beristirahat di rumah sesuai anjuran dokter..."
+                                                    rows={8}
+                                                    maxLength={500}
+                                                    className="border-2 hover:border-purple-400 focus:border-purple-500 transition-all resize-none rounded-xl bg-white dark:bg-gray-800 shadow-sm focus:shadow-lg pr-12"
+                                                />
+                                                {/* Character indicator */}
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: data.reason.length > 0 ? 1 : 0 }}
+                                                    className="absolute bottom-3 right-3"
+                                                >
+                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${
+                                                        data.reason.length < 20 ? 'bg-red-100 text-red-600' :
+                                                        data.reason.length < 50 ? 'bg-amber-100 text-amber-600' :
+                                                        'bg-emerald-100 text-emerald-600'
+                                                    }`}>
+                                                        {Math.round((data.reason.length / 500) * 100)}%
+                                                    </div>
+                                                </motion.div>
+                                            </div>
+                                            <AnimatePresence>
+                                                {errors.reason && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+                                                    >
+                                                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                        {errors.reason}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
 
-                                        <div className="p-4 bg-teal-50 dark:bg-teal-950/20 rounded-xl border border-teal-200 dark:border-teal-800">
-                                            <p className="text-sm text-teal-700 dark:text-teal-300 flex items-start gap-2">
-                                                <Sparkles className="h-4 w-4 mt-0.5 shrink-0" />
-                                                <span>Pastikan alasan yang kamu berikan jelas dan detail agar mudah disetujui oleh dosen</span>
-                                            </p>
-                                        </div>
+                                        {/* Tips Card with Animation */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="p-5 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 rounded-2xl border-2 border-teal-200/50 dark:border-teal-800/50"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <motion.div
+                                                    animate={{
+                                                        rotate: [0, 10, -10, 0],
+                                                        scale: [1, 1.1, 1],
+                                                    }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                >
+                                                    <Sparkles className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+                                                </motion.div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-semibold text-teal-700 dark:text-teal-300 mb-2">Tips Pengajuan:</p>
+                                                    <ul className="text-xs text-teal-600 dark:text-teal-400 space-y-1.5">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-teal-500 mt-0.5">•</span>
+                                                            <span>Jelaskan kondisi atau situasi dengan detail</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-teal-500 mt-0.5">•</span>
+                                                            <span>Sebutkan tanggal dan waktu kejadian</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-teal-500 mt-0.5">•</span>
+                                                            <span>Gunakan bahasa yang sopan dan formal</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </motion.div>
                                     </motion.div>
                                 )}
 
-                                {/* Step 3: Attachment */}
+                                {/* Step 3: Attachment - Ultra Enhanced with Advanced Drag & Drop */}
                                 {formStep === 3 && (
                                     <motion.div
                                         key="step3"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="space-y-4"
+                                        initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                        className="space-y-6"
                                     >
-                                        <div className="text-center mb-4">
-                                            <h3 className="text-lg font-semibold text-teal-600">Surat Keterangan</h3>
-                                            <p className="text-sm text-muted-foreground">Upload surat keterangan (opsional)</p>
-                                        </div>
+                                        {/* Step Header with Animation */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200/50 dark:border-blue-800/50"
+                                        >
+                                            <motion.div
+                                                animate={{
+                                                    y: [0, -10, 0],
+                                                    rotate: [0, 5, -5, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className="inline-block mb-3"
+                                            >
+                                                <Upload className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                                            </motion.div>
+                                            <h3 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">Surat Keterangan</h3>
+                                            <p className="text-sm text-blue-600 dark:text-blue-400">Upload surat keterangan resmi (opsional)</p>
+                                        </motion.div>
 
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2">
-                                                <Upload className="h-4 w-4 text-teal-600" />
-                                                Surat Keterangan (Opsional)
+                                        {/* Ultra Advanced Drag & Drop Zone */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                                    transition={{ type: "spring", stiffness: 400 }}
+                                                >
+                                                    <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                                </motion.div>
+                                                Lampiran Dokumen
                                             </Label>
-                                            <div
+                                            <motion.div
+                                                animate={{
+                                                    scale: dragActive ? 1.02 : 1,
+                                                    borderColor: dragActive ? '#3b82f6' : undefined,
+                                                }}
                                                 onDragEnter={handleDrag}
                                                 onDragLeave={handleDrag}
                                                 onDragOver={handleDrag}
                                                 onDrop={handleDrop}
-                                                className={`relative border-2 border-dashed rounded-xl p-8 transition-all ${
+                                                className={`relative border-2 border-dashed rounded-2xl p-10 transition-all duration-300 overflow-hidden ${
                                                     dragActive
-                                                        ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/20'
-                                                        : 'border-gray-300 hover:border-teal-400'
+                                                        ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 shadow-xl shadow-blue-500/20'
+                                                        : 'border-slate-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 bg-white dark:bg-gray-800'
                                                 }`}
                                             >
+                                                {/* Animated Background Pattern */}
+                                                <motion.div
+                                                    animate={{
+                                                        opacity: dragActive ? 0.1 : 0,
+                                                        scale: dragActive ? 1 : 0.8,
+                                                    }}
+                                                    className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500"
+                                                />
+                                                
+                                                {/* Floating Upload Icons */}
+                                                {dragActive && [...Array(8)].map((_, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, y: 0 }}
+                                                        animate={{
+                                                            opacity: [0, 1, 0],
+                                                            y: [0, -40, -80],
+                                                            x: [0, Math.random() * 40 - 20, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            delay: i * 0.2,
+                                                        }}
+                                                        className="absolute"
+                                                        style={{
+                                                            left: `${20 + i * 10}%`,
+                                                            bottom: '20%',
+                                                        }}
+                                                    >
+                                                        <Upload className="h-4 w-4 text-blue-400" />
+                                                    </motion.div>
+                                                ))}
+                                                
                                                 <input
                                                     type="file"
                                                     accept="image/*,.pdf"
                                                     onChange={(e) => setData('attachment', e.target.files?.[0] || null)}
-                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                     id="attachment"
                                                 />
-                                                <div className="text-center">
+                                                <div className="relative text-center">
                                                     <motion.div
-                                                        animate={{ y: [0, -10, 0] }}
-                                                        transition={{ duration: 2, repeat: Infinity }}
-                                                        className="mx-auto w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mb-3"
+                                                        animate={{ 
+                                                            y: dragActive ? [0, -15, 0] : [0, -10, 0],
+                                                            scale: dragActive ? [1, 1.1, 1] : 1,
+                                                        }}
+                                                        transition={{ 
+                                                            duration: dragActive ? 1 : 2, 
+                                                            repeat: Infinity 
+                                                        }}
+                                                        className={`mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
+                                                            dragActive 
+                                                                ? 'bg-gradient-to-br from-blue-400 to-indigo-500 shadow-blue-500/30' 
+                                                                : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'
+                                                        }`}
                                                     >
-                                                        <Upload className="h-6 w-6 text-teal-600" />
+                                                        <Upload className={`h-10 w-10 ${
+                                                            dragActive ? 'text-white' : 'text-blue-600 dark:text-blue-400'
+                                                        }`} />
                                                     </motion.div>
-                                                    <p className="text-sm font-medium mb-1">
-                                                        {data.attachment ? data.attachment.name : 'Drag & drop file atau klik untuk upload'}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        JPG, PNG, PDF (max 5MB)
-                                                    </p>
+                                                    <AnimatePresence mode="wait">
+                                                        {data.attachment ? (
+                                                            <motion.div
+                                                                key="has-file"
+                                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                            >
+                                                                <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 mb-2 flex items-center justify-center gap-2">
+                                                                    <CheckCircle className="h-5 w-5" />
+                                                                    File Terpilih!
+                                                                </p>
+                                                                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                                                                    {data.attachment.name}
+                                                                </p>
+                                                            </motion.div>
+                                                        ) : (
+                                                            <motion.div
+                                                                key="no-file"
+                                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                            >
+                                                                <p className="text-base font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {dragActive ? '📥 Lepaskan file di sini' : '📎 Drag & drop file atau klik untuk upload'}
+                                                                </p>
+                                                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                                    JPG, PNG, PDF • Max 5MB
+                                                                </p>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            </motion.div>
+                                            
+                                            {/* File Preview Card */}
+                                            <AnimatePresence>
+                                                {data.attachment && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                                                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                                        className="flex items-center gap-4 p-5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 shadow-lg"
+                                                    >
+                                                        <motion.div 
+                                                            animate={{
+                                                                scale: [1, 1.1, 1],
+                                                                rotate: [0, 5, -5, 0],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                            }}
+                                                            className="p-4 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl shadow-lg shadow-emerald-500/30"
+                                                        >
+                                                            <FileCheck className="h-8 w-8 text-white" />
+                                                        </motion.div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-base font-bold text-emerald-700 dark:text-emerald-300 truncate mb-1">
+                                                                {data.attachment.name}
+                                                            </p>
+                                                            <div className="flex items-center gap-3 text-xs text-emerald-600 dark:text-emerald-400">
+                                                                <span className="font-mono">{(data.attachment.size / 1024).toFixed(2)} KB</span>
+                                                                <span>•</span>
+                                                                <span className="flex items-center gap-1">
+                                                                    <CheckCircle className="h-3 w-3" />
+                                                                    Siap diupload
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1, rotate: 90 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            onClick={() => setData('attachment', null)}
+                                                            className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                                                        >
+                                                            <X className="h-5 w-5 text-red-500" />
+                                                        </motion.button>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                            
+                                            <AnimatePresence>
+                                                {errors.attachment && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                        className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+                                                    >
+                                                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                        {errors.attachment}
+                                                    </motion.p>
+                                                )}
+                                            </AnimatePresence>
+                                        </motion.div>
+
+                                        {/* Info Card */}
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-2xl border-2 border-amber-200/50 dark:border-amber-800/50"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <motion.div
+                                                    animate={{
+                                                        rotate: [0, -10, 10, 0],
+                                                        scale: [1, 1.1, 1],
+                                                    }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                >
+                                                    <Star className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                                                </motion.div>
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2">Catatan Penting:</p>
+                                                    <ul className="text-xs text-amber-600 dark:text-amber-400 space-y-1.5">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-amber-500 mt-0.5">•</span>
+                                                            <span>Upload surat keterangan resmi untuk mempercepat persetujuan</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-amber-500 mt-0.5">•</span>
+                                                            <span>Pastikan file jelas dan mudah dibaca</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-amber-500 mt-0.5">•</span>
+                                                            <span>Format yang didukung: JPG, PNG, PDF</span>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </div>
-                                            {data.attachment && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, y: -10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="flex items-center gap-3 p-3 bg-teal-50 dark:bg-teal-950/20 rounded-lg"
-                                                >
-                                                    <div className="p-2 bg-teal-100 dark:bg-teal-900/30 rounded-lg">
-                                                        <FileCheck className="h-4 w-4 text-teal-600" />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium truncate">{data.attachment.name}</p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {(data.attachment.size / 1024).toFixed(2)} KB
-                                                        </p>
-                                                    </div>
-                                                    <CheckCircle className="h-5 w-5 text-emerald-500" />
-                                                </motion.div>
-                                            )}
-                                            {errors.attachment && (
-                                                <motion.p
-                                                    initial={{ opacity: 0, y: -10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="text-sm text-red-500 flex items-center gap-1"
-                                                >
-                                                    <AlertTriangle className="h-3 w-3" />
-                                                    {errors.attachment}
-                                                </motion.p>
-                                            )}
-                                        </div>
-
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                                            <p className="text-sm text-blue-700 dark:text-blue-300 flex items-start gap-2">
-                                                <Star className="h-4 w-4 mt-0.5 shrink-0" />
-                                                <span>Upload surat keterangan resmi untuk mempercepat proses persetujuan</span>
-                                            </p>
-                                        </div>
+                                        </motion.div>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -1139,8 +1411,9 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                             </div>
                         </form>
                     </motion.div>
-                </div>
+                </motion.div>
             )}
+            </AnimatePresence>
 
             {/* Image Preview Modal */}
             {previewImage && (

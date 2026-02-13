@@ -724,7 +724,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                     />
                     
                     <div className="relative z-10">
-                        <div className="p-6 border-b-2 border-purple-500/30 bg-white dark:bg-gradient-to-r dark:from-purple-900/40 dark:to-indigo-900/40">
+                        <div className="p-6 border-b-2 border-purple-500/30 bg-slate-50 dark:bg-gradient-to-r dark:from-purple-900/40 dark:to-indigo-900/40">
                             <motion.h2 
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -743,7 +743,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="text-sm text-slate-600 dark:text-gray-400 mt-2"
+                                className="text-sm text-slate-700 dark:text-gray-300 mt-2 font-medium"
                             >
                                 Tanyakan ke dosen atau admin jika ada pertanyaan
                             </motion.p>
