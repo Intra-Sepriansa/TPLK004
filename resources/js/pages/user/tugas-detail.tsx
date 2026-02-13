@@ -279,14 +279,14 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                 </motion.div>
 
                 {/* Main Content Area with proper container */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* Row 1: Description - Full Width */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="relative rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 p-8 shadow-2xl overflow-hidden mb-8"
+                    className="relative rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 p-8 shadow-2xl overflow-hidden"
                 >
                     {/* Animated Background Pattern */}
                     <motion.div
@@ -335,60 +335,56 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     </div>
                 </motion.div>
 
-                {/* Row 2: Two Columns */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column - Instructions */}
-                    <div className="space-y-6">
-                        {tugas.instruksi && (
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 }}
-                                className="relative rounded-3xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 dark:from-gray-900 dark:via-emerald-950/20 dark:to-teal-950/20 p-8 shadow-2xl overflow-hidden"
-                            >
-                                {/* Animated Background Pattern */}
-                                <motion.div
-                                    animate={{
-                                        backgroundPosition: ['0% 0%', '100% 100%'],
-                                    }}
-                                    transition={{
-                                        duration: 20,
-                                        repeat: Infinity,
-                                        repeatType: "reverse",
-                                    }}
-                                    className="absolute inset-0 opacity-5"
-                                    style={{
-                                        backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 1px, transparent 1px)',
-                                        backgroundSize: '20px 20px',
-                                    }}
-                                />
-                                
-                                <div className="relative z-10">
-                                    <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
-                                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
-                                            <Zap className="h-6 w-6 text-white" />
-                                        </div>
-                                        Instruksi Pengerjaan
-                                    </h3>
-                                    <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
-                                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
-                                            {tugas.instruksi}
-                                        </p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </div>
-
-                    {/* Right Column - Info & Status in One Row */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        {/* Ultra Enhanced Info Card */}
+                {/* Row 2: Instructions - Full Width */}
+                {tugas.instruksi && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="relative rounded-3xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 dark:from-gray-900 dark:via-emerald-950/20 dark:to-teal-950/20 p-8 shadow-2xl overflow-hidden"
+                    >
+                        {/* Animated Background Pattern */}
                         <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="relative rounded-3xl border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/40 dark:via-cyan-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden"
-                        >
+                            animate={{
+                                backgroundPosition: ['0% 0%', '100% 100%'],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                repeatType: "reverse",
+                            }}
+                            className="absolute inset-0 opacity-5"
+                            style={{
+                                backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 1px, transparent 1px)',
+                                backgroundSize: '20px 20px',
+                            }}
+                        />
+                        
+                        <div className="relative z-10">
+                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
+                                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
+                                    <Zap className="h-6 w-6 text-white" />
+                                </div>
+                                Instruksi Pengerjaan
+                            </h3>
+                            <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
+                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
+                                    {tugas.instruksi}
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Row 3: Info & Status - Full Width, Side by Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Ultra Enhanced Info Card */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="relative rounded-3xl border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/40 dark:via-cyan-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden"
+                    >
                             {/* Animated Background Pattern */}
                             <motion.div
                                 animate={{
@@ -586,12 +582,12 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     </div>
                 </div>
 
-                {/* Diskusi Section - Full Width Below */}
+                {/* Diskusi Section - Full Width */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 }}
-                    className="mt-8 rounded-2xl border bg-card shadow-lg"
+                    className="rounded-2xl border bg-card shadow-lg"
                 >
                     <div className="p-4 border-b bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-t-2xl">
                         <h2 className="font-semibold flex items-center gap-2 text-lg">
@@ -770,7 +766,6 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     </div>
                 )}
                 </div>
-            </div>
         </StudentLayout>
     );
 }
