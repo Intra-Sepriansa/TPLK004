@@ -1023,122 +1023,267 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                 </div>
             </motion.div>
 
-            {/* Detail Dialog */}
+            {/* Detail Dialog - ULTRA ADVANCED */}
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-2xl">
-                            <BookOpen className="h-6 w-6 text-emerald-500" />
-                            Detail Jadwal Kuliah
-                        </DialogTitle>
+                <DialogContent className="max-w-2xl overflow-hidden border-2 border-cyan-200 dark:border-cyan-800">
+                    {/* Animated Background */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                opacity: [0.05, 0.1, 0.05],
+                                rotate: [0, 90, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                opacity: [0.05, 0.08, 0.05],
+                                rotate: [0, -90, 0],
+                            }}
+                            transition={{
+                                duration: 25,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: 2,
+                            }}
+                            className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 blur-3xl"
+                        />
+                    </div>
+
+                    <DialogHeader className="relative z-10">
+                        <motion.div
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                        >
+                            <DialogTitle className="flex items-center gap-3 text-2xl">
+                                <motion.div
+                                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="p-2 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg"
+                                >
+                                    <BookOpen className="h-6 w-6 text-white" />
+                                </motion.div>
+                                <span className="bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent font-extrabold">
+                                    Detail Jadwal Kuliah
+                                </span>
+                            </DialogTitle>
+                        </motion.div>
                     </DialogHeader>
                     {selectedSchedule && (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6 py-4"
+                            className="space-y-6 py-4 relative z-10"
                         >
-                            {/* Course Info */}
-                            <div className="space-y-4">
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                            {/* Course Info - Enhanced */}
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.1 }}
+                                className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-white to-cyan-50/30 dark:from-gray-900 dark:to-cyan-950/20 border-2 border-cyan-200 dark:border-cyan-800 shadow-lg relative overflow-hidden"
+                            >
+                                {/* Shimmer effect */}
+                                <motion.div
+                                    animate={{
+                                        x: ['-100%', '100%'],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                                />
+                                <div className="relative z-10">
+                                    <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">
                                         {selectedSchedule.course_name}
                                     </h3>
-                                    <p className="text-sm text-slate-500 mt-1">
+                                    <p className="text-sm text-slate-500 mt-2 font-mono font-semibold">
                                         {selectedSchedule.course_code}
                                     </p>
-                                    <Badge className={cn('mt-2', colorVariants[selectedSchedule.color].badge)}>
-                                        {selectedSchedule.color.charAt(0).toUpperCase() + selectedSchedule.color.slice(1)}
-                                    </Badge>
+                                    <motion.div
+                                        whileHover={{ scale: 1.05 }}
+                                        className="mt-3 inline-block"
+                                    >
+                                        <Badge className={cn('text-sm px-4 py-1.5 shadow-lg', colorVariants[selectedSchedule.color].badge)}>
+                                            {selectedSchedule.color.charAt(0).toUpperCase() + selectedSchedule.color.slice(1)}
+                                        </Badge>
+                                    </motion.div>
                                 </div>
-                            </div>
+                            </motion.div>
 
-                            {/* Details Grid */}
+                            {/* Details Grid - Ultra Enhanced */}
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Time Card */}
                                 <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="p-4 rounded-xl border-2 border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30"
+                                    initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.03, y: -4 }}
+                                    className="p-5 rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 dark:border-cyan-700 dark:from-cyan-950/30 dark:to-blue-950/30 shadow-lg relative overflow-hidden group"
                                 >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-                                            <Clock className="h-5 w-5 text-emerald-600" />
-                                        </div>
-                                        <h4 className="font-semibold text-slate-900 dark:text-white">Waktu</h4>
+                                    {/* Glow effect on hover */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100"
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                                        <motion.div 
+                                            whileHover={{ rotate: 360 }}
+                                            transition={{ duration: 0.6 }}
+                                            className="p-2.5 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl shadow-lg"
+                                        >
+                                            <Clock className="h-5 w-5 text-white" />
+                                        </motion.div>
+                                        <h4 className="font-bold text-slate-900 dark:text-white">Waktu</h4>
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white relative z-10">
                                         {selectedSchedule.time_range}
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-1">
+                                    <p className="text-xs text-slate-500 mt-2 font-semibold relative z-10">
                                         Durasi: {selectedSchedule.duration}
                                     </p>
                                 </motion.div>
 
                                 {/* Room Card */}
                                 <motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="p-4 rounded-xl border-2 border-sky-200 bg-sky-50 dark:border-sky-700 dark:bg-sky-950/30"
+                                    initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.03, y: -4 }}
+                                    className="p-5 rounded-2xl border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 dark:border-teal-700 dark:from-teal-950/30 dark:to-cyan-950/30 shadow-lg relative overflow-hidden group"
                                 >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-sky-100 dark:bg-sky-900/50 rounded-lg">
-                                            <Building2 className="h-5 w-5 text-sky-600" />
-                                        </div>
-                                        <h4 className="font-semibold text-slate-900 dark:text-white">Ruangan</h4>
+                                    {/* Glow effect on hover */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100"
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                                        <motion.div 
+                                            whileHover={{ rotate: 360 }}
+                                            transition={{ duration: 0.6 }}
+                                            className="p-2.5 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-xl shadow-lg"
+                                        >
+                                            <Building2 className="h-5 w-5 text-white" />
+                                        </motion.div>
+                                        <h4 className="font-bold text-slate-900 dark:text-white">Ruangan</h4>
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white relative z-10">
                                         {selectedSchedule.ruangan}
                                     </p>
                                 </motion.div>
                             </div>
 
-                            {/* Lecturer Info */}
+                            {/* Lecturer Info - Enhanced */}
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/30"
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                whileHover={{ scale: 1.02, y: -2 }}
+                                className="p-5 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-2 border-violet-200 dark:border-violet-800 shadow-lg relative overflow-hidden group"
                             >
-                                <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
-                                    <User className="h-5 w-5 text-violet-600" />
+                                {/* Animated background */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.1, 1],
+                                        opacity: [0.1, 0.2, 0.1],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                    }}
+                                    className="absolute inset-0 bg-gradient-to-br from-violet-400/10 to-purple-400/10"
+                                />
+                                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3 relative z-10">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, rotate: [0, -10, 10, 0] }}
+                                        transition={{ duration: 0.5 }}
+                                        className="p-2 bg-gradient-to-br from-violet-400 to-purple-600 rounded-lg shadow-lg"
+                                    >
+                                        <User className="h-5 w-5 text-white" />
+                                    </motion.div>
                                     Dosen Pengampu
                                 </h4>
-                                <p className="text-lg font-medium text-slate-900 dark:text-white">
+                                <p className="text-xl font-bold text-slate-900 dark:text-white relative z-10">
                                     {selectedSchedule.dosen_name}
                                 </p>
                             </motion.div>
 
-                            {/* Notes if available */}
+                            {/* Notes if available - Enhanced */}
                             {selectedSchedule.notes && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800"
+                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    className="p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-200 dark:border-amber-800 shadow-lg relative overflow-hidden"
                                 >
-                                    <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
+                                    {/* Animated shine */}
+                                    <motion.div
+                                        animate={{
+                                            x: ['-100%', '100%'],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                            repeatDelay: 1,
+                                        }}
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                    />
+                                    <h4 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2 relative z-10">
+                                        <motion.div
+                                            animate={{
+                                                rotate: [0, 10, -10, 0],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                        >
+                                            📝
+                                        </motion.div>
                                         Catatan
                                     </h4>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed relative z-10">
                                         {selectedSchedule.notes}
                                     </p>
                                 </motion.div>
                             )}
 
-                            {/* Close Button */}
+                            {/* Close Button - Ultra Enhanced */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
+                                transition={{ delay: 0.6 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 <Button
                                     onClick={() => setIsDetailOpen(false)}
-                                    className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-sky-600 hover:from-emerald-600 hover:to-sky-700"
+                                    className="w-full h-14 text-base font-bold bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-600 hover:from-cyan-600 hover:via-blue-700 hover:to-teal-700 shadow-xl relative overflow-hidden group"
                                 >
-                                    Tutup
+                                    {/* Shimmer effect */}
+                                    <motion.div
+                                        animate={{
+                                            x: ['-100%', '100%'],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                        }}
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                    />
+                                    <span className="relative z-10">Tutup</span>
                                 </Button>
                             </motion.div>
                         </motion.div>
