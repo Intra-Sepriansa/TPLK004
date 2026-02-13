@@ -369,7 +369,7 @@ export default function DosenHelp() {
                         transition={{ delay: 0.2 }}
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
-                        {quickLinks.map((link, index) => (
+                        {quickLinks.map((link: any, index: number) => (
                             <motion.div
                                 key={link.title}
                                 initial={{ opacity: 0, y: 20 }}
@@ -492,7 +492,7 @@ export default function DosenHelp() {
                                 </div>
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {popularTopics.map((topic, index) => (
+                                    {popularTopics.map((topic: any, index: number) => (
                                         <motion.div
                                             key={topic.title}
                                             initial={{ opacity: 0, x: -20 }}
@@ -586,14 +586,14 @@ export default function DosenHelp() {
                                     <h2 className="text-xl font-bold">Pertanyaan yang Sering Diajukan (FAQ)</h2>
                                 </div>
                                 <div className="space-y-3">
-                                    {faqCategories.map((category, catIndex) => (
+                                    {faqCategories.map((category: any, catIndex: number) => (
                                         <div key={category.id}>
                                             <h3 className="font-semibold text-emerald-600 mb-3 flex items-center gap-2">
                                                 <BookOpen className="h-4 w-4" />
                                                 {category.name}
                                             </h3>
                                             <div className="space-y-2 mb-4">
-                                                {category.faqs?.map((faq, faqIndex) => (
+                                                {category.faqs?.map((faq: any, faqIndex: number) => (
                                                     <motion.div
                                                         key={faq.id}
                                                         initial={{ opacity: 0, x: -20 }}
@@ -680,7 +680,7 @@ export default function DosenHelp() {
                                     <h2 className="text-xl font-bold">Panduan Troubleshooting</h2>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {troubleshootingGuides.map((guide, index) => (
+                                    {troubleshootingGuides.map((guide: any, index: number) => (
                                         <motion.div
                                             key={guide.id}
                                             initial={{ opacity: 0, scale: 0.9 }}
