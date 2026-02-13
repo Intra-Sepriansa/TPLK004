@@ -312,7 +312,7 @@ export default function AttendanceHistory() {
                         x: smoothMouseX,
                         y: smoothMouseY,
                     }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-6 text-white shadow-lg"
                 >
                     {/* Animated gradient overlay */}
                     <motion.div
