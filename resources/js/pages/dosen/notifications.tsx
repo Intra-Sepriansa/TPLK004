@@ -161,48 +161,97 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                 transition={{ duration: 0.3 }}
                 className="p-6 space-y-6"
             >
-                {/* Header */}
+                {/* Header - Enhanced Black Theme */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl"
                 >
+                    {/* Animated Background Orbs */}
                     <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                        animate={{ 
+                            scale: [1, 1.2, 1], 
+                            opacity: [0.3, 0.5, 0.3],
+                            x: [0, 30, 0],
+                            y: [0, -20, 0]
+                        }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-indigo-500/20 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{ 
+                            scale: [1, 1.3, 1], 
+                            opacity: [0.2, 0.4, 0.2],
+                            x: [0, -30, 0],
+                            y: [0, 20, 0]
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-purple-500/20 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{ 
+                            scale: [1, 1.25, 1], 
+                            opacity: [0.25, 0.45, 0.25],
+                            rotate: [0, 180, 360]
+                        }}
+                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        className="absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/20 blur-3xl"
+                    />
+
+                    {/* Floating Icons */}
+                    <motion.div
+                        animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
+                        className="absolute top-8 right-32 opacity-10"
+                    >
+                        <Bell className="h-16 w-16" />
+                    </motion.div>
                     <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                    />
+                        animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                        className="absolute bottom-8 left-32 opacity-10"
+                    >
+                        <Megaphone className="h-12 w-12" />
+                    </motion.div>
                     <div className="relative">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <motion.div
-                                    whileHover={{ rotate: 10, scale: 1.1 }}
+                                    whileHover={{ scale: 1.1, y: -2, rotate: 10 }}
+                                    whileTap={{ scale: 0.95 }}
                                     animate={{ rotate: unreadCount > 0 ? [0, -10, 10, -10, 0] : 0 }}
                                     transition={{ duration: 0.5, repeat: unreadCount > 0 ? Infinity : 0, repeatDelay: 3 }}
-                                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50"
                                 >
-                                    <Bell className="h-6 w-6" />
+                                    <Bell className="h-8 w-8" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-blue-100">Pemberitahuan</p>
-                                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-gray-400"
+                                    >
+                                        Pemberitahuan
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent flex items-center gap-2"
+                                    >
                                         Notifikasi
                                         {unreadCount > 0 && (
                                             <motion.span
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
-                                                className="px-2 py-0.5 rounded-full text-sm bg-white/20"
+                                                className="px-3 py-1 rounded-full text-lg bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/30"
                                             >
                                                 <AnimatedCounter value={unreadCount} duration={1000} />
                                             </motion.span>
                                         )}
-                                    </h1>
+                                    </motion.h1>
                                 </div>
                             </div>
                             <div className="flex gap-2">
@@ -210,11 +259,13 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                                     <motion.div
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        whileHover={{ scale: 1.05, y: -2 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <Button 
                                             onClick={() => setComposerOpen(true)}
-                                            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0"
+                                            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 shadow-lg shadow-emerald-500/30"
                                         >
                                             <Plus className="h-4 w-4 mr-2" />
                                             Buat Notifikasi
@@ -225,9 +276,11 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                                     <motion.div
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                        whileHover={{ scale: 1.05, y: -2 }}
                                         whileTap={{ scale: 0.95 }}
                                     >
-                                        <Button onClick={handleMarkAllAsRead} className="bg-white/20 hover:bg-white/30 text-white border-0">
+                                        <Button onClick={handleMarkAllAsRead} className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur">
                                             <CheckCircle className="h-4 w-4 mr-2" />
                                             Tandai Semua Dibaca
                                         </Button>
@@ -235,11 +288,19 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                                 )}
                             </div>
                         </div>
-                        <p className="mt-4 text-blue-100">Pemberitahuan dan pengumuman terbaru</p>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mt-4 text-gray-400 flex items-center gap-2"
+                        >
+                            <Sparkles className="h-4 w-4 text-indigo-400" />
+                            Pemberitahuan dan pengumuman terbaru untuk Anda
+                        </motion.p>
                     </div>
                 </motion.div>
 
-                {/* Stats Cards */}
+                {/* Stats Cards - Enhanced */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -247,128 +308,165 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                     className="grid grid-cols-1 md:grid-cols-3 gap-4"
                 >
                     <motion.div
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        className="rounded-2xl border-2 border-gray-200/70 bg-gradient-to-br from-white to-gray-50/80 p-5 shadow-lg backdrop-blur dark:border-gray-800/70 dark:from-black dark:to-gray-900/80"
                     >
-                        <div className="flex items-center gap-3">
-                            <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30"
-                            >
-                                <Bell className="h-5 w-5" />
-                            </motion.div>
+                        <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-gray-500">Total Notifikasi</p>
-                                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Notifikasi</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
                                     <AnimatedCounter value={stats.total} duration={1500} />
                                 </p>
+                                <p className="text-xs text-gray-400 mt-1">Semua pemberitahuan</p>
                             </div>
+                            <motion.div
+                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                transition={{ duration: 0.6 }}
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30"
+                            >
+                                <Bell className="h-7 w-7 text-white" />
+                            </motion.div>
                         </div>
                     </motion.div>
+                    
                     <motion.div
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        className="rounded-2xl border-2 border-gray-200/70 bg-gradient-to-br from-white to-gray-50/80 p-5 shadow-lg backdrop-blur dark:border-gray-800/70 dark:from-black dark:to-gray-900/80"
                     >
-                        <div className="flex items-center gap-3">
-                            <motion.div
-                                whileHover={{ rotate: 10 }}
-                                animate={{ scale: stats.unread > 0 ? [1, 1.1, 1] : 1 }}
-                                transition={{ duration: 1, repeat: stats.unread > 0 ? Infinity : 0, repeatDelay: 2 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/30"
-                            >
-                                <AlertTriangle className="h-5 w-5" />
-                            </motion.div>
+                        <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-gray-500">Belum Dibaca</p>
-                                <p className="text-xl font-bold text-orange-600">
+                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Belum Dibaca</p>
+                                <p className="text-3xl font-bold text-orange-600 mt-2">
                                     <AnimatedCounter value={stats.unread} duration={1500} />
                                 </p>
+                                <p className="text-xs text-gray-400 mt-1">Perlu perhatian</p>
                             </div>
+                            <motion.div
+                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                animate={{ scale: stats.unread > 0 ? [1, 1.1, 1] : 1 }}
+                                transition={{ duration: 1, repeat: stats.unread > 0 ? Infinity : 0, repeatDelay: 2 }}
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/30"
+                            >
+                                <AlertTriangle className="h-7 w-7 text-white" />
+                            </motion.div>
                         </div>
                     </motion.div>
+                    
                     <motion.div
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        className="rounded-xl border border-gray-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        className="rounded-2xl border-2 border-gray-200/70 bg-gradient-to-br from-white to-gray-50/80 p-5 shadow-lg backdrop-blur dark:border-gray-800/70 dark:from-black dark:to-gray-900/80"
                     >
-                        <div className="flex items-center gap-3">
-                            <motion.div
-                                whileHover={{ rotate: 10 }}
-                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30"
-                            >
-                                <CheckCircle className="h-5 w-5" />
-                            </motion.div>
+                        <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-xs text-gray-500">Sudah Dibaca</p>
-                                <p className="text-xl font-bold text-green-600">
+                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Sudah Dibaca</p>
+                                <p className="text-3xl font-bold text-emerald-600 mt-2">
                                     <AnimatedCounter value={stats.read} duration={1500} />
                                 </p>
+                                <p className="text-xs text-gray-400 mt-1">Telah ditinjau</p>
                             </div>
+                            <motion.div
+                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                transition={{ duration: 0.6 }}
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30"
+                            >
+                                <CheckCircle className="h-7 w-7 text-white" />
+                            </motion.div>
                         </div>
                     </motion.div>
                 </motion.div>
 
-                {/* Search & Filter */}
+                {/* Search & Filter - Enhanced */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="flex flex-col sm:flex-row gap-4"
+                    className="rounded-2xl border-2 border-gray-200/70 bg-white/80 p-6 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                 >
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Cari notifikasi..."
-                            className="pl-10"
-                        />
+                    <div className="flex items-center gap-2 mb-4">
+                        <motion.div 
+                            whileHover={{ scale: 1.1, y: -2 }}
+                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600"
+                        >
+                            <Filter className="h-5 w-5 text-white" />
+                        </motion.div>
+                        <div>
+                            <h3 className="font-semibold text-gray-900 dark:text-white">Filter & Pencarian</h3>
+                            <p className="text-xs text-gray-500">Temukan notifikasi dengan mudah</p>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setFilterType('all')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                filterType === 'all'
-                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30'
-                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-                            }`}
-                        >
-                            Semua
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setFilterType('unread')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                filterType === 'unread'
-                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30'
-                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-                            }`}
-                        >
-                            Belum Dibaca
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setFilterType('read')}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                filterType === 'read'
-                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30'
-                                    : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-                            }`}
-                        >
-                            Sudah Dibaca
-                        </motion.button>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Cari notifikasi..."
+                                className="pl-10 border-2 focus:ring-4 focus:ring-blue-500/20"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setFilterType('all')}
+                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                    filterType === 'all'
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                }`}
+                            >
+                                Semua
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setFilterType('unread')}
+                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                    filterType === 'unread'
+                                        ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                }`}
+                            >
+                                Belum Dibaca
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setFilterType('read')}
+                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                                    filterType === 'read'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                                }`}
+                            >
+                                Sudah Dibaca
+                            </motion.button>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                        <span>Menampilkan {filteredNotifications.length} dari {notifications.data.length} notifikasi</span>
+                        {searchQuery && (
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => setSearchQuery('')}
+                                className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700"
+                            >
+                                <X className="h-3 w-3" />
+                                Clear
+                            </motion.button>
+                        )}
                     </div>
                 </motion.div>
 
-                {/* Notifications List */}
+                {/* Notifications List - Enhanced */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
-                    className="rounded-2xl border border-gray-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black overflow-hidden"
+                    className="rounded-2xl border-2 border-gray-200/70 bg-white/80 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
                 >
                     <div className="divide-y divide-gray-200 dark:divide-gray-800">
                         <AnimatePresence mode="popLayout">
@@ -380,47 +478,73 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
                                     transition={{ duration: 0.3, delay: idx * 0.05 }}
-                                    whileHover={{ x: 5, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
-                                    className={`p-4 transition-colors cursor-pointer ${!notif.read_at ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                                    whileHover={{ 
+                                        x: 5, 
+                                        backgroundColor: !notif.read_at ? 'rgba(99, 102, 241, 0.08)' : 'rgba(59, 130, 246, 0.05)',
+                                        scale: 1.01
+                                    }}
+                                    className={`p-5 transition-all cursor-pointer relative overflow-hidden ${
+                                        !notif.read_at ? 'bg-gradient-to-r from-blue-50/50 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10' : ''
+                                    }`}
                                 >
+                                    {/* Gradient Border Effect */}
+                                    {!notif.read_at && (
+                                        <motion.div
+                                            initial={{ scaleX: 0 }}
+                                            animate={{ scaleX: 1 }}
+                                            transition={{ duration: 0.5, delay: idx * 0.05 }}
+                                            className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 to-purple-600"
+                                        />
+                                    )}
+
                                     <div className="flex items-start gap-4">
                                         <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 10 }}
-                                            className={`flex h-10 w-10 items-center justify-center rounded-lg shrink-0 ${getTypeColor(notif.type)}`}
+                                            whileHover={{ scale: 1.15, rotate: 10 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className={`flex h-12 w-12 items-center justify-center rounded-xl shrink-0 shadow-lg ${getTypeColor(notif.type)}`}
                                         >
                                             {getTypeIcon(notif.type)}
                                         </motion.div>
                                         <div className="flex-1 min-w-0" onClick={() => openDetail(notif)}>
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-medium text-gray-900 dark:text-white">{notif.title}</span>
+                                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                <span className="font-semibold text-gray-900 dark:text-white">{notif.title}</span>
                                                 {getPriorityBadge(notif.priority)}
                                                 {!notif.read_at && (
                                                     <motion.span
-                                                        animate={{ scale: [1, 1.2, 1] }}
-                                                        transition={{ duration: 1, repeat: Infinity }}
-                                                        className="w-2 h-2 rounded-full bg-blue-500"
+                                                        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                        className="flex h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/50"
                                                     />
                                                 )}
                                             </div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{notif.message}</p>
-                                            <div className="flex items-center gap-4 mt-2">
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">{notif.message}</p>
+                                            <div className="flex items-center gap-4 mt-3">
                                                 <span className="text-xs text-gray-500 flex items-center gap-1">
                                                     <Clock className="h-3 w-3" />
                                                     {formatTime(notif.created_at)}
                                                 </span>
                                                 <motion.span
                                                     whileHover={{ x: 5 }}
-                                                    className="text-xs text-blue-600 hover:underline"
+                                                    className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
                                                 >
-                                                    Baca selengkapnya →
+                                                    Baca selengkapnya
+                                                    <motion.span
+                                                        animate={{ x: [0, 3, 0] }}
+                                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                                    >
+                                                        →
+                                                    </motion.span>
                                                 </motion.span>
                                             </div>
                                         </div>
-                                        <motion.div whileTap={{ scale: 0.9 }}>
+                                        <motion.div 
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="text-red-600 shrink-0"
+                                                className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0"
                                                 onClick={(e) => { e.stopPropagation(); openDeleteDialog(notif.id); }}
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -434,18 +558,26 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="p-12 text-center"
+                                className="p-16 text-center"
                             >
                                 <motion.div
-                                    animate={{ y: [0, -10, 0] }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                    animate={{ y: [0, -15, 0] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                    className="mb-6"
                                 >
-                                    <Bell className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                                    <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+                                        <Bell className="h-12 w-12 text-gray-400" />
+                                    </div>
                                 </motion.div>
-                                <p className="text-gray-500">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                     {searchQuery || filterType !== 'all' 
                                         ? 'Tidak ada notifikasi yang sesuai' 
                                         : 'Tidak ada notifikasi'}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    {searchQuery || filterType !== 'all'
+                                        ? 'Coba ubah filter atau kata kunci pencarian'
+                                        : 'Notifikasi baru akan muncul di sini'}
                                 </p>
                             </motion.div>
                         )}
