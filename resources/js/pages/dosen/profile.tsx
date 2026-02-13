@@ -165,53 +165,144 @@ export default function DosenProfile() {
                     </div>
                 </div>
 
-                {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                {/* Enhanced Header Card with Advanced Animations */}
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl">
+                    {/* Animated Background Orbs */}
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-pulse" />
+                    <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                    <div className="absolute top-1/2 left-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
 
-                    <div className="relative">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur text-2xl font-bold overflow-hidden">
-                                    <img src={avatarUrl} alt={dosen.nama} className="h-full w-full rounded-2xl object-cover" />
+                    {/* Floating Particles */}
+                    {[...Array(15)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute h-2 w-2 rounded-full bg-white/20"
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                                animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
+                                animationDelay: `${Math.random() * 2}s`,
+                            }}
+                        />
+                    ))}
+
+                    <div className="relative z-10">
+                        <div className="flex flex-wrap items-start justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                                {/* Enhanced Avatar with Glow Effect */}
+                                <div className="relative group">
+                                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-pink-500 to-purple-500 blur-xl opacity-75 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="relative h-28 w-28 rounded-3xl overflow-hidden border-4 border-white/30 shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                                        <img src={avatarUrl} alt={dosen.nama} className="h-full w-full object-cover" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    </div>
+                                    <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-emerald-500 border-4 border-white flex items-center justify-center shadow-lg">
+                                        <CheckCircle2 className="h-4 w-4 text-white" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-indigo-100">Profil Dosen</p>
-                                    <h1 className="text-2xl font-bold">{dosen.nama}</h1>
-                                    <p className="text-sm text-indigo-100">NIDN: {dosen.nidn}</p>
+                                
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-semibold">
+                                            👨‍🏫 Profil Dosen
+                                        </span>
+                                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-sm text-xs font-semibold flex items-center gap-1">
+                                            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            Online
+                                        </span>
+                                    </div>
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                                        {dosen.nama}
+                                    </h1>
+                                    <div className="flex items-center gap-4 text-sm">
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm">
+                                            <IdCard className="h-4 w-4" />
+                                            <span>NIDN: {dosen.nidn}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm">
+                                            <Mail className="h-4 w-4" />
+                                            <span>{dosen.email}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur">
-                                <CheckCircle2 className="h-4 w-4" />
-                                <span className="text-sm">Akun Aktif</span>
+                            
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 rounded-2xl bg-white/20 px-5 py-3 backdrop-blur-sm shadow-lg">
+                                    <BadgeCheck className="h-5 w-5 text-emerald-300" />
+                                    <div>
+                                        <p className="text-xs text-purple-100">Status Akun</p>
+                                        <p className="font-bold">Terverifikasi</p>
+                                    </div>
+                                </div>
+                                <button className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 text-sm font-medium flex items-center gap-2 group">
+                                    <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                                    Upgrade Premium
+                                </button>
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-3 gap-4">
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <BookOpen className="h-4 w-4" />
-                                    <span className="text-xs">Mata Kuliah</span>
+                        {/* Enhanced Stats Grid */}
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md p-5 hover:bg-white/15 transition-all duration-300 border border-white/20">
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 text-blue-200">
+                                            <BookOpen className="h-5 w-5" />
+                                            <span className="text-sm font-medium">Mata Kuliah</span>
+                                        </div>
+                                        <div className="px-2 py-1 rounded-lg bg-blue-500/20 text-xs font-bold">
+                                            +{Math.floor(Math.random() * 5)}
+                                        </div>
+                                    </div>
+                                    <p className="text-4xl font-bold mb-1">{stats.totalCourses}</p>
+                                    <p className="text-xs text-purple-200">Total mata kuliah aktif</p>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalCourses}</p>
                             </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <Calendar className="h-4 w-4" />
-                                    <span className="text-xs">Total Sesi</span>
+                            
+                            <div className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md p-5 hover:bg-white/15 transition-all duration-300 border border-white/20">
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 text-purple-200">
+                                            <Calendar className="h-5 w-5" />
+                                            <span className="text-sm font-medium">Total Sesi</span>
+                                        </div>
+                                        <div className="px-2 py-1 rounded-lg bg-purple-500/20 text-xs font-bold">
+                                            Aktif
+                                        </div>
+                                    </div>
+                                    <p className="text-4xl font-bold mb-1">{stats.totalSessions}</p>
+                                    <p className="text-xs text-purple-200">Sesi perkuliahan dilakukan</p>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalSessions}</p>
                             </div>
-                            <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
-                                <div className="flex items-center gap-2 text-indigo-100 mb-1">
-                                    <BadgeCheck className="h-4 w-4" />
-                                    <span className="text-xs">Verifikasi</span>
+                            
+                            <div className="group relative overflow-hidden rounded-2xl bg-white/10 backdrop-blur-md p-5 hover:bg-white/15 transition-all duration-300 border border-white/20">
+                                <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 text-pink-200">
+                                            <BadgeCheck className="h-5 w-5" />
+                                            <span className="text-sm font-medium">Verifikasi</span>
+                                        </div>
+                                        <div className="px-2 py-1 rounded-lg bg-pink-500/20 text-xs font-bold">
+                                            100%
+                                        </div>
+                                    </div>
+                                    <p className="text-4xl font-bold mb-1">{stats.totalVerifications}</p>
+                                    <p className="text-xs text-purple-200">Verifikasi kehadiran berhasil</p>
                                 </div>
-                                <p className="text-2xl font-bold">{stats.totalVerifications}</p>
                             </div>
                         </div>
                     </div>
+
+                    <style jsx>{`
+                        @keyframes float {
+                            0%, 100% { transform: translateY(0px); }
+                            50% { transform: translateY(-20px); }
+                        }
+                    `}</style>
                 </div>
 
                 {/* Tab Navigation */}
