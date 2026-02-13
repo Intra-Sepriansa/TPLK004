@@ -896,72 +896,171 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                     </div>
                 </motion.div>
 
-                {/* Submit Form Dialog */}
+                {/* Ultra Advanced Submit Form Dialog */}
                 <AnimatePresence>
                     {showSubmitForm && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4"
                             onClick={() => setShowSubmitForm(false)}
                         >
                             <motion.div
-                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                                animate={{ scale: 1, opacity: 1, y: 0 }}
-                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                className="bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-800 rounded-3xl p-8 w-full max-w-lg shadow-2xl border-2 border-emerald-500/30"
+                                initial={{ scale: 0.85, opacity: 0, y: 30, rotateX: 10 }}
+                                animate={{ scale: 1, opacity: 1, y: 0, rotateX: 0 }}
+                                exit={{ scale: 0.85, opacity: 0, y: 30, rotateX: 10 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                className="bg-gradient-to-br from-white via-slate-50 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 rounded-3xl p-8 w-full max-w-2xl shadow-2xl border-2 border-slate-200/50 dark:border-gray-800/50 relative overflow-hidden"
+                                style={{ transformStyle: 'preserve-3d' as const, perspective: '1500px' }}
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <div className="flex items-center justify-between mb-6">
-                                    <motion.h3 
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        className="text-xl font-bold flex items-center gap-3 text-slate-900 dark:text-white"
-                                    >
-                                        <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
-                                            <Upload className="h-5 w-5 text-white" />
-                                        </div>
-                                        {submission ? 'Update Submission' : 'Kumpulkan Tugas'}
-                                    </motion.h3>
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}>
-                                        <Button variant="ghost" size="sm" onClick={() => setShowSubmitForm(false)} className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-gray-800">
-                                            <X className="h-5 w-5" />
-                                        </Button>
-                                    </motion.div>
+                                {/* Animated Background Orbs */}
+                                <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.3, 1],
+                                            rotate: [0, 90, 180],
+                                            opacity: [0.05, 0.1, 0.05],
+                                        }}
+                                        transition={{
+                                            duration: 15,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 blur-3xl"
+                                    />
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.4, 1],
+                                            rotate: [180, 90, 0],
+                                            opacity: [0.05, 0.08, 0.05],
+                                        }}
+                                        transition={{
+                                            duration: 18,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 blur-3xl"
+                                    />
                                 </div>
+
+                                {/* Header */}
+                                <div className="relative flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-4">
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+                                            whileHover={{ scale: 1.15, rotate: [0, -10, 10, -10, 0] }}
+                                            className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 text-white shadow-2xl shadow-emerald-500/30"
+                                        >
+                                            {/* Glow Effect */}
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.5, 0.8, 0.5],
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 blur-xl"
+                                            />
+                                            <Upload className="relative h-7 w-7" />
+                                        </motion.div>
+                                        <div>
+                                            <motion.h3 
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="text-2xl font-bold text-slate-900 dark:text-white"
+                                            >
+                                                {submission ? 'Update Submission' : 'Kumpulkan Tugas'}
+                                            </motion.h3>
+                                            <motion.p 
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.3 }}
+                                                className="text-sm text-slate-600 dark:text-slate-400 font-medium"
+                                            >
+                                                Upload file atau tulis jawaban kamu
+                                            </motion.p>
+                                        </div>
+                                    </div>
+                                    <motion.button
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                                        whileHover={{ scale: 1.1, rotate: 90 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => setShowSubmitForm(false)}
+                                        className="p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group"
+                                    >
+                                        <X className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                                    </motion.button>
+                                </div>
+
+                                {/* Warning if overdue */}
                                 {tugas.is_overdue && (
                                     <motion.div 
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="mb-4 p-4 rounded-xl bg-amber-100 dark:bg-amber-900/40 border-2 border-amber-400 dark:border-amber-500/30 text-amber-900 dark:text-amber-300 text-sm flex items-center gap-3"
+                                        className="relative mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-2 border-amber-400/50 dark:border-amber-500/30 overflow-hidden"
                                     >
-                                        <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-                                        <span>Deadline sudah lewat. Nilai akan dikurangi {tugas.late_penalty_percent}%.</span>
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.1, 0.2, 0.1],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                            className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500"
+                                        />
+                                        <div className="relative flex items-center gap-3 text-amber-900 dark:text-amber-300 text-sm font-semibold">
+                                            <motion.div
+                                                animate={{ rotate: [0, -10, 10, -10, 0] }}
+                                                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                                            >
+                                                <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                                            </motion.div>
+                                            <span>Deadline sudah lewat. Nilai akan dikurangi {tugas.late_penalty_percent}%.</span>
+                                        </div>
                                     </motion.div>
                                 )}
-                                <div className="space-y-5">
+
+                                {/* Form Content */}
+                                <div className="relative space-y-6">
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
                                     >
-                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-2 block">Jawaban (Opsional)</Label>
+                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 block flex items-center gap-2">
+                                            <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                            Jawaban (Opsional)
+                                        </Label>
                                         <Textarea
                                             value={submitForm.data.content}
                                             onChange={(e) => submitForm.setData('content', e.target.value)}
                                             placeholder="Tulis jawaban atau catatan..."
-                                            rows={5}
-                                            className="bg-white dark:bg-gray-800 border-slate-300 dark:border-gray-700 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-emerald-500"
+                                            rows={6}
+                                            className="bg-white dark:bg-gray-800 border-2 border-slate-300 dark:border-gray-700 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-emerald-500 rounded-xl resize-none"
                                         />
                                     </motion.div>
+
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
                                     >
-                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-2 block">Upload File (Opsional)</Label>
+                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 block flex items-center gap-2">
+                                            <Upload className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                            Upload File (Opsional)
+                                        </Label>
                                         <div className="mt-2">
                                             <input
                                                 ref={fileInputRef}
@@ -975,17 +1074,37 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                                     type="button"
                                                     variant="outline"
                                                     onClick={() => fileInputRef.current?.click()}
-                                                    className="w-full bg-white dark:bg-gray-800 border-slate-300 dark:border-gray-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-gray-700 hover:border-emerald-500"
+                                                    className="w-full h-14 bg-white dark:bg-gray-800 border-2 border-dashed border-slate-300 dark:border-gray-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-gray-700 hover:border-emerald-500 rounded-xl font-semibold"
                                                 >
-                                                    <Upload className="h-4 w-4 mr-2" />
+                                                    <Upload className="h-5 w-5 mr-2" />
                                                     {submitForm.data.file ? submitForm.data.file.name : 'Pilih File'}
                                                 </Button>
                                             </motion.div>
-                                            <p className="text-xs text-slate-500 dark:text-gray-500 mt-2">
+                                            {submitForm.data.file && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-3"
+                                                >
+                                                    <div className="p-2 bg-emerald-500 rounded-lg">
+                                                        <FileText className="h-4 w-4 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{submitForm.data.file.name}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {(submitForm.data.file.size / 1024 / 1024).toFixed(2)} MB
+                                                        </p>
+                                                    </div>
+                                                    <CheckCircle className="h-5 w-5 text-emerald-500" />
+                                                </motion.div>
+                                            )}
+                                            <p className="text-xs text-slate-500 dark:text-gray-500 mt-2 flex items-center gap-1">
+                                                <AlertTriangle className="h-3 w-3" />
                                                 Format: PDF, DOC, DOCX, ZIP, RAR (Max 10MB)
                                             </p>
                                         </div>
                                     </motion.div>
+
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
@@ -996,9 +1115,9 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                         <Button
                                             onClick={handleSubmit}
                                             disabled={!submitForm.data.content && !submitForm.data.file}
-                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="w-full h-14 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-700 text-white font-bold text-base shadow-lg shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl"
                                         >
-                                            <CheckCircle className="h-5 w-5 mr-2" /> Kirim
+                                            <CheckCircle className="h-5 w-5 mr-2" /> Kirim Sekarang
                                         </Button>
                                     </motion.div>
                                 </div>
