@@ -328,6 +328,10 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
     const displayContactText = contactText || 'Contact';
     const formattedHandle = displayHandle.startsWith('@') ? displayHandle : `@${displayHandle}`;
 
+    // Check if using default avatar (ui-avatars.com)
+    const isDefaultAvatar = avatarUrl.includes('ui-avatars.com') || avatarUrl.includes('default-avatar');
+    const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
     return (
         <div className="pc-card-frame">
             <div ref={wrapRef} className={`pc-card-wrapper ${className}`.trim()} style={cardStyle}>
@@ -338,30 +342,73 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                             <div className="pc-shine" />
                             <div className="pc-glare" />
                             <div className="pc-content pc-avatar-content">
-                                <img
-                                    className="avatar"
-                                    src={displayAvatar}
-                                    alt={`${displayName} avatar`}
-                                    loading="lazy"
-                                    onError={e => {
-                                        const t = e.target as HTMLImageElement;
-                                        t.style.display = 'none';
-                                    }}
-                                />
+                                {isDefaultAvatar ? (
+                                    <div className="pc-default-avatar">
+                                        {/* Animated gradient background */}
+                                        <div className="pc-avatar-gradient" />
+                                        
+                                        {/* Floating particles */}
+                                        {[...Array(20)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="pc-avatar-particle"
+                                                style={{
+                                                    left: `${Math.random() * 100}%`,
+                                                    top: `${Math.random() * 100}%`,
+                                                    animationDelay: `${Math.random() * 3}s`,
+                                                    animationDuration: `${3 + Math.random() * 4}s`,
+                                                }}
+                                            />
+                                        ))}
+                                        
+                                        {/* Animated rings */}
+                                        <div className="pc-avatar-ring pc-avatar-ring-1" />
+                                        <div className="pc-avatar-ring pc-avatar-ring-2" />
+                                        <div className="pc-avatar-ring pc-avatar-ring-3" />
+                                        
+                                        {/* Initials with glow */}
+                                        <div className="pc-avatar-initials">
+                                            <span className="pc-initials-text">{initials}</span>
+                                            <div className="pc-initials-glow" />
+                                        </div>
+                                        
+                                        {/* Decorative elements */}
+                                        <div className="pc-avatar-decoration pc-decoration-1" />
+                                        <div className="pc-avatar-decoration pc-decoration-2" />
+                                        <div className="pc-avatar-decoration pc-decoration-3" />
+                                    </div>
+                                ) : (
+                                    <img
+                                        className="avatar"
+                                        src={displayAvatar}
+                                        alt={`${displayName} avatar`}
+                                        loading="lazy"
+                                        onError={e => {
+                                            const t = e.target as HTMLImageElement;
+                                            t.style.display = 'none';
+                                        }}
+                                    />
+                                )}
                                 {showUserInfo && (
                                     <div className="pc-user-info">
                                         <div className="pc-user-details">
                                             <div className="pc-mini-avatar">
-                                                <img
-                                                    src={displayMiniAvatar}
-                                                    alt={`${displayName} mini avatar`}
-                                                    loading="lazy"
-                                                    onError={e => {
-                                                        const t = e.target as HTMLImageElement;
-                                                        t.style.opacity = '0.5';
-                                                        t.src = displayAvatar;
-                                                    }}
-                                                />
+                                                {isDefaultAvatar ? (
+                                                    <div className="pc-mini-default-avatar">
+                                                        <span>{initials}</span>
+                                                    </div>
+                                                ) : (
+                                                    <img
+                                                        src={displayMiniAvatar}
+                                                        alt={`${displayName} mini avatar`}
+                                                        loading="lazy"
+                                                        onError={e => {
+                                                            const t = e.target as HTMLImageElement;
+                                                            t.style.opacity = '0.5';
+                                                            t.src = displayAvatar;
+                                                        }}
+                                                    />
+                                                )}
                                             </div>
                                             <div className="pc-user-text">
                                                 <div className="pc-handle">{formattedHandle}</div>

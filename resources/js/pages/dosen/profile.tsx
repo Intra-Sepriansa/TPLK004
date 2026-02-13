@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProfileCard from '@/components/ui/profile-card';
+import ProfileEditEnhanced from '@/components/dosen/profile-edit-enhanced';
 import {
     User,
     Shield,
@@ -349,141 +350,17 @@ export default function DosenProfile() {
                 )}
 
                 {activeTab === 'profile' && (
-                    <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                    <User className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Edit Profil</h2>
-                                    <p className="text-sm text-slate-500">Perbarui informasi akun Anda</p>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleProfileSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="nama">Nama Lengkap</Label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="nama"
-                                            value={profileForm.data.nama}
-                                            onChange={e => profileForm.setData('nama', e.target.value)}
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                    <InputError message={profileForm.errors.nama} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="nidn">NIDN</Label>
-                                    <div className="relative">
-                                        <IdCard className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input id="nidn" value={dosen.nidn} disabled className="pl-10 bg-slate-50 dark:bg-gray-900" />
-                                    </div>
-                                    <p className="text-xs text-slate-500">NIDN tidak dapat diubah</p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
-                                    <div className="relative">
-                                        <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            value={profileForm.data.email}
-                                            onChange={e => profileForm.setData('email', e.target.value)}
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                    <InputError message={profileForm.errors.email} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">No. Telepon</Label>
-                                    <div className="relative">
-                                        <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="phone"
-                                            value={profileForm.data.phone}
-                                            onChange={e => profileForm.setData('phone', e.target.value)}
-                                            className="pl-10"
-                                            placeholder="08xxxxxxxxxx"
-                                        />
-                                    </div>
-                                    <InputError message={profileForm.errors.phone} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Foto Profil</Label>
-                                    <div className="flex items-center gap-4">
-                                        <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-                                            <img src={avatarUrl} alt="Preview" className="h-full w-full object-cover" />
-                                            {avatarPreview && (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-indigo-500/20">
-                                                    <CheckCircle2 className="h-6 w-6 text-indigo-500" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 space-y-2">
-                                            <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" id="avatar-upload" />
-                                            <div className="flex gap-2">
-                                                <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="flex items-center gap-2">
-                                                    <Camera className="h-4 w-4" />
-                                                    Pilih Foto
-                                                </Button>
-                                                {avatarPreview && (
-                                                    <Button type="button" size="sm" onClick={handleAvatarUpload} disabled={isUploadingAvatar} className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600">
-                                                        <Upload className="h-4 w-4" />
-                                                        {isUploadingAvatar ? 'Uploading...' : 'Upload'}
-                                                    </Button>
-                                                )}
-                                            </div>
-                                            <p className="text-xs text-slate-500">PNG, JPG max 2MB</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <Button type="submit" className="w-full bg-indigo-500 hover:bg-indigo-600" disabled={profileForm.processing}>
-                                    {profileForm.processing ? 'Menyimpan...' : 'Simpan Perubahan'}
-                                </Button>
-                            </form>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
-                                        <IdCard className="h-5 w-5" />
-                                    </div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Informasi Akun</h2>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
-                                        <span className="text-sm text-slate-500">Nama</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.nama}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
-                                        <span className="text-sm text-slate-500">NIDN</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.nidn}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
-                                        <span className="text-sm text-slate-500">Email</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">{dosen.email}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-gray-900">
-                                        <span className="text-sm text-slate-500">Status</span>
-                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                            <CheckCircle2 className="h-4 w-4" />
-                                            <span className="font-medium">Aktif</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ProfileEditEnhanced
+                        dosen={dosen}
+                        profileForm={profileForm}
+                        avatarUrl={avatarUrl}
+                        avatarPreview={avatarPreview}
+                        isUploadingAvatar={isUploadingAvatar}
+                        avatarInputRef={avatarInputRef}
+                        handleProfileSubmit={handleProfileSubmit}
+                        handleAvatarChange={handleAvatarChange}
+                        handleAvatarUpload={handleAvatarUpload}
+                    />
                 )}
 
                 {activeTab === 'security' && (
