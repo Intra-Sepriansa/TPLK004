@@ -148,7 +148,7 @@ class NotificationController extends Controller
         // Create notifications for each mahasiswa
         foreach ($mahasiswaIds as $mahasiswaId) {
             AppNotification::create([
-                'notifiable_type' => 'user',
+                'notifiable_type' => 'mahasiswa',  // Changed from 'user' to 'mahasiswa'
                 'notifiable_id' => $mahasiswaId,
                 'title' => $validated['title'],
                 'message' => $validated['message'],
