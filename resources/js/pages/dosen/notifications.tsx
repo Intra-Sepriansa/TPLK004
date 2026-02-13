@@ -2,7 +2,7 @@ import DosenLayout from '@/layouts/dosen-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { NotificationComposer } from '@/components/dosen/notification-composer';
+import { NotificationComposerEnhanced } from '@/components/dosen/notification-composer-enhanced';
 import { 
     Bell, Clock, Megaphone, AlertTriangle, Award, Info, CheckCircle, 
     ExternalLink, X, Trash2, Filter, Search, Archive, Star, Plus, Send, Sparkles
@@ -741,8 +741,8 @@ export default function Notifications({ dosen, notifications, unreadCount, cours
                 cancelText="Batal"
             />
 
-            {/* Notification Composer */}
-            <NotificationComposer
+            {/* Notification Composer Enhanced */}
+            <NotificationComposerEnhanced
                 isOpen={composerOpen}
                 course={course}
                 mahasiswa={mahasiswa}
