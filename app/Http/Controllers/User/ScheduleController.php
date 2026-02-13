@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ScheduleController extends Controller
 {
@@ -131,5 +132,78 @@ class ScheduleController extends Controller
         ];
         
         return $colors[$courseId % count($colors)];
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $mahasiswa = $request->user('mahasiswa');
+        
+        // Get enrolled courses from mahasiswa_courses table
+        $enrolledCourses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
+
+        // Map schedule day to Indonesian
+        $dayMapping = [
+            'monday' => 'Senin',
+            'tuesday' => 'Selasa',
+            'wednesday' => 'Rabu',
+            'thursday' => 'Kamis',
+            'friday' => 'Jumat',
+            'saturday' => 'Sabtu',
+            'sunday' => 'Minggu',
+        ];
+
+        // Transform mahasiswa_courses to schedule format
+        $schedules = $enrolledCourses->map(function ($course) use ($dayMapping) {
+            $startTime = \Carbon\Carbon::parse($course->schedule_time);
+            $endTime = $startTime->copy()->addMinutes($course->sks * 50);
+            
+            return [
+                'id' => $course->id,
+                'course_name' => $course->name,
+                'course_code' => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
+                'dosen_name' => 'Dosen',
+                'ruangan' => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
+                'time_range' => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
+                'jam_mulai' => $startTime->format('H:i'),
+                'jam_selesai' => $endTime->format('H:i'),
+                'duration' => ($course->sks * 50) . ' menit',
+                'notes' => 'SKS: ' . $course->sks . ' | Mode: ' . ucfirst($course->mode),
+                'color' => $this->getColorForCourse($course->id),
+                'hari' => $dayMapping[$course->schedule_day] ?? 'Senin',
+                'sks' => $course->sks,
+                'mode' => ucfirst($course->mode),
+            ];
+        })->groupBy('hari');
+
+        // Days of week in order
+        $daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        
+        // Organize schedules by day
+        $organizedSchedules = collect($daysOrder)->mapWithKeys(function ($day) use ($schedules) {
+            return [$day => $schedules->get($day, collect())];
+        });
+
+        // Statistics
+        $stats = [
+            'total_courses' => $enrolledCourses->count(),
+            'total_classes_per_week' => $enrolledCourses->count(),
+            'total_sks' => $enrolledCourses->sum('sks'),
+            'busiest_day' => $organizedSchedules->map->count()->sortDesc()->keys()->first() ?? 'Senin',
+        ];
+
+        $data = [
+            'schedules' => $organizedSchedules,
+            'mahasiswa' => $mahasiswa,
+            'stats' => $stats,
+            'daysOrder' => $daysOrder,
+            'generated_at' => Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY HH:mm'),
+        ];
+
+        $pdf = Pdf::loadView('pdf.jadwal-kuliah', $data);
+        $pdf->setPaper('a4', 'portrait');
+        
+        $filename = 'Jadwal-Kuliah-' . $mahasiswa->nama . '-' . Carbon::now()->format('Y-m-d') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }

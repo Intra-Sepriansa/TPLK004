@@ -277,6 +277,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // Schedule (Jadwal Kuliah)
     Route::get('user/schedule', [\App\Http\Controllers\User\ScheduleController::class, 'index'])->name('user.schedule');
+    Route::get('user/schedule/export-pdf', [\App\Http\Controllers\User\ScheduleController::class, 'exportPdf'])->name('user.schedule.export-pdf');
     
     // Notifications
     Route::get('user/notifications', [\App\Http\Controllers\User\NotificationController::class, 'index'])->name('user.notifications');

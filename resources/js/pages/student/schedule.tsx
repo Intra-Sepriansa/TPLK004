@@ -233,29 +233,9 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
         );
     };
 
-    // Export schedule
+    // Export schedule as PDF
     const exportSchedule = () => {
-        let text = `JADWAL KULIAH MINGGUAN\n\n`;
-        daysOrder.forEach(day => {
-            const schedule = schedules[day] || [];
-            if (schedule.length > 0) {
-                text += `${day.toUpperCase()}\n`;
-                schedule.forEach(item => {
-                    text += `- ${item.course_name} (${item.course_code})\n`;
-                    text += `  Dosen: ${item.dosen_name}\n`;
-                    text += `  Waktu: ${item.time_range}\n`;
-                    text += `  Ruangan: ${item.ruangan}\n\n`;
-                });
-            }
-        });
-        
-        const blob = new Blob([text], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `jadwal-kuliah-${new Date().toISOString().split('T')[0]}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
+        window.location.href = '/user/schedule/export-pdf';
     };
 
     return (
@@ -638,7 +618,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                         >
                             <Download className="h-4 w-4" />
                         </motion.div>
-                        <span className="relative z-10">Export</span>
+                        <span className="relative z-10">Export PDF</span>
                     </motion.button>
                 </motion.div>
 
