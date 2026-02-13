@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { SessionTemplateWizard } from '@/components/dosen/session-template-wizard';
 import { 
     FileText, Plus, Edit, Trash2, Calendar, Clock, Play, X, 
     Copy, MoreVertical, Search, Filter, TrendingUp, Zap,
@@ -49,7 +50,6 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
     const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
     const [activeMenu, setActiveMenu] = useState<number | null>(null);
     const [selectedTemplates, setSelectedTemplates] = useState<number[]>([]);
-    const [formStep, setFormStep] = useState(1);
 
     const form = useForm({
         course_id: '',
@@ -727,118 +727,19 @@ export default function SessionTemplates({ dosen, templates, courses }: Props) {
                 </motion.div>
             </motion.div>
 
-            {/* Create/Edit Modal */}
-            <AnimatePresence>
-                {(createModal || editModal.open) && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-                        onClick={() => { setCreateModal(false); setEditModal({ open: false, template: null }); form.reset(); }}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-black max-h-[90vh] overflow-y-auto"
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold">{editModal.template ? 'Edit Template' : 'Buat Template Baru'}</h3>
-                                <motion.button
-                                    whileHover={{ scale: 1.1, rotate: 90 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => { setCreateModal(false); setEditModal({ open: false, template: null }); form.reset(); }}
-                                    className="text-gray-400 hover:text-gray-600"
-                                >
-                                    <X className="h-5 w-5" />
-                                </motion.button>
-                            </div>
-                            <div className="space-y-4">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                >
-                                    <Label className="mb-2 block">Mata Kuliah</Label>
-                                    <Select value={form.data.course_id} onValueChange={(v) => form.setData('course_id', v)}>
-                                        <SelectTrigger><SelectValue placeholder="Pilih mata kuliah" /></SelectTrigger>
-                                        <SelectContent>{courses.map(c => (<SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>))}</SelectContent>
-                                    </Select>
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.15 }}
-                                >
-                                    <Label className="mb-2 block">Nama Template</Label>
-                                    <Input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} placeholder="Contoh: Jadwal Reguler" />
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    <Label className="mb-2 block">Deskripsi (opsional)</Label>
-                                    <Textarea value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} placeholder="Deskripsi template..." />
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.25 }}
-                                    className="grid grid-cols-2 gap-4"
-                                >
-                                    <div><Label className="mb-2 block">Jam Mulai</Label><Input type="time" value={form.data.default_start_time} onChange={(e) => form.setData('default_start_time', e.target.value)} /></div>
-                                    <div><Label className="mb-2 block">Jam Selesai</Label><Input type="time" value={form.data.default_end_time} onChange={(e) => form.setData('default_end_time', e.target.value)} /></div>
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                >
-                                    <Label className="mb-2 block">Hari Default</Label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {DAYS.map((day, idx) => (
-                                            <motion.label
-                                                key={idx}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="flex items-center gap-2 cursor-pointer"
-                                            >
-                                                <Checkbox checked={form.data.default_days.includes(idx)} onCheckedChange={() => toggleDay(idx)} />
-                                                <span className="text-sm">{day}</span>
-                                            </motion.label>
-                                        ))}
-                                    </div>
-                                </motion.div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.35 }}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Switch checked={form.data.auto_activate} onCheckedChange={(v) => form.setData('auto_activate', v)} />
-                                    <Label>Auto-activate sesi yang dibuat</Label>
-                                </motion.div>
-                                <div className="flex gap-2 pt-2">
-                                    <motion.div whileTap={{ scale: 0.95 }} className="flex-1">
-                                        <Button onClick={editModal.template ? handleUpdate : handleCreate} disabled={form.processing} className="w-full">
-                                            {editModal.template ? 'Simpan' : 'Buat'}
-                                        </Button>
-                                    </motion.div>
-                                    <motion.div whileTap={{ scale: 0.95 }}>
-                                        <Button variant="outline" onClick={() => { setCreateModal(false); setEditModal({ open: false, template: null }); form.reset(); }}>
-                                            Batal
-                                        </Button>
-                                    </motion.div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Create/Edit Modal - Advanced Multi-Step Wizard */}
+            <SessionTemplateWizard
+                isOpen={createModal || editModal.open}
+                editTemplate={editModal.template}
+                form={form}
+                courses={courses}
+                onClose={() => {
+                    setCreateModal(false);
+                    setEditModal({ open: false, template: null });
+                    form.reset();
+                }}
+                onSubmit={editModal.template ? handleUpdate : handleCreate}
+            />
 
             {/* Generate Modal */}
             <AnimatePresence>
