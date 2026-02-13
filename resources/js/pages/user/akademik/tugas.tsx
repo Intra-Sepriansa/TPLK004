@@ -1515,68 +1515,207 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         )}
                     </CardContent>
                 </Card>
-                {/* Task Detail Modal */}
+                {/* Task Detail Modal - ULTRA ADVANCED */}
                 <Dialog open={showTaskDetail} onOpenChange={setShowTaskDetail}>
-                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0">
                         {selectedTask && (
                             <>
-                                <DialogHeader>
-                                    <DialogTitle className="flex items-center gap-2">
-                                        {selectedTask.title}
-                                        {selectedTask.priority && (
-                                            <Badge 
-                                                variant="outline" 
-                                                className={`text-xs ${
-                                                    selectedTask.priority === 'high' 
-                                                        ? 'border-red-500 text-red-600 bg-red-50' 
-                                                        : selectedTask.priority === 'medium'
-                                                            ? 'border-amber-500 text-amber-600 bg-amber-50'
-                                                            : 'border-blue-500 text-blue-600 bg-blue-50'
-                                                }`}
-                                            >
-                                                <Flag className="h-3 w-3 mr-1" />
-                                                {selectedTask.priority === 'high' ? 'Tinggi' : selectedTask.priority === 'medium' ? 'Sedang' : 'Rendah'}
-                                            </Badge>
-                                        )}
-                                    </DialogTitle>
-                                    <DialogDescription>Detail lengkap tugas</DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4">
+                            <div className="relative">
+                                {/* Animated Background Orbs */}
+                                <motion.div 
+                                    animate={{
+                                        scale: [1, 1.3, 1],
+                                        opacity: [0.1, 0.2, 0.1],
+                                        x: [0, 30, 0],
+                                        y: [0, -20, 0],
+                                    }}
+                                    transition={{
+                                        duration: 15,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 blur-3xl pointer-events-none"
+                                />
+                                <motion.div 
+                                    animate={{
+                                        scale: [1, 1.4, 1],
+                                        opacity: [0.1, 0.15, 0.1],
+                                        x: [0, -25, 0],
+                                        y: [0, 30, 0],
+                                    }}
+                                    transition={{
+                                        duration: 18,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute -left-10 -bottom-10 h-48 w-48 rounded-full bg-gradient-to-br from-teal-400/20 to-cyan-500/20 blur-3xl pointer-events-none"
+                                />
+
+                                {/* Header with Gradient */}
+                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-6 text-white">
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                                        animate={{
+                                            x: ['-100%', '200%'],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            repeatDelay: 2,
+                                            ease: "easeInOut"
+                                        }}
+                                    />
+                                    
+                                    <div className="relative z-10">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-3 text-white text-2xl">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.2, rotate: 10 }}
+                                                    transition={{ type: "spring", stiffness: 300 }}
+                                                    className="p-2 bg-white/20 rounded-lg backdrop-blur"
+                                                >
+                                                    <ListTodo className="h-6 w-6" />
+                                                </motion.div>
+                                                <span className="flex-1">{selectedTask.title}</span>
+                                                {selectedTask.priority && (
+                                                    <motion.div
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ type: "spring", stiffness: 200 }}
+                                                    >
+                                                        <Badge 
+                                                            variant="outline" 
+                                                            className={`text-xs border-2 ${
+                                                                selectedTask.priority === 'high' 
+                                                                    ? 'border-red-300 text-white bg-red-500/30' 
+                                                                    : selectedTask.priority === 'medium'
+                                                                        ? 'border-amber-300 text-white bg-amber-500/30'
+                                                                        : 'border-blue-300 text-white bg-blue-500/30'
+                                                            }`}
+                                                        >
+                                                            <Flag className="h-3 w-3 mr-1" />
+                                                            {selectedTask.priority === 'high' ? 'Tinggi' : selectedTask.priority === 'medium' ? 'Sedang' : 'Rendah'}
+                                                        </Badge>
+                                                    </motion.div>
+                                                )}
+                                            </DialogTitle>
+                                            <DialogDescription className="text-cyan-100">
+                                                Detail lengkap tugas akademik
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                    </div>
+                                </div>
+
+                                {/* Content with Enhanced Cards */}
+                                <div className="p-6 space-y-4 max-h-[calc(85vh-180px)] overflow-y-auto">
+                                    {/* Course & Meeting Info */}
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Mata Kuliah</Label>
-                                            <p className="font-medium">{selectedTask.course_name}</p>
-                                        </div>
-                                        {selectedTask.meeting_number && (
-                                            <div>
-                                                <Label className="text-xs text-muted-foreground">Pertemuan</Label>
-                                                <p className="font-medium">Pertemuan {selectedTask.meeting_number}</p>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800"
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <div className="p-2 bg-blue-500 rounded-lg">
+                                                    <BookOpen className="h-4 w-4 text-white" />
+                                                </div>
+                                                <Label className="text-xs text-blue-600 dark:text-blue-400 font-semibold">Mata Kuliah</Label>
                                             </div>
+                                            <p className="font-bold text-gray-900 dark:text-white">{selectedTask.course_name}</p>
+                                        </motion.div>
+                                        
+                                        {selectedTask.meeting_number && (
+                                            <motion.div
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                whileHover={{ scale: 1.02, y: -2 }}
+                                                className="p-4 rounded-xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border border-teal-200 dark:border-teal-800"
+                                            >
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="p-2 bg-teal-500 rounded-lg">
+                                                        <Calendar className="h-4 w-4 text-white" />
+                                                    </div>
+                                                    <Label className="text-xs text-teal-600 dark:text-teal-400 font-semibold">Pertemuan</Label>
+                                                </div>
+                                                <p className="font-bold text-gray-900 dark:text-white">Pertemuan {selectedTask.meeting_number}</p>
+                                            </motion.div>
                                         )}
                                     </div>
                                     
+                                    {/* Deadline Card */}
                                     {selectedTask.deadline && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Deadline</Label>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <Calendar className="h-4 w-4 text-muted-foreground" />
-                                                <p className="font-medium">{selectedTask.deadline_formatted}</p>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            whileHover={{ scale: 1.01, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
+                                            className={`p-4 rounded-xl border-2 ${
+                                                selectedTask.is_overdue 
+                                                    ? 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-red-300 dark:border-red-800'
+                                                    : 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-300 dark:border-amber-800'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <div className={`p-2 rounded-lg ${selectedTask.is_overdue ? 'bg-red-500' : 'bg-amber-500'}`}>
+                                                    <Clock className="h-4 w-4 text-white" />
+                                                </div>
+                                                <Label className={`text-xs font-semibold ${selectedTask.is_overdue ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                                    Deadline
+                                                </Label>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <p className="font-bold text-gray-900 dark:text-white">{selectedTask.deadline_formatted}</p>
                                                 {selectedTask.days_remaining !== null && !selectedTask.is_overdue && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {selectedTask.days_remaining} hari lagi
-                                                    </Badge>
+                                                    <motion.div
+                                                        animate={{ scale: [1, 1.1, 1] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                    >
+                                                        <Badge variant="outline" className="text-xs border-amber-500 bg-amber-100 dark:bg-amber-900/30">
+                                                            {selectedTask.days_remaining} hari lagi
+                                                        </Badge>
+                                                    </motion.div>
                                                 )}
                                                 {selectedTask.is_overdue && (
-                                                    <Badge variant="destructive" className="text-xs">
-                                                        Terlambat
-                                                    </Badge>
+                                                    <motion.div
+                                                        animate={{ scale: [1, 1.1, 1] }}
+                                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                                    >
+                                                        <Badge variant="destructive" className="text-xs">
+                                                            <AlertTriangle className="h-3 w-3 mr-1" />
+                                                            Terlambat
+                                                        </Badge>
+                                                    </motion.div>
                                                 )}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                     
-                                    <div>
-                                        <Label className="text-xs text-muted-foreground">Status</Label>
+                                    {/* Status Card */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        whileHover={{ scale: 1.01 }}
+                                        className={`p-4 rounded-xl border-2 ${
+                                            selectedTask.status === 'completed'
+                                                ? 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-emerald-300 dark:border-emerald-800'
+                                                : selectedTask.status === 'in_progress'
+                                                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-300 dark:border-blue-800'
+                                                    : 'bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-slate-950/30 border-gray-300 dark:border-gray-800'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className={`p-2 rounded-lg ${
+                                                selectedTask.status === 'completed' ? 'bg-emerald-500' :
+                                                selectedTask.status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-500'
+                                            }`}>
+                                                <Target className="h-4 w-4 text-white" />
+                                            </div>
+                                            <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400">Status</Label>
+                                        </div>
                                         <div className="mt-1">
                                             {selectedTask.status === 'completed' ? (
                                                 <Badge className="bg-emerald-500">
@@ -1592,67 +1731,135 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                 </Badge>
                                             )}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                     
+                                    {/* Description Card */}
                                     {selectedTask.description && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Deskripsi</Label>
-                                            <p className="mt-1 text-sm">{selectedTask.description}</p>
-                                        </div>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            whileHover={{ scale: 1.01 }}
+                                            className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border border-violet-200 dark:border-violet-800"
+                                        >
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <div className="p-2 bg-violet-500 rounded-lg">
+                                                    <FileText className="h-4 w-4 text-white" />
+                                                </div>
+                                                <Label className="text-xs text-violet-600 dark:text-violet-400 font-semibold">Deskripsi</Label>
+                                            </div>
+                                            <p className="mt-1 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{selectedTask.description}</p>
+                                        </motion.div>
                                     )}
                                     
+                                    {/* Tags */}
                                     {selectedTask.tags && selectedTask.tags.length > 0 && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Tags</Label>
-                                            <div className="flex flex-wrap gap-2 mt-1">
-                                                {selectedTask.tags.map((tag, idx) => (
-                                                    <Badge key={idx} variant="outline">
-                                                        <Tag className="h-3 w-3 mr-1" />
-                                                        {tag}
-                                                    </Badge>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.6 }}
+                                            className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 border border-pink-200 dark:border-pink-800"
+                                        >
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <div className="p-2 bg-pink-500 rounded-lg">
+                                                    <Tag className="h-4 w-4 text-white" />
+                                                </div>
+                                                <Label className="text-xs text-pink-600 dark:text-pink-400 font-semibold">Tags</Label>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedTask.tags.map((tag: string, idx: number) => (
+                                                    <motion.div
+                                                        key={idx}
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.7 + idx * 0.1, type: "spring" }}
+                                                        whileHover={{ scale: 1.1, y: -2 }}
+                                                    >
+                                                        <Badge variant="outline" className="border-pink-300 bg-white dark:bg-pink-900/20">
+                                                            <Tag className="h-3 w-3 mr-1" />
+                                                            {tag}
+                                                        </Badge>
+                                                    </motion.div>
                                                 ))}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                     
+                                    {/* Attachments */}
                                     {selectedTask.attachments && selectedTask.attachments.length > 0 && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Lampiran</Label>
-                                            <div className="space-y-2 mt-1">
-                                                {selectedTask.attachments.map((file, idx) => (
-                                                    <div key={idx} className="flex items-center gap-2 p-2 border rounded-lg">
-                                                        <Paperclip className="h-4 w-4 text-muted-foreground" />
-                                                        <span className="text-sm flex-1">{file.name}</span>
-                                                        <span className="text-xs text-muted-foreground">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.7 }}
+                                            className="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border border-indigo-200 dark:border-indigo-800"
+                                        >
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <div className="p-2 bg-indigo-500 rounded-lg">
+                                                    <Paperclip className="h-4 w-4 text-white" />
+                                                </div>
+                                                <Label className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Lampiran</Label>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {selectedTask.attachments.map((file: any, idx: number) => (
+                                                    <motion.div
+                                                        key={idx}
+                                                        initial={{ opacity: 0, x: -20 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.8 + idx * 0.1 }}
+                                                        whileHover={{ scale: 1.02, x: 5 }}
+                                                        className="flex items-center gap-3 p-3 bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg cursor-pointer"
+                                                    >
+                                                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                                                            <Paperclip className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                                        </div>
+                                                        <span className="text-sm flex-1 font-medium">{file.name}</span>
+                                                        <Badge variant="outline" className="text-xs">
                                                             {(file.size / 1024).toFixed(2)} KB
-                                                        </span>
-                                                    </div>
+                                                        </Badge>
+                                                    </motion.div>
                                                 ))}
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                     
-                                    <div className="pt-4 border-t">
-                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>Dibuat: {new Date(selectedTask.created_at).toLocaleDateString('id-ID')}</span>
+                                    {/* Footer Info */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.9 }}
+                                        className="pt-4 border-t border-gray-200 dark:border-gray-700"
+                                    >
+                                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-3 w-3" />
+                                                <span>Dibuat: {new Date(selectedTask.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                            </div>
                                             {selectedTask.completed_at && (
-                                                <span>Selesai: {new Date(selectedTask.completed_at).toLocaleDateString('id-ID')}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                                                    <span>Selesai: {new Date(selectedTask.completed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 </div>
-                                <DialogFooter>
+                                
+                                {/* Dialog Footer */}
+                                <DialogFooter className="p-6 border-t">
                                     <Button variant="outline" onClick={() => setShowTaskDetail(false)}>
                                         Tutup
                                     </Button>
                                     <Button onClick={() => {
-                                        handleDuplicateTask(selectedTask);
-                                        setShowTaskDetail(false);
+                                        if (selectedTask) {
+                                            handleDuplicateTask(selectedTask);
+                                            setShowTaskDetail(false);
+                                        }
                                     }}>
                                         <Copy className="h-4 w-4 mr-2" />
                                         Duplikat
                                     </Button>
                                 </DialogFooter>
+                            </div>
                             </>
                         )}
                     </DialogContent>
