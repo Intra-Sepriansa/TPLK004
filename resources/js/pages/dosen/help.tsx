@@ -169,31 +169,118 @@ export default function DosenHelp() {
         {
             icon: BookOpen,
             title: 'Panduan Lengkap',
-            description: 'Dokumentasi sistem presensi',
+            description: 'Dokumentasi lengkap sistem presensi, manajemen kelas, dan fitur-fitur advanced',
             color: 'from-blue-500 to-cyan-500',
-            count: '12 Artikel',
+            count: '25 Artikel',
+            badge: 'Populer',
         },
         {
             icon: Lightbulb,
             title: 'Tips & Trik',
-            description: 'Maksimalkan penggunaan',
+            description: 'Maksimalkan produktivitas dengan tips praktis dan shortcut yang efisien',
             color: 'from-amber-500 to-orange-500',
-            count: '15 Tips',
+            count: '32 Tips',
+            badge: 'Trending',
         },
         {
             icon: Shield,
             title: 'Keamanan',
-            description: 'Panduan keamanan akun',
+            description: 'Panduan lengkap keamanan akun, privasi data, dan best practices',
             color: 'from-emerald-500 to-teal-500',
-            count: '6 Panduan',
+            count: '15 Panduan',
+            badge: 'Penting',
+        },
+        {
+            icon: Video,
+            title: 'Video Tutorial',
+            description: 'Tutorial video step-by-step untuk semua fitur sistem',
+            color: 'from-purple-500 to-pink-500',
+            count: '18 Video',
+            badge: 'Baru',
+        },
+        {
+            icon: Zap,
+            title: 'Quick Start',
+            description: 'Mulai cepat dengan panduan singkat untuk pemula',
+            color: 'from-rose-500 to-red-500',
+            count: '8 Panduan',
+            badge: 'Pemula',
+        },
+        {
+            icon: Target,
+            title: 'Best Practices',
+            description: 'Praktik terbaik dari dosen berpengalaman',
+            color: 'from-indigo-500 to-blue-500',
+            count: '12 Tips',
+            badge: 'Pro',
         },
     ];
 
     const popularTopics = [
-        { icon: Users, title: 'Cara Mengelola Kelas', views: '1.2k' },
-        { icon: FileText, title: 'Membuat Sesi Absensi', views: '980' },
-        { icon: Zap, title: 'Fitur Otomatis Approval', views: '856' },
-        { icon: MessageSquare, title: 'Notifikasi & Pengingat', views: '742' },
+        { 
+            icon: Users, 
+            title: 'Cara Mengelola Kelas dan Mahasiswa', 
+            description: 'Panduan lengkap mengelola kelas, menambah mahasiswa, dan mengatur jadwal perkuliahan',
+            views: '2.8k',
+            rating: 4.9,
+            difficulty: 'Mudah'
+        },
+        { 
+            icon: FileText, 
+            title: 'Membuat dan Mengelola Sesi Absensi', 
+            description: 'Tutorial step-by-step membuat sesi absensi dengan QR code, geolocation, dan face recognition',
+            views: '2.1k',
+            rating: 4.8,
+            difficulty: 'Mudah'
+        },
+        { 
+            icon: Zap, 
+            title: 'Fitur Otomatis Approval dan Notifikasi', 
+            description: 'Mengatur approval otomatis untuk izin, notifikasi real-time, dan reminder mahasiswa',
+            views: '1.7k',
+            rating: 4.7,
+            difficulty: 'Menengah'
+        },
+        { 
+            icon: MessageSquare, 
+            title: 'Sistem Notifikasi dan Pengingat Cerdas', 
+            description: 'Konfigurasi notifikasi push, email, dan SMS untuk berbagai event penting',
+            views: '1.5k',
+            rating: 4.6,
+            difficulty: 'Menengah'
+        },
+        { 
+            icon: Shield, 
+            title: 'Keamanan Akun dan Verifikasi 2FA', 
+            description: 'Mengaktifkan two-factor authentication dan mengamankan akun dari akses tidak sah',
+            views: '1.3k',
+            rating: 4.9,
+            difficulty: 'Mudah'
+        },
+        { 
+            icon: TrendingUp, 
+            title: 'Analisis Data dan Laporan Kehadiran', 
+            description: 'Membuat laporan kehadiran, analisis statistik, dan export data ke berbagai format',
+            views: '1.2k',
+            rating: 4.8,
+            difficulty: 'Menengah'
+        },
+        { 
+            icon: Target, 
+            title: 'Deteksi Fraud dan Anomali Kehadiran', 
+            description: 'Memahami sistem deteksi kecurangan dan menangani kasus anomali kehadiran',
+            views: '980',
+            rating: 4.7,
+            difficulty: 'Lanjutan'
+        },
+        { 
+            icon: Rocket, 
+            title: 'Integrasi dengan Sistem Eksternal', 
+            description: 'Menghubungkan sistem dengan LMS, SIAKAD, dan platform pembelajaran lainnya',
+            views: '856',
+            rating: 4.5,
+            difficulty: 'Lanjutan'
+        },
     ];
 
     if (isLoading) {
@@ -270,12 +357,12 @@ export default function DosenHelp() {
                         </div>
                     </motion.div>
 
-                    {/* Quick Links Grid */}
+                    {/* Quick Links Grid - Enhanced */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                         {quickLinks.map((link, index) => (
                             <motion.div
@@ -283,31 +370,87 @@ export default function DosenHelp() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 + index * 0.1 }}
-                                whileHover={{ y: -4 }}
+                                whileHover={{ y: -8, scale: 1.02 }}
+                                className="relative"
                             >
-                                <Card className="relative overflow-hidden group cursor-pointer border-2 hover:border-emerald-500/50 transition-all dark:bg-black backdrop-blur-sm">
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                                    <CardContent className="p-6 space-y-3">
-                                        <motion.div
-                                            whileHover={{ scale: 1.1, y: -2 }}
-                                            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                                            className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${link.color} shadow-lg`}
-                                        >
-                                            <link.icon className="h-6 w-6 text-white" />
-                                        </motion.div>
-                                        <div>
-                                            <h3 className="font-semibold text-lg group-hover:text-emerald-600 transition-colors">
+                                <Card className="relative overflow-hidden group cursor-pointer border-2 hover:border-emerald-500/50 transition-all dark:bg-black/80 backdrop-blur-xl h-full shadow-lg hover:shadow-2xl">
+                                    {/* Animated Background Gradient */}
+                                    <motion.div
+                                        className={`absolute inset-0 bg-gradient-to-br ${link.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                                        animate={{
+                                            backgroundPosition: ['0% 0%', '100% 100%'],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            repeatType: 'reverse',
+                                        }}
+                                    />
+                                    
+                                    {/* Shimmer Effect */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                                        animate={{
+                                            x: ['-100%', '200%'],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            repeatDelay: 1,
+                                            ease: 'linear',
+                                        }}
+                                    />
+                                    
+                                    <CardContent className="p-6 space-y-4 relative z-10">
+                                        <div className="flex items-start justify-between">
+                                            <motion.div
+                                                whileHover={{ scale: 1.15, rotate: 5 }}
+                                                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                                                className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${link.color} shadow-xl shadow-${link.color.split('-')[1]}-500/30`}
+                                            >
+                                                <link.icon className="h-7 w-7 text-white" />
+                                            </motion.div>
+                                            {link.badge && (
+                                                <motion.div
+                                                    initial={{ scale: 0, rotate: -180 }}
+                                                    animate={{ scale: 1, rotate: 0 }}
+                                                    transition={{ delay: 0.3 + index * 0.1, type: 'spring' }}
+                                                >
+                                                    <Badge 
+                                                        variant="secondary" 
+                                                        className="text-xs font-bold bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30"
+                                                    >
+                                                        {link.badge}
+                                                    </Badge>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="space-y-2">
+                                            <h3 className="font-bold text-lg group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                                                 {link.title}
                                             </h3>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
                                                 {link.description}
                                             </p>
                                         </div>
-                                        <div className="flex items-center justify-between">
-                                            <Badge variant="secondary" className="text-xs">
-                                                {link.count}
-                                            </Badge>
-                                            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+                                        
+                                        <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-800">
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className="text-xs font-semibold">
+                                                    {link.count}
+                                                </Badge>
+                                                <div className="flex items-center gap-1">
+                                                    <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+                                                    <span className="text-xs text-muted-foreground">4.8</span>
+                                                </div>
+                                            </div>
+                                            <motion.div
+                                                animate={{ x: [0, 5, 0] }}
+                                                transition={{ duration: 1.5, repeat: Infinity }}
+                                            >
+                                                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+                                            </motion.div>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -315,24 +458,34 @@ export default function DosenHelp() {
                         ))}
                     </motion.div>
 
-                    {/* Popular Topics */}
+                    {/* Popular Topics - Enhanced */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
                     >
-                        <Card className="border-2 dark:bg-black backdrop-blur-sm">
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center gap-2">
-                                        <Zap className="h-5 w-5 text-amber-500" />
-                                        <h2 className="text-xl font-bold">Topik Populer</h2>
+                        <Card className="border-2 dark:bg-black/80 backdrop-blur-xl shadow-xl">
+                            <CardContent className="p-8">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center gap-3">
+                                        <motion.div
+                                            animate={{ rotate: [0, 360] }}
+                                            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                                            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30"
+                                        >
+                                            <Zap className="h-6 w-6 text-white" />
+                                        </motion.div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold">Topik Populer</h2>
+                                            <p className="text-sm text-muted-foreground">Artikel paling banyak dibaca minggu ini</p>
+                                        </div>
                                     </div>
-                                    <Button variant="ghost" size="sm" className="text-emerald-600">
+                                    <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700 font-semibold">
                                         Lihat Semua
-                                        <ArrowRight className="h-4 w-4 ml-1" />
+                                        <ArrowRight className="h-4 w-4 ml-2" />
                                     </Button>
                                 </div>
+                                
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {popularTopics.map((topic, index) => (
                                         <motion.div
@@ -340,25 +493,74 @@ export default function DosenHelp() {
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.5 + index * 0.1 }}
-                                            whileHover={{ x: 4 }}
-                                            className="flex items-center gap-4 p-4 rounded-lg border-2 border-transparent hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all cursor-pointer group"
+                                            whileHover={{ x: 6, scale: 1.02 }}
+                                            className="relative group"
                                         >
-                                            <motion.div
-                                                whileHover={{ scale: 1.1, y: -2 }}
-                                                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-                                                className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30"
-                                            >
-                                                <topic.icon className="h-5 w-5 text-white" />
-                                            </motion.div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="font-medium group-hover:text-emerald-600 transition-colors truncate">
-                                                    {topic.title}
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {topic.views} views
-                                                </p>
+                                            <div className="flex items-start gap-4 p-5 rounded-2xl border-2 border-transparent hover:border-emerald-500/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-black/50 hover:shadow-xl transition-all cursor-pointer overflow-hidden">
+                                                {/* Animated Background */}
+                                                <motion.div
+                                                    className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    animate={{
+                                                        backgroundPosition: ['0% 0%', '100% 100%'],
+                                                    }}
+                                                    transition={{
+                                                        duration: 3,
+                                                        repeat: Infinity,
+                                                        repeatType: 'reverse',
+                                                    }}
+                                                />
+                                                
+                                                <motion.div
+                                                    whileHover={{ scale: 1.15, rotate: 10 }}
+                                                    transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                                                    className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 relative z-10"
+                                                >
+                                                    <topic.icon className="h-7 w-7 text-white" />
+                                                </motion.div>
+                                                
+                                                <div className="flex-1 min-w-0 relative z-10">
+                                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                                        <h3 className="font-bold text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
+                                                            {topic.title}
+                                                        </h3>
+                                                        <Badge 
+                                                            variant="secondary" 
+                                                            className={`text-xs font-semibold flex-shrink-0 ${
+                                                                topic.difficulty === 'Mudah' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
+                                                                topic.difficulty === 'Menengah' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
+                                                                'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'
+                                                            }`}
+                                                        >
+                                                            {topic.difficulty}
+                                                        </Badge>
+                                                    </div>
+                                                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
+                                                        {topic.description}
+                                                    </p>
+                                                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                                        <div className="flex items-center gap-1">
+                                                            <Eye className="h-3.5 w-3.5 text-blue-500" />
+                                                            <span className="font-medium">{topic.views} views</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+                                                            <span className="font-medium">{topic.rating}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1">
+                                                            <Clock className="h-3.5 w-3.5 text-emerald-500" />
+                                                            <span className="font-medium">5-10 min</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <motion.div
+                                                    animate={{ x: [0, 5, 0] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                                    className="flex-shrink-0 relative z-10"
+                                                >
+                                                    <ExternalLink className="h-5 w-5 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
+                                                </motion.div>
                                             </div>
-                                            <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-emerald-600 transition-colors flex-shrink-0" />
                                         </motion.div>
                                     ))}
                                 </div>
