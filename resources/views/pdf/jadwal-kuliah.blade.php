@@ -2,432 +2,232 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jadwal Kuliah - {{ $mahasiswa->nama }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 10px; line-height: 1.4; color: #333; }
+        .container { padding: 15px 20px; }
+        
+        /* Header Section - Same as rekap-kehadiran-admin */
+        .header { display: table; width: 100%; border-bottom: 3px double #333; padding-bottom: 12px; margin-bottom: 15px; }
+        .header-logo { display: table-cell; width: 60px; vertical-align: middle; }
+        .header-logo img { width: 50px; height: auto; }
+        .header-text { display: table-cell; vertical-align: middle; text-align: center; padding: 0 10px; }
+        .header-logo-right { display: table-cell; width: 60px; vertical-align: middle; text-align: right; }
+        .header-logo-right img { width: 50px; height: auto; }
+        .university-name { font-size: 13px; font-weight: bold; text-transform: uppercase; color: #1a365d; }
+        .faculty-name { font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .address { font-size: 8px; margin-top: 3px; }
+        
+        /* Title Section */
+        .title { text-align: center; margin: 15px 0; }
+        .title h1 { font-size: 13px; font-weight: bold; text-transform: uppercase; text-decoration: underline; }
+        .subtitle { font-size: 10px; margin-top: 5px; }
+        
+        /* Student Info Box */
+        .student-info { 
+            border: 1px solid #333; 
+            padding: 10px; 
+            margin: 12px 0; 
+            background-color: #f8f9fa;
         }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            font-size: 11px;
-            line-height: 1.6;
-            color: #1e293b;
-            background: #ffffff;
+        .student-info table { width: 100%; }
+        .student-info td { padding: 3px 5px; font-size: 9px; }
+        .student-info td:first-child { width: 120px; font-weight: bold; }
+        
+        /* Stats Grid - Same style as rekap */
+        .stats-grid { display: table; width: 100%; margin: 12px 0; }
+        .stat-box { display: table-cell; width: 25%; padding: 6px 4px; text-align: center; border: 1px solid #ddd; }
+        .stat-value { font-size: 14px; font-weight: bold; color: #1a365d; }
+        .stat-label { font-size: 8px; color: #666; margin-top: 2px; }
+        
+        /* Section Title */
+        .section-title { 
+            font-size: 11px; 
+            font-weight: bold; 
+            margin: 12px 0 8px; 
+            border-bottom: 1px solid #ddd; 
+            padding-bottom: 3px; 
         }
-
-        .container {
-            padding: 20px;
+        
+        /* Schedule Table */
+        .schedule-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 10px 0; 
+            font-size: 9px; 
         }
-
-        /* Header Section */
-        .header {
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
+        .schedule-table th, .schedule-table td { 
+            border: 1px solid #333; 
+            padding: 5px 3px; 
         }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
+        .schedule-table th { 
+            background-color: #1a365d; 
+            color: white; 
+            font-weight: bold; 
+            text-align: center; 
         }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
+        .schedule-table tbody tr:nth-child(even) { 
+            background-color: #f8f9fa; 
         }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
+        .schedule-table td { 
+            vertical-align: top; 
         }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .header .subtitle {
-            font-size: 14px;
-            opacity: 0.95;
-            margin-bottom: 15px;
-        }
-
-        .header-info {
-            display: flex;
-            justify-content: space-between;
+        
+        /* Day Header */
+        .day-header { 
+            background-color: #1a365d; 
+            color: white; 
+            padding: 6px 10px; 
+            font-size: 10px; 
+            font-weight: bold; 
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .header-info-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .header-info-item strong {
-            font-weight: 600;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .stat-card .label {
-            font-size: 10px;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-
-        .stat-card .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #0ea5e9;
-        }
-
-        .stat-card .subtext {
-            font-size: 9px;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        /* Schedule Section */
-        .schedule-section {
-            margin-bottom: 20px;
-        }
-
-        .day-header {
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .day-header .day-name {
-            font-size: 15px;
-        }
-
-        .day-header .class-count {
-            background: rgba(255, 255, 255, 0.25);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .schedule-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .schedule-table thead {
-            background: #f1f5f9;
-        }
-
-        .schedule-table th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #475569;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .schedule-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: top;
-        }
-
-        .schedule-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .schedule-table tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        .course-name {
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-
-        .course-code {
-            font-size: 9px;
-            color: #64748b;
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
-            display: inline-block;
-            font-family: 'Courier New', monospace;
-            font-weight: 600;
-        }
-
-        .time-badge {
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 11px;
-            display: inline-block;
-            white-space: nowrap;
-        }
-
-        .duration-text {
-            font-size: 9px;
-            color: #64748b;
-            margin-top: 4px;
-        }
-
-        .room-badge {
-            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 11px;
-            display: inline-block;
-        }
-
-        .dosen-name {
-            font-weight: 600;
-            color: #0f172a;
-            font-size: 11px;
-            margin-bottom: 4px;
-        }
-
-        .info-badge {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 9px;
-            display: inline-block;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-
-        .no-schedule {
-            text-align: center;
-            padding: 30px;
-            color: #94a3b8;
-            font-style: italic;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 2px dashed #e2e8f0;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e2e8f0;
-            text-align: center;
-            color: #64748b;
-            font-size: 9px;
-        }
-
-        .footer .generated-info {
             margin-bottom: 8px;
-            font-weight: 600;
         }
-
-        .footer .disclaimer {
-            color: #94a3b8;
-            font-style: italic;
+        
+        .course-name { 
+            font-weight: bold; 
+            font-size: 9px; 
+            margin-bottom: 2px; 
         }
-
+        .course-code { 
+            font-size: 8px; 
+            color: #666; 
+            font-style: italic; 
+        }
+        
+        .time-info { 
+            font-weight: bold; 
+            color: #1a365d; 
+        }
+        .duration-info { 
+            font-size: 8px; 
+            color: #666; 
+            margin-top: 2px; 
+        }
+        
+        .no-schedule { 
+            text-align: center; 
+            padding: 15px; 
+            color: #666; 
+            font-style: italic; 
+            background-color: #f8f9fa; 
+        }
+        
+        /* Signature Section */
+        .signature-section { 
+            margin-top: 25px; 
+            text-align: right; 
+        }
+        .signature-box { 
+            display: inline-block; 
+            text-align: center; 
+            min-width: 160px; 
+        }
+        .signature-space { 
+            height: 45px; 
+        }
+        .signature-name { 
+            font-weight: bold; 
+            text-decoration: underline; 
+        }
+        
+        /* Footer */
+        .footer { 
+            margin-top: 20px; 
+            padding-top: 8px; 
+            border-top: 1px solid #ddd; 
+            text-align: center; 
+            font-size: 7px; 
+            color: #666; 
+        }
+        
         /* Page Break */
-        .page-break {
-            page-break-after: always;
-        }
-
-        /* Color indicators */
-        .color-indicator {
-            width: 4px;
-            height: 100%;
-            position: absolute;
-            left: 0;
-            top: 0;
-            border-radius: 4px 0 0 4px;
-        }
-
-        .schedule-table tbody tr {
-            position: relative;
-        }
-
-        /* Legend */
-        .legend {
-            background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .legend-title {
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-
-        .legend-items {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 10px;
-            color: #475569;
-        }
-
-        .legend-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
+        .page-break { 
+            page-break-after: always; 
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Header - Same as rekap-kehadiran-admin -->
         <div class="header">
-            <div class="header-content">
-                <h1>📅 JADWAL KULIAH MINGGUAN</h1>
-                <div class="subtitle">Semester Aktif - Tahun Akademik {{ date('Y') }}/{{ date('Y') + 1 }}</div>
-                <div class="header-info">
-                    <div class="header-info-item">
-                        <span>👤</span>
-                        <div>
-                            <strong>{{ $mahasiswa->nama }}</strong>
-                            <div style="font-size: 11px; opacity: 0.9;">NIM: {{ $mahasiswa->nim }}</div>
-                        </div>
-                    </div>
-                    <div class="header-info-item">
-                        <span>📊</span>
-                        <div>
-                            <strong>{{ $stats['total_courses'] }} Mata Kuliah</strong>
-                            <div style="font-size: 11px; opacity: 0.9;">Total {{ $stats['total_sks'] }} SKS</div>
-                        </div>
-                    </div>
-                    <div class="header-info-item">
-                        <span>📆</span>
-                        <div>
-                            <strong>{{ $stats['busiest_day'] }}</strong>
-                            <div style="font-size: 11px; opacity: 0.9;">Hari Tersibuk</div>
-                        </div>
-                    </div>
+            <div class="header-logo">
+                @php
+                    $logoUnpam = public_path('images/logo-unpam.png');
+                @endphp
+                @if(file_exists($logoUnpam))
+                    <img src="{{ $logoUnpam }}" alt="Logo UNPAM">
+                @endif
+            </div>
+            <div class="header-text">
+                <div class="university-name">Universitas Pamulang</div>
+                <div class="faculty-name">Fakultas Ilmu Komputer</div>
+                <div style="font-size: 10px; font-weight: bold;">Jurusan Teknik Informatika</div>
+                <div class="address">
+                    Jl. Surya Kencana No.1, Pamulang, Tangerang Selatan, Banten 15417<br>
+                    Telp: (021) 7412566 | Email: fikom@unpam.ac.id
                 </div>
+            </div>
+            <div class="header-logo-right">
+                @php
+                    $logoSasmita = public_path('images/logo-sasmita.png');
+                @endphp
+                @if(file_exists($logoSasmita))
+                    <img src="{{ $logoSasmita }}" alt="Logo Sasmita">
+                @endif
             </div>
         </div>
 
-        <!-- Statistics Cards -->
+        <!-- Title -->
+        <div class="title">
+            <h1>Jadwal Kuliah Mingguan</h1>
+            <div class="subtitle">
+                Semester Aktif - Tahun Akademik {{ date('Y') }}/{{ date('Y') + 1 }}
+            </div>
+        </div>
+
+        <!-- Student Info -->
+        <div class="student-info">
+            <table>
+                <tr>
+                    <td>Nama Mahasiswa</td>
+                    <td>: {{ $mahasiswa->nama }}</td>
+                    <td>Total Mata Kuliah</td>
+                    <td>: {{ $stats['total_courses'] }} Mata Kuliah</td>
+                </tr>
+                <tr>
+                    <td>NIM</td>
+                    <td>: {{ $mahasiswa->nim }}</td>
+                    <td>Total SKS</td>
+                    <td>: {{ $stats['total_sks'] }} SKS</td>
+                </tr>
+                <tr>
+                    <td>Program Studi</td>
+                    <td>: Teknik Informatika</td>
+                    <td>Hari Tersibuk</td>
+                    <td>: {{ $stats['busiest_day'] }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Statistics -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="label">Total Mata Kuliah</div>
-                <div class="value">{{ $stats['total_courses'] }}</div>
-                <div class="subtext">Semester Ini</div>
+            <div class="stat-box">
+                <div class="stat-value">{{ $stats['total_courses'] }}</div>
+                <div class="stat-label">Total Mata Kuliah</div>
             </div>
-            <div class="stat-card">
-                <div class="label">Total SKS</div>
-                <div class="value">{{ $stats['total_sks'] }}</div>
-                <div class="subtext">Kredit Semester</div>
+            <div class="stat-box">
+                <div class="stat-value">{{ $stats['total_sks'] }}</div>
+                <div class="stat-label">Total SKS</div>
             </div>
-            <div class="stat-card">
-                <div class="label">Kelas Per Minggu</div>
-                <div class="value">{{ $stats['total_classes_per_week'] }}</div>
-                <div class="subtext">Pertemuan</div>
+            <div class="stat-box">
+                <div class="stat-value">{{ $stats['total_classes_per_week'] }}</div>
+                <div class="stat-label">Kelas Per Minggu</div>
             </div>
-            <div class="stat-card">
-                <div class="label">Hari Tersibuk</div>
-                <div class="value" style="font-size: 16px;">{{ $stats['busiest_day'] }}</div>
-                <div class="subtext">Paling Banyak</div>
-            </div>
-        </div>
-
-        <!-- Legend -->
-        <div class="legend">
-            <div class="legend-title">📖 Keterangan</div>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <div class="legend-icon" style="background: linear-gradient(135deg, #0ea5e9, #06b6d4); color: white;">⏰</div>
-                    <span>Waktu Perkuliahan</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-icon" style="background: linear-gradient(135deg, #14b8a6, #0d9488); color: white;">🏫</div>
-                    <span>Ruangan/Mode</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-icon" style="background: #f1f5f9; color: #475569;">📚</div>
-                    <span>Kode Mata Kuliah</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-icon" style="background: #f1f5f9; color: #475569;">ℹ️</div>
-                    <span>Informasi Tambahan</span>
-                </div>
+            <div class="stat-box">
+                <div class="stat-value" style="font-size: 12px;">{{ $stats['busiest_day'] }}</div>
+                <div class="stat-label">Hari Tersibuk</div>
             </div>
         </div>
 
@@ -437,68 +237,69 @@
                 $daySchedule = $schedules[$day];
             @endphp
             
-            <div class="schedule-section">
-                <div class="day-header">
-                    <span class="day-name">{{ $day }}</span>
-                    <span class="class-count">{{ $daySchedule->count() }} Kelas</span>
-                </div>
-
-                @if($daySchedule->count() > 0)
-                    <table class="schedule-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">Mata Kuliah</th>
-                                <th style="width: 20%;">Waktu</th>
-                                <th style="width: 15%;">Ruangan</th>
-                                <th style="width: 20%;">Dosen</th>
-                                <th style="width: 20%;">Informasi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($daySchedule as $schedule)
-                                <tr>
-                                    <td>
-                                        <div class="course-name">{{ $schedule['course_name'] }}</div>
-                                        <span class="course-code">{{ $schedule['course_code'] }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="time-badge">{{ $schedule['time_range'] }}</div>
-                                        <div class="duration-text">⏱️ {{ $schedule['duration'] }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="room-badge">{{ $schedule['ruangan'] }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="dosen-name">{{ $schedule['dosen_name'] }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="info-badge">📚 {{ $schedule['sks'] }} SKS</div>
-                                        <div class="info-badge" style="margin-left: 4px;">{{ $schedule['mode'] }}</div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="no-schedule">
-                        <div style="font-size: 24px; margin-bottom: 8px;">📅</div>
-                        <div>Tidak ada jadwal kuliah pada hari {{ $day }}</div>
-                    </div>
-                @endif
+            <div class="day-header">
+                {{ $day }} ({{ $daySchedule->count() }} Kelas)
             </div>
+
+            @if($daySchedule->count() > 0)
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 25%;">Mata Kuliah</th>
+                            <th style="width: 18%;">Waktu</th>
+                            <th style="width: 15%;">Ruangan</th>
+                            <th style="width: 20%;">Dosen</th>
+                            <th style="width: 17%;">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($daySchedule as $index => $schedule)
+                            <tr>
+                                <td style="text-align: center;">{{ $index + 1 }}</td>
+                                <td>
+                                    <div class="course-name">{{ $schedule['course_name'] }}</div>
+                                    <div class="course-code">{{ $schedule['course_code'] }}</div>
+                                </td>
+                                <td>
+                                    <div class="time-info">{{ $schedule['time_range'] }}</div>
+                                    <div class="duration-info">{{ $schedule['duration'] }}</div>
+                                </td>
+                                <td style="text-align: center;">{{ $schedule['ruangan'] }}</td>
+                                <td>{{ $schedule['dosen_name'] }}</td>
+                                <td>
+                                    <div style="font-size: 8px;">
+                                        <strong>SKS:</strong> {{ $schedule['sks'] }}<br>
+                                        <strong>Mode:</strong> {{ $schedule['mode'] }}
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="no-schedule">
+                    Tidak ada jadwal kuliah pada hari {{ $day }}
+                </div>
+            @endif
         @endforeach
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <p>Tangerang Selatan, {{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM YYYY') }}</p>
+                <p style="margin-top: 5px;">Mahasiswa,</p>
+                <div class="signature-space"></div>
+                <p class="signature-name">{{ $mahasiswa->nama }}</p>
+                <p style="font-size: 8px; margin-top: 2px;">NIM: {{ $mahasiswa->nim }}</p>
+            </div>
+        </div>
 
         <!-- Footer -->
         <div class="footer">
-            <div class="generated-info">
-                📄 Dokumen ini digenerate secara otomatis pada {{ $generated_at }}
-            </div>
-            <div class="disclaimer">
-                Jadwal dapat berubah sewaktu-waktu. Harap selalu cek sistem untuk informasi terbaru.
-            </div>
-            <div style="margin-top: 10px; font-weight: 600; color: #0ea5e9;">
-                Sistem Informasi Akademik - {{ config('app.name') }}
-            </div>
+            <p>Dokumen ini dicetak secara otomatis oleh Sistem Informasi Akademik UNPAM</p>
+            <p>Dicetak pada: {{ $generated_at }} WIB</p>
+            <p style="margin-top: 3px; font-style: italic;">Jadwal dapat berubah sewaktu-waktu. Harap selalu cek sistem untuk informasi terbaru.</p>
         </div>
     </div>
 </body>

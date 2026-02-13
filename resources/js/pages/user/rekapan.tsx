@@ -253,7 +253,7 @@ export default function UserRekapan() {
             <Head title="Rekapan Kehadiran" />
 
             {/* Subtle Background Gradient */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-gradient-to-br from-violet-50/30 to-purple-50/30 dark:from-violet-950/10 dark:to-purple-950/10" />
+            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-gradient-to-br from-blue-50/30 to-cyan-50/30 dark:from-blue-950/10 dark:to-cyan-950/10" />
 
             <motion.div
                 initial="hidden"
@@ -261,14 +261,154 @@ export default function UserRekapan() {
                 variants={containerVariants}
                 className="space-y-6 p-6 relative z-10"
             >
-                {/* Header Card */}
+                {/* Header Card - ULTRA ADVANCED */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 text-white shadow-lg"
+                    whileHover={{ 
+                        scale: 1.01,
+                        rotateY: 1,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Subtle background decoration */}
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2,
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
+                    />
+
+                    {/* 25 Floating Particles */}
+                    {[...Array(25)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
+                            animate={{
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
+                            }}
+                            transition={{
+                                duration: 5 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                                ease: "easeOut"
+                            }}
+                            className="absolute rounded-full shadow-lg"
+                            style={{
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 3.5) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0
+                                    ? 'rgba(255, 255, 255, 0.6)'
+                                    : i % 3 === 1
+                                        ? 'rgba(6, 182, 212, 0.5)'
+                                        : 'rgba(59, 130, 246, 0.5)',
+                                filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                            }}
+                        />
+                    ))}
+
+                    {/* Floating Icons */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <FileText className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <Award className="h-20 w-20" />
+                    </motion.div>
+
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
                     
                     <div className="relative z-10">
                         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -277,15 +417,15 @@ export default function UserRekapan() {
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-sm text-violet-200"
+                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
                                 >
                                     Rekapan Kehadiran
                                 </motion.p>
                                 <motion.h1 
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4, type: "spring" }}
-                                    className="text-2xl font-bold"
+                                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                    className="text-3xl font-extrabold tracking-tight"
                                 >
                                     {mahasiswa.nama}
                                 </motion.h1>
@@ -293,17 +433,35 @@ export default function UserRekapan() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
-                                    className="text-sm text-violet-200"
+                                    className="text-sm text-cyan-100 font-mono"
                                 >
                                     NIM: {mahasiswa.nim}
                                 </motion.p>
                             </div>
                             <motion.div
-                                whileHover={{ scale: 1.1, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
+                                whileHover={{ 
+                                    scale: 1.2, 
+                                    rotate: [0, -8, 8, 0],
+                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                }}
+                                whileTap={{ scale: 0.92 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
                             >
-                                <FileText className="h-7 w-7" />
+                                {/* Glow effect */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0.8, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                />
+                                <FileText className="h-10 w-10 relative z-10" />
                             </motion.div>
                         </div>
 
@@ -324,13 +482,24 @@ export default function UserRekapan() {
                                         stiffness: 200
                                     }}
                                     whileHover={{ 
-                                        scale: 1.05, 
-                                        y: -3,
+                                        scale: 1.08, 
+                                        y: -4,
+                                        boxShadow: "0 10px 25px -5px rgba(6, 182, 212, 0.3)",
                                     }}
-                                    className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                                    className="rounded-xl bg-white/15 p-4 backdrop-blur-xl cursor-pointer relative overflow-hidden group shadow-lg ring-1 ring-white/20"
                                 >
-                                    <p className="text-xs text-violet-200">{item.label}</p>
-                                    <p className="text-2xl font-bold">
+                                    {/* Shimmer effect on hover */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100"
+                                        animate={{ x: ['-100%', '100%'] }}
+                                        transition={{ 
+                                            duration: 1.5,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                        }}
+                                    />
+                                    <p className="text-xs text-cyan-100 font-semibold relative z-10">{item.label}</p>
+                                    <p className="text-2xl font-bold relative z-10">
                                         <AnimatedCounter value={item.value} suffix={item.suffix || ""} duration={1500} />
                                         {item.extra || ""}
                                     </p>
