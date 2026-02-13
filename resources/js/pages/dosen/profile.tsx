@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ProfileCard from '@/components/ui/profile-card';
 import ProfileEditEnhanced from '@/components/dosen/profile-edit-enhanced';
+import SecurityEnhanced from '@/components/dosen/security-enhanced';
 import {
     User,
     Shield,
@@ -364,126 +365,16 @@ export default function DosenProfile() {
                 )}
 
                 {activeTab === 'security' && (
-                    <div className="grid gap-6 lg:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
-                                    <KeyRound className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Ganti Password</h2>
-                                    <p className="text-sm text-slate-500">Perbarui password untuk keamanan</p>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="current_password">Password Saat Ini</Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="current_password"
-                                            type={showCurrent ? 'text' : 'password'}
-                                            value={passwordForm.data.current_password}
-                                            onChange={e => passwordForm.setData('current_password', e.target.value)}
-                                            className="pl-10 pr-10"
-                                            placeholder="••••••••"
-                                        />
-                                        <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                            {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
-                                    </div>
-                                    <InputError message={passwordForm.errors.current_password} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Password Baru</Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="password"
-                                            type={showNew ? 'text' : 'password'}
-                                            value={passwordForm.data.password}
-                                            onChange={e => passwordForm.setData('password', e.target.value)}
-                                            className="pl-10 pr-10"
-                                            placeholder="••••••••"
-                                        />
-                                        <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                            {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
-                                    </div>
-                                    <InputError message={passwordForm.errors.password} />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="password_confirmation">Konfirmasi Password Baru</Label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                        <Input
-                                            id="password_confirmation"
-                                            type={showConfirm ? 'text' : 'password'}
-                                            value={passwordForm.data.password_confirmation}
-                                            onChange={e => passwordForm.setData('password_confirmation', e.target.value)}
-                                            className="pl-10 pr-10"
-                                            placeholder="••••••••"
-                                        />
-                                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                                            {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
-                                    </div>
-                                    <InputError message={passwordForm.errors.password_confirmation} />
-                                </div>
-
-                                <Button type="submit" className="w-full bg-violet-500 hover:bg-violet-600" disabled={passwordForm.processing}>
-                                    {passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
-                                </Button>
-                            </form>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                                        <AlertCircle className="h-5 w-5" />
-                                    </div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Tips Keamanan</h2>
-                                </div>
-
-                                <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-                                    <li className="flex items-start gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                                        <span>Gunakan minimal 8 karakter</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                                        <span>Kombinasikan huruf besar, kecil, dan angka</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                                        <span>Hindari menggunakan NIDN atau tanggal lahir</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                                        <span>Jangan gunakan password yang sama dengan akun lain</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-sm">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <Shield className="h-6 w-6" />
-                                    <h2 className="font-semibold">Status Keamanan</h2>
-                                </div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <CheckCircle2 className="h-5 w-5" />
-                                    <span className="font-medium">Akun Terlindungi</span>
-                                </div>
-                                <p className="text-sm text-indigo-100">
-                                    Pertimbangkan untuk mengubah password secara berkala untuk keamanan optimal.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <SecurityEnhanced
+                        passwordForm={passwordForm}
+                        showCurrent={showCurrent}
+                        showNew={showNew}
+                        showConfirm={showConfirm}
+                        setShowCurrent={setShowCurrent}
+                        setShowNew={setShowNew}
+                        setShowConfirm={setShowConfirm}
+                        handlePasswordSubmit={handlePasswordSubmit}
+                    />
                 )}
             </div>
         </DosenLayout>
