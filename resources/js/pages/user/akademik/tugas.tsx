@@ -15,7 +15,8 @@ import {
     ListTodo, Plus, ArrowLeft, Clock, CheckCircle2, AlertTriangle, 
     Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag,
     LayoutList, CalendarDays, Columns3, Paperclip, Tag, X, Search, 
-    ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3, ArrowRight, FileText
+    ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3, ArrowRight, FileText,
+    User, Award
 } from 'lucide-react';
 import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
@@ -77,19 +78,6 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     const [showTaskDetail, setShowTaskDetail] = useState(false);
     const [formStep, setFormStep] = useState(1);
     const [dragActive, setDragActive] = useState(false);
-
-    // Mouse position for parallax
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-    const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-    const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const { clientX, clientY } = e;
-        const { innerWidth, innerHeight } = window;
-        mouseX.set((clientX / innerWidth - 0.5) * 20);
-        mouseY.set((clientY / innerHeight - 0.5) * 20);
-    };
 
     // Show flash message as toast
     useEffect(() => {
@@ -556,11 +544,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
             </div>
 
             <div 
-                className="flex flex-col gap-6 p-4 md:p-6 relative z-10"
-                onMouseMove={handleMouseMove}
-                style={{
-                    perspective: "1500px",
-                }}
+                className="flex flex-col gap-6 p-4 md:p-6"
             >
                 {/* Toast Notification */}
                 <AnimatePresence>
@@ -582,85 +566,277 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     )}
                 </AnimatePresence>
 
-                {/* Header with Gradient */}
+                {/* Header - ULTRA ADVANCED matching Dashboard */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    style={{
-                        x: smoothMouseX,
-                        y: smoothMouseY,
-                    }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 via-orange-600 to-red-600 p-6 text-white shadow-lg"
+                    whileHover={{ scale: 1.01, rotateY: 1 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated gradient overlay */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div 
                         animate={{
-                            x: ['-100%', '200%'],
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
                         }}
                         transition={{
-                            duration: 3,
+                            duration: 20,
                             repeat: Infinity,
-                            repeatDelay: 2,
                             ease: "easeInOut"
                         }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div 
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                            x: [0, 30, 0],
+                            y: [0, -20, 0],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2,
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
                     
-                    {/* Floating orbs */}
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.2, 1], 
-                            opacity: [0.3, 0.5, 0.3] 
-                        }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{ 
-                            scale: [1, 1.3, 1], 
-                            opacity: [0.2, 0.4, 0.2] 
-                        }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                    />
+                    {/* 30 Floating Particles with Advanced Physics */}
+                    {[...Array(30)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
+                            animate={{ 
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
+                            }}
+                            transition={{
+                                duration: 5 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute rounded-full shadow-lg"
+                            style={{
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 3) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0 
+                                    ? 'rgba(255, 255, 255, 0.6)' 
+                                    : i % 3 === 1 
+                                        ? 'rgba(6, 182, 212, 0.5)' 
+                                        : 'rgba(59, 130, 246, 0.5)',
+                                filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                            }}
+                        />
+                    ))}
                     
-                    <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-center gap-4">
+                    {/* Floating Icons with Advanced Animations */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <ListTodo className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <Target className="h-20 w-20" />
+                    </motion.div>
+                    
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
+                    
+                    <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex items-center gap-5">
                             <Link href="/user/akademik">
                                 <motion.div
-                                    whileHover={{ scale: 1.2, rotate: -10 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                    whileHover={{ 
+                                        scale: 1.2, 
+                                        rotate: [0, -8, 8, 0],
+                                        boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    }}
+                                    whileTap={{ scale: 0.92 }}
+                                    transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                    className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
                                 >
-                                    <ArrowLeft className="h-5 w-5" />
+                                    {/* Glow effect behind icon */}
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.5, 0.8, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                    />
+                                    <motion.div
+                                        whileHover={{ scale: 1.15, y: -3 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="relative"
+                                    >
+                                        <ArrowLeft className="h-10 w-10" />
+                                    </motion.div>
                                 </motion.div>
                             </Link>
                             <div>
-                                <motion.h1 
+                                <motion.p 
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-2xl font-bold flex items-center gap-2"
+                                    transition={{ delay: 0.2, type: "spring" }}
+                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
+                                >
+                                    Akademik
+                                </motion.p>
+                                <motion.h1 
+                                    initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
+                                    className="text-3xl font-extrabold tracking-tight"
+                                >
+                                    Informasi Tugas
+                                </motion.h1>
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4, type: "spring" }}
+                                    className="flex items-center gap-2 mt-1"
                                 >
                                     <motion.div
-                                        animate={{ rotate: [0, 10, -10, 0] }}
-                                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                                    >
-                                        <ListTodo className="h-7 w-7" />
-                                    </motion.div>
-                                    Tugas Akademik
-                                </motion.h1>
-                                <motion.p 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-amber-100"
-                                >
-                                    Kelola tugas per mata kuliah
-                                </motion.p>
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.7, 1, 0.7],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="h-2 w-2 rounded-full bg-cyan-300"
+                                    />
+                                    <p className="text-sm text-cyan-100">
+                                        Lihat dan kelola tugas dari dosen dengan mudah dan terorganisir
+                                    </p>
+                                </motion.div>
                             </div>
                         </div>
-                        <Dialog open={showForm} onOpenChange={setShowForm}>
+                        
+                        <div className="relative mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
+                                <p className="text-xs text-cyan-100">Total Tugas</p>
+                                <p className="text-2xl font-bold">{stats.total}</p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
+                                <p className="text-xs text-cyan-100">Mendatang</p>
+                                <p className="text-2xl font-bold">{stats.pending}</p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
+                                <p className="text-xs text-cyan-100">Terlewat</p>
+                                <p className="text-2xl font-bold">{stats.overdue}</p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.5 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                            >
+                                <p className="text-xs text-cyan-100">Belum Dibaca</p>
+                                <p className="text-2xl font-bold">0</p>
+                            </motion.div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                <div>
+                    <Dialog open={showForm} onOpenChange={setShowForm}>
                             <DialogTrigger asChild>
                                 <motion.div
                                     whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(255,255,255,0.3)" }}
@@ -1064,151 +1240,10 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             </form>
                         </DialogContent>
                     </Dialog>
-                    </div>
-                </motion.div>
+                </div>
 
                 {/* Stats with Advanced Animations */}
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        whileHover={{ 
-                            scale: 1.05, 
-                            rotateY: 5,
-                            boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
-                        }}
-                        style={{ transformStyle: "preserve-3d" }}
-                    >
-                        <Card className="relative overflow-hidden">
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-purple-500/10"
-                                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                            />
-                            <CardContent className="p-4 text-center relative z-10">
-                                <motion.p 
-                                    className="text-2xl font-bold"
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                >
-                                    {stats.total}
-                                </motion.p>
-                                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                                    <Target className="h-3 w-3" />
-                                    Total Tugas
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        whileHover={{ 
-                            scale: 1.05, 
-                            rotateY: 5,
-                            boxShadow: "0 20px 40px rgba(16,185,129,0.3)"
-                        }}
-                        style={{ transformStyle: "preserve-3d" }}
-                    >
-                        <Card className="bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 relative overflow-hidden">
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-green-400/20"
-                                animate={{ 
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3]
-                                }}
-                                transition={{ duration: 2.5, repeat: Infinity }}
-                            />
-                            <CardContent className="p-4 text-center relative z-10">
-                                <motion.p 
-                                    className="text-2xl font-bold text-emerald-600"
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
-                                >
-                                    {stats.completed}
-                                </motion.p>
-                                <p className="text-sm text-emerald-600/80 flex items-center justify-center gap-1">
-                                    <CheckCircle2 className="h-3 w-3" />
-                                    Selesai
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        whileHover={{ 
-                            scale: 1.05, 
-                            rotateY: 5,
-                            boxShadow: "0 20px 40px rgba(245,158,11,0.3)"
-                        }}
-                        style={{ transformStyle: "preserve-3d" }}
-                    >
-                        <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 relative overflow-hidden">
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-orange-400/20"
-                                animate={{ 
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3]
-                                }}
-                                transition={{ duration: 2.5, repeat: Infinity }}
-                            />
-                            <CardContent className="p-4 text-center relative z-10">
-                                <motion.p 
-                                    className="text-2xl font-bold text-amber-600"
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
-                                >
-                                    {stats.pending}
-                                </motion.p>
-                                <p className="text-sm text-amber-600/80 flex items-center justify-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    Pending
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                        whileHover={{ 
-                            scale: 1.05, 
-                            rotateY: 5,
-                            boxShadow: "0 20px 40px rgba(239,68,68,0.3)"
-                        }}
-                        style={{ transformStyle: "preserve-3d" }}
-                    >
-                        <Card className="bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 relative overflow-hidden">
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-rose-400/20"
-                                animate={{ 
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3]
-                                }}
-                                transition={{ duration: 2.5, repeat: Infinity }}
-                            />
-                            <CardContent className="p-4 text-center relative z-10">
-                                <motion.p 
-                                    className="text-2xl font-bold text-red-600"
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-                                >
-                                    {stats.overdue}
-                                </motion.p>
-                                <p className="text-sm text-red-600/80 flex items-center justify-center gap-1">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    Terlambat
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
                 </div>
 
                 {/* Filters */}
