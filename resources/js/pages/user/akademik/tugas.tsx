@@ -1032,117 +1032,290 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     </div>
                 </motion.div>
 
-                {/* Add Task Dialog */}
-                <Dialog open={showForm} onOpenChange={setShowForm}>
-                        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
-                            <DialogHeader>
-                                <DialogTitle className="flex items-center gap-3">
-                                    <motion.div
-                                        whileHover={{ scale: 1.1, y: -2 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg"
-                                    >
-                                        <Plus className="h-5 w-5 text-white" />
-                                    </motion.div>
-                                    Tambah Tugas Baru
-                                </DialogTitle>
-                                <DialogDescription>Catat tugas untuk mata kuliah tertentu</DialogDescription>
-                            </DialogHeader>
-
-                            {/* Progress Steps */}
-                            <div className="flex items-center justify-between mb-6 px-4">
-                                {[1, 2, 3].map((step) => (
-                                    <div key={step} className="flex items-center flex-1">
-                                        <motion.div
-                                            animate={{
-                                                scale: formStep === step ? 1.1 : 1,
-                                                backgroundColor: formStep >= step ? '#8b5cf6' : '#e5e7eb'
-                                            }}
-                                            className="relative z-10 flex items-center justify-center w-10 h-10 rounded-full text-white font-semibold"
-                                        >
-                                            {formStep > step ? (
-                                                <CheckCircle className="h-5 w-5" />
-                                            ) : (
-                                                step
-                                            )}
-                                        </motion.div>
-                                        {step < 3 && (
-                                            <motion.div
-                                                animate={{
-                                                    backgroundColor: formStep > step ? '#8b5cf6' : '#e5e7eb'
-                                                }}
-                                                className="flex-1 h-1 mx-2"
-                                            />
-                                        )}
-                                    </div>
-                                ))}
+                {/* Ultra Advanced Form Modal */}
+                <AnimatePresence>
+                {showForm && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+                        onClick={() => { setShowForm(false); setFormStep(1); }}
+                    >
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.85, y: 30, rotateX: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+                            exit={{ opacity: 0, scale: 0.85, y: 30, rotateX: 10 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="w-full max-w-3xl rounded-3xl bg-gradient-to-br from-white via-slate-50 to-white dark:from-gray-900 dark:via-black dark:to-gray-900 p-8 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col border-2 border-slate-200/50 dark:border-gray-800/50"
+                            style={{ transformStyle: 'preserve-3d' as const, perspective: '1500px' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Animated Background Orbs */}
+                            <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.3, 1],
+                                        rotate: [0, 90, 180],
+                                        opacity: [0.05, 0.1, 0.05],
+                                    }}
+                                    transition={{
+                                        duration: 15,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 blur-3xl"
+                                />
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.4, 1],
+                                        rotate: [180, 90, 0],
+                                        opacity: [0.05, 0.08, 0.05],
+                                    }}
+                                    transition={{
+                                        duration: 18,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-gradient-to-br from-violet-400 to-purple-500 blur-3xl"
+                                />
                             </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Header with Close Button */}
+                            <div className="relative flex items-start justify-between mb-8">
+                                <div className="flex items-center gap-4">
+                                    <motion.div 
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+                                        whileHover={{ scale: 1.15, rotate: [0, -10, 10, -10, 0] }}
+                                        className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 via-violet-500 to-purple-500 text-white shadow-2xl shadow-violet-500/30"
+                                    >
+                                        {/* Glow Effect */}
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.5, 0.8, 0.5],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                ease: "easeInOut"
+                                            }}
+                                            className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-400 to-violet-500 blur-xl"
+                                        />
+                                        <ListTodo className="relative h-8 w-8" />
+                                    </motion.div>
+                                    <div>
+                                        <motion.h3 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="text-2xl font-bold text-slate-900 dark:text-white"
+                                        >
+                                            Tambah Tugas Baru
+                                        </motion.h3>
+                                        <motion.p 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="text-sm text-slate-600 dark:text-slate-400 font-medium"
+                                        >
+                                            Isi form berikut dengan lengkap dan jelas
+                                        </motion.p>
+                                    </div>
+                                </div>
+                                <motion.button 
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
+                                    whileHover={{ scale: 1.1, rotate: 90 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => { setShowForm(false); setFormStep(1); }} 
+                                    className="p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group"
+                                >
+                                    <X className="h-5 w-5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
+                                </motion.button>
+                            </div>
+
+                            {/* Ultra Advanced Progress Steps */}
+                            <div className="relative mb-10 px-6">
+                                <div className="flex items-center justify-between">
+                                    {[
+                                        { step: 1, label: 'Info Dasar', icon: BookOpen },
+                                        { step: 2, label: 'Detail', icon: FileText },
+                                        { step: 3, label: 'Lampiran', icon: Paperclip }
+                                    ].map((item, index) => (
+                                        <div key={item.step} className="flex items-center flex-1">
+                                            <div className="flex flex-col items-center relative z-10">
+                                                <motion.div
+                                                    animate={{
+                                                        scale: formStep === item.step ? 1.15 : 1,
+                                                        backgroundColor: formStep >= item.step ? '#8b5cf6' : '#e5e7eb'
+                                                    }}
+                                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                    className="relative flex items-center justify-center w-14 h-14 rounded-2xl text-white font-bold shadow-lg"
+                                                >
+                                                    {/* Pulse Effect */}
+                                                    {formStep === item.step && (
+                                                        <motion.div
+                                                            animate={{
+                                                                scale: [1, 1.4, 1],
+                                                                opacity: [0.5, 0, 0.5],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                                ease: "easeOut"
+                                                            }}
+                                                            className="absolute inset-0 rounded-2xl bg-violet-500"
+                                                        />
+                                                    )}
+                                                    
+                                                    {formStep > item.step ? (
+                                                        <motion.div
+                                                            initial={{ scale: 0, rotate: -180 }}
+                                                            animate={{ scale: 1, rotate: 0 }}
+                                                            transition={{ type: "spring", stiffness: 300 }}
+                                                        >
+                                                            <CheckCircle className="h-7 w-7" />
+                                                        </motion.div>
+                                                    ) : (
+                                                        <item.icon className="h-6 w-6 relative z-10" />
+                                                    )}
+                                                </motion.div>
+                                                <motion.p
+                                                    animate={{
+                                                        color: formStep >= item.step ? '#8b5cf6' : '#9ca3af',
+                                                        fontWeight: formStep === item.step ? 700 : 500
+                                                    }}
+                                                    className="text-xs mt-2 text-center"
+                                                >
+                                                    {item.label}
+                                                </motion.p>
+                                            </div>
+                                            {index < 2 && (
+                                                <motion.div
+                                                    animate={{
+                                                        backgroundColor: formStep > item.step ? '#8b5cf6' : '#e5e7eb',
+                                                        scaleX: formStep > item.step ? 1 : 0.95
+                                                    }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="flex-1 h-1.5 mx-3 rounded-full"
+                                                />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-6 flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-violet-500 scrollbar-track-slate-200 dark:scrollbar-track-gray-800">
                                 <AnimatePresence mode="wait">
-                                    {/* Step 1: Basic Info */}
+                                    {/* Step 1: Basic Info - Ultra Enhanced */}
                                     {formStep === 1 && (
                                         <motion.div
                                             key="step1"
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="space-y-4"
+                                            initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                            className="space-y-6"
                                         >
-                                            <div className="text-center mb-4">
-                                                <h3 className="text-lg font-semibold text-violet-600">Informasi Dasar</h3>
-                                                <p className="text-sm text-muted-foreground">Pilih mata kuliah dan judul tugas</p>
-                                            </div>
+                                            {/* Step Header with Animation */}
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: -20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.1 }}
+                                                className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-2 border-blue-200/50 dark:border-blue-800/50"
+                                            >
+                                                <motion.div
+                                                    animate={{
+                                                        scale: [1, 1.1, 1],
+                                                        rotate: [0, 5, -5, 0],
+                                                    }}
+                                                    transition={{
+                                                        duration: 3,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                    className="inline-block mb-3"
+                                                >
+                                                    <BookOpen className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                                                </motion.div>
+                                                <h3 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-2">Informasi Dasar</h3>
+                                                <p className="text-sm text-blue-600 dark:text-blue-400">Pilih mata kuliah dan judul tugas</p>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <BookOpen className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <BookOpen className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Mata Kuliah
                                                 </Label>
                                                 <Select value={data.mahasiswa_course_id} onValueChange={handleCourseSelect}>
-                                                    <SelectTrigger className="h-12 border-2 hover:border-violet-300 transition-colors">
+                                                    <SelectTrigger className="h-14 border-2 hover:border-violet-400 focus:border-violet-500 transition-all rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md">
                                                         <SelectValue placeholder="Pilih mata kuliah" />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="rounded-xl">
                                                         {courses.map((c) => (
-                                                            <SelectItem key={c.id} value={String(c.id)}>
-                                                                <div className="flex items-center gap-2">
-                                                                    <BookOpen className="h-4 w-4 text-violet-600" />
-                                                                    {c.name}
+                                                            <SelectItem key={c.id} value={String(c.id)} className="rounded-lg my-1">
+                                                                <div className="flex items-center gap-3 py-1">
+                                                                    <div className="p-2 rounded-lg bg-violet-100 dark:bg-violet-900/30">
+                                                                        <BookOpen className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                                                                    </div>
+                                                                    <span className="font-medium">{c.name}</span>
                                                                 </div>
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                {errors.mahasiswa_course_id && (
-                                                    <motion.p
-                                                        initial={{ opacity: 0, y: -10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        className="text-sm text-red-500 flex items-center gap-1"
-                                                    >
-                                                        <AlertTriangle className="h-3 w-3" />
-                                                        {errors.mahasiswa_course_id}
-                                                    </motion.p>
-                                                )}
-                                            </div>
+                                                <AnimatePresence>
+                                                    {errors.mahasiswa_course_id && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+                                                        >
+                                                            <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                            {errors.mahasiswa_course_id}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
+                                            </motion.div>
 
                                             {selectedCourse && (
                                                 <motion.div
                                                     initial={{ opacity: 0, height: 0 }}
                                                     animate={{ opacity: 1, height: 'auto' }}
-                                                    className="space-y-2"
+                                                    transition={{ delay: 0.3 }}
+                                                    className="space-y-3"
                                                 >
-                                                    <Label className="flex items-center gap-2">
-                                                        <Calendar className="h-4 w-4 text-violet-600" />
+                                                    <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.2, rotate: 10 }}
+                                                            transition={{ type: "spring", stiffness: 400 }}
+                                                        >
+                                                            <Calendar className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                        </motion.div>
                                                         Pertemuan (Opsional)
                                                     </Label>
                                                     <Select value={data.meeting_number} onValueChange={(v) => setData('meeting_number', v)}>
-                                                        <SelectTrigger className="h-12 border-2 hover:border-violet-300 transition-colors">
+                                                        <SelectTrigger className="h-14 border-2 hover:border-violet-400 focus:border-violet-500 transition-all rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md">
                                                             <SelectValue placeholder="Pilih pertemuan" />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="rounded-xl">
                                                             {Array.from({ length: selectedCourse.total_meetings }, (_, i) => (
-                                                                <SelectItem key={i + 1} value={String(i + 1)}>
+                                                                <SelectItem key={i + 1} value={String(i + 1)} className="rounded-lg my-1">
                                                                     Pertemuan {i + 1}
                                                                 </SelectItem>
                                                             ))}
@@ -1151,48 +1324,92 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                 </motion.div>
                                             )}
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <ListTodo className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <ListTodo className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Judul Tugas
                                                 </Label>
                                                 <Input
                                                     value={data.title}
                                                     onChange={(e) => setData('title', e.target.value)}
                                                     placeholder="Contoh: Tugas Bab 3"
-                                                    className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                    className="h-14 border-2 hover:border-violet-400 focus:border-violet-500 transition-all rounded-xl text-base"
                                                 />
-                                                {errors.title && (
-                                                    <motion.p
-                                                        initial={{ opacity: 0, y: -10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        className="text-sm text-red-500 flex items-center gap-1"
-                                                    >
-                                                        <AlertTriangle className="h-3 w-3" />
-                                                        {errors.title}
-                                                    </motion.p>
-                                                )}
-                                            </div>
+                                                <AnimatePresence>
+                                                    {errors.title && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                            exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800"
+                                                        >
+                                                            <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                            {errors.title}
+                                                        </motion.p>
+                                                    )}
+                                                </AnimatePresence>
+                                            </motion.div>
                                         </motion.div>
                                     )}
 
-                                    {/* Step 2: Details */}
+                                    {/* Step 2: Details - Ultra Enhanced */}
                                     {formStep === 2 && (
                                         <motion.div
                                             key="step2"
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="space-y-4"
+                                            initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                            className="space-y-6"
                                         >
-                                            <div className="text-center mb-4">
-                                                <h3 className="text-lg font-semibold text-violet-600">Detail Tugas</h3>
-                                                <p className="text-sm text-muted-foreground">Tambahkan deskripsi, deadline, dan prioritas</p>
-                                            </div>
+                                            {/* Step Header with Animation */}
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: -20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.1 }}
+                                                className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200/50 dark:border-purple-800/50"
+                                            >
+                                                <motion.div
+                                                    animate={{
+                                                        scale: [1, 1.1, 1],
+                                                        rotate: [0, -5, 5, 0],
+                                                    }}
+                                                    transition={{
+                                                        duration: 3,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                    className="inline-block mb-3"
+                                                >
+                                                    <FileText className="h-12 w-12 text-purple-600 dark:text-purple-400" />
+                                                </motion.div>
+                                                <h3 className="text-xl font-bold text-purple-700 dark:text-purple-300 mb-2">Detail Tugas</h3>
+                                                <p className="text-sm text-purple-600 dark:text-purple-400">Tambahkan deskripsi, deadline, dan prioritas</p>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <FileText className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <FileText className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Deskripsi (Opsional)
                                                 </Label>
                                                 <Textarea
@@ -1200,72 +1417,209 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                     onChange={(e) => setData('description', e.target.value)}
                                                     placeholder="Detail tugas..."
                                                     rows={4}
-                                                    className="border-2 hover:border-violet-300 focus:border-violet-500 transition-colors resize-none"
+                                                    className="border-2 hover:border-violet-400 focus:border-violet-500 transition-all resize-none rounded-xl"
                                                 />
-                                            </div>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Calendar className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.3 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <Calendar className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Deadline (Opsional)
                                                 </Label>
                                                 <Input
                                                     type="date"
                                                     value={data.deadline}
                                                     onChange={(e) => setData('deadline', e.target.value)}
-                                                    className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                    className="h-14 border-2 hover:border-violet-400 focus:border-violet-500 transition-all rounded-xl"
                                                 />
-                                            </div>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Flag className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <Flag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Prioritas
                                                 </Label>
-                                                <div className="grid grid-cols-3 gap-3">
+                                                <div className="grid grid-cols-3 gap-4">
                                                     {[
-                                                        { value: 'high', label: 'Tinggi', color: 'red', icon: '🔥' },
-                                                        { value: 'medium', label: 'Sedang', color: 'amber', icon: '⚡' },
-                                                        { value: 'low', label: 'Rendah', color: 'blue', icon: '💧' }
-                                                    ].map((priority) => (
+                                                        { value: 'high', label: 'Tinggi', color: 'red', gradient: 'from-red-400 to-red-600', icon: Flag },
+                                                        { value: 'medium', label: 'Sedang', color: 'amber', gradient: 'from-amber-400 to-amber-600', icon: Flag },
+                                                        { value: 'low', label: 'Rendah', color: 'blue', gradient: 'from-blue-400 to-blue-600', icon: Flag }
+                                                    ].map((priority, index) => (
                                                         <motion.button
                                                             key={priority.value}
                                                             type="button"
-                                                            whileHover={{ scale: 1.05 }}
+                                                            initial={{ opacity: 0, scale: 0.8 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            transition={{ delay: 0.5 + index * 0.1, type: "spring", stiffness: 300 }}
+                                                            whileHover={{ scale: 1.05, y: -5 }}
                                                             whileTap={{ scale: 0.95 }}
                                                             onClick={() => setData('priority', priority.value as any)}
-                                                            className={`p-4 rounded-xl border-2 transition-all ${
+                                                            className={`relative p-5 rounded-2xl border-2 transition-all duration-300 overflow-hidden group ${
                                                                 data.priority === priority.value
-                                                                    ? `border-${priority.color}-500 bg-${priority.color}-50 dark:bg-${priority.color}-950/30`
-                                                                    : 'border-gray-200 hover:border-violet-300'
+                                                                    ? priority.color === 'red'
+                                                                        ? 'border-red-500 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/50 dark:to-red-900/30 shadow-xl shadow-red-500/20'
+                                                                        : priority.color === 'amber'
+                                                                        ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/50 dark:to-amber-900/30 shadow-xl shadow-amber-500/20'
+                                                                        : 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/30 shadow-xl shadow-blue-500/20'
+                                                                    : 'border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-violet-300 dark:hover:border-violet-600'
                                                             }`}
                                                         >
-                                                            <div className="text-2xl mb-1">{priority.icon}</div>
-                                                            <div className="text-sm font-medium">{priority.label}</div>
+                                                            {/* Animated Background Gradient */}
+                                                            {data.priority === priority.value && (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, scale: 0 }}
+                                                                    animate={{ opacity: 0.1, scale: 1 }}
+                                                                    className={`absolute inset-0 bg-gradient-to-br ${priority.gradient}`}
+                                                                />
+                                                            )}
+                                                            
+                                                            {/* Floating Particles */}
+                                                            {data.priority === priority.value && [...Array(5)].map((_, i) => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    initial={{ opacity: 0, y: 0 }}
+                                                                    animate={{
+                                                                        opacity: [0, 1, 0],
+                                                                        y: [0, -30, -60],
+                                                                        x: [0, Math.random() * 20 - 10, 0],
+                                                                    }}
+                                                                    transition={{
+                                                                        duration: 2,
+                                                                        repeat: Infinity,
+                                                                        delay: i * 0.3,
+                                                                    }}
+                                                                    className="absolute w-2 h-2 rounded-full bg-current"
+                                                                    style={{
+                                                                        left: `${20 + i * 15}%`,
+                                                                        bottom: '20%',
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                            
+                                                            <div className="relative">
+                                                                <motion.div
+                                                                    whileHover={{ rotate: [0, -15, 15, -15, 0], scale: 1.1 }}
+                                                                    transition={{ duration: 0.6 }}
+                                                                    className={`mx-auto w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-lg ${
+                                                                        data.priority === priority.value
+                                                                            ? priority.color === 'red' 
+                                                                                ? 'bg-gradient-to-br from-red-400 to-red-600 shadow-red-500/30' 
+                                                                                : priority.color === 'amber'
+                                                                                ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-amber-500/30'
+                                                                                : 'bg-gradient-to-br from-blue-400 to-blue-600 shadow-blue-500/30'
+                                                                            : 'bg-slate-100 dark:bg-gray-700'
+                                                                    }`}
+                                                                >
+                                                                    <priority.icon className={`h-6 w-6 ${
+                                                                        data.priority === priority.value ? 'text-white' : 'text-slate-400 dark:text-gray-500'
+                                                                    }`} />
+                                                                </motion.div>
+                                                                <div className="text-center">
+                                                                    <p className={`text-sm font-bold ${data.priority === priority.value ? 
+                                                                        (priority.color === 'red' ? 'text-red-700 dark:text-red-300' : 
+                                                                         priority.color === 'amber' ? 'text-amber-700 dark:text-amber-300' :
+                                                                         'text-blue-700 dark:text-blue-300')
+                                                                        : 'text-slate-700 dark:text-slate-300'
+                                                                    }`}>
+                                                                        {priority.label}
+                                                                    </p>
+                                                                </div>
+                                                                
+                                                                {/* Checkmark Indicator */}
+                                                                <AnimatePresence>
+                                                                    {data.priority === priority.value && (
+                                                                        <motion.div
+                                                                            initial={{ scale: 0, rotate: -180 }}
+                                                                            animate={{ scale: 1, rotate: 0 }}
+                                                                            exit={{ scale: 0, rotate: 180 }}
+                                                                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                                                            className="absolute top-2 right-2"
+                                                                        >
+                                                                            <div className={`p-1 rounded-full ${
+                                                                                priority.color === 'red' ? 'bg-red-500' : 
+                                                                                priority.color === 'amber' ? 'bg-amber-500' : 'bg-blue-500'
+                                                                            } shadow-lg`}>
+                                                                                <CheckCircle className="h-3 w-3 text-white" />
+                                                                            </div>
+                                                                        </motion.div>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            </div>
                                                         </motion.button>
                                                     ))}
                                                 </div>
-                                            </div>
+                                            </motion.div>
                                         </motion.div>
                                     )}
 
-                                    {/* Step 3: Tags & Files */}
+                                    {/* Step 3: Tags & Files - Ultra Enhanced */}
                                     {formStep === 3 && (
                                         <motion.div
                                             key="step3"
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="space-y-4"
+                                            initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                            className="space-y-6"
                                         >
-                                            <div className="text-center mb-4">
-                                                <h3 className="text-lg font-semibold text-violet-600">Tags & Lampiran</h3>
-                                                <p className="text-sm text-muted-foreground">Tambahkan tags dan file pendukung</p>
-                                            </div>
+                                            {/* Step Header with Animation */}
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: -20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.1 }}
+                                                className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border-2 border-indigo-200/50 dark:border-indigo-800/50"
+                                            >
+                                                <motion.div
+                                                    animate={{
+                                                        y: [0, -10, 0],
+                                                        rotate: [0, 5, -5, 0],
+                                                    }}
+                                                    transition={{
+                                                        duration: 3,
+                                                        repeat: Infinity,
+                                                        ease: "easeInOut"
+                                                    }}
+                                                    className="inline-block mb-3"
+                                                >
+                                                    <Paperclip className="h-12 w-12 text-indigo-600 dark:text-indigo-400" />
+                                                </motion.div>
+                                                <h3 className="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-2">Tags & Lampiran</h3>
+                                                <p className="text-sm text-indigo-600 dark:text-indigo-400">Tambahkan tags dan file pendukung</p>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Tag className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <Tag className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Tags (Opsional)
                                                 </Label>
                                                 <div className="flex gap-2">
@@ -1274,11 +1628,11 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                         onChange={(e) => setTagInput(e.target.value)}
                                                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                                                         placeholder="Tambah tag..."
-                                                        className="h-12 border-2 hover:border-violet-300 focus:border-violet-500 transition-colors"
+                                                        className="h-14 border-2 hover:border-violet-400 focus:border-violet-500 transition-all rounded-xl"
                                                     />
                                                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                        <Button type="button" onClick={addTag} size="lg" className="h-12 bg-violet-600 hover:bg-violet-700">
-                                                            <Plus className="h-4 w-4" />
+                                                        <Button type="button" onClick={addTag} size="lg" className="h-14 px-6 bg-violet-600 hover:bg-violet-700 rounded-xl">
+                                                            <Plus className="h-5 w-5" />
                                                         </Button>
                                                     </motion.div>
                                                 </div>
@@ -1286,7 +1640,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                     <motion.div
                                                         initial={{ opacity: 0, height: 0 }}
                                                         animate={{ opacity: 1, height: 'auto' }}
-                                                        className="flex flex-wrap gap-2 mt-3 p-3 bg-violet-50 dark:bg-violet-950/20 rounded-lg"
+                                                        className="flex flex-wrap gap-2 mt-3 p-4 bg-violet-50 dark:bg-violet-950/20 rounded-xl border border-violet-200 dark:border-violet-800"
                                                     >
                                                         {data.tags.map((tag, idx) => (
                                                             <motion.div
@@ -1295,61 +1649,109 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                                 animate={{ scale: 1 }}
                                                                 exit={{ scale: 0 }}
                                                             >
-                                                                <Badge variant="secondary" className="gap-1 py-1.5 px-3">
-                                                                    <Tag className="h-3 w-3" />
+                                                                <Badge variant="secondary" className="gap-1.5 py-2 px-4 text-sm">
+                                                                    <Tag className="h-3.5 w-3.5" />
                                                                     {tag}
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => removeTag(tag)}
                                                                         className="ml-1 hover:text-red-500 transition-colors"
                                                                     >
-                                                                        <X className="h-3 w-3" />
+                                                                        <X className="h-3.5 w-3.5" />
                                                                     </button>
                                                                 </Badge>
                                                             </motion.div>
                                                         ))}
                                                     </motion.div>
                                                 )}
-                                            </div>
+                                            </motion.div>
 
-                                            <div className="space-y-2">
-                                                <Label className="flex items-center gap-2">
-                                                    <Paperclip className="h-4 w-4 text-violet-600" />
+                                            <motion.div 
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.3 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.2, rotate: 10 }}
+                                                        transition={{ type: "spring", stiffness: 400 }}
+                                                    >
+                                                        <Paperclip className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                    </motion.div>
                                                     Lampiran (Opsional)
                                                 </Label>
-                                                <div
+                                                <motion.div
+                                                    animate={{
+                                                        scale: dragActive ? 1.02 : 1,
+                                                        borderColor: dragActive ? '#8b5cf6' : undefined,
+                                                    }}
                                                     onDragEnter={handleDrag}
                                                     onDragLeave={handleDrag}
                                                     onDragOver={handleDrag}
                                                     onDrop={handleDrop}
-                                                    className={`relative border-2 border-dashed rounded-xl p-8 transition-all ${
+                                                    className={`relative border-2 border-dashed rounded-2xl p-10 transition-all duration-300 overflow-hidden ${
                                                         dragActive
-                                                            ? 'border-violet-500 bg-violet-50 dark:bg-violet-950/20'
-                                                            : 'border-gray-300 hover:border-violet-400'
+                                                            ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 shadow-xl shadow-violet-500/20'
+                                                            : 'border-slate-300 dark:border-gray-700 hover:border-violet-400 dark:hover:border-violet-600 bg-white dark:bg-gray-800'
                                                     }`}
                                                 >
+                                                    {/* Animated Background Pattern */}
+                                                    <motion.div
+                                                        animate={{
+                                                            opacity: dragActive ? 0.1 : 0,
+                                                            scale: dragActive ? 1 : 0.8,
+                                                        }}
+                                                        className="absolute inset-0 bg-gradient-to-br from-violet-400 to-purple-500"
+                                                    />
+                                                    
+                                                    {/* Floating Upload Icons */}
+                                                    {dragActive && [...Array(8)].map((_, i) => (
+                                                        <motion.div
+                                                            key={i}
+                                                            initial={{ opacity: 0, y: 0 }}
+                                                            animate={{
+                                                                opacity: [0, 1, 0],
+                                                                y: [0, -40, -80],
+                                                                x: [0, Math.random() * 40 - 20, 0],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                                delay: i * 0.2,
+                                                            }}
+                                                            className="absolute"
+                                                            style={{
+                                                                left: `${20 + i * 10}%`,
+                                                                bottom: '20%',
+                                                            }}
+                                                        >
+                                                            <Paperclip className="h-4 w-4 text-violet-400" />
+                                                        </motion.div>
+                                                    ))}
+                                                    
                                                     <input
                                                         type="file"
                                                         multiple
                                                         onChange={handleFileChange}
-                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                                     />
-                                                    <div className="text-center">
+                                                    <div className="text-center relative">
                                                         <motion.div
-                                                            animate={{ y: [0, -10, 0] }}
+                                                            animate={{ y: dragActive ? [0, -10, 0] : [0, -10, 0] }}
                                                             transition={{ duration: 2, repeat: Infinity }}
-                                                            className="mx-auto w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-full flex items-center justify-center mb-3"
+                                                            className="mx-auto w-16 h-16 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
                                                         >
-                                                            <Paperclip className="h-6 w-6 text-violet-600" />
+                                                            <Paperclip className="h-8 w-8 text-violet-600 dark:text-violet-400" />
                                                         </motion.div>
-                                                        <p className="text-sm font-medium mb-1">
-                                                            Drag & drop file atau klik untuk upload
+                                                        <p className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                                            {dragActive ? 'Lepaskan file di sini' : 'Drag & drop file atau klik untuk upload'}
                                                         </p>
-                                                        <p className="text-xs text-muted-foreground">
+                                                        <p className="text-sm text-slate-500 dark:text-slate-400">
                                                             Mendukung berbagai format file
                                                         </p>
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                                 {data.attachments.length > 0 && (
                                                     <motion.div
                                                         initial={{ opacity: 0, height: 0 }}
@@ -1361,49 +1763,86 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                                 key={idx}
                                                                 initial={{ opacity: 0, x: -20 }}
                                                                 animate={{ opacity: 1, x: 0 }}
-                                                                className="flex items-center gap-3 p-3 bg-violet-50 dark:bg-violet-950/20 rounded-lg"
+                                                                transition={{ delay: idx * 0.1 }}
+                                                                className="flex items-center gap-3 p-4 bg-violet-50 dark:bg-violet-950/20 rounded-xl border border-violet-200 dark:border-violet-800"
                                                             >
-                                                                <div className="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-                                                                    <Paperclip className="h-4 w-4 text-violet-600" />
+                                                                <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
+                                                                    <Paperclip className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
-                                                                    <p className="text-sm font-medium truncate">{file.name}</p>
-                                                                    <p className="text-xs text-muted-foreground">
+                                                                    <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{file.name}</p>
+                                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                                                         {(file.size / 1024).toFixed(2)} KB
                                                                     </p>
                                                                 </div>
-                                                                <CheckCircle className="h-5 w-5 text-emerald-500" />
+                                                                <CheckCircle className="h-6 w-6 text-emerald-500" />
                                                             </motion.div>
                                                         ))}
                                                     </motion.div>
                                                 )}
-                                            </div>
+                                            </motion.div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
 
-                                <DialogFooter className="gap-2">
+                                {/* Ultra Advanced Footer Buttons */}
+                                <div className="relative flex items-center justify-between gap-3 pt-6 border-t border-slate-200 dark:border-gray-800 mt-8">
                                     {formStep > 1 && (
-                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                            <Button type="button" variant="outline" onClick={prevStep} className="gap-2">
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            whileHover={{ scale: 1.05 }} 
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <Button 
+                                                type="button" 
+                                                variant="outline" 
+                                                onClick={prevStep} 
+                                                className="gap-2 h-12 px-6 rounded-xl border-2 hover:border-violet-400"
+                                            >
                                                 <ArrowLeft className="h-4 w-4" />
                                                 Kembali
                                             </Button>
                                         </motion.div>
                                     )}
-                                    <Button type="button" variant="outline" onClick={() => { setShowForm(false); setFormStep(1); }}>
-                                        Batal
-                                    </Button>
+                                    <div className="flex-1" />
+                                    <motion.div 
+                                        whileHover={{ scale: 1.05 }} 
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Button 
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={() => { setShowForm(false); setFormStep(1); }}
+                                            className="h-12 px-6 rounded-xl border-2"
+                                        >
+                                            Batal
+                                        </Button>
+                                    </motion.div>
                                     {formStep < 3 ? (
-                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                            <Button type="button" onClick={nextStep} className="gap-2 bg-violet-600 hover:bg-violet-700">
+                                        <motion.div 
+                                            whileHover={{ scale: 1.05 }} 
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <Button 
+                                                type="button" 
+                                                onClick={nextStep} 
+                                                className="gap-2 h-12 px-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl shadow-lg shadow-violet-500/30"
+                                            >
                                                 Lanjut
                                                 <ArrowRight className="h-4 w-4" />
                                             </Button>
                                         </motion.div>
                                     ) : (
-                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                            <Button type="submit" disabled={processing} className="gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700">
+                                        <motion.div 
+                                            whileHover={{ scale: 1.05 }} 
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <Button 
+                                                type="submit" 
+                                                disabled={processing} 
+                                                className="gap-2 h-12 px-6 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 hover:from-violet-700 hover:via-purple-700 hover:to-pink-700 rounded-xl shadow-lg shadow-violet-500/30"
+                                            >
                                                 {processing ? (
                                                     <>
                                                         <motion.div
@@ -1423,10 +1862,12 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             </Button>
                                         </motion.div>
                                     )}
-                                </DialogFooter>
+                                </div>
                             </form>
-                        </DialogContent>
-                    </Dialog>
+                        </motion.div>
+                    </motion.div>
+                )}
+                </AnimatePresence>
 
                 {/* Stats with Advanced Animations */}
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
