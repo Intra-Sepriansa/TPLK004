@@ -380,8 +380,8 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                         )}
                     </div>
 
-                    {/* Right Column - Info & Status */}
-                    <div className="space-y-6">
+                    {/* Right Column - Info & Status in One Row */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                         {/* Ultra Enhanced Info Card */}
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
