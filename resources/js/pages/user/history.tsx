@@ -679,126 +679,233 @@ function RecordDetailModal({ record, onClose }: { record: AttendanceRecord; onCl
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                    className="absolute inset-0 bg-black/60 backdrop-blur-md"
                     onClick={onClose}
                 />
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                    className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[90vh] overflow-y-auto"
+                    initial={{ opacity: 0, scale: 0.8, y: 50, rotateX: -15 }}
+                    animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: 50, rotateX: 15 }}
+                    transition={{ 
+                        type: 'spring', 
+                        stiffness: 300, 
+                        damping: 25,
+                        mass: 0.8
+                    }}
+                    style={{ perspective: '1500px' }}
+                    className="relative w-full max-w-lg rounded-3xl bg-gradient-to-br from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 p-8 shadow-2xl max-h-[90vh] overflow-y-auto border border-slate-200/50 dark:border-gray-700/50"
                 >
+                    {/* Animated background orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.1, 0.15, 0.1],
+                            rotate: [0, 90, 0],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-gradient-to-br from-blue-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            opacity: [0.08, 0.12, 0.08],
+                            rotate: [0, -90, 0],
+                        }}
+                        transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-gradient-to-br from-teal-400/20 to-blue-500/20 blur-3xl"
+                    />
+
                     <motion.button
                         whileHover={{ scale: 1.1, rotate: 90 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl hover:bg-slate-100 dark:hover:bg-slate-700 shadow-lg z-10"
                     >
-                        <X className="h-5 w-5 text-slate-500" />
+                        <X className="h-5 w-5 text-slate-600 dark:text-slate-300" />
                     </motion.button>
 
-                    <div className="space-y-6">
-                        {/* Header */}
+                    <div className="space-y-6 relative z-10">
+                        {/* Header with enhanced badges */}
                         <div>
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                <span className={cn('inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium', statusConfig[record.status].color)}>
-                                    <StatusIcon className="h-3 w-3" />
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                <motion.span 
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.1 }}
+                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    className={cn('inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shadow-lg', statusConfig[record.status].color)}
+                                >
+                                    <StatusIcon className="h-4 w-4" />
                                     {statusConfig[record.status].label}
-                                </span>
+                                </motion.span>
                                 {selfieConfig && SelfieIcon && (
-                                    <span className={cn('inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium', selfieConfig.color)}>
-                                        <SelfieIcon className="h-3 w-3" />
+                                    <motion.span 
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.2 }}
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        className={cn('inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold shadow-lg', selfieConfig.color)}
+                                    >
+                                        <SelfieIcon className="h-4 w-4" />
                                         {selfieConfig.label}
-                                    </span>
+                                    </motion.span>
                                 )}
                             </div>
-                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{record.course}</h2>
-                            <p className="text-slate-500">Pertemuan {record.meetingNumber}</p>
+                            <motion.h2 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="text-2xl font-bold text-slate-900 dark:text-white mb-1"
+                            >
+                                {record.course}
+                            </motion.h2>
+                            <motion.p 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="text-slate-500 dark:text-slate-400"
+                            >
+                                Pertemuan {record.meetingNumber}
+                            </motion.p>
                         </div>
 
-                        {/* Selfie / Bukti Masuk */}
-                        <div className="rounded-xl overflow-hidden bg-slate-100 dark:bg-gray-800">
+                        {/* Enhanced Selfie / Bukti Masuk */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-gray-800 dark:to-gray-700 shadow-xl"
+                        >
                             {record.selfieUrl ? (
-                                <div className="relative">
-                                    <img src={record.selfieUrl} alt="Bukti selfie" className="w-full h-56 object-cover" />
-                                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                                <div className="relative group">
+                                    <motion.img 
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{ duration: 0.3 }}
+                                        src={record.selfieUrl} 
+                                        alt="Bukti selfie" 
+                                        className="w-full h-64 object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
                                         {selfieConfig && SelfieIcon && (
-                                            <span className={cn('inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur', selfieConfig.color)}>
-                                                <SelfieIcon className="h-3.5 w-3.5" />
+                                            <motion.span 
+                                                whileHover={{ scale: 1.1 }}
+                                                className={cn('inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold backdrop-blur-xl shadow-2xl', selfieConfig.color)}
+                                            >
+                                                <SelfieIcon className="h-4 w-4" />
                                                 {selfieConfig.label}
-                                            </span>
+                                            </motion.span>
                                         )}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-40 text-slate-400">
-                                    <Image className="h-10 w-10 mb-2" />
-                                    <span className="text-sm">Tidak ada bukti selfie</span>
+                                <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+                                    <motion.div
+                                        animate={{ 
+                                            scale: [1, 1.1, 1],
+                                            opacity: [0.5, 0.8, 0.5]
+                                        }}
+                                        transition={{ 
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        <Image className="h-12 w-12 mb-3" />
+                                    </motion.div>
+                                    <span className="text-sm font-medium">Tidak ada bukti selfie</span>
                                 </div>
                             )}
-                        </div>
+                        </motion.div>
 
-                        {/* Details */}
+                        {/* Enhanced Details */}
                         <div className="space-y-3">
                             <motion.div
-                                initial={{ opacity: 0, x: -20 }}
+                                initial={{ opacity: 0, x: -30 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800"
+                                transition={{ delay: 0.4 }}
+                                whileHover={{ x: 4, scale: 1.02 }}
+                                className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-100 dark:border-blue-800/30 shadow-sm"
                             >
-                                <CalendarIcon className="h-5 w-5 text-slate-400" />
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg">
+                                    <CalendarIcon className="h-6 w-6 text-white" />
+                                </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">Tanggal</p>
-                                    <p className="font-medium text-slate-900 dark:text-white">
+                                    <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Tanggal</p>
+                                    <p className="font-bold text-slate-900 dark:text-white">
                                         {new Date(record.date).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                                     </p>
                                 </div>
                             </motion.div>
                             {record.checkInTime && (
                                 <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
+                                    initial={{ opacity: 0, x: -30 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800"
+                                    transition={{ delay: 0.5 }}
+                                    whileHover={{ x: 4, scale: 1.02 }}
+                                    className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30 shadow-sm"
                                 >
-                                    <Clock className="h-5 w-5 text-slate-400" />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg">
+                                        <Clock className="h-6 w-6 text-white" />
+                                    </div>
                                     <div>
-                                        <p className="text-xs text-slate-500">Waktu Check-in</p>
-                                        <p className="font-medium text-slate-900 dark:text-white">{record.checkInTime}</p>
+                                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Waktu Check-in</p>
+                                        <p className="font-bold text-slate-900 dark:text-white">{record.checkInTime}</p>
                                     </div>
                                 </motion.div>
                             )}
                             {record.distance !== null && (
                                 <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
+                                    initial={{ opacity: 0, x: -30 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-gray-800"
+                                    transition={{ delay: 0.6 }}
+                                    whileHover={{ x: 4, scale: 1.02 }}
+                                    className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-100 dark:border-violet-800/30 shadow-sm"
                                 >
-                                    <MapPin className="h-5 w-5 text-slate-400" />
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+                                        <MapPin className="h-6 w-6 text-white" />
+                                    </div>
                                     <div>
-                                        <p className="text-xs text-slate-500">Jarak dari Lokasi</p>
-                                        <p className="font-medium text-slate-900 dark:text-white">{Math.round(record.distance)} meter</p>
+                                        <p className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wide">Jarak dari Lokasi</p>
+                                        <p className="font-bold text-slate-900 dark:text-white">{Math.round(record.distance)} meter</p>
                                     </div>
                                 </motion.div>
                             )}
                             {record.note && (
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="p-3 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
+                                    transition={{ delay: 0.7 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    className="p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 dark:from-amber-900/20 dark:to-orange-900/20 dark:border-amber-800/50 shadow-lg"
                                 >
-                                    <p className="text-xs text-amber-600 dark:text-amber-400 mb-1">Catatan</p>
-                                    <p className="text-sm text-amber-700 dark:text-amber-300">{record.note}</p>
+                                    <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2 uppercase tracking-wide">Catatan</p>
+                                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{record.note}</p>
                                 </motion.div>
                             )}
                         </div>
 
-                        <div className="flex gap-2 pt-4 border-t border-slate-100 dark:border-gray-800">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
-                                <Button variant="outline" className="w-full" onClick={onClose}>Tutup</Button>
+                        <div className="flex gap-3 pt-6 border-t-2 border-slate-200 dark:border-gray-700">
+                            <motion.div 
+                                whileHover={{ scale: 1.05 }} 
+                                whileTap={{ scale: 0.95 }} 
+                                className="flex-1"
+                            >
+                                <Button 
+                                    variant="outline" 
+                                    className="w-full h-12 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transition-shadow border-2" 
+                                    onClick={onClose}
+                                >
+                                    Tutup
+                                </Button>
                             </motion.div>
                         </div>
                     </div>
