@@ -741,10 +741,9 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
 
                 {/* Header - ULTRA ADVANCED matching Dashboard */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    variants={itemVariants}
                     whileHover={{ scale: 1.01, rotateY: 1 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl mb-2"
                     style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
                     {/* Ultra Advanced Animated Background Orbs */}
@@ -889,39 +888,46 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     
                     <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="flex items-center gap-5">
-                            <Link href="/user/akademik">
+                            <motion.div
+                                whileHover={{ scale: 1.1, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            >
+                                <Link href="/user/akademik" className="p-2 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm">
+                                    <ArrowLeft className="h-5 w-5" />
+                                </Link>
+                            </motion.div>
+                            <motion.div 
+                                whileHover={{ 
+                                    scale: 1.2, 
+                                    rotate: [0, -8, 8, 0],
+                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                }}
+                                whileTap={{ scale: 0.92 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                            >
+                                {/* Glow effect behind icon */}
                                 <motion.div
-                                    whileHover={{ 
-                                        scale: 1.2, 
-                                        rotate: [0, -8, 8, 0],
-                                        boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0.8, 0.5],
                                     }}
-                                    whileTap={{ scale: 0.92 }}
-                                    transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                    className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                />
+                                <motion.div
+                                    whileHover={{ scale: 1.15, y: -3 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    className="relative"
                                 >
-                                    {/* Glow effect behind icon */}
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.2, 1],
-                                            opacity: [0.5, 0.8, 0.5],
-                                        }}
-                                        transition={{
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
-                                    />
-                                    <motion.div
-                                        whileHover={{ scale: 1.15, y: -3 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="relative"
-                                    >
-                                        <ArrowLeft className="h-10 w-10" />
-                                    </motion.div>
+                                    <ListTodo className="h-10 w-10" />
                                 </motion.div>
-                            </Link>
+                            </motion.div>
                             <div>
                                 <motion.p 
                                     initial={{ opacity: 0, x: -20 }}
@@ -929,7 +935,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                     transition={{ delay: 0.2, type: "spring" }}
                                     className="text-sm text-cyan-100 font-semibold tracking-wide"
                                 >
-                                    Akademik
+                                    Manajemen Akademik
                                 </motion.p>
                                 <motion.h1 
                                     initial={{ opacity: 0, x: -20, scale: 0.9 }}
@@ -956,70 +962,78 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         }}
                                         className="h-2 w-2 rounded-full bg-cyan-300"
                                     />
-                                    <p className="text-sm text-cyan-100">
+                                    <p className="text-sm text-cyan-100 font-mono">
                                         Lihat dan kelola tugas dari dosen dengan mudah dan terorganisir
                                     </p>
                                 </motion.div>
                             </div>
                         </div>
                         
-                        <div className="relative mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <div className="flex items-center gap-3">
                             <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <p className="text-xs text-cyan-100">Total Tugas</p>
-                                <p className="text-2xl font-bold">{stats.total}</p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-cyan-100">Mendatang</p>
-                                <p className="text-2xl font-bold">{stats.pending}</p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-cyan-100">Terlewat</p>
-                                <p className="text-2xl font-bold">{stats.overdue}</p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.5 }}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
-                            >
-                                <p className="text-xs text-cyan-100">Belum Dibaca</p>
-                                <p className="text-2xl font-bold">0</p>
+                                <Button 
+                                    onClick={() => setShowForm(true)}
+                                    className="flex items-center gap-2 px-6 py-3 h-auto rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xl border-2 border-white/40 shadow-lg transition-all text-white"
+                                >
+                                    <Plus className="h-5 w-5" />
+                                    <span className="font-semibold">Tambah Tugas</span>
+                                </Button>
                             </motion.div>
                         </div>
                     </div>
+                    
+                    <div className="relative mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Total Tugas</p>
+                            <p className="text-2xl font-bold">{stats.total}</p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Selesai</p>
+                            <p className="text-2xl font-bold">{stats.completed}</p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Mendatang</p>
+                            <p className="text-2xl font-bold">{stats.pending}</p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5, duration: 0.5 }}
+                            whileHover={{ scale: 1.05, y: -5 }}
+                            className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
+                        >
+                            <p className="text-xs text-cyan-100">Terlewat</p>
+                            <p className="text-2xl font-bold">{stats.overdue}</p>
+                        </motion.div>
+                    </div>
                 </motion.div>
 
-                <div>
-                    <Dialog open={showForm} onOpenChange={setShowForm}>
-                            <DialogTrigger asChild>
-                                <motion.div
-                                    whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(255,255,255,0.3)" }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <Button className="bg-white text-amber-600 hover:bg-amber-50">
-                                        <Plus className="h-4 w-4 mr-2" /> Tambah Tugas
-                                    </Button>
-                                </motion.div>
-                            </DialogTrigger>
+                {/* Add Task Dialog */}
+                <Dialog open={showForm} onOpenChange={setShowForm}>
                         <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-3">
@@ -1413,7 +1427,6 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             </form>
                         </DialogContent>
                     </Dialog>
-                </div>
 
                 {/* Stats with Advanced Animations */}
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
