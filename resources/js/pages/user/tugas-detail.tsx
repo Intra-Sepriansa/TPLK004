@@ -100,7 +100,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
             <Head title={tugas.judul} />
             
             {/* Container with proper padding */}
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+            <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900">
                 {/* Ultra Advanced Header */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -286,7 +286,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="relative rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 p-8 shadow-2xl overflow-hidden"
+                    className="relative rounded-3xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 shadow-2xl overflow-hidden"
                 >
                     {/* Animated Background Pattern */}
                     <motion.div
@@ -306,29 +306,29 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     />
                     
                     <div className="relative z-10">
-                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
+                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-white">
                             <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg">
                                 <Sparkles className="h-6 w-6 text-white" />
                             </div>
                             Deskripsi Tugas
                         </h3>
-                        <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl border border-gray-200 dark:border-gray-700">
-                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
+                        <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700">
+                            <p className="text-gray-200 whitespace-pre-wrap leading-relaxed text-lg">
                                 {tugas.deskripsi}
                             </p>
                         </div>
                         
                         {/* Footer Info */}
-                        <div className="mt-6 pt-6 border-t-2 border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                    <Clock className="h-4 w-4 text-blue-500" />
+                        <div className="mt-6 pt-6 border-t-2 border-gray-700">
+                            <div className="flex items-center gap-3 text-sm text-gray-400 flex-wrap">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-xl border border-gray-700">
+                                    <Clock className="h-4 w-4 text-blue-400" />
                                     <span className="font-medium">Dibuat oleh:</span>
-                                    <span className="font-bold text-gray-900 dark:text-white">{tugas.created_by}</span>
+                                    <span className="font-bold text-white">{tugas.created_by}</span>
                                 </div>
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                    <Calendar className="h-4 w-4 text-purple-500" />
-                                    <span className="font-bold text-gray-900 dark:text-white">{tugas.created_at}</span>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 rounded-xl border border-gray-700">
+                                    <Calendar className="h-4 w-4 text-purple-400" />
+                                    <span className="font-bold text-white">{tugas.created_at}</span>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +341,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="relative rounded-3xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 dark:from-gray-900 dark:via-emerald-950/20 dark:to-teal-950/20 p-8 shadow-2xl overflow-hidden"
+                        className="relative rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 shadow-2xl overflow-hidden"
                     >
                         {/* Animated Background Pattern */}
                         <motion.div
@@ -361,14 +361,14 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                         />
                         
                         <div className="relative z-10">
-                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
+                            <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-white">
                                 <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
                                     <Zap className="h-6 w-6 text-white" />
                                 </div>
                                 Instruksi Pengerjaan
                             </h3>
-                            <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
-                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
+                            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border-2 border-emerald-500/30">
+                                <p className="text-gray-200 whitespace-pre-wrap leading-relaxed text-lg">
                                     {tugas.instruksi}
                                 </p>
                             </div>
@@ -383,7 +383,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="relative rounded-3xl border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/40 dark:via-cyan-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden"
+                        className="relative rounded-3xl border-2 border-blue-500/30 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 shadow-2xl overflow-hidden"
                     >
                             {/* Animated Background Pattern */}
                             <motion.div
@@ -406,7 +406,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                             <div className="absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse" />
                             
                             <div className="relative z-10">
-                                <h3 className="font-bold text-xl mb-5 flex items-center gap-3 text-blue-700 dark:text-blue-300">
+                                <h3 className="font-bold text-xl mb-5 flex items-center gap-3 text-blue-400">
                                     <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg">
                                         <Award className="h-6 w-6 text-white" />
                                     </div>
@@ -415,30 +415,30 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                                 <div className="space-y-4">
                                     <motion.div 
                                         whileHover={{ scale: 1.03, x: 5 }}
-                                        className="p-4 bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl border-2 border-blue-200 dark:border-blue-800 shadow-lg"
+                                        className="p-4 bg-gray-800 backdrop-blur-sm rounded-xl border-2 border-blue-500/30 shadow-lg"
                                     >
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 font-semibold mb-1">Dosen Pengampu</p>
-                                        <p className="font-extrabold text-lg text-gray-900 dark:text-white">{tugas.course.dosen || '-'}</p>
+                                        <p className="text-sm text-gray-400 font-semibold mb-1">Dosen Pengampu</p>
+                                        <p className="font-extrabold text-lg text-white">{tugas.course.dosen || '-'}</p>
                                     </motion.div>
                                     
                                     <motion.div 
                                         whileHover={{ scale: 1.03, x: 5 }}
                                         className={`p-4 backdrop-blur-sm rounded-xl border-2 shadow-lg ${
                                             tugas.is_overdue 
-                                                ? 'bg-red-100/70 dark:bg-red-900/40 border-red-300 dark:border-red-700'
+                                                ? 'bg-red-900/40 border-red-500/30'
                                                 : tugas.days_until_deadline <= 3
-                                                    ? 'bg-amber-100/70 dark:bg-amber-900/40 border-amber-300 dark:border-amber-700'
-                                                    : 'bg-emerald-100/70 dark:bg-emerald-900/40 border-emerald-300 dark:border-emerald-700'
+                                                    ? 'bg-amber-900/40 border-amber-500/30'
+                                                    : 'bg-emerald-900/40 border-emerald-500/30'
                                         }`}
                                     >
-                                        <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                                        <p className="text-sm font-semibold mb-2 flex items-center gap-2 text-gray-300">
                                             <Clock className="h-4 w-4" />
                                             Sisa Waktu Pengerjaan
                                         </p>
                                         <p className={`font-extrabold text-3xl ${
-                                            tugas.is_overdue ? 'text-red-700 dark:text-red-400' : 
-                                            tugas.days_until_deadline <= 3 ? 'text-amber-700 dark:text-amber-400' : 
-                                            'text-emerald-700 dark:text-emerald-400'
+                                            tugas.is_overdue ? 'text-red-400' : 
+                                            tugas.days_until_deadline <= 3 ? 'text-amber-400' : 
+                                            'text-emerald-400'
                                         }`}>
                                             {tugas.is_overdue ? '❌ Sudah Lewat' : `⏰ ${tugas.days_until_deadline} Hari`}
                                         </p>
@@ -449,13 +449,13 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                                             whileHover={{ scale: 1.03, x: 5 }}
                                             animate={{ scale: [1, 1.02, 1] }}
                                             transition={{ duration: 2, repeat: Infinity }}
-                                            className="p-4 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-xl border-2 border-amber-400 dark:border-amber-600 shadow-lg"
+                                            className="p-4 bg-gradient-to-r from-amber-900/40 to-orange-900/40 rounded-xl border-2 border-amber-500/30 shadow-lg"
                                         >
-                                            <p className="text-sm text-amber-800 dark:text-amber-300 font-semibold mb-2 flex items-center gap-2">
+                                            <p className="text-sm text-amber-300 font-semibold mb-2 flex items-center gap-2">
                                                 <AlertTriangle className="h-4 w-4" />
                                                 Penalti Keterlambatan
                                             </p>
-                                            <p className="font-extrabold text-3xl text-amber-700 dark:text-amber-400">-{tugas.late_penalty_percent}%</p>
+                                            <p className="font-extrabold text-3xl text-amber-400">-{tugas.late_penalty_percent}%</p>
                                         </motion.div>
                                     )}
                                 </div>
@@ -467,7 +467,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.6 }}
-                            className="relative rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/40 dark:via-green-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden">
+                            className="relative rounded-2xl border-2 border-emerald-500/30 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 shadow-2xl overflow-hidden">
                             {/* Animated Background */}
                             <div className="absolute inset-0 opacity-10">
                                 <div className="absolute inset-0" style={{
@@ -480,7 +480,7 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                             <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-pulse" />
                             
                             <div className="relative z-10">
-                                <h3 className="font-bold text-lg mb-5 flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                                <h3 className="font-bold text-lg mb-5 flex items-center gap-2 text-emerald-400">
                                     <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
                                         <FileText className="h-5 w-5 text-white" />
                                     </div>

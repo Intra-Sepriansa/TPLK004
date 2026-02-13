@@ -61,6 +61,68 @@ interface Props {
     };
 }
 
+// Animation variants - matching dashboard
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.04,
+            delayChildren: 0.05,
+            when: "beforeChildren" as const,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { 
+        opacity: 0, 
+        y: 30, 
+        scale: 0.92,
+        rotateX: -8,
+    },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotateX: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 100,
+            damping: 15,
+            mass: 0.8,
+        },
+    },
+};
+
+const cardHoverVariants = {
+    rest: { 
+        scale: 1, 
+        y: 0,
+        rotateY: 0,
+        rotateX: 0,
+    },
+    hover: {
+        scale: 1.03,
+        y: -8,
+        rotateY: 3,
+        rotateX: 2,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
+            damping: 20,
+        },
+    },
+    tap: {
+        scale: 0.97,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 500,
+            damping: 30,
+        },
+    },
+};
+
 export default function AcademicTasks({ tasks, courses, stats, filters }: Props) {
     const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
     const flash = props.flash;
@@ -651,7 +713,10 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 ))}
             </div>
 
-            <div 
+            <motion.div 
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
                 className="flex flex-col gap-6 p-4 md:p-6"
             >
                 {/* Toast Notification */}
@@ -1355,8 +1420,41 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 </div>
 
                 {/* Filters */}
-                <Card>
-                    <CardContent className="p-4 space-y-4">
+                <motion.div
+                    variants={itemVariants}
+                    initial="rest"
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="perspective-1000"
+                    style={{ transformStyle: 'preserve-3d' }}
+                >
+                    <Card className="relative overflow-hidden border-2 border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-2xl transition-all">
+                        {/* Animated gradient background */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100"
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            transition={{ duration: 0.3 }}
+                        />
+                        
+                        {/* Shimmer Effect */}
+                        <motion.div
+                            className="absolute inset-0 opacity-0 group-hover:opacity-100"
+                            style={{
+                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+                                backgroundSize: '200% 100%',
+                            }}
+                            animate={{
+                                backgroundPosition: ['200% 0', '-200% 0'],
+                            }}
+                            transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "linear",
+                            }}
+                        />
+                        
+                        <CardContent className="p-4 space-y-4 relative z-10">
                         {/* Search and Sort */}
                         <div className="flex flex-wrap gap-4 items-center justify-between">
                             <div className="flex-1 min-w-[200px] max-w-md relative">
@@ -1490,25 +1588,45 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         </div>
                     </CardContent>
                 </Card>
+                </motion.div>
 
                 {/* Progress Tracker per Mata Kuliah */}
                 {courses.length > 0 && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
+                        variants={itemVariants}
+                        initial="rest"
+                        whileHover="hover"
+                        whileTap="tap"
+                        className="perspective-1000"
+                        style={{ transformStyle: 'preserve-3d' }}
                     >
-                        <Card className="relative overflow-hidden">
+                        <Card className="relative overflow-hidden border-2 border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-2xl transition-all group">
                             <motion.div
                                 className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5"
                                 animate={{ x: ['-100%', '100%'] }}
                                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                             />
+                            
+                            {/* Glow Effect on Hover */}
+                            <motion.div
+                                className="absolute inset-0 rounded-2xl"
+                                initial={{ opacity: 0 }}
+                                whileHover={{ 
+                                    opacity: 1,
+                                    boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)',
+                                }}
+                                transition={{ duration: 0.3 }}
+                            />
+                            
                             <CardHeader className="relative z-10">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <motion.div
-                                        whileHover={{ scale: 1.2, y: -2 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        whileHover={{ 
+                                            scale: 1.2, 
+                                            y: -2,
+                                            rotate: [0, -10, 10, 0],
+                                        }}
+                                        transition={{ duration: 0.5 }}
                                     >
                                         <Target className="h-5 w-5 text-violet-600" />
                                     </motion.div>
@@ -1585,13 +1703,49 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 )}
 
                 {/* Tasks List */}
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-lg">
-                            {viewMode === 'list' ? 'Daftar Tugas' : viewMode === 'calendar' ? 'Kalender Tugas' : 'Kanban Board'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
+                <motion.div
+                    variants={itemVariants}
+                    initial="rest"
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="perspective-1000"
+                    style={{ transformStyle: 'preserve-3d' }}
+                >
+                    <Card className="relative overflow-hidden border-2 border-gray-200 dark:border-gray-800 shadow-lg hover:shadow-2xl transition-all">
+                        {/* Animated gradient background */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-cyan-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100"
+                            transition={{ duration: 0.3 }}
+                        />
+                        
+                        {/* Glow Effect on Hover */}
+                        <motion.div
+                            className="absolute inset-0 rounded-2xl"
+                            initial={{ opacity: 0 }}
+                            whileHover={{ 
+                                opacity: 1,
+                                boxShadow: '0 0 30px rgba(59, 130, 246, 0.3)',
+                            }}
+                            transition={{ duration: 0.3 }}
+                        />
+                        
+                        <CardHeader className="pb-2 relative z-10">
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <motion.div
+                                    whileHover={{ 
+                                        scale: 1.2, 
+                                        rotate: [0, -10, 10, 0],
+                                    }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    {viewMode === 'list' ? <LayoutList className="h-5 w-5 text-blue-600" /> : 
+                                     viewMode === 'calendar' ? <CalendarDays className="h-5 w-5 text-cyan-600" /> : 
+                                     <Columns3 className="h-5 w-5 text-teal-600" />}
+                                </motion.div>
+                                {viewMode === 'list' ? 'Daftar Tugas' : viewMode === 'calendar' ? 'Kalender Tugas' : 'Kanban Board'}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="relative z-10">
                         {viewMode === 'list' && (
                             <Tabs defaultValue={filters.status || 'all'} onValueChange={(v) => handleFilter('status', v)}>
                                 <TabsList className="mb-4">
@@ -1623,6 +1777,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         )}
                     </CardContent>
                 </Card>
+                </motion.div>
                 {/* Task Detail Modal - ULTRA ADVANCED V2 */}
                 <Dialog open={showTaskDetail} onOpenChange={setShowTaskDetail}>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 border-0 shadow-2xl">
@@ -2360,7 +2515,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     confirmText="Ya, Hapus"
                     cancelText="Batal"
                 />
-            </div>
+            </motion.div>
         </StudentLayout>
     );
 }
