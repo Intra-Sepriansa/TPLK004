@@ -260,124 +260,232 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
         setShowTaskDetail(true);
     };
 
-    // Helper Components
+    // Ultra Enhanced Task Card Component
     const TaskCard = ({ task, onToggle, onDelete }: { task: Task; onToggle: (id: number) => void; onDelete: (id: number) => void }) => (
         <motion.div 
-            whileHover={{ scale: 1.01 }}
-            className={`p-4 rounded-lg border transition-all ${
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02, y: -4, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className={`relative p-6 rounded-2xl border-2 transition-all overflow-hidden ${
                 task.status === 'completed' 
-                    ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800' 
+                    ? 'bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-100 border-emerald-300 dark:bg-gradient-to-br dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 dark:border-emerald-700' 
                     : task.is_overdue 
-                        ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800'
-                        : 'hover:bg-muted/50'
+                        ? 'bg-gradient-to-br from-red-50 via-rose-50 to-red-100 border-red-300 dark:bg-gradient-to-br dark:from-red-950/40 dark:via-rose-950/40 dark:to-red-950/40 dark:border-red-700'
+                        : 'bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 border-blue-200 dark:bg-gradient-to-br dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600'
             }`}
+            style={{ transformStyle: 'preserve-3d' }}
         >
-            <div className="flex items-start gap-3">
-                <Checkbox
-                    checked={task.status === 'completed'}
-                    onCheckedChange={() => onToggle(task.id)}
-                    className="mt-1"
-                />
+            {/* Animated Background Pattern */}
+            <motion.div
+                animate={{
+                    backgroundPosition: ['0% 0%', '100% 100%'],
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                }}
+                className="absolute inset-0 opacity-5"
+                style={{
+                    backgroundImage: task.status === 'completed' 
+                        ? 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 1px, transparent 1px)'
+                        : task.is_overdue
+                            ? 'radial-gradient(circle, rgba(239, 68, 68, 0.4) 1px, transparent 1px)'
+                            : 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 1px, transparent 1px)',
+                    backgroundSize: '20px 20px',
+                }}
+            />
+            
+            {/* Shimmer Effect on Hover */}
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '200%' }}
+                transition={{ duration: 0.8 }}
+            />
+            
+            <div className="relative z-10 flex items-start gap-4">
+                <motion.div
+                    whileHover={{ scale: 1.2, rotate: 360 }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                >
+                    <Checkbox
+                        checked={task.status === 'completed'}
+                        onCheckedChange={() => onToggle(task.id)}
+                        className="mt-1 h-6 w-6 border-2"
+                    />
+                </motion.div>
+                
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                            <p className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+                            <motion.p 
+                                className={`font-bold text-lg mb-3 ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-gray-900 dark:text-white'}`}
+                                whileHover={{ x: 5 }}
+                            >
                                 {task.title}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <Badge variant="outline" className="text-xs">
-                                    <BookOpen className="h-3 w-3 mr-1" />
-                                    {task.course_name}
-                                </Badge>
+                            </motion.p>
+                            
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <motion.div whileHover={{ scale: 1.1, y: -2 }}>
+                                    <Badge variant="outline" className="text-xs font-bold border-2 border-blue-400 bg-blue-50 dark:bg-blue-950/50 px-3 py-1">
+                                        <BookOpen className="h-3 w-3 mr-1.5" />
+                                        {task.course_name}
+                                    </Badge>
+                                </motion.div>
+                                
                                 {task.meeting_number && (
-                                    <Badge variant="secondary" className="text-xs">
-                                        P{task.meeting_number}
-                                    </Badge>
+                                    <motion.div whileHover={{ scale: 1.1, y: -2 }}>
+                                        <Badge variant="secondary" className="text-xs font-bold px-3 py-1">
+                                            Pertemuan {task.meeting_number}
+                                        </Badge>
+                                    </motion.div>
                                 )}
+                                
                                 {task.priority && (
-                                    <Badge 
-                                        variant="outline" 
-                                        className={`text-xs ${
-                                            task.priority === 'high' 
-                                                ? 'border-red-500 text-red-600 bg-red-50 dark:bg-red-950/30' 
-                                                : task.priority === 'medium'
-                                                    ? 'border-amber-500 text-amber-600 bg-amber-50 dark:bg-amber-950/30'
-                                                    : 'border-blue-500 text-blue-600 bg-blue-50 dark:bg-blue-950/30'
-                                        }`}
+                                    <motion.div 
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                        animate={task.priority === 'high' ? { scale: [1, 1.05, 1] } : {}}
+                                        transition={task.priority === 'high' ? { duration: 2, repeat: Infinity } : {}}
                                     >
-                                        <Flag className="h-3 w-3 mr-1" />
-                                        {task.priority === 'high' ? 'Tinggi' : task.priority === 'medium' ? 'Sedang' : 'Rendah'}
-                                    </Badge>
+                                        <Badge 
+                                            variant="outline" 
+                                            className={`text-xs font-bold border-2 px-3 py-1 ${
+                                                task.priority === 'high' 
+                                                    ? 'border-red-500 text-red-700 bg-red-100 dark:bg-red-950/50 shadow-lg shadow-red-500/30' 
+                                                    : task.priority === 'medium'
+                                                        ? 'border-amber-500 text-amber-700 bg-amber-100 dark:bg-amber-950/50'
+                                                        : 'border-blue-500 text-blue-700 bg-blue-100 dark:bg-blue-950/50'
+                                            }`}
+                                        >
+                                            <Flag className="h-3 w-3 mr-1.5" />
+                                            {task.priority === 'high' ? 'Prioritas Tinggi' : task.priority === 'medium' ? 'Prioritas Sedang' : 'Prioritas Rendah'}
+                                        </Badge>
+                                    </motion.div>
                                 )}
+                                
                                 {task.tags && task.tags.map((tag, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-xs">
-                                        <Tag className="h-3 w-3 mr-1" />
-                                        {tag}
-                                    </Badge>
+                                    <motion.div 
+                                        key={idx}
+                                        whileHover={{ scale: 1.1, y: -2, rotate: 5 }}
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: idx * 0.1 }}
+                                    >
+                                        <Badge variant="outline" className="text-xs font-bold border-2 border-pink-400 bg-pink-50 dark:bg-pink-950/50 px-3 py-1">
+                                            <Tag className="h-3 w-3 mr-1.5" />
+                                            {tag}
+                                        </Badge>
+                                    </motion.div>
                                 ))}
+                                
                                 {task.status === 'completed' ? (
-                                    <Badge className="bg-emerald-500 text-xs">
-                                        <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
-                                    </Badge>
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                    >
+                                        <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white text-xs font-bold px-3 py-1 shadow-lg">
+                                            <CheckCircle2 className="h-3 w-3 mr-1.5" /> Selesai
+                                        </Badge>
+                                    </motion.div>
                                 ) : task.is_overdue ? (
-                                    <Badge variant="destructive" className="text-xs">
-                                        <AlertTriangle className="h-3 w-3 mr-1" /> Terlambat
-                                    </Badge>
+                                    <motion.div
+                                        animate={{ scale: [1, 1.1, 1] }}
+                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                        whileHover={{ scale: 1.15, y: -2 }}
+                                    >
+                                        <Badge variant="destructive" className="text-xs font-bold px-3 py-1 shadow-lg">
+                                            <AlertTriangle className="h-3 w-3 mr-1.5" /> Terlambat
+                                        </Badge>
+                                    </motion.div>
                                 ) : null}
                             </div>
                         </div>
-                        <div className="flex items-center gap-1 shrink-0">
+                        
+                        <div className="flex items-center gap-2 shrink-0">
                             {task.deadline_formatted && task.status !== 'completed' && (
-                                <div className={`text-right mr-2 ${task.is_overdue ? 'text-red-600' : task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-600' : 'text-muted-foreground'}`}>
-                                    <div className="flex items-center gap-1 text-xs">
-                                        <Calendar className="h-3 w-3" />
+                                <motion.div 
+                                    whileHover={{ scale: 1.05 }}
+                                    className={`text-right px-4 py-2 rounded-xl border-2 ${
+                                        task.is_overdue 
+                                            ? 'bg-red-100 border-red-300 dark:bg-red-950/50 dark:border-red-700' 
+                                            : task.days_remaining !== null && task.days_remaining <= 3 
+                                                ? 'bg-amber-100 border-amber-300 dark:bg-amber-950/50 dark:border-amber-700' 
+                                                : 'bg-blue-100 border-blue-300 dark:bg-blue-950/50 dark:border-blue-700'
+                                    }`}
+                                >
+                                    <div className={`flex items-center gap-2 text-sm font-bold ${
+                                        task.is_overdue ? 'text-red-700 dark:text-red-400' : 
+                                        task.days_remaining !== null && task.days_remaining <= 3 ? 'text-amber-700 dark:text-amber-400' : 
+                                        'text-blue-700 dark:text-blue-400'
+                                    }`}>
+                                        <Calendar className="h-4 w-4" />
                                         {task.deadline_formatted}
                                     </div>
                                     {task.days_remaining !== null && !task.is_overdue && (
-                                        <p className="text-xs">{task.days_remaining} hari lagi</p>
+                                        <p className="text-xs font-semibold mt-1">{task.days_remaining} hari lagi</p>
                                     )}
-                                </div>
+                                </motion.div>
                             )}
-                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            
+                            <motion.div whileHover={{ scale: 1.15, rotate: 5 }} whileTap={{ scale: 0.9 }}>
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                    className="h-10 w-10 rounded-xl bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 dark:hover:bg-blue-900"
                                     onClick={() => handleViewTask(task)}
                                 >
-                                    <Eye className="h-4 w-4" />
+                                    <Eye className="h-5 w-5" />
                                 </Button>
                             </motion.div>
-                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <motion.div whileHover={{ scale: 1.15, rotate: 5 }} whileTap={{ scale: 0.9 }}>
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 text-violet-500 hover:text-violet-600 hover:bg-violet-50"
+                                    className="h-10 w-10 rounded-xl bg-violet-100 text-violet-600 hover:bg-violet-200 hover:text-violet-700 dark:bg-violet-950/50 dark:text-violet-400 dark:hover:bg-violet-900"
                                     onClick={() => handleDuplicateTask(task)}
                                 >
-                                    <Copy className="h-4 w-4" />
+                                    <Copy className="h-5 w-5" />
                                 </Button>
                             </motion.div>
-                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                            <motion.div whileHover={{ scale: 1.15, rotate: 5 }} whileTap={{ scale: 0.9 }}>
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                    className="h-10 w-10 rounded-xl bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 dark:bg-red-950/50 dark:text-red-400 dark:hover:bg-red-900"
                                     onClick={() => onDelete(task.id)}
                                 >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-5 w-5" />
                                 </Button>
                             </motion.div>
                         </div>
                     </div>
+                    
                     {task.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{task.description}</p>
+                        <motion.p 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-sm text-gray-600 dark:text-gray-400 mt-3 leading-relaxed font-medium"
+                        >
+                            {task.description}
+                        </motion.p>
                     )}
+                    
                     {task.attachments && task.attachments.length > 0 && (
-                        <div className="flex items-center gap-2 mt-2">
-                            <Paperclip className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">{task.attachments.length} lampiran</span>
-                        </div>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            whileHover={{ scale: 1.02 }}
+                            className="flex items-center gap-2 mt-3 px-3 py-2 bg-indigo-100 dark:bg-indigo-950/50 rounded-lg border border-indigo-300 dark:border-indigo-700"
+                        >
+                            <Paperclip className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                            <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">{task.attachments.length} lampiran tersedia</span>
+                        </motion.div>
                     )}
                 </div>
             </div>

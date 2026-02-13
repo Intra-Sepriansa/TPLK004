@@ -133,106 +133,162 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                     </div>
 
                     <div className={`space-y-4 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`} style={{ transitionDelay: '200ms' }}>
-                        <div className="rounded-2xl border bg-card p-5 shadow-lg">
-                            <h3 className="font-semibold mb-4">📊 Informasi</h3>
-                            <div className="space-y-4 text-sm">
-                                <div className="flex justify-between items-center p-2 bg-muted/30 rounded-lg"><span className="text-muted-foreground">Dosen</span><span className="font-medium">{tugas.course.dosen || '-'}</span></div>
-                                <div className="flex justify-between items-center p-2 bg-muted/30 rounded-lg">
-                                    <span className="text-muted-foreground">Sisa Waktu</span>
-                                    <span className={`font-bold ${tugas.is_overdue ? 'text-red-600' : tugas.days_until_deadline <= 3 ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                        {tugas.is_overdue ? '❌ Sudah lewat' : `⏰ ${tugas.days_until_deadline} hari`}
-                                    </span>
-                                </div>
-                                {tugas.late_penalty_percent > 0 && (
-                                    <div className="flex justify-between items-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                                        <span className="text-amber-700 dark:text-amber-400">Penalti Terlambat</span>
-                                        <span className="font-bold text-amber-600">-{tugas.late_penalty_percent}%</span>
+                        {/* Ultra Enhanced Info Card */}
+                        <div className="relative rounded-2xl border-2 border-blue-300 dark:border-blue-700 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/40 dark:via-cyan-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden">
+                            {/* Animated Background Pattern */}
+                            <div className="absolute inset-0 opacity-10">
+                                <div className="absolute inset-0" style={{
+                                    backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 1px, transparent 1px)',
+                                    backgroundSize: '20px 20px',
+                                }} />
+                            </div>
+                            
+                            {/* Floating Orb */}
+                            <div className="absolute -right-10 -top-10 w-32 h-32 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse" />
+                            
+                            <div className="relative z-10">
+                                <h3 className="font-bold text-lg mb-5 flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg">
+                                        <Award className="h-5 w-5 text-white" />
                                     </div>
-                                )}
+                                    Informasi Tugas
+                                </h3>
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex justify-between items-center p-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform">
+                                        <span className="text-gray-600 dark:text-gray-400 font-medium">Dosen</span>
+                                        <span className="font-bold text-gray-900 dark:text-white">{tugas.course.dosen || '-'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform">
+                                        <span className="text-gray-600 dark:text-gray-400 font-medium">Sisa Waktu</span>
+                                        <span className={`font-extrabold text-lg ${tugas.is_overdue ? 'text-red-600' : tugas.days_until_deadline <= 3 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                                            {tugas.is_overdue ? '❌ Sudah lewat' : `⏰ ${tugas.days_until_deadline} hari`}
+                                        </span>
+                                    </div>
+                                    {tugas.late_penalty_percent > 0 && (
+                                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-xl border-2 border-amber-300 dark:border-amber-700 hover:scale-105 transition-transform">
+                                            <span className="text-amber-800 dark:text-amber-300 font-medium flex items-center gap-2">
+                                                <AlertTriangle className="h-4 w-4" />
+                                                Penalti Terlambat
+                                            </span>
+                                            <span className="font-extrabold text-lg text-amber-700 dark:text-amber-400">-{tugas.late_penalty_percent}%</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Submission Status */}
-                        <div className="rounded-2xl border bg-card p-5 shadow-lg">
-                            <h3 className="font-semibold mb-4 flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-emerald-500" /> Status Pengumpulan
-                            </h3>
-                            {submission ? (
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2">
-                                        {submission.status === 'graded' ? (
-                                            <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">✓ Dinilai</Badge>
-                                        ) : submission.status === 'late' ? (
-                                            <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white">⚠️ Terlambat</Badge>
-                                        ) : (
-                                            <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">📤 Dikumpulkan</Badge>
-                                        )}
+                        {/* Ultra Enhanced Submission Status Card */}
+                        <div className="relative rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-emerald-950/40 dark:via-green-950/40 dark:to-teal-950/40 p-6 shadow-2xl overflow-hidden">
+                            {/* Animated Background */}
+                            <div className="absolute inset-0 opacity-10">
+                                <div className="absolute inset-0" style={{
+                                    backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 1px, transparent 1px)',
+                                    backgroundSize: '20px 20px',
+                                }} />
+                            </div>
+                            
+                            {/* Floating Orb */}
+                            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-pulse" />
+                            
+                            <div className="relative z-10">
+                                <h3 className="font-bold text-lg mb-5 flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
+                                        <FileText className="h-5 w-5 text-white" />
                                     </div>
-                                    <p className="text-xs text-muted-foreground">
-                                        <Clock className="h-3 w-3 inline mr-1" />
-                                        Dikumpulkan: {submission.submitted_at}
-                                    </p>
-                                    {submission.file_name && (
-                                        <a
-                                            href={submission.file_path || '#'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-2 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm hover:bg-emerald-100 transition-colors"
-                                        >
-                                            <Download className="h-4 w-4" />
-                                            <span className="truncate">{submission.file_name}</span>
-                                        </a>
-                                    )}
-                                    {submission.grade !== null && (
-                                        <div className="p-3 rounded-xl bg-gradient-to-r from-gray-900 to-black dark:from-black/20 dark:to-black/20">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm font-medium">Nilai:</span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-2xl font-bold text-indigo-600">{submission.grade}</span>
-                                                    {submission.grade_letter && (
-                                                        <span className="px-2 py-1 rounded-full bg-indigo-600 text-white text-sm font-bold">
-                                                            {submission.grade_letter}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            {submission.feedback && (
-                                                <div className="mt-2 pt-2 border-t border-indigo-200 dark:border-indigo-800">
-                                                    <p className="text-xs text-muted-foreground">Feedback:</p>
-                                                    <p className="text-sm mt-1">{submission.feedback}</p>
-                                                </div>
+                                    Status Pengumpulan
+                                </h3>
+                                {submission ? (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            {submission.status === 'graded' ? (
+                                                <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-4 py-2 text-sm font-bold shadow-lg">✓ Dinilai</Badge>
+                                            ) : submission.status === 'late' ? (
+                                                <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white px-4 py-2 text-sm font-bold shadow-lg animate-pulse">⚠️ Terlambat</Badge>
+                                            ) : (
+                                                <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 text-sm font-bold shadow-lg">📤 Dikumpulkan</Badge>
                                             )}
                                         </div>
-                                    )}
-                                    {submission.status !== 'graded' && (
-                                        <Button
-                                            onClick={() => setShowSubmitForm(true)}
-                                            variant="outline"
-                                            className="w-full"
-                                        >
-                                            <Upload className="h-4 w-4 mr-2" /> Update Submission
-                                        </Button>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    <p className="text-sm text-muted-foreground">Belum mengumpulkan tugas</p>
-                                    {(!tugas.is_overdue || tugas.allow_late_submission) && (
-                                        <Button
-                                            onClick={() => setShowSubmitForm(true)}
-                                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                                        >
-                                            <Upload className="h-4 w-4 mr-2" /> Kumpulkan Tugas
-                                        </Button>
-                                    )}
-                                    {tugas.is_overdue && !tugas.allow_late_submission && (
-                                        <p className="text-xs text-red-500 flex items-center gap-1">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            Deadline sudah lewat, tidak dapat mengumpulkan
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                        <div className="p-3 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-xl border border-emerald-200 dark:border-emerald-800">
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                                <Clock className="h-4 w-4 text-emerald-500" />
+                                                <span className="font-medium">Dikumpulkan:</span>
+                                                <span className="font-bold text-gray-900 dark:text-white">{submission.submitted_at}</span>
+                                            </p>
+                                        </div>
+                                        {submission.file_name && (
+                                            <a
+                                                href={submission.file_path || '#'}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/40 border-2 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 hover:scale-105 transition-all shadow-lg hover:shadow-xl"
+                                            >
+                                                <div className="p-2 bg-emerald-500 rounded-lg">
+                                                    <Download className="h-5 w-5 text-white" />
+                                                </div>
+                                                <span className="truncate font-bold">{submission.file_name}</span>
+                                            </a>
+                                        )}
+                                        {submission.grade !== null && (
+                                            <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-violet-600 shadow-2xl">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <span className="text-sm font-bold text-white/90">Nilai Akhir:</span>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-4xl font-extrabold text-white">{submission.grade}</span>
+                                                        {submission.grade_letter && (
+                                                            <span className="px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm text-white text-xl font-extrabold shadow-lg">
+                                                                {submission.grade_letter}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {submission.feedback && (
+                                                    <div className="mt-3 pt-3 border-t border-white/20">
+                                                        <p className="text-xs text-white/80 font-semibold mb-1">Feedback Dosen:</p>
+                                                        <p className="text-sm text-white leading-relaxed">{submission.feedback}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        {submission.status !== 'graded' && (
+                                            <Button
+                                                onClick={() => setShowSubmitForm(true)}
+                                                variant="outline"
+                                                className="w-full border-2 border-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-bold"
+                                            >
+                                                <Upload className="h-4 w-4 mr-2" /> Update Submission
+                                            </Button>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="text-center py-6">
+                                            <div className="relative mx-auto w-16 h-16 mb-3">
+                                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full opacity-20 animate-ping" />
+                                                <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full">
+                                                    <Upload className="h-8 w-8 text-white" />
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-300">Belum mengumpulkan tugas</p>
+                                        </div>
+                                        {(!tugas.is_overdue || tugas.allow_late_submission) && (
+                                            <Button
+                                                onClick={() => setShowSubmitForm(true)}
+                                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                                            >
+                                                <Upload className="h-5 w-5 mr-2" /> Kumpulkan Tugas Sekarang
+                                            </Button>
+                                        )}
+                                        {tugas.is_overdue && !tugas.allow_late_submission && (
+                                            <div className="p-3 rounded-xl bg-red-100 dark:bg-red-900/40 border-2 border-red-300 dark:border-red-700">
+                                                <p className="text-sm text-red-700 dark:text-red-300 flex items-center gap-2 font-bold">
+                                                    <AlertTriangle className="h-4 w-4" />
+                                                    Deadline sudah lewat, tidak dapat mengumpulkan
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Submit Form Dialog */}
