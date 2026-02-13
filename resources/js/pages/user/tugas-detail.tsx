@@ -281,82 +281,103 @@ export default function UserTugasDetail({ mahasiswa, tugas, diskusi, submission 
                 {/* Main Content Area with proper container */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+                {/* Row 1: Description - Full Width */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="relative rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 p-8 shadow-2xl overflow-hidden mb-8"
+                >
+                    {/* Animated Background Pattern */}
+                    <motion.div
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%'],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                        }}
+                        className="absolute inset-0 opacity-5"
+                        style={{
+                            backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 1px, transparent 1px)',
+                            backgroundSize: '20px 20px',
+                        }}
+                    />
+                    
+                    <div className="relative z-10">
+                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
+                            <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg">
+                                <Sparkles className="h-6 w-6 text-white" />
+                            </div>
+                            Deskripsi Tugas
+                        </h3>
+                        <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
+                                {tugas.deskripsi}
+                            </p>
+                        </div>
+                        
+                        {/* Footer Info */}
+                        <div className="mt-6 pt-6 border-t-2 border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                                    <Clock className="h-4 w-4 text-blue-500" />
+                                    <span className="font-medium">Dibuat oleh:</span>
+                                    <span className="font-bold text-gray-900 dark:text-white">{tugas.created_by}</span>
+                                </div>
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                                    <Calendar className="h-4 w-4 text-purple-500" />
+                                    <span className="font-bold text-gray-900 dark:text-white">{tugas.created_at}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Row 2: Two Columns */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column - Main Content */}
+                    {/* Left Column - Instructions */}
                     <div className="space-y-6">
-                        {/* Ultra Enhanced Main Card */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="relative rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/30 dark:from-gray-900 dark:via-blue-950/20 dark:to-cyan-950/20 p-8 shadow-2xl overflow-hidden"
-                        >
-                            {/* Animated Background Pattern */}
+                        {tugas.instruksi && (
                             <motion.div
-                                animate={{
-                                    backgroundPosition: ['0% 0%', '100% 100%'],
-                                }}
-                                transition={{
-                                    duration: 20,
-                                    repeat: Infinity,
-                                    repeatType: "reverse",
-                                }}
-                                className="absolute inset-0 opacity-5"
-                                style={{
-                                    backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 1px, transparent 1px)',
-                                    backgroundSize: '20px 20px',
-                                }}
-                            />
-                            
-                            <div className="relative z-10">
-                                {/* Description Section */}
-                                <div className="mb-8">
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="relative rounded-3xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30 dark:from-gray-900 dark:via-emerald-950/20 dark:to-teal-950/20 p-8 shadow-2xl overflow-hidden"
+                            >
+                                {/* Animated Background Pattern */}
+                                <motion.div
+                                    animate={{
+                                        backgroundPosition: ['0% 0%', '100% 100%'],
+                                    }}
+                                    transition={{
+                                        duration: 20,
+                                        repeat: Infinity,
+                                        repeatType: "reverse",
+                                    }}
+                                    className="absolute inset-0 opacity-5"
+                                    style={{
+                                        backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 1px, transparent 1px)',
+                                        backgroundSize: '20px 20px',
+                                    }}
+                                />
+                                
+                                <div className="relative z-10">
                                     <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
-                                        <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg">
-                                            <Sparkles className="h-6 w-6 text-white" />
+                                        <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
+                                            <Zap className="h-6 w-6 text-white" />
                                         </div>
-                                        Deskripsi Tugas
+                                        Instruksi Pengerjaan
                                     </h3>
-                                    <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl border border-gray-200 dark:border-gray-700">
+                                    <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
                                         <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
-                                            {tugas.deskripsi}
+                                            {tugas.instruksi}
                                         </p>
                                     </div>
                                 </div>
-                                
-                                {/* Instructions Section */}
-                                {tugas.instruksi && (
-                                    <div className="mb-8">
-                                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-white">
-                                            <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg">
-                                                <Zap className="h-6 w-6 text-white" />
-                                            </div>
-                                            Instruksi Pengerjaan
-                                        </h3>
-                                        <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700">
-                                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed text-lg">
-                                                {tugas.instruksi}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {/* Footer Info */}
-                                <div className="pt-6 border-t-2 border-gray-200 dark:border-gray-700">
-                                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 flex-wrap">
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                            <Clock className="h-4 w-4 text-blue-500" />
-                                            <span className="font-medium">Dibuat oleh:</span>
-                                            <span className="font-bold text-gray-900 dark:text-white">{tugas.created_by}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                                            <Calendar className="h-4 w-4 text-purple-500" />
-                                            <span className="font-bold text-gray-900 dark:text-white">{tugas.created_at}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        )}
                     </div>
 
                     {/* Right Column - Info & Status */}
