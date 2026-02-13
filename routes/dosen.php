@@ -94,6 +94,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     
     // Notifications
     Route::get('/notifications', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications', [\App\Http\Controllers\Dosen\NotificationController::class, 'store'])->name('notifications.store');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\Dosen\NotificationController::class, 'destroy'])->name('notifications.destroy');

@@ -17,14 +17,18 @@ class AppNotification extends Model
         'type',
         'priority',
         'data',
+        'metadata',
         'action_url',
         'read_at',
         'scheduled_at',
         'created_by',
+        'created_by_type',
+        'created_by_id',
     ];
 
     protected $casts = [
         'data' => 'array',
+        'metadata' => 'array',
         'read_at' => 'datetime',
         'scheduled_at' => 'datetime',
     ];

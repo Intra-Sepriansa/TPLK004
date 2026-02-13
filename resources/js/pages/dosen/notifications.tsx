@@ -2,9 +2,10 @@ import DosenLayout from '@/layouts/dosen-layout';
 import { Head, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { NotificationComposer } from '@/components/dosen/notification-composer';
 import { 
     Bell, Clock, Megaphone, AlertTriangle, Award, Info, CheckCircle, 
-    ExternalLink, X, Trash2, Filter, Search, Archive, Star
+    ExternalLink, X, Trash2, Filter, Search, Archive, Star, Plus, Send
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,17 +23,32 @@ interface Notification {
     created_at: string;
 }
 
+interface Mahasiswa {
+    id: number;
+    nama: string;
+    nim: string;
+}
+
+interface Course {
+    id: number;
+    nama: string;
+}
+
 interface Props {
     dosen: { id: number; nama: string };
     notifications: { data: Notification[]; current_page: number; last_page: number };
     unreadCount: number;
+    course: Course | null;
+    mahasiswa: Mahasiswa[];
+    sentNotifications: Notification[];
 }
 
-export default function Notifications({ dosen, notifications, unreadCount }: Props) {
+export default function Notifications({ dosen, notifications, unreadCount, course, mahasiswa, sentNotifications }: Props) {
     const [detailModal, setDetailModal] = useState<{ open: boolean; notification: Notification | null }>({ open: false, notification: null });
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'unread' | 'read'>('all');
+    const [composerOpen, setComposerOpen] = useState(false);
 
     // Filter notifications
     const filteredNotifications = notifications.data.filter(notif => {
@@ -189,18 +205,35 @@ export default function Notifications({ dosen, notifications, unreadCount }: Pro
                                     </h1>
                                 </div>
                             </div>
-                            {unreadCount > 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <Button onClick={handleMarkAllAsRead} className="bg-white/20 hover:bg-white/30 text-white border-0">
-                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                        Tandai Semua Dibaca
-                                    </Button>
-                                </motion.div>
-                            )}
+                            <div className="flex gap-2">
+                                {course && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Button 
+                                            onClick={() => setComposerOpen(true)}
+                                            className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0"
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Buat Notifikasi
+                                        </Button>
+                                    </motion.div>
+                                )}
+                                {unreadCount > 0 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Button onClick={handleMarkAllAsRead} className="bg-white/20 hover:bg-white/30 text-white border-0">
+                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                            Tandai Semua Dibaca
+                                        </Button>
+                                    </motion.div>
+                                )}
+                            </div>
                         </div>
                         <p className="mt-4 text-blue-100">Pemberitahuan dan pengumuman terbaru</p>
                     </div>
@@ -564,6 +597,14 @@ export default function Notifications({ dosen, notifications, unreadCount }: Pro
                 variant="danger"
                 confirmText="Ya, Hapus"
                 cancelText="Batal"
+            />
+
+            {/* Notification Composer */}
+            <NotificationComposer
+                isOpen={composerOpen}
+                course={course}
+                mahasiswa={mahasiswa}
+                onClose={() => setComposerOpen(false)}
             />
         </DosenLayout>
     );
