@@ -271,66 +271,185 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                 animate="visible"
                 className="space-y-6 p-6 relative z-10"
             >
-                {/* Header Card */}
+                {/* Header Card - ULTRA ADVANCED with Student Theme */}
                 <motion.div
                     variants={headerVariants}
                     whileHover={{ 
-                        scale: 1.02,
-                        boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.25)",
+                        scale: 1.01,
+                        rotateY: 1,
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated background elements */}
-                    <motion.div 
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                        animate={{ 
-                            scale: [1, 1.2, 1],
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
                             opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
                         }}
-                        transition={{ 
-                            duration: 4,
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                        }}
+                        transition={{
+                            duration: 18,
                             repeat: Infinity,
                             ease: "easeInOut",
+                            delay: 2,
                         }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
-                    <motion.div 
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                        animate={{ 
-                            scale: [1, 1.3, 1],
-                            opacity: [0.1, 0.15, 0.1],
+
+                    {/* 20 Floating Particles */}
+                    {[...Array(20)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
+                            animate={{
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
+                            }}
+                            transition={{
+                                duration: 5 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute rounded-full shadow-lg"
+                            style={{
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 4) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0
+                                    ? 'rgba(255, 255, 255, 0.6)'
+                                    : i % 3 === 1
+                                        ? 'rgba(6, 182, 212, 0.5)'
+                                        : 'rgba(59, 130, 246, 0.5)',
+                                filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                            }}
+                        />
+                    ))}
+
+                    {/* Floating Icons */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
                         }}
-                        transition={{ 
-                            duration: 5,
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <BookOpen className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
                             repeat: Infinity,
                             ease: "easeInOut",
                             delay: 1,
                         }}
-                    />
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <GraduationCap className="h-20 w-20" />
+                    </motion.div>
+
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
                     
-                    <div className="relative flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                    <div className="relative flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-5">
                             <motion.div
                                 whileHover={{ 
-                                    scale: 1.15, 
-                                    y: -4,
-                                    rotate: [0, -5, 5, 0],
+                                    scale: 1.2, 
+                                    rotate: [0, -8, 8, 0],
+                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
                                 }}
-                                transition={{ 
-                                    type: "spring", 
-                                    stiffness: 400, 
-                                    damping: 10,
-                                    rotate: {
-                                        duration: 0.5,
-                                    }
-                                }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
+                                whileTap={{ scale: 0.92 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
                             >
-                                <CalendarDays className="h-8 w-8" />
+                                {/* Glow effect */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.2, 1],
+                                        opacity: [0.5, 0.8, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                />
+                                <CalendarDays className="h-10 w-10 relative z-10" />
                             </motion.div>
                             <div>
                                 <motion.p 
-                                    className="text-sm text-emerald-100"
+                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
@@ -338,27 +457,40 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     Jadwal Kuliah
                                 </motion.p>
                                 <motion.h1 
-                                    className="text-2xl font-bold"
+                                    className="text-3xl font-extrabold tracking-tight"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
                                 >
                                     Minggu Ini
                                 </motion.h1>
-                                <motion.p 
-                                    className="text-sm text-emerald-100"
+                                <motion.div
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.5 }}
+                                    className="flex items-center gap-2 mt-1"
                                 >
-                                    {currentDay}
-                                </motion.p>
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.7, 1, 0.7],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="h-2 w-2 rounded-full bg-cyan-300"
+                                    />
+                                    <p className="text-sm text-cyan-100 font-mono">
+                                        {currentDay}
+                                    </p>
+                                </motion.div>
                             </div>
                         </div>
                         
                         {stats.classes_today > 0 && (
                             <motion.div 
-                                className="hidden sm:flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur"
+                                className="hidden sm:flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl shadow-xl ring-2 ring-white/40 relative"
                                 initial={{ opacity: 0, scale: 0.8, x: 20 }}
                                 animate={{ opacity: 1, scale: 1, x: 0 }}
                                 transition={{ 
@@ -367,22 +499,38 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                     stiffness: 300,
                                 }}
                                 whileHover={{ 
-                                    scale: 1.1,
-                                    backgroundColor: "rgba(255, 255, 255, 0.3)",
+                                    scale: 1.08,
+                                    y: -2,
                                 }}
                             >
+                                {/* Pulse effect */}
                                 <motion.div
-                                    animate={{ rotate: [0, 10, -10, 0] }}
+                                    animate={{
+                                        scale: [1, 1.5, 1],
+                                        opacity: [0.5, 0, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                    }}
+                                    className="absolute inset-0 rounded-full bg-cyan-300/30"
+                                />
+                                <motion.div
+                                    animate={{ 
+                                        rotate: [0, 10, -10, 0],
+                                        scale: [1, 1.1, 1],
+                                    }}
                                     transition={{ 
                                         duration: 2,
                                         repeat: Infinity,
                                         ease: "easeInOut",
                                     }}
+                                    className="relative z-10"
                                 >
-                                    <Clock className="h-5 w-5 text-emerald-200" />
+                                    <Clock className="h-5 w-5 text-cyan-200" />
                                 </motion.div>
-                                <span className="font-bold">{stats.classes_today}</span>
-                                <span className="text-sm text-emerald-100">kelas hari ini</span>
+                                <span className="font-extrabold text-lg relative z-10">{stats.classes_today}</span>
+                                <span className="text-sm text-cyan-100 font-semibold relative z-10">kelas hari ini</span>
                             </motion.div>
                         )}
                     </div>
