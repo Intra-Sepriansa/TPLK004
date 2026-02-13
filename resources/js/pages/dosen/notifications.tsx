@@ -5,7 +5,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { NotificationComposer } from '@/components/dosen/notification-composer';
 import { 
     Bell, Clock, Megaphone, AlertTriangle, Award, Info, CheckCircle, 
-    ExternalLink, X, Trash2, Filter, Search, Archive, Star, Plus, Send
+    ExternalLink, X, Trash2, Filter, Search, Archive, Star, Plus, Send, Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
