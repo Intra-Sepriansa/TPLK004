@@ -28,7 +28,7 @@ interface ProfileEditEnhancedProps {
     avatarUrl: string;
     avatarPreview: string | null;
     isUploadingAvatar: boolean;
-    avatarInputRef: React.RefObject<HTMLInputElement>;
+    avatarInputRef: React.RefObject<HTMLInputElement | null>;
     handleProfileSubmit: (e: React.FormEvent) => void;
     handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleAvatarUpload: () => void;
