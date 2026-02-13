@@ -16,7 +16,7 @@ import {
     Calendar, Trash2, Filter, BookOpen, CheckCircle, XCircle, Target, Flag,
     LayoutList, CalendarDays, Columns3, Paperclip, Tag, X, Search, 
     ArrowUpDown, Eye, Copy, Star, TrendingUp, BarChart3, ArrowRight, FileText,
-    User, Award
+    User, Award, Download
 } from 'lucide-react';
 import { useState, FormEvent, useEffect, useMemo } from 'react';
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
@@ -1515,46 +1515,108 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         )}
                     </CardContent>
                 </Card>
-                {/* Task Detail Modal - ULTRA ADVANCED */}
+                {/* Task Detail Modal - ULTRA ADVANCED V2 */}
                 <Dialog open={showTaskDetail} onOpenChange={setShowTaskDetail}>
-                    <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0">
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 border-0 shadow-2xl">
                         {selectedTask && (
                             <>
-                            <div className="relative">
-                                {/* Animated Background Orbs */}
+                            <div className="relative" style={{ perspective: '1500px' }}>
+                                {/* Ultra Advanced Animated Background Orbs */}
                                 <motion.div 
                                     animate={{
-                                        scale: [1, 1.3, 1],
-                                        opacity: [0.1, 0.2, 0.1],
-                                        x: [0, 30, 0],
-                                        y: [0, -20, 0],
+                                        scale: [1, 1.5, 1.2, 1],
+                                        rotate: [0, 90, 180, 360],
+                                        opacity: [0.15, 0.25, 0.2, 0.15],
+                                        x: [0, 40, -20, 0],
+                                        y: [0, -30, 20, 0],
                                     }}
                                     transition={{
-                                        duration: 15,
+                                        duration: 20,
                                         repeat: Infinity,
                                         ease: "easeInOut"
                                     }}
-                                    className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-500/20 blur-3xl pointer-events-none"
+                                    className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl pointer-events-none"
                                 />
                                 <motion.div 
                                     animate={{
-                                        scale: [1, 1.4, 1],
-                                        opacity: [0.1, 0.15, 0.1],
-                                        x: [0, -25, 0],
-                                        y: [0, 30, 0],
+                                        scale: [1, 1.6, 1.3, 1],
+                                        rotate: [360, 270, 90, 0],
+                                        opacity: [0.15, 0.2, 0.25, 0.15],
+                                        x: [0, -35, 25, 0],
+                                        y: [0, 40, -25, 0],
+                                    }}
+                                    transition={{
+                                        duration: 22,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl pointer-events-none"
+                                />
+                                <motion.div 
+                                    animate={{
+                                        scale: [1, 1.4, 1.1, 1],
+                                        rotate: [0, -120, -240, -360],
+                                        opacity: [0.1, 0.18, 0.15, 0.1],
+                                        x: [0, 25, -15, 0],
+                                        y: [0, -25, 15, 0],
                                     }}
                                     transition={{
                                         duration: 18,
                                         repeat: Infinity,
-                                        ease: "easeInOut"
+                                        ease: "easeInOut",
+                                        delay: 1,
                                     }}
-                                    className="absolute -left-10 -bottom-10 h-48 w-48 rounded-full bg-gradient-to-br from-teal-400/20 to-cyan-500/20 blur-3xl pointer-events-none"
+                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-violet-400/20 blur-3xl pointer-events-none"
                                 />
-
-                                {/* Header with Gradient */}
-                                <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-6 text-white">
+                                
+                                {/* 40 Floating Particles with Advanced Physics */}
+                                {[...Array(40)].map((_, i) => (
                                     <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                                        key={i}
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ 
+                                            opacity: [0, 0.9, 1, 0.7, 0],
+                                            scale: [0, 2, 1.5, 1, 0],
+                                            y: [0, -60, -120, -180, -240],
+                                            x: [0, Math.sin(i * 0.6) * 50, Math.cos(i * 0.4) * 40, Math.sin(i) * 30, 0],
+                                            rotate: [0, 180, 360, 540, 720],
+                                        }}
+                                        transition={{
+                                            duration: 6 + Math.random() * 4,
+                                            repeat: Infinity,
+                                            delay: i * 0.15,
+                                            ease: "easeOut"
+                                        }}
+                                        className="absolute rounded-full shadow-xl"
+                                        style={{
+                                            width: `${4 + Math.random() * 12}px`,
+                                            height: `${4 + Math.random() * 12}px`,
+                                            left: `${5 + (i * 2.5) % 90}%`,
+                                            top: `${10 + (i % 5) * 18}%`,
+                                            background: i % 4 === 0 
+                                                ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(6, 182, 212, 0.6))' 
+                                                : i % 4 === 1 
+                                                    ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.7), rgba(59, 130, 246, 0.6))'
+                                                    : i % 4 === 2
+                                                        ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.7), rgba(20, 184, 166, 0.6))'
+                                                        : 'linear-gradient(135deg, rgba(20, 184, 166, 0.7), rgba(255, 255, 255, 0.5))',
+                                            filter: 'blur(1.5px)',
+                                            boxShadow: '0 0 20px rgba(6, 182, 212, 0.6)',
+                                        }}
+                                    />
+                                ))}
+
+                                {/* Ultra Enhanced Header with 3D Effect and Gradient Animation */}
+                                <motion.div 
+                                    initial={{ rotateX: -15, opacity: 0 }}
+                                    animate={{ rotateX: 0, opacity: 1 }}
+                                    transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+                                    className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white"
+                                    style={{ transformStyle: 'preserve-3d' }}
+                                >
+                                    {/* Multiple Animated Shimmer Effects */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                                         animate={{
                                             x: ['-100%', '200%'],
                                         }}
@@ -1565,300 +1627,614 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             ease: "easeInOut"
                                         }}
                                     />
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-l from-transparent via-cyan-300/10 to-transparent"
+                                        animate={{
+                                            x: ['100%', '-200%'],
+                                        }}
+                                        transition={{
+                                            duration: 4,
+                                            repeat: Infinity,
+                                            repeatDelay: 1,
+                                            ease: "easeInOut",
+                                            delay: 1.5,
+                                        }}
+                                    />
+                                    
+                                    {/* Floating Icons in Header */}
+                                    <motion.div
+                                        animate={{
+                                            y: [0, -10, 0],
+                                            rotate: [0, 5, -5, 0],
+                                            opacity: [0.2, 0.4, 0.2],
+                                        }}
+                                        transition={{
+                                            duration: 5,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute top-4 right-10 text-white/20"
+                                    >
+                                        <CheckCircle2 className="h-20 w-20" />
+                                    </motion.div>
+                                    <motion.div
+                                        animate={{
+                                            y: [0, 15, 0],
+                                            rotate: [0, -8, 8, 0],
+                                            opacity: [0.15, 0.35, 0.15],
+                                        }}
+                                        transition={{
+                                            duration: 6,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                            delay: 1,
+                                        }}
+                                        className="absolute bottom-4 left-10 text-white/20"
+                                    >
+                                        <Target className="h-24 w-24" />
+                                    </motion.div>
                                     
                                     <div className="relative z-10">
                                         <DialogHeader>
-                                            <DialogTitle className="flex items-center gap-3 text-white text-2xl">
+                                            <DialogTitle className="flex items-center gap-4 text-white text-3xl">
                                                 <motion.div
-                                                    whileHover={{ scale: 1.2, rotate: 10 }}
-                                                    transition={{ type: "spring", stiffness: 300 }}
-                                                    className="p-2 bg-white/20 rounded-lg backdrop-blur"
+                                                    whileHover={{ scale: 1.3, rotate: 15 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                                    className="p-3 bg-white/25 rounded-2xl backdrop-blur-xl shadow-2xl ring-4 ring-white/30"
                                                 >
-                                                    <ListTodo className="h-6 w-6" />
+                                                    <motion.div
+                                                        animate={{
+                                                            scale: [1, 1.1, 1],
+                                                            rotate: [0, 5, -5, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 3,
+                                                            repeat: Infinity,
+                                                        }}
+                                                    >
+                                                        <ListTodo className="h-8 w-8" />
+                                                    </motion.div>
                                                 </motion.div>
-                                                <span className="flex-1">{selectedTask.title}</span>
+                                                <motion.span 
+                                                    initial={{ x: -20, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    transition={{ delay: 0.3 }}
+                                                    className="flex-1 font-extrabold tracking-tight"
+                                                >
+                                                    {selectedTask.title}
+                                                </motion.span>
                                                 {selectedTask.priority && (
                                                     <motion.div
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
-                                                        transition={{ type: "spring", stiffness: 200 }}
+                                                        initial={{ scale: 0, rotate: -180 }}
+                                                        animate={{ scale: 1, rotate: 0 }}
+                                                        transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
+                                                        whileHover={{ scale: 1.15, rotate: 5 }}
                                                     >
                                                         <Badge 
                                                             variant="outline" 
-                                                            className={`text-xs border-2 ${
+                                                            className={`text-sm border-3 px-4 py-2 font-bold shadow-lg ${
                                                                 selectedTask.priority === 'high' 
-                                                                    ? 'border-red-300 text-white bg-red-500/30' 
+                                                                    ? 'border-red-300 text-white bg-red-500/40 shadow-red-500/50' 
                                                                     : selectedTask.priority === 'medium'
-                                                                        ? 'border-amber-300 text-white bg-amber-500/30'
-                                                                        : 'border-blue-300 text-white bg-blue-500/30'
+                                                                        ? 'border-amber-300 text-white bg-amber-500/40 shadow-amber-500/50'
+                                                                        : 'border-blue-300 text-white bg-blue-500/40 shadow-blue-500/50'
                                                             }`}
                                                         >
-                                                            <Flag className="h-3 w-3 mr-1" />
-                                                            {selectedTask.priority === 'high' ? 'Tinggi' : selectedTask.priority === 'medium' ? 'Sedang' : 'Rendah'}
+                                                            <Flag className="h-4 w-4 mr-2" />
+                                                            {selectedTask.priority === 'high' ? 'Prioritas Tinggi' : selectedTask.priority === 'medium' ? 'Prioritas Sedang' : 'Prioritas Rendah'}
                                                         </Badge>
                                                     </motion.div>
                                                 )}
                                             </DialogTitle>
-                                            <DialogDescription className="text-cyan-100">
-                                                Detail lengkap tugas akademik
-                                            </DialogDescription>
+                                            <motion.div
+                                                initial={{ y: 20, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 0.4 }}
+                                            >
+                                                <DialogDescription className="text-cyan-100 text-base mt-2">
+                                                    Detail lengkap tugas akademik dengan informasi komprehensif
+                                                </DialogDescription>
+                                            </motion.div>
                                         </DialogHeader>
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                {/* Content with Enhanced Cards */}
-                                <div className="p-6 space-y-4 max-h-[calc(85vh-180px)] overflow-y-auto">
-                                    {/* Course & Meeting Info */}
-                                    <div className="grid grid-cols-2 gap-4">
+                                {/* Ultra Enhanced Content with 3D Cards */}
+                                <div className="p-8 space-y-6 max-h-[calc(90vh-240px)] overflow-y-auto bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-900/50 dark:to-gray-950">
+                                    {/* Course & Meeting Info with 3D Effect */}
+                                    <div className="grid grid-cols-2 gap-6">
                                         <motion.div
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.1 }}
-                                            whileHover={{ scale: 1.02, y: -2 }}
-                                            className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800"
+                                            initial={{ opacity: 0, x: -30, rotateY: -15 }}
+                                            animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                                            transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
+                                            whileHover={{ scale: 1.03, y: -5, rotateY: 5, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)" }}
+                                            className="relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 dark:from-blue-950/40 dark:to-cyan-950/40 border-2 border-blue-200 dark:border-blue-800 overflow-hidden"
+                                            style={{ transformStyle: 'preserve-3d' }}
                                         >
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <div className="p-2 bg-blue-500 rounded-lg">
-                                                    <BookOpen className="h-4 w-4 text-white" />
+                                            {/* Animated Background Pattern */}
+                                            <motion.div
+                                                animate={{
+                                                    backgroundPosition: ['0% 0%', '100% 100%'],
+                                                }}
+                                                transition={{
+                                                    duration: 20,
+                                                    repeat: Infinity,
+                                                    repeatType: "reverse",
+                                                }}
+                                                className="absolute inset-0 opacity-10"
+                                                style={{
+                                                    backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 1px, transparent 1px)',
+                                                    backgroundSize: '20px 20px',
+                                                }}
+                                            />
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <motion.div 
+                                                        whileHover={{ scale: 1.2, rotate: 360 }}
+                                                        transition={{ duration: 0.6 }}
+                                                        className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg"
+                                                    >
+                                                        <BookOpen className="h-5 w-5 text-white" />
+                                                    </motion.div>
+                                                    <Label className="text-sm text-blue-700 dark:text-blue-300 font-bold tracking-wide">MATA KULIAH</Label>
                                                 </div>
-                                                <Label className="text-xs text-blue-600 dark:text-blue-400 font-semibold">Mata Kuliah</Label>
+                                                <motion.p 
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ delay: 0.3 }}
+                                                    className="font-extrabold text-xl text-gray-900 dark:text-white"
+                                                >
+                                                    {selectedTask.course_name}
+                                                </motion.p>
                                             </div>
-                                            <p className="font-bold text-gray-900 dark:text-white">{selectedTask.course_name}</p>
                                         </motion.div>
                                         
                                         {selectedTask.meeting_number && (
                                             <motion.div
-                                                initial={{ opacity: 0, x: 20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.2 }}
-                                                whileHover={{ scale: 1.02, y: -2 }}
-                                                className="p-4 rounded-xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border border-teal-200 dark:border-teal-800"
+                                                initial={{ opacity: 0, x: 30, rotateY: 15 }}
+                                                animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                                                transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+                                                whileHover={{ scale: 1.03, y: -5, rotateY: -5, boxShadow: "0 20px 40px rgba(20, 184, 166, 0.3)" }}
+                                                className="relative p-6 rounded-2xl bg-gradient-to-br from-teal-50 via-cyan-50 to-teal-100 dark:from-teal-950/40 dark:to-cyan-950/40 border-2 border-teal-200 dark:border-teal-800 overflow-hidden"
+                                                style={{ transformStyle: 'preserve-3d' }}
                                             >
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="p-2 bg-teal-500 rounded-lg">
-                                                        <Calendar className="h-4 w-4 text-white" />
+                                                <motion.div
+                                                    animate={{
+                                                        backgroundPosition: ['0% 0%', '100% 100%'],
+                                                    }}
+                                                    transition={{
+                                                        duration: 20,
+                                                        repeat: Infinity,
+                                                        repeatType: "reverse",
+                                                    }}
+                                                    className="absolute inset-0 opacity-10"
+                                                    style={{
+                                                        backgroundImage: 'radial-gradient(circle, rgba(20, 184, 166, 0.3) 1px, transparent 1px)',
+                                                        backgroundSize: '20px 20px',
+                                                    }}
+                                                />
+                                                <div className="relative z-10">
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <motion.div 
+                                                            whileHover={{ scale: 1.2, rotate: 360 }}
+                                                            transition={{ duration: 0.6 }}
+                                                            className="p-3 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl shadow-lg"
+                                                        >
+                                                            <Calendar className="h-5 w-5 text-white" />
+                                                        </motion.div>
+                                                        <Label className="text-sm text-teal-700 dark:text-teal-300 font-bold tracking-wide">PERTEMUAN</Label>
                                                     </div>
-                                                    <Label className="text-xs text-teal-600 dark:text-teal-400 font-semibold">Pertemuan</Label>
+                                                    <motion.p 
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ delay: 0.3 }}
+                                                        className="font-extrabold text-xl text-gray-900 dark:text-white"
+                                                    >
+                                                        Pertemuan {selectedTask.meeting_number}
+                                                    </motion.p>
                                                 </div>
-                                                <p className="font-bold text-gray-900 dark:text-white">Pertemuan {selectedTask.meeting_number}</p>
                                             </motion.div>
                                         )}
                                     </div>
                                     
-                                    {/* Deadline Card */}
+                                    {/* Ultra Enhanced Deadline Card with Pulse Animation */}
                                     {selectedTask.deadline && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                            whileHover={{ scale: 1.01, boxShadow: "0 10px 30px rgba(0,0,0,0.1)" }}
-                                            className={`p-4 rounded-xl border-2 ${
+                                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            transition={{ delay: 0.3, type: "spring", stiffness: 120 }}
+                                            whileHover={{ scale: 1.02, boxShadow: "0 25px 50px rgba(0,0,0,0.15)" }}
+                                            className={`relative p-6 rounded-2xl border-3 overflow-hidden ${
                                                 selectedTask.is_overdue 
-                                                    ? 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-red-300 dark:border-red-800'
-                                                    : 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-300 dark:border-amber-800'
+                                                    ? 'bg-gradient-to-br from-red-50 via-rose-50 to-red-100 dark:from-red-950/40 dark:to-rose-950/40 border-red-400 dark:border-red-700'
+                                                    : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 dark:from-amber-950/40 dark:to-orange-950/40 border-amber-400 dark:border-amber-700'
                                             }`}
                                         >
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <div className={`p-2 rounded-lg ${selectedTask.is_overdue ? 'bg-red-500' : 'bg-amber-500'}`}>
-                                                    <Clock className="h-4 w-4 text-white" />
+                                            {/* Animated Pulse Ring */}
+                                            {selectedTask.is_overdue && (
+                                                <motion.div
+                                                    animate={{
+                                                        scale: [1, 2.5, 1],
+                                                        opacity: [0.5, 0, 0.5],
+                                                    }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                    }}
+                                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-red-500"
+                                                />
+                                            )}
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <motion.div 
+                                                        animate={{
+                                                            rotate: selectedTask.is_overdue ? [0, -10, 10, -10, 10, 0] : 0,
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.5,
+                                                            repeat: selectedTask.is_overdue ? Infinity : 0,
+                                                            repeatDelay: 2,
+                                                        }}
+                                                        whileHover={{ scale: 1.2, rotate: 360 }}
+                                                        className={`p-3 rounded-xl shadow-xl ${selectedTask.is_overdue ? 'bg-gradient-to-br from-red-500 to-rose-600' : 'bg-gradient-to-br from-amber-500 to-orange-600'}`}
+                                                    >
+                                                        <Clock className="h-5 w-5 text-white" />
+                                                    </motion.div>
+                                                    <Label className={`text-sm font-bold tracking-wide ${selectedTask.is_overdue ? 'text-red-700 dark:text-red-300' : 'text-amber-700 dark:text-amber-300'}`}>
+                                                        {selectedTask.is_overdue ? '⚠️ DEADLINE TERLEWAT' : '⏰ DEADLINE'}
+                                                    </Label>
                                                 </div>
-                                                <Label className={`text-xs font-semibold ${selectedTask.is_overdue ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                                    Deadline
-                                                </Label>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <p className="font-bold text-gray-900 dark:text-white">{selectedTask.deadline_formatted}</p>
-                                                {selectedTask.days_remaining !== null && !selectedTask.is_overdue && (
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.1, 1] }}
-                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                <div className="flex items-center justify-between">
+                                                    <motion.p 
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.4 }}
+                                                        className="font-extrabold text-xl text-gray-900 dark:text-white"
                                                     >
-                                                        <Badge variant="outline" className="text-xs border-amber-500 bg-amber-100 dark:bg-amber-900/30">
-                                                            {selectedTask.days_remaining} hari lagi
-                                                        </Badge>
-                                                    </motion.div>
-                                                )}
-                                                {selectedTask.is_overdue && (
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.1, 1] }}
-                                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                                    >
-                                                        <Badge variant="destructive" className="text-xs">
-                                                            <AlertTriangle className="h-3 w-3 mr-1" />
-                                                            Terlambat
-                                                        </Badge>
-                                                    </motion.div>
-                                                )}
+                                                        {selectedTask.deadline_formatted}
+                                                    </motion.p>
+                                                    {selectedTask.days_remaining !== null && !selectedTask.is_overdue && (
+                                                        <motion.div
+                                                            animate={{ scale: [1, 1.15, 1] }}
+                                                            transition={{ duration: 2, repeat: Infinity }}
+                                                        >
+                                                            <Badge variant="outline" className="text-sm border-2 border-amber-600 bg-amber-100 dark:bg-amber-900/40 px-3 py-1 font-bold">
+                                                                {selectedTask.days_remaining} hari lagi
+                                                            </Badge>
+                                                        </motion.div>
+                                                    )}
+                                                    {selectedTask.is_overdue && (
+                                                        <motion.div
+                                                            animate={{ scale: [1, 1.15, 1] }}
+                                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                                        >
+                                                            <Badge variant="destructive" className="text-sm px-3 py-1 font-bold shadow-lg">
+                                                                <AlertTriangle className="h-4 w-4 mr-1" />
+                                                                Terlambat
+                                                            </Badge>
+                                                        </motion.div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     )}
                                     
-                                    {/* Status Card */}
+                                    {/* Ultra Enhanced Status Card with Glow Effect */}
                                     <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        whileHover={{ scale: 1.01 }}
-                                        className={`p-4 rounded-xl border-2 ${
+                                        initial={{ opacity: 0, y: 30, rotateX: -15 }}
+                                        animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                                        transition={{ delay: 0.4, type: "spring", stiffness: 100 }}
+                                        whileHover={{ scale: 1.02, y: -3 }}
+                                        className={`relative p-6 rounded-2xl border-3 overflow-hidden ${
                                             selectedTask.status === 'completed'
-                                                ? 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border-emerald-300 dark:border-emerald-800'
+                                                ? 'bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-100 dark:from-emerald-950/40 dark:to-green-950/40 border-emerald-400 dark:border-emerald-700'
                                                 : selectedTask.status === 'in_progress'
-                                                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-300 dark:border-blue-800'
-                                                    : 'bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-slate-950/30 border-gray-300 dark:border-gray-800'
+                                                    ? 'bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-950/40 dark:to-indigo-950/40 border-blue-400 dark:border-blue-700'
+                                                    : 'bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 dark:from-gray-950/40 dark:to-slate-950/40 border-gray-400 dark:border-gray-700'
                                         }`}
+                                        style={{ transformStyle: 'preserve-3d' }}
                                     >
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className={`p-2 rounded-lg ${
-                                                selectedTask.status === 'completed' ? 'bg-emerald-500' :
-                                                selectedTask.status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-500'
-                                            }`}>
-                                                <Target className="h-4 w-4 text-white" />
+                                        {/* Glow Effect */}
+                                        <motion.div
+                                            animate={{
+                                                opacity: [0.3, 0.6, 0.3],
+                                                scale: [1, 1.2, 1],
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                            }}
+                                            className={`absolute inset-0 blur-2xl ${
+                                                selectedTask.status === 'completed' ? 'bg-emerald-400/20' :
+                                                selectedTask.status === 'in_progress' ? 'bg-blue-400/20' : 'bg-gray-400/20'
+                                            }`}
+                                        />
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <motion.div 
+                                                    whileHover={{ scale: 1.2, rotate: 360 }}
+                                                    transition={{ duration: 0.6 }}
+                                                    className={`p-3 rounded-xl shadow-xl ${
+                                                        selectedTask.status === 'completed' ? 'bg-gradient-to-br from-emerald-500 to-green-600' :
+                                                        selectedTask.status === 'in_progress' ? 'bg-gradient-to-br from-blue-500 to-indigo-600' : 'bg-gradient-to-br from-gray-500 to-slate-600'
+                                                    }`}
+                                                >
+                                                    <Target className="h-5 w-5 text-white" />
+                                                </motion.div>
+                                                <Label className="text-sm font-bold tracking-wide text-gray-700 dark:text-gray-300">STATUS TUGAS</Label>
                                             </div>
-                                            <Label className="text-xs font-semibold text-gray-600 dark:text-gray-400">Status</Label>
-                                        </div>
-                                        <div className="mt-1">
-                                            {selectedTask.status === 'completed' ? (
-                                                <Badge className="bg-emerald-500">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
-                                                </Badge>
-                                            ) : selectedTask.status === 'in_progress' ? (
-                                                <Badge className="bg-blue-500">
-                                                    <Clock className="h-3 w-3 mr-1" /> In Progress
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="secondary">
-                                                    <Clock className="h-3 w-3 mr-1" /> Pending
-                                                </Badge>
-                                            )}
+                                            <motion.div 
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: 0.5 }}
+                                                className="mt-2"
+                                            >
+                                                {selectedTask.status === 'completed' ? (
+                                                    <Badge className="bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm px-4 py-2 shadow-lg">
+                                                        <CheckCircle2 className="h-4 w-4 mr-2" /> Selesai Dikerjakan
+                                                    </Badge>
+                                                ) : selectedTask.status === 'in_progress' ? (
+                                                    <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-4 py-2 shadow-lg">
+                                                        <Clock className="h-4 w-4 mr-2" /> Sedang Dikerjakan
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="secondary" className="text-sm px-4 py-2 shadow-lg">
+                                                        <Clock className="h-4 w-4 mr-2" /> Belum Dikerjakan
+                                                    </Badge>
+                                                )}
+                                            </motion.div>
                                         </div>
                                     </motion.div>
                                     
-                                    {/* Description Card */}
+                                    {/* Ultra Enhanced Description Card */}
                                     {selectedTask.description && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
-                                            whileHover={{ scale: 1.01 }}
-                                            className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border border-violet-200 dark:border-violet-800"
+                                            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                                            whileHover={{ scale: 1.01, boxShadow: "0 20px 40px rgba(139, 92, 246, 0.2)" }}
+                                            className="relative p-6 rounded-2xl bg-gradient-to-br from-violet-50 via-purple-50 to-violet-100 dark:from-violet-950/40 dark:to-purple-950/40 border-2 border-violet-300 dark:border-violet-700 overflow-hidden"
                                         >
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <div className="p-2 bg-violet-500 rounded-lg">
-                                                    <FileText className="h-4 w-4 text-white" />
+                                            {/* Animated Shine Effect */}
+                                            <motion.div
+                                                animate={{
+                                                    x: ['-100%', '200%'],
+                                                    opacity: [0, 0.5, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    repeatDelay: 2,
+                                                }}
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                            />
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <motion.div 
+                                                        whileHover={{ scale: 1.2, rotate: 360 }}
+                                                        transition={{ duration: 0.6 }}
+                                                        className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl shadow-xl"
+                                                    >
+                                                        <FileText className="h-5 w-5 text-white" />
+                                                    </motion.div>
+                                                    <Label className="text-sm text-violet-700 dark:text-violet-300 font-bold tracking-wide">DESKRIPSI TUGAS</Label>
                                                 </div>
-                                                <Label className="text-xs text-violet-600 dark:text-violet-400 font-semibold">Deskripsi</Label>
+                                                <motion.p 
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ delay: 0.6 }}
+                                                    className="text-base text-gray-800 dark:text-gray-200 leading-relaxed font-medium"
+                                                >
+                                                    {selectedTask.description}
+                                                </motion.p>
                                             </div>
-                                            <p className="mt-1 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{selectedTask.description}</p>
                                         </motion.div>
                                     )}
                                     
-                                    {/* Tags */}
+                                    {/* Ultra Enhanced Tags Card */}
                                     {selectedTask.tags && selectedTask.tags.length > 0 && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
+                                            initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.6 }}
-                                            className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 border border-pink-200 dark:border-pink-800"
+                                            transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
+                                            className="relative p-6 rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 dark:from-pink-950/40 dark:to-rose-950/40 border-2 border-pink-300 dark:border-pink-700 overflow-hidden"
                                         >
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <div className="p-2 bg-pink-500 rounded-lg">
-                                                    <Tag className="h-4 w-4 text-white" />
-                                                </div>
-                                                <Label className="text-xs text-pink-600 dark:text-pink-400 font-semibold">Tags</Label>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {selectedTask.tags.map((tag: string, idx: number) => (
-                                                    <motion.div
-                                                        key={idx}
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
-                                                        transition={{ delay: 0.7 + idx * 0.1, type: "spring" }}
-                                                        whileHover={{ scale: 1.1, y: -2 }}
+                                            <motion.div
+                                                animate={{
+                                                    rotate: [0, 360],
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.1, 0.2, 0.1],
+                                                }}
+                                                transition={{
+                                                    duration: 20,
+                                                    repeat: Infinity,
+                                                }}
+                                                className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-pink-400/20 to-rose-400/20 rounded-full blur-3xl"
+                                            />
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <motion.div 
+                                                        whileHover={{ scale: 1.2, rotate: 360 }}
+                                                        transition={{ duration: 0.6 }}
+                                                        className="p-3 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-xl"
                                                     >
-                                                        <Badge variant="outline" className="border-pink-300 bg-white dark:bg-pink-900/20">
-                                                            <Tag className="h-3 w-3 mr-1" />
-                                                            {tag}
-                                                        </Badge>
+                                                        <Tag className="h-5 w-5 text-white" />
                                                     </motion.div>
-                                                ))}
+                                                    <Label className="text-sm text-pink-700 dark:text-pink-300 font-bold tracking-wide">TAGS</Label>
+                                                </div>
+                                                <div className="flex flex-wrap gap-3">
+                                                    {selectedTask.tags.map((tag: string, idx: number) => (
+                                                        <motion.div
+                                                            key={idx}
+                                                            initial={{ scale: 0, rotate: -180 }}
+                                                            animate={{ scale: 1, rotate: 0 }}
+                                                            transition={{ delay: 0.7 + idx * 0.1, type: "spring", stiffness: 200 }}
+                                                            whileHover={{ scale: 1.15, y: -3, rotate: 5 }}
+                                                        >
+                                                            <Badge variant="outline" className="border-2 border-pink-400 bg-white dark:bg-pink-900/30 px-4 py-2 text-sm font-bold shadow-lg">
+                                                                <Tag className="h-3 w-3 mr-2" />
+                                                                {tag}
+                                                            </Badge>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     )}
                                     
-                                    {/* Attachments */}
+                                    {/* Ultra Enhanced Attachments Card */}
                                     {selectedTask.attachments && selectedTask.attachments.length > 0 && (
                                         <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
+                                            initial={{ opacity: 0, y: 30 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.7 }}
-                                            className="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:to-blue-950/30 border border-indigo-200 dark:border-indigo-800"
+                                            transition={{ delay: 0.7, type: "spring", stiffness: 100 }}
+                                            className="relative p-6 rounded-2xl bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 dark:from-indigo-950/40 dark:to-blue-950/40 border-2 border-indigo-300 dark:border-indigo-700 overflow-hidden"
                                         >
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <div className="p-2 bg-indigo-500 rounded-lg">
-                                                    <Paperclip className="h-4 w-4 text-white" />
-                                                </div>
-                                                <Label className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold">Lampiran</Label>
-                                            </div>
-                                            <div className="space-y-2">
-                                                {selectedTask.attachments.map((file: any, idx: number) => (
-                                                    <motion.div
-                                                        key={idx}
-                                                        initial={{ opacity: 0, x: -20 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.8 + idx * 0.1 }}
-                                                        whileHover={{ scale: 1.02, x: 5 }}
-                                                        className="flex items-center gap-3 p-3 bg-white dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg cursor-pointer"
+                                            <motion.div
+                                                animate={{
+                                                    x: ['-50%', '150%'],
+                                                    opacity: [0, 0.3, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 4,
+                                                    repeat: Infinity,
+                                                    repeatDelay: 1,
+                                                }}
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-300/30 to-transparent"
+                                            />
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <motion.div 
+                                                        whileHover={{ scale: 1.2, rotate: 360 }}
+                                                        transition={{ duration: 0.6 }}
+                                                        className="p-3 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl shadow-xl"
                                                     >
-                                                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
-                                                            <Paperclip className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                                                        </div>
-                                                        <span className="text-sm flex-1 font-medium">{file.name}</span>
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {(file.size / 1024).toFixed(2)} KB
-                                                        </Badge>
+                                                        <Paperclip className="h-5 w-5 text-white" />
                                                     </motion.div>
-                                                ))}
+                                                    <Label className="text-sm text-indigo-700 dark:text-indigo-300 font-bold tracking-wide">LAMPIRAN</Label>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {selectedTask.attachments.map((file: any, idx: number) => (
+                                                        <motion.div
+                                                            key={idx}
+                                                            initial={{ opacity: 0, x: -30 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: 0.8 + idx * 0.1, type: "spring" }}
+                                                            whileHover={{ scale: 1.03, x: 8, boxShadow: "0 10px 30px rgba(79, 70, 229, 0.3)" }}
+                                                            className="flex items-center gap-4 p-4 bg-white dark:bg-indigo-900/30 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl cursor-pointer"
+                                                        >
+                                                            <motion.div 
+                                                                whileHover={{ rotate: 360 }}
+                                                                transition={{ duration: 0.5 }}
+                                                                className="p-3 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/50 dark:to-blue-900/50 rounded-xl"
+                                                            >
+                                                                <Paperclip className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                                            </motion.div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-bold truncate text-gray-900 dark:text-white">{file.name}</p>
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                    {(file.size / 1024).toFixed(2)} KB
+                                                                </p>
+                                                            </div>
+                                                            <Badge variant="outline" className="text-xs font-bold border-indigo-400">
+                                                                <Download className="h-3 w-3 mr-1" />
+                                                                Download
+                                                            </Badge>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </motion.div>
                                     )}
                                     
-                                    {/* Footer Info */}
+                                    {/* Ultra Enhanced Footer Info */}
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.9 }}
-                                        className="pt-4 border-t border-gray-200 dark:border-gray-700"
+                                        className="pt-6 border-t-2 border-gray-200 dark:border-gray-700"
                                     >
-                                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="h-3 w-3" />
-                                                <span>Dibuat: {new Date(selectedTask.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                                            </div>
-                                            {selectedTask.completed_at && (
-                                                <div className="flex items-center gap-2">
-                                                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                                                    <span>Selesai: {new Date(selectedTask.completed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                                        <div className="flex items-center justify-between text-sm">
+                                            <motion.div 
+                                                whileHover={{ scale: 1.05, x: 5 }}
+                                                className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800"
+                                            >
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                                >
+                                                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                </motion.div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Dibuat</p>
+                                                    <p className="font-bold text-gray-700 dark:text-gray-300">{new Date(selectedTask.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                                                 </div>
+                                            </motion.div>
+                                            {selectedTask.completed_at && (
+                                                <motion.div 
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ type: "spring", stiffness: 200 }}
+                                                    whileHover={{ scale: 1.05, x: -5 }}
+                                                    className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800"
+                                                >
+                                                    <motion.div
+                                                        animate={{ scale: [1, 1.2, 1] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                    >
+                                                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                                    </motion.div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Selesai</p>
+                                                        <p className="font-bold text-gray-700 dark:text-gray-300">{new Date(selectedTask.completed_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                                    </div>
+                                                </motion.div>
                                             )}
                                         </div>
                                     </motion.div>
                                 </div>
                                 
-                                {/* Dialog Footer */}
-                                <DialogFooter className="p-6 border-t">
-                                    <Button variant="outline" onClick={() => setShowTaskDetail(false)}>
-                                        Tutup
-                                    </Button>
-                                    <Button onClick={() => {
-                                        if (selectedTask) {
-                                            handleDuplicateTask(selectedTask);
-                                            setShowTaskDetail(false);
-                                        }
-                                    }}>
-                                        <Copy className="h-4 w-4 mr-2" />
-                                        Duplikat
-                                    </Button>
-                                </DialogFooter>
+                                {/* Ultra Enhanced Dialog Footer */}
+                                <motion.div
+                                    initial={{ y: 50, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1, type: "spring", stiffness: 100 }}
+                                    className="p-6 border-t-2 border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-950"
+                                >
+                                    <DialogFooter className="gap-3">
+                                        <motion.div
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <Button 
+                                                variant="outline" 
+                                                onClick={() => setShowTaskDetail(false)}
+                                                className="px-6 py-3 text-base font-bold border-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                            >
+                                                <X className="h-5 w-5 mr-2" />
+                                                Tutup
+                                            </Button>
+                                        </motion.div>
+                                        <motion.div
+                                            whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(139, 92, 246, 0.4)" }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <Button 
+                                                onClick={() => {
+                                                    if (selectedTask) {
+                                                        handleDuplicateTask(selectedTask);
+                                                        setShowTaskDetail(false);
+                                                    }
+                                                }}
+                                                className="px-6 py-3 text-base font-bold bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 shadow-lg"
+                                            >
+                                                <Copy className="h-5 w-5 mr-2" />
+                                                Duplikat Tugas
+                                            </Button>
+                                        </motion.div>
+                                    </DialogFooter>
+                                </motion.div>
                             </div>
                             </>
                         )}
