@@ -569,106 +569,303 @@ export default function UserAbsensi() {
                     )}
                 </AnimatePresence>
 
-                {/* Header Card */}
+                {/* Header Card - ULTRA ADVANCED with Student Theme */}
                 <motion.div
                     variants={cardVariants}
-                    whileHover={{ scale: 1.01 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 p-6 text-white shadow-2xl"
+                    whileHover={{ scale: 1.01, rotateY: 1 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
+                    {/* Ultra Advanced Animated Background Orbs */}
                     <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
                     />
                     <motion.div
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
-                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
                     />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.3, 1],
+                            rotate: [0, -90, 0],
+                            opacity: [0.08, 0.12, 0.08],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 2,
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
+                    />
+
+                    {/* 25 Floating Particles */}
+                    {[...Array(25)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0, y: 0 }}
+                            animate={{
+                                opacity: [0, 0.8, 1, 0.6, 0],
+                                scale: [0, 1.8, 1.2, 0.8, 0],
+                                y: [0, -50, -100, -150, -200],
+                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
+                                rotate: [0, 180, 360, 540, 720],
+                            }}
+                            transition={{
+                                duration: 5 + Math.random() * 3,
+                                repeat: Infinity,
+                                delay: i * 0.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute rounded-full shadow-lg"
+                            style={{
+                                width: `${3 + Math.random() * 10}px`,
+                                height: `${3 + Math.random() * 10}px`,
+                                left: `${10 + (i * 3) % 80}%`,
+                                top: `${20 + (i % 4) * 20}%`,
+                                background: i % 3 === 0
+                                    ? 'rgba(255, 255, 255, 0.6)'
+                                    : i % 3 === 1
+                                        ? 'rgba(6, 182, 212, 0.5)'
+                                        : 'rgba(59, 130, 246, 0.5)',
+                                filter: 'blur(1px)',
+                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
+                            }}
+                        />
+                    ))}
+
+                    {/* Floating Icons */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            x: [0, 10, 0],
+                            rotate: [0, 5, -5, 0],
+                            opacity: [0.3, 0.5, 0.3],
+                        }}
+                        transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute top-10 right-20 text-white/20"
+                    >
+                        <QrCode className="h-16 w-16" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 20, 0],
+                            x: [0, -15, 0],
+                            rotate: [0, -10, 10, 0],
+                            opacity: [0.2, 0.4, 0.2],
+                        }}
+                        transition={{
+                            duration: 7,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1,
+                        }}
+                        className="absolute bottom-10 left-20 text-white/20"
+                    >
+                        <Camera className="h-20 w-20" />
+                    </motion.div>
+
+                    {/* Animated Rings */}
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            animate={{
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 1.3,
+                                ease: "easeOut"
+                            }}
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
                     
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-5">
                                 <motion.div
-                                    whileHover={{ rotate: 10, scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
+                                    whileHover={{
+                                        scale: 1.2,
+                                        rotate: [0, -8, 8, 0],
+                                        boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    }}
+                                    whileTap={{ scale: 0.92 }}
+                                    transition={{ type: "spring", stiffness: 350, damping: 15 }}
+                                    className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
                                 >
-                                    <User className="h-8 w-8" />
+                                    {/* Glow effect */}
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.5, 0.8, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                    />
+                                    <User className="h-10 w-10 relative z-10" />
                                 </motion.div>
                                 <div>
                                     <motion.p
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="text-sm text-emerald-100"
+                                        transition={{ delay: 0.2, type: "spring" }}
+                                        className="text-sm text-cyan-100 font-semibold tracking-wide"
                                     >
                                         Selamat datang,
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="text-2xl font-bold"
+                                        initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
+                                        className="text-3xl font-extrabold tracking-tight"
                                     >
                                         {mahasiswa.nama}
                                     </motion.h1>
-                                    <motion.p
+                                    <motion.div
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        className="text-sm text-emerald-100"
+                                        transition={{ delay: 0.4, type: "spring" }}
+                                        className="flex items-center gap-2 mt-1"
                                     >
-                                        NIM: {mahasiswa.nim}
-                                    </motion.p>
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.7, 1, 0.7],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                            className="h-2 w-2 rounded-full bg-cyan-300"
+                                        />
+                                        <p className="text-sm text-cyan-100 font-mono">
+                                            NIM: {mahasiswa.nim}
+                                        </p>
+                                    </motion.div>
                                 </div>
                             </div>
+                            
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.5, type: 'spring' }}
-                                whileHover={{ scale: 1.05 }}
-                                className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 backdrop-blur shadow-lg"
+                                whileHover={{ scale: 1.08, y: -2 }}
+                                className="relative flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl shadow-xl ring-2 ring-white/40"
                             >
-                                <MapPin className="h-4 w-4" />
-                                <span className="text-sm font-semibold">Radius {geofence.radius_m}m</span>
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.15, 1],
+                                        rotate: [0, 10, -10, 0],
+                                    }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                    }}
+                                >
+                                    <MapPin className="h-5 w-5" />
+                                </motion.div>
+                                <span className="text-sm font-bold">Radius {geofence.radius_m}m</span>
+                                {/* Pulse effect */}
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.5, 1],
+                                        opacity: [0.5, 0, 0.5],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                    }}
+                                    className="absolute inset-0 rounded-full bg-cyan-300/30"
+                                />
                             </motion.div>
                         </div>
 
-                        {/* Progress Bar */}
+                        {/* Progress Bar - Enhanced */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
                             className="mt-6"
                         >
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm text-emerald-100">Progress Absensi</span>
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-sm text-cyan-100 font-semibold">Progress Absensi</span>
                                 <motion.span
                                     key={progressPercent}
-                                    initial={{ scale: 1.3, opacity: 0 }}
+                                    initial={{ scale: 1.5, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
-                                    className="text-sm font-bold"
+                                    className="text-base font-extrabold"
                                 >
                                     {Math.round(progressPercent)}%
                                 </motion.span>
                             </div>
-                            <div className="relative h-3 rounded-full bg-white/20 overflow-hidden">
+                            <div className="relative h-4 rounded-full bg-white/20 overflow-hidden backdrop-blur">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${progressPercent}%` }}
-                                    transition={{ duration: 0.8, ease: "easeOut", delay: 0.7 }}
-                                    className="h-full rounded-full bg-white shadow-lg"
-                                />
+                                    transition={{ duration: 1, ease: "easeOut", delay: 0.7 }}
+                                    className="h-full rounded-full bg-gradient-to-r from-white via-cyan-200 to-white shadow-lg relative overflow-hidden"
+                                >
+                                    {/* Shimmer effect */}
+                                    <motion.div
+                                        animate={{
+                                            x: ['-100%', '200%'],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "linear",
+                                        }}
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                                    />
+                                </motion.div>
                             </div>
                         </motion.div>
                     </div>
                 </motion.div>
 
-                {/* Step Indicator */}
+                {/* Step Indicator - Enhanced */}
                 <motion.div
                     variants={cardVariants}
-                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black"
+                    whileHover={{ scale: 1.005, y: -2 }}
+                    className="rounded-2xl border border-cyan-200 bg-gradient-to-br from-white to-cyan-50/30 p-6 shadow-lg backdrop-blur dark:border-cyan-800 dark:from-black dark:to-cyan-950/20"
                 >
                     <StepIndicator steps={flowSteps} currentStep={currentStep} />
                 </motion.div>
@@ -722,105 +919,164 @@ export default function UserAbsensi() {
                 </motion.div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    {/* Step 1: QR Scanner */}
+                    {/* Step 1: QR Scanner - ULTRA ENHANCED */}
                     <motion.div
                         variants={cardVariants}
-                        whileHover={!step1Locked ? { scale: 1.01, y: -2 } : {}}
+                        whileHover={!step1Locked ? { scale: 1.01, y: -3, boxShadow: "0 20px 25px -5px rgba(6, 182, 212, 0.3)" } : {}}
                         className={cn(
-                            'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
+                            'rounded-2xl border border-cyan-200 bg-gradient-to-br from-white to-cyan-50/20 p-6 shadow-lg backdrop-blur transition-all dark:border-cyan-800 dark:from-black dark:to-cyan-950/10 relative overflow-hidden',
                             step1Locked && 'opacity-60 pointer-events-none'
                         )}
                     >
-                        <div className="flex items-start justify-between gap-3 mb-4">
+                        {/* Animated background gradient */}
+                        <motion.div
+                            animate={{
+                                opacity: [0, 0.05, 0],
+                                scale: [1, 1.2, 1],
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10"
+                        />
+
+                        <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
                             <div className="flex items-center gap-3">
                                 <motion.div
-                                    whileHover={{ rotate: 10, scale: 1.1 }}
+                                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
+                                    transition={{ duration: 0.5 }}
                                     className={cn(
-                                        'flex h-12 w-12 items-center justify-center rounded-xl shadow-sm',
-                                        tokenDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'
+                                        'flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg relative',
+                                        tokenDone ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : 'bg-gradient-to-br from-cyan-400 to-blue-600 text-white'
                                     )}
                                 >
-                                    <QrCode className="h-6 w-6" />
+                                    {/* Glow effect */}
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.3, 1],
+                                            opacity: [0.5, 0, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className={cn(
+                                            "absolute inset-0 rounded-2xl blur-lg",
+                                            tokenDone ? "bg-emerald-400/50" : "bg-cyan-400/50"
+                                        )}
+                                    />
+                                    <QrCode className="h-7 w-7 relative z-10" />
                                 </motion.div>
                                 <div>
-                                    <h2 className="font-semibold text-gray-900 dark:text-white">Scan QR Code</h2>
+                                    <h2 className="font-bold text-gray-900 dark:text-white text-lg">Scan QR Code</h2>
                                     <p className="text-sm text-gray-500">Scan QR dari admin atau input token manual</p>
                                 </div>
                             </div>
                             <AnimatePresence>
                                 {tokenDone && (
                                     <motion.span
-                                        initial={{ scale: 0, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        exit={{ scale: 0, opacity: 0 }}
+                                        initial={{ scale: 0, opacity: 0, rotate: -180 }}
+                                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                        exit={{ scale: 0, opacity: 0, rotate: 180 }}
                                         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                                        className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        className="flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
                                     >
-                                        <CheckCircle2 className="h-3 w-3" /> Selesai
+                                        <CheckCircle2 className="h-4 w-4" /> Selesai
                                     </motion.span>
                                 )}
                             </AnimatePresence>
                         </div>
 
-                        {/* QR Scanner */}
+                        {/* QR Scanner - Enhanced */}
                         <motion.div
                             whileHover={{ scale: 1.01 }}
-                            className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900"
+                            className="relative overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-gray-50 to-cyan-50/30 dark:border-cyan-800 dark:from-gray-900 dark:to-cyan-950/20 shadow-lg"
                         >
-                            <video ref={videoRef} className={cn('h-56 w-full object-cover', !scanning && 'hidden')} playsInline />
+                            <video ref={videoRef} className={cn('h-64 w-full object-cover rounded-2xl', !scanning && 'hidden')} playsInline />
                             <AnimatePresence mode="wait">
                                 {!scanning && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="flex h-56 flex-col items-center justify-center text-gray-400"
+                                        className="flex h-64 flex-col items-center justify-center text-gray-400 relative"
                                     >
+                                        {/* Animated background */}
                                         <motion.div
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 2, repeat: Infinity }}
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.1, 0.2, 0.1],
+                                            }}
+                                            transition={{
+                                                duration: 3,
+                                                repeat: Infinity,
+                                            }}
+                                            className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-400/10"
+                                        />
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.15, 1],
+                                                rotate: [0, 5, -5, 0],
+                                            }}
+                                            transition={{ duration: 3, repeat: Infinity }}
+                                            className="relative z-10"
                                         >
-                                            <QrCode className="h-12 w-12 mb-2" />
+                                            <QrCode className="h-16 w-16 mb-3 text-cyan-500" />
                                         </motion.div>
-                                        <span className="text-sm">Klik tombol untuk scan QR</span>
+                                        <span className="text-sm font-medium relative z-10">Klik tombol untuk scan QR</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
                             {scanning && (
                                 <div className="absolute inset-0 pointer-events-none">
+                                    {/* Scanning frame */}
                                     <motion.div
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-40 w-40 border-2 border-emerald-500 rounded-lg"
+                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 border-4 border-cyan-500 rounded-2xl shadow-lg"
                                     >
+                                        {/* Corner accents */}
                                         <motion.div
                                             animate={{ opacity: [0.5, 1, 0.5] }}
                                             transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="absolute -top-0.5 -left-0.5 h-4 w-4 border-t-2 border-l-2 border-emerald-500"
+                                            className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-lg"
                                         />
                                         <motion.div
                                             animate={{ opacity: [0.5, 1, 0.5] }}
                                             transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                                            className="absolute -top-0.5 -right-0.5 h-4 w-4 border-t-2 border-r-2 border-emerald-500"
+                                            className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-lg"
                                         />
                                         <motion.div
                                             animate={{ opacity: [0.5, 1, 0.5] }}
                                             transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                                            className="absolute -bottom-0.5 -left-0.5 h-4 w-4 border-b-2 border-l-2 border-emerald-500"
+                                            className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-lg"
                                         />
                                         <motion.div
                                             animate={{ opacity: [0.5, 1, 0.5] }}
                                             transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
-                                            className="absolute -bottom-0.5 -right-0.5 h-4 w-4 border-b-2 border-r-2 border-emerald-500"
+                                            className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-cyan-400 rounded-br-lg"
+                                        />
+                                        {/* Scanning line */}
+                                        <motion.div
+                                            animate={{ y: ['-100%', '100%'] }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                ease: "linear"
+                                            }}
+                                            className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-lg"
                                         />
                                     </motion.div>
+                                    {/* Status badge */}
                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white shadow-lg"
+                                        initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-bold text-white shadow-xl"
                                     >
                                         <motion.span
-                                            animate={{ scale: [1, 1.2, 1] }}
+                                            animate={{ scale: [1, 1.3, 1] }}
                                             transition={{ duration: 1, repeat: Infinity }}
                                             className="h-2 w-2 rounded-full bg-white"
                                         />
