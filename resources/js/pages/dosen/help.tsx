@@ -26,6 +26,12 @@ import {
     ExternalLink,
     Sparkles,
     ArrowRight,
+    Star,
+    TrendingUp,
+    Video,
+    Target,
+    Rocket,
+    Eye,
 } from 'lucide-react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,14 +39,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import type { FAQCategory, TroubleshootingGuide, HelpFeedback } from '@/types/documentation';
 
 type ToastType = { type: 'success' | 'error'; message: string } | null;
 
 export default function DosenHelp() {
-    const { auth } = usePage().props as { auth: { user: { email: string } } };
-    const [faqCategories, setFaqCategories] = useState<FAQCategory[]>([]);
-    const [troubleshootingGuides, setTroubleshootingGuides] = useState<TroubleshootingGuide[]>([]);
+    const { auth } = usePage().props as any;
+    const [faqCategories, setFaqCategories] = useState<any[]>([]);
+    const [troubleshootingGuides, setTroubleshootingGuides] = useState<any[]>([]);
     const [contactInfo, setContactInfo] = useState<{
         email: string;
         phone?: string;
