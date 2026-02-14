@@ -132,17 +132,39 @@ export default function StudentDocs() {
             <StudentLayout>
                 <Head title="Documentation" />
                 <div className="space-y-6 p-6">
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800 to-black p-6 text-white shadow-lg">
-                        <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                        <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.2, 1],
+                                rotate: [0, 90, 0],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1.2, 1, 1.2],
+                                rotate: [0, -90, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                        />
                         <div className="relative">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
-                                    <Book className="h-8 w-8" />
+                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
+                                    <Book className="h-10 w-10" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-blue-100">Dokumentasi</p>
-                                    <h1 className="text-2xl font-bold">Loading...</h1>
+                                    <p className="text-sm text-white/90 font-medium">Dokumentasi</p>
+                                    <h1 className="text-3xl font-bold">Loading...</h1>
                                 </div>
                             </div>
                         </div>
@@ -159,25 +181,153 @@ export default function StudentDocs() {
 
             <div className="space-y-6 p-6">
                 {/* Header Card */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800 to-black p-6 text-white shadow-xl">
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                >
+                    {/* Animated Background Orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            rotate: [0, 90, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1.2, 1, 1.2],
+                            rotate: [0, -90, 0],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                    />
+
+                    {/* Floating Icons */}
+                    {[Book, FileText, GraduationCap, Award, Trophy].map((Icon, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ 
+                                opacity: [0.1, 0.3, 0.1],
+                                y: [0, -20, 0],
+                                x: [0, Math.sin(i) * 10, 0]
+                            }}
+                            transition={{
+                                duration: 3 + i,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                            }}
+                            className="absolute text-white/20"
+                            style={{
+                                left: `${15 + i * 18}%`,
+                                top: `${20 + (i % 2) * 40}%`,
+                            }}
+                        >
+                            <Icon className="h-8 w-8" />
+                        </motion.div>
+                    ))}
+
+                    {/* Large Floating Icons in Background */}
+                    <motion.div
+                        animate={{
+                            y: [0, -15, 0],
+                            rotateY: [0, 180, 360],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute right-12 top-1/2 -translate-y-1/2 text-white/10"
+                        style={{
+                            filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
+                        }}
+                    >
+                        <Book className="h-32 w-32" />
+                    </motion.div>
+                    <motion.div
+                        animate={{
+                            y: [0, 15, 0],
+                            rotateY: [360, 180, 0],
+                        }}
+                        transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute left-12 top-1/2 -translate-y-1/2 text-white/10"
+                        style={{
+                            filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
+                        }}
+                    >
+                        <GraduationCap className="h-28 w-28" />
+                    </motion.div>
                     
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
-                                    <Book className="h-8 w-8 text-white" />
-                                </div>
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -180 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            opacity: [0.5, 0.8, 0.5],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                        className="absolute inset-0 bg-white/30 rounded-2xl blur-xl"
+                                    />
+                                    <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
+                                        <Book className="h-10 w-10 text-white" />
+                                    </div>
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-blue-100">Dokumentasi</p>
-                                    <h1 className="text-2xl font-bold">Documentation Hub</h1>
-                                    <p className="text-sm text-blue-100">Learn everything about the platform</p>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-white/90 font-medium flex items-center gap-2"
+                                    >
+                                        <FileText className="h-4 w-4" />
+                                        Dokumentasi
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-4xl font-bold"
+                                    >
+                                        Documentation Hub
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-white/90 text-lg mt-1"
+                                    >
+                                        Learn everything about the platform
+                                    </motion.p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Stats Cards */}
                 <motion.div
