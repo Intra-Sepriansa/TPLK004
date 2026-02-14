@@ -488,282 +488,420 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     )}
                 </motion.div>
 
-                {/* Create Modal - Enhanced Design */}
+                {/* Create Modal - Ultra Advanced Black Design */}
                 <AnimatePresence>
                 {showCreateModal && (
                     <motion.div 
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        onClick={() => setShowCreateModal(false)}
                     >
+                        {/* Advanced Backdrop */}
                         <motion.div 
-                            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl dark:bg-slate-900 overflow-hidden"
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+                        
+                        <motion.div 
+                            className="relative w-full max-w-2xl"
+                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.8, y: 50, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Modal Header */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white">
-                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 animate-pulse" />
-                                <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-white/10" />
-                                <div className="relative flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <motion.div 
-                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
-                                            whileHover={{ scale: 1.2, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        >
-                                            <Plus className="h-6 w-6" />
-                                        </motion.div>
-                                        <div>
-                                            <h3 className="text-xl font-bold">Buat Sesi Absen Baru</h3>
-                                            <p className="text-sm text-gray-300">Isi form di bawah untuk membuat sesi baru</p>
-                                        </div>
-                                    </div>
-                                    <motion.button
-                                        onClick={() => setShowCreateModal(false)}
-                                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                                        whileHover={{ scale: 1.1, rotate: 90 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        <X className="h-5 w-5" />
-                                    </motion.button>
-                                </div>
-                            </div>
+                            {/* Glass Morphism Container */}
+                            <div className="relative overflow-hidden rounded-3xl bg-black/90 backdrop-blur-2xl border border-white/10 shadow-2xl">
+                                {/* Animated Background Gradient */}
+                                <motion.div
+                                    className="absolute inset-0 opacity-30"
+                                    animate={{
+                                        background: [
+                                            'radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+                                        ]
+                                    }}
+                                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                />
 
-                            {/* Modal Body */}
-                            <form onSubmit={handleCreate} className="p-6 space-y-5">
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
-                                    <select 
-                                        value={createForm.data.course_id} 
-                                        onChange={e => createForm.setData('course_id', e.target.value)} 
-                                        className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                        required
-                                    >
-                                        <option value="">Pilih Mata Kuliah</option>
-                                        {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
-                                    </select>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pertemuan Ke</label>
-                                        <input 
-                                            type="number" 
-                                            min="1" 
-                                            max="21" 
-                                            value={createForm.data.meeting_number} 
-                                            onChange={e => createForm.setData('meeting_number', parseInt(e.target.value))} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul (Opsional)</label>
-                                        <input 
-                                            type="text" 
-                                            value={createForm.data.title} 
-                                            onChange={e => createForm.setData('title', e.target.value)} 
-                                            placeholder="Materi pertemuan" 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mulai</label>
-                                        <input 
-                                            type="datetime-local" 
-                                            value={createForm.data.start_at} 
-                                            onChange={e => createForm.setData('start_at', e.target.value)} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selesai</label>
-                                        <input 
-                                            type="datetime-local" 
-                                            value={createForm.data.end_at} 
-                                            onChange={e => createForm.setData('end_at', e.target.value)} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4 border-2 border-blue-200 dark:border-blue-800">
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={createForm.data.auto_activate} 
-                                            onChange={e => createForm.setData('auto_activate', e.target.checked)} 
-                                            className="h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20" 
-                                        />
-                                        <div>
-                                            <span className="text-sm font-semibold text-slate-900 dark:text-white">Aktifkan langsung setelah dibuat</span>
-                                            <p className="text-xs text-slate-600 dark:text-slate-400">Sesi akan langsung aktif dan mahasiswa bisa absen</p>
+                                {/* Modal Header */}
+                                <div className="relative border-b border-white/10 p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <motion.div 
+                                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50"
+                                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                            >
+                                                <Plus className="h-7 w-7 text-white" />
+                                            </motion.div>
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-white">Buat Sesi Absen Baru</h3>
+                                                <p className="text-sm text-gray-400 mt-1">Isi form di bawah untuk membuat sesi baru</p>
+                                            </div>
                                         </div>
-                                    </label>
+                                        <motion.button
+                                            onClick={() => setShowCreateModal(false)}
+                                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                                            whileHover={{ scale: 1.1, rotate: 90 }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
+                                            <X className="h-5 w-5 text-gray-400" />
+                                        </motion.button>
+                                    </div>
                                 </div>
-                                
-                                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                    <motion.button 
-                                        type="button" 
-                                        onClick={() => setShowCreateModal(false)} 
-                                        className="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold transition-colors"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
+
+                                {/* Modal Body */}
+                                <form onSubmit={handleCreate} className="relative p-6 space-y-6">
+                                    {/* Mata Kuliah */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
                                     >
-                                        Batal
-                                    </motion.button>
-                                    <motion.button 
-                                        type="submit" 
-                                        disabled={createForm.processing} 
-                                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white hover:from-gray-800 hover:to-gray-900 text-sm font-semibold disabled:opacity-50 shadow-lg transition-all"
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        whileTap={{ scale: 0.98 }}
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Mata Kuliah</label>
+                                        <motion.select 
+                                            value={createForm.data.course_id} 
+                                            onChange={e => createForm.setData('course_id', e.target.value)} 
+                                            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                            required
+                                            whileFocus={{ scale: 1.01 }}
+                                        >
+                                            <option value="" className="bg-black">Pilih Mata Kuliah</option>
+                                            {courses.map(c => <option key={c.id} value={c.id} className="bg-black">{c.nama}</option>)}
+                                        </motion.select>
+                                    </motion.div>
+                                    
+                                    {/* Pertemuan & Judul */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Pertemuan Ke</label>
+                                            <motion.input 
+                                                type="number" 
+                                                min="1" 
+                                                max="21" 
+                                                value={createForm.data.meeting_number} 
+                                                onChange={e => createForm.setData('meeting_number', parseInt(e.target.value))} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Judul (Opsional)</label>
+                                            <motion.input 
+                                                type="text" 
+                                                value={createForm.data.title} 
+                                                onChange={e => createForm.setData('title', e.target.value)} 
+                                                placeholder="Materi pertemuan" 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300"
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                    </div>
+                                    
+                                    {/* Waktu */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Mulai</label>
+                                            <motion.input 
+                                                type="datetime-local" 
+                                                value={createForm.data.start_at} 
+                                                onChange={e => createForm.setData('start_at', e.target.value)} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Selesai</label>
+                                            <motion.input 
+                                                type="datetime-local" 
+                                                value={createForm.data.end_at} 
+                                                onChange={e => createForm.setData('end_at', e.target.value)} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                    </div>
+                                    
+                                    {/* Auto Activate */}
+                                    <motion.div 
+                                        className="rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-4 border border-indigo-500/20"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        whileHover={{ scale: 1.01 }}
                                     >
-                                        {createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}
-                                    </motion.button>
-                                </div>
-                            </form>
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <motion.input 
+                                                type="checkbox" 
+                                                checked={createForm.data.auto_activate} 
+                                                onChange={e => createForm.setData('auto_activate', e.target.checked)} 
+                                                className="h-5 w-5 rounded border-indigo-500/50 bg-white/5 text-indigo-600 focus:ring-2 focus:ring-indigo-500/50 transition-all" 
+                                                whileTap={{ scale: 0.9 }}
+                                            />
+                                            <div>
+                                                <span className="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors">Aktifkan langsung setelah dibuat</span>
+                                                <p className="text-xs text-gray-400">Sesi akan langsung aktif dan mahasiswa bisa absen</p>
+                                            </div>
+                                        </label>
+                                    </motion.div>
+                                    
+                                    {/* Action Buttons */}
+                                    <motion.div 
+                                        className="flex justify-end gap-3 pt-4 border-t border-white/10"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <motion.button 
+                                            type="button" 
+                                            onClick={() => setShowCreateModal(false)} 
+                                            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-sm font-semibold transition-all"
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Batal
+                                        </motion.button>
+                                        <motion.button 
+                                            type="submit" 
+                                            disabled={createForm.processing} 
+                                            className="relative px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold disabled:opacity-50 shadow-lg shadow-indigo-500/50 transition-all overflow-hidden group"
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                                                animate={{ x: ['-100%', '100%'] }}
+                                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                            />
+                                            <span className="relative">{createForm.processing ? 'Menyimpan...' : 'Buat Sesi'}</span>
+                                        </motion.button>
+                                    </motion.div>
+                                </form>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
                 </AnimatePresence>
 
-                {/* Edit Modal - Enhanced Design */}
+                {/* Edit Modal - Ultra Advanced Black Design */}
                 <AnimatePresence>
                 {showEditModal && editSession && (
                     <motion.div 
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        onClick={() => { setShowEditModal(false); setEditSession(null); }}
                     >
+                        {/* Advanced Backdrop */}
                         <motion.div 
-                            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl dark:bg-slate-900 overflow-hidden"
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+                        
+                        <motion.div 
+                            className="relative w-full max-w-2xl"
+                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.8, y: 50, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Modal Header */}
-                            <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white">
-                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 animate-pulse" />
-                                <div className="absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-white/10" />
-                                <div className="relative flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <motion.div 
-                                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
-                                            whileHover={{ scale: 1.2, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        >
-                                            <Edit className="h-6 w-6" />
-                                        </motion.div>
-                                        <div>
-                                            <h3 className="text-xl font-bold">Edit Sesi Absen</h3>
-                                            <p className="text-sm text-gray-300">Perbarui informasi sesi absensi</p>
-                                        </div>
-                                    </div>
-                                    <motion.button
-                                        onClick={() => { setShowEditModal(false); setEditSession(null); }}
-                                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                                        whileHover={{ scale: 1.1, rotate: 90 }}
-                                        whileTap={{ scale: 0.9 }}
-                                    >
-                                        <X className="h-5 w-5" />
-                                    </motion.button>
-                                </div>
-                            </div>
+                            {/* Glass Morphism Container */}
+                            <div className="relative overflow-hidden rounded-3xl bg-black/90 backdrop-blur-2xl border border-white/10 shadow-2xl">
+                                {/* Animated Background Gradient */}
+                                <motion.div
+                                    className="absolute inset-0 opacity-30"
+                                    animate={{
+                                        background: [
+                                            'radial-gradient(circle at 0% 0%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 100%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)',
+                                            'radial-gradient(circle at 0% 0%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)',
+                                        ]
+                                    }}
+                                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                                />
 
-                            {/* Modal Body */}
-                            <form onSubmit={handleUpdate} className="p-6 space-y-5">
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mata Kuliah</label>
-                                    <select 
-                                        value={editForm.data.course_id} 
-                                        onChange={e => editForm.setData('course_id', e.target.value)} 
-                                        className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                        required
+                                {/* Modal Header */}
+                                <div className="relative border-b border-white/10 p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <motion.div 
+                                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 shadow-lg shadow-pink-500/50"
+                                                whileHover={{ scale: 1.1, rotate: -5 }}
+                                                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                            >
+                                                <Edit className="h-7 w-7 text-white" />
+                                            </motion.div>
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-white">Edit Sesi Absen</h3>
+                                                <p className="text-sm text-gray-400 mt-1">Perbarui informasi sesi absensi</p>
+                                            </div>
+                                        </div>
+                                        <motion.button
+                                            onClick={() => { setShowEditModal(false); setEditSession(null); }}
+                                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                                            whileHover={{ scale: 1.1, rotate: 90 }}
+                                            whileTap={{ scale: 0.9 }}
+                                        >
+                                            <X className="h-5 w-5 text-gray-400" />
+                                        </motion.button>
+                                    </div>
+                                </div>
+
+                                {/* Modal Body */}
+                                <form onSubmit={handleUpdate} className="relative p-6 space-y-6">
+                                    {/* Mata Kuliah */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
                                     >
-                                        {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
-                                    </select>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Pertemuan Ke</label>
-                                        <input 
-                                            type="number" 
-                                            min="1" 
-                                            max="21" 
-                                            value={editForm.data.meeting_number} 
-                                            onChange={e => editForm.setData('meeting_number', parseInt(e.target.value))} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
+                                        <label className="block text-sm font-semibold text-gray-300 mb-2">Mata Kuliah</label>
+                                        <motion.select 
+                                            value={editForm.data.course_id} 
+                                            onChange={e => editForm.setData('course_id', e.target.value)} 
+                                            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                            required
+                                            whileFocus={{ scale: 1.01 }}
+                                        >
+                                            {courses.map(c => <option key={c.id} value={c.id} className="bg-black">{c.nama}</option>)}
+                                        </motion.select>
+                                    </motion.div>
+                                    
+                                    {/* Pertemuan & Judul */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Pertemuan Ke</label>
+                                            <motion.input 
+                                                type="number" 
+                                                min="1" 
+                                                max="21" 
+                                                value={editForm.data.meeting_number} 
+                                                onChange={e => editForm.setData('meeting_number', parseInt(e.target.value))} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Judul</label>
+                                            <motion.input 
+                                                type="text" 
+                                                value={editForm.data.title} 
+                                                onChange={e => editForm.setData('title', e.target.value)} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300"
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Judul</label>
-                                        <input 
-                                            type="text" 
-                                            value={editForm.data.title} 
-                                            onChange={e => editForm.setData('title', e.target.value)} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                        />
+                                    
+                                    {/* Waktu */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Mulai</label>
+                                            <motion.input 
+                                                type="datetime-local" 
+                                                value={editForm.data.start_at} 
+                                                onChange={e => editForm.setData('start_at', e.target.value)} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            <label className="block text-sm font-semibold text-gray-300 mb-2">Selesai</label>
+                                            <motion.input 
+                                                type="datetime-local" 
+                                                value={editForm.data.end_at} 
+                                                onChange={e => editForm.setData('end_at', e.target.value)} 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                                required
+                                                whileFocus={{ scale: 1.01 }}
+                                            />
+                                        </motion.div>
                                     </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Mulai</label>
-                                        <input 
-                                            type="datetime-local" 
-                                            value={editForm.data.start_at} 
-                                            onChange={e => editForm.setData('start_at', e.target.value)} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Selesai</label>
-                                        <input 
-                                            type="datetime-local" 
-                                            value={editForm.data.end_at} 
-                                            onChange={e => editForm.setData('end_at', e.target.value)} 
-                                            className="w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white transition-all" 
-                                            required 
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                    <motion.button 
-                                        type="button" 
-                                        onClick={() => { setShowEditModal(false); setEditSession(null); }} 
-                                        className="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-sm font-semibold transition-colors"
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
+                                    
+                                    {/* Action Buttons */}
+                                    <motion.div 
+                                        className="flex justify-end gap-3 pt-4 border-t border-white/10"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.4 }}
                                     >
-                                        Batal
-                                    </motion.button>
-                                    <motion.button 
-                                        type="submit" 
-                                        disabled={editForm.processing} 
-                                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-gray-900 via-black to-gray-800 text-white hover:from-gray-800 hover:to-gray-900 text-sm font-semibold disabled:opacity-50 shadow-lg transition-all"
-                                        whileHover={{ scale: 1.02, y: -2 }}
-                                        whileTap={{ scale: 0.98 }}
-                                    >
-                                        {editForm.processing ? 'Menyimpan...' : 'Simpan'}
-                                    </motion.button>
-                                </div>
-                            </form>
+                                        <motion.button 
+                                            type="button" 
+                                            onClick={() => { setShowEditModal(false); setEditSession(null); }} 
+                                            className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-sm font-semibold transition-all"
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Batal
+                                        </motion.button>
+                                        <motion.button 
+                                            type="submit" 
+                                            disabled={editForm.processing} 
+                                            className="relative px-6 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-sm font-semibold disabled:opacity-50 shadow-lg shadow-pink-500/50 transition-all overflow-hidden group"
+                                            whileHover={{ scale: 1.05, y: -2 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                                                animate={{ x: ['-100%', '100%'] }}
+                                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                            />
+                                            <span className="relative">{editForm.processing ? 'Menyimpan...' : 'Simpan'}</span>
+                                        </motion.button>
+                                    </motion.div>
+                                </form>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
