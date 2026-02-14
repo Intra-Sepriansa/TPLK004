@@ -180,10 +180,13 @@ export default function DashboardOverview({
             animate="visible"
             variants={containerVariants}
         >
-            {/* Hero Header with Gradient */}
+            {/* Hero Header with Gradient - Diagonal Shape */}
             <motion.div 
-                className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                className="relative overflow-hidden p-8 text-white shadow-2xl"
                 variants={itemVariants}
+                style={{
+                    clipPath: 'polygon(0 0, calc(100% - 60px) 0, 100% 60px, 100% 100%, 60px 100%, 0 calc(100% - 60px))'
+                }}
             >
                 {/* Animated Gradient Background */}
                 <motion.div
