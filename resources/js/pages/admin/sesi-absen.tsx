@@ -170,29 +170,27 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
         <AppLayout>
             <Head title="Sesi Absen" />
             <div className="p-6 space-y-6">
-                {/* Header - Black Background with Dock Animations */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-6 text-white shadow-xl">
-                    {/* Animated Background Orbs */}
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 animate-pulse" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
-                    <div className="absolute top-1/2 right-1/4 h-20 w-20 rounded-full bg-white/5 animate-bounce" style={{ animationDuration: '3s' }} />
+                {/* Header - Animated Gradient like Dashboard */}
+                <div className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl">
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
                     
-                    {/* Floating Icons with Pulse Animation */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        {[Calendar, Users, Clock].map((Icon, i) => (
-                            <Icon 
-                                key={i}
-                                className="absolute text-white/20 animate-pulse"
-                                style={{
-                                    left: `${15 + i * 25}%`,
-                                    top: `${20 + (i % 2) * 40}%`,
-                                    animationDelay: `${i * 0.5}s`,
-                                    animationDuration: '2s'
-                                }}
-                                size={24}
-                            />
-                        ))}
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
