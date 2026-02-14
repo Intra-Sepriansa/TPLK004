@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AnimatedCurrencyShimmer } from '@/components/ui/animated-currency';
 
 interface Props {
     votings: Array<{
@@ -514,12 +513,9 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                     {/* Title & Amount */}
                                                     <h4 className="font-bold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-emerald-600 transition-colors">{voting.title}</h4>
                                                 <div className="mb-2">
-                                                    <AnimatedCurrencyShimmer
-                                                        value={voting.amount}
-                                                        duration={2000}
-                                                        className="text-2xl"
-                                                        gradient="from-emerald-600 via-teal-500 to-cyan-600"
-                                                    />
+                                                    <p className="text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
+                                                        {formatCurrency(voting.amount)}
+                                                    </p>
                                                 </div>
                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">{voting.description}</p>
 
@@ -1097,12 +1093,9 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                             transition={{ delay: 0.2 }}
                                             className="mb-4"
                                         >
-                                            <AnimatedCurrencyShimmer
-                                                value={selectedVoting.amount}
-                                                duration={2500}
-                                                className="text-3xl"
-                                                gradient="from-emerald-600 via-teal-500 to-cyan-600"
-                                            />
+                                            <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
+                                                {formatCurrency(selectedVoting.amount)}
+                                            </p>
                                         </motion.div>
 
                                         <motion.div
