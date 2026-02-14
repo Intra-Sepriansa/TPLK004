@@ -83,6 +83,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     const [showPermissionRequest, setShowPermissionRequest] = useState(false);
     const [permissionReason, setPermissionReason] = useState('');
     const [isDetailRevealed, setIsDetailRevealed] = useState(false);
+    const [showDetailPanel, setShowDetailPanel] = useState(false);
 
     const handleFilter = (status: string) => {
         setFilter(status);
@@ -354,20 +355,12 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         <button 
                                             onClick={() => {
                                                 setSelectedDetail(item);
-                                                if (item.has_approved_request) {
-                                                    // If already approved, go directly to detail modal
-                                                    setIsDetailRevealed(true);
-                                                    setShowPermissionRequest(false);
-                                                } else {
-                                                    // Otherwise, show permission request directly
-                                                    setShowPermissionRequest(true);
-                                                    setIsDetailRevealed(false);
-                                                }
+                                                setShowDetailPanel(true);
                                             }} 
                                             className="w-full mt-2 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
                                         >
                                             <Eye className="h-3 w-3" />
-                                            {item.has_approved_request ? 'Lihat Detail' : 'Minta Akses'}
+                                            Lihat Detail
                                         </button>
                                         {item.status === 'pending' && (
                                             <div className="flex gap-2 mt-2">
@@ -392,6 +385,230 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         </div>
                     )}
                 </motion.div>
+
+                {/* Detail Panel - Slides from right */}
+                <AnimatePresence>
+                    {showDetailPanel && selectedDetail && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowDetailPanel(false)}
+                            />
+                            
+                            {/* Detail Panel */}
+                            <motion.div
+                                className="fixed right-0 top-0 bottom-0 w-full md:w-[600px] bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto"
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '100%' }}
+                                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                            >
+                                {/* Header */}
+                                <div className="sticky top-0 z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl flex items-center justify-center">
+                                                <ScanFace className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-xl font-bold">Detail Verifikasi</h2>
+                                                <p className="text-sm text-indigo-100">Informasi lengkap selfie mahasiswa</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowDetailPanel(false)}
+                                            className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                                        >
+                                            <X className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-6 space-y-6">
+                                    {/* Selfie Image */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700"
+                                    >
+                                        {selectedDetail.attendance_log?.selfie_path ? (
+                                            <img
+                                                src={`/storage/${selectedDetail.attendance_log.selfie_path}`}
+                                                alt="Selfie"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full">
+                                                <Image className="h-20 w-20 text-slate-400" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-4 right-4">
+                                            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold backdrop-blur-xl border ${
+                                                selectedDetail.status === 'approved' ? 'bg-emerald-500/90 text-white border-emerald-600' :
+                                                selectedDetail.status === 'rejected' ? 'bg-red-500/90 text-white border-red-600' :
+                                                'bg-amber-500/90 text-white border-amber-600'
+                                            }`}>
+                                                {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
+                                            </span>
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Student Info */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800"
+                                    >
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                            <h3 className="font-semibold text-slate-900 dark:text-white">Informasi Mahasiswa</h3>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Nama Lengkap</p>
+                                                <p className="text-base font-semibold text-slate-900 dark:text-white">
+                                                    {selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">NIM</p>
+                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                    {selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Attendance Info */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="p-5 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800"
+                                    >
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                            <h3 className="font-semibold text-slate-900 dark:text-white">Informasi Absensi</h3>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Mata Kuliah</p>
+                                                <p className="text-base font-medium text-slate-900 dark:text-white">
+                                                    {selectedDetail.attendance_log?.course ?? '-'}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Waktu Scan</p>
+                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                    {selectedDetail.attendance_log?.scanned_at ?? '-'}
+                                                </p>
+                                            </div>
+                                            {selectedDetail.attendance_log?.distance_m !== null && selectedDetail.attendance_log?.distance_m !== undefined && (
+                                                <div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Jarak dari Lokasi</p>
+                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                        {selectedDetail.attendance_log.distance_m.toFixed(2)} meter
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Verification Info */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="p-5 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800"
+                                    >
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                            <h3 className="font-semibold text-slate-900 dark:text-white">Status Verifikasi</h3>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Dibuat</p>
+                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                    {selectedDetail.created_at ?? '-'}
+                                                </p>
+                                            </div>
+                                            {selectedDetail.verified_at && (
+                                                <div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Diverifikasi</p>
+                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                        {selectedDetail.verified_at}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {selectedDetail.verified_by_name && (
+                                                <div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Diverifikasi Oleh</p>
+                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                        {selectedDetail.verified_by_name}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {selectedDetail.rejection_reason && (
+                                                <div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Alasan Penolakan</p>
+                                                    <p className="text-base font-medium text-red-600 dark:text-red-400">
+                                                        {selectedDetail.rejection_reason}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            {selectedDetail.note && (
+                                                <div>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Catatan</p>
+                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
+                                                        {selectedDetail.note}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Action Buttons */}
+                                    {selectedDetail.status === 'pending' && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="flex gap-3 pt-2"
+                                        >
+                                            <button
+                                                onClick={() => {
+                                                    handleApprove(selectedDetail.id);
+                                                    setShowDetailPanel(false);
+                                                }}
+                                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
+                                            >
+                                                <CheckCircle className="h-5 w-5" />
+                                                Setujui
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    handleReject(selectedDetail.id);
+                                                    setShowDetailPanel(false);
+                                                }}
+                                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2"
+                                            >
+                                                <XCircle className="h-5 w-5" />
+                                                Tolak
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
 
                 {/* Permission Request Modal */}
                 <AnimatePresence>
