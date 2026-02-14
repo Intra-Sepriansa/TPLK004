@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Html5Qrcode } from 'html5-qrcode';
 
 type MahasiswaInfo = { id: number; nama: string; nim: string };
 type GeofenceInfo = { lat: number; lng: number; radius_m: number };
@@ -183,6 +184,8 @@ export default function UserAbsensi() {
     const [locationPermission, setLocationPermission] = useState<PermissionState | 'unknown'>('unknown');
     
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const qrScannerRef = useRef<Html5Qrcode | null>(null);
+    const qrReaderDivId = 'qr-reader';
     const intervalRef = useRef<number | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -190,7 +193,8 @@ export default function UserAbsensi() {
 
     useEffect(() => {
         form.setData('device_info', navigator.userAgent);
-        setScanAvailable('BarcodeDetector' in window);
+        // html5-qrcode is always available
+        setScanAvailable(true);
         setSelfieAvailable(Boolean(navigator.mediaDevices?.getUserMedia));
     }, []);
 
@@ -221,9 +225,12 @@ export default function UserAbsensi() {
         return () => window.clearTimeout(timer);
     }, [flash?.success]);
 
-    // QR Scanner effect
+    // QR Scanner effect - using html5-qrcode
     useEffect(() => {
-        if (!scanning) { stopScan(); return; }
+        if (!scanning) { 
+            stopScan(); 
+            return; 
+        }
         if (!consentAccepted) {
             setConsentError('Setujui persetujuan kamera sebelum memulai.');
             setScanStatus('Setujui penggunaan kamera terlebih dulu.');
@@ -235,34 +242,42 @@ export default function UserAbsensi() {
             setScanning(false);
             return;
         }
-        if (!('BarcodeDetector' in window)) {
-            setScanStatus('Browser tidak mendukung scan QR.');
-            setScanning(false);
-            return;
-        }
 
         const start = async () => {
             try {
                 setScanStatus('Menyalakan kamera...');
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                streamRef.current = stream;
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                    await videoRef.current.play();
+                
+                // Initialize Html5Qrcode
+                if (!qrScannerRef.current) {
+                    qrScannerRef.current = new Html5Qrcode(qrReaderDivId);
                 }
-                const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-                intervalRef.current = window.setInterval(async () => {
-                    if (!videoRef.current) return;
-                    const barcodes = await detector.detect(videoRef.current);
-                    if (barcodes.length > 0) {
+
+                const qrScanner = qrScannerRef.current;
+
+                // Start scanning
+                await qrScanner.start(
+                    { facingMode: "environment" }, // Use back camera
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    (decodedText) => {
+                        // QR code detected
                         setScanStatus('QR terbaca!');
-                        form.setData('token', barcodes[0].rawValue || '');
+                        form.setData('token', decodedText);
                         setScanning(false);
+                    },
+                    (errorMessage) => {
+                        // Scanning error (can be ignored, happens frequently)
                     }
-                }, 700);
+                );
+
+                setScanStatus('Arahkan kamera ke QR code...');
             } catch (error) {
                 const message = getCameraErrorMessage(error);
-                if ((error as DOMException)?.name === 'NotAllowedError') setCameraPermission('denied');
+                if ((error as DOMException)?.name === 'NotAllowedError') {
+                    setCameraPermission('denied');
+                }
                 setScanStatus(message);
                 setScanning(false);
             }
@@ -274,9 +289,24 @@ export default function UserAbsensi() {
     useEffect(() => { return () => stopSelfie(); }, []);
     useEffect(() => { return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }; }, [previewUrl]);
 
-    const stopScan = () => {
-        if (intervalRef.current) { window.clearInterval(intervalRef.current); intervalRef.current = null; }
-        if (streamRef.current) { streamRef.current.getTracks().forEach((track) => track.stop()); streamRef.current = null; }
+    const stopScan = async () => {
+        if (intervalRef.current) { 
+            window.clearInterval(intervalRef.current); 
+            intervalRef.current = null; 
+        }
+        if (qrScannerRef.current) {
+            try {
+                if (qrScannerRef.current.isScanning) {
+                    await qrScannerRef.current.stop();
+                }
+            } catch (error) {
+                // Ignore errors when stopping
+            }
+        }
+        if (streamRef.current) { 
+            streamRef.current.getTracks().forEach((track) => track.stop()); 
+            streamRef.current = null; 
+        }
         if (videoRef.current) videoRef.current.srcObject = null;
     };
 
@@ -1071,7 +1101,12 @@ export default function UserAbsensi() {
                             whileHover={{ scale: 1.01 }}
                             className="relative overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-gray-50 to-cyan-50/30 dark:border-cyan-800 dark:from-gray-900 dark:to-cyan-950/20 shadow-lg"
                         >
-                            <video ref={videoRef} className={cn('h-64 w-full object-cover rounded-2xl', !scanning && 'hidden')} playsInline />
+                            {/* QR Reader Container */}
+                            <div 
+                                id={qrReaderDivId} 
+                                className={cn('w-full', scanning ? 'block' : 'hidden')}
+                                style={{ minHeight: '256px' }}
+                            />
                             <AnimatePresence mode="wait">
                                 {!scanning && (
                                     <motion.div
@@ -1107,45 +1142,7 @@ export default function UserAbsensi() {
                                 )}
                             </AnimatePresence>
                             {scanning && (
-                                <div className="absolute inset-0 pointer-events-none">
-                                    {/* Scanning frame */}
-                                    <motion.div
-                                        animate={{ scale: [1, 1.05, 1] }}
-                                        transition={{ duration: 2, repeat: Infinity }}
-                                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-48 w-48 border-4 border-cyan-500 rounded-2xl shadow-lg"
-                                    >
-                                        {/* Corner accents */}
-                                        <motion.div
-                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                            transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="absolute -top-1 -left-1 h-6 w-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-lg"
-                                        />
-                                        <motion.div
-                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                                            className="absolute -top-1 -right-1 h-6 w-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-lg"
-                                        />
-                                        <motion.div
-                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                                            className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-lg"
-                                        />
-                                        <motion.div
-                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
-                                            className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-cyan-400 rounded-br-lg"
-                                        />
-                                        {/* Scanning line */}
-                                        <motion.div
-                                            animate={{ y: ['-100%', '100%'] }}
-                                            transition={{
-                                                duration: 2,
-                                                repeat: Infinity,
-                                                ease: "linear"
-                                            }}
-                                            className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-lg"
-                                        />
-                                    </motion.div>
+                                <div className="absolute inset-0 pointer-events-none z-10">
                                     {/* Status badge */}
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.8, y: -10 }}
