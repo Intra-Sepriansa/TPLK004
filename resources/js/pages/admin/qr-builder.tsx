@@ -218,14 +218,18 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
             return;
         }
 
-        // Generate QR code with UNPAM logo
+        // Generate QR code with UNPAM logo and maroon color theme
         const generateQRWithLogo = async () => {
             try {
-                // Generate QR code
+                // Generate QR code with UNPAM maroon color
                 const qrDataUrl = await QRCode.toDataURL(token, {
                     width: 300,
                     margin: 2,
-                    errorCorrectionLevel: 'H' // High error correction for logo overlay
+                    errorCorrectionLevel: 'H', // High error correction for logo overlay
+                    color: {
+                        dark: '#8B1538',  // UNPAM Maroon color
+                        light: '#FFFFFF'  // White background
+                    }
                 });
 
                 // Create canvas to add logo
@@ -249,9 +253,28 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                         const logoX = canvas.width - logoSize - 10; // 10px from right
                         const logoY = canvas.height - logoSize - 10; // 10px from bottom
                         
-                        // Draw white background for logo
+                        // Draw white background for logo with rounded corners
                         ctx.fillStyle = 'white';
-                        ctx.fillRect(logoX - 5, logoY - 5, logoSize + 10, logoSize + 10);
+                        const padding = 5;
+                        const radius = 8;
+                        const x = logoX - padding;
+                        const y = logoY - padding;
+                        const width = logoSize + (padding * 2);
+                        const height = logoSize + (padding * 2);
+                        
+                        // Rounded rectangle
+                        ctx.beginPath();
+                        ctx.moveTo(x + radius, y);
+                        ctx.lineTo(x + width - radius, y);
+                        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                        ctx.lineTo(x + width, y + height - radius);
+                        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                        ctx.lineTo(x + radius, y + height);
+                        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                        ctx.lineTo(x, y + radius);
+                        ctx.quadraticCurveTo(x, y, x + radius, y);
+                        ctx.closePath();
+                        ctx.fill();
                         
                         // Draw logo
                         ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
