@@ -185,7 +185,7 @@ export default function UserAbsensi() {
     
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const qrScannerRef = useRef<Html5Qrcode | null>(null);
-    const qrReaderDivId = 'qr-reader';
+    const qrReaderDivId = useRef(`qr-reader-${Date.now()}`).current;
     const intervalRef = useRef<number | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -246,34 +246,48 @@ export default function UserAbsensi() {
         const start = async () => {
             try {
                 setScanStatus('Menyalakan kamera...');
+                console.log('Starting QR scanner...');
                 
-                // Initialize Html5Qrcode
+                // Initialize Html5Qrcode if not already initialized
                 if (!qrScannerRef.current) {
+                    console.log('Initializing Html5Qrcode with ID:', qrReaderDivId);
                     qrScannerRef.current = new Html5Qrcode(qrReaderDivId);
                 }
 
                 const qrScanner = qrScannerRef.current;
 
+                // Check if already scanning
+                if (qrScanner.isScanning) {
+                    console.log('Scanner already running');
+                    setScanStatus('Arahkan kamera ke QR code...');
+                    return;
+                }
+
+                console.log('Starting camera...');
                 // Start scanning
                 await qrScanner.start(
                     { facingMode: "environment" }, // Use back camera
                     {
                         fps: 10,
-                        qrbox: { width: 250, height: 250 }
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
                     },
                     (decodedText) => {
                         // QR code detected
+                        console.log('QR detected:', decodedText);
                         setScanStatus('QR terbaca!');
                         form.setData('token', decodedText);
                         setScanning(false);
                     },
                     (errorMessage) => {
-                        // Scanning error (can be ignored, happens frequently)
+                        // Scanning error (can be ignored, happens frequently during scanning)
                     }
                 );
 
+                console.log('Camera started successfully');
                 setScanStatus('Arahkan kamera ke QR code...');
             } catch (error) {
+                console.error('QR Scanner error:', error);
                 const message = getCameraErrorMessage(error);
                 if ((error as DOMException)?.name === 'NotAllowedError') {
                     setCameraPermission('denied');
@@ -290,16 +304,22 @@ export default function UserAbsensi() {
     useEffect(() => { return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }; }, [previewUrl]);
 
     const stopScan = async () => {
+        console.log('Stopping QR scanner...');
         if (intervalRef.current) { 
             window.clearInterval(intervalRef.current); 
             intervalRef.current = null; 
         }
         if (qrScannerRef.current) {
             try {
-                if (qrScannerRef.current.isScanning) {
+                const state = await qrScannerRef.current.getState();
+                console.log('Scanner state:', state);
+                if (state === 2) { // 2 = SCANNING
+                    console.log('Stopping scanner...');
                     await qrScannerRef.current.stop();
+                    console.log('Scanner stopped');
                 }
             } catch (error) {
+                console.error('Error stopping scanner:', error);
                 // Ignore errors when stopping
             }
         }
