@@ -182,9 +182,25 @@ export default function DashboardOverview({
         >
             {/* Hero Header with Gradient */}
             <motion.div 
-                className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 text-white shadow-2xl"
+                className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 variants={itemVariants}
             >
+                {/* Animated Gradient Background */}
+                <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                    animate={{
+                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                    }}
+                    transition={{
+                        duration: 15,
+                        repeat: Infinity,
+                        ease: "linear"
+                    }}
+                    style={{
+                        backgroundSize: '200% 200%',
+                    }}
+                />
+                
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
