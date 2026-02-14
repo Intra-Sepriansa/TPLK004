@@ -722,10 +722,10 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                                         <p className="text-xs text-slate-400">Waktu Scan</p>
                                                         <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.scanned_at ?? '-'}</p>
                                                     </div>
-                                                    {selectedDetail.attendance_log?.distance_m !== null && (
+                                                    {selectedDetail.attendance_log?.distance_m !== null && selectedDetail.attendance_log?.distance_m !== undefined && (
                                                         <div>
                                                             <p className="text-xs text-slate-400">Jarak</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log.distance_m.toFixed(2)} meter</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.distance_m?.toFixed(2)} meter</p>
                                                         </div>
                                                     )}
                                                 </div>
