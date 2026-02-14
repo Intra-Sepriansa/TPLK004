@@ -162,40 +162,96 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
             <Head title="Notifikasi" />
 
             <div className="p-6 space-y-6">
-                {/* Header dengan animasi masuk - sama seperti rekap kehadiran */}
+                {/* Premium Header with Advanced Animations */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-black p-8 text-white shadow-2xl border border-slate-700/50"
+                    transition={{ duration: 0.5 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
                 >
-                    {/* Animated background particles */}
+                    {/* Animated Background Orbs */}
                     <div className="absolute inset-0 overflow-hidden">
                         <motion.div
                             animate={{
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 90, 0],
+                                scale: [1, 1.3, 1],
+                                rotate: [0, 180, 360],
                             }}
                             transition={{
                                 duration: 20,
                                 repeat: Infinity,
                                 ease: "linear"
                             }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-blue-500/10 blur-3xl"
+                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
                         />
                         <motion.div
                             animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, -90, 0],
+                                scale: [1, 1.4, 1],
+                                rotate: [360, 180, 0],
                             }}
                             transition={{
                                 duration: 15,
                                 repeat: Infinity,
                                 ease: "linear"
                             }}
-                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-cyan-500/10 blur-3xl"
+                            className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
                         />
+                        
+                        {/* Large Floating Icons */}
+                        <motion.div
+                            animate={{
+                                y: [0, -20, 0],
+                                rotate: [0, 5, 0],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute right-8 top-8 opacity-10"
+                        >
+                            <Bell className="h-32 w-32" />
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                y: [0, 15, 0],
+                                rotate: [0, -5, 0],
+                            }}
+                            transition={{
+                                duration: 7,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute left-8 bottom-8 opacity-10"
+                        >
+                            <Megaphone className="h-28 w-28" />
+                        </motion.div>
                     </div>
+                    
+                    {/* Floating Notification Icons */}
+                    {[Bell, Megaphone, AlertTriangle, Award, Info].map((Icon, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ 
+                                opacity: [0, 0.4, 0],
+                                scale: [0, 1, 0],
+                                y: [0, -40, -80]
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 0.8,
+                                ease: "easeOut"
+                            }}
+                            style={{
+                                left: `${15 + i * 18}%`,
+                                top: `${20 + (i % 2) * 40}%`,
+                            }}
+                        >
+                            <Icon className="h-6 w-6 text-white" />
+                        </motion.div>
+                    ))}
                     
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -204,7 +260,7 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg shadow-blue-500/50"
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg shadow-yellow-500/50"
                                 >
                                     <Bell className="h-8 w-8" />
                                 </motion.div>
@@ -213,7 +269,7 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-slate-400 font-medium"
+                                        className="text-sm text-gray-300 font-medium"
                                     >
                                         Pusat Pemberitahuan
                                     </motion.p>
@@ -225,31 +281,32 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                                     >
                                         Notifikasi
                                     </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-sm text-gray-300 mt-1"
+                                    >
+                                        Pemberitahuan dan pengumuman terbaru untuk Anda
+                                    </motion.p>
                                 </div>
                             </div>
+                            
                             {unreadCount > 0 && (
                                 <motion.button
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.4 }}
+                                    transition={{ delay: 0.5 }}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleMarkAllAsRead}
-                                    className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition-all"
+                                    className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-all shadow-lg"
                                 >
-                                    <CheckCircle className="h-4 w-4" />
+                                    <CheckCircle className="h-5 w-5" />
                                     Tandai Semua Dibaca
                                 </motion.button>
                             )}
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="mt-4 text-slate-400"
-                        >
-                            Pemberitahuan dan pengumuman terbaru untuk Anda
-                        </motion.p>
                     </div>
                 </motion.div>
 
@@ -444,55 +501,104 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
-                                    transition={{ delay: 0.4 + index * 0.05 }}
-                                    whileHover={{ backgroundColor: "rgba(15, 23, 42, 0.3)" }}
-                                    className={`p-4 transition-colors cursor-pointer ${!notif.read_at ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
-                                    onClick={() => openDetail(notif)}
+                                    transition={{ delay: 0.4 + index * 0.05, type: "spring", stiffness: 200 }}
+                                    className={`group relative overflow-hidden ${!notif.read_at ? 'bg-gradient-to-r from-blue-50/50 via-cyan-50/30 to-transparent dark:from-blue-900/10 dark:via-cyan-900/5 dark:to-transparent' : ''}`}
                                 >
-                                    <div className="flex items-start gap-4">
-                                        <motion.div
-                                            whileHover={{ scale: 1.1, rotate: 5 }}
-                                            className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${getTypeColor(notif.type)} shadow-lg shrink-0`}
-                                        >
-                                            {getTypeIcon(notif.type)}
-                                        </motion.div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                                                <span className="font-semibold text-slate-900 dark:text-white">{notif.title}</span>
-                                                {getPriorityBadge(notif.priority)}
-                                                {!notif.read_at && (
+                                    {/* Hover glow effect */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        whileHover={{ opacity: 1 }}
+                                        className={`absolute inset-0 bg-gradient-to-r ${getTypeColor(notif.type)} opacity-0 group-hover:opacity-5 transition-opacity`}
+                                    />
+                                    
+                                    <motion.div
+                                        whileHover={{ x: 5 }}
+                                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                        className="relative p-5 cursor-pointer"
+                                        onClick={() => openDetail(notif)}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            {/* Icon with 3D effect */}
+                                            <motion.div
+                                                whileHover={{ scale: 1.15, rotate: [0, -5, 5, 0] }}
+                                                transition={{ duration: 0.3 }}
+                                                className="relative"
+                                            >
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${getTypeColor(notif.type)} rounded-xl blur-lg opacity-50`} />
+                                                <div className={`relative flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${getTypeColor(notif.type)} shadow-xl shrink-0 text-white`}>
+                                                    {getTypeIcon(notif.type)}
+                                                </div>
+                                            </motion.div>
+                                            
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap mb-2">
+                                                    <span className={`text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider bg-gradient-to-r ${getTypeColor(notif.type)} text-white shadow-lg`}>
+                                                        {getTypeLabel(notif.type)}
+                                                    </span>
+                                                    {getPriorityBadge(notif.priority)}
+                                                    {!notif.read_at && (
+                                                        <motion.div
+                                                            initial={{ scale: 0 }}
+                                                            animate={{ scale: 1 }}
+                                                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30"
+                                                        >
+                                                            <motion.span
+                                                                animate={{ scale: [1, 1.3, 1] }}
+                                                                transition={{ duration: 2, repeat: Infinity }}
+                                                                className="w-2 h-2 rounded-full bg-blue-500"
+                                                            />
+                                                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Baru</span>
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+                                                <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                    {notif.title}
+                                                </h3>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3 leading-relaxed">
+                                                    {notif.message}
+                                                </p>
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                                                        <Clock className="h-3.5 w-3.5" />
+                                                        {formatTime(notif.created_at)}
+                                                    </span>
                                                     <motion.span
-                                                        initial={{ scale: 0 }}
-                                                        animate={{ scale: 1 }}
-                                                        className="w-2 h-2 rounded-full bg-blue-500"
-                                                    />
-                                                )}
+                                                        whileHover={{ x: 3 }}
+                                                        className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1 group-hover:underline"
+                                                    >
+                                                        Baca selengkapnya
+                                                        <motion.span
+                                                            animate={{ x: [0, 3, 0] }}
+                                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                                        >
+                                                            →
+                                                        </motion.span>
+                                                    </motion.span>
+                                                </div>
                                             </div>
-                                            <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2">
-                                                {notif.message}
-                                            </p>
-                                            <div className="flex items-center gap-4">
-                                                <span className="text-xs text-slate-500 flex items-center gap-1">
-                                                    <Clock className="h-3 w-3" />
-                                                    {formatTime(notif.created_at)}
-                                                </span>
-                                                <span className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                                                    Baca selengkapnya →
-                                                </span>
-                                            </div>
+                                            
+                                            {/* Delete button with hover effect */}
+                                            <motion.button
+                                                whileHover={{ scale: 1.15, rotate: 10 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={(e) => { 
+                                                    e.stopPropagation(); 
+                                                    openDeleteDialog(notif.id); 
+                                                }}
+                                                className="flex h-11 w-11 items-center justify-center rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shrink-0 border-2 border-transparent hover:border-red-200 dark:hover:border-red-900/50"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                            </motion.button>
                                         </div>
-                                        <motion.button
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={(e) => { 
-                                                e.stopPropagation(); 
-                                                openDeleteDialog(notif.id); 
-                                            }}
-                                            className="flex h-10 w-10 items-center justify-center rounded-xl text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </motion.button>
-                                    </div>
+                                    </motion.div>
+                                    
+                                    {/* Bottom accent line */}
+                                    <motion.div
+                                        initial={{ width: "0%" }}
+                                        whileHover={{ width: "100%" }}
+                                        transition={{ duration: 0.3 }}
+                                        className={`h-1 bg-gradient-to-r ${getTypeColor(notif.type)}`}
+                                    />
                                 </motion.div>
                             ))}
                         </AnimatePresence>
