@@ -112,7 +112,7 @@ export default function AcademicDashboard({
                 {/* Header with Advanced Animations */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
                     <div className="absolute inset-0 overflow-hidden">
@@ -141,8 +141,8 @@ export default function AcademicDashboard({
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
                         
-                        {/* Floating Sparkles */}
-                        {[...Array(20)].map((_, i) => (
+                        {/* Floating Academic Icons */}
+                        {[...Array(15)].map((_, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, scale: 0 }}
@@ -154,7 +154,7 @@ export default function AcademicDashboard({
                                 transition={{
                                     duration: 3,
                                     repeat: Infinity,
-                                    delay: i * 0.15,
+                                    delay: i * 0.2,
                                     ease: "easeOut"
                                 }}
                                 className="absolute"
@@ -163,7 +163,17 @@ export default function AcademicDashboard({
                                     top: `${Math.random() * 100}%`,
                                 }}
                             >
-                                <Sparkles className="h-4 w-4 text-white/60" />
+                                {i % 5 === 0 ? (
+                                    <GraduationCap className="h-4 w-4 text-white/40" />
+                                ) : i % 5 === 1 ? (
+                                    <BookOpen className="h-4 w-4 text-white/40" />
+                                ) : i % 5 === 2 ? (
+                                    <Calendar className="h-4 w-4 text-white/40" />
+                                ) : i % 5 === 3 ? (
+                                    <ListTodo className="h-4 w-4 text-white/40" />
+                                ) : (
+                                    <NotebookPen className="h-4 w-4 text-white/40" />
+                                )}
                             </motion.div>
                         ))}
                     </div>
