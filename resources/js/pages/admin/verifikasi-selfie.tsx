@@ -160,12 +160,12 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                 variants={containerVariants}
             >
                 <motion.div 
-                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                     variants={itemVariants}
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-800 to-black"
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{
                             backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
@@ -179,14 +179,21 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         }}
                     />
                     
-                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
-                    <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    
                     <div className="relative">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"><ScanFace className="h-6 w-6" /></div>
-                            <div><p className="text-sm text-blue-100">Validasi Manual</p><h1 className="text-2xl font-bold">Verifikasi Selfie</h1></div>
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
+                                <ScanFace className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-indigo-100 font-medium">Validasi Manual</p>
+                                <h1 className="text-3xl font-bold">Verifikasi Selfie</h1>
+                            </div>
                         </div>
-                        <p className="mt-4 text-blue-100">Review dan validasi selfie mahasiswa yang masuk untuk absensi</p>
+                        <p className="mt-4 text-indigo-100">Review dan validasi selfie mahasiswa yang masuk untuk absensi</p>
                     </div>
                 </motion.div>
 
