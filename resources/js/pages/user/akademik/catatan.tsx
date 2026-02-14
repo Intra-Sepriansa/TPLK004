@@ -14,7 +14,7 @@ import {
     NotebookPen, Plus, ArrowLeft, Search, BookOpen, Monitor, Building2,
     Trash2, Edit, ExternalLink, Calendar, CheckCircle, XCircle, Sparkles,
     FileText, Clock, TrendingUp, LayoutGrid, List, Columns3, Star, Copy,
-    Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked
+    Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, FormEvent, useEffect, useRef, useMemo } from 'react';

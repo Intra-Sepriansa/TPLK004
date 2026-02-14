@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap, Sparkles, Star, Zap } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap, Sparkles, Star, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { useState } from 'react';
@@ -146,9 +146,9 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                 {/* Header with Advanced Animations */}
                 <motion.div
                     variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Particles */}
+                    {/* Animated Background Orbs */}
                     <div className="absolute inset-0 overflow-hidden">
                         <motion.div
                             animate={{
@@ -175,29 +175,59 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
                         
-                        {/* Floating Sparkles */}
-                        {[...Array(15)].map((_, i) => (
+                        {/* Large Floating Icons */}
+                        <motion.div
+                            animate={{
+                                y: [0, -20, 0],
+                                rotate: [0, 5, 0],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute right-8 top-8 opacity-10"
+                        >
+                            <BarChart3 className="h-32 w-32" />
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                y: [0, 15, 0],
+                                rotate: [0, -5, 0],
+                            }}
+                            transition={{
+                                duration: 7,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute left-8 bottom-8 opacity-10"
+                        >
+                            <TrendingUp className="h-28 w-28" />
+                        </motion.div>
+                        
+                        {/* Floating Academic Icons */}
+                        {[BarChart3, TrendingUp, Target, Award, Calendar].map((Icon, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{
-                                    opacity: [0, 1, 0],
-                                    scale: [0, 1.5, 0],
-                                    y: [0, -30, -60],
+                                    opacity: [0, 0.4, 0],
+                                    scale: [0, 1, 0],
+                                    y: [0, -40, -80],
                                 }}
                                 transition={{
-                                    duration: 3,
+                                    duration: 4,
                                     repeat: Infinity,
-                                    delay: i * 0.2,
+                                    delay: i * 0.8,
                                     ease: "easeOut"
                                 }}
                                 className="absolute"
                                 style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
+                                    left: `${15 + i * 18}%`,
+                                    top: `${20 + (i % 2) * 40}%`,
                                 }}
                             >
-                                <Sparkles className="h-4 w-4 text-white/60" />
+                                <Icon className="h-6 w-6 text-white" />
                             </motion.div>
                         ))}
                     </div>
