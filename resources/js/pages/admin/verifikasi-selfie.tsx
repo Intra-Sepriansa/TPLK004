@@ -81,6 +81,8 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [selectedDetail, setSelectedDetail] = useState<SelfieItem | null>(null);
     const [showPrivacyWarning, setShowPrivacyWarning] = useState(false);
+    const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+    const [permissionReason, setPermissionReason] = useState('');
     const [isDetailRevealed, setIsDetailRevealed] = useState(false);
 
     const handleFilter = (status: string) => {
@@ -392,7 +394,6 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     {showPrivacyWarning && selectedDetail && (
                         <motion.div 
                             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" 
-                            onClick={() => setShowPrivacyWarning(false)}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -440,7 +441,10 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         transition={{ delay: 0.5 }}
                                     >
                                         <button 
-                                            onClick={() => setShowPrivacyWarning(false)}
+                                            onClick={() => {
+                                                setShowPrivacyWarning(false);
+                                                setSelectedDetail(null);
+                                            }}
                                             className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-medium hover:bg-slate-600 transition-colors"
                                         >
                                             Batal
@@ -448,11 +452,127 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         <button 
                                             onClick={() => {
                                                 setShowPrivacyWarning(false);
-                                                setIsDetailRevealed(true);
+                                                setShowPermissionRequest(true);
                                             }}
                                             className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-red-500 text-white font-medium hover:from-amber-600 hover:to-red-600 transition-all shadow-lg shadow-amber-500/20"
                                         >
                                             Saya Mengerti
+                                        </button>
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Permission Request Modal */}
+                <AnimatePresence>
+                    {showPermissionRequest && selectedDetail && (
+                        <motion.div 
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg p-4" 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <motion.div 
+                                className="relative max-w-lg w-full bg-gradient-to-br from-slate-900 to-black border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                                initial={{ scale: 0.8, y: 50 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.8, y: 50 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10" />
+                                <div className="relative p-6">
+                                    <motion.div 
+                                        className="flex items-center justify-center mb-4"
+                                        initial={{ scale: 0, rotate: 180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                    >
+                                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                                            <FileText className="h-8 w-8 text-white" />
+                                        </div>
+                                    </motion.div>
+                                    <motion.h3 
+                                        className="text-xl font-bold text-white text-center mb-2"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Permintaan Akses Data
+                                    </motion.h3>
+                                    <motion.p 
+                                        className="text-sm text-slate-300 text-center mb-4"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Jelaskan alasan Anda ingin melihat detail selfie mahasiswa ini
+                                    </motion.p>
+                                    
+                                    <motion.div
+                                        className="mb-4"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                                            Alasan Permintaan
+                                        </label>
+                                        <textarea
+                                            value={permissionReason}
+                                            onChange={(e) => setPermissionReason(e.target.value)}
+                                            placeholder="Contoh: Verifikasi kehadiran untuk keperluan administrasi..."
+                                            className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                            rows={4}
+                                        />
+                                    </motion.div>
+
+                                    <motion.div 
+                                        className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30 mb-4"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.6 }}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <AlertTriangle className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-xs font-semibold text-blue-300 mb-1">Informasi Penting</p>
+                                                <p className="text-xs text-blue-200/80">Permintaan ini akan dikirim ke mahasiswa. Anda dapat melihat detail setelah mahasiswa menyetujui permintaan Anda.</p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    <motion.div 
+                                        className="flex gap-3"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.7 }}
+                                    >
+                                        <button 
+                                            onClick={() => {
+                                                setShowPermissionRequest(false);
+                                                setSelectedDetail(null);
+                                                setPermissionReason('');
+                                            }}
+                                            className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-medium hover:bg-slate-600 transition-colors"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                if (permissionReason.trim()) {
+                                                    // TODO: Send permission request to backend
+                                                    setShowPermissionRequest(false);
+                                                    setIsDetailRevealed(true);
+                                                    setPermissionReason('');
+                                                }
+                                            }}
+                                            disabled={!permissionReason.trim()}
+                                            className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Kirim Permintaan
                                         </button>
                                     </motion.div>
                                 </div>
