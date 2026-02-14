@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { AnimatedCurrencyShimmer } from '@/components/ui/animated-currency';
 
 interface KasRecord {
     id: number;
@@ -283,12 +282,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Sudah Bayar</p>
                                 <div className="mt-1">
-                                    <AnimatedCurrencyShimmer
-                                        value={personalStats.total_paid}
-                                        duration={2500}
-                                        className="text-3xl"
-                                        gradient="from-emerald-600 via-teal-500 to-cyan-600"
-                                    />
+                                    <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
+                                        {formatCurrency(personalStats.total_paid)}
+                                    </p>
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
                                     <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
@@ -319,12 +315,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-red-700 dark:text-red-300">Total Belum Bayar</p>
                                 <div className="mt-1">
-                                    <AnimatedCurrencyShimmer
-                                        value={personalStats.total_unpaid}
-                                        duration={2500}
-                                        className="text-3xl"
-                                        gradient="from-red-600 via-orange-500 to-rose-600"
-                                    />
+                                    <p className="text-3xl font-bold bg-gradient-to-r from-red-600 via-orange-500 to-rose-600 bg-clip-text text-transparent">
+                                        {formatCurrency(personalStats.total_unpaid)}
+                                    </p>
                                 </div>
                                 <div className="flex items-center gap-2 mt-2">
                                     <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
@@ -377,12 +370,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                 <Zap className="h-8 w-8 mx-auto text-blue-600 mb-2" />
                             </div>
                             <p className="text-xs text-slate-500 mb-1">Saldo Aktif</p>
-                            <AnimatedCurrencyShimmer
-                                value={classSummary.total_balance}
-                                duration={2000}
-                                className="text-2xl"
-                                gradient="from-blue-600 via-cyan-500 to-blue-600"
-                            />
+                            <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent">
+                                {formatCurrency(classSummary.total_balance)}
+                            </p>
                         </motion.div>
                         <motion.div
                             whileHover={{ scale: 1.05, y: -5 }}
@@ -390,12 +380,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         >
                             <TrendUp className="h-8 w-8 mx-auto text-emerald-600 mb-2" />
                             <p className="text-xs text-slate-500 mb-1">Total Uang Masuk</p>
-                            <AnimatedCurrencyShimmer
-                                value={classSummary.total_income}
-                                duration={2000}
-                                className="text-lg"
-                                gradient="from-emerald-600 via-teal-500 to-emerald-600"
-                            />
+                            <p className="text-lg font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent">
+                                {formatCurrency(classSummary.total_income)}
+                            </p>
                         </motion.div>
                         <motion.div
                             whileHover={{ scale: 1.05, y: -5 }}
@@ -403,12 +390,9 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         >
                             <TrendingDown className="h-8 w-8 mx-auto text-red-600 mb-2" />
                             <p className="text-xs text-slate-500 mb-1">Total Uang Keluar</p>
-                            <AnimatedCurrencyShimmer
-                                value={classSummary.total_expense}
-                                duration={2000}
-                                className="text-lg"
-                                gradient="from-red-600 via-orange-500 to-red-600"
-                            />
+                            <p className="text-lg font-bold bg-gradient-to-r from-red-600 via-orange-500 to-red-600 bg-clip-text text-transparent">
+                                {formatCurrency(classSummary.total_expense)}
+                            </p>
                         </motion.div>
                     </div>
                 </motion.div>
