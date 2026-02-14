@@ -24,6 +24,7 @@ interface ViewRequest {
     reason: string;
     status: string;
     created_at: string;
+    created_at_formatted?: string;
     responded_at: string | null;
     response_note: string | null;
     requested_by: RequestedBy;
@@ -251,7 +252,7 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                                                 <div className="flex items-center gap-4 text-xs text-slate-500">
                                                     <div className="flex items-center gap-1">
                                                         <Calendar className="h-3 w-3" />
-                                                        <span>Diminta: {request.created_at}</span>
+                                                        <span>Diminta: {request.created_at_formatted || request.created_at}</span>
                                                     </div>
                                                     {request.selfie_verification?.attendance_log?.scanned_at && (
                                                         <div className="flex items-center gap-1">

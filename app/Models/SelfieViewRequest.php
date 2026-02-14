@@ -19,7 +19,17 @@ class SelfieViewRequest extends Model
 
     protected $casts = [
         'responded_at' => 'datetime',
+        'created_at' => 'datetime',
     ];
+
+    protected $appends = [
+        'created_at_formatted',
+    ];
+
+    public function getCreatedAtFormattedAttribute()
+    {
+        return $this->created_at ? $this->created_at->format('d M Y H:i') : null;
+    }
 
     public function selfieVerification(): BelongsTo
     {
