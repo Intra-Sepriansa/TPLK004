@@ -758,18 +758,18 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                                             <img 
                                                                 src="/images/crown.png" 
                                                                 alt="Crown" 
-                                                                className="h-24 w-24 object-contain drop-shadow-[0_10px_25px_rgba(251,191,36,0.8)] filter brightness-110"
+                                                                className="h-40 w-40 object-contain drop-shadow-[0_15px_35px_rgba(251,191,36,0.9)] filter brightness-125 contrast-110"
                                                             />
                                                             <motion.div
                                                                 animate={{
-                                                                    scale: [1, 1.3, 1],
-                                                                    opacity: [0.4, 0.7, 0.4],
+                                                                    scale: [1, 1.4, 1],
+                                                                    opacity: [0.5, 0.8, 0.5],
                                                                 }}
                                                                 transition={{
                                                                     duration: 2,
                                                                     repeat: Infinity,
                                                                 }}
-                                                                className="absolute inset-0 bg-yellow-300 rounded-full blur-2xl -z-10"
+                                                                className="absolute inset-0 bg-yellow-300 rounded-full blur-3xl -z-10"
                                                             />
                                                         </motion.div>
                                                         <div className="flex-1">
