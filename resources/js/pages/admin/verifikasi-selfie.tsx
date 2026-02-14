@@ -80,7 +80,6 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     const [filter, setFilter] = useState(currentFilter);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedDetail, setSelectedDetail] = useState<SelfieItem | null>(null);
-    const [showPrivacyWarning, setShowPrivacyWarning] = useState(false);
     const [showPermissionRequest, setShowPermissionRequest] = useState(false);
     const [permissionReason, setPermissionReason] = useState('');
     const [isDetailRevealed, setIsDetailRevealed] = useState(false);
@@ -358,12 +357,10 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                                 if (item.has_approved_request) {
                                                     // If already approved, go directly to detail modal
                                                     setIsDetailRevealed(true);
-                                                    setShowPrivacyWarning(false);
                                                     setShowPermissionRequest(false);
                                                 } else {
                                                     // Otherwise, show permission request directly
                                                     setShowPermissionRequest(true);
-                                                    setShowPrivacyWarning(false);
                                                     setIsDetailRevealed(false);
                                                 }
                                             }} 
