@@ -301,44 +301,36 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 initial="hidden"
                 animate="visible"
             >
-                {/* Header with Advanced Animation */}
+                {/* Header with Animated Gradient - UPGRADED */}
                 <motion.div
                     variants={headerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
-                    whileHover={{ scale: 1.01 }}
+                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl"
+                    whileHover={{ scale: 1.005 }}
                     transition={{ type: "spring", stiffness: 300 }}
                 >
-                    {/* Animated Background Particles */}
+                    {/* Animated Gradient Background */}
                     <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0],
-                            opacity: [0.1, 0.2, 0.1]
-                        }}
-                        transition={{
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0],
-                            opacity: [0.1, 0.15, 0.1]
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
                         transition={{
                             duration: 15,
                             repeat: Infinity,
                             ease: "linear"
                         }}
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
                     />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Sparkles with Enhanced Animation */}
+                    {/* Floating Sparkles */}
                     {[...Array(8)].map((_, i) => (
                         <motion.div
                             key={i}
@@ -366,9 +358,9 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     ))}
 
                     <div className="relative">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             <motion.div
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{
@@ -382,11 +374,11 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     transition: { duration: 0.6 }
                                 }}
                             >
-                                <QrCode className="h-6 w-6" />
+                                <QrCode className="h-7 w-7" />
                             </motion.div>
                             <div>
                                 <motion.p
-                                    className="text-sm text-blue-100"
+                                    className="text-sm text-gray-300 font-medium"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 }}
@@ -394,12 +386,13 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     Generator Token
                                 </motion.p>
                                 <motion.h1
-                                    className="text-2xl font-bold"
+                                    className="text-2xl font-bold flex items-center gap-2"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.5 }}
                                 >
                                     QR Builder
+                                    <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
                                 </motion.h1>
                             </div>
                         </div>
@@ -407,7 +400,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6, type: "spring" }}
-                            className="mt-4 text-blue-100"
+                            className="mt-4 text-gray-300"
                         >
                             Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}
                         </motion.p>
