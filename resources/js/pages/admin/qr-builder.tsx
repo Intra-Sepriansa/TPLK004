@@ -218,21 +218,21 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
             return;
         }
 
-        // Generate QR code with UNPAM logo and maroon color theme
+        // Generate QR code with UNPAM logo and blue-yellow gradient theme
         const generateQRWithLogo = async () => {
             try {
-                // Generate QR code with UNPAM maroon color
+                // First generate base QR code in black
                 const qrDataUrl = await QRCode.toDataURL(token, {
                     width: 300,
                     margin: 2,
                     errorCorrectionLevel: 'H', // High error correction for logo overlay
                     color: {
-                        dark: '#8B1538',  // UNPAM Maroon color
-                        light: '#FFFFFF'  // White background
+                        dark: '#000000',
+                        light: '#FFFFFF'
                     }
                 });
 
-                // Create canvas to add logo
+                // Create canvas to add gradient and logo
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 if (!ctx) return;
@@ -243,15 +243,37 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     canvas.width = qrImage.width;
                     canvas.height = qrImage.height;
                     
+                    // Draw white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Create gradient (blue to yellow)
+                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                    gradient.addColorStop(0, '#1e40af');    // Blue
+                    gradient.addColorStop(1, '#eab308');    // Yellow/Gold
+                    
                     // Draw QR code
                     ctx.drawImage(qrImage, 0, 0);
+                    
+                    // Apply gradient only to black pixels
+                    ctx.globalCompositeOperation = 'source-in';
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Reset composite operation
+                    ctx.globalCompositeOperation = 'destination-over';
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Reset to normal
+                    ctx.globalCompositeOperation = 'source-over';
 
                     // Load and draw UNPAM logo
                     const logo = new Image();
                     logo.onload = () => {
-                        const logoSize = 50; // Logo size
-                        const logoX = canvas.width - logoSize - 10; // 10px from right
-                        const logoY = canvas.height - logoSize - 10; // 10px from bottom
+                        const logoSize = 50;
+                        const logoX = canvas.width - logoSize - 10;
+                        const logoY = canvas.height - logoSize - 10;
                         
                         // Draw white background for logo with rounded corners
                         ctx.fillStyle = 'white';
@@ -284,7 +306,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     };
                     logo.onerror = () => {
                         // If logo fails to load, use QR without logo
-                        setQrUrl(qrDataUrl);
+                        setQrUrl(canvas.toDataURL());
                     };
                     logo.src = '/logo-unpam.png';
                 };
