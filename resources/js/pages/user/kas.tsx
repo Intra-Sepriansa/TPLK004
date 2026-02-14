@@ -298,21 +298,6 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                 </div>
                             </div>
                         </div>
-
-                        {/* Progress Bar */}
-                        <motion.div
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ delay: 0.8, duration: 0.8 }}
-                            className="mt-4 h-2 w-full rounded-full bg-emerald-200 dark:bg-emerald-900/30 overflow-hidden"
-                        >
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${paymentRate}%` }}
-                                transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
-                                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
-                            />
-                        </motion.div>
                     </motion.div>
 
                     {/* Unpaid Card */}
