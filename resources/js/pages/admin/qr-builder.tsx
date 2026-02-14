@@ -344,30 +344,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}. Sistem akan memperbarui token secara otomatis untuk keamanan maksimal.
                                 </p>
                                 
-                                {/* Quick Action Buttons */}
-                                <div className="flex flex-wrap gap-3 mt-6">
-                                    <button
-                                        onClick={() => void generateToken({ force: true })}
-                                        disabled={loading || !activeSession?.id}
-                                        className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-600 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                        {loading ? 'Generating...' : 'Generate QR'}
-                                    </button>
-                                    <a href="/admin/sesi-absen" className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30">
-                                        <Activity className="h-4 w-4" />
-                                        Kelola Sesi
-                                    </a>
-                                    {qrUrl && (
-                                        <button
-                                            onClick={downloadQr}
-                                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30"
-                                        >
-                                            <Download className="h-4 w-4" />
-                                            Download QR
-                                        </button>
-                                    )}
-                                </div>
+                                
                             </div>
                             
                             <div className="flex flex-col items-end gap-2">
