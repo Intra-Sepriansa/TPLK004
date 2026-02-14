@@ -13,10 +13,11 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
     NotebookPen, Plus, ArrowLeft, Search, BookOpen, Monitor, Building2,
     Trash2, Edit, ExternalLink, Calendar, CheckCircle, XCircle, Sparkles,
-    FileText, Clock, TrendingUp
+    FileText, Clock, TrendingUp, LayoutGrid, List, Columns3, Star, Copy,
+    Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked
 } from 'lucide-react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { useState, FormEvent, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, FormEvent, useEffect, useRef, useMemo } from 'react';
 
 interface Note {
     id: number;
@@ -57,7 +58,10 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'masonry'>('grid');
+    const [sortBy, setSortBy] = useState<'date' | 'title' | 'course'>('date');
+    const [pinnedNotes, setPinnedNotes] = useState<number[]>([]);
+    const [favoriteNotes, setFavoriteNotes] = useState<number[]>([]);
 
     // Animation variants
     const containerVariants = {
@@ -84,16 +88,65 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         },
     };
 
-    // Mouse tracking for parallax
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x, y });
+    // Toggle pin note
+    const togglePin = (noteId: number) => {
+        setPinnedNotes(prev => 
+            prev.includes(noteId) ? prev.filter(id => id !== noteId) : [...prev, noteId]
+        );
     };
 
+    // Toggle favorite note
+    const toggleFavorite = (noteId: number) => {
+        setFavoriteNotes(prev => 
+            prev.includes(noteId) ? prev.filter(id => id !== noteId) : [...prev, noteId]
+        );
+    };
+
+    // Calculate word count and reading time
+    const getNoteStats = (content: string) => {
+        const words = content.trim().split(/\s+/).length;
+        const readingTime = Math.ceil(words / 200); // Average reading speed: 200 words/min
+        return { words, readingTime };
+    };
+
+    // Duplicate note
+    const handleDuplicate = (note: Note) => {
+        const course = courses.find(c => c.id === note.course_id);
+        setSelectedCourse(course || null);
+        setData({
+            mahasiswa_course_id: String(note.course_id),
+            meeting_number: String(note.meeting_number),
+            title: `${note.title} (Copy)`,
+            content: note.content,
+            links: note.links?.join('\n') || '',
+        });
+        setShowForm(true);
+    };
+
+    // Sort and filter notes
+    const sortedAndFilteredNotes = useMemo(() => {
+        let filtered = [...notes];
+        
+        // Sort
+        filtered.sort((a, b) => {
+            if (sortBy === 'date') {
+                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            } else if (sortBy === 'title') {
+                return a.title.localeCompare(b.title);
+            } else {
+                return a.course_name.localeCompare(b.course_name);
+            }
+        });
+        
+        // Separate pinned notes
+        const pinned = filtered.filter(n => pinnedNotes.includes(n.id));
+        const unpinned = filtered.filter(n => !pinnedNotes.includes(n.id));
+        
+        return [...pinned, ...unpinned];
+    }, [notes, sortBy, pinnedNotes]);
+
     // Group notes by course
-    const notesByCourse = notes.reduce((acc, note) => {
+    const notesByCourse = sortedAndFilteredNotes.reduce((acc, note) => {
         if (!acc[note.course_name]) {
             acc[note.course_name] = {
                 mode: note.course_mode,
@@ -252,7 +305,6 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                 {/* Advanced Header with Particles */}
                 <motion.div
                     variants={itemVariants}
-                    onMouseMove={handleMouseMove}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
@@ -501,7 +553,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                     whileHover={{ scale: 1.01, y: -2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
                 >
-                    <div className="p-4">
+                    <div className="p-4 space-y-4">
                         <div className="flex flex-col md:flex-row gap-4">
                             <form onSubmit={handleSearch} className="flex-1 flex gap-2">
                                 <div className="relative flex-1">
@@ -531,6 +583,64 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     ))}
                                 </SelectContent>
                             </Select>
+                        </div>
+                        
+                        {/* View Mode & Sort Options */}
+                        <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Tampilan:</span>
+                                <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                    {[
+                                        { value: 'grid' as const, icon: LayoutGrid, label: 'Grid' },
+                                        { value: 'list' as const, icon: List, label: 'List' },
+                                        { value: 'masonry' as const, icon: Columns3, label: 'Masonry' },
+                                    ].map((mode) => (
+                                        <motion.button
+                                            key={mode.value}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => setViewMode(mode.value)}
+                                            className={`p-2 rounded-md transition-colors ${
+                                                viewMode === mode.value
+                                                    ? 'bg-white dark:bg-slate-700 text-purple-600 shadow-sm'
+                                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                            }`}
+                                            title={mode.label}
+                                        >
+                                            <mode.icon className="h-4 w-4" />
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Urutkan:</span>
+                                <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
+                                    <SelectTrigger className="w-[140px] h-9 border-2 hover:border-purple-300 transition-colors rounded-lg">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="date">
+                                            <div className="flex items-center gap-2">
+                                                <Clock className="h-3.5 w-3.5" />
+                                                Terbaru
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="title">
+                                            <div className="flex items-center gap-2">
+                                                <FileText className="h-3.5 w-3.5" />
+                                                Judul
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="course">
+                                            <div className="flex items-center gap-2">
+                                                <BookOpen className="h-3.5 w-3.5" />
+                                                Mata Kuliah
+                                            </div>
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -570,14 +680,25 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     </div>
                                 </div>
                                 <div className="p-4">
-                                    <div className="grid gap-4 md:grid-cols-2">
+                                    <div className={`grid gap-4 ${
+                                        viewMode === 'grid' ? 'md:grid-cols-2' :
+                                        viewMode === 'list' ? 'grid-cols-1' :
+                                        'md:grid-cols-3'
+                                    }`}>
                                         {courseNotes.map((note, noteIndex) => (
-                                            <MagneticNoteCard
+                                            <AdvancedNoteCard
                                                 key={note.id}
                                                 note={note}
                                                 noteIndex={noteIndex}
-                                                handleEdit={handleEdit}
-                                                openDeleteDialog={openDeleteDialog}
+                                                viewMode={viewMode}
+                                                isPinned={pinnedNotes.includes(note.id)}
+                                                isFavorite={favoriteNotes.includes(note.id)}
+                                                onTogglePin={() => togglePin(note.id)}
+                                                onToggleFavorite={() => toggleFavorite(note.id)}
+                                                onEdit={() => handleEdit(note)}
+                                                onDuplicate={() => handleDuplicate(note)}
+                                                onDelete={() => openDeleteDialog(note.id)}
+                                                stats={getNoteStats(note.content)}
                                             />
                                         ))}
                                     </div>
@@ -634,18 +755,38 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
     );
 }
 
-// Magnetic Note Card Component with 3D Effects
-function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
+// Advanced Note Card Component with Multiple Features
+function AdvancedNoteCard({ 
+    note, 
+    noteIndex, 
+    viewMode,
+    isPinned,
+    isFavorite,
+    onTogglePin,
+    onToggleFavorite,
+    onEdit,
+    onDuplicate,
+    onDelete,
+    stats
+}: {
     note: Note;
     noteIndex: number;
-    handleEdit: (note: Note) => void;
-    openDeleteDialog: (id: number) => void;
+    viewMode: 'grid' | 'list' | 'masonry';
+    isPinned: boolean;
+    isFavorite: boolean;
+    onTogglePin: () => void;
+    onToggleFavorite: () => void;
+    onEdit: () => void;
+    onDuplicate: () => void;
+    onDelete: () => void;
+    stats: { words: number; readingTime: number };
 }) {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [showActions, setShowActions] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!cardRef.current) return;
+        if (!cardRef.current || viewMode === 'list') return;
         const rect = cardRef.current.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width - 0.5;
         const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -654,7 +795,10 @@ function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
 
     const handleMouseLeave = () => {
         setMousePosition({ x: 0, y: 0 });
+        setShowActions(false);
     };
+
+    const isListView = viewMode === 'list';
 
     return (
         <motion.div
@@ -664,16 +808,34 @@ function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
             transition={{ delay: noteIndex * 0.05, type: "spring", stiffness: 200 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            style={{
-                transform: `perspective(1000px) rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * 10}deg)`,
+            onMouseEnter={() => setShowActions(true)}
+            style={!isListView ? {
+                transform: `perspective(1000px) rotateX(${mousePosition.y * 5}deg) rotateY(${mousePosition.x * 5}deg)`,
                 transition: 'transform 0.1s ease-out',
-            }}
-            whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-            className="relative p-5 rounded-2xl border-2 border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/50 overflow-hidden group"
+            } : {}}
+            whileHover={{ scale: isListView ? 1.01 : 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+            className={`relative rounded-2xl border-2 bg-white dark:bg-slate-900/50 overflow-hidden group ${
+                isPinned ? 'border-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-800'
+            } ${isListView ? 'flex items-start gap-4 p-4' : 'p-5'}`}
         >
+            {/* Pin Indicator */}
+            {isPinned && (
+                <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    className="absolute top-0 right-0 w-0 h-0 border-t-[40px] border-t-amber-400 border-l-[40px] border-l-transparent"
+                >
+                    <Pin className="absolute -top-8 right-1 h-4 w-4 text-white rotate-45" />
+                </motion.div>
+            )}
+            
             {/* Glow Effect */}
             <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                    isPinned ? 'from-amber-500/10 via-yellow-500/10 to-orange-500/10' :
+                    isFavorite ? 'from-rose-500/10 via-pink-500/10 to-purple-500/10' :
+                    'from-purple-500/10 via-pink-500/10 to-rose-500/10'
+                }`}
                 animate={{
                     scale: [1, 1.2, 1],
                 }}
@@ -684,39 +846,124 @@ function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
                 }}
             />
             
-            <div className="relative z-10">
+            <div className={`relative z-10 ${isListView ? 'flex-1' : ''}`}>
+                {/* Header */}
                 <div className="flex items-start justify-between gap-2 mb-3">
-                    <motion.div whileHover={{ scale: 1.1 }}>
-                        <Badge variant="outline" className="text-xs border-2 border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950/30">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            Pertemuan {note.meeting_number}
-                        </Badge>
-                    </motion.div>
-                    <div className="flex items-center gap-1">
-                        <motion.div whileHover={{ scale: 1.2, rotate: 15 }} whileTap={{ scale: 0.9 }}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30" onClick={() => handleEdit(note)}>
-                                <Edit className="h-4 w-4 text-purple-600" />
-                            </Button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <motion.div whileHover={{ scale: 1.1 }}>
+                            <Badge variant="outline" className="text-xs border-2 border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-950/30">
+                                <Calendar className="h-3 w-3 mr-1" />
+                                P{note.meeting_number}
+                            </Badge>
                         </motion.div>
-                        <motion.div whileHover={{ scale: 1.2, rotate: -15 }} whileTap={{ scale: 0.9 }}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30" onClick={() => openDeleteDialog(note.id)}>
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </motion.div>
+                        {isFavorite && (
+                            <motion.div
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                            >
+                                <Badge variant="outline" className="text-xs border-2 border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-950/30">
+                                    <Star className="h-3 w-3 mr-1 fill-rose-500 text-rose-500" />
+                                    Favorit
+                                </Badge>
+                            </motion.div>
+                        )}
                     </div>
+                    
+                    {/* Quick Actions */}
+                    <AnimatePresence>
+                        {showActions && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                                animate={{ opacity: 1, scale: 1, x: 0 }}
+                                exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                                className="flex items-center gap-1"
+                            >
+                                <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className={`h-8 w-8 ${isPinned ? 'text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                        onClick={onTogglePin}
+                                        title={isPinned ? 'Unpin' : 'Pin'}
+                                    >
+                                        <Pin className={`h-4 w-4 ${isPinned ? 'fill-amber-600' : ''}`} />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className={`h-8 w-8 ${isFavorite ? 'text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                        onClick={onToggleFavorite}
+                                        title={isFavorite ? 'Unfavorite' : 'Favorite'}
+                                    >
+                                        <Star className={`h-4 w-4 ${isFavorite ? 'fill-rose-600' : ''}`} />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, rotate: 15 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30" 
+                                        onClick={onEdit}
+                                        title="Edit"
+                                    >
+                                        <Edit className="h-4 w-4 text-purple-600" />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-900/30" 
+                                        onClick={onDuplicate}
+                                        title="Duplicate"
+                                    >
+                                        <Copy className="h-4 w-4 text-blue-600" />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, rotate: -15 }} whileTap={{ scale: 0.9 }}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30" 
+                                        onClick={onDelete}
+                                        title="Delete"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
                 
+                {/* Title */}
                 <motion.h4
-                    whileHover={{ x: 5 }}
-                    className="font-bold text-lg text-slate-900 dark:text-white mb-2"
+                    whileHover={{ x: 3 }}
+                    className={`font-bold text-slate-900 dark:text-white mb-2 ${isListView ? 'text-xl' : 'text-lg'}`}
                 >
                     {note.title}
                 </motion.h4>
                 
-                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 whitespace-pre-wrap mb-3">
+                {/* Content Preview */}
+                <p className={`text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap mb-3 ${isListView ? 'line-clamp-2' : 'line-clamp-3'}`}>
                     {note.content}
                 </p>
                 
+                {/* Stats */}
+                <div className="flex items-center gap-3 mb-3 text-xs text-slate-500">
+                    <div className="flex items-center gap-1">
+                        <FileText className="h-3 w-3" />
+                        <span>{stats.words} kata</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{stats.readingTime} menit baca</span>
+                    </div>
+                </div>
+                
+                {/* Links */}
                 {note.links && note.links.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -728,7 +975,7 @@ function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
                             <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">Link Referensi</p>
                         </div>
                         <div className="space-y-1.5">
-                            {note.links.map((link, i) => (
+                            {note.links.slice(0, isListView ? 1 : 2).map((link, i) => (
                                 <motion.a
                                     key={i}
                                     href={link}
@@ -741,13 +988,24 @@ function MagneticNoteCard({ note, noteIndex, handleEdit, openDeleteDialog }: {
                                     <span className="truncate">{link}</span>
                                 </motion.a>
                             ))}
+                            {note.links.length > (isListView ? 1 : 2) && (
+                                <p className="text-xs text-slate-400 pl-2">+{note.links.length - (isListView ? 1 : 2)} link lainnya</p>
+                            )}
                         </div>
                     </motion.div>
                 )}
                 
-                <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <Clock className="h-3 w-3 text-slate-400" />
-                    <p className="text-xs text-slate-400">{note.created_at}</p>
+                {/* Footer */}
+                <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-slate-400" />
+                        <p className="text-xs text-slate-400">{note.created_at}</p>
+                    </div>
+                    {note.updated_at !== note.created_at && (
+                        <Badge variant="outline" className="text-xs">
+                            Diperbarui
+                        </Badge>
+                    )}
                 </div>
             </div>
         </motion.div>
