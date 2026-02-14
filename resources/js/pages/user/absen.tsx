@@ -870,25 +870,99 @@ export default function UserAbsensi() {
                     <StepIndicator steps={flowSteps} currentStep={currentStep} />
                 </motion.div>
 
-                {/* Consent Card */}
+                {/* Consent Card - ENHANCED with attention-grabbing design */}
                 <motion.div
                     variants={cardVariants}
-                    whileHover={{ scale: 1.01, y: -2 }}
-                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black"
+                    whileHover={{ scale: 1.02, y: -4 }}
+                    animate={!consentAccepted ? {
+                        boxShadow: [
+                            "0 0 0 0 rgba(139, 92, 246, 0)",
+                            "0 0 0 8px rgba(139, 92, 246, 0.1)",
+                            "0 0 0 0 rgba(139, 92, 246, 0)"
+                        ]
+                    } : {}}
+                    transition={!consentAccepted ? { duration: 2, repeat: Infinity } : {}}
+                    className={cn(
+                        "rounded-2xl border p-6 shadow-lg backdrop-blur transition-all relative overflow-hidden",
+                        consentAccepted 
+                            ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-800 dark:from-emerald-950/20 dark:to-black"
+                            : "border-violet-300 bg-gradient-to-br from-violet-50 to-white dark:border-violet-700 dark:from-violet-950/30 dark:to-black"
+                    )}
                 >
-                    <div className="flex items-start gap-4">
+                    {/* Animated background pulse when not accepted */}
+                    {!consentAccepted && (
+                        <motion.div
+                            animate={{
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.05, 1],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 bg-gradient-to-br from-violet-400/10 to-purple-400/10 pointer-events-none"
+                        />
+                    )}
+
+                    <div className="flex items-start gap-4 relative z-10">
                         <motion.div
                             whileHover={{ rotate: 10, scale: 1.1 }}
-                            className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
+                            animate={!consentAccepted ? { 
+                                rotate: [0, -5, 5, -5, 0],
+                                scale: [1, 1.1, 1]
+                            } : {}}
+                            transition={!consentAccepted ? { 
+                                duration: 2, 
+                                repeat: Infinity,
+                                repeatDelay: 1
+                            } : {}}
+                            className={cn(
+                                "flex h-14 w-14 items-center justify-center rounded-xl shadow-lg",
+                                consentAccepted
+                                    ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                    : "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
+                            )}
                         >
-                            <Shield className="h-6 w-6" />
+                            <Shield className="h-7 w-7" />
                         </motion.div>
                         <div className="flex-1">
-                            <h2 className="font-semibold text-gray-900 dark:text-white">Persetujuan Privasi</h2>
-                            <p className="text-sm text-gray-500 mt-1">Dengan menggunakan kamera dan lokasi, kamu menyetujui kebijakan privasi.</p>
+                            <div className="flex items-center gap-2">
+                                <h2 className="font-bold text-gray-900 dark:text-white text-lg">Persetujuan Privasi</h2>
+                                {!consentAccepted && (
+                                    <motion.span
+                                        animate={{ opacity: [1, 0.5, 1] }}
+                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                        className="px-2 py-0.5 rounded-full bg-violet-500 text-white text-xs font-semibold"
+                                    >
+                                        Wajib
+                                    </motion.span>
+                                )}
+                                {consentAccepted && (
+                                    <motion.span
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1"
+                                    >
+                                        <CheckCircle2 className="h-3 w-3" />
+                                        Disetujui
+                                    </motion.span>
+                                )}
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                {consentAccepted 
+                                    ? "Terima kasih! Kamu sudah dapat menggunakan fitur kamera dan lokasi."
+                                    : "Centang kotak di bawah untuk mengaktifkan kamera dan lokasi."}
+                            </p>
                             <motion.label
-                                whileHover={{ x: 5 }}
-                                className="flex items-center gap-2 mt-3 cursor-pointer"
+                                whileHover={{ x: 5, scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={cn(
+                                    "flex items-center gap-3 mt-4 p-3 rounded-xl cursor-pointer transition-all border-2",
+                                    consentAccepted
+                                        ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800"
+                                        : "bg-violet-50 border-violet-200 dark:bg-violet-950/20 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500"
+                                )}
                             >
                                 <Checkbox
                                     checked={consentAccepted}
@@ -898,19 +972,22 @@ export default function UserAbsensi() {
                                         setConsentError(null);
                                         if (typeof window !== 'undefined') window.localStorage.setItem('tplk004_camera_consent', checked ? '1' : '0');
                                     }}
+                                    className="h-5 w-5"
                                 />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">Setuju penggunaan kamera & lokasi</span>
+                                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    Saya setuju menggunakan kamera & lokasi untuk absensi
+                                </span>
                             </motion.label>
                             <AnimatePresence>
                                 {consentError && (
                                     <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        className="mt-2 flex items-center gap-2 text-xs text-rose-600"
+                                        initial={{ opacity: 0, height: 0, y: -10 }}
+                                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                                        exit={{ opacity: 0, height: 0, y: -10 }}
+                                        className="mt-3 flex items-center gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-800"
                                     >
-                                        <AlertCircle className="h-4 w-4" />
-                                        {consentError}
+                                        <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                        <span className="text-sm text-rose-700 dark:text-rose-300 font-medium">{consentError}</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
