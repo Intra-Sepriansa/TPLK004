@@ -310,7 +310,14 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         return () => window.clearInterval(i);
     }, [expiresAtMs]);
 
-    useEffect(() => { setToken(null); setExpiresAtMs(null); }, [activeSession?.id]);
+    useEffect(() => { 
+        setToken(null); 
+        setExpiresAtMs(null); 
+        // Auto-generate token when session becomes active
+        if (activeSession?.id) {
+            void generateToken({ silent: false });
+        }
+    }, [activeSession?.id]);
 
     useEffect(() => {
         if (!expiresAtMs || !token) return;
