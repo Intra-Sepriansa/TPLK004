@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
     Vote, Plus, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Users, X, Wallet,
-    TrendingUp, PieChart, Calendar, AlertCircle, Sparkles, Target, BarChart3, Info
+    PieChart, AlertCircle, Target, BarChart3, Info, Sparkles
 } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -48,11 +49,11 @@ interface Props {
 }
 
 const categories = [
-    { value: 'kegiatan', label: 'Kegiatan Kelas', icon: '🎉', color: 'bg-purple-100 text-purple-700' },
-    { value: 'perlengkapan', label: 'Perlengkapan', icon: '📦', color: 'bg-blue-100 text-blue-700' },
-    { value: 'konsumsi', label: 'Konsumsi', icon: '🍕', color: 'bg-orange-100 text-orange-700' },
-    { value: 'donasi', label: 'Donasi/Sosial', icon: '❤️', color: 'bg-pink-100 text-pink-700' },
-    { value: 'lainnya', label: 'Lainnya', icon: '📋', color: 'bg-slate-100 text-slate-700' },
+    { value: 'kegiatan', label: 'Kegiatan Kelas', icon: 'noto:party-popper', color: 'bg-purple-100 text-purple-700' },
+    { value: 'perlengkapan', label: 'Perlengkapan', icon: 'noto:package', color: 'bg-blue-100 text-blue-700' },
+    { value: 'konsumsi', label: 'Konsumsi', icon: 'noto:pizza', color: 'bg-orange-100 text-orange-700' },
+    { value: 'donasi', label: 'Donasi/Sosial', icon: 'noto:red-heart', color: 'bg-pink-100 text-pink-700' },
+    { value: 'lainnya', label: 'Lainnya', icon: 'noto:clipboard', color: 'bg-slate-100 text-slate-700' },
 ];
 
 export default function KasVoting({ votings, stats, filters }: Props) {
@@ -492,7 +493,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                                 whileHover={{ scale: 1.05 }}
                                                                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${categoryConfig.color} shadow-sm`}
                                                             >
-                                                                <span>{categoryConfig.icon}</span>
+                                                                <Icon icon={categoryConfig.icon} className="w-4 h-4" />
                                                                 {categoryConfig.label}
                                                             </motion.span>
                                                         </div>
@@ -915,7 +916,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                 {categories.map((cat) => (
                                                     <SelectItem key={cat.value} value={cat.value}>
                                                         <span className="flex items-center gap-2">
-                                                            <span>{cat.icon}</span>
+                                                            <Icon icon={cat.icon} className="w-5 h-5" />
                                                             {cat.label}
                                                         </span>
                                                     </SelectItem>
@@ -1065,7 +1066,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                     transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
                                                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium ${categoryConfig.color}`}
                                                 >
-                                                    <span>{categoryConfig.icon}</span>
+                                                    <Icon icon={categoryConfig.icon} className="w-4 h-4" />
                                                     {categoryConfig.label}
                                                 </motion.span>
                                             </div>
