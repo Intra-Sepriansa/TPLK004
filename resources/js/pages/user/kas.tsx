@@ -106,18 +106,102 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                 variants={containerVariants}
                 className="p-6 space-y-6"
             >
-                {/* Animated Header with Particles */}
+                {/* Premium Header with Advanced Animations */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
                 >
+                    {/* Animated Background Orbs */}
+                    <div className="absolute inset-0 overflow-hidden">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                rotate: [0, 180, 360],
+                            }}
+                            transition={{
+                                duration: 20,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                        />
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.4, 1],
+                                rotate: [360, 180, 0],
+                            }}
+                            transition={{
+                                duration: 15,
+                                repeat: Infinity,
+                                ease: "linear"
+                            }}
+                            className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
+                        />
+                        
+                        {/* Large Floating Icons */}
+                        <motion.div
+                            animate={{
+                                y: [0, -20, 0],
+                                rotate: [0, 5, 0],
+                            }}
+                            transition={{
+                                duration: 6,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute right-8 top-8 opacity-10"
+                        >
+                            <Wallet className="h-32 w-32" />
+                        </motion.div>
+                        <motion.div
+                            animate={{
+                                y: [0, 15, 0],
+                                rotate: [0, -5, 0],
+                            }}
+                            transition={{
+                                duration: 7,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute left-8 bottom-8 opacity-10"
+                        >
+                            <DollarSign className="h-28 w-28" />
+                        </motion.div>
+                    </div>
+                    
+                    {/* Floating Money Icons */}
+                    {[Wallet, DollarSign, Receipt, TrendingUp, Sparkles].map((Icon, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ 
+                                opacity: [0, 0.4, 0],
+                                scale: [0, 1, 0],
+                                y: [0, -40, -80]
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 0.8,
+                                ease: "easeOut"
+                            }}
+                            style={{
+                                left: `${15 + i * 18}%`,
+                                top: `${20 + (i % 2) * 40}%`,
+                            }}
+                        >
+                            <Icon className="h-6 w-6 text-white" />
+                        </motion.div>
+                    ))}
+                    
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
                                 <motion.div
                                     whileHover={{ scale: 1.15, y: -3 }}
                                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl shadow-lg"
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg shadow-yellow-500/50"
                                 >
                                     <Wallet className="h-8 w-8" />
                                 </motion.div>
@@ -126,7 +210,7 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-sm text-emerald-100"
+                                        className="text-sm text-gray-300 font-medium"
                                     >
                                         Keuangan Kelas
                                     </motion.p>
@@ -134,7 +218,7 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="text-3xl font-bold"
+                                        className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
                                     >
                                         Uang Kas Saya
                                     </motion.h1>
@@ -142,24 +226,33 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.5 }}
-                                        className="text-sm text-emerald-100 mt-1"
+                                        className="text-sm text-gray-300 mt-1"
                                     >
                                         {mahasiswa.nama} • {mahasiswa.nim}
                                     </motion.p>
                                 </div>
                             </div>
 
-                            {/* Payment Rate Badge */}
+                            {/* Payment Rate Badge with Premium Design */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.6, type: 'spring' }}
-                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg"
+                                whileHover={{ scale: 1.05, y: -3 }}
+                                className="relative group"
                             >
-                                <Award className="h-6 w-6" />
-                                <div>
-                                    <p className="text-xs text-emerald-100">Tingkat Pembayaran</p>
-                                    <p className="text-2xl font-bold">{paymentRate.toFixed(0)}%</p>
+                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
+                                <div className="relative flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/30">
+                                    <motion.div
+                                        animate={{ rotate: [0, 360] }}
+                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                    >
+                                        <Award className="h-6 w-6" />
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-xs text-gray-200 font-medium">Tingkat Pembayaran</p>
+                                        <p className="text-2xl font-black">{paymentRate.toFixed(0)}%</p>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>
