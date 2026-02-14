@@ -150,13 +150,31 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                 animate="visible"
                 variants={containerVariants}
             >
-                {/* Header Card with Gradient */}
+                {/* Header Card with Animated Gradient */}
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-black p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    
                     <div className="relative z-10">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -169,7 +187,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                                 </motion.div>
                                 <div>
                                     <motion.p 
-                                        className="text-sm text-blue-100 font-medium"
+                                        className="text-sm text-indigo-100 font-medium"
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
@@ -188,7 +206,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                             </div>
                             <div className="flex items-center gap-4">
                                 <div className="text-right">
-                                    <p className="text-sm text-blue-100">Update terakhir</p>
+                                    <p className="text-sm text-indigo-100">Update terakhir</p>
                                     <p className="font-semibold text-lg">{lastUpdate.toLocaleTimeString('id-ID')}</p>
                                 </div>
                                 <motion.button 
@@ -203,7 +221,7 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                             </div>
                         </div>
                         <motion.p 
-                            className="mt-4 text-blue-100 text-lg"
+                            className="mt-4 text-indigo-100 text-lg"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4 }}
