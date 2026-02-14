@@ -18,6 +18,11 @@ class SelfieViewRequestController extends Controller
 
         $selfieVerification = SelfieVerification::with('attendanceLog.mahasiswa')->findOrFail($validated['selfie_verification_id']);
         
+        // Check if attendance log and mahasiswa exist
+        if (!$selfieVerification->attendanceLog || !$selfieVerification->attendanceLog->mahasiswa) {
+            return back()->withErrors(['error' => 'Data mahasiswa tidak ditemukan untuk selfie ini']);
+        }
+        
         $viewRequest = SelfieViewRequest::create([
             'selfie_verification_id' => $validated['selfie_verification_id'],
             'requested_by' => auth()->id(),

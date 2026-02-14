@@ -11,7 +11,8 @@ class SelfieVerificationController extends Controller
 {
     public function index()
     {
-        $mahasiswaId = auth()->user()->mahasiswa->id;
+        // auth()->user() returns Mahasiswa instance when using auth:mahasiswa guard
+        $mahasiswaId = auth()->id();
         
         $requests = SelfieViewRequest::with([
             'selfieVerification.attendanceLog',
@@ -36,7 +37,7 @@ class SelfieVerificationController extends Controller
 
     public function approve(Request $request, SelfieViewRequest $viewRequest)
     {
-        $mahasiswaId = auth()->user()->mahasiswa->id;
+        $mahasiswaId = auth()->id();
         
         if ($viewRequest->mahasiswa_id !== $mahasiswaId) {
             abort(403);
@@ -57,7 +58,7 @@ class SelfieVerificationController extends Controller
 
     public function reject(Request $request, SelfieViewRequest $viewRequest)
     {
-        $mahasiswaId = auth()->user()->mahasiswa->id;
+        $mahasiswaId = auth()->id();
         
         if ($viewRequest->mahasiswa_id !== $mahasiswaId) {
             abort(403);
