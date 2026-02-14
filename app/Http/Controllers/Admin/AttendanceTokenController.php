@@ -43,7 +43,7 @@ class AttendanceTokenController extends Controller
         if (! $token) {
             $token = AttendanceToken::create([
                 'attendance_session_id' => $attendanceSession->id,
-                'token' => Str::upper(Str::random(20)),
+                'token' => Str::upper(Str::random(25)),
                 'expires_at' => $now->copy()->addSeconds($ttl),
             ]);
         }

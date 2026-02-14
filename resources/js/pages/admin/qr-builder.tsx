@@ -218,19 +218,65 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
             return;
         }
 
-        // Generate QR code
-        QRCode.toDataURL(token, {
-            width: 300,
-            margin: 2,
-            errorCorrectionLevel: 'M'
-        })
-            .then((url: string) => {
-                setQrUrl(url);
-            })
-            .catch((err: unknown) => {
+        // Generate QR code with UNPAM logo
+        const generateQRWithLogo = async () => {
+            try {
+                // Generate QR code
+                const qrDataUrl = await QRCode.toDataURL(token, {
+                    width: 300,
+                    margin: 2,
+                    errorCorrectionLevel: 'H' // High error correction for logo overlay
+                });
+
+                // Create canvas to add logo
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                // Load QR code image
+                const qrImage = new Image();
+                qrImage.onload = () => {
+                    canvas.width = qrImage.width;
+                    canvas.height = qrImage.height;
+                    
+                    // Draw QR code
+                    ctx.drawImage(qrImage, 0, 0);
+
+                    // Load and draw UNPAM logo
+                    const logo = new Image();
+                    logo.onload = () => {
+                        const logoSize = 50; // Logo size
+                        const logoX = canvas.width - logoSize - 10; // 10px from right
+                        const logoY = canvas.height - logoSize - 10; // 10px from bottom
+                        
+                        // Draw white background for logo
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(logoX - 5, logoY - 5, logoSize + 10, logoSize + 10);
+                        
+                        // Draw logo
+                        ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+                        
+                        // Set final QR code with logo
+                        setQrUrl(canvas.toDataURL());
+                    };
+                    logo.onerror = () => {
+                        // If logo fails to load, use QR without logo
+                        setQrUrl(qrDataUrl);
+                    };
+                    logo.src = '/logo-unpam.png';
+                };
+                qrImage.onerror = () => {
+                    console.error('QR Code image load error');
+                    setQrUrl(null);
+                };
+                qrImage.src = qrDataUrl;
+            } catch (err: unknown) {
                 console.error('QR Code generation error:', err);
                 setQrUrl(null);
-            });
+            }
+        };
+
+        generateQRWithLogo();
     }, [token]);
 
     useEffect(() => {
