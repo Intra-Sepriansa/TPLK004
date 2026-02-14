@@ -1039,7 +1039,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
                                     >
-                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 block flex items-center gap-2">
+                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 flex items-center gap-2">
                                             <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                             Jawaban (Opsional)
                                         </Label>
@@ -1057,7 +1057,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
                                     >
-                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 block flex items-center gap-2">
+                                        <Label className="text-slate-700 dark:text-gray-300 font-semibold mb-3 flex items-center gap-2">
                                             <Upload className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                             Upload File (Opsional)
                                         </Label>
