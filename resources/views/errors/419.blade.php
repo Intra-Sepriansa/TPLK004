@@ -50,38 +50,10 @@
 
             <!-- Illustration -->
             <div class="flex justify-center mb-12">
-                <div class="relative">
-                    <svg class="w-64 h-64 float-animation" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Clock Icon -->
-                        <circle cx="100" cy="100" r="50" stroke="url(#gradient1)" stroke-width="6" fill="none"/>
-                        
-                        <!-- Clock Hands -->
-                        <line x1="100" y1="100" x2="100" y2="65" stroke="url(#gradient2)" stroke-width="4" stroke-linecap="round"/>
-                        <line x1="100" y1="100" x2="125" y2="100" stroke="url(#gradient2)" stroke-width="4" stroke-linecap="round"/>
-                        
-                        <!-- Clock Center -->
-                        <circle cx="100" cy="100" r="5" fill="url(#gradient2)"/>
-                        
-                        <!-- Expired Symbol (X) -->
-                        <line x1="140" y1="60" x2="160" y2="80" stroke="url(#gradient3)" stroke-width="5" stroke-linecap="round"/>
-                        <line x1="160" y1="60" x2="140" y2="80" stroke="url(#gradient3)" stroke-width="5" stroke-linecap="round"/>
-                        
-                        <!-- Gradient Definitions -->
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#A855F7;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#D946EF;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#D946EF;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#EC4899;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#EC4899;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#F43F5E;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                <div class="relative float-animation">
+                    <img src="https://cdn.jsdelivr.net/gh/storyset/illustrations@main/error/Session%20expired-rafiki.svg" 
+                         alt="419 Session Expired" 
+                         class="w-96 h-96 object-contain opacity-90">
                 </div>
             </div>
 

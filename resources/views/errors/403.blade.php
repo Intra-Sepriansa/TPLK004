@@ -45,28 +45,10 @@
 
             <!-- Illustration -->
             <div class="flex justify-center mb-12">
-                <div class="relative">
-                    <svg class="w-64 h-64 float-animation" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Lock Icon -->
-                        <rect x="70" y="90" width="60" height="70" rx="8" stroke="url(#gradient1)" stroke-width="6" fill="none"/>
-                        <path d="M 80 90 L 80 70 Q 80 50 100 50 Q 120 50 120 70 L 120 90" stroke="url(#gradient1)" stroke-width="6" fill="none"/>
-                        
-                        <!-- Keyhole -->
-                        <circle cx="100" cy="120" r="8" fill="url(#gradient2)"/>
-                        <rect x="96" y="120" width="8" height="20" rx="2" fill="url(#gradient2)"/>
-                        
-                        <!-- Gradient Definitions -->
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#F97316;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#FBBF24;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#FBBF24;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#FCD34D;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                <div class="relative float-animation">
+                    <img src="https://cdn.jsdelivr.net/gh/storyset/illustrations@main/error/Access%20denied-rafiki.svg" 
+                         alt="403 Forbidden" 
+                         class="w-96 h-96 object-contain opacity-90">
                 </div>
             </div>
 

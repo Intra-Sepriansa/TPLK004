@@ -46,29 +46,10 @@
 
             <!-- Illustration -->
             <div class="flex justify-center mb-12">
-                <div class="relative">
-                    <svg class="w-64 h-64" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Server Icon -->
-                        <rect x="50" y="40" width="100" height="30" rx="5" stroke="url(#gradient1)" stroke-width="4" fill="none"/>
-                        <rect x="50" y="80" width="100" height="30" rx="5" stroke="url(#gradient1)" stroke-width="4" fill="none"/>
-                        <rect x="50" y="120" width="100" height="30" rx="5" stroke="url(#gradient1)" stroke-width="4" fill="none"/>
-                        
-                        <!-- Warning Sign -->
-                        <circle cx="100" cy="95" r="35" fill="url(#gradient2)" opacity="0.9"/>
-                        <text x="95" y="105" font-size="30" fill="white" font-weight="bold">!</text>
-                        
-                        <!-- Gradient Definitions -->
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#F97316;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#F97316;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#FBBF24;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                <div class="relative shake-animation">
+                    <img src="https://cdn.jsdelivr.net/gh/storyset/illustrations@main/error/500%20Internal%20Server%20Error-rafiki.svg" 
+                         alt="500 Server Error" 
+                         class="w-96 h-96 object-contain opacity-90">
                 </div>
             </div>
 

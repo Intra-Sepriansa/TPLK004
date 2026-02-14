@@ -41,22 +41,10 @@
             </div>
 
             <div class="flex justify-center mb-12">
-                <div class="relative">
-                    <svg class="w-64 h-64 float-animation" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="60" y="70" width="80" height="60" rx="8" stroke="url(#gradient1)" stroke-width="5" fill="none"/>
-                        <circle cx="100" cy="100" r="15" stroke="url(#gradient2)" stroke-width="4" fill="none"/>
-                        <path d="M 100 85 L 100 100 L 110 105" stroke="url(#gradient2)" stroke-width="3" stroke-linecap="round"/>
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                <div class="relative float-animation">
+                    <img src="https://cdn.jsdelivr.net/gh/storyset/illustrations@main/error/Under%20construction-rafiki.svg" 
+                         alt="503 Service Unavailable" 
+                         class="w-96 h-96 object-contain opacity-90">
                 </div>
             </div>
 

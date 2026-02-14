@@ -27,6 +27,23 @@ Route::get('privacy', function () {
     return Inertia::render('privacy');
 })->name('privacy');
 
+// Testing Error Pages (REMOVE IN PRODUCTION)
+Route::get('test-errors/404', function () {
+    abort(404);
+});
+Route::get('test-errors/403', function () {
+    abort(403);
+});
+Route::get('test-errors/419', function () {
+    abort(419);
+});
+Route::get('test-errors/500', function () {
+    abort(500);
+});
+Route::get('test-errors/503', function () {
+    abort(503);
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');

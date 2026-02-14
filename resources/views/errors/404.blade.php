@@ -45,27 +45,10 @@
 
             <!-- Illustration -->
             <div class="flex justify-center mb-12">
-                <div class="relative">
-                    <svg class="w-64 h-64 float-animation" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Search Icon -->
-                        <circle cx="80" cy="80" r="40" stroke="url(#gradient1)" stroke-width="6" fill="none"/>
-                        <line x1="110" y1="110" x2="140" y2="140" stroke="url(#gradient1)" stroke-width="6" stroke-linecap="round"/>
-                        
-                        <!-- Question Mark -->
-                        <text x="75" y="95" font-size="40" fill="url(#gradient2)" font-weight="bold">?</text>
-                        
-                        <!-- Gradient Definitions -->
-                        <defs>
-                            <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#06B6D4;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#14B8A6;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
+                <div class="relative float-animation">
+                    <img src="https://cdn.jsdelivr.net/gh/storyset/illustrations@main/error/404%20Error-rafiki.svg" 
+                         alt="404 Error" 
+                         class="w-96 h-96 object-contain opacity-90">
                 </div>
             </div>
 
