@@ -674,104 +674,354 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                         onClick={() => setShowForm(false)}
                     >
+                        {/* Floating Particles */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            {[...Array(15)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ y: "100%", opacity: 0 }}
+                                    animate={{ 
+                                        y: "-100%", 
+                                        opacity: [0, 0.5, 0],
+                                        x: [0, Math.sin(i) * 50, 0]
+                                    }}
+                                    transition={{
+                                        duration: 3 + i * 0.5,
+                                        repeat: Infinity,
+                                        delay: i * 0.2,
+                                    }}
+                                    className="absolute w-2 h-2 bg-teal-400 rounded-full"
+                                    style={{
+                                        left: `${(i * 7) % 100}%`,
+                                    }}
+                                />
+                            ))}
+                        </div>
+
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
+                            initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                            animate={{ scale: 1, y: 0, opacity: 1 }}
+                            exit={{ scale: 0.8, y: 50, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-black max-h-[90vh] overflow-y-auto"
+                            className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-white via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-950 dark:to-teal-950/20 p-8 shadow-2xl max-h-[90vh] overflow-y-auto border border-teal-100 dark:border-teal-900/30"
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
+                            {/* Decorative Elements */}
+                            <motion.div
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                    rotate: [0, 180, 360],
+                                }}
+                                transition={{
+                                    duration: 20,
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                }}
+                                className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 rounded-full blur-3xl"
+                            />
+                            <motion.div
+                                animate={{
+                                    scale: [1.2, 1, 1.2],
+                                    rotate: [360, 180, 0],
+                                }}
+                                transition={{
+                                    duration: 15,
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                }}
+                                className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl"
+                            />
+
+                            {/* Header */}
+                            <div className="relative flex items-center justify-between mb-8">
+                                <div className="flex items-center gap-4">
                                     <motion.div
                                         initial={{ rotate: -180, scale: 0 }}
                                         animate={{ rotate: 0, scale: 1 }}
                                         transition={{ type: "spring", stiffness: 200 }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg"
+                                        className="relative"
                                     >
-                                        <Sparkles className="h-6 w-6" />
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.5, 0.8, 0.5],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                            className="absolute inset-0 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-xl blur-xl"
+                                        />
+                                        <div className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-cyan-600 text-white shadow-lg">
+                                            <Sparkles className="h-8 w-8" />
+                                        </div>
                                     </motion.div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Usulkan Pengeluaran</h3>
-                                        <p className="text-sm text-slate-500">Usulan akan di-voting selama 3 hari</p>
+                                        <motion.h3
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent"
+                                        >
+                                            Usulkan Pengeluaran
+                                        </motion.h3>
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="text-sm text-slate-500 flex items-center gap-1.5 mt-1"
+                                        >
+                                            <Clock className="h-3.5 w-3.5" />
+                                            Usulan akan di-voting selama 3 hari
+                                        </motion.p>
                                     </div>
                                 </div>
                                 <motion.button
                                     whileHover={{ scale: 1.1, rotate: 90 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setShowForm(false)}
-                                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    className="p-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group"
                                 >
-                                    <X className="h-5 w-5 text-slate-400" />
+                                    <X className="h-5 w-5 text-slate-400 group-hover:text-red-500 transition-colors" />
                                 </motion.button>
                             </div>
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Judul Usulan</Label>
-                                <Input
-                                    value={data.title}
-                                    onChange={(e) => setData('title', e.target.value)}
-                                    placeholder="Contoh: Beli spidol whiteboard"
-                                    className="h-12 rounded-xl"
-                                />
-                                {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-sm font-semibold">Deskripsi</Label>
-                                <Textarea
-                                    value={data.description}
-                                    onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Jelaskan kebutuhan dan alasan pengeluaran ini..."
-                                    rows={4}
-                                    className="rounded-xl resize-none"
-                                />
-                                {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">Jumlah (Rp)</Label>
-                                    <Input
-                                        type="number"
-                                        value={data.amount}
-                                        onChange={(e) => setData('amount', e.target.value)}
-                                        placeholder="50000"
-                                        className="h-12 rounded-xl"
-                                    />
-                                    {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">Kategori</Label>
-                                    <Select value={data.category} onValueChange={(v) => setData('category', v)}>
-                                        <SelectTrigger className="h-12 rounded-xl">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {categories.map((cat) => (
-                                                <SelectItem key={cat.value} value={cat.value}>
-                                                    <span className="flex items-center gap-2">
-                                                        <span>{cat.icon}</span>
-                                                        {cat.label}
-                                                    </span>
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            <div className="flex gap-3 pt-4">
-                                <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1 h-12 rounded-xl">
-                                    Batal
-                                </Button>
-                                <Button 
-                                    type="submit" 
-                                    disabled={processing} 
-                                    className="flex-1 h-12 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-lg shadow-teal-500/30"
+
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {/* Judul Usulan */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="space-y-2"
                                 >
-                                    {processing ? 'Mengirim...' : 'Kirim Usulan'}
-                                </Button>
-                            </div>
-                        </form>
+                                    <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <PieChart className="h-4 w-4 text-teal-500" />
+                                        Judul Usulan
+                                    </Label>
+                                    <div className="relative group">
+                                        <motion.div
+                                            className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-xl opacity-0 group-focus-within:opacity-20 blur-xl transition-opacity"
+                                        />
+                                        <Input
+                                            value={data.title}
+                                            onChange={(e) => setData('title', e.target.value)}
+                                            placeholder="Contoh: Beli spidol whiteboard"
+                                            className="relative h-14 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-teal-400 dark:focus:border-teal-500 transition-all text-base bg-white/50 dark:bg-slate-900/50 backdrop-blur"
+                                        />
+                                    </div>
+                                    {errors.title && (
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="text-sm text-red-500 flex items-center gap-1"
+                                        >
+                                            <AlertCircle className="h-3.5 w-3.5" />
+                                            {errors.title}
+                                        </motion.p>
+                                    )}
+                                </motion.div>
+
+                                {/* Deskripsi */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="space-y-2"
+                                >
+                                    <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                        <Info className="h-4 w-4 text-teal-500" />
+                                        Deskripsi
+                                    </Label>
+                                    <div className="relative group">
+                                        <motion.div
+                                            className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-xl opacity-0 group-focus-within:opacity-20 blur-xl transition-opacity"
+                                        />
+                                        <Textarea
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            placeholder="Jelaskan kebutuhan dan alasan pengeluaran ini..."
+                                            rows={4}
+                                            className="relative rounded-xl resize-none border-2 border-slate-200 dark:border-slate-700 focus:border-teal-400 dark:focus:border-teal-500 transition-all bg-white/50 dark:bg-slate-900/50 backdrop-blur"
+                                        />
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="absolute bottom-3 right-3 text-xs text-slate-400"
+                                        >
+                                            {data.description.length} karakter
+                                        </motion.div>
+                                    </div>
+                                    {errors.description && (
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            className="text-sm text-red-500 flex items-center gap-1"
+                                        >
+                                            <AlertCircle className="h-3.5 w-3.5" />
+                                            {errors.description}
+                                        </motion.p>
+                                    )}
+                                </motion.div>
+
+                                {/* Jumlah & Kategori */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Jumlah */}
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="space-y-2"
+                                    >
+                                        <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                            <Wallet className="h-4 w-4 text-teal-500" />
+                                            Jumlah (Rp)
+                                        </Label>
+                                        <div className="relative group">
+                                            <motion.div
+                                                className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-xl opacity-0 group-focus-within:opacity-20 blur-xl transition-opacity"
+                                            />
+                                            <Input
+                                                type="number"
+                                                value={data.amount}
+                                                onChange={(e) => setData('amount', e.target.value)}
+                                                placeholder="50000"
+                                                className="relative h-14 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-teal-400 dark:focus:border-teal-500 transition-all text-base bg-white/50 dark:bg-slate-900/50 backdrop-blur"
+                                            />
+                                        </div>
+                                        {errors.amount && (
+                                            <motion.p
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                className="text-sm text-red-500 flex items-center gap-1"
+                                            >
+                                                <AlertCircle className="h-3.5 w-3.5" />
+                                                {errors.amount}
+                                            </motion.p>
+                                        )}
+                                    </motion.div>
+
+                                    {/* Kategori */}
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="space-y-2"
+                                    >
+                                        <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                            <Target className="h-4 w-4 text-teal-500" />
+                                            Kategori
+                                        </Label>
+                                        <Select value={data.category} onValueChange={(v) => setData('category', v)}>
+                                            <SelectTrigger className="h-14 rounded-xl border-2 border-slate-200 dark:border-slate-700 focus:border-teal-400 dark:focus:border-teal-500 transition-all bg-white/50 dark:bg-slate-900/50 backdrop-blur">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((cat) => (
+                                                    <SelectItem key={cat.value} value={cat.value}>
+                                                        <span className="flex items-center gap-2">
+                                                            <span>{cat.icon}</span>
+                                                            {cat.label}
+                                                        </span>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </motion.div>
+                                </div>
+
+                                {/* Info Box */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    className="relative overflow-hidden rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 p-4 border border-teal-200 dark:border-teal-800"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <motion.div
+                                            animate={{
+                                                rotate: [0, 10, -10, 0],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                        >
+                                            <Info className="h-5 w-5 text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5" />
+                                        </motion.div>
+                                        <div className="text-sm text-teal-700 dark:text-teal-300">
+                                            <p className="font-semibold mb-1">Catatan Penting:</p>
+                                            <ul className="space-y-1 text-xs">
+                                                <li>• Usulan akan di-voting oleh seluruh anggota kelas</li>
+                                                <li>• Periode voting berlangsung selama 3 hari</li>
+                                                <li>• Pastikan deskripsi jelas dan detail</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Action Buttons */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.7 }}
+                                    className="flex gap-3 pt-4"
+                                >
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex-1"
+                                    >
+                                        <Button 
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={() => setShowForm(false)} 
+                                            className="w-full h-14 rounded-xl border-2 text-base font-semibold"
+                                        >
+                                            Batal
+                                        </Button>
+                                    </motion.div>
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex-1"
+                                    >
+                                        <Button 
+                                            type="submit" 
+                                            disabled={processing} 
+                                            className="relative w-full h-14 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-lg shadow-teal-500/30 text-base font-semibold overflow-hidden group"
+                                        >
+                                            {processing ? (
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <motion.div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                                                    Mengirim...
+                                                </motion.div>
+                                            ) : (
+                                                <>
+                                                    <motion.div
+                                                        className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                                                        animate={{
+                                                            x: ['-100%', '100%'],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            ease: "linear"
+                                                        }}
+                                                    />
+                                                    <span className="relative flex items-center gap-2">
+                                                        <Sparkles className="h-5 w-5" />
+                                                        Kirim Usulan
+                                                    </span>
+                                                </>
+                                            )}
+                                        </Button>
+                                    </motion.div>
+                                </motion.div>
+                            </form>
                         </motion.div>
                     </motion.div>
                 )}
