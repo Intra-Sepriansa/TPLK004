@@ -265,332 +265,484 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                 </motion.div>
 
 
-                {/* My Rank Card with Advanced Animations */}
+                {/* My Rank Card with Premium Design */}
                 {myRank && myStats && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                        whileHover={{ scale: 1.02, y: -5 }}
-                        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-black via-slate-900 to-slate-800 p-6 text-white shadow-2xl border border-slate-700/50"
+                        className="relative group"
                     >
-                        {/* Animated glow effect */}
+                        {/* Animated Background Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-3xl" />
                         <motion.div
                             animate={{
-                                opacity: [0.3, 0.6, 0.3],
-                                scale: [1, 1.1, 1],
+                                opacity: [0.4, 0.7, 0.4],
+                                scale: [1, 1.05, 1],
                             }}
                             transition={{
-                                duration: 3,
+                                duration: 4,
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
-                            className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-orange-500/20 blur-2xl"
+                            className="absolute inset-0 bg-gradient-to-tr from-pink-500/30 via-purple-500/30 to-cyan-500/30 rounded-3xl blur-xl"
                         />
                         
-                        <div className="relative flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.4 }}
-                                    whileHover={{ 
-                                        scale: 1.1,
-                                        rotate: [0, -10, 10, -10, 0],
-                                        transition: { duration: 0.5 }
-                                    }}
-                                    className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-3xl font-bold shadow-lg shadow-amber-500/50"
-                                >
-                                    #{myRank}
-                                </motion.div>
-                                <div>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="text-slate-400 text-sm"
-                                    >
-                                        Peringkat Kamu
-                                    </motion.p>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                        className="text-2xl font-bold"
-                                    >
-                                        {mahasiswa.nama}
-                                    </motion.p>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.7 }}
-                                        className="text-sm text-slate-400 flex items-center gap-2"
-                                    >
-                                        <Star className="h-4 w-4 text-amber-400" />
-                                        <AnimatedCounter value={myStats.points} /> poin • Level {myStats.level}
-                                    </motion.p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-8">
-                                {[
-                                    { label: 'Kehadiran', value: myStats.attendance_rate, suffix: '%', color: 'emerald', icon: null, delay: 0.8 },
-                                    { label: 'Streak', value: myStats.streak, suffix: '', color: 'amber', icon: Flame, delay: 0.85 },
-                                    { label: 'Tepat Waktu', value: myStats.on_time_rate, suffix: '%', color: 'blue', icon: null, delay: 0.9 },
-                                ].map((stat) => (
+                        {/* Floating Particles */}
+                        {[...Array(8)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                className="absolute w-2 h-2 bg-white rounded-full"
+                                animate={{
+                                    y: [0, -100],
+                                    opacity: [0, 1, 0],
+                                    scale: [0, 1, 0],
+                                }}
+                                transition={{
+                                    duration: 3 + Math.random() * 2,
+                                    repeat: Infinity,
+                                    delay: i * 0.4,
+                                }}
+                                style={{
+                                    left: `${10 + i * 12}%`,
+                                    bottom: 0,
+                                }}
+                            />
+                        ))}
+                        
+                        <div className="relative p-8">
+                            <div className="flex flex-wrap items-center justify-between gap-6">
+                                <div className="flex items-center gap-6">
+                                    {/* Rank Badge with 3D Effect */}
                                     <motion.div
-                                        key={stat.label}
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                                        whileHover={{ scale: 1.1, y: -5 }}
-                                        className="text-center p-3 bg-white/5 rounded-xl backdrop-blur cursor-pointer"
+                                        initial={{ scale: 0, rotateY: -180 }}
+                                        animate={{ scale: 1, rotateY: 0 }}
+                                        transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.4 }}
+                                        whileHover={{ 
+                                            scale: 1.15,
+                                            rotateY: 360,
+                                            transition: { duration: 0.6 }
+                                        }}
+                                        className="relative"
+                                        style={{ transformStyle: 'preserve-3d' }}
                                     >
-                                        <div className={`flex items-center justify-center gap-1 text-${stat.color}-400`}>
-                                            {stat.icon && <stat.icon className="h-5 w-5 animate-pulse" />}
-                                            <p className="text-2xl font-bold">
-                                                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                                            </p>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl blur-xl opacity-75" />
+                                        <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-600 shadow-2xl ring-4 ring-white/30">
+                                            <span className="text-4xl font-black text-white drop-shadow-lg">#{myRank}</span>
                                         </div>
-                                        <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
+                                        <motion.div
+                                            animate={{ rotate: 360 }}
+                                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                            className="absolute -inset-2 border-2 border-dashed border-white/30 rounded-2xl"
+                                        />
                                     </motion.div>
-                                ))}
+                                    
+                                    {/* User Info */}
+                                    <div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="flex items-center gap-2 mb-2"
+                                        >
+                                            <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm">
+                                                <p className="text-white/90 text-xs font-bold uppercase tracking-wider">Peringkat Kamu</p>
+                                            </div>
+                                        </motion.div>
+                                        <motion.h2
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.6 }}
+                                            className="text-3xl font-black text-white drop-shadow-lg mb-2"
+                                        >
+                                            {mahasiswa.nama}
+                                        </motion.h2>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.7 }}
+                                            className="flex items-center gap-3"
+                                        >
+                                            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm">
+                                                <Star className="h-4 w-4 text-yellow-300" />
+                                                <span className="text-white font-bold text-sm">
+                                                    <AnimatedCounter value={myStats.points} /> poin
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm">
+                                                <Zap className="h-4 w-4 text-cyan-300" />
+                                                <span className="text-white font-bold text-sm">Level {myStats.level}</span>
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                </div>
+                                
+                                {/* Stats Cards */}
+                                <div className="flex items-center gap-4">
+                                    {[
+                                        { label: 'Kehadiran', value: myStats.attendance_rate, suffix: '%', gradient: 'from-emerald-400 to-green-500', icon: Trophy, delay: 0.8 },
+                                        { label: 'Streak', value: myStats.streak, suffix: '', gradient: 'from-amber-400 to-orange-500', icon: Flame, delay: 0.85 },
+                                        { label: 'Tepat Waktu', value: myStats.on_time_rate, suffix: '%', gradient: 'from-blue-400 to-cyan-500', icon: Target, delay: 0.9 },
+                                    ].map((stat) => (
+                                        <motion.div
+                                            key={stat.label}
+                                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
+                                            whileHover={{ scale: 1.1, y: -8, rotate: [0, -3, 3, 0] }}
+                                            className="relative group/stat"
+                                        >
+                                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} rounded-2xl blur-lg opacity-50 group-hover/stat:opacity-75 transition-opacity`} />
+                                            <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-xl min-w-[120px]">
+                                                <div className="flex items-center justify-center gap-2 mb-2">
+                                                    <stat.icon className="h-5 w-5 text-white" />
+                                                    <p className="text-3xl font-black text-white">
+                                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                                                    </p>
+                                                </div>
+                                                <p className="text-xs text-white/80 font-medium text-center uppercase tracking-wide">{stat.label}</p>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </motion.div>
                 )}
 
 
-                {/* Podium with Enhanced Animations */}
+                {/* Premium Podium with Advanced Animations */}
                 {podium.length >= 3 && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        className="relative overflow-hidden rounded-3xl"
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800">
-                            <div className="flex items-center gap-2">
-                                <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
-                                    className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-yellow-500 text-white"
-                                >
-                                    <Crown className="h-4 w-4" />
-                                </motion.div>
-                                <div>
-                                    <motion.h2
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                        className="font-semibold text-slate-900 dark:text-white"
+                        {/* Animated Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600" />
+                        <motion.div
+                            animate={{
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.1, 1],
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 bg-gradient-to-tr from-cyan-500/40 via-blue-500/40 to-violet-500/40 blur-2xl"
+                        />
+                        
+                        {/* Floating Particles */}
+                        {[...Array(15)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                className="absolute w-1 h-1 bg-white rounded-full"
+                                animate={{
+                                    y: [0, -120],
+                                    opacity: [0, 1, 0],
+                                    scale: [0, 1.5, 0],
+                                }}
+                                transition={{
+                                    duration: 4 + Math.random() * 2,
+                                    repeat: Infinity,
+                                    delay: i * 0.3,
+                                }}
+                                style={{
+                                    left: `${5 + i * 6.5}%`,
+                                    bottom: 0,
+                                }}
+                            />
+                        ))}
+                        
+                        <div className="relative">
+                            <div className="p-6 border-b border-white/20">
+                                <div className="flex items-center gap-3">
+                                    <motion.div
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ type: "spring", stiffness: 200, delay: 0.5 }}
+                                        whileHover={{ rotate: 360, scale: 1.1 }}
+                                        className="p-3 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-xl"
                                     >
-                                        Top 3 Terbaik
-                                    </motion.h2>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.7 }}
-                                        className="text-xs text-slate-500"
-                                    >
-                                        Mahasiswa dengan performa terbaik
-                                    </motion.p>
+                                        <Crown className="h-6 w-6" />
+                                    </motion.div>
+                                    <div>
+                                        <motion.h2
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.6 }}
+                                            className="text-2xl font-black text-white drop-shadow-lg"
+                                        >
+                                            Top 3 Champions
+                                        </motion.h2>
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.7 }}
+                                            className="text-sm text-white/80 font-medium"
+                                        >
+                                            Mahasiswa dengan performa terbaik
+                                        </motion.p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="p-8">
-                            <div className="flex items-end justify-center gap-4">
-                                {/* 2nd Place */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-                                    whileHover={{ scale: 1.05, y: -10 }}
-                                    className="flex flex-col items-center cursor-pointer"
-                                    onMouseEnter={() => setHoveredRank(2)}
-                                    onMouseLeave={() => setHoveredRank(null)}
-                                >
-                                    <div className="relative">
-                                        <motion.div
-                                            animate={hoveredRank === 2 ? { 
-                                                rotate: [0, -5, 5, -5, 0],
-                                                scale: [1, 1.1, 1]
-                                            } : {}}
-                                            transition={{ duration: 0.5 }}
-                                            className={cn(
-                                                'h-20 w-20 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-slate-300 transition-all duration-300',
-                                                rankColors[2],
-                                                hoveredRank === 2 && 'ring-slate-400 shadow-2xl'
-                                            )}
-                                        >
-                                            {podium[1]?.avatar_url ? (
-                                                <img src={podium[1].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
-                                            ) : (
-                                                podium[1]?.nama?.charAt(0) || '2'
-                                            )}
-                                        </motion.div>
-                                        <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ delay: 0.9, type: "spring", stiffness: 300 }}
-                                            className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-300 text-slate-700 font-bold shadow-lg"
-                                        >
-                                            2
-                                        </motion.div>
-                                    </div>
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 1 }}
-                                        className="mt-3 font-semibold text-slate-900 dark:text-white text-sm text-center max-w-[100px] truncate"
-                                    >
-                                        {podium[1]?.nama}
-                                    </motion.p>
-                                    <p className="text-xs text-slate-500 flex items-center gap-1">
-                                        <Star className="h-3 w-3 text-slate-400" />
-                                        <AnimatedCounter value={podium[1]?.points || 0} suffix=" pts" />
-                                    </p>
+                            <div className="p-10">
+                                <div className="flex items-end justify-center gap-6">
+                                    {/* 2nd Place - Silver */}
                                     <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: 96 }}
-                                        transition={{ delay: 1.1, duration: 0.5 }}
-                                        className="mt-2 w-24 rounded-t-lg bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center"
+                                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+                                        whileHover={{ scale: 1.08, y: -12 }}
+                                        className="flex flex-col items-center cursor-pointer group"
+                                        onMouseEnter={() => setHoveredRank(2)}
+                                        onMouseLeave={() => setHoveredRank(null)}
                                     >
-                                        <Medal className="h-8 w-8 text-slate-500" />
+                                        <div className="relative mb-4">
+                                            <motion.div
+                                                animate={hoveredRank === 2 ? { 
+                                                    rotate: [0, -8, 8, -8, 0],
+                                                    scale: [1, 1.15, 1]
+                                                } : {}}
+                                                transition={{ duration: 0.6 }}
+                                                className="relative"
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-br from-slate-300 to-slate-400 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
+                                                <div className={cn(
+                                                    'relative h-24 w-24 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-2xl shadow-2xl ring-4 ring-white/50 transition-all duration-300',
+                                                    rankColors[2]
+                                                )}>
+                                                    {podium[1]?.avatar_url ? (
+                                                        <img src={podium[1].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                                                    ) : (
+                                                        podium[1]?.nama?.charAt(0) || '2'
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                            <motion.div
+                                                initial={{ scale: 0, rotate: -180 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ delay: 0.9, type: "spring", stiffness: 300 }}
+                                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                                className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700 font-black shadow-xl ring-2 ring-white"
+                                            >
+                                                2
+                                            </motion.div>
+                                        </div>
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 1 }}
+                                            className="font-bold text-white text-base text-center max-w-[120px] truncate mb-2"
+                                        >
+                                            {podium[1]?.nama}
+                                        </motion.p>
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
+                                            <Star className="h-4 w-4 text-slate-200" />
+                                            <span className="text-white font-bold text-sm">
+                                                <AnimatedCounter value={podium[1]?.points || 0} suffix=" pts" />
+                                            </span>
+                                        </div>
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: 110 }}
+                                            transition={{ delay: 1.1, duration: 0.6, type: "spring" }}
+                                            className="relative w-32 rounded-t-2xl bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 flex items-center justify-center overflow-hidden shadow-2xl"
+                                        >
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    rotate: [0, 10, -10, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                }}
+                                            >
+                                                <Medal className="h-10 w-10 text-slate-600" />
+                                            </motion.div>
+                                        </motion.div>
                                     </motion.div>
-                                </motion.div>
 
-                                {/* 1st Place */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
-                                    whileHover={{ scale: 1.05, y: -10 }}
-                                    className="flex flex-col items-center -mt-8 cursor-pointer"
-                                    onMouseEnter={() => setHoveredRank(1)}
-                                    onMouseLeave={() => setHoveredRank(null)}
-                                >
+                                    {/* 1st Place - Gold */}
                                     <motion.div
-                                        animate={{
-                                            y: [0, -10, 0],
-                                            rotate: hoveredRank === 1 ? [0, -10, 10, -10, 0] : 0
-                                        }}
-                                        transition={{
-                                            y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                                            rotate: { duration: 0.5 }
-                                        }}
+                                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
+                                        whileHover={{ scale: 1.08, y: -12 }}
+                                        className="flex flex-col items-center -mt-12 cursor-pointer group"
+                                        onMouseEnter={() => setHoveredRank(1)}
+                                        onMouseLeave={() => setHoveredRank(null)}
                                     >
-                                        <Crown className="h-10 w-10 text-yellow-500 mb-2" />
-                                    </motion.div>
-                                    <div className="relative">
                                         <motion.div
-                                            animate={hoveredRank === 1 ? { 
-                                                rotate: [0, -5, 5, -5, 0],
-                                                scale: [1, 1.1, 1]
-                                            } : {}}
-                                            transition={{ duration: 0.5 }}
-                                            className={cn(
-                                                'h-24 w-24 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-2xl shadow-xl ring-4 ring-yellow-400 transition-all duration-300',
-                                                rankColors[1],
-                                                hoveredRank === 1 && 'ring-yellow-300 shadow-yellow-500/50 shadow-2xl'
-                                            )}
+                                            animate={{
+                                                y: [0, -12, 0],
+                                                rotate: hoveredRank === 1 ? [0, -12, 12, -12, 0] : 0
+                                            }}
+                                            transition={{
+                                                y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                                                rotate: { duration: 0.6 }
+                                            }}
+                                            className="mb-3"
                                         >
-                                            {podium[0]?.avatar_url ? (
-                                                <img src={podium[0].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
-                                            ) : (
-                                                podium[0]?.nama?.charAt(0) || '1'
-                                            )}
+                                            <Crown className="h-14 w-14 text-yellow-300 drop-shadow-2xl" />
                                         </motion.div>
+                                        <div className="relative mb-4">
+                                            <motion.div
+                                                animate={hoveredRank === 1 ? { 
+                                                    rotate: [0, -8, 8, -8, 0],
+                                                    scale: [1, 1.15, 1]
+                                                } : {}}
+                                                transition={{ duration: 0.6 }}
+                                                className="relative"
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                <div className={cn(
+                                                    'relative h-28 w-28 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-3xl shadow-2xl ring-4 ring-white/60 transition-all duration-300',
+                                                    rankColors[1]
+                                                )}>
+                                                    {podium[0]?.avatar_url ? (
+                                                        <img src={podium[0].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                                                    ) : (
+                                                        podium[0]?.nama?.charAt(0) || '1'
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                            <motion.div
+                                                initial={{ scale: 0, rotate: -180 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ delay: 1, type: "spring", stiffness: 300 }}
+                                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                                className="absolute -bottom-2 -right-2 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 text-yellow-900 font-black text-lg shadow-2xl ring-2 ring-white"
+                                            >
+                                                1
+                                            </motion.div>
+                                        </div>
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 1.1 }}
+                                            className="font-black text-white text-lg text-center max-w-[140px] truncate mb-2"
+                                        >
+                                            {podium[0]?.nama}
+                                        </motion.p>
+                                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/30 backdrop-blur-sm mb-4">
+                                            <Star className="h-5 w-5 text-yellow-300" />
+                                            <span className="text-white font-black text-base">
+                                                <AnimatedCounter value={podium[0]?.points || 0} suffix=" pts" />
+                                            </span>
+                                        </div>
                                         <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ delay: 1, type: "spring", stiffness: 300 }}
-                                            className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 text-yellow-900 font-bold shadow-lg"
+                                            initial={{ height: 0 }}
+                                            animate={{ height: 150 }}
+                                            transition={{ delay: 1.2, duration: 0.6, type: "spring" }}
+                                            className="relative w-36 rounded-t-2xl bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 flex items-center justify-center overflow-hidden shadow-2xl"
                                         >
-                                            1
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.3, 1],
+                                                    rotate: [0, 15, -15, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                }}
+                                            >
+                                                <Trophy className="h-14 w-14 text-yellow-700" />
+                                            </motion.div>
+                                            {/* Shimmer effect */}
+                                            <motion.div
+                                                animate={{
+                                                    x: ['-100%', '100%'],
+                                                }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                    ease: "linear"
+                                                }}
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                            />
                                         </motion.div>
-                                    </div>
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 1.1 }}
-                                        className="mt-3 font-bold text-slate-900 dark:text-white text-center max-w-[120px] truncate"
-                                    >
-                                        {podium[0]?.nama}
-                                    </motion.p>
-                                    <p className="text-sm text-amber-600 font-semibold flex items-center gap-1">
-                                        <Star className="h-4 w-4" />
-                                        <AnimatedCounter value={podium[0]?.points || 0} suffix=" pts" />
-                                    </p>
-                                    <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: 128 }}
-                                        transition={{ delay: 1.2, duration: 0.5 }}
-                                        className="mt-2 w-28 rounded-t-lg bg-gradient-to-b from-yellow-300 to-amber-400 dark:from-yellow-600 dark:to-amber-700 flex items-center justify-center"
-                                    >
-                                        <Trophy className="h-10 w-10 text-yellow-700" />
                                     </motion.div>
-                                </motion.div>
 
-                                {/* 3rd Place */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ delay: 1, type: "spring", stiffness: 200 }}
-                                    whileHover={{ scale: 1.05, y: -10 }}
-                                    className="flex flex-col items-center cursor-pointer"
-                                    onMouseEnter={() => setHoveredRank(3)}
-                                    onMouseLeave={() => setHoveredRank(null)}
-                                >
-                                    <div className="relative">
-                                        <motion.div
-                                            animate={hoveredRank === 3 ? { 
-                                                rotate: [0, -5, 5, -5, 0],
-                                                scale: [1, 1.1, 1]
-                                            } : {}}
-                                            transition={{ duration: 0.5 }}
-                                            className={cn(
-                                                'h-20 w-20 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-amber-600 transition-all duration-300',
-                                                rankColors[3],
-                                                hoveredRank === 3 && 'ring-amber-500 shadow-2xl'
-                                            )}
-                                        >
-                                            {podium[2]?.avatar_url ? (
-                                                <img src={podium[2].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
-                                            ) : (
-                                                podium[2]?.nama?.charAt(0) || '3'
-                                            )}
-                                        </motion.div>
-                                        <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ delay: 1.1, type: "spring", stiffness: 300 }}
-                                            className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-600 text-white font-bold shadow-lg"
-                                        >
-                                            3
-                                        </motion.div>
-                                    </div>
-                                    <motion.p
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 1.2 }}
-                                        className="mt-3 font-semibold text-slate-900 dark:text-white text-sm text-center max-w-[100px] truncate"
-                                    >
-                                        {podium[2]?.nama}
-                                    </motion.p>
-                                    <p className="text-xs text-slate-500 flex items-center gap-1">
-                                        <Star className="h-3 w-3 text-amber-500" />
-                                        <AnimatedCounter value={podium[2]?.points || 0} suffix=" pts" />
-                                    </p>
+                                    {/* 3rd Place - Bronze */}
                                     <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: 64 }}
-                                        transition={{ delay: 1.3, duration: 0.5 }}
-                                        className="mt-2 w-24 rounded-t-lg bg-gradient-to-b from-amber-500 to-orange-600 dark:from-amber-700 dark:to-orange-800 flex items-center justify-center"
+                                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ delay: 1, type: "spring", stiffness: 200 }}
+                                        whileHover={{ scale: 1.08, y: -12 }}
+                                        className="flex flex-col items-center cursor-pointer group"
+                                        onMouseEnter={() => setHoveredRank(3)}
+                                        onMouseLeave={() => setHoveredRank(null)}
                                     >
-                                        <Award className="h-6 w-6 text-amber-200" />
+                                        <div className="relative mb-4">
+                                            <motion.div
+                                                animate={hoveredRank === 3 ? { 
+                                                    rotate: [0, -8, 8, -8, 0],
+                                                    scale: [1, 1.15, 1]
+                                                } : {}}
+                                                transition={{ duration: 0.6 }}
+                                                className="relative"
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-orange-700 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity" />
+                                                <div className={cn(
+                                                    'relative h-24 w-24 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-2xl shadow-2xl ring-4 ring-white/50 transition-all duration-300',
+                                                    rankColors[3]
+                                                )}>
+                                                    {podium[2]?.avatar_url ? (
+                                                        <img src={podium[2].avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
+                                                    ) : (
+                                                        podium[2]?.nama?.charAt(0) || '3'
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                            <motion.div
+                                                initial={{ scale: 0, rotate: -180 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ delay: 1.1, type: "spring", stiffness: 300 }}
+                                                whileHover={{ rotate: 360, scale: 1.2 }}
+                                                className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-600 to-orange-700 text-white font-black shadow-xl ring-2 ring-white"
+                                            >
+                                                3
+                                            </motion.div>
+                                        </div>
+                                        <motion.p
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ delay: 1.2 }}
+                                            className="font-bold text-white text-base text-center max-w-[120px] truncate mb-2"
+                                        >
+                                            {podium[2]?.nama}
+                                        </motion.p>
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm mb-3">
+                                            <Star className="h-4 w-4 text-amber-200" />
+                                            <span className="text-white font-bold text-sm">
+                                                <AnimatedCounter value={podium[2]?.points || 0} suffix=" pts" />
+                                            </span>
+                                        </div>
+                                        <motion.div
+                                            initial={{ height: 0 }}
+                                            animate={{ height: 80 }}
+                                            transition={{ delay: 1.3, duration: 0.6, type: "spring" }}
+                                            className="relative w-32 rounded-t-2xl bg-gradient-to-b from-amber-500 via-orange-600 to-orange-700 flex items-center justify-center overflow-hidden shadow-2xl"
+                                        >
+                                            <motion.div
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    rotate: [0, 10, -10, 0],
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                }}
+                                            >
+                                                <Award className="h-8 w-8 text-amber-200" />
+                                            </motion.div>
+                                        </motion.div>
                                     </motion.div>
-                                </motion.div>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
