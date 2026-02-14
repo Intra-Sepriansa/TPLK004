@@ -221,18 +221,18 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         // Generate QR code with UNPAM logo and blue-yellow gradient theme
         const generateQRWithLogo = async () => {
             try {
-                // First generate base QR code in black
+                // Generate standard QR code with blue-yellow gradient
                 const qrDataUrl = await QRCode.toDataURL(token, {
                     width: 300,
                     margin: 2,
                     errorCorrectionLevel: 'H', // High error correction for logo overlay
                     color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
+                        dark: '#1e40af',  // Blue color for QR pattern
+                        light: '#FFFFFF'  // White background
                     }
                 });
 
-                // Create canvas to add gradient and logo
+                // Create canvas to add logo
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 if (!ctx) return;
@@ -243,30 +243,8 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     canvas.width = qrImage.width;
                     canvas.height = qrImage.height;
                     
-                    // Draw white background
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Create gradient (blue to yellow)
-                    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                    gradient.addColorStop(0, '#1e40af');    // Blue
-                    gradient.addColorStop(1, '#eab308');    // Yellow/Gold
-                    
                     // Draw QR code
                     ctx.drawImage(qrImage, 0, 0);
-                    
-                    // Apply gradient only to black pixels
-                    ctx.globalCompositeOperation = 'source-in';
-                    ctx.fillStyle = gradient;
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Reset composite operation
-                    ctx.globalCompositeOperation = 'destination-over';
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Reset to normal
-                    ctx.globalCompositeOperation = 'source-over';
 
                     // Load and draw UNPAM logo
                     const logo = new Image();
@@ -306,7 +284,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     };
                     logo.onerror = () => {
                         // If logo fails to load, use QR without logo
-                        setQrUrl(canvas.toDataURL());
+                        setQrUrl(qrDataUrl);
                     };
                     logo.src = '/logo-unpam.png';
                 };
