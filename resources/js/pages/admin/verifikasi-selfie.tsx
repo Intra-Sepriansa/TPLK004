@@ -127,7 +127,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
             y: 0,
             scale: 1,
             transition: {
-                type: "spring",
+                type: "spring" as const,
                 stiffness: 100,
                 damping: 15
             }
@@ -141,7 +141,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
             scale: 1,
             rotateY: 0,
             transition: {
-                type: "spring",
+                type: "spring" as const,
                 stiffness: 120,
                 damping: 12
             }
