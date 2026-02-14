@@ -348,7 +348,7 @@ const mockTroubleshootingGuides: TroubleshootingGuide[] = [
 ];
 
 export default function StudentHelp() {
-    const { auth } = usePage().props as { auth: { user: { email: string } } };
+    const { auth } = usePage<{ auth: { user: { email: string } } }>().props;
     const [faqCategories, setFaqCategories] = useState<FAQCategory[]>([]);
     const [troubleshootingGuides, setTroubleshootingGuides] = useState<TroubleshootingGuide[]>([]);
     const [contactInfo, setContactInfo] = useState<{
