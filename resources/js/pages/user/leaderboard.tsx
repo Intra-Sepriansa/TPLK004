@@ -751,27 +751,25 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                                 <div onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="relative cursor-pointer pt-6">
                                                     <div className="flex items-center gap-6">
                                                         <motion.div 
-                                                            whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }} 
+                                                            whileHover={{ scale: 1.15, rotate: [0, -8, 8, -8, 0] }} 
                                                             transition={{ duration: 0.5 }}
                                                             className="relative"
                                                         >
-                                                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-2xl ring-4 ring-white/50 overflow-hidden">
-                                                                <img 
-                                                                    src="/images/crown.png" 
-                                                                    alt="Crown" 
-                                                                    className="h-16 w-16 object-contain drop-shadow-2xl"
-                                                                />
-                                                            </div>
+                                                            <img 
+                                                                src="/images/crown.png" 
+                                                                alt="Crown" 
+                                                                className="h-24 w-24 object-contain drop-shadow-[0_10px_25px_rgba(251,191,36,0.8)] filter brightness-110"
+                                                            />
                                                             <motion.div
                                                                 animate={{
-                                                                    scale: [1, 1.2, 1],
-                                                                    opacity: [0.3, 0.6, 0.3],
+                                                                    scale: [1, 1.3, 1],
+                                                                    opacity: [0.4, 0.7, 0.4],
                                                                 }}
                                                                 transition={{
                                                                     duration: 2,
                                                                     repeat: Infinity,
                                                                 }}
-                                                                className="absolute inset-0 bg-yellow-300 rounded-2xl blur-xl -z-10"
+                                                                className="absolute inset-0 bg-yellow-300 rounded-full blur-2xl -z-10"
                                                             />
                                                         </motion.div>
                                                         <div className="flex-1">
