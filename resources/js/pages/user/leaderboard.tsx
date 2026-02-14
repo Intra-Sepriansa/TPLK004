@@ -750,10 +750,29 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                                 </motion.div>
                                                 <div onClick={() => setExpandedId(isExpanded ? null : entry.id)} className="relative cursor-pointer pt-6">
                                                     <div className="flex items-center gap-6">
-                                                        <motion.div whileHover={{ scale: 1.1 }} className="relative">
-                                                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-2xl ring-4 ring-white/50">
-                                                                <div className="text-6xl">👑</div>
+                                                        <motion.div 
+                                                            whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }} 
+                                                            transition={{ duration: 0.5 }}
+                                                            className="relative"
+                                                        >
+                                                            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-2xl ring-4 ring-white/50 overflow-hidden">
+                                                                <img 
+                                                                    src="/images/crown.png" 
+                                                                    alt="Crown" 
+                                                                    className="h-16 w-16 object-contain drop-shadow-2xl"
+                                                                />
                                                             </div>
+                                                            <motion.div
+                                                                animate={{
+                                                                    scale: [1, 1.2, 1],
+                                                                    opacity: [0.3, 0.6, 0.3],
+                                                                }}
+                                                                transition={{
+                                                                    duration: 2,
+                                                                    repeat: Infinity,
+                                                                }}
+                                                                className="absolute inset-0 bg-yellow-300 rounded-2xl blur-xl -z-10"
+                                                            />
                                                         </motion.div>
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-3 mb-2">
