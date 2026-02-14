@@ -1,7 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, TrendingUp, BarChart3, RefreshCw, Copy, Trash2, Edit, Download, Zap, Timer, BookOpen, Sparkles, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -104,6 +104,35 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
     const [editSession, setEditSession] = useState<Session | null>(null);
     const [search, setSearch] = useState(filters.search);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
+    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+    // Countdown Timer Effect
+    useEffect(() => {
+        if (!activeSessionDetail) return;
+
+        const calculateCountdown = () => {
+            const endTime = new Date(activeSessionDetail.end_at).getTime();
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            setCountdown({ days, hours, minutes, seconds });
+        };
+
+        calculateCountdown();
+        const interval = setInterval(calculateCountdown, 1000);
+
+        return () => clearInterval(interval);
+    }, [activeSessionDetail]);
 
     const createForm = useForm({
         course_id: '',
@@ -245,7 +274,37 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                             <div className="flex items-center gap-6">
                                 <div className="text-center"><p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{activeSessionDetail.total_attendance}</p><p className="text-xs text-emerald-600">Kehadiran</p></div>
                                 <div className="text-center"><p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{activeSessionDetail.pending_selfie}</p><p className="text-xs text-emerald-600">Pending Selfie</p></div>
-                                <div className="text-center"><p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{activeSessionDetail.time_remaining}m</p><p className="text-xs text-emerald-600">Sisa Waktu</p></div>
+                                
+                                {/* Countdown Timer */}
+                                <div className="text-center">
+                                    <div className="flex items-center gap-1">
+                                        {countdown.days > 0 && (
+                                            <>
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 tabular-nums">{countdown.days}</span>
+                                                    <span className="text-xs text-emerald-600">hari</span>
+                                                </div>
+                                                <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mx-1">:</span>
+                                            </>
+                                        )}
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 tabular-nums">{String(countdown.hours).padStart(2, '0')}</span>
+                                           
+                                        </div>
+                                        <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mx-1">:</span>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 tabular-nums">{String(countdown.minutes).padStart(2, '0')}</span>
+                                           
+                                        </div>
+                                        <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mx-1">:</span>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 tabular-nums">{String(countdown.seconds).padStart(2, '0')}</span>
+                                        
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-emerald-600 mt-1">Sisa Waktu</p>
+                                </div>
+                                
                                 <button onClick={() => handleDeactivate(activeSessionDetail.id)} className="flex items-center gap-2 rounded-xl bg-red-100 px-4 py-2.5 text-sm font-medium text-red-700 hover:bg-red-200 transition-colors">
                                     <Pause className="h-4 w-4" />Tutup Sesi
                                 </button>
