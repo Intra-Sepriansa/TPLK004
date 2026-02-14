@@ -29,6 +29,324 @@ import {
 
 type ToastType = { type: 'success' | 'error'; message: string } | null;
 
+// Mock data untuk FAQ yang lebih detail
+const mockFAQCategories: FAQCategory[] = [
+    {
+        id: 'absensi',
+        name: 'Absensi',
+        description: 'Pertanyaan seputar sistem absensi',
+        icon: 'CheckCircle',
+        items: [
+            {
+                id: 'faq-1',
+                question: 'Bagaimana cara melakukan absensi?',
+                answer: 'Untuk melakukan absensi, ikuti langkah berikut:\n\n1. Buka menu "Absen" di sidebar\n2. Pastikan Anda berada di lokasi yang sesuai (jika menggunakan GPS)\n3. Scan QR Code yang ditampilkan oleh dosen\n4. Tunggu konfirmasi bahwa absensi berhasil\n5. Anda akan menerima notifikasi jika absensi berhasil dicatat\n\nCatatan: Pastikan kamera dan lokasi device Anda aktif untuk proses absensi yang lancar.',
+                category: 'absensi',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+            {
+                id: 'faq-2',
+                question: 'Apa yang harus dilakukan jika QR Code tidak bisa di-scan?',
+                answer: 'Jika mengalami masalah saat scan QR Code:\n\n1. Pastikan kamera device Anda berfungsi dengan baik\n2. Bersihkan lensa kamera dari debu atau sidik jari\n3. Pastikan pencahayaan cukup terang\n4. Jaga jarak yang tepat antara kamera dan QR Code (sekitar 15-20 cm)\n5. Pastikan QR Code tidak buram atau rusak\n6. Coba refresh halaman dan scan ulang\n\nJika masih bermasalah, hubungi dosen atau admin untuk bantuan lebih lanjut.',
+                category: 'absensi',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+            {
+                id: 'faq-3',
+                question: 'Berapa lama waktu yang tersedia untuk melakukan absensi?',
+                answer: 'Waktu absensi ditentukan oleh dosen untuk setiap sesi perkuliahan:\n\n• Biasanya QR Code aktif selama 5-15 menit\n• Waktu mulai dihitung sejak dosen membuka sesi absensi\n• Setelah waktu habis, QR Code akan expired dan tidak bisa digunakan\n• Status keterlambatan akan tercatat jika absen setelah batas waktu yang ditentukan\n\nTips: Selalu datang tepat waktu dan lakukan absensi segera setelah QR Code ditampilkan.',
+                category: 'absensi',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+        ],
+    },
+    {
+        id: 'tugas',
+        name: 'Tugas & Ujian',
+        description: 'Informasi tentang pengumpulan tugas dan ujian',
+        icon: 'FileText',
+        items: [
+            {
+                id: 'faq-4',
+                question: 'Bagaimana cara mengumpulkan tugas?',
+                answer: 'Untuk mengumpulkan tugas, ikuti panduan berikut:\n\n1. Buka menu "Akademik" > "Tugas"\n2. Pilih tugas yang ingin dikumpulkan\n3. Klik tombol "Kumpulkan Tugas"\n4. Upload file tugas Anda (format yang didukung: PDF, DOC, DOCX, ZIP)\n5. Maksimal ukuran file: 10 MB\n6. Tambahkan catatan jika diperlukan\n7. Klik "Submit" untuk mengirim\n8. Anda akan menerima konfirmasi email setelah tugas berhasil dikumpulkan\n\nPerhatian: Pastikan mengumpulkan sebelum deadline untuk menghindari pengurangan nilai.',
+                category: 'tugas',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+            {
+                id: 'faq-5',
+                question: 'Apakah bisa mengumpulkan tugas setelah deadline?',
+                answer: 'Kebijakan pengumpulan tugas terlambat:\n\n• Sistem masih menerima pengumpulan setelah deadline\n• Namun akan ada penalti pengurangan nilai sesuai kebijakan dosen\n• Biasanya pengurangan 10-20% per hari keterlambatan\n• Beberapa dosen mungkin tidak menerima tugas terlambat sama sekali\n• Status "Terlambat" akan tercatat di sistem\n\nSaran: Selalu kumpulkan tugas sebelum deadline. Jika ada kendala, hubungi dosen untuk meminta perpanjangan waktu.',
+                category: 'tugas',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+            {
+                id: 'faq-6',
+                question: 'Bagaimana cara melihat nilai tugas yang sudah dikumpulkan?',
+                answer: 'Untuk melihat nilai tugas:\n\n1. Buka menu "Akademik" > "Tugas"\n2. Pilih tab "Riwayat" atau "Sudah Dikumpulkan"\n3. Klik pada tugas yang ingin dilihat nilainya\n4. Nilai akan ditampilkan jika dosen sudah melakukan penilaian\n5. Anda juga bisa melihat feedback dari dosen\n6. Notifikasi akan dikirim ketika nilai sudah tersedia\n\nCatatan: Waktu penilaian tergantung pada dosen, biasanya 3-7 hari setelah deadline.',
+                category: 'tugas',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+        ],
+    },
+    {
+        id: 'akun',
+        name: 'Akun & Profil',
+        description: 'Pengaturan akun dan profil mahasiswa',
+        icon: 'User',
+        items: [
+            {
+                id: 'faq-7',
+                question: 'Bagaimana cara mengubah password?',
+                answer: 'Untuk mengubah password akun Anda:\n\n1. Klik foto profil di pojok kanan atas\n2. Pilih "Profil" dari dropdown menu\n3. Scroll ke bagian "Keamanan"\n4. Klik tombol "Ubah Password"\n5. Masukkan password lama Anda\n6. Masukkan password baru (minimal 8 karakter, kombinasi huruf dan angka)\n7. Konfirmasi password baru\n8. Klik "Simpan Perubahan"\n\nTips Keamanan:\n• Gunakan password yang kuat dan unik\n• Jangan gunakan password yang sama dengan akun lain\n• Ubah password secara berkala (setiap 3-6 bulan)\n• Jangan bagikan password kepada siapapun',
+                category: 'akun',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+            {
+                id: 'faq-8',
+                question: 'Bagaimana jika lupa password?',
+                answer: 'Jika lupa password, ikuti langkah recovery berikut:\n\n1. Di halaman login, klik "Lupa Password?"\n2. Masukkan email atau NIM yang terdaftar\n3. Klik "Kirim Link Reset"\n4. Cek email Anda (termasuk folder spam)\n5. Klik link reset password dalam email\n6. Masukkan password baru Anda\n7. Konfirmasi password baru\n8. Klik "Reset Password"\n9. Login dengan password baru\n\nCatatan:\n• Link reset berlaku selama 1 jam\n• Jika tidak menerima email, cek folder spam atau hubungi admin\n• Pastikan email yang terdaftar masih aktif',
+                category: 'akun',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+        ],
+    },
+    {
+        id: 'notifikasi',
+        name: 'Notifikasi',
+        description: 'Pengaturan dan informasi notifikasi',
+        icon: 'Bell',
+        items: [
+            {
+                id: 'faq-9',
+                question: 'Bagaimana cara mengatur notifikasi?',
+                answer: 'Untuk mengatur preferensi notifikasi:\n\n1. Buka menu "Pengaturan"\n2. Pilih tab "Notifikasi"\n3. Atur jenis notifikasi yang ingin diterima:\n   • Notifikasi Tugas Baru\n   • Reminder Deadline\n   • Pengumuman Kelas\n   • Perubahan Jadwal\n   • Nilai Tugas\n4. Pilih metode notifikasi:\n   • Push Notification (di aplikasi)\n   • Email\n   • Keduanya\n5. Atur waktu pengiriman reminder\n6. Klik "Simpan Pengaturan"\n\nTips: Aktifkan notifikasi penting seperti deadline tugas dan perubahan jadwal.',
+                category: 'notifikasi',
+                helpful: 0,
+                notHelpful: 0,
+                views: 0,
+                lastUpdated: new Date().toISOString(),
+            },
+        ],
+    },
+];
+
+// Mock data untuk Troubleshooting yang lebih detail
+const mockTroubleshootingGuides: TroubleshootingGuide[] = [
+    {
+        id: 'ts-1',
+        title: 'QR Code Tidak Bisa Di-Scan',
+        problem: 'Kamera tidak dapat membaca QR Code untuk absensi',
+        symptoms: [
+            'Kamera tidak fokus pada QR Code',
+            'Muncul pesan error "QR Code tidak valid"',
+            'Aplikasi freeze saat membuka kamera',
+            'QR Code terdeteksi tapi tidak ada respon',
+        ],
+        solutions: [
+            {
+                step: 1,
+                title: 'Periksa Izin Kamera',
+                description: 'Pastikan aplikasi memiliki izin untuk mengakses kamera. Buka Pengaturan > Aplikasi > Izin > Kamera, dan aktifkan izin untuk aplikasi ini.',
+                action: 'Buka Pengaturan Device',
+            },
+            {
+                step: 2,
+                title: 'Bersihkan Cache Aplikasi',
+                description: 'Cache yang menumpuk dapat menyebabkan masalah. Buka Pengaturan > Aplikasi > Penyimpanan > Hapus Cache. Setelah itu, restart aplikasi.',
+                action: 'Hapus Cache',
+            },
+            {
+                step: 3,
+                title: 'Periksa Koneksi Internet',
+                description: 'Pastikan device terhubung ke internet yang stabil. QR Code memerlukan koneksi untuk verifikasi ke server. Coba gunakan WiFi jika sinyal mobile lemah.',
+                action: 'Cek Koneksi',
+            },
+            {
+                step: 4,
+                title: 'Update Aplikasi',
+                description: 'Pastikan Anda menggunakan versi aplikasi terbaru. Buka Play Store/App Store, cari aplikasi, dan klik Update jika tersedia.',
+                action: 'Update Aplikasi',
+            },
+            {
+                step: 5,
+                title: 'Restart Device',
+                description: 'Jika masalah masih berlanjut, coba restart device Anda. Ini akan me-refresh semua sistem dan mungkin menyelesaikan masalah.',
+                action: 'Restart Device',
+            },
+        ],
+        category: 'absensi',
+        severity: 'medium',
+        estimatedTime: '5-10 menit',
+        lastUpdated: new Date().toISOString(),
+    },
+    {
+        id: 'ts-2',
+        title: 'Gagal Upload File Tugas',
+        problem: 'File tugas tidak bisa di-upload atau upload gagal di tengah jalan',
+        symptoms: [
+            'Progress upload berhenti di tengah jalan',
+            'Muncul pesan "Upload Failed"',
+            'File terlalu besar untuk di-upload',
+            'Format file tidak didukung',
+        ],
+        solutions: [
+            {
+                step: 1,
+                title: 'Periksa Ukuran File',
+                description: 'Maksimal ukuran file adalah 10 MB. Jika file Anda lebih besar, kompres file terlebih dahulu menggunakan aplikasi kompresi atau kurangi kualitas gambar/video.',
+                action: 'Kompres File',
+            },
+            {
+                step: 2,
+                title: 'Periksa Format File',
+                description: 'Format yang didukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, RAR, JPG, PNG. Pastikan file Anda dalam format yang benar.',
+                action: 'Konversi Format',
+            },
+            {
+                step: 3,
+                title: 'Gunakan Koneksi Stabil',
+                description: 'Upload memerlukan koneksi internet yang stabil. Gunakan WiFi jika memungkinkan. Hindari upload saat sinyal lemah atau tidak stabil.',
+                action: 'Cek Koneksi',
+            },
+            {
+                step: 4,
+                title: 'Clear Browser Cache',
+                description: 'Jika menggunakan web browser, clear cache dan cookies. Tekan Ctrl+Shift+Delete (Windows) atau Cmd+Shift+Delete (Mac), pilih cache dan cookies, lalu hapus.',
+                action: 'Clear Cache',
+            },
+            {
+                step: 5,
+                title: 'Coba Browser Lain',
+                description: 'Jika masalah berlanjut, coba gunakan browser lain (Chrome, Firefox, Edge, Safari). Beberapa browser mungkin memiliki kompatibilitas yang lebih baik.',
+                action: 'Ganti Browser',
+            },
+        ],
+        category: 'tugas',
+        severity: 'high',
+        estimatedTime: '10-15 menit',
+        lastUpdated: new Date().toISOString(),
+    },
+    {
+        id: 'ts-3',
+        title: 'Tidak Bisa Login ke Akun',
+        problem: 'Gagal masuk ke akun meskipun password sudah benar',
+        symptoms: [
+            'Muncul pesan "Email atau password salah"',
+            'Akun terkunci setelah beberapa kali percobaan',
+            'Halaman login tidak merespon',
+            'Redirect ke halaman error setelah login',
+        ],
+        solutions: [
+            {
+                step: 1,
+                title: 'Periksa Caps Lock',
+                description: 'Pastikan Caps Lock tidak aktif. Password bersifat case-sensitive, jadi "Password" berbeda dengan "password".',
+                action: 'Cek Caps Lock',
+            },
+            {
+                step: 2,
+                title: 'Reset Password',
+                description: 'Jika yakin password benar tapi tetap tidak bisa login, gunakan fitur "Lupa Password" untuk reset. Link reset akan dikirim ke email terdaftar.',
+                action: 'Reset Password',
+            },
+            {
+                step: 3,
+                title: 'Tunggu Jika Akun Terkunci',
+                description: 'Setelah 5 kali percobaan login gagal, akun akan terkunci selama 15 menit untuk keamanan. Tunggu hingga waktu lock berakhir.',
+                action: 'Tunggu 15 Menit',
+            },
+            {
+                step: 4,
+                title: 'Clear Browser Data',
+                description: 'Hapus cookies dan cache browser. Kadang data lama dapat menyebabkan konflik. Setelah clear, coba login kembali.',
+                action: 'Clear Data',
+            },
+            {
+                step: 5,
+                title: 'Hubungi Admin',
+                description: 'Jika semua cara di atas tidak berhasil, hubungi admin sistem melalui email atau WhatsApp untuk bantuan lebih lanjut.',
+                action: 'Hubungi Admin',
+            },
+        ],
+        category: 'akun',
+        severity: 'high',
+        estimatedTime: '5-20 menit',
+        lastUpdated: new Date().toISOString(),
+    },
+    {
+        id: 'ts-4',
+        title: 'Notifikasi Tidak Muncul',
+        problem: 'Tidak menerima notifikasi penting seperti deadline tugas atau pengumuman',
+        symptoms: [
+            'Tidak ada notifikasi push di device',
+            'Email notifikasi tidak masuk',
+            'Notifikasi terlambat diterima',
+            'Badge notifikasi tidak update',
+        ],
+        solutions: [
+            {
+                step: 1,
+                title: 'Periksa Pengaturan Notifikasi',
+                description: 'Buka menu Pengaturan > Notifikasi. Pastikan semua jenis notifikasi yang penting sudah diaktifkan.',
+                action: 'Buka Pengaturan',
+            },
+            {
+                step: 2,
+                title: 'Periksa Izin Notifikasi Device',
+                description: 'Buka Pengaturan Device > Aplikasi > Notifikasi. Pastikan izin notifikasi untuk aplikasi ini sudah diaktifkan.',
+                action: 'Cek Izin Device',
+            },
+            {
+                step: 3,
+                title: 'Periksa Email Spam',
+                description: 'Notifikasi email mungkin masuk ke folder spam. Cek folder spam dan tandai email dari sistem sebagai "Not Spam".',
+                action: 'Cek Spam',
+            },
+            {
+                step: 4,
+                title: 'Update Alamat Email',
+                description: 'Pastikan alamat email di profil Anda masih aktif dan benar. Update jika perlu di menu Profil > Edit Profil.',
+                action: 'Update Email',
+            },
+            {
+                step: 5,
+                title: 'Reinstall Aplikasi',
+                description: 'Jika masalah berlanjut, coba uninstall dan install ulang aplikasi. Ini akan me-refresh semua pengaturan notifikasi.',
+                action: 'Reinstall App',
+            },
+        ],
+        category: 'notifikasi',
+        severity: 'medium',
+        estimatedTime: '10-15 menit',
+        lastUpdated: new Date().toISOString(),
+    },
+];
+
 export default function StudentHelp() {
     const { auth } = usePage().props as { auth: { user: { email: string } } };
     const [faqCategories, setFaqCategories] = useState<FAQCategory[]>([]);
@@ -59,15 +377,33 @@ export default function StudentHelp() {
                 getTroubleshootingGuides().catch(() => []),
                 getContactInfo().catch(() => undefined),
             ]);
-            setFaqCategories(Array.isArray(faqs) ? faqs : []);
-            setTroubleshootingGuides(Array.isArray(troubleshooting) ? troubleshooting : []);
-            setContactInfo(contact);
+            
+            // Use mock data as fallback if API returns empty or invalid data
+            const validFaqs = Array.isArray(faqs) && faqs.length > 0 ? faqs : mockFAQCategories;
+            const validTroubleshooting = Array.isArray(troubleshooting) && troubleshooting.length > 0 
+                ? troubleshooting 
+                : mockTroubleshootingGuides;
+            
+            setFaqCategories(validFaqs);
+            setTroubleshootingGuides(validTroubleshooting);
+            setContactInfo(contact || {
+                email: 'support@example.com',
+                phone: '+62 812-3456-7890',
+                hours: 'Senin - Jumat, 08:00 - 17:00 WIB',
+                responseTime: '1-2 hari kerja',
+            });
         } catch (error) {
             console.error('Error loading help data:', error);
-            showToast('error', 'Gagal memuat data bantuan');
-            // Set empty arrays as fallback
-            setFaqCategories([]);
-            setTroubleshootingGuides([]);
+            showToast('error', 'Gagal memuat data bantuan, menggunakan data default');
+            // Use mock data as fallback on error
+            setFaqCategories(mockFAQCategories);
+            setTroubleshootingGuides(mockTroubleshootingGuides);
+            setContactInfo({
+                email: 'support@example.com',
+                phone: '+62 812-3456-7890',
+                hours: 'Senin - Jumat, 08:00 - 17:00 WIB',
+                responseTime: '1-2 hari kerja',
+            });
         } finally {
             setIsLoading(false);
         }
