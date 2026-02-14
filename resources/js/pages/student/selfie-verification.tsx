@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+import StudentLayout from '@/layouts/student-layout';
 import { Shield, CheckCircle, XCircle, Clock, Eye, User, Calendar, FileText, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -119,7 +119,7 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
     };
 
     return (
-        <AppLayout>
+        <StudentLayout>
             <Head title="Verifikasi Selfie" />
             <motion.div 
                 className="p-6 space-y-6"
@@ -458,7 +458,7 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
                     )}
                 </AnimatePresence>
             </motion.div>
-        </AppLayout>
+        </StudentLayout>
     );
 }
 
