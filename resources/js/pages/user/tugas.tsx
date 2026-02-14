@@ -50,12 +50,12 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
             opacity: 1,
             y: 0,
             transition: {
-                type: 'spring',
+                type: 'spring' as const,
                 stiffness: 300,
                 damping: 20,
             },
         },
-    };
+    } as const;
 
     const getPriorityConfig = (p: string) => {
         const configs: Record<string, { bg: string; text: string; icon: any; label: string }> = {
@@ -69,7 +69,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
     const completionRate = stats.total > 0 ? Math.round(((stats.total - stats.upcoming - stats.overdue) / stats.total) * 100) : 0;
 
     return (
-        <StudentLayout mahasiswa={mahasiswa}>
+        <StudentLayout>
             <Head title="Informasi Tugas" />
             <motion.div
                 initial="hidden"
