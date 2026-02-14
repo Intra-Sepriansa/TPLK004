@@ -31,9 +31,9 @@
 
         <!-- Illustration -->
         <div class="mt-16 relative">
-            <img src="https://illustrations.popsy.co/amber/timed-out-error.svg" 
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Alarm%20Clock.png" 
                  alt="419 Session Expired" 
-                 class="w-full max-w-md mx-auto opacity-80">
+                 class="w-64 h-64 mx-auto opacity-80">
         </div>
     </div>
 </body>

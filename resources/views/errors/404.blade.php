@@ -31,9 +31,9 @@
 
         <!-- Illustration -->
         <div class="mt-16 relative">
-            <img src="https://illustrations.popsy.co/amber/page-not-found.svg" 
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Confused%20Face.png" 
                  alt="404 Not Found" 
-                 class="w-full max-w-md mx-auto opacity-80">
+                 class="w-64 h-64 mx-auto opacity-80">
         </div>
     </div>
 </body>

@@ -31,9 +31,9 @@
 
         <!-- Illustration -->
         <div class="mt-16 relative">
-            <img src="https://illustrations.popsy.co/amber/forbidden.svg" 
+            <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Symbols/No%20Entry.png" 
                  alt="403 Forbidden" 
-                 class="w-full max-w-md mx-auto opacity-80">
+                 class="w-64 h-64 mx-auto opacity-80">
         </div>
     </div>
 </body>
