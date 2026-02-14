@@ -36,7 +36,7 @@ const mockFAQCategories: FAQCategory[] = [
         name: 'Absensi',
         description: 'Pertanyaan seputar sistem absensi',
         icon: 'CheckCircle',
-        items: [
+        faqs: [
             {
                 id: 'faq-1',
                 question: 'Bagaimana cara melakukan absensi?',
@@ -74,7 +74,7 @@ const mockFAQCategories: FAQCategory[] = [
         name: 'Tugas & Ujian',
         description: 'Informasi tentang pengumpulan tugas dan ujian',
         icon: 'FileText',
-        items: [
+        faqs: [
             {
                 id: 'faq-4',
                 question: 'Bagaimana cara mengumpulkan tugas?',
@@ -112,7 +112,7 @@ const mockFAQCategories: FAQCategory[] = [
         name: 'Akun & Profil',
         description: 'Pengaturan akun dan profil mahasiswa',
         icon: 'User',
-        items: [
+        faqs: [
             {
                 id: 'faq-7',
                 question: 'Bagaimana cara mengubah password?',
@@ -140,7 +140,7 @@ const mockFAQCategories: FAQCategory[] = [
         name: 'Notifikasi',
         description: 'Pengaturan dan informasi notifikasi',
         icon: 'Bell',
-        items: [
+        faqs: [
             {
                 id: 'faq-9',
                 question: 'Bagaimana cara mengatur notifikasi?',

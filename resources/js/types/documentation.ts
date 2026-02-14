@@ -14,8 +14,14 @@ export type DocumentationRole = 'dosen' | 'mahasiswa';
 
 // FAQ Item
 export interface FAQItem {
+    id: string;
     question: string;
     answer: string;
+    category: string;
+    helpful: number;
+    notHelpful: number;
+    views: number;
+    lastUpdated: string;
 }
 
 // Tutorial Step
@@ -130,6 +136,10 @@ export interface TroubleshootingGuide {
     problem: string;
     symptoms: string[];
     solutions: TroubleshootingSolution[];
+    category: string;
+    severity: 'low' | 'medium' | 'high';
+    estimatedTime: string;
+    lastUpdated: string;
     relatedFaqs?: string[];
 }
 
