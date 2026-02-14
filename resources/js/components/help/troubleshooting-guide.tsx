@@ -13,6 +13,20 @@ interface TroubleshootingGuideProps {
 }
 
 export function TroubleshootingGuide({ guide }: TroubleshootingGuideProps) {
+    if (!guide) {
+        return (
+            <Card>
+                <CardContent className="py-12 text-center">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-medium mb-2">Panduan Tidak Ditemukan</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Panduan troubleshooting yang Anda cari tidak tersedia.
+                    </p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card>
             <CardHeader>
@@ -29,45 +43,49 @@ export function TroubleshootingGuide({ guide }: TroubleshootingGuideProps) {
                 </div>
 
                 {/* Symptoms */}
-                <div>
-                    <h4 className="font-medium mb-2">Gejala</h4>
-                    <ul className="space-y-2">
-                        {guide.symptoms.map((symptom, index) => (
-                            <li key={index} className="flex items-start gap-2 text-muted-foreground">
-                                <span className="text-yellow-500 mt-1">•</span>
-                                {symptom}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {guide.symptoms && guide.symptoms.length > 0 && (
+                    <div>
+                        <h4 className="font-medium mb-2">Gejala</h4>
+                        <ul className="space-y-2">
+                            {guide.symptoms.map((symptom, index) => (
+                                <li key={index} className="flex items-start gap-2 text-muted-foreground">
+                                    <span className="text-yellow-500 mt-1">•</span>
+                                    {symptom}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
 
                 {/* Solutions */}
-                <div>
-                    <h4 className="font-medium mb-3">Solusi</h4>
-                    <div className="space-y-4">
-                        {guide.solutions.map((solution) => (
-                            <div
-                                key={solution.step}
-                                className="flex gap-4 p-4 rounded-lg bg-muted/50"
-                            >
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
-                                    {solution.step}
+                {guide.solutions && guide.solutions.length > 0 && (
+                    <div>
+                        <h4 className="font-medium mb-3">Solusi</h4>
+                        <div className="space-y-4">
+                            {guide.solutions.map((solution) => (
+                                <div
+                                    key={solution.step}
+                                    className="flex gap-4 p-4 rounded-lg bg-muted/50"
+                                >
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-medium shrink-0">
+                                        {solution.step}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h5 className="font-medium">{solution.title}</h5>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {solution.description}
+                                        </p>
+                                        {solution.action && (
+                                            <Badge variant="outline" className="mt-2">
+                                                {solution.action}
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <h5 className="font-medium">{solution.title}</h5>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {solution.description}
-                                    </p>
-                                    {solution.action && (
-                                        <Badge variant="outline" className="mt-2">
-                                            {solution.action}
-                                        </Badge>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Success indicator */}
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
@@ -87,6 +105,20 @@ interface TroubleshootingListProps {
 }
 
 export function TroubleshootingList({ guides, onSelect }: TroubleshootingListProps) {
+    if (!guides || guides.length === 0) {
+        return (
+            <Card>
+                <CardContent className="py-12 text-center">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-medium mb-2">Belum Ada Panduan Troubleshooting</h3>
+                    <p className="text-sm text-muted-foreground">
+                        Panduan troubleshooting akan ditampilkan di sini ketika tersedia.
+                    </p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <div className="grid gap-4 md:grid-cols-2">
             {guides.map((guide) => (
@@ -107,7 +139,7 @@ export function TroubleshootingList({ guides, onSelect }: TroubleshootingListPro
                         </p>
                         <div className="flex items-center gap-2 mt-3">
                             <Badge variant="secondary">
-                                {guide.solutions.length} langkah
+                                {guide.solutions?.length || 0} langkah
                             </Badge>
                         </div>
                     </CardContent>

@@ -55,15 +55,19 @@ export default function StudentHelp() {
         try {
             setIsLoading(true);
             const [faqs, troubleshooting, contact] = await Promise.all([
-                getFAQCategories(),
-                getTroubleshootingGuides(),
+                getFAQCategories().catch(() => []),
+                getTroubleshootingGuides().catch(() => []),
                 getContactInfo().catch(() => undefined),
             ]);
-            setFaqCategories(faqs);
-            setTroubleshootingGuides(troubleshooting);
+            setFaqCategories(Array.isArray(faqs) ? faqs : []);
+            setTroubleshootingGuides(Array.isArray(troubleshooting) ? troubleshooting : []);
             setContactInfo(contact);
-        } catch {
+        } catch (error) {
+            console.error('Error loading help data:', error);
             showToast('error', 'Gagal memuat data bantuan');
+            // Set empty arrays as fallback
+            setFaqCategories([]);
+            setTroubleshootingGuides([]);
         } finally {
             setIsLoading(false);
         }
