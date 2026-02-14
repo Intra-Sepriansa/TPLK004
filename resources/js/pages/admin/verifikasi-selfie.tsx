@@ -505,7 +505,8 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         transition={{ delay: 0.5 }}
                                     >
                                         <label className="block text-sm font-medium text-slate-300 mb-2">
-                                            Alasan Permintaan
+                                            Alasan Permintaan <span className="text-red-400">*</span>
+                                            <span className="text-xs text-slate-500 ml-2">(minimal 10 karakter)</span>
                                         </label>
                                         <textarea
                                             value={permissionReason}
@@ -514,6 +515,11 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                             className="w-full px-4 py-3 rounded-lg bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                             rows={4}
                                         />
+                                        {permissionReason.trim() && permissionReason.trim().length < 10 && (
+                                            <p className="text-xs text-red-400 mt-1">
+                                                Alasan harus minimal 10 karakter ({permissionReason.trim().length}/10)
+                                            </p>
+                                        )}
                                     </motion.div>
 
                                     <motion.div 
@@ -549,7 +555,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         </button>
                                         <button 
                                             onClick={() => {
-                                                if (permissionReason.trim() && selectedDetail) {
+                                                if (permissionReason.trim() && permissionReason.trim().length >= 10 && selectedDetail) {
                                                     router.post('/selfie-view-requests', {
                                                         selfie_verification_id: selectedDetail.id,
                                                         reason: permissionReason.trim()
@@ -559,11 +565,14 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                                             setShowPermissionRequest(false);
                                                             setSelectedDetail(null);
                                                             setPermissionReason('');
+                                                        },
+                                                        onError: (errors) => {
+                                                            console.error('Error submitting request:', errors);
                                                         }
                                                     });
                                                 }
                                             }}
-                                            disabled={!permissionReason.trim()}
+                                            disabled={!permissionReason.trim() || permissionReason.trim().length < 10}
                                             className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Kirim Permintaan
