@@ -78,7 +78,6 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recentVerifications, currentFilter }: PageProps) {
     const [filter, setFilter] = useState(currentFilter);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [selectedDetail, setSelectedDetail] = useState<SelfieItem | null>(null);
     const [showPrivacyWarning, setShowPrivacyWarning] = useState(false);
     const [showPermissionRequest, setShowPermissionRequest] = useState(false);
@@ -315,7 +314,19 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                     >
                                     <div className="relative aspect-square bg-slate-100 dark:bg-slate-800">
                                         {item.attendance_log?.selfie_path ? (
-                                            <img src={`/storage/${item.attendance_log.selfie_path}`} alt="Selfie" className="w-full h-full object-cover cursor-pointer" onClick={() => setPreviewImage(`/storage/${item.attendance_log?.selfie_path}`)} />
+                                            <div className="relative w-full h-full">
+                                                <img 
+                                                    src={`/storage/${item.attendance_log.selfie_path}`} 
+                                                    alt="Selfie" 
+                                                    className="w-full h-full object-cover blur-xl"
+                                                />
+                                                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <Lock className="h-8 w-8 text-white mx-auto mb-2" />
+                                                        <p className="text-xs text-white font-medium">Privasi Terlindungi</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ) : (
                                             <div className="flex items-center justify-center h-full"><Image className="h-12 w-12 text-slate-400" /></div>
                                         )}
@@ -364,30 +375,6 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         </div>
                     )}
                 </motion.div>
-
-                <AnimatePresence>
-                    {previewImage && (
-                        <motion.div 
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" 
-                            onClick={() => setPreviewImage(null)}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <motion.img 
-                                src={previewImage} 
-                                alt="Preview" 
-                                className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
-                                initial={{ scale: 0.5, rotateY: -90 }}
-                                animate={{ scale: 1, rotateY: 0 }}
-                                exit={{ scale: 0.5, rotateY: 90 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                                onClick={(e) => e.stopPropagation()}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 {/* Privacy Warning Modal */}
                 <AnimatePresence>
