@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image, Shield, Lock, Unlock, MapPin, Calendar, User, FileText, X } from 'lucide-react';
+import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image, Shield, Lock, Calendar, User, FileText, X } from 'lucide-react';
 import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
