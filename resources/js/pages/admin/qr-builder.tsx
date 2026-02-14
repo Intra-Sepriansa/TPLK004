@@ -301,14 +301,12 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 initial="hidden"
                 animate="visible"
             >
-                {/* Header with Animated Gradient - UPGRADED */}
+                {/* Header with Animated Gradient - MATCHING DASHBOARD */}
                 <motion.div
                     variants={headerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl"
-                    whileHover={{ scale: 1.005 }}
-                    transition={{ type: "spring", stiffness: 300 }}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
@@ -330,80 +328,65 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Sparkles */}
-                    {[...Array(8)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{
-                                opacity: [0, 1, 0],
-                                scale: [0, 1.5, 0],
-                                y: [0, -40, -80],
-                                x: [0, Math.sin(i) * 20, 0],
-                            }}
-                            transition={{
-                                duration: 3 + Math.random(),
-                                repeat: Infinity,
-                                delay: i * 0.4,
-                                ease: "easeOut"
-                            }}
-                            className="absolute rounded-full bg-white/40"
-                            style={{
-                                width: `${4 + Math.random() * 8}px`,
-                                height: `${4 + Math.random() * 8}px`,
-                                left: `${10 + i * 12}%`,
-                                top: `${25 + (i % 3) * 25}%`,
-                            }}
-                        />
-                    ))}
-
                     <div className="relative">
-                        <div className="flex items-center gap-4">
-                            <motion.div
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg"
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 200,
-                                    delay: 0.3
-                                }}
-                                whileHover={{
-                                    scale: 1.2,
-                                    rotate: 360,
-                                    transition: { duration: 0.6 }
-                                }}
-                            >
-                                <QrCode className="h-7 w-7" />
-                            </motion.div>
+                        <div className="flex flex-wrap items-start justify-between gap-6">
                             <div>
-                                <motion.p
-                                    className="text-sm text-gray-300 font-medium"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                >
-                                    Generator Token
-                                </motion.p>
-                                <motion.h1
-                                    className="text-2xl font-bold flex items-center gap-2"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                >
-                                    QR Builder
-                                    <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
-                                </motion.h1>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur">
+                                        <QrCode className="h-6 w-6" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-indigo-200">Generator Token</p>
+                                        <h1 className="text-3xl font-bold">QR Builder</h1>
+                                    </div>
+                                </div>
+                                <p className="text-indigo-100 max-w-xl mt-4">
+                                    Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}. Sistem akan memperbarui token secara otomatis untuk keamanan maksimal.
+                                </p>
+                                
+                                {/* Quick Action Buttons */}
+                                <div className="flex flex-wrap gap-3 mt-6">
+                                    <button
+                                        onClick={() => void generateToken({ force: true })}
+                                        disabled={loading || !activeSession?.id}
+                                        className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-600 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                        {loading ? 'Generating...' : 'Generate QR'}
+                                    </button>
+                                    <a href="/admin/sesi-absen" className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30">
+                                        <Activity className="h-4 w-4" />
+                                        Kelola Sesi
+                                    </a>
+                                    {qrUrl && (
+                                        <button
+                                            onClick={downloadQr}
+                                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/30"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                            Download QR
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div className="flex flex-col items-end gap-2">
+                                {activeSession && (
+                                    <div className="text-right">
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 backdrop-blur mb-2">
+                                            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            <span className="text-sm font-semibold">Sesi Aktif</span>
+                                        </div>
+                                        <p className="text-indigo-200 text-sm">
+                                            {activeSession.course?.nama ?? '-'}
+                                        </p>
+                                        <p className="text-white font-semibold">
+                                            Pertemuan #{activeSession.meeting_number}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6, type: "spring" }}
-                            className="mt-4 text-gray-300"
-                        >
-                            Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}
-                        </motion.p>
                     </div>
                 </motion.div>
 
