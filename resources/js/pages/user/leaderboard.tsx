@@ -820,36 +820,105 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                             <AnimatePresence>
                                                 {isExpanded && (
                                                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
-                                                        <div className="p-6 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20">
-                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                                {[
-                                                                    { icon: Users, label: 'Total Sesi', value: entry.total_sessions, color: 'from-blue-500 to-cyan-600' },
-                                                                    { icon: Trophy, label: 'Hadir', value: entry.present_count, color: 'from-emerald-500 to-green-600' },
-                                                                    { icon: Target, label: 'Terlambat', value: entry.late_count, color: 'from-amber-500 to-orange-600' },
-                                                                    { icon: TrendingUp, label: 'Tepat Waktu', value: entry.on_time_rate, suffix: '%', color: 'from-blue-500 to-indigo-600' },
-                                                                ].map((stat, i) => (
-                                                                    <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }} whileHover={{ scale: 1.05, y: -5 }} className="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-lg">
-                                                                        <div className="flex items-center gap-2 mb-2">
-                                                                            <div className={`p-2 rounded-lg bg-gradient-to-br ${stat.color}`}>
-                                                                                <stat.icon className="h-4 w-4 text-white" />
+                                                        <div className="p-8 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/30 dark:via-yellow-950/30 dark:to-orange-950/30 relative overflow-hidden">
+                                                            {/* Decorative Elements */}
+                                                            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-yellow-300/20 to-amber-400/20 rounded-full blur-3xl" />
+                                                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-orange-300/20 to-yellow-400/20 rounded-full blur-3xl" />
+                                                            
+                                                            <div className="relative">
+                                                                <div className="flex items-center gap-2 mb-6">
+                                                                    <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                                                                    <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-yellow-600 to-orange-600">
+                                                                        Statistik Juara
+                                                                    </h3>
+                                                                </div>
+                                                                
+                                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                                                    {[
+                                                                        { icon: Users, label: 'Total Sesi', value: entry.total_sessions, color: 'from-blue-500 via-cyan-500 to-blue-600', iconBg: 'from-blue-400 to-cyan-500' },
+                                                                        { icon: Trophy, label: 'Hadir', value: entry.present_count, color: 'from-emerald-500 via-green-500 to-emerald-600', iconBg: 'from-emerald-400 to-green-500' },
+                                                                        { icon: Target, label: 'Terlambat', value: entry.late_count, color: 'from-amber-500 via-orange-500 to-amber-600', iconBg: 'from-amber-400 to-orange-500' },
+                                                                        { icon: TrendingUp, label: 'Tepat Waktu', value: entry.on_time_rate, suffix: '%', color: 'from-purple-500 via-violet-500 to-purple-600', iconBg: 'from-purple-400 to-violet-500' },
+                                                                    ].map((stat, i) => (
+                                                                        <motion.div 
+                                                                            key={stat.label} 
+                                                                            initial={{ opacity: 0, y: 20, scale: 0.9 }} 
+                                                                            animate={{ opacity: 1, y: 0, scale: 1 }} 
+                                                                            transition={{ delay: 0.1 + i * 0.05, type: "spring", stiffness: 200 }} 
+                                                                            whileHover={{ scale: 1.08, y: -8, rotate: [0, -2, 2, 0] }}
+                                                                            className="relative group"
+                                                                        >
+                                                                            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-amber-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
+                                                                            <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-xl border-2 border-amber-200 dark:border-amber-800/50 group-hover:border-amber-300 dark:group-hover:border-amber-700 transition-all">
+                                                                                <div className="flex items-center gap-3 mb-3">
+                                                                                    <motion.div 
+                                                                                        whileHover={{ rotate: 360 }}
+                                                                                        transition={{ duration: 0.5 }}
+                                                                                        className={`p-3 rounded-xl bg-gradient-to-br ${stat.iconBg} shadow-lg`}
+                                                                                    >
+                                                                                        <stat.icon className="h-5 w-5 text-white" />
+                                                                                    </motion.div>
+                                                                                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide">{stat.label}</p>
+                                                                                </div>
+                                                                                <p className={`text-3xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                                                                                    <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
+                                                                                </p>
                                                                             </div>
-                                                                            <p className="text-xs text-slate-500 font-medium">{stat.label}</p>
+                                                                        </motion.div>
+                                                                    ))}
+                                                                </div>
+                                                                
+                                                                <motion.div 
+                                                                    initial={{ opacity: 0, y: 20 }} 
+                                                                    animate={{ opacity: 1, y: 0 }} 
+                                                                    transition={{ delay: 0.4 }} 
+                                                                    className="relative group"
+                                                                >
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-amber-500/30 to-orange-500/30 rounded-2xl blur-xl" />
+                                                                    <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border-2 border-amber-200 dark:border-amber-800/50">
+                                                                        <div className="flex items-center gap-3 mb-4">
+                                                                            <div className="p-2 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500">
+                                                                                <Star className="h-5 w-5 text-white" />
+                                                                            </div>
+                                                                            <p className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600 uppercase tracking-wide">
+                                                                                Performa Kehadiran Champion
+                                                                            </p>
                                                                         </div>
-                                                                        <p className="text-2xl font-bold text-slate-900 dark:text-white"><AnimatedCounter value={stat.value} suffix={stat.suffix || ''} /></p>
-                                                                    </motion.div>
-                                                                ))}
-                                                            </div>
-                                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mt-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-lg">
-                                                                <p className="text-xs text-slate-500 font-medium mb-3">Performa Kehadiran Champion</p>
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="flex-1">
-                                                                        <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                                            <motion.div initial={{ width: 0 }} animate={{ width: `${entry.attendance_rate}%` }} transition={{ duration: 1, delay: 0.4 }} className="h-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 rounded-full shadow-lg" />
+                                                                        <div className="flex items-center gap-4">
+                                                                            <div className="flex-1">
+                                                                                <div className="h-6 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-700 rounded-full overflow-hidden shadow-inner">
+                                                                                    <motion.div 
+                                                                                        initial={{ width: 0 }} 
+                                                                                        animate={{ width: `${entry.attendance_rate}%` }} 
+                                                                                        transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }} 
+                                                                                        className="h-full bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-600 rounded-full shadow-lg relative overflow-hidden"
+                                                                                    >
+                                                                                        <motion.div
+                                                                                            animate={{
+                                                                                                x: ['-100%', '100%'],
+                                                                                            }}
+                                                                                            transition={{
+                                                                                                duration: 2,
+                                                                                                repeat: Infinity,
+                                                                                                ease: "linear"
+                                                                                            }}
+                                                                                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                                                                        />
+                                                                                    </motion.div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <motion.span 
+                                                                                initial={{ scale: 0 }}
+                                                                                animate={{ scale: 1 }}
+                                                                                transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
+                                                                                className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 min-w-[80px] text-right"
+                                                                            >
+                                                                                {entry.attendance_rate}%
+                                                                            </motion.span>
                                                                         </div>
                                                                     </div>
-                                                                    <span className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-600 min-w-[60px] text-right">{entry.attendance_rate}%</span>
-                                                                </div>
-                                                            </motion.div>
+                                                                </motion.div>
+                                                            </div>
                                                         </div>
                                                     </motion.div>
                                                 )}
