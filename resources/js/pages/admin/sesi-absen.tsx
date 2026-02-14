@@ -627,7 +627,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                 type="datetime-local" 
                                                 value={createForm.data.start_at} 
                                                 onChange={e => createForm.setData('start_at', e.target.value)} 
-                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 [color-scheme:dark]" 
                                                 required
                                                 whileFocus={{ scale: 1.01 }}
                                             />
@@ -642,7 +642,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                 type="datetime-local" 
                                                 value={createForm.data.end_at} 
                                                 onChange={e => createForm.setData('end_at', e.target.value)} 
-                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300" 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 [color-scheme:dark]" 
                                                 required
                                                 whileFocus={{ scale: 1.01 }}
                                             />
@@ -847,7 +847,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                 type="datetime-local" 
                                                 value={editForm.data.start_at} 
                                                 onChange={e => editForm.setData('start_at', e.target.value)} 
-                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300 [color-scheme:dark]" 
                                                 required
                                                 whileFocus={{ scale: 1.01 }}
                                             />
@@ -862,7 +862,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                                                 type="datetime-local" 
                                                 value={editForm.data.end_at} 
                                                 onChange={e => editForm.setData('end_at', e.target.value)} 
-                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300" 
+                                                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3.5 text-white placeholder-gray-500 focus:bg-white/10 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all duration-300 [color-scheme:dark]" 
                                                 required
                                                 whileFocus={{ scale: 1.01 }}
                                             />
