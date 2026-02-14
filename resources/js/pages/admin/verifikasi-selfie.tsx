@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image } from 'lucide-react';
+import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image, Shield, Lock, Unlock, MapPin, Calendar, User, FileText, X } from 'lucide-react';
 import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -79,6 +79,9 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     const [filter, setFilter] = useState(currentFilter);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [selectedDetail, setSelectedDetail] = useState<SelfieItem | null>(null);
+    const [showPrivacyWarning, setShowPrivacyWarning] = useState(false);
+    const [isDetailRevealed, setIsDetailRevealed] = useState(false);
 
     const handleFilter = (status: string) => {
         setFilter(status);
@@ -325,8 +328,19 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         <p className="font-medium text-slate-900 dark:text-white truncate">{item.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
                                         <p className="text-xs text-slate-500">{item.attendance_log?.mahasiswa?.nim ?? '-'}</p>
                                         <p className="text-xs text-slate-400 mt-1">{item.created_at}</p>
+                                        <button 
+                                            onClick={() => {
+                                                setSelectedDetail(item);
+                                                setShowPrivacyWarning(true);
+                                                setIsDetailRevealed(false);
+                                            }} 
+                                            className="w-full mt-2 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
+                                        >
+                                            <Eye className="h-3 w-3" />
+                                            Lihat Detail
+                                        </button>
                                         {item.status === 'pending' && (
-                                            <div className="flex gap-2 mt-3">
+                                            <div className="flex gap-2 mt-2">
                                                 <button onClick={() => handleApprove(item.id)} className="flex-1 py-1.5 rounded bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700">Setujui</button>
                                                 <button onClick={() => handleReject(item.id)} className="flex-1 py-1.5 rounded bg-red-600 text-white text-xs font-medium hover:bg-red-700">Tolak</button>
                                             </div>
@@ -369,6 +383,322 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
                                 onClick={(e) => e.stopPropagation()}
                             />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Privacy Warning Modal */}
+                <AnimatePresence>
+                    {showPrivacyWarning && selectedDetail && (
+                        <motion.div 
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4" 
+                            onClick={() => setShowPrivacyWarning(false)}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <motion.div 
+                                className="relative max-w-md w-full bg-gradient-to-br from-slate-900 to-black border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                                initial={{ scale: 0.8, y: 50 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.8, y: 50 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-red-500/10" />
+                                <div className="relative p-6">
+                                    <motion.div 
+                                        className="flex items-center justify-center mb-4"
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                    >
+                                        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center">
+                                            <Shield className="h-8 w-8 text-white" />
+                                        </div>
+                                    </motion.div>
+                                    <motion.h3 
+                                        className="text-xl font-bold text-white text-center mb-2"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Peringatan Privasi
+                                    </motion.h3>
+                                    <motion.p 
+                                        className="text-sm text-slate-300 text-center mb-6"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Detail mahasiswa hanya dapat dilihat sekali. Untuk melihat kembali, diperlukan persetujuan dari mahasiswa yang bersangkutan.
+                                    </motion.p>
+                                    <motion.div 
+                                        className="flex gap-3"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <button 
+                                            onClick={() => setShowPrivacyWarning(false)}
+                                            className="flex-1 py-2.5 rounded-lg bg-slate-700 text-white font-medium hover:bg-slate-600 transition-colors"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                setShowPrivacyWarning(false);
+                                                setIsDetailRevealed(true);
+                                            }}
+                                            className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-red-500 text-white font-medium hover:from-amber-600 hover:to-red-600 transition-all shadow-lg shadow-amber-500/20"
+                                        >
+                                            Saya Mengerti
+                                        </button>
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Detail Modal */}
+                <AnimatePresence>
+                    {isDetailRevealed && selectedDetail && (
+                        <motion.div 
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg p-4" 
+                            onClick={() => {
+                                setIsDetailRevealed(false);
+                                setSelectedDetail(null);
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <motion.div 
+                                className="relative max-w-4xl w-full bg-black/90 border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                                initial={{ scale: 0.9, y: 50, opacity: 0 }}
+                                animate={{ scale: 1, y: 0, opacity: 1 }}
+                                exit={{ scale: 0.9, y: 50, opacity: 0 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                            >
+                                {/* Animated Background */}
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-pink-500/20"
+                                    animate={{
+                                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                                    }}
+                                    transition={{
+                                        duration: 10,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                    }}
+                                    style={{
+                                        backgroundSize: '200% 200%',
+                                    }}
+                                />
+                                
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                                
+                                {/* Close Button */}
+                                <button 
+                                    onClick={() => {
+                                        setIsDetailRevealed(false);
+                                        setSelectedDetail(null);
+                                    }}
+                                    className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+
+                                <div className="relative p-8">
+                                    {/* Header */}
+                                    <motion.div 
+                                        className="flex items-center gap-4 mb-6"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                                            <Eye className="h-6 w-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-white">Detail Verifikasi Selfie</h2>
+                                            <p className="text-sm text-slate-400">Informasi lengkap mahasiswa dan absensi</p>
+                                        </div>
+                                    </motion.div>
+
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        {/* Left: Image */}
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -30 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-700/50">
+                                                {selectedDetail.attendance_log?.selfie_path ? (
+                                                    <motion.img 
+                                                        src={`/storage/${selectedDetail.attendance_log.selfie_path}`} 
+                                                        alt="Selfie" 
+                                                        className="w-full h-full object-cover"
+                                                        initial={{ scale: 1.2, filter: "blur(20px)" }}
+                                                        animate={{ scale: 1, filter: "blur(0px)" }}
+                                                        transition={{ duration: 0.6, delay: 0.3 }}
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full">
+                                                        <Image className="h-16 w-16 text-slate-600" />
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-3 right-3">
+                                                    <span className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl border ${
+                                                        selectedDetail.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
+                                                        selectedDetail.status === 'rejected' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                                                        'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                                    }`}>
+                                                        {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Right: Details */}
+                                        <motion.div 
+                                            className="space-y-4"
+                                            initial={{ opacity: 0, x: 30 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            {/* Student Info */}
+                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <User className="h-4 w-4 text-indigo-400" />
+                                                    <h3 className="text-sm font-semibold text-white">Informasi Mahasiswa</h3>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div>
+                                                        <p className="text-xs text-slate-400">Nama</p>
+                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-slate-400">NIM</p>
+                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Attendance Info */}
+                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <Calendar className="h-4 w-4 text-purple-400" />
+                                                    <h3 className="text-sm font-semibold text-white">Informasi Absensi</h3>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div>
+                                                        <p className="text-xs text-slate-400">Mata Kuliah</p>
+                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.course ?? '-'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-slate-400">Waktu Scan</p>
+                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.scanned_at ?? '-'}</p>
+                                                    </div>
+                                                    {selectedDetail.attendance_log?.distance_m !== null && (
+                                                        <div>
+                                                            <p className="text-xs text-slate-400">Jarak</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log.distance_m.toFixed(2)} meter</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Verification Info */}
+                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
+                                                <div className="flex items-center gap-2 mb-3">
+                                                    <FileText className="h-4 w-4 text-pink-400" />
+                                                    <h3 className="text-sm font-semibold text-white">Informasi Verifikasi</h3>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <div>
+                                                        <p className="text-xs text-slate-400">Dibuat</p>
+                                                        <p className="text-sm font-medium text-white">{selectedDetail.created_at ?? '-'}</p>
+                                                    </div>
+                                                    {selectedDetail.verified_at && (
+                                                        <div>
+                                                            <p className="text-xs text-slate-400">Diverifikasi</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.verified_at}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedDetail.verified_by_name && (
+                                                        <div>
+                                                            <p className="text-xs text-slate-400">Oleh</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.verified_by_name}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedDetail.rejection_reason && (
+                                                        <div>
+                                                            <p className="text-xs text-slate-400">Alasan Penolakan</p>
+                                                            <p className="text-sm font-medium text-red-300">{selectedDetail.rejection_reason}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedDetail.note && (
+                                                        <div>
+                                                            <p className="text-xs text-slate-400">Catatan</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.note}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Privacy Notice */}
+                                            <motion.div 
+                                                className="p-4 rounded-xl bg-amber-500/10 backdrop-blur-xl border border-amber-500/30"
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.5 }}
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <Lock className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <p className="text-xs font-semibold text-amber-300 mb-1">Perlindungan Privasi</p>
+                                                        <p className="text-xs text-amber-200/80">Detail ini telah dilihat. Untuk melihat kembali, diperlukan persetujuan dari mahasiswa.</p>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+
+                                            {/* Action Buttons */}
+                                            {selectedDetail.status === 'pending' && (
+                                                <motion.div 
+                                                    className="flex gap-3 pt-2"
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.6 }}
+                                                >
+                                                    <button 
+                                                        onClick={() => {
+                                                            handleApprove(selectedDetail.id);
+                                                            setIsDetailRevealed(false);
+                                                            setSelectedDetail(null);
+                                                        }}
+                                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/20"
+                                                    >
+                                                        Setujui
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            handleReject(selectedDetail.id);
+                                                            setIsDetailRevealed(false);
+                                                            setSelectedDetail(null);
+                                                        }}
+                                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg shadow-red-500/20"
+                                                    >
+                                                        Tolak
+                                                    </button>
+                                                </motion.div>
+                                            )}
+                                        </motion.div>
+                                    </div>
+                                </div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
