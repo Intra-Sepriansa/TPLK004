@@ -579,9 +579,14 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
     );
 
     const CalendarView = ({ tasks }: { tasks: Task[] }) => {
+        const [currentDate, setCurrentDate] = useState(new Date());
+        const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+        const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+        const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
+        
         const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
         
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
@@ -599,60 +604,418 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
             });
         };
         
+        const goToPreviousMonth = () => {
+            setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+        };
+        
+        const goToNextMonth = () => {
+            setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+        };
+        
+        const goToToday = () => {
+            setCurrentDate(new Date());
+        };
+        
+        const isToday = (day: number) => {
+            return day === today.getDate() && 
+                   currentMonth === today.getMonth() && 
+                   currentYear === today.getFullYear();
+        };
+        
+        const isPastDate = (day: number) => {
+            const date = new Date(currentYear, currentMonth, day);
+            const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            return date < todayStart;
+        };
+        
         return (
-            <div className="space-y-4">
-                <div className="text-center">
-                    <h3 className="text-lg font-semibold">
-                        {new Date(currentYear, currentMonth).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
-                    </h3>
-                </div>
-                <div className="grid grid-cols-7 gap-2">
-                    {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(day => (
-                        <div key={day} className="text-center text-sm font-medium text-muted-foreground p-2">
-                            {day}
+            <div className="space-y-6">
+                {/* Calendar Header with Navigation */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <motion.h3 
+                            key={`${currentMonth}-${currentYear}`}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="text-2xl font-bold text-gray-900 dark:text-white"
+                        >
+                            {new Date(currentYear, currentMonth).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+                        </motion.h3>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={goToToday}
+                            className="text-xs"
+                        >
+                            Hari Ini
+                        </Button>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                        {/* View Toggle */}
+                        <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                            <Button
+                                variant={calendarView === 'month' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setCalendarView('month')}
+                                className="text-xs h-8"
+                            >
+                                <CalendarDays className="h-3 w-3 mr-1" />
+                                Bulan
+                            </Button>
+                            <Button
+                                variant={calendarView === 'week' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setCalendarView('week')}
+                                className="text-xs h-8"
+                            >
+                                <LayoutList className="h-3 w-3 mr-1" />
+                                Minggu
+                            </Button>
                         </div>
-                    ))}
-                    {emptyDays.map(i => (
-                        <div key={`empty-${i}`} className="aspect-square" />
-                    ))}
-                    {days.map(day => {
-                        const dayTasks = getTasksForDay(day);
-                        const isToday = day === today.getDate() && currentMonth === today.getMonth();
                         
-                        return (
-                            <motion.div
-                                key={day}
-                                whileHover={{ scale: 1.05 }}
-                                className={`aspect-square border rounded-lg p-2 ${
-                                    isToday ? 'bg-violet-50 border-violet-300 dark:bg-violet-950/30' : 'hover:bg-muted/50'
+                        {/* Month Navigation */}
+                        <div className="flex items-center gap-1">
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={goToPreviousMonth}
+                                    className="h-9 w-9"
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Button>
+                            </motion.div>
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={goToNextMonth}
+                                    className="h-9 w-9"
+                                >
+                                    <ArrowRight className="h-4 w-4" />
+                                </Button>
+                            </motion.div>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Calendar Grid */}
+                <motion.div 
+                    key={`${currentMonth}-${currentYear}-${calendarView}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-lg"
+                >
+                    {/* Day Headers */}
+                    <div className="grid grid-cols-7 gap-2 mb-4">
+                        {['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((day, idx) => (
+                            <div 
+                                key={day} 
+                                className={`text-center text-sm font-bold py-3 ${
+                                    idx === 0 || idx === 6 
+                                        ? 'text-red-600 dark:text-red-400' 
+                                        : 'text-gray-700 dark:text-gray-300'
                                 }`}
                             >
-                                <div className="text-sm font-medium mb-1">{day}</div>
-                                {dayTasks.length > 0 && (
-                                    <div className="space-y-1">
-                                        {dayTasks.slice(0, 2).map(task => (
-                                            <div
-                                                key={task.id}
-                                                className={`text-xs p-1 rounded truncate ${
-                                                    task.priority === 'high' 
-                                                        ? 'bg-red-100 text-red-700 dark:bg-red-950/50' 
-                                                        : task.priority === 'medium'
-                                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/50'
-                                                            : 'bg-blue-100 text-blue-700 dark:bg-blue-950/50'
-                                                }`}
-                                            >
-                                                {task.title}
-                                            </div>
-                                        ))}
-                                        {dayTasks.length > 2 && (
-                                            <div className="text-xs text-muted-foreground">+{dayTasks.length - 2} lagi</div>
-                                        )}
+                                {day}
+                            </div>
+                        ))}
+                    </div>
+                    
+                    {/* Calendar Days */}
+                    <div className="grid grid-cols-7 gap-2">
+                        {emptyDays.map(i => (
+                            <div key={`empty-${i}`} className="aspect-square" />
+                        ))}
+                        {days.map(day => {
+                            const dayTasks = getTasksForDay(day);
+                            const isTodayDate = isToday(day);
+                            const isPast = isPastDate(day);
+                            const hasHighPriority = dayTasks.some(t => t.priority === 'high');
+                            const hasOverdue = dayTasks.some(t => t.is_overdue);
+                            
+                            return (
+                                <motion.div
+                                    key={day}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: day * 0.01 }}
+                                    whileHover={{ scale: 1.05, zIndex: 10 }}
+                                    onHoverStart={() => setHoveredDay(day)}
+                                    onHoverEnd={() => setHoveredDay(null)}
+                                    onClick={() => {
+                                        if (dayTasks.length > 0) {
+                                            setSelectedDate(new Date(currentYear, currentMonth, day));
+                                        }
+                                    }}
+                                    className={`relative aspect-square border-2 rounded-xl p-2 transition-all cursor-pointer ${
+                                        isTodayDate 
+                                            ? 'bg-gradient-to-br from-blue-500 to-cyan-600 border-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                                            : isPast
+                                                ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 opacity-60'
+                                                : hasOverdue
+                                                    ? 'bg-red-50 dark:bg-red-950/20 border-red-300 dark:border-red-900 hover:border-red-500'
+                                                    : hasHighPriority
+                                                        ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-900 hover:border-amber-500'
+                                                        : dayTasks.length > 0
+                                                            ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900 hover:border-blue-500'
+                                                            : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-400'
+                                    }`}
+                                >
+                                    {/* Day Number */}
+                                    <div className={`text-sm font-bold mb-1 ${
+                                        isTodayDate 
+                                            ? 'text-white' 
+                                            : isPast
+                                                ? 'text-gray-400 dark:text-gray-600'
+                                                : 'text-gray-900 dark:text-white'
+                                    }`}>
+                                        {day}
                                     </div>
-                                )}
+                                    
+                                    {/* Task Indicators */}
+                                    {dayTasks.length > 0 && (
+                                        <div className="space-y-1">
+                                            {/* Task Dots */}
+                                            <div className="flex flex-wrap gap-1">
+                                                {dayTasks.slice(0, 3).map((task, idx) => (
+                                                    <motion.div
+                                                        key={task.id}
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: 0.1 + idx * 0.05 }}
+                                                        className={`h-1.5 w-1.5 rounded-full ${
+                                                            task.status === 'completed'
+                                                                ? 'bg-emerald-500'
+                                                                : task.is_overdue
+                                                                    ? 'bg-red-500 animate-pulse'
+                                                                    : task.priority === 'high'
+                                                                        ? 'bg-red-500'
+                                                                        : task.priority === 'medium'
+                                                                            ? 'bg-amber-500'
+                                                                            : 'bg-blue-500'
+                                                        }`}
+                                                        title={task.title}
+                                                    />
+                                                ))}
+                                                {dayTasks.length > 3 && (
+                                                    <span className={`text-[10px] font-semibold ${
+                                                        isTodayDate ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                                                    }`}>
+                                                        +{dayTasks.length - 3}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Task Count Badge */}
+                                            <div className={`text-[10px] font-bold ${
+                                                isTodayDate 
+                                                    ? 'text-white/90' 
+                                                    : 'text-gray-600 dark:text-gray-400'
+                                            }`}>
+                                                {dayTasks.length} tugas
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {/* Hover Preview */}
+                                    <AnimatePresence>
+                                        {hoveredDay === day && dayTasks.length > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="absolute left-0 top-full mt-2 z-50 w-64 p-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl"
+                                            >
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                                                            {day} {new Date(currentYear, currentMonth).toLocaleDateString('id-ID', { month: 'long' })}
+                                                        </span>
+                                                        <Badge variant="secondary" className="text-xs">
+                                                            {dayTasks.length} tugas
+                                                        </Badge>
+                                                    </div>
+                                                    {dayTasks.slice(0, 3).map(task => (
+                                                        <div
+                                                            key={task.id}
+                                                            className="flex items-start gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg"
+                                                        >
+                                                            <div className={`h-2 w-2 rounded-full mt-1 flex-shrink-0 ${
+                                                                task.status === 'completed'
+                                                                    ? 'bg-emerald-500'
+                                                                    : task.is_overdue
+                                                                        ? 'bg-red-500'
+                                                                        : task.priority === 'high'
+                                                                            ? 'bg-red-500'
+                                                                            : task.priority === 'medium'
+                                                                                ? 'bg-amber-500'
+                                                                                : 'bg-blue-500'
+                                                            }`} />
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+                                                                    {task.title}
+                                                                </p>
+                                                                <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                                                                    {task.course_name}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    {dayTasks.length > 3 && (
+                                                        <p className="text-xs text-center text-gray-500 dark:text-gray-400 pt-1">
+                                                            +{dayTasks.length - 3} tugas lainnya
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    
+                                    {/* Today Indicator */}
+                                    {isTodayDate && (
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                opacity: [0.5, 1, 0.5],
+                                            }}
+                                            transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                            }}
+                                            className="absolute -top-1 -right-1 h-3 w-3 bg-white rounded-full shadow-lg"
+                                        />
+                                    )}
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </motion.div>
+                
+                {/* Legend */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-wrap items-center justify-center gap-4 text-xs"
+                >
+                    <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                        <span className="text-gray-600 dark:text-gray-400">Selesai</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-red-500" />
+                        <span className="text-gray-600 dark:text-gray-400">Prioritas Tinggi / Terlambat</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-amber-500" />
+                        <span className="text-gray-600 dark:text-gray-400">Prioritas Sedang</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-3 w-3 rounded-full bg-blue-500" />
+                        <span className="text-gray-600 dark:text-gray-400">Prioritas Rendah</span>
+                    </div>
+                </motion.div>
+                
+                {/* Selected Date Tasks Modal */}
+                <AnimatePresence>
+                    {selectedDate && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setSelectedDate(null)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {selectedDate.toLocaleDateString('id-ID', { 
+                                                weekday: 'long', 
+                                                day: 'numeric', 
+                                                month: 'long', 
+                                                year: 'numeric' 
+                                            })}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            {getTasksForDay(selectedDate.getDate()).length} tugas pada tanggal ini
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setSelectedDate(null)}
+                                        className="rounded-full"
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </Button>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                    {getTasksForDay(selectedDate.getDate()).map((task, idx) => (
+                                        <motion.div
+                                            key={task.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors cursor-pointer"
+                                            onClick={() => handleViewTask(task)}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <Checkbox
+                                                    checked={task.status === 'completed'}
+                                                    onCheckedChange={() => handleToggle(task.id)}
+                                                    className="mt-1"
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className={`font-semibold text-gray-900 dark:text-white mb-1 ${
+                                                        task.status === 'completed' ? 'line-through opacity-60' : ''
+                                                    }`}>
+                                                        {task.title}
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <Badge variant="outline" className="text-xs">
+                                                            <BookOpen className="h-3 w-3 mr-1" />
+                                                            {task.course_name}
+                                                        </Badge>
+                                                        {task.priority && (
+                                                            <Badge className={`text-xs ${
+                                                                task.priority === 'high' 
+                                                                    ? 'bg-red-500' 
+                                                                    : task.priority === 'medium'
+                                                                        ? 'bg-amber-500'
+                                                                        : 'bg-blue-500'
+                                                            }`}>
+                                                                <Flag className="h-3 w-3 mr-1" />
+                                                                {task.priority === 'high' ? 'Tinggi' : task.priority === 'medium' ? 'Sedang' : 'Rendah'}
+                                                            </Badge>
+                                                        )}
+                                                        {task.is_overdue && (
+                                                            <Badge variant="destructive" className="text-xs">
+                                                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                                                Terlambat
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </motion.div>
-                        );
-                    })}
-                </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         );
     };
