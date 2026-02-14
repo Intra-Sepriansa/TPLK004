@@ -29,6 +29,7 @@ interface SelfieItem {
     verified_by_name: string | null;
     rejection_reason: string | null;
     note: string | null;
+    has_approved_request: boolean;
     attendance_log: AttendanceLog | null;
 }
 
@@ -318,14 +319,24 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                                 <img 
                                                     src={`/storage/${item.attendance_log.selfie_path}`} 
                                                     alt="Selfie" 
-                                                    className="w-full h-full object-cover blur-xl"
+                                                    className={`w-full h-full object-cover ${item.has_approved_request ? '' : 'blur-xl'}`}
                                                 />
-                                                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                                                    <div className="text-center">
-                                                        <Lock className="h-8 w-8 text-white mx-auto mb-2" />
-                                                        <p className="text-xs text-white font-medium">Privasi Terlindungi</p>
+                                                {!item.has_approved_request && (
+                                                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                                                        <div className="text-center">
+                                                            <Lock className="h-8 w-8 text-white mx-auto mb-2" />
+                                                            <p className="text-xs text-white font-medium">Privasi Terlindungi</p>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                )}
+                                                {item.has_approved_request && (
+                                                    <div className="absolute bottom-2 left-2">
+                                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/90 text-white backdrop-blur-sm flex items-center gap-1">
+                                                            <CheckCircle className="h-3 w-3" />
+                                                            Disetujui
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="flex items-center justify-center h-full"><Image className="h-12 w-12 text-slate-400" /></div>
@@ -344,8 +355,14 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         <button 
                                             onClick={() => {
                                                 setSelectedDetail(item);
-                                                setShowPrivacyWarning(true);
-                                                setIsDetailRevealed(false);
+                                                if (item.has_approved_request) {
+                                                    // If already approved, go directly to detail modal
+                                                    setIsDetailRevealed(true);
+                                                } else {
+                                                    // Otherwise, show privacy warning first
+                                                    setShowPrivacyWarning(true);
+                                                    setIsDetailRevealed(false);
+                                                }
                                             }} 
                                             className="w-full mt-2 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
                                         >

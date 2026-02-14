@@ -15,9 +15,17 @@ class VerifikasiSelfieController extends Controller
     public function index(Request $request): Response
     {
         $status = $request->query('status', 'pending');
+        $currentUserId = $request->user()->id;
 
         // Get selfie queue with filters
-        $selfieQuery = SelfieVerification::with(['attendanceLog.mahasiswa', 'attendanceLog.session.course'])
+        $selfieQuery = SelfieVerification::with([
+            'attendanceLog.mahasiswa', 
+            'attendanceLog.session.course',
+            'viewRequests' => function($query) use ($currentUserId) {
+                $query->where('requested_by', $currentUserId)
+                      ->where('status', 'approved');
+            }
+        ])
             ->orderBy('created_at', 'desc');
 
         if ($status !== 'all') {
@@ -32,6 +40,7 @@ class VerifikasiSelfieController extends Controller
             'verified_by_name' => $item->verified_by_name,
             'rejection_reason' => $item->rejection_reason,
             'note' => $item->note,
+            'has_approved_request' => $item->viewRequests->isNotEmpty(),
             'attendance_log' => $item->attendanceLog ? [
                 'id' => $item->attendanceLog->id,
                 'selfie_path' => $item->attendanceLog->selfie_path,

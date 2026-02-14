@@ -36,4 +36,9 @@ class SelfieVerification extends Model
     {
         return $this->belongsTo(Dosen::class, 'verified_by');
     }
+
+    public function viewRequests()
+    {
+        return $this->hasMany(SelfieViewRequest::class);
+    }
 }
