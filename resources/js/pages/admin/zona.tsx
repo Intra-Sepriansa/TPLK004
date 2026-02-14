@@ -253,8 +253,24 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 
                 <motion.div 
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg"
+                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-lg"
                 >
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-800 to-black"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+                    
                     <motion.div 
                         className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
                         animate={{ 
