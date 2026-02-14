@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('attendance-ai/scan', [AiAttendanceController::class, 'scan'])->name('attendance-ai.scan');
     Route::patch('selfie-verifications/{selfieVerification}/approve', [SelfieVerificationController::class, 'approve'])->name('selfie-verifications.approve');
     Route::patch('selfie-verifications/{selfieVerification}/reject', [SelfieVerificationController::class, 'reject'])->name('selfie-verifications.reject');
+    Route::post('selfie-view-requests', [\App\Http\Controllers\Admin\SelfieViewRequestController::class, 'store'])->name('selfie-view-requests.store');
     Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::patch('settings/geofence', [SettingsController::class, 'updateGeofence'])->name('settings.geofence');
     Route::get('reports/attendance.csv', [ReportController::class, 'export'])->name('reports.export');
@@ -307,6 +308,11 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/docs', fn () => inertia('student/docs'))->name('user.docs');
     Route::get('user/docs/{guideId}', fn (string $guideId) => inertia('student/docs-detail', ['guideId' => $guideId]))->name('user.docs.detail');
     Route::get('user/help', fn () => inertia('student/help'))->name('user.help');
+    
+    // Selfie Verification Requests
+    Route::get('user/selfie-verification', [\App\Http\Controllers\Student\SelfieVerificationController::class, 'index'])->name('user.selfie-verification');
+    Route::patch('user/selfie-view-requests/{viewRequest}/approve', [\App\Http\Controllers\Student\SelfieVerificationController::class, 'approve'])->name('user.selfie-view-requests.approve');
+    Route::patch('user/selfie-view-requests/{viewRequest}/reject', [\App\Http\Controllers\Student\SelfieVerificationController::class, 'reject'])->name('user.selfie-view-requests.reject');
 });
 
 require __DIR__.'/settings.php';

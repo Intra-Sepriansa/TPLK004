@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { ScanFace, CheckCircle, XCircle, Clock, Filter, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image, Shield, Lock, Calendar, User, FileText, X } from 'lucide-react';
+import { ScanFace, CheckCircle, XCircle, Clock, RefreshCw, Eye, AlertTriangle, TrendingUp, Users, Image, Shield, Lock, Calendar, User, FileText, X } from 'lucide-react';
 import { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -127,7 +127,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
             y: 0,
             scale: 1,
             transition: {
-                type: "spring" as const,
+                type: "spring",
                 stiffness: 100,
                 damping: 15
             }
@@ -141,7 +141,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
             scale: 1,
             rotateY: 0,
             transition: {
-                type: "spring" as const,
+                type: "spring",
                 stiffness: 120,
                 damping: 12
             }
@@ -296,7 +296,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                     <ScanFace className="h-16 w-16 mx-auto text-slate-300 mb-4" />
                                     <p className="text-slate-500">Tidak ada selfie dalam antrian</p>
                                 </motion.div>
-                            ) : selfieQueue.data.map((item, index) => {
+                            ) : selfieQueue.data.map((item) => {
                                 const cfg = statusConfig[item.status] || { label: item.status, color: 'text-slate-700', bg: 'bg-slate-100' };
                                 return (
                                     <motion.div 
@@ -549,11 +549,18 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                         </button>
                                         <button 
                                             onClick={() => {
-                                                if (permissionReason.trim()) {
-                                                    // TODO: Send permission request to backend
-                                                    setShowPermissionRequest(false);
-                                                    setIsDetailRevealed(true);
-                                                    setPermissionReason('');
+                                                if (permissionReason.trim() && selectedDetail) {
+                                                    router.post('/selfie-view-requests', {
+                                                        selfie_verification_id: selectedDetail.id,
+                                                        reason: permissionReason.trim()
+                                                    }, {
+                                                        preserveScroll: true,
+                                                        onSuccess: () => {
+                                                            setShowPermissionRequest(false);
+                                                            setSelectedDetail(null);
+                                                            setPermissionReason('');
+                                                        }
+                                                    });
                                                 }
                                             }}
                                             disabled={!permissionReason.trim()}
@@ -712,7 +719,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                                                     {selectedDetail.attendance_log?.distance_m !== null && selectedDetail.attendance_log?.distance_m !== undefined && (
                                                         <div>
                                                             <p className="text-xs text-slate-400">Jarak</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.distance_m?.toFixed(2)} meter</p>
+                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log.distance_m.toFixed(2)} meter</p>
                                                         </div>
                                                     )}
                                                 </div>

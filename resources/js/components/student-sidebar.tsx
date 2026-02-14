@@ -36,6 +36,7 @@ import {
     Settings,
     HelpCircle,
     CalendarDays,
+    Shield,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -103,6 +104,11 @@ const studentNavItems: NavItem[] = [
         title: 'Notifikasi',
         href: '/user/notifications',
         icon: Bell,
+    },
+    {
+        title: 'Verifikasi Selfie',
+        href: '/user/selfie-verification',
+        icon: Shield,
     },
     {
         title: 'Uang Kas',
