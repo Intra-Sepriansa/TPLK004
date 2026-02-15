@@ -196,6 +196,8 @@ export default function UserAbsensi() {
         // html5-qrcode is always available
         setScanAvailable(true);
         setSelfieAvailable(Boolean(navigator.mediaDevices?.getUserMedia));
+        console.log('🔍 Scan available:', true);
+        console.log('🔍 Selfie available:', Boolean(navigator.mediaDevices?.getUserMedia));
     }, []);
 
     useEffect(() => {
@@ -1195,7 +1197,23 @@ export default function UserAbsensi() {
 
                         <div className="mt-4 flex flex-wrap gap-2">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button type="button" variant="outline" size="sm" onClick={() => { if (!consentAccepted) { setConsentError('Setujui persetujuan kamera sebelum memulai.'); return; } setScanning((prev) => !prev); }} disabled={!scanAvailable || step1Locked}>
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => { 
+                                        console.log('🔍 Button clicked!');
+                                        console.log('🔍 Consent accepted:', consentAccepted);
+                                        console.log('🔍 Scan available:', scanAvailable);
+                                        console.log('🔍 Step1 locked:', step1Locked);
+                                        if (!consentAccepted) { 
+                                            setConsentError('Setujui persetujuan kamera sebelum memulai.'); 
+                                            return; 
+                                        } 
+                                        setScanning((prev) => !prev); 
+                                    }} 
+                                    disabled={!scanAvailable || step1Locked}
+                                >
                                     {scanning ? <><Loader2 className="h-4 w-4 animate-spin" /> Stop</> : <><QrCode className="h-4 w-4" /> Scan QR</>}
                                 </Button>
                             </motion.div>
