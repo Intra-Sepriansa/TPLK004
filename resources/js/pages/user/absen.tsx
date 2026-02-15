@@ -99,8 +99,8 @@ function StepIndicator({ steps, currentStep }: { steps: { key: string; label: st
                             className={cn(
                                 'flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300 shadow-sm',
                                 step.done ? 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-200 dark:shadow-emerald-900/50' :
-                                index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 shadow-emerald-100 dark:shadow-emerald-900/30' :
-                                'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-900'
+                                    index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 shadow-emerald-100 dark:shadow-emerald-900/30' :
+                                        'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-900'
                             )}
                         >
                             {step.done ? (
@@ -121,9 +121,9 @@ function StepIndicator({ steps, currentStep }: { steps: { key: string; label: st
                             transition={{ delay: index * 0.1 + 0.2 }}
                             className={cn(
                                 'mt-2 text-xs font-semibold',
-                                step.done ? 'text-emerald-600 dark:text-emerald-400' : 
-                                index === currentStep ? 'text-gray-900 dark:text-white' : 
-                                'text-gray-400'
+                                step.done ? 'text-emerald-600 dark:text-emerald-400' :
+                                    index === currentStep ? 'text-gray-900 dark:text-white' :
+                                        'text-gray-400'
                             )}
                         >
                             {step.label}
@@ -152,7 +152,7 @@ export default function UserAbsensi() {
     const { props } = usePage<SharedData & PageProps>();
     const { mahasiswa, geofence, flash, selfieRequired } = props;
     const locationSampleCount = props.locationSampleCount ?? 3;
-    
+
     const form = useForm({
         token: '',
         selfie: null as File | null,
@@ -182,7 +182,7 @@ export default function UserAbsensi() {
     const [consentError, setConsentError] = useState<string | null>(null);
     const [cameraPermission, setCameraPermission] = useState<PermissionState | 'unknown'>('unknown');
     const [locationPermission, setLocationPermission] = useState<PermissionState | 'unknown'>('unknown');
-    
+
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const qrScannerRef = useRef<Html5Qrcode | null>(null);
     const qrReaderDivId = useRef(`qr-reader-${Date.now()}`).current;
@@ -229,9 +229,9 @@ export default function UserAbsensi() {
 
     // QR Scanner effect - using html5-qrcode
     useEffect(() => {
-        if (!scanning) { 
-            stopScan(); 
-            return; 
+        if (!scanning) {
+            stopScan();
+            return;
         }
         if (!consentAccepted) {
             setConsentError('Setujui persetujuan kamera sebelum memulai.');
@@ -249,7 +249,7 @@ export default function UserAbsensi() {
             try {
                 setScanStatus('Menyalakan kamera...');
                 console.log('Starting QR scanner...');
-                
+
                 // Initialize Html5Qrcode if not already initialized
                 if (!qrScannerRef.current) {
                     console.log('Initializing Html5Qrcode with ID:', qrReaderDivId);
@@ -299,7 +299,7 @@ export default function UserAbsensi() {
             }
         };
         start();
-        return () => stopScan();
+        return () => { void stopScan(); };
     }, [cameraPermission, consentAccepted, scanning]);
 
     useEffect(() => { return () => stopSelfie(); }, []);
@@ -307,9 +307,9 @@ export default function UserAbsensi() {
 
     const stopScan = async () => {
         console.log('Stopping QR scanner...');
-        if (intervalRef.current) { 
-            window.clearInterval(intervalRef.current); 
-            intervalRef.current = null; 
+        if (intervalRef.current) {
+            window.clearInterval(intervalRef.current);
+            intervalRef.current = null;
         }
         if (qrScannerRef.current) {
             try {
@@ -325,9 +325,9 @@ export default function UserAbsensi() {
                 // Ignore errors when stopping
             }
         }
-        if (streamRef.current) { 
-            streamRef.current.getTracks().forEach((track) => track.stop()); 
-            streamRef.current = null; 
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
         }
         if (videoRef.current) videoRef.current.srcObject = null;
     };
@@ -526,12 +526,12 @@ export default function UserAbsensi() {
         setSubmitError(null);
         form.post('/user/absen', {
             forceFormData: true,
-            onSuccess: () => { 
-                stopSelfie(); 
-                setSelfieStatus(''); 
-                stopScan(); 
-                setScanning(false); 
-                setSubmitSuccess(true); 
+            onSuccess: () => {
+                stopSelfie();
+                setSelfieStatus('');
+                stopScan();
+                setScanning(false);
+                setSubmitSuccess(true);
                 setSubmitError(null);
             },
             onError: (errors) => {
@@ -765,7 +765,7 @@ export default function UserAbsensi() {
                             }}
                         />
                     ))}
-                    
+
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="flex items-center gap-5">
@@ -834,7 +834,7 @@ export default function UserAbsensi() {
                                     </motion.div>
                                 </div>
                             </div>
-                            
+
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
@@ -936,7 +936,7 @@ export default function UserAbsensi() {
                     transition={!consentAccepted ? { duration: 2, repeat: Infinity } : {}}
                     className={cn(
                         "rounded-2xl border p-6 shadow-lg backdrop-blur transition-all relative overflow-hidden",
-                        consentAccepted 
+                        consentAccepted
                             ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-800 dark:from-emerald-950/20 dark:to-black"
                             : "border-violet-300 bg-gradient-to-br from-violet-50 to-white dark:border-violet-700 dark:from-violet-950/30 dark:to-black"
                     )}
@@ -960,12 +960,12 @@ export default function UserAbsensi() {
                     <div className="flex items-start gap-4 relative z-10">
                         <motion.div
                             whileHover={{ rotate: 10, scale: 1.1 }}
-                            animate={!consentAccepted ? { 
+                            animate={!consentAccepted ? {
                                 rotate: [0, -5, 5, -5, 0],
                                 scale: [1, 1.1, 1]
                             } : {}}
-                            transition={!consentAccepted ? { 
-                                duration: 2, 
+                            transition={!consentAccepted ? {
+                                duration: 2,
                                 repeat: Infinity,
                                 repeatDelay: 1
                             } : {}}
@@ -1002,7 +1002,7 @@ export default function UserAbsensi() {
                                 )}
                             </div>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                {consentAccepted 
+                                {consentAccepted
                                     ? "Terima kasih! Kamu sudah dapat menggunakan fitur kamera dan lokasi."
                                     : "Centang kotak di bawah untuk mengaktifkan kamera dan lokasi."}
                             </p>
@@ -1068,7 +1068,7 @@ export default function UserAbsensi() {
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
-                            className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10"
+                            className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 pointer-events-none"
                         />
 
                         <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
@@ -1124,8 +1124,8 @@ export default function UserAbsensi() {
                             className="relative overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-gray-50 to-cyan-50/30 dark:border-cyan-800 dark:from-gray-900 dark:to-cyan-950/20 shadow-lg"
                         >
                             {/* QR Reader Container */}
-                            <div 
-                                id={qrReaderDivId} 
+                            <div
+                                id={qrReaderDivId}
                                 className={cn('w-full', scanning ? 'block' : 'hidden')}
                                 style={{ minHeight: '256px' }}
                             />
@@ -1147,7 +1147,7 @@ export default function UserAbsensi() {
                                                 duration: 3,
                                                 repeat: Infinity,
                                             }}
-                                            className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-400/10"
+                                            className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 pointer-events-none"
                                         />
                                         <motion.div
                                             animate={{
@@ -1195,23 +1195,23 @@ export default function UserAbsensi() {
                             )}
                         </AnimatePresence>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-4 flex flex-wrap gap-2 relative z-10">
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
-                                    onClick={() => { 
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
                                         console.log('🔍 Button clicked!');
                                         console.log('🔍 Consent accepted:', consentAccepted);
                                         console.log('🔍 Scan available:', scanAvailable);
                                         console.log('🔍 Step1 locked:', step1Locked);
-                                        if (!consentAccepted) { 
-                                            setConsentError('Setujui persetujuan kamera sebelum memulai.'); 
-                                            return; 
-                                        } 
-                                        setScanning((prev) => !prev); 
-                                    }} 
+                                        if (!consentAccepted) {
+                                            setConsentError('Setujui persetujuan kamera sebelum memulai.');
+                                            return;
+                                        }
+                                        setScanning((prev) => !prev);
+                                    }}
                                     disabled={!scanAvailable || step1Locked}
                                 >
                                     {scanning ? <><Loader2 className="h-4 w-4 animate-spin" /> Stop</> : <><QrCode className="h-4 w-4" /> Scan QR</>}
@@ -1224,7 +1224,7 @@ export default function UserAbsensi() {
                             </motion.div>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-4 relative z-10">
                             <Label htmlFor="token" className="text-sm">Token Manual</Label>
                             <Input id="token" value={form.data.token} onChange={(e) => form.setData('token', e.target.value)} placeholder="Masukkan token jika tidak bisa scan" className="mt-1" disabled={step1Locked} />
                             <InputError message={form.errors.token} />
@@ -1389,8 +1389,8 @@ export default function UserAbsensi() {
                                 {currentDistance !== null && (
                                     <div className={cn(
                                         'mt-3 flex items-center gap-2 rounded-xl p-3 text-sm',
-                                        isInsideZone 
-                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' 
+                                        isInsideZone
+                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
                                             : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800'
                                     )}>
                                         {isInsideZone ? (

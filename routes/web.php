@@ -127,6 +127,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
     Route::post('admin/verifikasi-selfie/bulk-approve', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkApprove'])->name('admin.verifikasi-selfie.bulk-approve');
     Route::post('admin/verifikasi-selfie/bulk-reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkReject'])->name('admin.verifikasi-selfie.bulk-reject');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/consume-view', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'consumeViewRequest'])->name('admin.verifikasi-selfie.consume-view');
     
     // Admin Zona
     Route::get('admin/zona', [\App\Http\Controllers\Admin\ZonaController::class, 'index'])->name('admin.zona');

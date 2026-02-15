@@ -194,4 +194,19 @@ class VerifikasiSelfieController extends Controller
 
         return back()->with('success', count($ids) . ' selfie berhasil ditolak.');
     }
+
+    /**
+     * Consume (mark as used) the approved view request so admin must re-request next time.
+     */
+    public function consumeViewRequest(SelfieVerification $selfieVerification, Request $request): RedirectResponse
+    {
+        $currentUserId = $request->user()->id;
+
+        $selfieVerification->viewRequests()
+            ->where('requested_by', $currentUserId)
+            ->where('status', 'approved')
+            ->delete();
+
+        return back();
+    }
 }

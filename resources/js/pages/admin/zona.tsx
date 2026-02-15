@@ -1,9 +1,9 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity, CheckCircle, XCircle } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity, CheckCircle, XCircle, Crosshair, Globe, Shield, Radar, Ruler, ChevronDown, ChevronUp, Maximize2, LocateFixed } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import L from 'leaflet';
 
 interface Geofence {
@@ -56,24 +56,79 @@ interface PageProps {
     recentLocations: Location[];
 }
 
+// Animation variants
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
+            when: "beforeChildren" as const,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 40, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 120,
+            damping: 16,
+            mass: 0.8,
+        },
+    },
+};
+
+const headerVariants = {
+    hidden: { opacity: 0, scale: 0.9, y: -30 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 180,
+            damping: 22,
+            delay: 0.05,
+        },
+    },
+};
+
+const cardHover = {
+    scale: 1.02,
+    y: -6,
+    boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.15)",
+    transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+};
+
+// Animated counter component
+function AnimatedCounter({ value, suffix = '' }: { value: number | string; suffix?: string }) {
+    const numVal = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    const spring = useSpring(0, { stiffness: 60, damping: 20 });
+    const display = useTransform(spring, (v) => {
+        if (suffix === 'm') return `${v.toFixed(1)}${suffix}`;
+        return `${Math.round(v)}`;
+    });
+
+    useEffect(() => { spring.set(numVal); }, [numVal, spring]);
+
+    return <motion.span>{display}</motion.span>;
+}
+
+// Leaflet icon setup
 const ensureLeafletIcons = (() => {
     let configured = false;
     return () => {
         if (configured) return;
-        
-        // Custom marker icon from CDN
-        const customIcon = L.icon({
-            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
-            popupAnchor: [0, -40],
-        });
-        
         L.Icon.Default.prototype.options.iconUrl = 'https://cdn-icons-png.flaticon.com/512/684/684908.png';
         L.Icon.Default.prototype.options.iconSize = [40, 40];
         L.Icon.Default.prototype.options.iconAnchor = [20, 40];
         L.Icon.Default.prototype.options.shadowUrl = '';
-        
         configured = true;
     };
 })();
@@ -81,134 +136,152 @@ const ensureLeafletIcons = (() => {
 export default function Zona({ geofence, violationStats, distanceDistribution, recentViolations, trendData, recentLocations }: PageProps) {
     const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
     const flash = props.flash;
-    
-    const form = useForm({ geofence_lat: geofence.lat, geofence_lng: geofence.lng, geofence_radius_m: geofence.radius_m });
+
+    const form = useForm({
+        geofence_lat: geofence.lat,
+        geofence_lng: geofence.lng,
+        geofence_radius_m: geofence.radius_m,
+    });
+
     const [mapReady, setMapReady] = useState(false);
     const [locationStatus, setLocationStatus] = useState<string | null>(null);
     const [locationLoading, setLocationLoading] = useState(false);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [showViolations, setShowViolations] = useState(true);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [mapExpanded, setMapExpanded] = useState(false);
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
     const circleRef = useRef<L.Circle | null>(null);
+    const formDataRef = useRef(form.data);
 
-    // Animation variants
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
-            }
-        }
-    };
+    // Keep ref in sync with form data
+    useEffect(() => { formDataRef.current = form.data; }, [form.data]);
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: 'spring',
-                stiffness: 100,
-                damping: 12
-            }
-        }
-    };
-
-    const slideInLeft = {
-        hidden: { opacity: 0, x: -50 },
-        visible: {
-            opacity: 1,
-            x: 0,
-            transition: {
-                type: 'spring',
-                stiffness: 100,
-                damping: 15
-            }
-        }
-    };
-
-    const slideInRight = {
-        hidden: { opacity: 0, x: 50 },
-        visible: {
-            opacity: 1,
-            x: 0,
-            transition: {
-                type: 'spring',
-                stiffness: 100,
-                damping: 15
-            }
-        }
-    };
-
+    // Flash messages
     useEffect(() => {
         if (flash?.success) {
             setToast({ type: 'success', message: flash.success });
-            const timer = setTimeout(() => setToast(null), 3000);
+            const timer = setTimeout(() => setToast(null), 4000);
             return () => clearTimeout(timer);
         }
         if (flash?.error) {
             setToast({ type: 'error', message: flash.error });
-            const timer = setTimeout(() => setToast(null), 3000);
+            const timer = setTimeout(() => setToast(null), 4000);
             return () => clearTimeout(timer);
         }
     }, [flash?.success, flash?.error]);
 
-    const submit = (e: React.FormEvent) => { 
-        e.preventDefault(); 
-        form.patch('/admin/zona', { 
+    // ✅ FIX: Use object spread to set multiple fields at once
+    const submit = useCallback((e: React.FormEvent) => {
+        e.preventDefault();
+        form.patch('/admin/zona', {
             preserveScroll: true,
             onSuccess: () => {
+                setSaveSuccess(true);
                 setToast({ type: 'success', message: 'Zona geofence berhasil disimpan!' });
-                setTimeout(() => setToast(null), 3000);
+                setTimeout(() => { setToast(null); setSaveSuccess(false); }, 3000);
             },
             onError: (errors) => {
                 const errorMsg = Object.values(errors).flat().join(', ') || 'Gagal menyimpan zona';
                 setToast({ type: 'error', message: errorMsg });
-                setTimeout(() => setToast(null), 3000);
-            }
-        }); 
-    };
+                setTimeout(() => setToast(null), 4000);
+            },
+        });
+    }, [form]);
 
-    const useCurrentLocation = () => {
+    // ✅ FIX: Set both lat/lng in a single setData call to avoid stale state
+    const useCurrentLocation = useCallback(() => {
         if (!navigator.geolocation) { setLocationStatus('GPS tidak didukung'); return; }
         setLocationLoading(true);
         setLocationStatus('Mengambil lokasi...');
         navigator.geolocation.getCurrentPosition(
-            pos => { setLocationLoading(false); form.setData('geofence_lat', Number(pos.coords.latitude.toFixed(7))); form.setData('geofence_lng', Number(pos.coords.longitude.toFixed(7))); setLocationStatus('Lokasi berhasil diambil'); },
-            err => { setLocationLoading(false); setLocationStatus(err.code === err.PERMISSION_DENIED ? 'Izin lokasi ditolak' : 'Gagal mengambil lokasi'); },
+            (pos) => {
+                setLocationLoading(false);
+                const lat = Number(pos.coords.latitude.toFixed(7));
+                const lng = Number(pos.coords.longitude.toFixed(7));
+                // ✅ Single setData call with all data to avoid stale state
+                form.setData({
+                    ...formDataRef.current,
+                    geofence_lat: lat,
+                    geofence_lng: lng,
+                });
+                setLocationStatus('Lokasi berhasil diambil');
+                setTimeout(() => setLocationStatus(null), 3000);
+            },
+            (err) => {
+                setLocationLoading(false);
+                setLocationStatus(err.code === err.PERMISSION_DENIED ? 'Izin lokasi ditolak' : 'Gagal mengambil lokasi');
+                setTimeout(() => setLocationStatus(null), 3000);
+            },
             { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
         );
-    };
+    }, [form]);
 
+    // Map initialization
     useEffect(() => {
         if (!mapRef.current || mapInstanceRef.current) return;
         ensureLeafletIcons();
         const center: [number, number] = [geofence.lat, geofence.lng];
         const map = L.map(mapRef.current, { zoomControl: true }).setView(center, 17);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
         mapInstanceRef.current = map;
         markerRef.current = L.marker(center, { draggable: true }).addTo(map);
-        circleRef.current = L.circle(center, { radius: geofence.radius_m, color: '#6366f1', fillColor: '#6366f1', fillOpacity: 0.2, weight: 2 }).addTo(map);
+        circleRef.current = L.circle(center, {
+            radius: geofence.radius_m,
+            color: '#8b5cf6',
+            fillColor: '#8b5cf6',
+            fillOpacity: 0.15,
+            weight: 2,
+            dashArray: '8 4',
+        }).addTo(map);
 
+        // Plot recent scan locations
         recentLocations.forEach(loc => {
             if (loc.lat && loc.lng) {
-                L.circleMarker([loc.lat, loc.lng], { radius: 4, color: loc.is_violation ? '#ef4444' : '#22c55e', fillColor: loc.is_violation ? '#ef4444' : '#22c55e', fillOpacity: 0.7, weight: 1 }).addTo(map);
+                L.circleMarker([loc.lat, loc.lng], {
+                    radius: 5,
+                    color: loc.is_violation ? '#ef4444' : '#22c55e',
+                    fillColor: loc.is_violation ? '#ef4444' : '#22c55e',
+                    fillOpacity: 0.7,
+                    weight: 1,
+                }).addTo(map);
             }
         });
 
+        // ✅ FIX: Use ref for current data + single setData call
         markerRef.current.on('dragend', () => {
             const pos = markerRef.current?.getLatLng();
-            if (pos) { form.setData('geofence_lat', Number(pos.lat.toFixed(7))); form.setData('geofence_lng', Number(pos.lng.toFixed(7))); }
+            if (pos) {
+                form.setData({
+                    ...formDataRef.current,
+                    geofence_lat: Number(pos.lat.toFixed(7)),
+                    geofence_lng: Number(pos.lng.toFixed(7)),
+                });
+            }
         });
-        map.on('click', e => { form.setData('geofence_lat', Number(e.latlng.lat.toFixed(7))); form.setData('geofence_lng', Number(e.latlng.lng.toFixed(7))); });
+
+        // ✅ FIX: Same fix for map click
+        map.on('click', (e) => {
+            form.setData({
+                ...formDataRef.current,
+                geofence_lat: Number(e.latlng.lat.toFixed(7)),
+                geofence_lng: Number(e.latlng.lng.toFixed(7)),
+            });
+        });
+
         setMapReady(true);
         setTimeout(() => map.invalidateSize(), 0);
         return () => { map.off(); map.remove(); mapInstanceRef.current = null; };
     }, []);
 
+    // Sync map marker/circle with form data
     useEffect(() => {
         if (!mapReady || !markerRef.current || !circleRef.current) return;
         const pos: [number, number] = [form.data.geofence_lat, form.data.geofence_lng];
@@ -217,47 +290,74 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
         mapInstanceRef.current?.panTo(pos, { animate: true });
     }, [form.data.geofence_lat, form.data.geofence_lng, mapReady]);
 
-    useEffect(() => { if (mapReady && circleRef.current) circleRef.current.setRadius(form.data.geofence_radius_m); }, [form.data.geofence_radius_m, mapReady]);
+    useEffect(() => {
+        if (mapReady && circleRef.current) circleRef.current.setRadius(form.data.geofence_radius_m);
+    }, [form.data.geofence_radius_m, mapReady]);
+
+    // Invalidate map size when expanded
+    useEffect(() => {
+        if (mapInstanceRef.current) {
+            setTimeout(() => mapInstanceRef.current?.invalidateSize(), 300);
+        }
+    }, [mapExpanded]);
+
+    // Computed stats for bar chart coloring
+    const maxDistCount = useMemo(() => Math.max(...distanceDistribution.map(d => d.count), 1), [distanceDistribution]);
+    const barColors = ['#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444'];
 
     return (
         <AppLayout>
             <Head title="Zona Geofence" />
-            <motion.div 
+            <motion.div
                 className="p-6 space-y-6"
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
             >
+                {/* Toast Notification */}
                 <AnimatePresence>
                     {toast && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: -20, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${
-                                toast.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-                            }`}
+                        <motion.div
+                            initial={{ opacity: 0, y: -30, x: 30, scale: 0.85 }}
+                            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -20, x: 30, scale: 0.85 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-xl border ${toast.type === 'success'
+                                    ? 'bg-emerald-50/95 text-emerald-800 border-emerald-200/50 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-700/50'
+                                    : 'bg-red-50/95 text-red-800 border-red-200/50 dark:bg-red-900/80 dark:text-red-200 dark:border-red-700/50'
+                                }`}
                         >
                             <motion.div
-                                initial={{ rotate: 0, scale: 0 }}
-                                animate={{ rotate: 360, scale: 1 }}
-                                transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                initial={{ rotate: -90, scale: 0 }}
+                                animate={{ rotate: 0, scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }}
                             >
-                                {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                                {toast.type === 'success'
+                                    ? <CheckCircle className="h-5 w-5 text-emerald-500" />
+                                    : <XCircle className="h-5 w-5 text-red-500" />
+                                }
                             </motion.div>
-                            <span className="text-sm font-medium">{toast.message}</span>
+                            <span className="text-sm font-semibold">{toast.message}</span>
+                            {/* Auto-dismiss progress bar */}
+                            <motion.div
+                                className={`absolute bottom-0 left-0 h-0.5 rounded-full ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'
+                                    }`}
+                                initial={{ width: '100%' }}
+                                animate={{ width: '0%' }}
+                                transition={{ duration: 4, ease: 'linear' }}
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                <motion.div 
-                    variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-lg"
+                {/* ═══════════ Header — Matching Verifikasi Selfie Style ═══════════ */}
+                <motion.div
+                    variants={headerVariants}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Gradient Background */}
+                    {/* Animated Gradient Background — same as Verifikasi Selfie */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-800 to-black"
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{
                             backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
@@ -270,219 +370,607 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                             backgroundSize: '200% 200%',
                         }}
                     />
-                    
-                    <motion.div 
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"
-                        animate={{ 
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0]
-                        }}
-                        transition={{ 
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Floating radar pulses */}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
                     />
-                    <motion.div 
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/10"
-                        animate={{ 
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0]
-                        }}
-                        transition={{ 
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
                     />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
+                    />
+
                     <div className="relative">
-                        <div className="flex items-center gap-3">
-                            <motion.div 
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur"
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
-                            >
-                                <MapPin className="h-6 w-6" />
-                            </motion.div>
-                            <div><p className="text-sm text-blue-100">Manajemen Lokasi</p><h1 className="text-2xl font-bold">Zona Geofence</h1></div>
+                        <div className="flex flex-wrap items-start justify-between gap-6">
+                            <div>
+                                <div className="flex items-center gap-4">
+                                    <motion.div
+                                        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        transition={{ type: 'spring', stiffness: 400 }}
+                                    >
+                                        <MapPin className="h-7 w-7" />
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-sm text-indigo-100 font-medium">Manajemen Lokasi</p>
+                                        <h1 className="text-3xl font-bold">Zona Geofence</h1>
+                                    </div>
+                                </div>
+                                <p className="mt-4 text-indigo-100 max-w-xl">
+                                    Kelola titik lokasi dan radius absensi mahasiswa. Pantau pelanggaran zona dan analisis distribusi jarak secara real-time.
+                                </p>
+                            </div>
+
+                            {/* Quick info badges */}
+                            <div className="flex flex-col items-end gap-2">
+                                <motion.div
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    <Radar className="h-4 w-4 text-indigo-200" />
+                                    <span className="text-sm font-medium">Radius: {form.data.geofence_radius_m}m</span>
+                                </motion.div>
+                                <motion.div
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <Globe className="h-4 w-4 text-indigo-200" />
+                                    <span className="text-sm font-medium">{recentLocations.length} Titik Scan</span>
+                                </motion.div>
+                            </div>
                         </div>
-                        <p className="mt-4 text-blue-100">Kelola titik lokasi dan radius absensi mahasiswa</p>
                     </div>
                 </motion.div>
 
-                <motion.div 
+                {/* ═══════════ Stats Cards ═══════════ */}
+                <motion.div
                     className="grid gap-4 md:grid-cols-4"
                     variants={containerVariants}
                 >
-                    <motion.div variants={itemVariants}><StatCard icon={AlertTriangle} label="Total Pelanggaran" value={violationStats.total_violations} color="red" /></motion.div>
-                    <motion.div variants={itemVariants}><StatCard icon={Activity} label="Hari Ini" value={violationStats.today_violations} color="amber" /></motion.div>
-                    <motion.div variants={itemVariants}><StatCard icon={TrendingUp} label="Minggu Ini" value={violationStats.week_violations} color="orange" /></motion.div>
-                    <motion.div variants={itemVariants}><StatCard icon={Target} label="Rata-rata Jarak" value={`${violationStats.avg_distance}m`} color="blue" /></motion.div>
+                    <StatCard icon={AlertTriangle} label="Total Pelanggaran" value={violationStats.total_violations} color="red" delay={0.1} />
+                    <StatCard icon={Activity} label="Hari Ini" value={violationStats.today_violations} color="amber" delay={0.15} />
+                    <StatCard icon={TrendingUp} label="Minggu Ini" value={violationStats.week_violations} color="orange" delay={0.2} />
+                    <StatCard icon={Target} label="Rata-rata Jarak" value={violationStats.avg_distance} suffix="m" color="indigo" delay={0.25} />
                 </motion.div>
 
+                {/* ═══════════ Map + Settings ═══════════ */}
                 <div className="grid gap-6 lg:grid-cols-2">
-                    <motion.div 
-                        variants={slideInLeft}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
-                        whileHover={{ scale: 1.01, y: -4 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
+                    {/* Map Card */}
+                    <motion.div
+                        variants={itemVariants}
+                        className={`rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 ${mapExpanded ? 'lg:col-span-2' : ''}`}
+                        whileHover={cardHover}
                     >
                         <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2"><MapPin className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Peta Geofence</h2></div>
-                            <div className="flex items-center gap-2 text-xs">
-                                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-500" />Dalam zona</span>
-                                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" />Pelanggaran</span>
+                            <div className="flex items-center gap-3">
+                                <motion.div
+                                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/25"
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.6 }}
+                                >
+                                    <MapPin className="h-4 w-4" />
+                                </motion.div>
+                                <h2 className="font-bold text-slate-900 dark:text-white">Peta Geofence</h2>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 text-xs">
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                                        <span className="text-slate-500 dark:text-slate-400">Dalam zona</span>
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+                                        <span className="text-slate-500 dark:text-slate-400">Pelanggaran</span>
+                                    </span>
+                                </div>
+                                <motion.button
+                                    onClick={() => setMapExpanded(!mapExpanded)}
+                                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <Maximize2 className="h-4 w-4 text-slate-400" />
+                                </motion.button>
                             </div>
                         </div>
-                        <div className="relative h-80 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+
+                        <div className={`relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-all duration-300 ${mapExpanded ? 'h-[500px]' : 'h-80'}`}>
                             <div ref={mapRef} className="h-full w-full" />
-                            {!mapReady && <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800"><p className="text-slate-500">Memuat peta...</p></div>}
-                        </div>
-                        <div className="mt-4 grid gap-2 text-sm">
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Latitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lat}</span></div>
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Longitude</span><span className="font-medium text-slate-900 dark:text-white">{form.data.geofence_lng}</span></div>
-                            <div className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-slate-500">Radius</span><span className="font-medium text-blue-600">{form.data.geofence_radius_m}m</span></div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div 
-                        variants={slideInRight}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
-                        whileHover={{ scale: 1.01, y: -4 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        <div className="flex items-center gap-2 mb-4"><Navigation className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Pengaturan Zona</h2></div>
-                        <form onSubmit={submit} className="space-y-4">
-                            <motion.div 
-                                className="flex gap-2"
-                                whileHover={{ scale: 1.02 }}
-                            >
-                                <motion.button 
-                                    type="button" 
-                                    onClick={useCurrentLocation} 
-                                    disabled={locationLoading} 
-                                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 text-sm font-medium transition-colors"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    <Navigation className={`h-4 w-4 ${locationLoading ? 'animate-pulse' : ''}`} />{locationLoading ? 'Mengambil...' : 'Lokasi Saat Ini'}
-                                </motion.button>
-                                {locationStatus && <span className="text-xs text-slate-500 self-center">{locationStatus}</span>}
-                            </motion.div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Latitude</label><input type="number" step="any" value={form.data.geofence_lat} onChange={e => form.setData('geofence_lat', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longitude</label><input type="number" step="any" value={form.data.geofence_lng} onChange={e => form.setData('geofence_lng', parseFloat(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
-                            <div><label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Radius (meter)</label><input type="number" value={form.data.geofence_radius_m} onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 0)} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" /></div>
-                            <motion.button 
-                                type="submit" 
-                                disabled={form.processing} 
-                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-900 to-black px-4 py-3 text-sm font-medium text-white hover:from-gray-800 hover:to-gray-900 transition-all disabled:opacity-50"
-                                whileHover={{ scale: 1.02, y: -2 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <Save className="h-4 w-4" />{form.processing ? 'Menyimpan...' : 'Simpan Geofence'}
-                            </motion.button>
-                        </form>
-                    </motion.div>
-                </div>
-
-                <div className="grid gap-6 lg:grid-cols-2">
-                    <motion.div 
-                        variants={slideInLeft}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
-                        whileHover={{ scale: 1.01, y: -4 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        <div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Tren Pelanggaran</h2></div>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={trendData}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" /><YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} /><Area type="monotone" dataKey="violations" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} /></AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </motion.div>
-                    <motion.div 
-                        variants={slideInRight}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
-                        whileHover={{ scale: 1.01, y: -4 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                    >
-                        <div className="flex items-center gap-2 mb-4"><Target className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Distribusi Jarak</h2></div>
-                        <div className="h-64">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={distanceDistribution}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="range" tick={{ fontSize: 11 }} stroke="#94a3b8" /><YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} /><Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </motion.div>
-                </div>
-
-                <motion.div 
-                    variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
-                    whileHover={{ scale: 1.005, y: -2 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                >
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-red-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Pelanggaran Terbaru</h2></div></div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead><tr className="bg-slate-50 dark:bg-black/50"><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mahasiswa</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">NIM</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Jarak</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th><th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th></tr></thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                {recentViolations.length === 0 ? (
-                                    <tr><td colSpan={5} className="px-4 py-12 text-center"><AlertTriangle className="h-10 w-10 mx-auto text-slate-300 mb-2" /><p className="text-slate-500">Tidak ada pelanggaran</p></td></tr>
-                                ) : recentViolations.map((v, index) => (
-                                    <motion.tr 
-                                        key={v.id} 
-                                        className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: index * 0.05, type: 'spring', stiffness: 100 }}
-                                        whileHover={{ scale: 1.01, x: 4 }}
+                            {!mapReady && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                    <motion.div
+                                        className="flex flex-col items-center gap-3"
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{ duration: 1.5, repeat: Infinity }}
                                     >
-                                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{v.mahasiswa}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{v.nim}</td>
-                                        <td className="px-4 py-3"><span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">{v.distance_m ?? '-'}m</span></td>
-                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{v.course}</td>
-                                        <td className="px-4 py-3 text-sm text-slate-500">{v.scanned_at}</td>
-                                    </motion.tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                        <Globe className="h-8 w-8 text-slate-400" />
+                                        <p className="text-sm text-slate-500">Memuat peta...</p>
+                                    </motion.div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info cards below map */}
+                        <div className="mt-4 grid grid-cols-3 gap-2">
+                            <motion.div
+                                className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+                                whileHover={{ scale: 1.03, y: -2 }}
+                                transition={{ type: 'spring', stiffness: 400 }}
+                            >
+                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Latitude</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">{form.data.geofence_lat}</p>
+                            </motion.div>
+                            <motion.div
+                                className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+                                whileHover={{ scale: 1.03, y: -2 }}
+                                transition={{ type: 'spring', stiffness: 400 }}
+                            >
+                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Longitude</p>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">{form.data.geofence_lng}</p>
+                            </motion.div>
+                            <motion.div
+                                className="p-3 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 border border-indigo-200/50 dark:border-indigo-700/50"
+                                whileHover={{ scale: 1.03, y: -2 }}
+                                transition={{ type: 'spring', stiffness: 400 }}
+                            >
+                                <p className="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold mb-1">Radius</p>
+                                <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono">{form.data.geofence_radius_m}m</p>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+
+                    {/* Settings Card */}
+                    {!mapExpanded && (
+                        <motion.div
+                            variants={itemVariants}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            whileHover={cardHover}
+                        >
+                            <div className="flex items-center gap-3 mb-6">
+                                <motion.div
+                                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.6 }}
+                                >
+                                    <Navigation className="h-4 w-4" />
+                                </motion.div>
+                                <div>
+                                    <h2 className="font-bold text-slate-900 dark:text-white">Pengaturan Zona</h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">Atur titik lokasi & radius</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={submit} className="space-y-5">
+                                {/* Current Location Button */}
+                                <motion.div className="flex flex-wrap items-center gap-3">
+                                    <motion.button
+                                        type="button"
+                                        onClick={useCurrentLocation}
+                                        disabled={locationLoading}
+                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200/50 dark:border-indigo-700/50 text-sm font-semibold transition-all hover:shadow-md hover:shadow-indigo-500/10"
+                                        whileHover={{ scale: 1.03, y: -2 }}
+                                        whileTap={{ scale: 0.97 }}
+                                    >
+                                        <LocateFixed className={`h-4 w-4 ${locationLoading ? 'animate-spin' : ''}`} />
+                                        {locationLoading ? 'Mengambil...' : 'Lokasi Saat Ini'}
+                                    </motion.button>
+                                    <AnimatePresence>
+                                        {locationStatus && (
+                                            <motion.span
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -10 }}
+                                                className={`text-xs font-medium px-3 py-1.5 rounded-lg ${locationStatus.includes('berhasil')
+                                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                        : locationStatus.includes('Mengambil')
+                                                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                            : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                                    }`}
+                                            >
+                                                {locationStatus}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
+
+                                {/* Latitude */}
+                                <div className="space-y-1.5">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <Crosshair className="h-3.5 w-3.5 text-indigo-500" />
+                                        Latitude
+                                    </label>
+                                    <motion.input
+                                        type="number"
+                                        step="any"
+                                        value={form.data.geofence_lat}
+                                        onChange={e => form.setData('geofence_lat', parseFloat(e.target.value) || 0)}
+                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        whileFocus={{ scale: 1.01, borderColor: '#6366f1' }}
+                                    />
+                                    {form.errors.geofence_lat && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_lat}</p>}
+                                </div>
+
+                                {/* Longitude */}
+                                <div className="space-y-1.5">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <Crosshair className="h-3.5 w-3.5 text-purple-500" />
+                                        Longitude
+                                    </label>
+                                    <motion.input
+                                        type="number"
+                                        step="any"
+                                        value={form.data.geofence_lng}
+                                        onChange={e => form.setData('geofence_lng', parseFloat(e.target.value) || 0)}
+                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        whileFocus={{ scale: 1.01, borderColor: '#a855f7' }}
+                                    />
+                                    {form.errors.geofence_lng && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_lng}</p>}
+                                </div>
+
+                                {/* Radius with visualisation */}
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between">
+                                        <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                            <Ruler className="h-3.5 w-3.5 text-pink-500" />
+                                            Radius
+                                        </span>
+                                        <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{form.data.geofence_radius_m}m</span>
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min={10}
+                                        max={1000}
+                                        step={5}
+                                        value={form.data.geofence_radius_m}
+                                        onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 100)}
+                                        className="w-full h-2 rounded-full appearance-none cursor-pointer bg-gradient-to-r from-indigo-200 to-purple-200 dark:from-indigo-800 dark:to-purple-800 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-br [&::-webkit-slider-thumb]:from-indigo-500 [&::-webkit-slider-thumb]:to-purple-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-indigo-500/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                                        <span>10m</span>
+                                        <span>250m</span>
+                                        <span>500m</span>
+                                        <span>750m</span>
+                                        <span>1000m</span>
+                                    </div>
+                                    <motion.input
+                                        type="number"
+                                        min={10}
+                                        max={5000}
+                                        value={form.data.geofence_radius_m}
+                                        onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 100)}
+                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        whileFocus={{ scale: 1.01, borderColor: '#ec4899' }}
+                                    />
+                                    {form.errors.geofence_radius_m && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_radius_m}</p>}
+                                </div>
+
+                                {/* Submit Button */}
+                                <motion.button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className={`w-full flex items-center justify-center gap-2.5 rounded-xl px-5 py-3.5 text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${saveSuccess
+                                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25'
+                                            : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30'
+                                        }`}
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <motion.div
+                                        animate={form.processing ? { rotate: 360 } : saveSuccess ? { scale: [1, 1.3, 1] } : {}}
+                                        transition={form.processing ? { duration: 1, repeat: Infinity, ease: 'linear' } : { duration: 0.4 }}
+                                    >
+                                        {saveSuccess ? <CheckCircle className="h-4 w-4" /> : form.processing ? <RefreshCw className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+                                    </motion.div>
+                                    {saveSuccess ? 'Berhasil Disimpan!' : form.processing ? 'Menyimpan...' : 'Simpan Geofence'}
+                                </motion.button>
+                            </form>
+                        </motion.div>
+                    )}
+                </div>
+
+                {/* ═══════════ Charts ═══════════ */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Trend Chart */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        whileHover={cardHover}
+                    >
+                        <div className="flex items-center gap-3 mb-5">
+                            <motion.div
+                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white shadow-lg shadow-red-500/25"
+                                whileHover={{ rotate: -15 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
+                                <TrendingUp className="h-4 w-4" />
+                            </motion.div>
+                            <div>
+                                <h2 className="font-bold text-slate-900 dark:text-white">Tren Pelanggaran</h2>
+                                <p className="text-xs text-slate-500">7 hari terakhir</p>
+                            </div>
+                        </div>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={trendData}>
+                                    <defs>
+                                        <linearGradient id="violationGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                                    <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                                    <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(255,255,255,0.95)',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="violations"
+                                        stroke="#ef4444"
+                                        strokeWidth={2.5}
+                                        fill="url(#violationGrad)"
+                                        dot={{ fill: '#ef4444', strokeWidth: 2, r: 4, stroke: '#fff' }}
+                                        activeDot={{ r: 6, fill: '#ef4444', strokeWidth: 3, stroke: '#fff' }}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
+
+                    {/* Distribution Chart */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        whileHover={cardHover}
+                    >
+                        <div className="flex items-center gap-3 mb-5">
+                            <motion.div
+                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white shadow-lg shadow-indigo-500/25"
+                                whileHover={{ rotate: 15 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
+                                <Target className="h-4 w-4" />
+                            </motion.div>
+                            <div>
+                                <h2 className="font-bold text-slate-900 dark:text-white">Distribusi Jarak</h2>
+                                <p className="text-xs text-slate-500">Sebaran jarak absensi</p>
+                            </div>
+                        </div>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={distanceDistribution}>
+                                    <defs>
+                                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0.6} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" strokeOpacity={0.5} />
+                                    <XAxis dataKey="range" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                                    <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: 'rgba(255,255,255,0.95)',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '12px',
+                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    />
+                                    <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                                        {distanceDistribution.map((_, index) => (
+                                            <Cell key={`cell-${index}`} fill={barColors[index] || '#6366f1'} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* ═══════════ Recent Violations Table ═══════════ */}
+                <motion.div
+                    variants={itemVariants}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                    whileHover={{ scale: 1.005 }}
+                >
+                    <motion.div
+                        className="p-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-900/50 dark:to-slate-800/30 cursor-pointer"
+                        onClick={() => setShowViolations(!showViolations)}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <motion.div
+                                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/25"
+                                    whileHover={{ rotate: -10 }}
+                                    transition={{ type: 'spring', stiffness: 300 }}
+                                >
+                                    <AlertTriangle className="h-4 w-4" />
+                                </motion.div>
+                                <div>
+                                    <h2 className="font-bold text-slate-900 dark:text-white">Pelanggaran Terbaru</h2>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{recentViolations.length} pelanggaran tercatat</p>
+                                </div>
+                            </div>
+                            <motion.div
+                                animate={{ rotate: showViolations ? 180 : 0 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
+                                <ChevronDown className="h-5 w-5 text-slate-400" />
+                            </motion.div>
+                        </div>
+                    </motion.div>
+
+                    <AnimatePresence>
+                        {showViolations && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="bg-slate-50/80 dark:bg-slate-900/50">
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mahasiswa</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">NIM</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Jarak</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mata Kuliah</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                            {recentViolations.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={5} className="px-5 py-16 text-center">
+                                                        <motion.div
+                                                            initial={{ scale: 0.8, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            transition={{ type: 'spring', stiffness: 200 }}
+                                                        >
+                                                            <Shield className="h-12 w-12 mx-auto text-emerald-300 mb-3" />
+                                                            <p className="text-slate-500 font-medium">Tidak ada pelanggaran</p>
+                                                            <p className="text-xs text-slate-400 mt-1">Semua absensi dalam zona yang ditentukan</p>
+                                                        </motion.div>
+                                                    </td>
+                                                </tr>
+                                            ) : recentViolations.map((v, index) => (
+                                                <motion.tr
+                                                    key={v.id}
+                                                    className="hover:bg-red-50/30 dark:hover:bg-red-900/5 transition-colors cursor-default"
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: index * 0.03, type: 'spring', stiffness: 150 }}
+                                                    whileHover={{ x: 4 }}
+                                                >
+                                                    <td className="px-5 py-3.5">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold">
+                                                                {v.mahasiswa.charAt(0).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{v.mahasiswa}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-5 py-3.5 text-sm text-slate-500 dark:text-slate-400 font-mono">{v.nim}</td>
+                                                    <td className="px-5 py-3.5">
+                                                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${(v.distance_m ?? 0) > 500
+                                                                ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                                                : (v.distance_m ?? 0) > 200
+                                                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                                                            }`}>
+                                                            <AlertTriangle className="h-3 w-3" />
+                                                            {v.distance_m ?? '-'}m
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-400">{v.course}</td>
+                                                    <td className="px-5 py-3.5 text-xs text-slate-400 font-mono">{v.scanned_at}</td>
+                                                </motion.tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             </motion.div>
         </AppLayout>
     );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number | string; color: string }) {
-    const colors: Record<string, string> = { 
-        red: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', 
-        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', 
-        orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', 
-        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' 
+// ═══════════ Stat Card Component ═══════════
+function StatCard({ icon: Icon, label, value, color, suffix, delay = 0 }: {
+    icon: any;
+    label: string;
+    value: number | string;
+    color: string;
+    suffix?: string;
+    delay?: number;
+}) {
+    const colorMap: Record<string, { icon: string; border: string; text: string }> = {
+        red: {
+            icon: 'bg-gradient-to-br from-red-500 to-rose-500 shadow-red-500/25',
+            border: 'border-t-red-500',
+            text: 'text-red-600 dark:text-red-400',
+        },
+        amber: {
+            icon: 'bg-gradient-to-br from-amber-500 to-yellow-500 shadow-amber-500/25',
+            border: 'border-t-amber-500',
+            text: 'text-amber-600 dark:text-amber-400',
+        },
+        orange: {
+            icon: 'bg-gradient-to-br from-orange-500 to-amber-500 shadow-orange-500/25',
+            border: 'border-t-orange-500',
+            text: 'text-orange-600 dark:text-orange-400',
+        },
+        blue: {
+            icon: 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/25',
+            border: 'border-t-blue-500',
+            text: 'text-blue-600 dark:text-blue-400',
+        },
+        indigo: {
+            icon: 'bg-gradient-to-br from-indigo-500 to-purple-500 shadow-indigo-500/25',
+            border: 'border-t-indigo-500',
+            text: 'text-indigo-600 dark:text-indigo-400',
+        },
     };
-    
+
+    const c = colorMap[color] || colorMap.blue;
+    const numVal = typeof value === 'string' ? parseFloat(value) || 0 : value;
+
     return (
-        <motion.div 
-            className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
-            whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+        <motion.div
+            variants={itemVariants}
+            className={`relative rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden border-t-[3px] ${c.border}`}
+            whileHover={{
+                scale: 1.05,
+                y: -6,
+                boxShadow: '0 20px 40px -12px rgba(0,0,0,0.12)',
+            }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-            <div className="flex items-center gap-3">
-                <motion.div 
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
-                    whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+            <div className="flex items-center gap-3.5">
+                <motion.div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-lg ${c.icon}`}
+                    whileHover={{ rotate: [0, -10, 10, -5, 5, 0], scale: 1.1 }}
                     transition={{ duration: 0.5 }}
                 >
                     <Icon className="h-5 w-5" />
                 </motion.div>
                 <div>
-                    <p className="text-sm text-slate-500">{label}</p>
-                    <motion.p 
-                        className="text-xl font-bold text-slate-900 dark:text-white"
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{label}</p>
+                    <motion.p
+                        className={`text-2xl font-extrabold ${c.text}`}
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay }}
                     >
-                        {value}
+                        <AnimatedCounter value={numVal} suffix={suffix} />
+                        {suffix && <span className="text-base ml-0.5">{suffix}</span>}
                     </motion.p>
                 </div>
             </div>

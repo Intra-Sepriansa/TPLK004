@@ -242,7 +242,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 qrImage.onload = () => {
                     canvas.width = qrImage.width;
                     canvas.height = qrImage.height;
-                    
+
                     // Draw QR code
                     ctx.drawImage(qrImage, 0, 0);
 
@@ -252,7 +252,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                         const logoSize = 50;
                         const logoX = canvas.width - logoSize - 10;
                         const logoY = canvas.height - logoSize - 10;
-                        
+
                         // Draw white background for logo with rounded corners
                         ctx.fillStyle = 'white';
                         const padding = 5;
@@ -261,7 +261,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                         const y = logoY - padding;
                         const width = logoSize + (padding * 2);
                         const height = logoSize + (padding * 2);
-                        
+
                         // Rounded rectangle
                         ctx.beginPath();
                         ctx.moveTo(x + radius, y);
@@ -275,10 +275,10 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                         ctx.quadraticCurveTo(x, y, x + radius, y);
                         ctx.closePath();
                         ctx.fill();
-                        
+
                         // Draw logo
                         ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-                        
+
                         // Set final QR code with logo
                         setQrUrl(canvas.toDataURL());
                     };
@@ -310,9 +310,9 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         return () => window.clearInterval(i);
     }, [expiresAtMs]);
 
-    useEffect(() => { 
-        setToken(null); 
-        setExpiresAtMs(null); 
+    useEffect(() => {
+        setToken(null);
+        setExpiresAtMs(null);
         // Auto-generate token when session becomes active
         if (activeSession?.id) {
             void generateToken({ silent: false });
@@ -329,14 +329,23 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
         if (!activeSession?.id || rotatingRef.current) return;
         rotatingRef.current = true;
         if (!silent) setLoading(true);
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        // Read XSRF-TOKEN cookie (auto-refreshed by Laravel) instead of stale meta tag
+        const getCsrfToken = () => {
+            // Try XSRF-TOKEN cookie first (most reliable, auto-refreshed)
+            const xsrfMatch = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+            if (xsrfMatch) return decodeURIComponent(xsrfMatch[1]);
+            // Fallback to meta tag
+            return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        };
+        const csrf = getCsrfToken();
         try {
             const res = await fetch(`/attendance-sessions/${activeSession.id}/token`, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {})
+                    ...(csrf ? { 'X-XSRF-TOKEN': csrf } : {})
                 },
                 body: JSON.stringify(force ? { force: true } : {}),
             });
@@ -399,7 +408,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                             backgroundSize: '200% 200%',
                         }}
                     />
-                    
+
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
@@ -419,10 +428,10 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 <p className="text-indigo-100 max-w-xl mt-4">
                                     Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}. Sistem akan memperbarui token secara otomatis untuk keamanan maksimal.
                                 </p>
-                                
-                                
+
+
                             </div>
-                            
+
                             <div className="flex flex-col items-end gap-2">
                                 {activeSession && (
                                     <div className="text-right">
@@ -812,22 +821,21 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                         key={s.id}
                                         initial={{ opacity: 0, x: -20, scale: 0.95 }}
                                         animate={{ opacity: 1, x: 0, scale: 1 }}
-                                        transition={{ 
+                                        transition={{
                                             delay: index * 0.05,
                                             type: "spring",
                                             stiffness: 200,
                                             damping: 20
                                         }}
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: 1.01,
                                             x: 3,
                                             transition: { duration: 0.2 }
                                         }}
-                                        className={`relative overflow-hidden rounded-lg border p-3 cursor-pointer transition-all ${
-                                            s.is_active 
-                                                ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 dark:border-emerald-700' 
+                                        className={`relative overflow-hidden rounded-lg border p-3 cursor-pointer transition-all ${s.is_active
+                                                ? 'border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 dark:border-emerald-700'
                                                 : 'border-slate-200 bg-white dark:bg-slate-900/50 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                                        }`}
+                                            }`}
                                     >
                                         {/* Active Session Glow Effect */}
                                         {s.is_active && (
@@ -843,16 +851,15 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 }}
                                             />
                                         )}
-                                        
+
                                         <div className="relative flex items-center justify-between gap-3">
                                             <div className="flex items-center gap-3 flex-1 min-w-0">
                                                 {/* Icon */}
                                                 <motion.div
-                                                    className={`flex h-9 w-9 items-center justify-center rounded-lg shadow-sm flex-shrink-0 ${
-                                                        s.is_active 
-                                                            ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white' 
+                                                    className={`flex h-9 w-9 items-center justify-center rounded-lg shadow-sm flex-shrink-0 ${s.is_active
+                                                            ? 'bg-gradient-to-br from-emerald-500 to-green-600 text-white'
                                                             : 'bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 text-slate-600 dark:text-slate-300'
-                                                    }`}
+                                                        }`}
                                                     whileHover={{ rotate: 360, scale: 1.1 }}
                                                     transition={{ duration: 0.5 }}
                                                 >
@@ -881,7 +888,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                             #{s.meeting_number}
                                                         </motion.span>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
                                                         <div className="flex items-center gap-1">
                                                             <Clock className="h-3 w-3" />
@@ -901,17 +908,16 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                             <motion.div
                                                 initial={{ scale: 0, rotate: -180 }}
                                                 animate={{ scale: 1, rotate: 0 }}
-                                                transition={{ 
+                                                transition={{
                                                     delay: index * 0.05 + 0.2,
                                                     type: "spring",
                                                     stiffness: 300
                                                 }}
                                                 whileHover={{ scale: 1.05 }}
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex-shrink-0 ${
-                                                    s.is_active 
-                                                        ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white' 
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm flex-shrink-0 ${s.is_active
+                                                        ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white'
                                                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
-                                                }`}
+                                                    }`}
                                             >
                                                 {s.is_active ? (
                                                     <>
@@ -937,7 +943,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-500"
                                                 initial={{ width: "0%" }}
                                                 animate={{ width: "100%" }}
-                                                transition={{ 
+                                                transition={{
                                                     duration: 1.5,
                                                     delay: index * 0.05 + 0.3,
                                                     ease: "easeOut"

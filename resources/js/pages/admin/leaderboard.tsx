@@ -1,12 +1,17 @@
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Trophy, Medal, Crown, Star, Flame, TrendingUp, Users, Award, Filter, 
-    Download, Sparkles, Target, Zap, CheckCircle
+import {
+    Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis
+} from 'recharts';
+import {
+    Trophy, Medal, Crown, Star, Flame, TrendingUp, Users, Award, Filter,
+    Download, Sparkles, Target, Zap, CheckCircle, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { AttendanceChart } from '@/components/analytics/attendance-chart';
+import { Badge } from '@/components/ui/badge';
 
 interface LeaderboardEntry {
     id: number;
@@ -89,7 +94,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                             }}
                             className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
                         />
-                        
+
                         {/* Large Floating Icons */}
                         <motion.div
                             animate={{
@@ -120,14 +125,14 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                             <Award className="h-28 w-28" />
                         </motion.div>
                     </div>
-                    
+
                     {/* Floating Academic Icons */}
                     {[Trophy, Award, Medal, Crown, Star].map((Icon, i) => (
                         <motion.div
                             key={i}
                             className="absolute"
                             initial={{ opacity: 0, scale: 0 }}
-                            animate={{ 
+                            animate={{
                                 opacity: [0, 0.4, 0],
                                 scale: [0, 1, 0],
                                 y: [0, -40, -80]
@@ -153,8 +158,8 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                 initial={{ scale: 0, rotate: -180 }}
                                 animate={{ scale: 1, rotate: 0 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                whileHover={{ 
-                                    scale: 1.1, 
+                                whileHover={{
+                                    scale: 1.1,
                                     rotate: 360,
                                     boxShadow: "0 0 30px rgba(255,255,255,0.5)"
                                 }}
@@ -382,7 +387,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                         <div className="relative p-8">
                             <div className="flex items-end justify-center gap-6">
                                 {/* 2nd Place */}
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, y: 50 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.6, type: 'spring' }}
@@ -394,8 +399,8 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     <div className="relative">
                                         <motion.div
                                             animate={{
-                                                boxShadow: hoveredRank === 2 
-                                                    ? '0 20px 40px -5px rgba(148, 163, 184, 0.5)' 
+                                                boxShadow: hoveredRank === 2
+                                                    ? '0 20px 40px -5px rgba(148, 163, 184, 0.5)'
                                                     : '0 10px 20px -3px rgba(148, 163, 184, 0.3)',
                                             }}
                                             className={cn(
@@ -409,7 +414,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                                 podium[1]?.nama?.charAt(0) || '2'
                                             )}
                                         </motion.div>
-                                        <motion.div 
+                                        <motion.div
                                             animate={{
                                                 scale: hoveredRank === 2 ? [1, 1.2, 1] : 1,
                                             }}
@@ -434,7 +439,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                 </motion.div>
 
                                 {/* 1st Place - Special Throne Design */}
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, y: 50 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5, type: 'spring' }}
@@ -446,41 +451,41 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     {/* Crown Image with Animation */}
                                     <motion.div
                                         animate={{
-                                            y: [0, -10, 0],
-                                            rotate: hoveredRank === 1 ? [0, -5, 5, -5, 0] : 0,
-                                            scale: hoveredRank === 1 ? [1, 1.5, 1] : 1,
+                                            y: [0, -8, 0],
+                                            rotate: hoveredRank === 1 ? [0, -3, 3, -3, 0] : 0,
+                                            scale: hoveredRank === 1 ? [1, 1.1, 1] : 1,
                                         }}
                                         transition={{
-                                            y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                                            y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
                                             rotate: { duration: 0.5 },
                                             scale: { duration: 0.5 }
                                         }}
-                                        className="relative mb-4"
+                                        className="relative mb-2"
                                     >
                                         <motion.div
-                                            className="absolute inset-0 bg-yellow-400 rounded-full blur-xl"
+                                            className="absolute inset-0 bg-yellow-400/30 rounded-full blur-xl"
                                             animate={{
-                                                scale: [1, 1.5, 1],
-                                                opacity: [0.6, 0.9, 0.6],
+                                                scale: [0.8, 1.2, 0.8],
+                                                opacity: [0.3, 0.6, 0.3],
                                             }}
                                             transition={{
-                                                duration: 2,
+                                                duration: 3,
                                                 repeat: Infinity,
                                                 ease: "easeInOut",
                                             }}
                                         />
-                                        <img 
-                                            src="/images/crown.png" 
-                                            alt="Crown" 
-                                            className="h-80 w-80 relative z-10 drop-shadow-[0_20px_50px_rgba(234,179,8,1)]"
+                                        <img
+                                            src="/images/crown.png"
+                                            alt="Crown"
+                                            className="h-24 w-auto relative z-10 drop-shadow-[0_10px_20px_rgba(234,179,8,0.5)]"
                                         />
                                     </motion.div>
 
                                     <div className="relative">
                                         <motion.div
                                             animate={{
-                                                boxShadow: hoveredRank === 1 
-                                                    ? '0 30px 60px -12px rgba(234, 179, 8, 0.8)' 
+                                                boxShadow: hoveredRank === 1
+                                                    ? '0 30px 60px -12px rgba(234, 179, 8, 0.8)'
                                                     : '0 25px 50px -12px rgba(234, 179, 8, 0.5)',
                                             }}
                                             className={cn(
@@ -494,7 +499,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                                 podium[0]?.nama?.charAt(0) || '1'
                                             )}
                                         </motion.div>
-                                        <motion.div 
+                                        <motion.div
                                             animate={{
                                                 scale: hoveredRank === 1 ? [1, 1.3, 1] : 1,
                                                 rotate: hoveredRank === 1 ? [0, 360] : 0,
@@ -505,7 +510,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                             1
                                         </motion.div>
                                     </div>
-                                    
+
                                     {/* Badge "JUARA 1" */}
                                     <motion.div
                                         animate={{
@@ -520,7 +525,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     >
                                         🏆 JUARA 1
                                     </motion.div>
-                                    
+
                                     <p className="mt-2 font-bold text-slate-900 dark:text-white text-lg text-center max-w-[140px] truncate">{podium[0]?.nama}</p>
                                     <p className="text-sm text-slate-500">{podium[0]?.nim}</p>
                                     <p className="text-lg text-amber-600 font-bold flex items-center gap-1 mt-1">
@@ -548,7 +553,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                 </motion.div>
 
                                 {/* 3rd Place */}
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, y: 50 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.7, type: 'spring' }}
@@ -560,8 +565,8 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     <div className="relative">
                                         <motion.div
                                             animate={{
-                                                boxShadow: hoveredRank === 3 
-                                                    ? '0 20px 40px -5px rgba(217, 119, 6, 0.5)' 
+                                                boxShadow: hoveredRank === 3
+                                                    ? '0 20px 40px -5px rgba(217, 119, 6, 0.5)'
                                                     : '0 10px 20px -3px rgba(217, 119, 6, 0.3)',
                                             }}
                                             className={cn(
@@ -575,7 +580,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                                 podium[2]?.nama?.charAt(0) || '3'
                                             )}
                                         </motion.div>
-                                        <motion.div 
+                                        <motion.div
                                             animate={{
                                                 scale: hoveredRank === 3 ? [1, 1.2, 1] : 1,
                                             }}
@@ -639,59 +644,263 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                 {leaderboard.map((entry, index) => {
                                     const rank = index + 1;
                                     return (
-                                        <motion.tr
-                                            key={entry.id}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.6 + index * 0.05 }}
-                                            whileHover={{ backgroundColor: 'rgba(16, 185, 129, 0.05)' }}
-                                            className="cursor-pointer"
-                                        >
-                                            <td className="px-4 py-3">
-                                                <motion.div
-                                                    whileHover={{ scale: 1.1 }}
-                                                    className={cn(
-                                                        'flex h-10 w-10 items-center justify-center rounded-xl font-bold text-sm',
-                                                        rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-500/30' :
-                                                        rank === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700 shadow-lg' :
-                                                        rank === 3 ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-lg shadow-amber-500/30' :
-                                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                                                    )}
-                                                >
-                                                    {rank <= 3 ? (
-                                                        rank === 1 ? <Crown className="h-5 w-5" /> :
-                                                        rank === 2 ? <Medal className="h-5 w-5" /> :
-                                                        <Award className="h-5 w-5" />
-                                                    ) : rank}
-                                                </motion.div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <p className="font-medium text-slate-900 dark:text-white">{entry.nama}</p>
-                                                <p className="text-xs text-slate-500">{entry.nim}</p>
-                                            </td>
-                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{entry.kelas || '-'}</td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="font-semibold text-emerald-600">{entry.attendance_rate}%</span>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="text-blue-600">{entry.on_time_rate}%</span>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <div className="flex items-center justify-center gap-1 text-amber-600">
-                                                    <Flame className="h-4 w-4" />
-                                                    <span className="font-semibold">{entry.streak}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="font-bold text-slate-900 dark:text-white">{entry.points}</span>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium dark:bg-purple-900/30 dark:text-purple-400">
-                                                    <Zap className="h-3 w-3" />
-                                                    Lv.{entry.level}
-                                                </span>
-                                            </td>
-                                        </motion.tr>
+                                        <React.Fragment key={entry.id}>
+                                            <motion.tr
+                                                key={entry.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.6 + index * 0.05 }}
+                                                onClick={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                                                className={cn(
+                                                    "cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800",
+                                                    expandedId === entry.id
+                                                        ? "bg-slate-50 dark:bg-slate-900/50"
+                                                        : "hover:bg-slate-50 dark:hover:bg-slate-900/30"
+                                                )}
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.1 }}
+                                                        className={cn(
+                                                            'flex h-10 w-10 items-center justify-center rounded-xl font-bold text-sm',
+                                                            rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-lg shadow-yellow-500/30' :
+                                                                rank === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700 shadow-lg' :
+                                                                    rank === 3 ? 'bg-gradient-to-br from-amber-600 to-orange-700 text-white shadow-lg shadow-amber-500/30' :
+                                                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                                        )}
+                                                    >
+                                                        {rank <= 3 ? (
+                                                            rank === 1 ? <Crown className="h-5 w-5" /> :
+                                                                rank === 2 ? <Medal className="h-5 w-5" /> :
+                                                                    <Award className="h-5 w-5" />
+                                                        ) : rank}
+                                                    </motion.div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="relative">
+                                                            <div className={cn(
+                                                                "h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold text-white overflow-hidden",
+                                                                rank <= 3 ? "ring-2 ring-offset-2 ring-amber-400 dark:ring-offset-black" : "bg-slate-400"
+                                                            )}>
+                                                                {entry.avatar_url ? (
+                                                                    <img src={entry.avatar_url} alt="" className="h-full w-full object-cover" />
+                                                                ) : (
+                                                                    <div className="h-full w-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                                                                        {entry.nama.charAt(0)}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {rank <= 3 && (
+                                                                <div className="absolute -top-1 -right-1">
+                                                                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 drop-shadow-sm" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium text-slate-900 dark:text-white">{entry.nama}</p>
+                                                            <p className="text-xs text-slate-500">{entry.nim}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{entry.kelas || '-'}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <Badge variant={entry.attendance_rate >= 90 ? 'success' : entry.attendance_rate >= 75 ? 'warning' : 'destructive'}>
+                                                        {entry.attendance_rate}%
+                                                    </Badge>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className={cn(
+                                                        "text-sm font-medium",
+                                                        entry.on_time_rate >= 90 ? "text-blue-600" : "text-slate-600"
+                                                    )}>
+                                                        {entry.on_time_rate}%
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <div className="flex items-center justify-center gap-1 text-amber-600">
+                                                        <Flame className={cn("h-4 w-4", entry.streak > 0 && "animate-pulse fill-amber-500")} />
+                                                        <span className="font-semibold">{entry.streak}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className="font-bold text-slate-900 dark:text-white">{entry.points}</span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-medium dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                                                        <Zap className="h-3 w-3" />
+                                                        Lv.{entry.level}
+                                                    </span>
+                                                </td>
+                                            </motion.tr>,
+                                            <AnimatePresence key={`detail-${entry.id}`}>
+                                                {expandedId === entry.id && (
+                                                    <motion.tr
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        exit={{ opacity: 0 }}
+                                                    >
+                                                        <td colSpan={8} className="p-0 border-b border-slate-100 dark:border-slate-800">
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                                                className="overflow-hidden bg-slate-50/50 dark:bg-black/20"
+                                                            >
+                                                                <div className="p-6 grid gap-6 md:grid-cols-3">
+                                                                    {/* Column 1: Attendance Stats */}
+                                                                    <div className="space-y-4">
+                                                                        <div className="rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+                                                                            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-4">
+                                                                                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                                                                                Statistik Kehadiran
+                                                                            </h4>
+                                                                            <AttendanceChart
+                                                                                data={[{
+                                                                                    label: 'Kehadiran',
+                                                                                    present: entry.present_count,
+                                                                                    late: entry.late_count,
+                                                                                    absent: entry.total_sessions - (entry.present_count + entry.late_count),
+                                                                                    value: entry.total_sessions
+                                                                                }]}
+                                                                                type="pie"
+                                                                                height={200}
+                                                                                showLegend={true}
+                                                                                className="!bg-transparent !border-none !p-0 !shadow-none"
+                                                                            />
+                                                                            <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                                                                                <div className="p-2 rounded-lg bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                                                                    <p className="text-xs">Hadir</p>
+                                                                                    <p className="font-bold">{entry.present_count}</p>
+                                                                                </div>
+                                                                                <div className="p-2 rounded-lg bg-amber-100/50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                                                                                    <p className="text-xs">Telat</p>
+                                                                                    <p className="font-bold">{entry.late_count}</p>
+                                                                                </div>
+                                                                                <div className="p-2 rounded-lg bg-red-100/50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                                                                                    <p className="text-xs">Absen</p>
+                                                                                    <p className="font-bold">{entry.total_sessions - (entry.present_count + entry.late_count)}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Column 2: Badges & Achievements (Mock Data) */}
+                                                                    <div className="space-y-4">
+                                                                        <div className="rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5 h-full">
+                                                                            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-4">
+                                                                                <Medal className="h-4 w-4 text-amber-500" />
+                                                                                Pencapaian & Badges
+                                                                            </h4>
+                                                                            <div className="grid grid-cols-2 gap-3">
+                                                                                {[
+                                                                                    { label: 'Rajin', icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-100/50', active: entry.attendance_rate > 90 },
+                                                                                    { label: 'On Time', icon: Clock, color: 'text-blue-500', bg: 'bg-blue-100/50', active: entry.on_time_rate > 90 },
+                                                                                    { label: 'Top 10', icon: Trophy, color: 'text-yellow-500', bg: 'bg-yellow-100/50', active: rank <= 10 },
+                                                                                    { label: 'Star', icon: Star, color: 'text-purple-500', bg: 'bg-purple-100/50', active: entry.points > 100 },
+                                                                                ].map((badge, i) => (
+                                                                                    <div key={i} className={cn(
+                                                                                        "flex flex-col items-center justify-center p-3 rounded-xl border transition-all",
+                                                                                        badge.active
+                                                                                            ? cn(badge.bg, "border-transparent")
+                                                                                            : "bg-slate-100 border-slate-200 grayscale opacity-50 dark:bg-slate-800 dark:border-slate-700"
+                                                                                    )}>
+                                                                                        <badge.icon className={cn("h-6 w-6 mb-2", badge.active ? badge.color : "text-slate-400")} />
+                                                                                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{badge.label}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                            {rank <= 3 && (
+                                                                                <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-yellow-400/20 to-orange-400/20 border border-yellow-400/30 flex items-center gap-3">
+                                                                                    <Crown className="h-8 w-8 text-yellow-600 animate-bounce" />
+                                                                                    <div>
+                                                                                        <p className="text-sm font-bold text-yellow-800 dark:text-yellow-200">Champion!</p>
+                                                                                        <p className="text-xs text-yellow-700 dark:text-yellow-300">Salah satu yang terbaik di kelas.</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Column 3: Points History (Mock Visualization) */}
+                                                                    <div className="space-y-4">
+                                                                        <div className="rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5 h-full">
+                                                                            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white mb-4">
+                                                                                <TrendingUp className="h-4 w-4 text-blue-500" />
+                                                                                Riwayat Poin
+                                                                            </h4>
+
+                                                                            <div className="relative h-48 w-full mt-2">
+                                                                                <ResponsiveContainer width="100%" height="100%">
+                                                                                    <AreaChart
+                                                                                        data={[
+                                                                                            { name: 'Minggu 1', points: Math.floor(entry.points * 0.2) },
+                                                                                            { name: 'Minggu 2', points: Math.floor(entry.points * 0.45) },
+                                                                                            { name: 'Minggu 3', points: Math.floor(entry.points * 0.6) },
+                                                                                            { name: 'Minggu 4', points: Math.floor(entry.points * 0.85) },
+                                                                                            { name: 'Minggu 5', points: entry.points }
+                                                                                        ]}
+                                                                                    >
+                                                                                        <defs>
+                                                                                            <linearGradient id={`gradientPoints-${entry.id}`} x1="0" y1="0" x2="0" y2="1">
+                                                                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                                                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                                                                            </linearGradient>
+                                                                                        </defs>
+                                                                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" vertical={false} />
+                                                                                        <XAxis
+                                                                                            dataKey="name"
+                                                                                            axisLine={false}
+                                                                                            tickLine={false}
+                                                                                            tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                                                                            dy={10}
+                                                                                        />
+                                                                                        <Tooltip
+                                                                                            content={({ active, payload, label }) => {
+                                                                                                if (active && payload && payload.length) {
+                                                                                                    return (
+                                                                                                        <div className="rounded-lg border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/90">
+                                                                                                            <p className="mb-1 text-[10px] text-slate-500">{label}</p>
+                                                                                                            <p className="text-sm font-bold text-slate-900 dark:text-white">
+                                                                                                                {payload[0].value} Poin
+                                                                                                            </p>
+                                                                                                        </div>
+                                                                                                    );
+                                                                                                }
+                                                                                                return null;
+                                                                                            }}
+                                                                                        />
+                                                                                        <Area
+                                                                                            type="monotone"
+                                                                                            dataKey="points"
+                                                                                            stroke="#3b82f6"
+                                                                                            strokeWidth={2}
+                                                                                            fill={`url(#gradientPoints-${entry.id})`}
+                                                                                        />
+                                                                                    </AreaChart>
+                                                                                </ResponsiveContainer>
+                                                                            </div>
+
+                                                                            <div className="mt-4 space-y-2">
+                                                                                <div className="flex items-center justify-between text-xs p-2 rounded-lg bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+                                                                                    <span>Minggu Ini</span>
+                                                                                    <span className="font-bold">+{entry.points > 0 ? Math.ceil(entry.points * 0.15) : 0} Pts</span>
+                                                                                </div>
+                                                                                <div className="flex items-center justify-between text-xs p-2 rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
+                                                                                    <span>Kehadiran</span>
+                                                                                    <span className="font-bold">+{entry.points - (entry.points > 0 ? Math.ceil(entry.points * 0.15) : 0)} Pts</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </motion.div>
+                                                        </td>
+                                                    </motion.tr>
+                                                )}
+                                            </AnimatePresence>
+                                        </React.Fragment >
                                     );
                                 })}
                             </tbody>

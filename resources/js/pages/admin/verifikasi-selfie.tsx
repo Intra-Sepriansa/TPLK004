@@ -80,10 +80,19 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     const [filter, setFilter] = useState(currentFilter);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedDetail, setSelectedDetail] = useState<SelfieItem | null>(null);
-    const [showPermissionRequest, setShowPermissionRequest] = useState(false);
+
     const [permissionReason, setPermissionReason] = useState('');
-    const [isDetailRevealed, setIsDetailRevealed] = useState(false);
+
     const [showDetailPanel, setShowDetailPanel] = useState(false);
+
+    const handleCloseDetail = () => {
+        if (selectedDetail?.has_approved_request) {
+            router.patch(`/admin/verifikasi-selfie/${selectedDetail.id}/consume-view`, {}, { preserveScroll: true });
+        }
+        setShowDetailPanel(false);
+        setSelectedDetail(null);
+        setPermissionReason('');
+    };
 
     const handleFilter = (status: string) => {
         setFilter(status);
@@ -158,13 +167,13 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
     return (
         <AppLayout>
             <Head title="Verifikasi Selfie" />
-            <motion.div 
+            <motion.div
                 className="p-6 space-y-6"
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
             >
-                <motion.div 
+                <motion.div
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                     variants={itemVariants}
                 >
@@ -183,11 +192,11 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                             backgroundSize: '200% 200%',
                         }}
                     />
-                    
+
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    
+
                     <div className="relative">
                         <div className="flex items-center gap-4">
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
@@ -202,7 +211,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     </div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="grid gap-4 md:grid-cols-6"
                     variants={containerVariants}
                 >
@@ -214,11 +223,11 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     <StatCard icon={Users} label="Diproses Hari Ini" value={stats.today_processed} color="purple" />
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="grid gap-6 lg:grid-cols-3"
                     variants={containerVariants}
                 >
-                    <motion.div 
+                    <motion.div
                         className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                         variants={itemVariants}
                         whileHover={{ scale: 1.01 }}
@@ -234,7 +243,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                             </ResponsiveContainer>
                         </div>
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                         className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                         variants={itemVariants}
                         whileHover={{ scale: 1.02 }}
@@ -254,7 +263,7 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     </motion.div>
                 </motion.div>
 
-                <motion.div 
+                <motion.div
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                     variants={itemVariants}
                 >
@@ -282,13 +291,13 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                         )}
                     </div>
 
-                    <motion.div 
+                    <motion.div
                         className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                         variants={containerVariants}
                     >
                         <AnimatePresence mode="popLayout">
                             {selfieQueue.data.length === 0 ? (
-                                <motion.div 
+                                <motion.div
                                     className="col-span-full p-12 text-center"
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -300,80 +309,80 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                             ) : selfieQueue.data.map((item) => {
                                 const cfg = statusConfig[item.status] || { label: item.status, color: 'text-slate-700', bg: 'bg-slate-100' };
                                 return (
-                                    <motion.div 
-                                        key={item.id} 
+                                    <motion.div
+                                        key={item.id}
                                         className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-slate-800 dark:bg-black"
                                         variants={cardVariants}
                                         layout
-                                        whileHover={{ 
-                                            scale: 1.05, 
+                                        whileHover={{
+                                            scale: 1.05,
                                             y: -8,
                                             boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
                                             transition: { duration: 0.2 }
                                         }}
                                         whileTap={{ scale: 0.98 }}
                                     >
-                                    <div className="relative aspect-square bg-slate-100 dark:bg-slate-800">
-                                        {item.attendance_log?.selfie_path ? (
-                                            <div className="relative w-full h-full">
-                                                <img 
-                                                    src={`/storage/${item.attendance_log.selfie_path}`} 
-                                                    alt="Selfie" 
-                                                    className={`w-full h-full object-cover ${item.has_approved_request ? '' : 'blur-xl'}`}
-                                                />
-                                                {!item.has_approved_request && (
-                                                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                                                        <div className="text-center">
-                                                            <Lock className="h-8 w-8 text-white mx-auto mb-2" />
-                                                            <p className="text-xs text-white font-medium">Privasi Terlindungi</p>
+                                        <div className="relative aspect-square bg-slate-100 dark:bg-slate-800">
+                                            {item.attendance_log?.selfie_path ? (
+                                                <div className="relative w-full h-full">
+                                                    <img
+                                                        src={`/storage/${item.attendance_log.selfie_path}`}
+                                                        alt="Selfie"
+                                                        className={`w-full h-full object-cover ${item.has_approved_request ? '' : 'blur-xl'}`}
+                                                    />
+                                                    {!item.has_approved_request && (
+                                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                                                            <div className="text-center">
+                                                                <Lock className="h-8 w-8 text-white mx-auto mb-2" />
+                                                                <p className="text-xs text-white font-medium">Privasi Terlindungi</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                )}
-                                                {item.has_approved_request && (
-                                                    <div className="absolute bottom-2 left-2">
-                                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/90 text-white backdrop-blur-sm flex items-center gap-1">
-                                                            <CheckCircle className="h-3 w-3" />
-                                                            Disetujui
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full"><Image className="h-12 w-12 text-slate-400" /></div>
-                                        )}
-                                        {item.status === 'pending' && (
-                                            <div className="absolute top-2 left-2">
-                                                <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} className="h-4 w-4 rounded border-slate-300" />
-                                            </div>
-                                        )}
-                                        <div className="absolute top-2 right-2"><span className={`px-2 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span></div>
-                                    </div>
-                                    <div className="p-3">
-                                        <p className="font-medium text-slate-900 dark:text-white truncate">{item.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
-                                        <p className="text-xs text-slate-500">{item.attendance_log?.mahasiswa?.nim ?? '-'}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{item.created_at}</p>
-                                        <button 
-                                            onClick={() => {
-                                                setSelectedDetail(item);
-                                                setShowDetailPanel(true);
-                                            }} 
-                                            className="w-full mt-2 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
-                                        >
-                                            <Eye className="h-3 w-3" />
-                                            Lihat Detail
-                                        </button>
-                                        {item.status === 'pending' && (
-                                            <div className="flex gap-2 mt-2">
-                                                <button onClick={() => handleApprove(item.id)} className="flex-1 py-1.5 rounded bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700">Setujui</button>
-                                                <button onClick={() => handleReject(item.id)} className="flex-1 py-1.5 rounded bg-red-600 text-white text-xs font-medium hover:bg-red-700">Tolak</button>
-                                            </div>
-                                        )}
-                                        {item.status === 'rejected' && item.rejection_reason && <p className="text-xs text-red-600 mt-2">Alasan: {item.rejection_reason}</p>}
-                                        {item.verified_by_name && <p className="text-xs text-slate-400 mt-1">Oleh: {item.verified_by_name}</p>}
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
+                                                    )}
+                                                    {item.has_approved_request && (
+                                                        <div className="absolute bottom-2 left-2">
+                                                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/90 text-white backdrop-blur-sm flex items-center gap-1">
+                                                                <CheckCircle className="h-3 w-3" />
+                                                                Disetujui
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full"><Image className="h-12 w-12 text-slate-400" /></div>
+                                            )}
+                                            {item.status === 'pending' && (
+                                                <div className="absolute top-2 left-2">
+                                                    <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} className="h-4 w-4 rounded border-slate-300" />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2 right-2"><span className={`px-2 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span></div>
+                                        </div>
+                                        <div className="p-3">
+                                            <p className="font-medium text-slate-900 dark:text-white truncate">{item.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
+                                            <p className="text-xs text-slate-500">{item.attendance_log?.mahasiswa?.nim ?? '-'}</p>
+                                            <p className="text-xs text-slate-400 mt-1">{item.created_at}</p>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedDetail(item);
+                                                    setShowDetailPanel(true);
+                                                }}
+                                                className="w-full mt-2 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1"
+                                            >
+                                                <Eye className="h-3 w-3" />
+                                                Lihat Detail
+                                            </button>
+                                            {item.status === 'pending' && (
+                                                <div className="flex gap-2 mt-2">
+                                                    <button onClick={() => handleApprove(item.id)} className="flex-1 py-1.5 rounded bg-emerald-600 text-white text-xs font-medium hover:bg-emerald-700">Setujui</button>
+                                                    <button onClick={() => handleReject(item.id)} className="flex-1 py-1.5 rounded bg-red-600 text-white text-xs font-medium hover:bg-red-700">Tolak</button>
+                                                </div>
+                                            )}
+                                            {item.status === 'rejected' && item.rejection_reason && <p className="text-xs text-red-600 mt-2">Alasan: {item.rejection_reason}</p>}
+                                            {item.verified_by_name && <p className="text-xs text-slate-400 mt-1">Oleh: {item.verified_by_name}</p>}
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
                         </AnimatePresence>
                     </motion.div>
 
@@ -386,660 +395,439 @@ export default function VerifikasiSelfie({ selfieQueue, stats, trendData, recent
                     )}
                 </motion.div>
 
-                {/* Detail Panel - Slides from right */}
+                {/* Detail Panel - Centered Modal */}
                 <AnimatePresence>
                     {showDetailPanel && selectedDetail && (
                         <>
                             {/* Backdrop */}
                             <motion.div
-                                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                                className="fixed inset-0 bg-black/60 backdrop-blur-md z-40"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                onClick={() => setShowDetailPanel(false)}
+                                onClick={handleCloseDetail}
                             />
-                            
-                            {/* Detail Panel */}
-                            <motion.div
-                                className="fixed right-0 top-0 bottom-0 w-full md:w-[600px] bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto"
-                                initial={{ x: '100%' }}
-                                animate={{ x: 0 }}
-                                exit={{ x: '100%' }}
-                                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                            >
-                                {/* Header */}
-                                <div className="sticky top-0 z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl flex items-center justify-center">
-                                                <ScanFace className="h-6 w-6" />
+
+                            {/* Center Wrapper */}
+                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                                <motion.div
+                                    className="w-full max-w-2xl max-h-[90vh] bg-black shadow-2xl overflow-y-auto rounded-2xl border border-slate-700/50 pointer-events-auto"
+                                    initial={{ scale: 0.9, y: 30, opacity: 0 }}
+                                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                                    exit={{ scale: 0.9, y: 30, opacity: 0 }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                >
+                                    {/* Header */}
+                                    <div className="sticky top-0 z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6 text-white rounded-t-2xl">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <motion.div
+                                                    className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center"
+                                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                                >
+                                                    {selectedDetail.has_approved_request ? <Eye className="h-6 w-6" /> : <Lock className="h-6 w-6" />}
+                                                </motion.div>
+                                                <div>
+                                                    <h2 className="text-xl font-bold">
+                                                        {selectedDetail.has_approved_request ? 'Detail Verifikasi' : 'Akses Terbatas'}
+                                                    </h2>
+                                                    <p className="text-sm text-indigo-100">
+                                                        {selectedDetail.has_approved_request ? 'Informasi lengkap selfie mahasiswa' : 'Diperlukan izin untuk melihat detail'}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h2 className="text-xl font-bold">Detail Verifikasi</h2>
-                                                <p className="text-sm text-indigo-100">Informasi lengkap selfie mahasiswa</p>
-                                            </div>
+                                            <motion.button
+                                                onClick={handleCloseDetail}
+                                                className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                            >
+                                                <X className="h-5 w-5" />
+                                            </motion.button>
                                         </div>
-                                        <button
-                                            onClick={() => setShowDetailPanel(false)}
-                                            className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                                        >
-                                            <X className="h-5 w-5" />
-                                        </button>
                                     </div>
-                                </div>
 
-                                {/* Content */}
-                                <div className="p-6 space-y-6">
-                                    {/* Selfie Image */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                        className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700"
-                                    >
-                                        {selectedDetail.attendance_log?.selfie_path ? (
-                                            <img
-                                                src={`/storage/${selectedDetail.attendance_log.selfie_path}`}
-                                                alt="Selfie"
-                                                className="w-full h-full object-cover"
-                                            />
+                                    {/* Content */}
+                                    <div className="p-6 space-y-6">
+                                        {selectedDetail.has_approved_request ? (
+                                            /* ═══════ APPROVED: Full Detail View ═══════ */
+                                            <>
+                                                {/* Full Selfie Image */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.1 }}
+                                                    className="relative rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700 group"
+                                                >
+                                                    {selectedDetail.attendance_log?.selfie_path ? (
+                                                        <motion.img
+                                                            src={`/storage/${selectedDetail.attendance_log.selfie_path}`}
+                                                            alt="Selfie"
+                                                            className="w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            initial={{ scale: 1.1, filter: 'blur(10px)' }}
+                                                            animate={{ scale: 1, filter: 'blur(0px)' }}
+                                                            transition={{ duration: 0.6, delay: 0.2 }}
+                                                        />
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-64">
+                                                            <Image className="h-20 w-20 text-slate-400" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute top-4 right-4">
+                                                        <span className={`px-3 py-1.5 rounded-full text-sm font-semibold backdrop-blur-xl border ${selectedDetail.status === 'approved' ? 'bg-emerald-500/90 text-white border-emerald-600' :
+                                                            selectedDetail.status === 'rejected' ? 'bg-red-500/90 text-white border-red-600' :
+                                                                'bg-amber-500/90 text-white border-amber-600'
+                                                            }`}>
+                                                            {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className="absolute bottom-3 left-3">
+                                                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/90 text-white backdrop-blur-sm flex items-center gap-1.5">
+                                                            <CheckCircle className="h-3 w-3" /> Akses Disetujui
+                                                        </span>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Student Info Card */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.2 }}
+                                                    className="p-5 rounded-2xl bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/70"
+                                                >
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                                                            <User className="h-4 w-4 text-white" />
+                                                        </div>
+                                                        <h3 className="font-bold text-white">Informasi Mahasiswa</h3>
+                                                    </div>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-indigo-800/50 to-blue-800/50 flex items-center justify-center text-xl font-bold text-indigo-300 flex-shrink-0">
+                                                            {(selectedDetail.attendance_log?.mahasiswa?.nama ?? 'U').charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div className="flex-1 space-y-1">
+                                                            <p className="text-lg font-bold text-white">{selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
+                                                            <p className="text-sm font-mono text-slate-400">{selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}</p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Attendance + Verification Info Grid */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.3 }}
+                                                    className="grid grid-cols-2 gap-3"
+                                                >
+                                                    <div className="p-4 rounded-xl bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-800/70">
+                                                        <p className="text-[10px] uppercase tracking-wider text-purple-400 font-bold mb-1">Mata Kuliah</p>
+                                                        <p className="text-sm font-semibold text-white">{selectedDetail.attendance_log?.course ?? '-'}</p>
+                                                    </div>
+                                                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-900/20 to-orange-900/20 border border-amber-800/70">
+                                                        <p className="text-[10px] uppercase tracking-wider text-amber-400 font-bold mb-1">Waktu Scan</p>
+                                                        <p className="text-sm font-semibold text-white">{selectedDetail.attendance_log?.scanned_at ?? '-'}</p>
+                                                    </div>
+                                                    {selectedDetail.attendance_log?.distance_m != null && (
+                                                        <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-900/20 to-sky-900/20 border border-cyan-800/70">
+                                                            <p className="text-[10px] uppercase tracking-wider text-cyan-400 font-bold mb-1">Jarak</p>
+                                                            <p className="text-sm font-semibold text-white">{Number(selectedDetail.attendance_log.distance_m).toFixed(2)}m</p>
+                                                        </div>
+                                                    )}
+                                                    <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-900/20 to-teal-900/20 border border-emerald-800/70">
+                                                        <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-1">Dibuat</p>
+                                                        <p className="text-sm font-semibold text-white">{selectedDetail.created_at ?? '-'}</p>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Verification Details */}
+                                                {(selectedDetail.verified_by_name || selectedDetail.rejection_reason || selectedDetail.note) && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.4 }}
+                                                        className="p-5 rounded-2xl bg-gradient-to-br from-emerald-900/20 to-teal-900/20 border border-emerald-800/70 space-y-3"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <Shield className="h-5 w-5 text-emerald-400" />
+                                                            <h3 className="font-bold text-white">Detail Verifikasi</h3>
+                                                        </div>
+                                                        {selectedDetail.verified_at && <div><p className="text-xs text-slate-400 mb-0.5">Diverifikasi</p><p className="text-sm font-medium text-slate-300">{selectedDetail.verified_at}</p></div>}
+                                                        {selectedDetail.verified_by_name && <div><p className="text-xs text-slate-400 mb-0.5">Oleh</p><p className="text-sm font-medium text-slate-300">{selectedDetail.verified_by_name}</p></div>}
+                                                        {selectedDetail.rejection_reason && <div><p className="text-xs text-slate-400 mb-0.5">Alasan Penolakan</p><p className="text-sm font-medium text-red-400">{selectedDetail.rejection_reason}</p></div>}
+                                                        {selectedDetail.note && <div><p className="text-xs text-slate-400 mb-0.5">Catatan</p><p className="text-sm font-medium text-slate-300">{selectedDetail.note}</p></div>}
+                                                    </motion.div>
+                                                )}
+
+                                                {/* Privacy Notice */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.45 }}
+                                                    className="p-4 rounded-xl bg-amber-900/20 border border-amber-700/50"
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <Lock className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                                                        <p className="text-xs text-amber-300 leading-relaxed">
+                                                            Setelah menutup panel ini, Anda perlu mengajukan izin kembali untuk melihat detail selfie mahasiswa. Ini untuk melindungi privasi data.
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Action Buttons */}
+                                                {selectedDetail.status === 'pending' && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.5 }}
+                                                        className="flex gap-3 pt-2"
+                                                    >
+                                                        <motion.button
+                                                            onClick={() => { handleApprove(selectedDetail.id); handleCloseDetail(); }}
+                                                            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
+                                                            whileHover={{ scale: 1.02, y: -2 }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                        >
+                                                            <CheckCircle className="h-5 w-5" /> Setujui
+                                                        </motion.button>
+                                                        <motion.button
+                                                            onClick={() => { handleReject(selectedDetail.id); handleCloseDetail(); }}
+                                                            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-bold hover:from-red-600 hover:to-red-700 transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2"
+                                                            whileHover={{ scale: 1.02, y: -2 }}
+                                                            whileTap={{ scale: 0.98 }}
+                                                        >
+                                                            <XCircle className="h-5 w-5" /> Tolak
+                                                        </motion.button>
+                                                    </motion.div>
+                                                )}
+                                            </>
                                         ) : (
-                                            <div className="flex items-center justify-center h-full">
-                                                <Image className="h-20 w-20 text-slate-400" />
-                                            </div>
+                                            /* ═══════ LOCKED: Permission Request View ═══════ */
+                                            <>
+                                                {/* Blurred/Locked Selfie Preview */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.1 }}
+                                                    className="relative rounded-2xl overflow-hidden bg-slate-800 border-2 border-slate-700"
+                                                >
+                                                    {selectedDetail.attendance_log?.selfie_path ? (
+                                                        <div className="relative">
+                                                            <img
+                                                                src={`/storage/${selectedDetail.attendance_log.selfie_path}`}
+                                                                alt="Blurred"
+                                                                className="w-full aspect-square object-cover blur-2xl scale-110"
+                                                            />
+                                                            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center">
+                                                                <motion.div
+                                                                    animate={{ scale: [1, 1.1, 1] }}
+                                                                    transition={{ duration: 2, repeat: Infinity }}
+                                                                    className="h-20 w-20 rounded-full bg-white/10 backdrop-blur-xl border-2 border-white/20 flex items-center justify-center mb-4"
+                                                                >
+                                                                    <Lock className="h-10 w-10 text-white" />
+                                                                </motion.div>
+                                                                <p className="text-white font-bold text-lg">Privasi Terlindungi</p>
+                                                                <p className="text-white/70 text-sm mt-1">Ajukan izin untuk melihat detail</p>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center justify-center h-48">
+                                                            <Image className="h-16 w-16 text-slate-400" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute top-4 right-4">
+                                                        <span className={`px-3 py-1.5 rounded-full text-sm font-semibold backdrop-blur-xl border ${selectedDetail.status === 'approved' ? 'bg-emerald-500/90 text-white border-emerald-600' :
+                                                            selectedDetail.status === 'rejected' ? 'bg-red-500/90 text-white border-red-600' :
+                                                                'bg-amber-500/90 text-white border-amber-600'
+                                                            }`}>
+                                                            {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
+                                                        </span>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Student Basic Info */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.15 }}
+                                                    className="p-5 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-800/50 border border-slate-700/70"
+                                                >
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-600 flex items-center justify-center text-lg font-bold text-slate-300">
+                                                            {(selectedDetail.attendance_log?.mahasiswa?.nama ?? 'U').charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-white">{selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
+                                                            <p className="text-sm font-mono text-slate-500">{selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}</p>
+                                                            <p className="text-xs text-slate-400 mt-0.5">{selectedDetail.attendance_log?.course ?? '-'} • {selectedDetail.created_at}</p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Privacy Shield Notice */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.2 }}
+                                                    className="p-5 rounded-2xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-700/50"
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                                                            <Shield className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-white text-sm mb-1">Perlindungan Privasi Aktif</p>
+                                                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                                                Data selfie dilindungi. Untuk melihat detail, kirim permintaan akses ke mahasiswa yang bersangkutan. Permintaan akan masuk ke menu Verifikasi Selfie mahasiswa.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Quick Reason Chips */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.25 }}
+                                                >
+                                                    <label className="block text-sm font-bold text-slate-300 mb-3">
+                                                        Pilih Alasan Cepat
+                                                    </label>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {[
+                                                            '🔍 Verifikasi kehadiran untuk administrasi akademik',
+                                                            '📋 Investigasi pelanggaran absensi mahasiswa',
+                                                            '📊 Audit data kehadiran perkuliahan',
+                                                            '🛡️ Pengecekan keamanan dan validitas selfie',
+                                                        ].map((reason) => (
+                                                            <motion.button
+                                                                key={reason}
+                                                                type="button"
+                                                                onClick={() => setPermissionReason(reason)}
+                                                                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border ${permissionReason === reason
+                                                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-600 shadow-md shadow-indigo-500/10'
+                                                                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700 hover:border-indigo-300'
+                                                                    }`}
+                                                                whileHover={{ scale: 1.03 }}
+                                                                whileTap={{ scale: 0.97 }}
+                                                            >
+                                                                {reason}
+                                                            </motion.button>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Custom Reason Textarea */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.3 }}
+                                                >
+                                                    <label className="block text-sm font-bold text-slate-300 mb-2">
+                                                        Alasan Permintaan <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <textarea
+                                                        value={permissionReason}
+                                                        onChange={(e) => setPermissionReason(e.target.value)}
+                                                        placeholder="Tuliskan alasan atau pilih alasan cepat di atas..."
+                                                        className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all text-sm"
+                                                        rows={3}
+                                                    />
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        <p className={`text-xs font-medium ${permissionReason.trim().length >= 10 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                                            {permissionReason.trim().length >= 10 ? '✓ Alasan valid' : `Minimal 10 karakter (${permissionReason.trim().length}/10)`}
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+
+                                                {/* Send Request Button */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.35 }}
+                                                    className="flex gap-3"
+                                                >
+                                                    <motion.button
+                                                        onClick={handleCloseDetail}
+                                                        className="flex-1 py-3.5 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition-colors text-sm"
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        Batal
+                                                    </motion.button>
+                                                    <motion.button
+                                                        onClick={() => {
+                                                            if (permissionReason.trim() && permissionReason.trim().length >= 10 && selectedDetail) {
+                                                                router.post('/selfie-view-requests', {
+                                                                    selfie_verification_id: selectedDetail.id,
+                                                                    reason: permissionReason.trim()
+                                                                }, {
+                                                                    preserveScroll: true,
+                                                                    onSuccess: () => {
+                                                                        handleCloseDetail();
+                                                                    },
+                                                                    onError: (errors) => {
+                                                                        console.error('Error submitting request:', errors);
+                                                                    }
+                                                                });
+                                                            }
+                                                        }}
+                                                        disabled={!permissionReason.trim() || permissionReason.trim().length < 10}
+                                                        className="flex-[2] py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white font-bold hover:shadow-xl hover:shadow-indigo-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 text-sm"
+                                                        whileHover={{ scale: 1.02, y: -2 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        <Send className="h-4 w-4" />
+                                                        Kirim Permintaan Akses
+                                                    </motion.button>
+                                                </motion.div>
+
+                                                {/* Info: What happens next */}
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.4 }}
+                                                    className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800/70"
+                                                >
+                                                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Apa yang terjadi selanjutnya?</p>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400">1</div>
+                                                            <p className="text-xs text-slate-400">Permintaan dikirim ke mahasiswa</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400">2</div>
+                                                            <p className="text-xs text-slate-400">Mahasiswa menyetujui atau menolak</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[10px] font-bold text-indigo-600 dark:text-indigo-400">3</div>
+                                                            <p className="text-xs text-slate-400">Jika disetujui, detail selfie dapat diakses</p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            </>
                                         )}
-                                        <div className="absolute top-4 right-4">
-                                            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold backdrop-blur-xl border ${
-                                                selectedDetail.status === 'approved' ? 'bg-emerald-500/90 text-white border-emerald-600' :
-                                                selectedDetail.status === 'rejected' ? 'bg-red-500/90 text-white border-red-600' :
-                                                'bg-amber-500/90 text-white border-amber-600'
-                                            }`}>
-                                                {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
-                                            </span>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Student Info */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800"
-                                    >
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                            <h3 className="font-semibold text-slate-900 dark:text-white">Informasi Mahasiswa</h3>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Nama Lengkap</p>
-                                                <p className="text-base font-semibold text-slate-900 dark:text-white">
-                                                    {selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">NIM</p>
-                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                    {selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Attendance Info */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="p-5 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800"
-                                    >
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                            <h3 className="font-semibold text-slate-900 dark:text-white">Informasi Absensi</h3>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Mata Kuliah</p>
-                                                <p className="text-base font-medium text-slate-900 dark:text-white">
-                                                    {selectedDetail.attendance_log?.course ?? '-'}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Waktu Scan</p>
-                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                    {selectedDetail.attendance_log?.scanned_at ?? '-'}
-                                                </p>
-                                            </div>
-                                            {selectedDetail.attendance_log?.distance_m !== null && selectedDetail.attendance_log?.distance_m !== undefined && (
-                                                <div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Jarak dari Lokasi</p>
-                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                        {selectedDetail.attendance_log.distance_m.toFixed(2)} meter
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Verification Info */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        className="p-5 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800"
-                                    >
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                            <h3 className="font-semibold text-slate-900 dark:text-white">Status Verifikasi</h3>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Dibuat</p>
-                                                <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                    {selectedDetail.created_at ?? '-'}
-                                                </p>
-                                            </div>
-                                            {selectedDetail.verified_at && (
-                                                <div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Diverifikasi</p>
-                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                        {selectedDetail.verified_at}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {selectedDetail.verified_by_name && (
-                                                <div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Diverifikasi Oleh</p>
-                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                        {selectedDetail.verified_by_name}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {selectedDetail.rejection_reason && (
-                                                <div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Alasan Penolakan</p>
-                                                    <p className="text-base font-medium text-red-600 dark:text-red-400">
-                                                        {selectedDetail.rejection_reason}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            {selectedDetail.note && (
-                                                <div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Catatan</p>
-                                                    <p className="text-base font-medium text-slate-700 dark:text-slate-300">
-                                                        {selectedDetail.note}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Action Buttons */}
-                                    {selectedDetail.status === 'pending' && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
-                                            className="flex gap-3 pt-2"
-                                        >
-                                            <button
-                                                onClick={() => {
-                                                    handleApprove(selectedDetail.id);
-                                                    setShowDetailPanel(false);
-                                                }}
-                                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2"
-                                            >
-                                                <CheckCircle className="h-5 w-5" />
-                                                Setujui
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    handleReject(selectedDetail.id);
-                                                    setShowDetailPanel(false);
-                                                }}
-                                                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2"
-                                            >
-                                                <XCircle className="h-5 w-5" />
-                                                Tolak
-                                            </button>
-                                        </motion.div>
-                                    )}
-                                </div>
-                            </motion.div>
+                                    </div>
+                                </motion.div>
+                            </div>
                         </>
                     )}
                 </AnimatePresence>
-
-                {/* Permission Request Modal */}
-                <AnimatePresence>
-                    {showPermissionRequest && selectedDetail && (
-                        <motion.div 
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg p-4" 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => {
-                                setShowPermissionRequest(false);
-                                setSelectedDetail(null);
-                                setPermissionReason('');
-                            }}
-                        >
-                            <motion.div 
-                                className="relative max-w-2xl w-full bg-gradient-to-br from-slate-900 to-black border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
-                                onClick={(e) => e.stopPropagation()}
-                                initial={{ scale: 0.8, y: 50 }}
-                                animate={{ scale: 1, y: 0 }}
-                                exit={{ scale: 0.8, y: 50 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10" />
-                                
-                                {/* Header */}
-                                <div className="relative border-b border-slate-700/50 p-6">
-                                    <motion.div 
-                                        className="flex items-center gap-4"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                                            <Shield className="h-7 w-7 text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-bold text-white">Permintaan Akses Data Mahasiswa</h3>
-                                            <p className="text-sm text-slate-400 mt-1">Data pribadi dilindungi oleh sistem privasi</p>
-                                        </div>
-                                    </motion.div>
-                                </div>
-
-                                <div className="relative p-6 space-y-5">
-                                    {/* Student Info Preview */}
-                                    <motion.div
-                                        className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-700 flex-shrink-0">
-                                                {selectedDetail.attendance_log?.selfie_path ? (
-                                                    <>
-                                                        <img 
-                                                            src={`/storage/${selectedDetail.attendance_log.selfie_path}`} 
-                                                            alt="Preview" 
-                                                            className="w-full h-full object-cover blur-xl"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                            <Lock className="h-6 w-6 text-white" />
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="flex items-center justify-center h-full">
-                                                        <User className="h-8 w-8 text-slate-500" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="font-semibold text-white">{selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
-                                                <p className="text-sm text-slate-400">{selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}</p>
-                                                <p className="text-xs text-slate-500 mt-1">
-                                                    {selectedDetail.attendance_log?.course ?? '-'} • {selectedDetail.created_at}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Privacy Notice */}
-                                    <motion.div 
-                                        className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            <AlertTriangle className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                                            <div>
-                                                <p className="text-sm font-semibold text-amber-300 mb-1">Perlindungan Privasi Aktif</p>
-                                                <p className="text-xs text-amber-200/80 leading-relaxed">
-                                                    Untuk melindungi privasi mahasiswa, detail selfie dan informasi pribadi hanya dapat diakses setelah mendapat persetujuan. 
-                                                    Permintaan Anda akan dikirim ke mahasiswa yang bersangkutan.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                    
-                                    {/* Reason Input */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                    >
-                                        <label className="block text-sm font-medium text-slate-300 mb-2">
-                                            Alasan Permintaan <span className="text-red-400">*</span>
-                                        </label>
-                                        <textarea
-                                            value={permissionReason}
-                                            onChange={(e) => setPermissionReason(e.target.value)}
-                                            placeholder="Jelaskan alasan Anda memerlukan akses ke data ini. Contoh: Verifikasi kehadiran untuk keperluan administrasi akademik..."
-                                            className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all"
-                                            rows={4}
-                                            autoFocus
-                                        />
-                                        <div className="flex items-center justify-between mt-2">
-                                            <p className={`text-xs ${permissionReason.trim().length >= 10 ? 'text-emerald-400' : 'text-slate-500'}`}>
-                                                {permissionReason.trim().length >= 10 ? '✓ Alasan valid' : 'Minimal 10 karakter'}
-                                            </p>
-                                            <p className="text-xs text-slate-500">
-                                                {permissionReason.trim().length}/10
-                                            </p>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Action Buttons */}
-                                    <motion.div 
-                                        className="flex gap-3 pt-2"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                    >
-                                        <button 
-                                            onClick={() => {
-                                                setShowPermissionRequest(false);
-                                                setSelectedDetail(null);
-                                                setPermissionReason('');
-                                            }}
-                                            className="flex-1 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 transition-colors"
-                                        >
-                                            Batal
-                                        </button>
-                                        <button 
-                                            onClick={() => {
-                                                if (permissionReason.trim() && permissionReason.trim().length >= 10 && selectedDetail) {
-                                                    router.post('/selfie-view-requests', {
-                                                        selfie_verification_id: selectedDetail.id,
-                                                        reason: permissionReason.trim()
-                                                    }, {
-                                                        preserveScroll: true,
-                                                        onSuccess: () => {
-                                                            setShowPermissionRequest(false);
-                                                            setSelectedDetail(null);
-                                                            setPermissionReason('');
-                                                        },
-                                                        onError: (errors) => {
-                                                            console.error('Error submitting request:', errors);
-                                                        }
-                                                    });
-                                                }
-                                            }}
-                                            disabled={!permissionReason.trim() || permissionReason.trim().length < 10}
-                                            className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
-                                        >
-                                            <Send className="h-4 w-4" />
-                                            Kirim Permintaan
-                                        </button>
-                                    </motion.div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Detail Modal */}
-                <AnimatePresence>
-                    {isDetailRevealed && selectedDetail && (
-                        <motion.div 
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg p-4" 
-                            onClick={() => {
-                                setIsDetailRevealed(false);
-                                setSelectedDetail(null);
-                            }}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                        >
-                            <motion.div 
-                                className="relative max-w-4xl w-full bg-black/90 border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden"
-                                onClick={(e) => e.stopPropagation()}
-                                initial={{ scale: 0.9, y: 50, opacity: 0 }}
-                                animate={{ scale: 1, y: 0, opacity: 1 }}
-                                exit={{ scale: 0.9, y: 50, opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                            >
-                                {/* Animated Background */}
-                                <motion.div
-                                    className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-pink-500/20"
-                                    animate={{
-                                        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                                    }}
-                                    transition={{
-                                        duration: 10,
-                                        repeat: Infinity,
-                                        ease: "linear"
-                                    }}
-                                    style={{
-                                        backgroundSize: '200% 200%',
-                                    }}
-                                />
-                                
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-                                
-                                {/* Close Button */}
-                                <button 
-                                    onClick={() => {
-                                        setIsDetailRevealed(false);
-                                        setSelectedDetail(null);
-                                    }}
-                                    className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-
-                                <div className="relative p-8">
-                                    {/* Header */}
-                                    <motion.div 
-                                        className="flex items-center gap-4 mb-6"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                    >
-                                        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                                            <Eye className="h-6 w-6 text-white" />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-white">Detail Verifikasi Selfie</h2>
-                                            <p className="text-sm text-slate-400">Informasi lengkap mahasiswa dan absensi</p>
-                                        </div>
-                                    </motion.div>
-
-                                    <div className="grid md:grid-cols-2 gap-6">
-                                        {/* Left: Image */}
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -30 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.2 }}
-                                        >
-                                            <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-800 border border-slate-700/50">
-                                                {selectedDetail.attendance_log?.selfie_path ? (
-                                                    <motion.img 
-                                                        src={`/storage/${selectedDetail.attendance_log.selfie_path}`} 
-                                                        alt="Selfie" 
-                                                        className="w-full h-full object-cover"
-                                                        initial={{ scale: 1.2, filter: "blur(20px)" }}
-                                                        animate={{ scale: 1, filter: "blur(0px)" }}
-                                                        transition={{ duration: 0.6, delay: 0.3 }}
-                                                    />
-                                                ) : (
-                                                    <div className="flex items-center justify-center h-full">
-                                                        <Image className="h-16 w-16 text-slate-600" />
-                                                    </div>
-                                                )}
-                                                <div className="absolute top-3 right-3">
-                                                    <span className={`px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl border ${
-                                                        selectedDetail.status === 'approved' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
-                                                        selectedDetail.status === 'rejected' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
-                                                        'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                                                    }`}>
-                                                        {statusConfig[selectedDetail.status]?.label || selectedDetail.status}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-
-                                        {/* Right: Details */}
-                                        <motion.div 
-                                            className="space-y-4"
-                                            initial={{ opacity: 0, x: 30 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                        >
-                                            {/* Student Info */}
-                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <User className="h-4 w-4 text-indigo-400" />
-                                                    <h3 className="text-sm font-semibold text-white">Informasi Mahasiswa</h3>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <div>
-                                                        <p className="text-xs text-slate-400">Nama</p>
-                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.mahasiswa?.nama ?? 'Unknown'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs text-slate-400">NIM</p>
-                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.mahasiswa?.nim ?? '-'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Attendance Info */}
-                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <Calendar className="h-4 w-4 text-purple-400" />
-                                                    <h3 className="text-sm font-semibold text-white">Informasi Absensi</h3>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <div>
-                                                        <p className="text-xs text-slate-400">Mata Kuliah</p>
-                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.course ?? '-'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs text-slate-400">Waktu Scan</p>
-                                                        <p className="text-sm font-medium text-white">{selectedDetail.attendance_log?.scanned_at ?? '-'}</p>
-                                                    </div>
-                                                    {selectedDetail.attendance_log?.distance_m !== null && selectedDetail.attendance_log?.distance_m !== undefined && (
-                                                        <div>
-                                                            <p className="text-xs text-slate-400">Jarak</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.attendance_log.distance_m.toFixed(2)} meter</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Verification Info */}
-                                            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <FileText className="h-4 w-4 text-pink-400" />
-                                                    <h3 className="text-sm font-semibold text-white">Informasi Verifikasi</h3>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <div>
-                                                        <p className="text-xs text-slate-400">Dibuat</p>
-                                                        <p className="text-sm font-medium text-white">{selectedDetail.created_at ?? '-'}</p>
-                                                    </div>
-                                                    {selectedDetail.verified_at && (
-                                                        <div>
-                                                            <p className="text-xs text-slate-400">Diverifikasi</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.verified_at}</p>
-                                                        </div>
-                                                    )}
-                                                    {selectedDetail.verified_by_name && (
-                                                        <div>
-                                                            <p className="text-xs text-slate-400">Oleh</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.verified_by_name}</p>
-                                                        </div>
-                                                    )}
-                                                    {selectedDetail.rejection_reason && (
-                                                        <div>
-                                                            <p className="text-xs text-slate-400">Alasan Penolakan</p>
-                                                            <p className="text-sm font-medium text-red-300">{selectedDetail.rejection_reason}</p>
-                                                        </div>
-                                                    )}
-                                                    {selectedDetail.note && (
-                                                        <div>
-                                                            <p className="text-xs text-slate-400">Catatan</p>
-                                                            <p className="text-sm font-medium text-white">{selectedDetail.note}</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Privacy Notice */}
-                                            <motion.div 
-                                                className="p-4 rounded-xl bg-amber-500/10 backdrop-blur-xl border border-amber-500/30"
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.5 }}
-                                            >
-                                                <div className="flex items-start gap-3">
-                                                    <Lock className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                                                    <div>
-                                                        <p className="text-xs font-semibold text-amber-300 mb-1">Perlindungan Privasi</p>
-                                                        <p className="text-xs text-amber-200/80">Detail ini telah dilihat. Untuk melihat kembali, diperlukan persetujuan dari mahasiswa.</p>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-
-                                            {/* Action Buttons */}
-                                            {selectedDetail.status === 'pending' && (
-                                                <motion.div 
-                                                    className="flex gap-3 pt-2"
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: 0.6 }}
-                                                >
-                                                    <button 
-                                                        onClick={() => {
-                                                            handleApprove(selectedDetail.id);
-                                                            setIsDetailRevealed(false);
-                                                            setSelectedDetail(null);
-                                                        }}
-                                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/20"
-                                                    >
-                                                        Setujui
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => {
-                                                            handleReject(selectedDetail.id);
-                                                            setIsDetailRevealed(false);
-                                                            setSelectedDetail(null);
-                                                        }}
-                                                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold hover:from-red-600 hover:to-red-700 transition-all shadow-lg shadow-red-500/20"
-                                                    >
-                                                        Tolak
-                                                    </button>
-                                                </motion.div>
-                                            )}
-                                        </motion.div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </motion.div>
-        </AppLayout>
+            </motion.div >
+        </AppLayout >
     );
 }
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
     const colors: Record<string, string> = { blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400', amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400', emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400', red: 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400', orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400', purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' };
     return (
-        <motion.div 
+        <motion.div
             className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
             variants={{
                 hidden: { opacity: 0, y: 20, scale: 0.9 },
-                visible: { 
-                    opacity: 1, 
-                    y: 0, 
+                visible: {
+                    opacity: 1,
+                    y: 0,
                     scale: 1,
                     transition: { type: "spring", stiffness: 100, damping: 12 }
                 }
@@ -1048,7 +836,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
             whileTap={{ scale: 0.98 }}
         >
             <div className="flex items-center gap-3">
-                <motion.div 
+                <motion.div
                     className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
                     whileHover={{ rotate: [0, -10, 10, -10, 0], transition: { duration: 0.5 } }}
                 >
@@ -1056,7 +844,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
                 </motion.div>
                 <div>
                     <p className="text-xs text-slate-500">{label}</p>
-                    <motion.p 
+                    <motion.p
                         className="text-xl font-bold text-slate-900 dark:text-white"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}

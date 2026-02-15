@@ -6,9 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Users, 
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import {
+    Vote, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Users,
     Eye, Gavel, AlertTriangle, BarChart3, Wallet, X, Target, Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
@@ -76,7 +76,7 @@ const breadcrumbs = [
 ];
 
 // Animation variants
-const containerVariants = {
+const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
@@ -87,7 +87,7 @@ const containerVariants = {
     },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
         opacity: 1,
@@ -100,7 +100,7 @@ const itemVariants = {
     },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: {
         opacity: 1,
@@ -206,7 +206,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin - Kas Voting" />
-            
+
             <motion.div
                 initial="hidden"
                 animate="visible"
@@ -218,9 +218,9 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Gradient Background */}
+                    {/* Animated Gradient Background - Violet/Indigo Theme */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-800 to-black"
+                        className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-fuchsia-600"
                         animate={{
                             backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
@@ -233,7 +233,10 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             backgroundSize: '200% 200%',
                         }}
                     />
-                    
+
+                    <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
                     {/* Animated Background Circles */}
                     <motion.div
                         animate={{
@@ -257,7 +260,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             repeat: Infinity,
                             ease: 'linear',
                         }}
-                        className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"
+                        className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl"
                     />
 
                     {/* Floating Sparkles */}
@@ -298,7 +301,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-sm text-gray-300 font-medium"
+                                    className="text-sm text-violet-100 font-medium tracking-wide uppercase"
                                 >
                                     Manajemen Keuangan
                                 </motion.p>
@@ -316,11 +319,11 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="text-gray-300 mb-6"
+                            className="text-violet-100 mb-8 text-lg font-light max-w-2xl leading-relaxed"
                         >
-                            Kelola dan pantau voting pengeluaran kas mahasiswa
+                            Kelola dan pantau voting pengeluaran kas mahasiswa secara transparan dan real-time.
                         </motion.p>
-                        
+
                         {/* Quick Stats in Header */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -340,10 +343,10 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: stat.delay, type: 'spring' }}
                                     whileHover={{ scale: 1.05 }}
-                                    className="bg-white/10 backdrop-blur rounded-xl p-3"
+                                    className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 hover:bg-white/15 transition-colors"
                                 >
-                                    <p className="text-purple-100 text-xs font-medium">{stat.label}</p>
-                                    <p className="text-2xl font-bold">
+                                    <p className="text-violet-100 text-xs font-medium uppercase tracking-wider opacity-80">{stat.label}</p>
+                                    <p className="text-3xl font-bold mt-1 tracking-tight">
                                         {stat.value}
                                     </p>
                                 </motion.div>
@@ -358,11 +361,11 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     className="grid gap-4 grid-cols-2 md:grid-cols-5"
                 >
                     {[
-                        { icon: BarChart3, label: 'Total', value: stats.total, color: 'from-slate-400 to-slate-600', shadow: 'shadow-slate-500/30' },
-                        { icon: Clock, label: 'Voting', value: stats.open, color: 'from-blue-400 to-blue-600', shadow: 'shadow-blue-500/30' },
-                        { icon: CheckCircle, label: 'Disetujui', value: stats.approved, color: 'from-emerald-400 to-emerald-600', shadow: 'shadow-emerald-500/30' },
-                        { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'from-red-400 to-red-600', shadow: 'shadow-red-500/30' },
-                        { icon: AlertTriangle, label: 'Ditutup', value: stats.closed, color: 'from-yellow-400 to-yellow-600', shadow: 'shadow-yellow-500/30' },
+                        { icon: BarChart3, label: 'Total', value: stats.total, color: 'from-violet-400 to-fuchsia-600', shadow: 'shadow-violet-500/30' },
+                        { icon: Clock, label: 'Voting', value: stats.open, color: 'from-blue-400 to-cyan-600', shadow: 'shadow-cyan-500/30' },
+                        { icon: CheckCircle, label: 'Disetujui', value: stats.approved, color: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30' },
+                        { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30' },
+                        { icon: AlertTriangle, label: 'Ditutup', value: stats.closed, color: 'from-amber-400 to-orange-600', shadow: 'shadow-orange-500/30' },
                     ].map((stat, index) => (
                         <motion.div
                             key={index}
@@ -370,7 +373,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             whileHover="hover"
                             onHoverStart={() => setHoveredCard(`stat-${index}`)}
                             onHoverEnd={() => setHoveredCard(null)}
-                            className="relative overflow-hidden rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/80"
+                            className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl p-5 shadow-xl shadow-slate-200/50 border border-white/50 dark:bg-neutral-900/90 dark:border-neutral-800 dark:shadow-black/50"
                         >
                             <motion.div
                                 animate={{
@@ -383,7 +386,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     whileHover={{ scale: 1.2 }}
                                     transition={{ duration: 0.6 }}
-                                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}
+                                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}
                                 >
                                     <stat.icon className="h-6 w-6" />
                                 </motion.div>
@@ -406,16 +409,16 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 {/* Voting List */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/80 overflow-hidden"
+                    className="rounded-3xl bg-white/80 backdrop-blur-xl shadow-xl shadow-indigo-100/50 border border-white/50 dark:bg-neutral-900/80 dark:border-neutral-800 dark:shadow-black/50 overflow-hidden"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-black/30">
-                        <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 text-white">
-                                <Vote className="h-4 w-4" />
+                    <div className="p-6 border-b border-gray-100 dark:border-neutral-800">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400">
+                                <Vote className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Voting Pengeluaran</h2>
-                                <p className="text-xs text-slate-500">Lihat detail voting dan ambil keputusan</p>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Daftar Voting Pengeluaran</h2>
+                                <p className="text-sm text-gray-500">Lihat detail voting dan ambil keputusan</p>
                             </div>
                         </div>
                     </div>
@@ -443,20 +446,18 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleTabChange(tab.value)}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                        activeTab === tab.value
-                                            ? 'bg-gradient-to-r from-gray-800 to-black text-white shadow-lg shadow-gray-500/30'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300'
-                                    }`}
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${activeTab === tab.value
+                                        ? 'bg-zinc-900 text-white shadow-lg shadow-indigo-500/20 dark:bg-white dark:text-black'
+                                        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 dark:bg-neutral-800 dark:text-gray-300 dark:border-neutral-700 dark:hover:bg-neutral-700'
+                                        }`}
                                 >
                                     <tab.icon className="h-4 w-4" />
                                     {tab.label}
                                     <motion.span
                                         animate={{ scale: activeTab === tab.value ? [1, 1.2, 1] : 1 }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className={`px-1.5 py-0.5 rounded-full text-xs ${
-                                            activeTab === tab.value ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'
-                                        }`}
+                                        className={`px-2 py-0.5 rounded-full text-[10px] ${activeTab === tab.value ? 'bg-white/20 text-white dark:bg-black/10 dark:text-black' : 'bg-gray-100 text-gray-500 dark:bg-neutral-700 dark:text-gray-400'
+                                            }`}
                                     >
                                         {tab.count}
                                     </motion.span>
@@ -478,7 +479,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                         const statusConfig = getStatusConfig(voting.status);
                                         const StatusIcon = statusConfig.icon;
                                         const categoryConfig = getCategoryConfig(voting.category);
-                                        
+
                                         return (
                                             <motion.div
                                                 key={voting.id}
@@ -486,12 +487,11 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: index * 0.1 }}
                                                 whileHover={{ scale: 1.02, y: -5 }}
-                                                className={`rounded-2xl border-2 p-5 bg-white dark:bg-black/50 shadow-lg transition-all ${
-                                                    voting.status === 'open' ? 'border-blue-200 dark:border-blue-800' :
-                                                    voting.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
-                                                    voting.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
-                                                    'border-slate-200 dark:border-slate-700'
-                                                }`}
+                                                className={`rounded-3xl border p-6 bg-white dark:bg-neutral-900/50 shadow-sm transition-all hover:shadow-xl hover:shadow-indigo-500/10 ${voting.status === 'open' ? 'border-blue-100 dark:border-blue-900/30 ring-1 ring-blue-50 dark:ring-blue-900/20' :
+                                                    voting.status === 'approved' ? 'border-emerald-100 dark:border-emerald-900/30' :
+                                                        voting.status === 'rejected' ? 'border-red-100 dark:border-red-900/30' :
+                                                            'border-gray-100 dark:border-neutral-800'
+                                                    }`}
                                             >
                                                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                                                     <div className="flex-1">
@@ -499,14 +499,14 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                         <div className="flex items-center gap-2 mb-3 flex-wrap">
                                                             <motion.span
                                                                 whileHover={{ scale: 1.1 }}
-                                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${statusConfig.bg} ${statusConfig.text}`}
+                                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${statusConfig.bg} ${statusConfig.text}`}
                                                             >
                                                                 <StatusIcon className="h-3.5 w-3.5" />
                                                                 {statusConfig.label}
                                                             </motion.span>
                                                             <motion.span
                                                                 whileHover={{ scale: 1.1 }}
-                                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium ${categoryConfig.color}`}
+                                                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider ${categoryConfig.color}`}
                                                             >
                                                                 <span>{categoryConfig.icon}</span>
                                                                 {categoryConfig.label}
@@ -524,7 +524,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                             initial={{ scale: 0.8 }}
                                                             animate={{ scale: 1 }}
                                                             transition={{ type: 'spring' }}
-                                                            className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2"
+                                                            className="text-4xl font-black bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent mb-2 tracking-tight"
                                                         >
                                                             {formatCurrency(voting.amount)}
                                                         </motion.p>
@@ -544,7 +544,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                             initial={{ opacity: 0, y: 10 }}
                                                             animate={{ opacity: 1, y: 0 }}
                                                             transition={{ delay: 0.2 }}
-                                                            className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl"
+                                                            className="p-5 bg-gray-50 dark:bg-neutral-800/50 rounded-2xl border border-gray-100 dark:border-neutral-700"
                                                         >
                                                             <div className="flex items-center justify-between text-sm mb-2">
                                                                 <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
@@ -600,7 +600,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
-                                                                className="justify-start w-full"
+                                                                className="justify-start w-full border-gray-200 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800"
                                                                 onClick={() => {
                                                                     setSelectedVoting(voting);
                                                                     setShowVoters(true);
@@ -610,7 +610,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                                 Lihat Voters
                                                             </Button>
                                                         </motion.div>
-                                                        
+
                                                         {voting.status === 'open' && (
                                                             <>
                                                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -681,12 +681,12 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                     <motion.div
                                         animate={{ rotate: [0, 10, -10, 0] }}
                                         transition={{ duration: 2, repeat: Infinity }}
-                                        className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
+                                        className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gray-50 dark:bg-neutral-800 flex items-center justify-center border border-gray-100 dark:border-neutral-700"
                                     >
-                                        <Vote className="h-10 w-10 text-slate-400" />
+                                        <Vote className="h-10 w-10 text-gray-400" />
                                     </motion.div>
-                                    <p className="text-slate-500 font-medium">Belum ada voting</p>
-                                    <p className="text-sm text-slate-400 mt-1">Voting akan muncul ketika mahasiswa mengusulkan pengeluaran</p>
+                                    <p className="text-gray-500 font-medium text-lg">Belum ada voting</p>
+                                    <p className="text-sm text-gray-400 mt-2 max-w-sm mx-auto">Voting akan muncul ketika mahasiswa mengusulkan pengeluaran baru.</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -709,87 +709,97 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.9, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl dark:bg-black max-h-[90vh] overflow-y-auto"
+                            className="w-full max-w-2xl rounded-3xl bg-white dark:bg-neutral-900 shadow-2xl dark:shadow-black/50 border border-white/20 dark:border-neutral-800 max-h-[90vh] overflow-hidden flex flex-col"
                         >
-                            <div className="flex items-start justify-between mb-6">
-                                <div>
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Detail Voters</h3>
-                                    <p className="text-sm text-slate-500">{selectedVoting.title}</p>
-                                    <div className="flex gap-4 mt-2 text-sm">
-                                        <span className="text-emerald-600 font-medium">
-                                            {selectedVoting.stats.approve} setuju
-                                        </span>
-                                        <span className="text-red-600 font-medium">
-                                            {selectedVoting.stats.reject} tolak
-                                        </span>
-                                        <span className="text-slate-500">Total: {selectedVoting.stats.total}</span>
+                            <div className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 p-6 text-white shrink-0">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center">
+                                            <Users className="h-6 w-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold">Detail Voters</h3>
+                                            <p className="text-xs text-cyan-100">{selectedVoting.title}</p>
+                                        </div>
                                     </div>
+                                    <motion.button
+                                        whileHover={{ scale: 1.1, rotate: 90 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => setShowVoters(false)}
+                                        className="h-9 w-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                                    >
+                                        <X className="h-5 w-5 text-white" />
+                                    </motion.button>
                                 </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.1, rotate: 90 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => setShowVoters(false)}
-                                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                >
-                                    <X className="h-5 w-5 text-slate-400" />
-                                </motion.button>
+                                <div className="flex gap-4 mt-6 text-sm bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                                    <span className="flex items-center gap-2 text-white font-semibold">
+                                        <ThumbsUp className="h-4 w-4" /> {selectedVoting.stats.approve} Setuju
+                                    </span>
+                                    <div className="w-px h-4 bg-white/20"></div>
+                                    <span className="flex items-center gap-2 text-white font-semibold">
+                                        <ThumbsDown className="h-4 w-4" /> {selectedVoting.stats.reject} Tolak
+                                    </span>
+                                    <div className="w-px h-4 bg-white/20"></div>
+                                    <span className="text-cyan-100">Total: {selectedVoting.stats.total}</span>
+                                </div>
                             </div>
-                            
-                            {selectedVoting.votes.length > 0 ? (
-                                <div className="space-y-3">
-                                    {selectedVoting.votes.map((vote, index) => (
-                                        <motion.div
-                                            key={vote.id}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            whileHover={{ scale: 1.02, x: 5 }}
-                                            className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <motion.div
-                                                    whileHover={{ scale: 1.1 }}
-                                                    transition={{ duration: 0.5 }}
-                                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
-                                                        vote.vote === 'approve' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-red-400 to-red-600'
-                                                    }`}
-                                                >
-                                                    {vote.vote === 'approve' ? <ThumbsUp className="h-5 w-5" /> : <ThumbsDown className="h-5 w-5" />}
-                                                </motion.div>
-                                                <div>
-                                                    <p className="font-medium text-slate-900 dark:text-white">{vote.mahasiswa?.nama || '-'}</p>
-                                                    <p className="text-xs text-slate-500">{vote.mahasiswa?.nim || '-'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <motion.span
-                                                    whileHover={{ scale: 1.1 }}
-                                                    className={`px-3 py-1 rounded-lg text-xs font-semibold ${
-                                                        vote.vote === 'approve' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                                                    }`}
-                                                >
-                                                    {vote.vote === 'approve' ? 'Setuju' : 'Tolak'}
-                                                </motion.span>
-                                                <p className="text-xs text-slate-500 mt-1">{vote.created_at}</p>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="text-center py-12"
-                                >
-                                    <Users className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                                    <p className="text-slate-500">Belum ada yang vote</p>
-                                </motion.div>
-                            )}
 
-                            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                    <Button onClick={() => setShowVoters(false)} className="w-full">Tutup</Button>
-                                </motion.div>
+                            <div className="p-6 overflow-y-auto grow">
+
+                                {selectedVoting.votes.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {selectedVoting.votes.map((vote, index) => (
+                                            <motion.div
+                                                key={vote.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                whileHover={{ scale: 1.02, x: 5 }}
+                                                className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100 dark:bg-neutral-800/50 dark:border-neutral-700"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <motion.div
+                                                        whileHover={{ scale: 1.1 }}
+                                                        transition={{ duration: 0.5 }}
+                                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${vote.vote === 'approve' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' : 'bg-gradient-to-br from-red-400 to-red-600'
+                                                            }`}
+                                                    >
+                                                        {vote.vote === 'approve' ? <ThumbsUp className="h-5 w-5" /> : <ThumbsDown className="h-5 w-5" />}
+                                                    </motion.div>
+                                                    <div>
+                                                        <p className="font-medium text-slate-900 dark:text-white">{vote.mahasiswa?.nama || '-'}</p>
+                                                        <p className="text-xs text-slate-500">{vote.mahasiswa?.nim || '-'}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <motion.span
+                                                        whileHover={{ scale: 1.1 }}
+                                                        className={`px-3 py-1 rounded-lg text-xs font-semibold ${vote.vote === 'approve' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                                                            }`}
+                                                    >
+                                                        {vote.vote === 'approve' ? 'Setuju' : 'Tolak'}
+                                                    </motion.span>
+                                                    <p className="text-xs text-slate-500 mt-1">{vote.created_at}</p>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="text-center py-12"
+                                    >
+                                        <Users className="h-12 w-12 mx-auto mb-2 text-slate-300" />
+                                        <p className="text-slate-500">Belum ada yang vote</p>
+                                    </motion.div>
+                                )}
+
+                                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                        <Button onClick={() => setShowVoters(false)} className="w-full">Tutup</Button>
+                                    </motion.div>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -798,84 +808,87 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
 
             {/* Reject Modal */}
             <AnimatePresence>
-                {showRejectDialog && selectedVoting && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                        onClick={() => setShowRejectDialog(false)}
-                    >
+                {
+                    showRejectDialog && selectedVoting && (
                         <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl dark:bg-black"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                            onClick={() => setShowRejectDialog(false)}
                         >
-                            <div className="flex items-start justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <motion.div
-                                        animate={{ rotate: [0, -10, 10, 0] }}
-                                        transition={{ duration: 0.5, repeat: 3 }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-red-600"
-                                    >
-                                        <XCircle className="h-6 w-6" />
-                                    </motion.div>
-                                    <div>
-                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Tolak Voting</h3>
-                                        <p className="text-sm text-slate-500">{selectedVoting.title}</p>
+                            <motion.div
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full max-w-md rounded-3xl bg-white dark:bg-neutral-900 shadow-2xl dark:shadow-black/50 border border-white/20 dark:border-neutral-800 overflow-hidden"
+                            >
+                                <div className="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 p-6 text-white">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center">
+                                                <XCircle className="h-6 w-6 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold">Tolak Voting</h3>
+                                                <p className="text-xs text-red-100">Konfirmasi penolakan</p>
+                                            </div>
+                                        </div>
+                                        <motion.button
+                                            whileHover={{ scale: 1.1, rotate: 90 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setShowRejectDialog(false)}
+                                            className="h-9 w-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                                        >
+                                            <X className="h-5 w-5 text-white" />
+                                        </motion.button>
                                     </div>
                                 </div>
-                                <motion.button
-                                    whileHover={{ scale: 1.1, rotate: 90 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => setShowRejectDialog(false)}
-                                    className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                >
-                                    <X className="h-5 w-5 text-slate-400" />
-                                </motion.button>
-                            </div>
-                            
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="space-y-4"
-                            >
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">Alasan Penolakan (opsional)</Label>
-                                    <Textarea
-                                        value={rejectReason}
-                                        onChange={(e) => setRejectReason(e.target.value)}
-                                        placeholder="Masukkan alasan penolakan..."
-                                        rows={4}
-                                        className="rounded-xl resize-none"
-                                    />
+
+                                <div className="p-6">
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-semibold">Alasan Penolakan (opsional)</Label>
+                                            <Textarea
+                                                value={rejectReason}
+                                                onChange={(e) => setRejectReason(e.target.value)}
+                                                placeholder="Masukkan alasan penolakan..."
+                                                rows={4}
+                                                className="rounded-xl resize-none"
+                                            />
+                                        </div>
+                                    </motion.div>
+
+                                    <div className="flex gap-3 mt-6">
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
+                                            <Button variant="outline" onClick={() => setShowRejectDialog(false)} className="w-full">
+                                                Batal
+                                            </Button>
+                                        </motion.div>
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
+                                            <Button
+                                                variant="destructive"
+                                                onClick={() => handleReject(selectedVoting.id)}
+                                                disabled={processing}
+                                                className="w-full shadow-lg shadow-red-500/30"
+                                            >
+                                                Ya, Tolak
+                                            </Button>
+                                        </motion.div>
+                                    </div>
                                 </div>
                             </motion.div>
-
-                            <div className="flex gap-3 mt-6">
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
-                                    <Button variant="outline" onClick={() => setShowRejectDialog(false)} className="w-full">
-                                        Batal
-                                    </Button>
-                                </motion.div>
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1">
-                                    <Button 
-                                        variant="destructive" 
-                                        onClick={() => handleReject(selectedVoting.id)}
-                                        disabled={processing}
-                                        className="w-full shadow-lg shadow-red-500/30"
-                                    >
-                                        {processing ? 'Memproses...' : 'Tolak Voting'}
-                                    </Button>
-                                </motion.div>
-                            </div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    )
+                }
+            </AnimatePresence >
 
             {/* Approve Confirmation Dialog */}
             <ConfirmDialog
@@ -915,6 +928,6 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 cancelText="Batal"
                 loading={processing}
             />
-        </AppLayout>
+        </AppLayout >
     );
 }
