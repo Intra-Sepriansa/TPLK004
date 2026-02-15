@@ -761,7 +761,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                                                                     label: 'Kehadiran',
                                                                                     present: entry.present_count,
                                                                                     late: entry.late_count,
-                                                                                    absent: entry.total_sessions - (entry.present_count + entry.late_count),
+                                                                                    absent: Math.max(0, entry.total_sessions - (entry.present_count + entry.late_count)),
                                                                                     value: entry.total_sessions
                                                                                 }]}
                                                                                 type="pie"
@@ -780,7 +780,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                                                                 </div>
                                                                                 <div className="p-2 rounded-lg bg-red-100/50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
                                                                                     <p className="text-xs">Absen</p>
-                                                                                    <p className="font-bold">{entry.total_sessions - (entry.present_count + entry.late_count)}</p>
+                                                                                    <p className="font-bold">{Math.max(0, entry.total_sessions - (entry.present_count + entry.late_count))}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
