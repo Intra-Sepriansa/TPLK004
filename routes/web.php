@@ -76,6 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
+    Route::post('admin/attendance/warning', [RekapKehadiranController::class, 'storeWarning'])->name('admin.attendance.warning.store');
 });
 
 // Routes accessible by both admin (auth) and dosen (auth:dosen)

@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use App\Models\AttendanceWarning;
 
 class RekapKehadiranController extends Controller
 {
@@ -415,5 +416,24 @@ class RekapKehadiranController extends Controller
             'labels' => $labels,
             'values' => $values,
         ];
+    }
+    
+    public function storeWarning(Request $request) 
+    {
+        $validated = $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'title' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+        
+        AttendanceWarning::create([
+            'mahasiswa_id' => $validated['mahasiswa_id'],
+            'title' => $validated['title'],
+            'message' => $validated['message'],
+            'type' => 'warning',
+            'is_read' => false,
+        ]);
+        
+        return back()->with('success', 'Peringatan berhasil dikirim kepada mahasiswa.');
     }
 }

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import InputError from '@/components/input-error';
 import { useAppearance } from '@/hooks/use-appearance';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface Settings { token_ttl_seconds: number; late_minutes: number; selfie_required: boolean; notify_rejected: boolean; notify_selfie_blur: boolean; email_notifications: boolean; push_notifications: boolean; daily_report: boolean; weekly_report: boolean; max_login_attempts: number; lockout_duration: number; session_lifetime: number; ai_verification_enabled: boolean; face_match_threshold: number; blur_detection_enabled: boolean; auto_approve_verified: boolean; maintenance_mode: boolean; }
 interface SystemInfo { php_version: string; laravel_version: string; server_time: string; timezone: string; environment: string; debug_mode: boolean; db_connection: string; cache_driver: string; }
@@ -16,6 +16,53 @@ interface StorageInfo { total_space: number; free_space: number; used_percentage
 interface User { id: number; name: string; email: string; two_factor_confirmed_at?: string; }
 interface PageProps { settings: Settings; systemInfo: SystemInfo; storageInfo: StorageInfo; auth: { user: User }; flash?: { success?: string; error?: string }; }
 type TabType = 'general' | 'security' | 'notifications' | 'advanced' | 'system';
+
+// Animation variants
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2,
+        },
+    },
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 24,
+        },
+    },
+};
+
+const cardVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 20,
+        },
+    },
+    hover: {
+        y: -5,
+        scale: 1.01,
+        transition: {
+            type: 'spring',
+            stiffness: 400,
+            damping: 10,
+        },
+    },
+};
 
 export default function AdminPengaturan({ settings, systemInfo, storageInfo, auth, flash }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabType>('general');
@@ -55,397 +102,388 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
     return (
         <AppLayout>
             <Head title="Pengaturan Sistem" />
-            <div className="p-6 space-y-6">
+            <motion.div
+                className="p-6 space-y-8"
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+            >
                 {toast && (
-                    <div className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${toast.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800' : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'}`}>
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, x: 20 }}
+                        animate={{ opacity: 1, y: 0, x: 0 }}
+                        exit={{ opacity: 0, y: -20, x: 20 }}
+                        className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-2xl backdrop-blur-md border ${toast.type === 'success' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30' : 'bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400 dark:border-red-500/30'}`}
+                    >
                         {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                         <span className="text-sm font-medium">{toast.message}</span>
-                    </div>
+                    </motion.div>
                 )}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 to-black p-6 text-white shadow-lg">
-                    {/* Animated background circles */}
-                    <motion.div 
-                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/5"
-                        animate={{ 
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3]
+
+                {/* ═══════ HEADER ═══════ */}
+                <motion.div
+                    className="relative overflow-hidden rounded-[2.5rem] p-8 text-white shadow-2xl"
+                    variants={itemVariants}
+                >
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
-                        transition={{ 
-                            duration: 4,
+                        transition={{
+                            duration: 15,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: "linear"
                         }}
+                        style={{ backgroundSize: '200% 200%' }}
                     />
-                    <motion.div 
-                        className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/5"
-                        animate={{ 
-                            scale: [1, 1.3, 1],
-                            opacity: [0.3, 0.6, 0.3]
-                        }}
-                        transition={{ 
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 0.5
-                        }}
+
+                    {/* Glass Overlay & Effects */}
+                    <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Floating Pulse Circles */}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
                     />
-                    
-                    {/* Floating Sparkles */}
-                    {[...Array(5)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute"
-                            initial={{ 
-                                x: Math.random() * 100 + '%',
-                                y: Math.random() * 100 + '%',
-                                opacity: 0
-                            }}
-                            animate={{ 
-                                y: [null, (Math.random() - 0.5) * 50],
-                                opacity: [0, 1, 0]
-                            }}
-                            transition={{ 
-                                duration: 3 + Math.random() * 2,
-                                repeat: Infinity,
-                                delay: i * 0.4
-                            }}
-                        >
-                            <Sparkles className="h-4 w-4 text-white/40" />
-                        </motion.div>
-                    ))}
-                    
-                    <div className="relative">
-                        <div className="flex items-center gap-3">
-                            <motion.div 
-                                className="flex h-16 w-16 items-center justify-center rounded-xl bg-white/10 backdrop-blur"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: "spring", stiffness: 400 }}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+                    />
+
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-5">
+                            <motion.div
+                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                transition={{ type: "spring", stiffness: 300 }}
                             >
-                                <Settings className="h-8 w-8" />
+                                <Settings className="h-8 w-8 text-white" />
                             </motion.div>
-                            <div><p className="text-sm text-slate-300">Konfigurasi</p><h1 className="text-2xl font-bold">Pengaturan Sistem</h1></div>
+                            <div>
+                                <p className="text-sm text-indigo-100 font-medium tracking-wide uppercase">System Configuration</p>
+                                <h1 className="text-3xl font-bold text-white">Pengaturan Sistem</h1>
+                                <p className="mt-1 text-indigo-100 max-w-lg text-sm opacity-90">Kelola preferensi, keamanan, dan konfigurasi aplikasi Anda dengan mudah.</p>
+                            </div>
                         </div>
-                        <p className="mt-4 text-slate-300">Kelola pengaturan sistem, keamanan, dan konfigurasi aplikasi</p>
                     </div>
-                </div>
-                <div className="flex gap-2 overflow-x-auto pb-2">
+                </motion.div>
+
+                {/* ═══════ NAVIGATION TABS ═══════ */}
+                <motion.div
+                    variants={itemVariants}
+                    className="flex p-1 gap-1 bg-white/50 dark:bg-neutral-900/50 rounded-2xl backdrop-blur-md w-fit border border-slate-200/50 dark:border-neutral-800 overflow-x-auto max-w-full"
+                >
                     {tabs.map(tab => (
-                        <motion.button 
-                            key={tab.id} 
-                            onClick={() => setActiveTab(tab.id)} 
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-black text-white shadow-lg dark:bg-white dark:text-slate-900' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700'}`}
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ type: "spring", stiffness: 400 }}
+                        <motion.button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`relative px-5 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === tab.id ? 'text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-neutral-200'}`}
                         >
-                            <tab.icon className="h-4 w-4" />{tab.label}
+                            {activeTab === tab.id && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-md border border-slate-100 dark:border-neutral-700"
+                                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+                            <span className="relative z-10 flex items-center gap-2">
+                                <tab.icon className="h-4 w-4" />{tab.label}
+                            </span>
                         </motion.button>
                     ))}
-                </div>
+                </motion.div>
 
-                <div className="space-y-6">
-                    {activeTab === 'general' && (
-                        <motion.div 
-                            className="grid gap-6 lg:grid-cols-2"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Shield className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Keamanan Sesi</h2></div>
-                                <form onSubmit={submitSecurity} className="space-y-4">
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Token TTL (detik)</Label><Input type="number" value={securityForm.data.token_ttl_seconds} onChange={e => securityForm.setData('token_ttl_seconds', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /><p className="text-xs text-slate-500 mt-1">Durasi validitas QR code (30-600 detik)</p></div>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Toleransi Terlambat (menit)</Label><Input type="number" value={securityForm.data.late_minutes} onChange={e => securityForm.setData('late_minutes', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /></div>
-                                    <div className="space-y-3">
-                                        <label className="flex items-center gap-3 cursor-pointer"><Checkbox checked={securityForm.data.selfie_required} onCheckedChange={(c) => securityForm.setData('selfie_required', !!c)} /><span className="text-sm text-slate-700 dark:text-slate-300">Wajib selfie saat absen</span></label>
-                                        <label className="flex items-center gap-3 cursor-pointer"><Checkbox checked={securityForm.data.notify_rejected} onCheckedChange={(c) => securityForm.setData('notify_rejected', !!c)} /><span className="text-sm text-slate-700 dark:text-slate-300">Notifikasi absen ditolak</span></label>
-                                        <label className="flex items-center gap-3 cursor-pointer"><Checkbox checked={securityForm.data.notify_selfie_blur} onCheckedChange={(c) => securityForm.setData('notify_selfie_blur', !!c)} /><span className="text-sm text-slate-700 dark:text-slate-300">Notifikasi selfie blur</span></label>
+                {/* ═══════ CONTENT AREA ═══════ */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="grid gap-6 lg:grid-cols-2"
+                    >
+                        {activeTab === 'general' && (
+                            <>
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-indigo-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors"><Shield className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Keamanan Sesi</h2><p className="text-xs text-slate-500 dark:text-slate-400">Konfigurasi validasi dan sesi absen</p></div>
                                     </div>
-                                    <Button type="submit" disabled={securityForm.processing} className="w-full"><Save className="h-4 w-4 mr-2" />{securityForm.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}</Button>
-                                </form>
-                            </motion.div>
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Palette className="h-5 w-5 text-purple-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Tema Tampilan</h2></div>
-                                <div className="space-y-3">
-                                    {[{ mode: 'light' as const, icon: Sun, label: 'Terang', desc: 'Tampilan cerah untuk siang hari' }, { mode: 'dark' as const, icon: Moon, label: 'Gelap', desc: 'Tampilan gelap untuk malam hari' }, { mode: 'system' as const, icon: Monitor, label: 'Sistem', desc: 'Ikuti pengaturan sistem' }].map(({ mode, icon: Icon, label, desc }) => (
-                                        <button key={mode} onClick={() => updateAppearance(mode)} className={`w-full flex items-center gap-3 p-4 rounded-xl border transition-all ${appearance === mode ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600'}`}>
-                                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${appearance === mode ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}><Icon className="h-5 w-5" /></div>
-                                            <div className="text-left"><p className="font-medium text-slate-900 dark:text-white">{label}</p><p className="text-xs text-slate-500">{desc}</p></div>
-                                            {appearance === mode && <CheckCircle className="h-5 w-5 text-blue-600 ml-auto" />}
-                                        </button>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'security' && (
-                        <motion.div 
-                            className="grid gap-6 lg:grid-cols-2"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><KeyRound className="h-5 w-5 text-amber-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Ganti Password</h2></div>
-                                <form onSubmit={submitPassword} className="space-y-4">
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Password Saat Ini</Label><div className="relative mt-1"><Input type={showCurrentPassword ? 'text' : 'password'} value={passwordForm.data.current_password} onChange={e => passwordForm.setData('current_password', e.target.value)} className="pr-10 dark:bg-black dark:border-slate-700" /><button type="button" onClick={() => setShowCurrentPassword(!showCurrentPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div><InputError message={passwordForm.errors.current_password} /></div>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Password Baru</Label><div className="relative mt-1"><Input type={showNewPassword ? 'text' : 'password'} value={passwordForm.data.password} onChange={e => passwordForm.setData('password', e.target.value)} className="pr-10 dark:bg-black dark:border-slate-700" /><button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div><InputError message={passwordForm.errors.password} /></div>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Konfirmasi Password Baru</Label><div className="relative mt-1"><Input type={showConfirmPassword ? 'text' : 'password'} value={passwordForm.data.password_confirmation} onChange={e => passwordForm.setData('password_confirmation', e.target.value)} className="pr-10 dark:bg-black dark:border-slate-700" /><button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div><InputError message={passwordForm.errors.password_confirmation} /></div>
-                                    <Button type="submit" disabled={passwordForm.processing} className="w-full"><Lock className="h-4 w-4 mr-2" />{passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}</Button>
-                                </form>
-                            </motion.div>
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Fingerprint className="h-5 w-5 text-green-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Autentikasi Dua Faktor (2FA)</h2></div>
-                                <div className="space-y-4">
-                                    <div className={`p-4 rounded-xl border ${is2FAEnabled ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'}`}>
-                                        <div className="flex items-center gap-3">
-                                            {is2FAEnabled ? <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400" /> : <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
-                                            <div><p className={`font-medium ${is2FAEnabled ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'}`}>{is2FAEnabled ? '2FA Aktif' : '2FA Tidak Aktif'}</p><p className="text-xs text-slate-500 dark:text-slate-400">{is2FAEnabled ? 'Akun Anda dilindungi dengan autentikasi dua faktor' : 'Aktifkan 2FA untuk keamanan tambahan'}</p></div>
+                                    <form onSubmit={submitSecurity} className="space-y-5">
+                                        <div>
+                                            <Label className="text-slate-700 dark:text-slate-300 font-medium">Token TTL (detik)</Label>
+                                            <Input type="number" value={securityForm.data.token_ttl_seconds} onChange={e => securityForm.setData('token_ttl_seconds', parseInt(e.target.value))} className="mt-2 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-indigo-500 transition-all" />
+                                            <p className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1"><History className="h-3 w-3" /> Durasi validitas QR code (30-600 detik)</p>
                                         </div>
-                                    </div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">Autentikasi dua faktor menambahkan lapisan keamanan ekstra dengan memerlukan kode verifikasi dari aplikasi authenticator saat login.</p>
-                                    <a href="/admin/profile" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 text-sm font-medium transition-colors"><UserCog className="h-4 w-4" />Kelola 2FA di Profil</a>
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                whileHover={{ scale: 1.01, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><History className="h-5 w-5 text-indigo-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Sesi Aktif</h2></div>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Kelola sesi login aktif Anda di berbagai perangkat.</p>
-                                <div className="p-4 rounded-xl bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-slate-700">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"><Globe className="h-5 w-5" /></div>
-                                        <div className="flex-1"><p className="font-medium text-slate-900 dark:text-white">Sesi Saat Ini</p><p className="text-xs text-slate-500">Browser ini - Aktif sekarang</p></div>
-                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Aktif</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'notifications' && (
-                        <motion.div 
-                            className="grid gap-6 lg:grid-cols-2"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Bell className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Pengaturan Notifikasi</h2></div>
-                                <form onSubmit={submitNotifications} className="space-y-4">
-                                    <div className="space-y-3">
-                                        <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                            <div className="flex items-center gap-3"><Mail className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Notifikasi Email</p><p className="text-xs text-slate-500">Terima notifikasi via email</p></div></div>
-                                            <Checkbox checked={notificationForm.data.email_notifications} onCheckedChange={(c) => notificationForm.setData('email_notifications', !!c)} />
-                                        </label>
-                                        <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                            <div className="flex items-center gap-3"><Smartphone className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Push Notification</p><p className="text-xs text-slate-500">Terima notifikasi push di browser</p></div></div>
-                                            <Checkbox checked={notificationForm.data.push_notifications} onCheckedChange={(c) => notificationForm.setData('push_notifications', !!c)} />
-                                        </label>
-                                    </div>
-                                    <Button type="submit" disabled={notificationForm.processing} className="w-full"><Save className="h-4 w-4 mr-2" />{notificationForm.processing ? 'Menyimpan...' : 'Simpan Notifikasi'}</Button>
-                                </form>
-                            </motion.div>
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><FileText className="h-5 w-5 text-green-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Laporan Otomatis</h2></div>
-                                <div className="space-y-3">
-                                    <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                        <div className="flex items-center gap-3"><Calendar className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Laporan Harian</p><p className="text-xs text-slate-500">Ringkasan kehadiran setiap hari</p></div></div>
-                                        <Checkbox checked={notificationForm.data.daily_report} onCheckedChange={(c) => notificationForm.setData('daily_report', !!c)} />
-                                    </label>
-                                    <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                        <div className="flex items-center gap-3"><BarChart3 className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Laporan Mingguan</p><p className="text-xs text-slate-500">Statistik kehadiran mingguan</p></div></div>
-                                        <Checkbox checked={notificationForm.data.weekly_report} onCheckedChange={(c) => notificationForm.setData('weekly_report', !!c)} />
-                                    </label>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'advanced' && (
-                        <motion.div 
-                            className="grid gap-6 lg:grid-cols-2"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Lock className="h-5 w-5 text-red-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Keamanan Login</h2></div>
-                                <form onSubmit={submitAdvanced} className="space-y-4">
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Maksimal Percobaan Login</Label><Input type="number" value={advancedForm.data.max_login_attempts} onChange={e => advancedForm.setData('max_login_attempts', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /><p className="text-xs text-slate-500 mt-1">Jumlah percobaan sebelum akun dikunci (3-10)</p></div>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Durasi Lockout (menit)</Label><Input type="number" value={advancedForm.data.lockout_duration} onChange={e => advancedForm.setData('lockout_duration', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /><p className="text-xs text-slate-500 mt-1">Durasi akun dikunci setelah gagal login (5-60)</p></div>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Session Lifetime (menit)</Label><Input type="number" value={advancedForm.data.session_lifetime} onChange={e => advancedForm.setData('session_lifetime', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /><p className="text-xs text-slate-500 mt-1">Durasi sesi login aktif (30-480)</p></div>
-                                    <Button type="submit" disabled={advancedForm.processing} className="w-full"><Save className="h-4 w-4 mr-2" />{advancedForm.processing ? 'Menyimpan...' : 'Simpan Keamanan'}</Button>
-                                </form>
-                            </motion.div>
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Zap className="h-5 w-5 text-purple-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Verifikasi AI</h2></div>
-                                <div className="space-y-4">
-                                    <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                        <div className="flex items-center gap-3"><Activity className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Verifikasi AI</p><p className="text-xs text-slate-500">Aktifkan verifikasi wajah dengan AI</p></div></div>
-                                        <Checkbox checked={advancedForm.data.ai_verification_enabled} onCheckedChange={(c) => advancedForm.setData('ai_verification_enabled', !!c)} />
-                                    </label>
-                                    <div><Label className="text-slate-700 dark:text-slate-300">Threshold Kecocokan Wajah (%)</Label><Input type="number" value={advancedForm.data.face_match_threshold} onChange={e => advancedForm.setData('face_match_threshold', parseInt(e.target.value))} className="mt-1 dark:bg-black dark:border-slate-700" /><p className="text-xs text-slate-500 mt-1">Persentase minimum kecocokan wajah (50-99)</p></div>
-                                    <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                        <div className="flex items-center gap-3"><Eye className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Deteksi Blur</p><p className="text-xs text-slate-500">Tolak foto yang blur/tidak jelas</p></div></div>
-                                        <Checkbox checked={advancedForm.data.blur_detection_enabled} onCheckedChange={(c) => advancedForm.setData('blur_detection_enabled', !!c)} />
-                                    </label>
-                                    <label className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-black/50 cursor-pointer">
-                                        <div className="flex items-center gap-3"><CheckCircle className="h-5 w-5 text-slate-500" /><div><p className="font-medium text-slate-900 dark:text-white">Auto Approve</p><p className="text-xs text-slate-500">Otomatis setujui jika verifikasi berhasil</p></div></div>
-                                        <Checkbox checked={advancedForm.data.auto_approve_verified} onCheckedChange={(c) => advancedForm.setData('auto_approve_verified', !!c)} />
-                                    </label>
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                whileHover={{ scale: 1.01, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><AlertTriangle className="h-5 w-5 text-amber-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Mode Maintenance</h2></div>
-                                <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${advancedForm.data.maintenance_mode ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}><AlertTriangle className="h-5 w-5" /></div>
-                                        <div><p className="font-medium text-slate-900 dark:text-white">Mode Maintenance</p><p className="text-xs text-slate-500">Nonaktifkan akses pengguna sementara</p></div>
-                                    </div>
-                                    <Checkbox checked={advancedForm.data.maintenance_mode} onCheckedChange={(c) => advancedForm.setData('maintenance_mode', !!c)} />
-                                </div>
-                                {advancedForm.data.maintenance_mode && <p className="mt-3 text-sm text-amber-600 dark:text-amber-400">⚠️ Mode maintenance aktif. Pengguna tidak dapat mengakses sistem.</p>}
-                            </motion.div>
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'system' && (
-                        <motion.div 
-                            className="grid gap-6 lg:grid-cols-2"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Server className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Informasi Server</h2></div>
-                                <div className="space-y-2">
-                                    {[{ label: 'PHP Version', value: systemInfo.php_version }, { label: 'Laravel Version', value: systemInfo.laravel_version }, { label: 'Server Time', value: systemInfo.server_time }, { label: 'Timezone', value: systemInfo.timezone }, { label: 'Environment', value: systemInfo.environment }, { label: 'Debug Mode', value: systemInfo.debug_mode ? 'Aktif' : 'Nonaktif' }, { label: 'Database', value: systemInfo.db_connection }, { label: 'Cache Driver', value: systemInfo.cache_driver }].map(({ label, value }) => (
-                                        <div key={label} className="flex justify-between p-2 rounded-lg bg-slate-50 dark:bg-black/50"><span className="text-sm text-slate-500">{label}</span><span className="text-sm font-medium text-slate-900 dark:text-white">{value}</span></div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.02, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><HardDrive className="h-5 w-5 text-green-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Penyimpanan</h2></div>
-                                <div className="space-y-4">
-                                    <div className="relative h-4 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                        <div className={`absolute inset-y-0 left-0 rounded-full transition-all ${storageInfo.used_percentage > 90 ? 'bg-red-500' : storageInfo.used_percentage > 70 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${storageInfo.used_percentage}%` }} />
-                                    </div>
-                                    <div className="flex justify-between text-sm"><span className="text-slate-500">Terpakai: {formatBytes(storageInfo.total_space - storageInfo.free_space)}</span><span className="text-slate-500">Total: {formatBytes(storageInfo.total_space)}</span></div>
-                                    <div className="p-3 rounded-lg bg-slate-50 dark:bg-black/50"><div className="flex items-center justify-between"><span className="text-sm text-slate-600 dark:text-slate-400">Ruang Tersedia</span><span className="text-lg font-bold text-slate-900 dark:text-white">{formatBytes(storageInfo.free_space)}</span></div></div>
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                whileHover={{ scale: 1.01, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Database className="h-5 w-5 text-purple-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Aksi Sistem</h2></div>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <button onClick={clearCache} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 dark:border-slate-700 dark:hover:border-red-800 dark:hover:bg-red-900/20 transition-all">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"><Trash2 className="h-5 w-5" /></div>
-                                        <div className="text-left"><p className="font-medium text-slate-900 dark:text-white">Bersihkan Cache</p><p className="text-xs text-slate-500">Hapus semua cache aplikasi</p></div>
-                                    </button>
-                                    <button onClick={optimizeSystem} className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:hover:border-blue-800 dark:hover:bg-blue-900/20 transition-all">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"><RefreshCw className="h-5 w-5" /></div>
-                                        <div className="text-left"><p className="font-medium text-slate-900 dark:text-white">Optimasi Sistem</p><p className="text-xs text-slate-500">Cache config, route, dan view</p></div>
-                                    </button>
-                                </div>
-                            </motion.div>
-                            <motion.div 
-                                className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 }}
-                                whileHover={{ scale: 1.01, y: -4 }}
-                            >
-                                <div className="flex items-center gap-2 mb-4"><Activity className="h-5 w-5 text-emerald-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Status Layanan</h2></div>
-                                <div className="grid gap-3 sm:grid-cols-3">
-                                    {[{ name: 'Database', status: true, icon: Database }, { name: 'Cache', status: true, icon: Zap }, { name: 'Storage', status: storageInfo.used_percentage < 95, icon: HardDrive }].map(({ name, status, icon: Icon }) => (
-                                        <div key={name} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-black/50">
-                                            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${status ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}><Icon className="h-4 w-4" /></div>
-                                            <div><p className="text-sm font-medium text-slate-900 dark:text-white">{name}</p><p className={`text-xs ${status ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>{status ? 'Online' : 'Offline'}</p></div>
+                                        <div>
+                                            <Label className="text-slate-700 dark:text-slate-300 font-medium">Toleransi Terlambat (menit)</Label>
+                                            <Input type="number" value={securityForm.data.late_minutes} onChange={e => securityForm.setData('late_minutes', parseInt(e.target.value))} className="mt-2 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-indigo-500 transition-all" />
                                         </div>
-                                    ))}
+                                        <div className="space-y-3 p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800">
+                                            {[
+                                                { label: 'Wajib selfie saat absen', checked: securityForm.data.selfie_required, setter: 'selfie_required' },
+                                                { label: 'Notifikasi absen ditolak', checked: securityForm.data.notify_rejected, setter: 'notify_rejected' },
+                                                { label: 'Notifikasi selfie blur', checked: securityForm.data.notify_selfie_blur, setter: 'notify_selfie_blur' }
+                                            ].map((item, idx) => (
+                                                <label key={idx} className="flex items-center gap-3 cursor-pointer group/item">
+                                                    <Checkbox checked={item.checked} onCheckedChange={(c) => securityForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600" />
+                                                    <span className="text-sm text-slate-600 dark:text-slate-300 group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-400 transition-colors">{item.label}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <Button type="submit" disabled={securityForm.processing} className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                            <Save className="h-4 w-4 mr-2" />{securityForm.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
+                                        </Button>
+                                    </form>
+                                </motion.div>
+
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-purple-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-colors"><Palette className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Tema Tampilan</h2><p className="text-xs text-slate-500 dark:text-slate-400">Sesuaikan tampilan antarmuka</p></div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {[{ mode: 'light' as const, icon: Sun, label: 'Terang', desc: 'Tampilan cerah untuk siang hari' }, { mode: 'dark' as const, icon: Moon, label: 'Gelap', desc: 'Tampilan gelap untuk malam hari' }, { mode: 'system' as const, icon: Monitor, label: 'Sistem', desc: 'Ikuti pengaturan sistem' }].map(({ mode, icon: Icon, label, desc }) => (
+                                            <button key={mode} onClick={() => updateAppearance(mode)} className={`relative w-full flex items-center gap-4 p-4 rounded-2xl border transition-all overflow-hidden ${appearance === mode ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20 shadow-md ring-1 ring-purple-500/20' : 'border-slate-200 hover:border-slate-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-white/50 dark:bg-black/20 hover:bg-slate-50 dark:hover:bg-white/5'}`}>
+                                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${appearance === mode ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300' : 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400'}`}><Icon className="h-6 w-6" /></div>
+                                                <div className="text-left z-10"><p className={`font-bold ${appearance === mode ? 'text-purple-900 dark:text-purple-100' : 'text-slate-700 dark:text-slate-300'}`}>{label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{desc}</p></div>
+                                                {appearance === mode && <motion.div layoutId="checkTheme" className="absolute right-4"><CheckCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" /></motion.div>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+
+                        {activeTab === 'security' && (
+                            <>
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-amber-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-colors"><KeyRound className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Ganti Password</h2><p className="text-xs text-slate-500 dark:text-slate-400">Perbarui kata sandi akun Anda</p></div>
+                                    </div>
+                                    <form onSubmit={submitPassword} className="space-y-4">
+                                        {[
+                                            { label: 'Password Saat Ini', state: showCurrentPassword, setter: setShowCurrentPassword, field: 'current_password' },
+                                            { label: 'Password Baru', state: showNewPassword, setter: setShowNewPassword, field: 'password' },
+                                            { label: 'Konfirmasi Password', state: showConfirmPassword, setter: setShowConfirmPassword, field: 'password_confirmation' }
+                                        ].map((item, idx) => (
+                                            <div key={idx}>
+                                                <Label className="text-slate-700 dark:text-slate-300 font-medium">{item.label}</Label>
+                                                <div className="relative mt-2">
+                                                    <Input type={item.state ? 'text' : 'password'} value={passwordForm.data[item.field as keyof typeof passwordForm.data]} onChange={e => passwordForm.setData(item.field as any, e.target.value)} className="pr-10 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-amber-500 transition-all" />
+                                                    <button type="button" onClick={() => item.setter(!item.state)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">{item.state ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                                                </div>
+                                                <InputError message={passwordForm.errors[item.field as keyof typeof passwordForm.errors]} />
+                                            </div>
+                                        ))}
+                                        <Button type="submit" disabled={passwordForm.processing} className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                            <Lock className="h-4 w-4 mr-2" />{passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
+                                        </Button>
+                                    </form>
+                                </motion.div>
+
+                                <div className="space-y-6">
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-emerald-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20 transition-colors"><Fingerprint className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Dua Faktor (2FA)</h2><p className="text-xs text-slate-500 dark:text-slate-400">Lapisan keamanan tambahan</p></div>
+                                        </div>
+                                        <div className={`p-4 rounded-2xl border flex items-start gap-4 ${is2FAEnabled ? 'bg-emerald-50/50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800' : 'bg-amber-50/50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800'}`}>
+                                            {is2FAEnabled ? <CheckCircle className="h-6 w-6 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" /> : <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />}
+                                            <div>
+                                                <p className={`font-bold ${is2FAEnabled ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300'}`}>{is2FAEnabled ? '2FA Aktif' : '2FA Tidak Aktif'}</p>
+                                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{is2FAEnabled ? 'Akun Anda terlindungi dengan maksimal.' : 'Aktifkan 2FA untuk melindungi akun Anda dari akses tidak sah.'}</p>
+                                            </div>
+                                        </div>
+                                        <a href="/admin/profile" className="mt-4 flex w-full justify-center items-center gap-2 px-4 py-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-neutral-800 dark:text-slate-300 dark:hover:bg-neutral-700 text-sm font-semibold transition-all group-hover:shadow-md">
+                                            <UserCog className="h-4 w-4" />Kelola 2FA di Profil
+                                        </a>
+                                    </motion.div>
+
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-blue-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors"><Globe className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Sesi Aktif</h2><p className="text-xs text-slate-500 dark:text-slate-400">Login saat ini</p></div>
+                                        </div>
+                                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-black/30 border border-slate-100 dark:border-neutral-800">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400 shadow-sm animate-pulse"><Globe className="h-5 w-5" /></div>
+                                            <div className="flex-1"><p className="font-bold text-slate-900 dark:text-white text-sm">Browser Ini</p><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Online</p></div>
+                                            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30">AKTIF</span>
+                                        </div>
+                                    </motion.div>
                                 </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </div>
-            </div>
+                            </>
+                        )}
+
+                        {activeTab === 'notifications' && (
+                            <>
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-cyan-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:bg-cyan-100 dark:group-hover:bg-cyan-500/20 transition-colors"><Bell className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Notifikasi</h2><p className="text-xs text-slate-500 dark:text-slate-400">Pusat pemberitahuan</p></div>
+                                    </div>
+                                    <form onSubmit={submitNotifications} className="space-y-4">
+                                        {[
+                                            { label: 'Notifikasi Email', desc: 'Terima update penting via email', icon: Mail, checked: notificationForm.data.email_notifications, setter: 'email_notifications' },
+                                            { label: 'Push Notification', desc: 'Alert real-time di browser', icon: Smartphone, checked: notificationForm.data.push_notifications, setter: 'push_notifications' }
+                                        ].map((item, idx) => (
+                                            <label key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-800/50 transition-colors group/check">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="bg-white dark:bg-neutral-800 p-2 rounded-xl text-slate-400 group-hover/check:text-cyan-500 transition-colors shadow-sm"><item.icon className="h-5 w-5" /></div>
+                                                    <div><p className="font-bold text-slate-800 dark:text-white text-sm">{item.label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p></div>
+                                                </div>
+                                                <Checkbox checked={item.checked} onCheckedChange={(c) => notificationForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-cyan-600 data-[state=checked]:border-cyan-600 h-5 w-5 rounded-md transition-all" />
+                                            </label>
+                                        ))}
+                                        <Button type="submit" disabled={notificationForm.processing} className="w-full rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg shadow-cyan-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02]">
+                                            <Save className="h-4 w-4 mr-2" />{notificationForm.processing ? 'Menyimpan...' : 'Simpan Notifikasi'}
+                                        </Button>
+                                    </form>
+                                </motion.div>
+
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-teal-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20 transition-colors"><FileText className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Laporan Otomatis</h2><p className="text-xs text-slate-500 dark:text-slate-400">Jadwal pengiriman laporan</p></div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {[
+                                            { label: 'Laporan Harian', desc: 'Ringkasan aktivitas hari ini', icon: Calendar, checked: notificationForm.data.daily_report, setter: 'daily_report' },
+                                            { label: 'Laporan Mingguan', desc: 'Analisis mingguan detail', icon: BarChart3, checked: notificationForm.data.weekly_report, setter: 'weekly_report' }
+                                        ].map((item, idx) => (
+                                            <label key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-800/50 transition-colors group/check">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="bg-white dark:bg-neutral-800 p-2 rounded-xl text-slate-400 group-hover/check:text-teal-500 transition-colors shadow-sm"><item.icon className="h-5 w-5" /></div>
+                                                    <div><p className="font-bold text-slate-800 dark:text-white text-sm">{item.label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p></div>
+                                                </div>
+                                                <Checkbox checked={item.checked} onCheckedChange={(c) => notificationForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600 h-5 w-5 rounded-md transition-all" />
+                                            </label>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+
+                        {activeTab === 'advanced' && (
+                            <>
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-red-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors"><Lock className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Keamanan Login</h2><p className="text-xs text-slate-500 dark:text-slate-400">Proteksi brute-force</p></div>
+                                    </div>
+                                    <form onSubmit={submitAdvanced} className="space-y-4">
+                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Max Login Attempts</Label><Input type="number" value={advancedForm.data.max_login_attempts} onChange={e => advancedForm.setData('max_login_attempts', parseInt(e.target.value))} className="mt-2 rounded-xl" /><p className="text-[10px] text-slate-400 mt-1">Batas gagal login sebelum dikunci</p></div>
+                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Lockout Duration (menits)</Label><Input type="number" value={advancedForm.data.lockout_duration} onChange={e => advancedForm.setData('lockout_duration', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
+                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Session Lifetime (menits)</Label><Input type="number" value={advancedForm.data.session_lifetime} onChange={e => advancedForm.setData('session_lifetime', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
+                                        <Button type="submit" disabled={advancedForm.processing} className="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02]"><Save className="h-4 w-4 mr-2" />Simpan Keamanan</Button>
+                                    </form>
+                                </motion.div>
+
+                                <div className="space-y-6">
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-violet-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-2xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 group-hover:bg-violet-100 dark:group-hover:bg-violet-500/20 transition-colors"><Sparkles className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Verifikasi AI</h2><p className="text-xs text-slate-500 dark:text-slate-400">Konfigurasi scan wajah pintar</p></div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div className="p-4 rounded-2xl bg-violet-50/50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/30">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <span className="text-sm font-bold text-violet-900 dark:text-violet-100">AI Engine Status</span>
+                                                    <span className="px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-[10px] font-bold">READY</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {[
+                                                        { label: 'Aktifkan Verifikasi AI', checked: advancedForm.data.ai_verification_enabled, setter: 'ai_verification_enabled' },
+                                                        { label: 'Deteksi Foto Blur', checked: advancedForm.data.blur_detection_enabled, setter: 'blur_detection_enabled' },
+                                                        { label: 'Auto Approve Verified', checked: advancedForm.data.auto_approve_verified, setter: 'auto_approve_verified' }
+                                                    ].map((item, idx) => (
+                                                        <label key={idx} className="flex items-center justify-between cursor-pointer">
+                                                            <span className="text-sm text-slate-600 dark:text-slate-300">{item.label}</span>
+                                                            <Checkbox checked={item.checked} onCheckedChange={(c) => advancedForm.setData(item.setter as any, !!c)} className="data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600" />
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Sensitivity Threshold (%)</Label><Input type="number" value={advancedForm.data.face_match_threshold} onChange={e => advancedForm.setData('face_match_threshold', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
+                                        </div>
+                                    </motion.div>
+
+                                    <motion.div variants={cardVariants} whileHover="hover" className={`group rounded-3xl border p-6 shadow-xl backdrop-blur-xl transition-all ${advancedForm.data.maintenance_mode ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800' : 'bg-white/60 border-slate-200/60 dark:bg-neutral-900/60 dark:border-neutral-800/60'}`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`p-3 rounded-2xl ${advancedForm.data.maintenance_mode ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400'}`}><AlertTriangle className="h-6 w-6" /></div>
+                                                <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Maintenance Mode</h2><p className="text-xs text-slate-500 dark:text-slate-400">Darurat & Pemeliharaan</p></div>
+                                            </div>
+                                            <Checkbox checked={advancedForm.data.maintenance_mode} onCheckedChange={(c) => advancedForm.setData('maintenance_mode', !!c)} className="h-6 w-6 rounded-md data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500" />
+                                        </div>
+                                        {advancedForm.data.maintenance_mode && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 p-3 rounded-lg bg-amber-100/50 text-amber-800 text-xs font-semibold">⚠️ Aplikasi tidak dapat diakses oleh user biasa saat mode ini aktif.</motion.div>}
+                                    </motion.div>
+                                </div>
+                            </>
+                        )}
+
+                        {activeTab === 'system' && (
+                            <>
+                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-blue-500/10 transition-all">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors"><Server className="h-6 w-6" /></div>
+                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Server Info</h2><p className="text-xs text-slate-500 dark:text-slate-400">Spesifikasi teknis</p></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {[{ label: 'PHP', value: systemInfo.php_version }, { label: 'Laravel', value: systemInfo.laravel_version }, { label: 'Timezone', value: systemInfo.timezone }, { label: 'Env', value: systemInfo.environment }, { label: 'Debug', value: systemInfo.debug_mode ? 'ON' : 'OFF' }, { label: 'DB', value: systemInfo.db_connection }].map(({ label, value }) => (
+                                            <div key={label} className="p-3 rounded-xl bg-slate-50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800">
+                                                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{label}</p>
+                                                <p className="font-semibold text-slate-700 dark:text-slate-300 truncate" title={value}>{value}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+
+                                <div className="space-y-6">
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-green-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-2xl bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 group-hover:bg-green-100 dark:group-hover:bg-green-500/20 transition-colors"><HardDrive className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Storage</h2><p className="text-xs text-slate-500 dark:text-slate-400">Status penyimpanan disk</p></div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-end"><span className="text-2xl font-bold">{storageInfo.used_percentage}%</span><span className="text-xs text-slate-500">Terpakai</span></div>
+                                            <div className="relative h-3 rounded-full bg-slate-100 dark:bg-neutral-800 overflow-hidden shadow-inner">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: `${storageInfo.used_percentage}%` }} transition={{ duration: 1, ease: 'easeOut' }} className={`absolute inset-y-0 left-0 rounded-full ${storageInfo.used_percentage > 90 ? 'bg-red-500' : storageInfo.used_percentage > 70 ? 'bg-amber-500' : 'bg-gradient-to-r from-emerald-400 to-green-500'}`} />
+                                            </div>
+                                            <div className="flex justify-between text-xs font-medium text-slate-500 dark:text-slate-400"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span> Free: {formatBytes(storageInfo.free_space)}</span><span>Total: {formatBytes(storageInfo.total_space)}</span></div>
+                                        </div>
+                                    </motion.div>
+
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-orange-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 transition-colors"><Database className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Utility</h2><p className="text-xs text-slate-500 dark:text-slate-400">Alat perbaikan sistem</p></div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Button onClick={clearCache} variant="outline" className="h-auto py-3 px-4 flex-col gap-2 rounded-xl bg-white hover:bg-slate-50 dark:bg-transparent dark:hover:bg-neutral-800 border-slate-200 dark:border-neutral-700 hover:text-red-600 hover:border-red-200 dark:hover:border-red-900/50 transition-all">
+                                                <Trash2 className="h-5 w-5" />
+                                                <span className="text-xs font-semibold">Clear Cache</span>
+                                            </Button>
+                                            <Button onClick={optimizeSystem} variant="outline" className="h-auto py-3 px-4 flex-col gap-2 rounded-xl bg-white hover:bg-slate-50 dark:bg-transparent dark:hover:bg-neutral-800 border-slate-200 dark:border-neutral-700 hover:text-blue-600 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all">
+                                                <RefreshCw className="h-5 w-5" />
+                                                <span className="text-xs font-semibold">Optimize</span>
+                                            </Button>
+                                        </div>
+                                    </motion.div>
+                                </div>
+                            </>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </motion.div>
         </AppLayout>
     );
 }

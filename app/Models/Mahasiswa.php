@@ -42,4 +42,9 @@ class Mahasiswa extends Authenticatable
     {
         return $this->hasMany(AttendanceLog::class, 'mahasiswa_id');
     }
+
+    public function attendanceWarnings(): HasMany
+    {
+        return $this->hasMany(AttendanceWarning::class, 'mahasiswa_id');
+    }
 }

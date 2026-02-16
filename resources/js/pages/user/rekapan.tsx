@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -30,11 +31,18 @@ import {
     XCircle,
     ChevronRight,
     Award,
-    Target,
     Zap,
+    AlertTriangle,
+    BellRing,
+    Target,
+    MessageSquareWarning,
+    CheckCheck,
+    Minimize2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { EvaluationDashboard } from '@/components/student/evaluation-dashboard';
+import { WhatIfSimulator } from '@/components/student/what-if-simulator';
 
 interface MahasiswaInfo {
     id: number;
@@ -87,6 +95,15 @@ interface RecentLog {
     scannedAtFormatted: string;
 }
 
+interface Warning {
+    id: number;
+    title: string;
+    message: string;
+    type: string;
+    created_at: string;
+    is_read: boolean;
+}
+
 interface PageProps {
     mahasiswa: MahasiswaInfo;
     stats: Stats;
@@ -94,6 +111,7 @@ interface PageProps {
     monthlyTrend: MonthlyTrend[];
     distribution: Distribution[];
     recentLogs: RecentLog[];
+    warnings: Warning[];
 }
 
 const statusConfig = {
@@ -114,8 +132,8 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { 
-        opacity: 0, 
+    hidden: {
+        opacity: 0,
         y: 40,
         scale: 0.9,
         rotateX: -10,
@@ -181,40 +199,74 @@ function StatCard({
     subtext?: string;
     color: 'emerald' | 'amber' | 'sky' | 'violet' | 'rose';
 }) {
-    const colors = {
-        emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-        amber: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-        sky: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
-        violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
-        rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+    const colorStyles = {
+        emerald: {
+            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+            text: 'text-emerald-600 dark:text-emerald-400',
+            border: 'border-emerald-200 dark:border-emerald-800'
+        },
+        amber: {
+            bg: 'bg-amber-100 dark:bg-amber-900/30',
+            text: 'text-amber-600 dark:text-amber-400',
+            border: 'border-amber-200 dark:border-amber-800'
+        },
+        sky: {
+            bg: 'bg-sky-100 dark:bg-sky-900/30',
+            text: 'text-sky-600 dark:text-sky-400',
+            border: 'border-sky-200 dark:border-sky-800'
+        },
+        violet: {
+            bg: 'bg-violet-100 dark:bg-violet-900/30',
+            text: 'text-violet-600 dark:text-violet-400',
+            border: 'border-violet-200 dark:border-violet-800'
+        },
+        rose: {
+            bg: 'bg-rose-100 dark:bg-rose-900/30',
+            text: 'text-rose-600 dark:text-rose-400',
+            border: 'border-rose-200 dark:border-rose-800'
+        },
     };
+
+    const style = colorStyles[color];
 
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ 
-                scale: 1.05, 
-                y: -4,
-            }}
+            whileHover={{ scale: 1.02, y: -4 }}
             whileTap={{ scale: 0.98 }}
-            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 cursor-pointer relative overflow-hidden"
+            className={cn(
+                "group relative rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur transition-all duration-300 dark:border-gray-800 dark:bg-black/80 hover:shadow-lg",
+                style.border
+            )}
         >
-            <div className="flex items-center gap-3 relative z-10">
-                <motion.div
-                    whileHover={{ scale: 1.2, y: -2 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className={cn('flex h-12 w-12 items-center justify-center rounded-xl', colors[color])}
-                >
-                    <Icon className="h-6 w-6" />
-                </motion.div>
+
+
+            <div className="flex items-start justify-between">
+
                 <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                        <AnimatedCounter value={value} suffix={suffix} />
-                    </p>
-                    {subtext && <p className="text-[10px] text-slate-400">{subtext}</p>}
+                    <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</h4>
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                            <AnimatedCounter value={value} suffix={suffix} />
+                        </span>
+                    </div>
+                    {subtext && <p className="text-xs text-slate-500 mt-1">{subtext}</p>}
+                </div>
+
+                <div className={cn("rounded-xl p-3 ring-1 ring-inset transition-colors", style.bg, style.text, style.border)}>
+                    <Icon className="h-6 w-6" />
                 </div>
             </div>
+
+            {/* Hover Effect */}
+            <div className={cn(
+                "absolute inset-0 -z-10 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-10 dark:opacity-0",
+                color === 'emerald' && "bg-emerald-500",
+                color === 'amber' && "bg-amber-500",
+                color === 'sky' && "bg-sky-500",
+                color === 'violet' && "bg-violet-500",
+                color === 'rose' && "bg-rose-500",
+            )} />
         </motion.div>
     );
 }
@@ -232,7 +284,10 @@ export default function UserRekapan() {
         monthlyTrend = [],
         distribution = [],
         recentLogs = [],
+        warnings = [],
     } = props as unknown as PageProps;
+
+    const [selectedWarning, setSelectedWarning] = useState<Warning | null>(null);
 
     // Transform data for charts
     const courseChartData = courseSummary.map(c => ({
@@ -248,12 +303,16 @@ export default function UserRekapan() {
         Total: m.total,
     }));
 
+    // Calculate remaining sessions (Assuming 16 meetings per course)
+    const estimatedTotalSessions = courseSummary.length * 16;
+    const remainingSessions = Math.max(0, estimatedTotalSessions - stats.totalSessions);
+
     return (
         <StudentLayout>
             <Head title="Rekapan Kehadiran" />
 
-            {/* Subtle Background Gradient */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-gradient-to-br from-blue-50/30 to-cyan-50/30 dark:from-blue-950/10 dark:to-cyan-950/10" />
+            {/* Main Background */}
+            <div className="fixed inset-0 pointer-events-none z-[-1] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-black dark:to-gray-950" />
 
             <motion.div
                 initial="hidden"
@@ -261,10 +320,55 @@ export default function UserRekapan() {
                 variants={containerVariants}
                 className="space-y-6 p-6 relative z-10"
             >
+                {/* Warnings Section - Only visible if there are warnings */}
+                {warnings.length > 0 && (
+                    <motion.div
+                        variants={itemVariants}
+                        className="space-y-3"
+                    >
+                        {warnings.map((warning, index) => (
+                            <motion.div
+                                key={warning.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                onClick={() => setSelectedWarning(warning)}
+                                className={cn(
+                                    "p-4 rounded-xl border flex gap-4 relative overflow-hidden shadow-lg cursor-pointer transition-transform hover:scale-[1.01] active:scale-[0.99]",
+                                    warning.type === 'warning'
+                                        ? "bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-100"
+                                        : "bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100"
+                                )}
+                            >
+                                <div className={cn(
+                                    "p-2 rounded-lg flex-shrink-0 h-fit",
+                                    warning.type === 'warning' ? "bg-amber-100 text-amber-600 dark:bg-amber-800 dark:text-amber-200" : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-200"
+                                )}>
+                                    {warning.type === 'warning' ? <AlertTriangle className="h-5 w-5" /> : <BellRing className="h-5 w-5" />}
+                                </div>
+                                <div className="space-y-1 relative z-10 flex-1">
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="font-semibold">{warning.title}</h3>
+                                        <span className="text-xs opacity-70 bg-white/50 px-2 py-0.5 rounded-full backdrop-blur-sm dark:bg-black/20">
+                                            {warning.created_at}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm opacity-90 leading-relaxed whitespace-pre-wrap">{warning.message}</p>
+                                </div>
+
+                                {/* Background decoration */}
+                                <div className="absolute -right-4 -top-4 opacity-5 pointer-events-none">
+                                    <AlertTriangle className="h-32 w-32 rotate-12" />
+                                </div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
+
                 {/* Header Card - ULTRA ADVANCED */}
                 <motion.div
                     variants={itemVariants}
-                    whileHover={{ 
+                    whileHover={{
                         scale: 1.01,
                         rotateY: 1,
                     }}
@@ -409,11 +513,11 @@ export default function UserRekapan() {
                             }}
                         />
                     ))}
-                    
+
                     <div className="relative z-10">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
-                                <motion.p 
+                                <motion.p
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
@@ -421,7 +525,7 @@ export default function UserRekapan() {
                                 >
                                     Rekapan Kehadiran
                                 </motion.p>
-                                <motion.h1 
+                                <motion.h1
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
@@ -429,7 +533,7 @@ export default function UserRekapan() {
                                 >
                                     {mahasiswa.nama}
                                 </motion.h1>
-                                <motion.p 
+                                <motion.p
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
@@ -439,8 +543,8 @@ export default function UserRekapan() {
                                 </motion.p>
                             </div>
                             <motion.div
-                                whileHover={{ 
-                                    scale: 1.2, 
+                                whileHover={{
+                                    scale: 1.2,
                                     rotate: [0, -8, 8, 0],
                                     boxShadow: "0 0 40px rgba(255,255,255,0.6)"
                                 }}
@@ -476,13 +580,13 @@ export default function UserRekapan() {
                                     key={i}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ 
-                                        delay: item.delay, 
+                                    transition={{
+                                        delay: item.delay,
                                         type: "spring",
                                         stiffness: 200
                                     }}
-                                    whileHover={{ 
-                                        scale: 1.08, 
+                                    whileHover={{
+                                        scale: 1.08,
                                         y: -4,
                                         boxShadow: "0 10px 25px -5px rgba(6, 182, 212, 0.3)",
                                     }}
@@ -492,7 +596,7 @@ export default function UserRekapan() {
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100"
                                         animate={{ x: ['-100%', '100%'] }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 1.5,
                                             repeat: Infinity,
                                             ease: "linear",
@@ -520,35 +624,65 @@ export default function UserRekapan() {
                     <StatCard icon={Target} label="Target" value={75} suffix="%" subtext="min. kehadiran" color="violet" />
                 </motion.div>
 
+                {/* Advanced Evaluation Section */}
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
+                >
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                <Zap className="h-5 w-5 text-amber-500" />
+                            </div>
+                            <h2 className="font-bold text-lg text-slate-900 dark:text-white">AI Insights & Health</h2>
+                        </div>
+                        <EvaluationDashboard
+                            attendanceRate={stats.attendanceRate}
+                            totalSessions={stats.totalSessions}
+                            missedSessions={stats.totalSessions - stats.presentCount}
+                        />
+                    </div>
+                    <div className="space-y-6 flex flex-col">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                <Target className="h-5 w-5 text-emerald-500" />
+                            </div>
+                            <h2 className="font-bold text-lg text-slate-900 dark:text-white">Simulator Kelulusan</h2>
+                        </div>
+                        <WhatIfSimulator
+                            totalSessions={stats.totalSessions}
+                            presentSessions={stats.presentCount}
+                            remainingSessions={remainingSessions}
+                        />
+                    </div>
+                </motion.div>
+
                 {/* Main Content */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Left Column */}
                     <div className="space-y-6 lg:col-span-2">
-                        {/* Course Summary Table */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.01, y: -2 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
+                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
                         >
-                            
-                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800 relative z-10">
-                                <div className="flex items-center gap-2">
-                                    <motion.div 
-                                        whileHover={{ scale: 1.2, y: -2 }}
+                            <div className="flex items-center justify-between p-6 border-b dark:border-gray-800">
+                                <div className="flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, rotate: 10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="p-2 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400"
                                     >
-                                        <BookOpen className="h-5 w-5 text-violet-600" />
+                                        <BookOpen className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-bold text-lg text-white">
                                         Ringkasan per Mata Kuliah
                                     </h2>
                                 </div>
-                                <motion.span 
+                                <motion.span
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
                                     transition={{ delay: 0.5, type: "spring" }}
-                                    className="text-sm text-slate-500"
+                                    className="text-xs font-medium text-violet-300 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20"
                                 >
                                     {courseSummary.length} mata kuliah
                                 </motion.span>
@@ -556,7 +690,7 @@ export default function UserRekapan() {
 
                             <div className="divide-y divide-slate-100 dark:divide-gray-800 relative z-10">
                                 {courseSummary.length === 0 ? (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="p-8 text-center"
@@ -570,13 +704,13 @@ export default function UserRekapan() {
                                             key={course.courseId}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ 
+                                            transition={{
                                                 delay: index * 0.05,
                                                 type: "spring",
                                                 stiffness: 200
                                             }}
-                                            whileHover={{ 
-                                                x: 3, 
+                                            whileHover={{
+                                                x: 3,
                                                 scale: 1.005,
                                             }}
                                             className="p-4 cursor-pointer border-l-2 border-transparent hover:border-violet-500 transition-colors"
@@ -588,8 +722,8 @@ export default function UserRekapan() {
                                                 <span className={cn(
                                                     'px-2 py-1 rounded-full text-xs font-semibold',
                                                     course.rate >= 75 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                                                    course.rate >= 50 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                                                    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                                                        course.rate >= 50 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                                                            'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                                                 )}>
                                                     {course.rate}%
                                                 </span>
@@ -619,19 +753,17 @@ export default function UserRekapan() {
                         {courseChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.01, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 relative overflow-hidden"
+                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
                             >
-                                
-                                <div className="flex items-center gap-2 mb-4 relative z-10">
-                                    <motion.div 
-                                        whileHover={{ scale: 1.2, y: -2 }}
+                                <div className="flex items-center gap-3 mb-6 p-6 border-b dark:border-gray-800">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, rotate: -10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400"
                                     >
-                                        <TrendingUp className="h-5 w-5 text-indigo-600" />
+                                        <TrendingUp className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-bold text-lg text-white">
                                         Grafik per Mata Kuliah
                                     </h2>
                                 </div>
@@ -658,14 +790,16 @@ export default function UserRekapan() {
                                 variants={itemVariants}
                                 whileHover={{ scale: 1.01, y: -2 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+
+                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
                             >
-                                <div className="flex items-center gap-2 mb-4">
-                                    <motion.div 
-                                        whileHover={{ scale: 1.2, y: -2 }}
+                                <div className="flex items-center gap-3 mb-6 p-6 border-b dark:border-gray-800">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, rotate: 10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="p-2 rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
                                     >
-                                        <Calendar className="h-5 w-5 text-sky-600" />
+                                        <Calendar className="h-5 w-5" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Tren Kehadiran 6 Bulan Terakhir
@@ -695,7 +829,7 @@ export default function UserRekapan() {
                                 className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
                             >
                                 <div className="flex items-center gap-2 mb-4">
-                                    <motion.div 
+                                    <motion.div
                                         whileHover={{ scale: 1.2, y: -2 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                     >
@@ -768,26 +902,25 @@ export default function UserRekapan() {
                         {/* Recent Activity */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.01, y: -2 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
                         >
-                            <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-gray-800">
-                                <div className="flex items-center gap-2">
-                                    <motion.div 
-                                        whileHover={{ scale: 1.2, y: -2 }}
+                            <div className="flex items-center justify-between p-6 border-b dark:border-gray-800">
+                                <div className="flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, rotate: -10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="p-2 rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400"
                                     >
-                                        <Clock className="h-5 w-5 text-sky-600" />
+                                        <Clock className="h-5 w-5" />
                                     </motion.div>
                                     <h2 className="font-semibold text-slate-900 dark:text-white">
                                         Aktivitas Terakhir
                                     </h2>
                                 </div>
                             </div>
-                            <div className="divide-y divide-slate-100 dark:divide-gray-800">
+                            <div className="divide-y dark:divide-gray-800">
                                 {recentLogs.length === 0 ? (
-                                    <div className="p-6 text-center text-sm text-slate-500">
+                                    <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
                                         Belum ada aktivitas
                                     </div>
                                 ) : (
@@ -800,17 +933,17 @@ export default function UserRekapan() {
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.05 }}
-                                                whileHover={{ x: 5, backgroundColor: 'rgba(139, 92, 246, 0.05)' }}
-                                                className="p-3 flex items-center gap-3"
+                                                whileHover={{ x: 5, backgroundColor: 'rgba(0,0,0,0.02)' }}
+                                                className="p-4 flex items-center gap-4 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
                                             >
-                                                <div className={cn('flex h-8 w-8 items-center justify-center rounded-full', config.color)}>
-                                                    <Icon className="h-4 w-4" />
+                                                <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl shadow-sm', config.color)}>
+                                                    <Icon className="h-5 w-5" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
                                                         {log.courseName}
                                                     </p>
-                                                    <p className="text-xs text-slate-500">
+                                                    <p className="text-xs text-slate-500 mt-0.5">
                                                         {log.scannedAtFormatted}
                                                     </p>
                                                 </div>
@@ -819,10 +952,10 @@ export default function UserRekapan() {
                                     })
                                 )}
                             </div>
-                            <div className="p-3 border-t border-slate-100 dark:border-gray-800">
+                            <div className="p-4 border-t dark:border-gray-800 bg-slate-50 dark:bg-white/5">
                                 <Link href="/user/history">
                                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                        <Button variant="ghost" className="w-full text-sm">
+                                        <Button variant="ghost" className="w-full text-sm text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-900/20">
                                             Lihat Riwayat Lengkap
                                             <ChevronRight className="h-4 w-4 ml-1" />
                                         </Button>
@@ -834,27 +967,36 @@ export default function UserRekapan() {
                         {/* Quick Links */}
                         <motion.div
                             variants={itemVariants}
-                            whileHover={{ scale: 1.01, y: -2 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
+                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
                         >
-                            <h2 className="font-semibold text-slate-900 dark:text-white mb-3">
-                                Aksi Cepat
-                            </h2>
-                            <div className="space-y-2">
+                            <div className="p-6 border-b dark:border-gray-800">
+                                <h2 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <Zap className="h-5 w-5 text-yellow-500" />
+                                    Aksi Cepat
+                                </h2>
+                            </div>
+                            <div className="p-6 space-y-3">
                                 <Link href="/user/absen">
                                     <motion.div whileHover={{ scale: 1.02, x: 5 }} whileTap={{ scale: 0.98 }}>
-                                        <Button variant="outline" className="w-full justify-start">
-                                            <CheckCircle className="h-4 w-4 mr-2 text-emerald-600" />
+                                        <Button className="w-full justify-start bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 h-10">
+                                            <CheckCircle className="h-4 w-4 mr-2" />
                                             Absen Sekarang
                                         </Button>
                                     </motion.div>
                                 </Link>
                                 <Link href="/user/history">
                                     <motion.div whileHover={{ scale: 1.02, x: 5 }} whileTap={{ scale: 0.98 }}>
-                                        <Button variant="outline" className="w-full justify-start">
-                                            <Calendar className="h-4 w-4 mr-2 text-sky-600" />
-                                            Lihat Riwayat
+                                        <Button className="w-full justify-start bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 h-10">
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            Laporan PDF
+                                        </Button>
+                                    </motion.div>
+                                </Link>
+                                <Link href="/user/profil">
+                                    <motion.div whileHover={{ scale: 1.02, x: 5 }} whileTap={{ scale: 0.98 }}>
+                                        <Button className="w-full justify-start bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 h-10">
+                                            <Users className="h-4 w-4 mr-2" />
+                                            Profil Saya
                                         </Button>
                                     </motion.div>
                                 </Link>
@@ -863,6 +1005,127 @@ export default function UserRekapan() {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Detailed Warning Modal */}
+            <AnimatePresence>
+                {selectedWarning && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-0">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedWarning(null)}
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                            className="relative w-full max-w-lg rounded-3xl bg-white dark:bg-neutral-900 border border-white/20 shadow-2xl overflow-hidden"
+                        >
+                            <div className={cn(
+                                "p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden",
+                                selectedWarning.type === 'warning'
+                                    ? "bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-neutral-900"
+                                    : "bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-neutral-900"
+                            )}>
+                                {/* Background Icon */}
+                                <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                                    <motion.div
+                                        initial={{ rotate: -10, scale: 0.8 }}
+                                        animate={{ rotate: 0, scale: 1 }}
+                                        transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+                                        className={cn(
+                                            "absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-20",
+                                            selectedWarning.type === 'warning' ? "bg-amber-400" : "bg-blue-400"
+                                        )}
+                                    />
+                                    <motion.div
+                                        initial={{ rotate: 10, scale: 0.8 }}
+                                        animate={{ rotate: 0, scale: 1 }}
+                                        transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
+                                        className={cn(
+                                            "absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl opacity-20",
+                                            selectedWarning.type === 'warning' ? "bg-orange-400" : "bg-cyan-400"
+                                        )}
+                                    />
+                                </div>
+
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -45 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+                                    className={cn(
+                                        "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-xl ring-4 ring-white dark:ring-neutral-800 relative z-10",
+                                        selectedWarning.type === 'warning'
+                                            ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white"
+                                            : "bg-gradient-to-br from-blue-400 to-cyan-500 text-white"
+                                    )}
+                                >
+                                    {selectedWarning.type === 'warning' ? (
+                                        <MessageSquareWarning className="h-10 w-10" />
+                                    ) : (
+                                        <BellRing className="h-10 w-10" />
+                                    )}
+                                </motion.div>
+
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-2xl font-bold text-slate-900 dark:text-white mb-2 relative z-10"
+                                >
+                                    {selectedWarning.title}
+                                </motion.h2>
+
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-sm text-slate-500 dark:text-slate-400 mb-6 flex items-center justify-center gap-2 relative z-10"
+                                >
+                                    <Clock className="h-4 w-4" />
+                                    {selectedWarning.created_at}
+                                </motion.p>
+
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="w-full bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-xl p-4 border border-slate-100 dark:border-white/5 relative z-10 max-h-[300px] overflow-y-auto"
+                                >
+                                    <p className="text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap text-left">
+                                        {selectedWarning.message}
+                                    </p>
+                                </motion.div>
+                            </div>
+
+                            <div className="p-4 bg-slate-50 dark:bg-neutral-900 border-t border-slate-100 dark:border-neutral-800 flex justify-between items-center">
+                                <button
+                                    onClick={() => setSelectedWarning(null)}
+                                    className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-neutral-800 transition-colors"
+                                >
+                                    <Minimize2 className="h-5 w-5 text-slate-500" />
+                                </button>
+                                <motion.div
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <Button
+                                        onClick={() => setSelectedWarning(null)}
+                                        className="rounded-full px-6 shadow-lg shadow-blue-500/20"
+                                    >
+                                        <CheckCheck className="h-4 w-4 mr-2" />
+                                        Saya Mengerti
+                                    </Button>
+                                </motion.div>
+                                <div className="w-9" /> {/* Spacer for centering */}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </StudentLayout>
     );
 }

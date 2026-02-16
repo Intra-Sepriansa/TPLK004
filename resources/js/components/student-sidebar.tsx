@@ -56,7 +56,7 @@ const studentNavItems: NavItem[] = [
         icon: CalendarDays,
     },
     {
-        title: 'Rekapan',
+        title: 'Rekapan & Evaluasi',
         href: '/user/rekapan',
         icon: FileText,
     },

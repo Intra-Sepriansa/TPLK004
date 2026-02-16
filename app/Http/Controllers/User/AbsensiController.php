@@ -1234,6 +1234,17 @@ class AbsensiController extends Controller
             'monthlyTrend' => $monthlyTrend,
             'distribution' => $distribution,
             'recentLogs' => $recentLogs,
+            'warnings' => $mahasiswa->attendanceWarnings()
+                ->latest()
+                ->get()
+                ->map(fn($w) => [
+                    'id' => $w->id,
+                    'title' => $w->title,
+                    'message' => $w->message,
+                    'type' => $w->type,
+                    'created_at' => $w->created_at->translatedFormat('d F Y, H:i'),
+                    'is_read' => $w->is_read,
+                ]),
         ]);
     }
 
