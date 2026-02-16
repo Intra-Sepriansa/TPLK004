@@ -413,19 +413,24 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     ))}
                 </motion.div>
 
-                {/* Charts Row */}
+                {/* Charts Row — Glassmorphism */}
                 <div className="grid gap-6 lg:grid-cols-3">
                     <motion.div
-                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        className="lg:col-span-2 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                         whileHover={{ scale: 1.01 }}
                     >
-                        <div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Tren Mingguan</h2></div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                                <TrendingUp className="h-5 w-5" />
+                            </div>
+                            <h2 className="font-semibold text-neutral-900 dark:text-white">Tren Mingguan</h2>
+                        </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={weeklyTrend}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#94a3b8" /><YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
+                                <AreaChart data={weeklyTrend}><CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-800" /><XAxis dataKey="day" tick={{ fontSize: 11, fill: '#64748b' }} /><YAxis tick={{ fontSize: 11, fill: '#64748b' }} /><Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.95)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', backdropFilter: 'blur(12px)' }} />
                                     <Area type="monotone" dataKey="sessions" name="Sesi" stroke="#6366f1" fill="#6366f1" fillOpacity={0.3} />
                                     <Area type="monotone" dataKey="attendance" name="Kehadiran" stroke="#22c55e" fill="#22c55e" fillOpacity={0.3} />
                                 </AreaChart>
@@ -433,46 +438,58 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         </div>
                     </motion.div>
                     <motion.div
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
                         whileHover={{ scale: 1.02 }}
                     >
-                        <div className="flex items-center gap-2 mb-4"><BarChart3 className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Hari Ini</h2></div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-white shadow-lg shadow-cyan-500/30">
+                                <BarChart3 className="h-5 w-5" />
+                            </div>
+                            <h2 className="font-semibold text-neutral-900 dark:text-white">Kehadiran Hari Ini</h2>
+                        </div>
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={hourlyDistribution}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" /><XAxis dataKey="hour" tick={{ fontSize: 9 }} stroke="#94a3b8" interval={2} /><YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" /><Tooltip /><Bar dataKey="count" name="Kehadiran" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
+                                <BarChart data={hourlyDistribution}><CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-800" /><XAxis dataKey="hour" tick={{ fontSize: 9, fill: '#64748b' }} interval={2} /><YAxis tick={{ fontSize: 10, fill: '#64748b' }} /><Tooltip /><Bar dataKey="count" name="Kehadiran" fill="#6366f1" radius={[4, 4, 0, 0]} /></BarChart>
                             </ResponsiveContainer>
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Today Sessions & Course Performance */}
+                {/* Today Sessions & Course Performance — Glassmorphism */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     <motion.div
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
                         whileHover={{ scale: 1.01 }}
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><Timer className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Jadwal Hari Ini</h2></div></div>
-                        <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-72 overflow-y-auto">
-                            {todaySessions.length === 0 ? <div className="p-8 text-center text-slate-500">Tidak ada sesi hari ini</div> : todaySessions.map((s, idx) => {
+                        <div className="p-4 border-b border-white/10 dark:border-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30">
+                                    <Timer className="h-5 w-5" />
+                                </div>
+                                <h2 className="font-semibold text-neutral-900 dark:text-white">Jadwal Hari Ini</h2>
+                            </div>
+                        </div>
+                        <div className="divide-y divide-neutral-200/50 dark:divide-neutral-800/50 max-h-72 overflow-y-auto">
+                            {todaySessions.length === 0 ? <div className="p-8 text-center text-neutral-500">Tidak ada sesi hari ini</div> : todaySessions.map((s, idx) => {
                                 const cfg = statusConfig[s.status] || statusConfig.scheduled;
                                 return (
                                     <motion.div
                                         key={s.id}
-                                        className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30"
+                                        className="p-3 flex items-center justify-between hover:bg-neutral-50/50 dark:hover:bg-neutral-800/50 transition-colors backdrop-blur"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: idx * 0.05 }}
                                         whileHover={{ scale: 1.02, x: 4 }}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${s.is_active ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{s.is_active ? <Play className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</div>
-                                            <div><p className="font-medium text-slate-900 dark:text-white text-sm">{s.course}</p><p className="text-xs text-slate-500">Pertemuan #{s.meeting} • {s.time}</p></div>
+                                            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${s.is_active ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'}`}>{s.is_active ? <Play className="h-4 w-4" /> : <Clock className="h-4 w-4" />}</div>
+                                            <div><p className="font-medium text-neutral-900 dark:text-white text-sm">{s.course}</p><p className="text-xs text-neutral-500">Pertemuan #{s.meeting} • {s.time}</p></div>
                                         </div>
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                                     </motion.div>
@@ -481,116 +498,123 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         </div>
                     </motion.div>
                     <motion.div
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.4 }}
                         whileHover={{ scale: 1.01 }}
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-slate-800"><div className="flex items-center gap-2"><BookOpen className="h-5 w-5 text-blue-600" /><h2 className="font-semibold text-slate-900 dark:text-white">Performa Mata Kuliah</h2></div></div>
-                        <div className="divide-y divide-slate-200 dark:divide-slate-800 max-h-72 overflow-y-auto">
-                            {coursePerformance.length === 0 ? <div className="p-8 text-center text-slate-500">Belum ada data</div> : coursePerformance.map((c, idx) => (
+                        <div className="p-4 border-b border-white/10 dark:border-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 text-white shadow-lg shadow-violet-500/30">
+                                    <BookOpen className="h-5 w-5" />
+                                </div>
+                                <h2 className="font-semibold text-neutral-900 dark:text-white">Performa Mata Kuliah</h2>
+                            </div>
+                        </div>
+                        <div className="divide-y divide-neutral-200/50 dark:divide-neutral-800/50 max-h-72 overflow-y-auto">
+                            {coursePerformance.length === 0 ? <div className="p-8 text-center text-neutral-500">Belum ada data</div> : coursePerformance.map((c, idx) => (
                                 <motion.div
                                     key={c.id}
-                                    className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-black/30"
+                                    className="p-3 flex items-center justify-between hover:bg-neutral-50/50 dark:hover:bg-neutral-800/50 transition-colors backdrop-blur"
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.05 }}
                                     whileHover={{ scale: 1.02, x: -4 }}
                                 >
-                                    <div><p className="font-medium text-slate-900 dark:text-white text-sm">{c.name}</p><p className="text-xs text-slate-500">{c.completed_sessions}/{c.total_sessions} sesi</p></div>
-                                    <div className="text-right"><p className="text-sm font-bold text-slate-900 dark:text-white">{c.avg_attendance}</p><p className="text-xs text-slate-500">rata-rata</p></div>
+                                    <div><p className="font-medium text-neutral-900 dark:text-white text-sm">{c.name}</p><p className="text-xs text-neutral-500">{c.completed_sessions}/{c.total_sessions} sesi</p></div>
+                                    <div className="text-right"><p className="text-sm font-bold text-neutral-900 dark:text-white">{c.avg_attendance}</p><p className="text-xs text-neutral-500">rata-rata</p></div>
                                 </motion.div>
                             ))}
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Filters & Search */}
-                <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70">
+                {/* Filters & Search — Glassmorphism */}
+                <div className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5">
                     <div className="flex flex-wrap items-center gap-4">
                         <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari sesi atau mata kuliah..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-black dark:text-white" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                                <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari sesi atau mata kuliah..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/20 bg-white/60 text-sm focus:border-indigo-500 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-neutral-800/60 dark:text-white backdrop-blur transition-all" />
                             </div>
                         </form>
-                        <select value={filters.course_id} onChange={e => handleFilter('course_id', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-black dark:text-white">
+                        <select value={filters.course_id} onChange={e => handleFilter('course_id', e.target.value)} className="rounded-xl border border-white/20 bg-white/60 px-3 py-2.5 text-sm focus:border-indigo-500 dark:border-white/10 dark:bg-neutral-800/60 dark:text-white backdrop-blur transition-all">
                             <option value="all">Semua Mata Kuliah</option>
                             {courses.map(c => <option key={c.id} value={c.id}>{c.nama}</option>)}
                         </select>
-                        <select value={filters.status} onChange={e => handleFilter('status', e.target.value)} className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 dark:border-slate-700 dark:bg-black dark:text-white">
+                        <select value={filters.status} onChange={e => handleFilter('status', e.target.value)} className="rounded-xl border border-white/20 bg-white/60 px-3 py-2.5 text-sm focus:border-indigo-500 dark:border-white/10 dark:bg-neutral-800/60 dark:text-white backdrop-blur transition-all">
                             <option value="all">Semua Status</option>
                             <option value="active">Aktif</option>
                             <option value="scheduled">Terjadwal</option>
                             <option value="ongoing">Berlangsung</option>
                             <option value="completed">Selesai</option>
                         </select>
-                        <button onClick={() => router.reload()} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 text-sm"><RefreshCw className="h-4 w-4" />Refresh</button>
-                        <button onClick={() => router.get('/admin/sesi-absen/pdf')} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 text-sm"><Download className="h-4 w-4" />Export</button>
+                        <button onClick={() => router.reload()} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-100/60 text-neutral-600 hover:bg-neutral-200/60 dark:bg-neutral-800/60 dark:text-neutral-400 dark:hover:bg-neutral-700/60 text-sm backdrop-blur transition-all"><RefreshCw className="h-4 w-4" />Refresh</button>
+                        <button onClick={() => router.get('/admin/sesi-absen/pdf')} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-100/60 text-neutral-600 hover:bg-neutral-200/60 dark:bg-neutral-800/60 dark:text-neutral-400 dark:hover:bg-neutral-700/60 text-sm backdrop-blur transition-all"><Download className="h-4 w-4" />Export</button>
                     </div>
                 </div>
 
-                {/* Sessions Table */}
+                {/* Sessions Table — Glassmorphism */}
                 <motion.div
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                 >
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead><tr className="bg-slate-50 dark:bg-black/50">
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Mata Kuliah</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Pertemuan</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Waktu</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Kehadiran</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Status</th>
-                                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">Aksi</th>
+                            <thead><tr className="bg-neutral-50/60 dark:bg-neutral-800/60 backdrop-blur">
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Mata Kuliah</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Pertemuan</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Waktu</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Kehadiran</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Status</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-neutral-600 dark:text-neutral-400 uppercase">Aksi</th>
                             </tr></thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                            <tbody className="divide-y divide-neutral-200/50 dark:divide-neutral-800/50">
                                 {sessions.data.length === 0 ? (
-                                    <tr><td colSpan={6} className="px-4 py-12 text-center"><Calendar className="h-12 w-12 mx-auto text-slate-300 mb-3" /><p className="text-slate-500">Belum ada sesi absen</p></td></tr>
+                                    <tr><td colSpan={6} className="px-4 py-12 text-center"><Calendar className="h-12 w-12 mx-auto text-neutral-300 mb-3" /><p className="text-neutral-500">Belum ada sesi absen</p></td></tr>
                                 ) : sessions.data.map((s, idx) => {
                                     const cfg = statusConfig[s.status] || statusConfig.scheduled;
                                     return (
                                         <motion.tr
                                             key={s.id}
-                                            className="hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
+                                            className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/50 transition-colors"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.03 }}
                                             whileHover={{ scale: 1.005 }}
                                         >
                                             <td className="px-4 py-3">
-                                                <p className="font-medium text-slate-900 dark:text-white">{s.course_name}</p>
-                                                <p className="text-xs text-slate-500">{s.dosen_name}</p>
+                                                <p className="font-medium text-neutral-900 dark:text-white">{s.course_name}</p>
+                                                <p className="text-xs text-neutral-500">{s.dosen_name}</p>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm">#{s.meeting_number}</span>
+                                                <span className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-400 to-blue-600 text-white font-bold text-sm shadow-lg shadow-indigo-500/20">#{s.meeting_number}</span>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <p className="text-sm text-slate-900 dark:text-white">{s.start_at?.split(' ')[0]}</p>
-                                                <p className="text-xs text-slate-500">{s.start_at?.split(' ')[1]} - {s.end_at?.split(' ')[1]}</p>
+                                                <p className="text-sm text-neutral-900 dark:text-white">{s.start_at?.split(' ')[0]}</p>
+                                                <p className="text-xs text-neutral-500">{s.start_at?.split(' ')[1]} - {s.end_at?.split(' ')[1]}</p>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-sm font-medium text-slate-900 dark:text-white">{s.logs_count}</span>
+                                                    <span className="text-sm font-medium text-neutral-900 dark:text-white">{s.logs_count}</span>
                                                     <div className="flex gap-1">
-                                                        {s.present_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700">{s.present_count}</span>}
-                                                        {s.late_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-amber-100 text-amber-700">{s.late_count}</span>}
-                                                        {s.rejected_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-700">{s.rejected_count}</span>}
+                                                        {s.present_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">{s.present_count}</span>}
+                                                        {s.late_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">{s.late_count}</span>}
+                                                        {s.rejected_count > 0 && <span className="px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">{s.rejected_count}</span>}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3"><span className={`px-2 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span></td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    {!s.is_active && s.status !== 'completed' && <button onClick={() => handleActivate(s.id)} className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600" title="Aktifkan"><Play className="h-4 w-4" /></button>}
-                                                    {s.is_active && <button onClick={() => handleDeactivate(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Nonaktifkan"><Pause className="h-4 w-4" /></button>}
-                                                    <button onClick={() => handleEdit(s)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600" title="Edit"><Edit className="h-4 w-4" /></button>
-                                                    <button onClick={() => handleDuplicate(s.id)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600" title="Duplikat"><Copy className="h-4 w-4" /></button>
-                                                    <button onClick={() => openDeleteDialog(s.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus"><Trash2 className="h-4 w-4" /></button>
+                                                    {!s.is_active && s.status !== 'completed' && <button onClick={() => handleActivate(s.id)} className="p-1.5 rounded-lg hover:bg-emerald-100/60 text-emerald-600 dark:hover:bg-emerald-900/30 transition-colors" title="Aktifkan"><Play className="h-4 w-4" /></button>}
+                                                    {s.is_active && <button onClick={() => handleDeactivate(s.id)} className="p-1.5 rounded-lg hover:bg-red-100/60 text-red-600 dark:hover:bg-red-900/30 transition-colors" title="Nonaktifkan"><Pause className="h-4 w-4" /></button>}
+                                                    <button onClick={() => handleEdit(s)} className="p-1.5 rounded-lg hover:bg-neutral-100/60 text-neutral-600 dark:hover:bg-neutral-800/60 transition-colors" title="Edit"><Edit className="h-4 w-4" /></button>
+                                                    <button onClick={() => handleDuplicate(s.id)} className="p-1.5 rounded-lg hover:bg-neutral-100/60 text-neutral-600 dark:hover:bg-neutral-800/60 transition-colors" title="Duplikat"><Copy className="h-4 w-4" /></button>
+                                                    <button onClick={() => openDeleteDialog(s.id)} className="p-1.5 rounded-lg hover:bg-red-100/60 text-red-600 dark:hover:bg-red-900/30 transition-colors" title="Hapus"><Trash2 className="h-4 w-4" /></button>
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -600,9 +624,9 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         </table>
                     </div>
                     {sessions.last_page > 1 && (
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-center gap-2">
+                        <div className="p-4 border-t border-white/10 dark:border-white/5 flex justify-center gap-2">
                             {sessions.links.map((link, i) => (
-                                <button key={i} onClick={() => link.url && router.get(link.url, {}, { preserveState: true })} disabled={!link.url} className={`px-3 py-1 rounded text-sm ${link.active ? 'bg-blue-600 text-white' : link.url ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300' : 'bg-slate-50 text-slate-400 cursor-not-allowed'}`} dangerouslySetInnerHTML={{ __html: link.label }} />
+                                <button key={i} onClick={() => link.url && router.get(link.url, {}, { preserveState: true })} disabled={!link.url} className={`px-3 py-1.5 rounded-lg text-sm transition-all ${link.active ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30' : link.url ? 'bg-neutral-100/60 text-neutral-700 hover:bg-neutral-200/60 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60 backdrop-blur' : 'bg-neutral-50/40 text-neutral-400 cursor-not-allowed'}`} dangerouslySetInnerHTML={{ __html: link.label }} />
                             ))}
                         </div>
                     )}
@@ -1044,27 +1068,29 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
 }
 
 function StatCard({ icon: Icon, label, value, sub, color }: { icon: any; label: string; value: number | string; sub: string; color: string }) {
-    const colors: Record<string, string> = {
-        blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-        emerald: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
-        amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-        purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-        green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+    const gradients: Record<string, { from: string; to: string; shadow: string; bg: string }> = {
+        blue: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
+        emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+        purple: { from: 'from-violet-400', to: 'to-purple-600', shadow: 'shadow-violet-500/30', bg: 'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10' },
+        green: { from: 'from-green-400', to: 'to-emerald-600', shadow: 'shadow-green-500/30', bg: 'from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10' },
     };
+    const g = gradients[color] ?? gradients.blue;
     return (
-        <div className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 transition-all duration-300">
-            <div className="flex items-center gap-3">
+        <div className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 transition-all duration-300">
+            <div className={`absolute inset-0 bg-gradient-to-br ${g.bg}`} />
+            <div className="relative flex items-center gap-3">
                 <motion.div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${colors[color]}`}
-                    whileHover={{ scale: 1.2, y: -2 }}
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${g.from} ${g.to} text-white shadow-lg ${g.shadow}`}
+                    whileHover={{ scale: 1.15, rotate: 8 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
                 >
                     <Icon className="h-5 w-5" />
                 </motion.div>
                 <div>
-                    <p className="text-xs text-slate-500">{label}</p>
-                    <p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p>
-                    <p className="text-xs text-slate-400">{sub}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+                    <p className="text-xl font-bold text-neutral-900 dark:text-white">{value}</p>
+                    <p className="text-xs text-neutral-400">{sub}</p>
                 </div>
             </div>
         </div>
