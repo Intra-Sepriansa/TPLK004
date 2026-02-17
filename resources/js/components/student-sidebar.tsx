@@ -146,12 +146,117 @@ type MahasiswaInfo = {
     id: number;
     nama: string;
     nim: string;
+    warningCount?: number;
 };
 
 export function StudentSidebar() {
     const { props } = usePage<SharedData & { mahasiswa?: MahasiswaInfo }>();
     const mahasiswa = props.mahasiswa;
     const initials = useInitials();
+
+    const studentNavItems: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/user',
+            icon: Home,
+        },
+        {
+            title: 'Absen',
+            href: '/user/absen',
+            icon: QrCode,
+        },
+        {
+            title: 'Jadwal Kuliah',
+            href: '/user/schedule',
+            icon: CalendarDays,
+        },
+        {
+            title: 'Rekapan & Evaluasi',
+            href: '/user/rekapan',
+            icon: FileText,
+            badge: mahasiswa?.warningCount,
+        },
+        {
+            title: 'Riwayat',
+            href: '/user/history',
+            icon: History,
+        },
+        {
+            title: 'Chat',
+            href: '/chat',
+            icon: MessageCircle,
+        },
+        {
+            title: 'Informasi Tugas',
+            href: '/user/tugas',
+            icon: ClipboardList,
+        },
+        {
+            title: 'Izin/Sakit',
+            href: '/user/permit',
+            icon: FileCheck,
+        },
+        {
+            title: 'Akademik',
+            href: '/user/akademik',
+            icon: GraduationCap,
+        },
+        {
+            title: 'Personal Analytics',
+            href: '/user/personal-analytics',
+            icon: BarChart3,
+        },
+        {
+            title: 'Pencapaian',
+            href: '/user/achievements',
+            icon: Award,
+        },
+        {
+            title: 'Leaderboard',
+            href: '/user/leaderboard',
+            icon: Trophy,
+        },
+        {
+            title: 'Notifikasi',
+            href: '/user/notifications',
+            icon: Bell,
+        },
+        {
+            title: 'Verifikasi Selfie',
+            href: '/user/selfie-verification',
+            icon: Shield,
+        },
+        {
+            title: 'Uang Kas',
+            href: '/user/kas',
+            icon: Wallet,
+        },
+        {
+            title: 'Voting Kas',
+            href: '/user/kas-voting',
+            icon: Vote,
+        },
+        {
+            title: 'Dokumentasi',
+            href: '/user/docs',
+            icon: BookOpen,
+        },
+        {
+            title: 'Pengaturan',
+            href: '/user/settings',
+            icon: Settings,
+        },
+        {
+            title: 'Bantuan',
+            href: '/user/help',
+            icon: HelpCircle,
+        },
+        {
+            title: 'Profil',
+            href: '/user/profile',
+            icon: UserCircle,
+        },
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">

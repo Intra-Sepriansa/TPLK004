@@ -159,7 +159,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
         >
           {/* Animated Gradient Background */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500"
+            className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
             animate={{
               backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
             }}
@@ -200,9 +200,9 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   <Bell className="h-8 w-8 text-white" />
                 </motion.div>
                 <div>
-                  <p className="text-sm text-blue-100 font-medium tracking-wide">Pusat Komunikasi</p>
+                  <p className="text-sm text-indigo-100 font-medium tracking-wide">Pusat Komunikasi</p>
                   <h1 className="text-3xl font-bold text-white">Notification Center</h1>
-                  <p className="mt-1 text-blue-100 max-w-lg">
+                  <p className="mt-1 text-indigo-100 max-w-lg">
                     Kelola dan kirim notifikasi ke mahasiswa dan dosen
                   </p>
                 </div>
@@ -223,7 +223,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   {/* ── Animated Gradient Header ── */}
                   <div className="relative overflow-hidden p-6 text-white">
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500"
+                      className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                       animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
                       transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                       style={{ backgroundSize: '200% 200%' }}
@@ -253,7 +253,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                       </motion.div>
                       <div>
                         <h2 className="text-xl font-bold text-white">Buat Notifikasi Baru</h2>
-                        <p className="text-sm text-blue-100">Kirim notifikasi ke mahasiswa dan dosen</p>
+                        <p className="text-sm text-indigo-100">Kirim notifikasi ke mahasiswa dan dosen</p>
                       </div>
                     </div>
                   </div>
@@ -374,7 +374,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                         Batal
                       </Button>
                       <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                        <Button type="submit" className="rounded-xl px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20 hover:from-blue-600 hover:to-indigo-700">
+                        <Button type="submit" className="rounded-xl px-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20 hover:from-indigo-600 hover:to-purple-700">
                           <Send className="h-4 w-4 mr-2" />
                           Kirim Notifikasi
                         </Button>
@@ -437,7 +437,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           className="rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20">
               <Filter className="h-5 w-5" />
             </div>
             <h2 className="font-bold text-neutral-900 dark:text-white text-lg">Filter Notifikasi</h2>
@@ -473,7 +473,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleFilter}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all"
             >
               <Filter className="h-4 w-4" />
               Filter

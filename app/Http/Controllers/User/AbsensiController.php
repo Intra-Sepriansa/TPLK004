@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceToken;
+use App\Models\AppNotification;
 use App\Models\AuditLog;
 use App\Models\SelfieVerification;
 use App\Models\Setting;
@@ -1234,17 +1235,42 @@ class AbsensiController extends Controller
             'monthlyTrend' => $monthlyTrend,
             'distribution' => $distribution,
             'recentLogs' => $recentLogs,
-            'warnings' => $mahasiswa->attendanceWarnings()
-                ->latest()
-                ->get()
-                ->map(fn($w) => [
-                    'id' => $w->id,
-                    'title' => $w->title,
-                    'message' => $w->message,
-                    'type' => $w->type,
-                    'created_at' => $w->created_at->translatedFormat('d F Y, H:i'),
-                    'is_read' => $w->is_read,
-                ]),
+            'warnings' => collect()
+                // AttendanceWarning records
+                ->merge(
+                    $mahasiswa->attendanceWarnings()
+                        ->latest()
+                        ->get()
+                        ->map(fn($w) => [
+                            'id' => 'aw-' . $w->id,
+                            'title' => $w->title,
+                            'message' => $w->message,
+                            'type' => $w->type,
+                            'created_at' => $w->created_at->translatedFormat('d F Y, H:i'),
+                            'is_read' => $w->is_read,
+                            'sort_date' => $w->created_at,
+                        ])
+                )
+                // AppNotification records (admin-sent warnings)
+                ->merge(
+                    AppNotification::where('notifiable_type', 'mahasiswa')
+                        ->where('notifiable_id', $mahasiswa?->id)
+                        ->whereIn('type', ['warning', 'alert', 'reminder'])
+                        ->latest()
+                        ->get()
+                        ->map(fn($n) => [
+                            'id' => 'an-' . $n->id,
+                            'title' => $n->title,
+                            'message' => $n->message,
+                            'type' => $n->type === 'alert' ? 'warning' : $n->type,
+                            'created_at' => $n->created_at->translatedFormat('d F Y, H:i'),
+                            'is_read' => $n->read_at !== null,
+                            'sort_date' => $n->created_at,
+                        ])
+                )
+                ->sortByDesc('sort_date')
+                ->map(fn($w) => collect($w)->except('sort_date')->toArray())
+                ->values(),
         ]);
     }
 

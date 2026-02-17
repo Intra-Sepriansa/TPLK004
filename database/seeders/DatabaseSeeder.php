@@ -119,7 +119,7 @@ class DatabaseSeeder extends Seeder
     private function seedMahasiswa(): void
     {
         $mahasiswa = [
-            ['id' => 1, 'nama' => 'ABDUL FATTAH KHOLD', 'nim' => '221011401476', 'fakultas' => 'Teknik', 'kelas' => 'TI-6A'],
+            // ['id' => 1, 'nama' => 'ABDUL FATTAH KHOLD', 'nim' => '221011401476', 'fakultas' => 'Teknik', 'kelas' => 'TI-6A'],
             ['id' => 2, 'nama' => 'ABDUR ROSYID AMRULLAH', 'nim' => '231011401412', 'fakultas' => 'Teknik', 'kelas' => 'TI-6A'],
             ['id' => 3, 'nama' => 'ABU BAKAR RIZIQ', 'nim' => '231011402235', 'fakultas' => 'Teknik', 'kelas' => 'TI-6A'],
             ['id' => 4, 'nama' => 'ACHMAD ILLYYIN ABDULLAH', 'nim' => '231011402363', 'fakultas' => 'Teknik', 'kelas' => 'TI-6A'],

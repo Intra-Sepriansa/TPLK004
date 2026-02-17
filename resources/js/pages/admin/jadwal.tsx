@@ -348,90 +348,125 @@ export default function AdminJadwal({
                 </AnimatePresence>
 
                 {/* Stats Cards */}
+                {/* Stats Cards - Redesigned Compact Style */}
+                {/* ══════ Consolidated Stats ══════ */}
                 <motion.div
-                    className="grid gap-4 md:grid-cols-4 lg:grid-cols-7"
+                    className="grid gap-6 md:grid-cols-3"
                     variants={containerVariants}
                 >
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-indigo-100 bg-white p-4 shadow-sm hover:border-indigo-200 hover:shadow-md dark:border-indigo-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                <Calendar className="h-5 w-5" />
+                    {/* Card 1: Sesi Perkuliahan (Total + Status Breakdown) */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/90 p-6 shadow-xl"
+                    >
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Calendar className="h-24 w-24 text-indigo-500" />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400">
+                                    <Calendar className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Sesi Perkuliahan</h3>
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Total</p>
-                                <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</p>
+
+                            <div className="flex items-end gap-2 mb-6">
+                                <span className="text-4xl font-bold text-white">{stats.total}</span>
+                                <span className="text-sm text-slate-400 mb-1">Total Sesi</span>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <div className="flex items-center gap-1.5 mb-1 text-emerald-400">
+                                        <Play className="h-3.5 w-3.5" />
+                                        <span className="text-[10px] font-bold uppercase">AKTIF</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">{stats.active}</p>
+                                </div>
+                                <div className="p-2 rounded-xl bg-slate-500/10 border border-slate-500/20">
+                                    <div className="flex items-center gap-1.5 mb-1 text-slate-400">
+                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                        <span className="text-[10px] font-bold uppercase">SELESAI</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">{stats.completed}</p>
+                                </div>
+                                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                    <div className="flex items-center gap-1.5 mb-1 text-amber-400">
+                                        <CalendarClock className="h-3.5 w-3.5" />
+                                        <span className="text-[10px] font-bold uppercase">JADWAL</span>
+                                    </div>
+                                    <p className="text-lg font-bold text-white">{stats.scheduled}</p>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-emerald-100 bg-white p-4 shadow-sm hover:border-emerald-200 hover:shadow-md dark:border-emerald-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                <Play className="h-5 w-5" />
+                    {/* Card 2: Kehadiran Mahasiswa (Total + Rata-rata) */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/90 p-6 shadow-xl"
+                    >
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Users className="h-24 w-24 text-purple-500" />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
+                                    <Users className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Partisipasi</h3>
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Aktif</p>
-                                <p className="text-2xl font-bold text-emerald-600">{stats.active}</p>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="flex items-center justify-between text-sm mb-1 text-slate-400">
+                                        <span>Total Kehadiran</span>
+                                        <span className="text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded text-xs">Akumulasi</span>
+                                    </div>
+                                    <p className="text-3xl font-bold text-white">{stats.total_attendance}</p>
+                                </div>
+                                <div className="h-px bg-white/10" />
+                                <div>
+                                    <div className="flex items-center justify-between text-sm mb-1 text-slate-400">
+                                        <span>Rata-rata per Sesi</span>
+                                        <span className="text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded text-xs font-bold">AVG</span>
+                                    </div>
+                                    <div className="flex items-end gap-2">
+                                        <p className="text-3xl font-bold text-white">{stats.avg_per_session}</p>
+                                        <span className="text-sm text-slate-500 mb-1">mahasiswa/sesi</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
 
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-slate-100 bg-white p-4 shadow-sm hover:border-slate-200 hover:shadow-md dark:border-slate-800 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600 group-hover:bg-slate-600 group-hover:text-white transition-colors">
-                                <CheckCircle2 className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Selesai</p>
-                                <p className="text-2xl font-bold text-slate-600">{stats.completed}</p>
-                            </div>
+                    {/* Card 3: Akademik (Mata Kuliah) */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="relative overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/90 p-6 shadow-xl"
+                    >
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <BookOpen className="h-24 w-24 text-pink-500" />
                         </div>
-                    </motion.div>
+                        <div className="relative z-10 flex flex-col h-full justify-between">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 rounded-xl bg-pink-500/20 text-pink-400">
+                                    <BookOpen className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white">Akademik</h3>
+                            </div>
 
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-amber-100 bg-white p-4 shadow-sm hover:border-amber-200 hover:shadow-md dark:border-amber-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                                <CalendarClock className="h-5 w-5" />
+                            <div className="text-center py-2">
+                                <p className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-600">
+                                    {stats.unique_courses}
+                                </p>
+                                <p className="text-sm font-medium text-slate-400 mt-2">Mata Kuliah Terdaftar</p>
                             </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Terjadwal</p>
-                                <p className="text-2xl font-bold text-amber-600">{stats.scheduled}</p>
-                            </div>
-                        </div>
-                    </motion.div>
 
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-purple-100 bg-white p-4 shadow-sm hover:border-purple-200 hover:shadow-md dark:border-purple-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                                <Users className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Hadir</p>
-                                <p className="text-2xl font-bold text-purple-600">{stats.total_attendance}</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-cyan-100 bg-white p-4 shadow-sm hover:border-cyan-200 hover:shadow-md dark:border-cyan-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
-                                <Activity className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Rata-rata</p>
-                                <p className="text-2xl font-bold text-cyan-600">{stats.avg_per_session}</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={itemVariants} className="group rounded-xl border border-pink-100 bg-white p-4 shadow-sm hover:border-pink-200 hover:shadow-md dark:border-pink-900 dark:bg-zinc-900 transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 text-pink-600 group-hover:bg-pink-600 group-hover:text-white transition-colors">
-                                <BookOpen className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 uppercase">Matkul</p>
-                                <p className="text-2xl font-bold text-pink-600">{stats.unique_courses}</p>
+                            <div className="mt-4 p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                                <p className="text-xs text-slate-400">
+                                    Memantau <span className="text-white font-bold">{stats.total}</span> sesi dari <span className="text-white font-bold">{stats.unique_courses}</span> mata kuliah aktif semester ini.
+                                </p>
                             </div>
                         </div>
                     </motion.div>
@@ -440,7 +475,7 @@ export default function AdminJadwal({
                 {/* Filter & Actions */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                     whileHover={{ scale: 1.002 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                 >
@@ -680,24 +715,35 @@ export default function AdminJadwal({
                             >
                                 {/* Modal Header with Gradient */}
                                 <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 to-orange-600 px-8 py-8 text-white">
-                                    <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-2xl" />
-                                    <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/20 blur-2xl" />
+                                    <motion.div
+                                        className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-2xl"
+                                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                                        transition={{ duration: 4, repeat: Infinity }}
+                                    />
+                                    <motion.div
+                                        className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/20 blur-2xl"
+                                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                                        transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+                                    />
 
                                     <div className="relative z-10 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-inner">
+                                            <motion.div
+                                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md border border-white/30 shadow-inner"
+                                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                            >
                                                 <Edit className="h-6 w-6 text-white" />
-                                            </div>
+                                            </motion.div>
                                             <div>
                                                 <h2 className="text-2xl font-bold tracking-tight">Edit Jadwal</h2>
-                                                <p className="text-amber-100/90 text-sm font-medium">Perbarui detail sesi perkuliahan</p>
+                                                <p className="text-amber-100/90 text-sm font-medium">Perbarui sesi perkuliahan</p>
                                             </div>
                                         </div>
                                         <motion.button
                                             whileHover={{ scale: 1.1, rotate: 90 }}
                                             whileTap={{ scale: 0.9 }}
                                             onClick={() => setShowEditForm(false)}
-                                            className="rounded-full bg-white/10 p-2 backdrop-blur hover:bg-white/20 transition-colors"
+                                            className="rounded-full bg-white/10 p-2 backdrop-blur hover:bg-white/20 transition-colors border border-white/10"
                                         >
                                             <X className="h-5 w-5 text-white" />
                                         </motion.button>
@@ -709,82 +755,83 @@ export default function AdminJadwal({
                                     <form onSubmit={submitEdit} className="space-y-6">
 
                                         <motion.div variants={modalItemVariants}>
-                                            <Label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Mata Kuliah</Label>
-                                            <div className="relative group">
-                                                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                                                    <BookOpen className="h-5 w-5" />
-                                                </div>
-                                                <select
-                                                    value={editForm.data.course_id}
-                                                    onChange={e => editForm.setData('course_id', e.target.value)}
-                                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-sm font-medium transition-all hover:bg-white focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/10 dark:border-slate-700 dark:bg-black/50 dark:focus:bg-black"
-                                                >
-                                                    <option value="">Pilih Mata Kuliah...</option>
-                                                    {courses.map(c => <option key={c.id} value={c.id}>{c.nama} (SKS {c.sks})</option>)}
-                                                </select>
-                                            </div>
+                                            <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
+                                                <BookOpen className="h-3.5 w-3.5" />
+                                                Mata Kuliah
+                                            </label>
+                                            <select
+                                                value={editForm.data.course_id}
+                                                onChange={e => editForm.setData('course_id', e.target.value)}
+                                                className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all focus:bg-white dark:focus:bg-neutral-800"
+                                            >
+                                                <option value="">Pilih Mata Kuliah...</option>
+                                                {courses.map(c => <option key={c.id} value={c.id}>{c.nama} (SKS {c.sks})</option>)}
+                                            </select>
                                             <InputError message={editForm.errors.course_id} />
                                         </motion.div>
 
                                         <div className="grid grid-cols-2 gap-6">
                                             <motion.div variants={modalItemVariants}>
-                                                <Label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Pertemuan Ke</Label>
-                                                <div className="relative group">
-                                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                                                        <Hash className="h-4 w-4" />
+                                                <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
+                                                    <Hash className="h-3.5 w-3.5" />
+                                                    Pertemuan Ke
+                                                </label>
+                                                <div className="relative">
+                                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-neutral-400">
+                                                        <span className="text-sm font-bold">#</span>
                                                     </div>
-                                                    <Input
+                                                    <input
                                                         type="number"
                                                         min={1}
                                                         max={21}
                                                         value={editForm.data.meeting_number}
                                                         onChange={e => editForm.setData('meeting_number', Number(e.target.value))}
-                                                        className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 hover:bg-white focus:ring-4 focus:ring-amber-500/10 transition-all dark:bg-black/50 dark:border-slate-700"
+                                                        className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 pl-10 pr-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all focus:bg-white dark:focus:bg-neutral-800"
                                                     />
                                                 </div>
                                                 <InputError message={editForm.errors.meeting_number} />
                                             </motion.div>
 
                                             <motion.div variants={modalItemVariants}>
-                                                <Label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Judul (Opsional)</Label>
-                                                <div className="relative group">
-                                                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                                                        <Type className="h-4 w-4" />
-                                                    </div>
-                                                    <Input
-                                                        value={editForm.data.title}
-                                                        onChange={e => editForm.setData('title', e.target.value)}
-                                                        placeholder="Topik materi..."
-                                                        className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 hover:bg-white focus:ring-4 focus:ring-amber-500/10 transition-all dark:bg-black/50 dark:border-slate-700"
-                                                    />
-                                                </div>
+                                                <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
+                                                    <Type className="h-3.5 w-3.5" />
+                                                    Judul (Opsional)
+                                                </label>
+                                                <input
+                                                    value={editForm.data.title}
+                                                    onChange={e => editForm.setData('title', e.target.value)}
+                                                    placeholder="Topik materi..."
+                                                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all focus:bg-white dark:focus:bg-neutral-800"
+                                                />
                                             </motion.div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-6">
                                             <motion.div variants={modalItemVariants}>
-                                                <Label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Waktu Mulai</Label>
-                                                <div className="relative group">
-                                                    <Input
-                                                        type="datetime-local"
-                                                        value={editForm.data.start_at}
-                                                        onChange={e => editForm.setData('start_at', e.target.value)}
-                                                        className="h-11 rounded-xl bg-slate-50 border-slate-200 hover:bg-white focus:ring-4 focus:ring-amber-500/10 transition-all dark:bg-black/50 dark:border-slate-700"
-                                                    />
-                                                </div>
+                                                <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
+                                                    <Clock className="h-3.5 w-3.5" />
+                                                    Waktu Mulai
+                                                </label>
+                                                <input
+                                                    type="datetime-local"
+                                                    value={editForm.data.start_at}
+                                                    onChange={e => editForm.setData('start_at', e.target.value)}
+                                                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all focus:bg-white dark:focus:bg-neutral-800"
+                                                />
                                                 <InputError message={editForm.errors.start_at} />
                                             </motion.div>
 
                                             <motion.div variants={modalItemVariants}>
-                                                <Label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Waktu Selesai</Label>
-                                                <div className="relative group">
-                                                    <Input
-                                                        type="datetime-local"
-                                                        value={editForm.data.end_at}
-                                                        onChange={e => editForm.setData('end_at', e.target.value)}
-                                                        className="h-11 rounded-xl bg-slate-50 border-slate-200 hover:bg-white focus:ring-4 focus:ring-amber-500/10 transition-all dark:bg-black/50 dark:border-slate-700"
-                                                    />
-                                                </div>
+                                                <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
+                                                    <Clock className="h-3.5 w-3.5" />
+                                                    Waktu Selesai
+                                                </label>
+                                                <input
+                                                    type="datetime-local"
+                                                    value={editForm.data.end_at}
+                                                    onChange={e => editForm.setData('end_at', e.target.value)}
+                                                    className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all focus:bg-white dark:focus:bg-neutral-800"
+                                                />
                                                 <InputError message={editForm.errors.end_at} />
                                             </motion.div>
                                         </div>
@@ -829,7 +876,7 @@ export default function AdminJadwal({
                     {/* Sessions Table */}
                     <motion.div
                         variants={slideInLeft}
-                        className="lg:col-span-2 rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                        className="lg:col-span-2 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl dark:border-white/5 overflow-hidden"
                     >
                         <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-black/20">
                             <div className="flex items-center justify-between">
@@ -873,7 +920,20 @@ export default function AdminJadwal({
                                                     </span>
                                                     <span className="flex items-center gap-1 text-slate-400">
                                                         <Clock className="h-3 w-3" />
-                                                        {s.start_at}
+                                                        {new Date(s.start_at).toLocaleDateString('id-ID', {
+                                                            weekday: 'long',
+                                                            day: 'numeric',
+                                                            month: 'short',
+                                                            year: 'numeric'
+                                                        })} • {new Date(s.start_at).toLocaleTimeString('id-ID', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: false
+                                                        })} - {new Date(s.end_at).toLocaleTimeString('id-ID', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            hour12: false
+                                                        })}
                                                     </span>
                                                 </div>
                                             </div>
@@ -923,7 +983,7 @@ export default function AdminJadwal({
                     >
                         {/* Weekly Schedule */}
                         <motion.div
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl dark:border-white/5 overflow-hidden"
                             whileHover={{ scale: 1.01, y: -2 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >
@@ -963,7 +1023,7 @@ export default function AdminJadwal({
                         {/* Course Distribution */}
                         {courseDistribution.length > 0 && (
                             <motion.div
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                                className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                                 whileHover={{ scale: 1.01, y: -2 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
@@ -990,7 +1050,7 @@ export default function AdminJadwal({
 
                         {/* Upcoming Sessions */}
                         <motion.div
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl dark:border-white/5 overflow-hidden"
                             whileHover={{ scale: 1.01, y: -2 }}
                             transition={{ type: 'spring', stiffness: 300 }}
                         >

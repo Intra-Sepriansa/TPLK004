@@ -15,6 +15,7 @@ import {
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { FraudScanOverlay } from '@/components/admin/fraud-scan-overlay';
+import { Link } from '@inertiajs/react';
 
 interface FraudAlert {
     id: number;
@@ -82,12 +83,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 
 export default function FraudDetection({ alerts, stats, filters, lastScan }: Props) {
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    const [reviewModal, setReviewModal] = useState<{ open: boolean; alert: FraudAlert | null }>({ open: false, alert: null });
     const [scanning, setScanning] = useState(false);
     const [showScanOverlay, setShowScanOverlay] = useState(false);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-
-    const reviewForm = useForm({ status: '', notes: '' });
 
     const handleFilterChange = (key: string, value: string) => {
         router.get('/admin/fraud-detection', { ...filters, [key]: value }, { preserveState: true });
@@ -109,13 +107,6 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
         if (selectedIds.length === 0) return;
         router.post('/admin/fraud-detection/bulk-action', { ids: selectedIds, action }, {
             onSuccess: () => setSelectedIds([]),
-        });
-    };
-
-    const handleReview = () => {
-        if (!reviewModal.alert) return;
-        reviewForm.patch(`/admin/fraud-detection/${reviewModal.alert.id}/review`, {
-            onSuccess: () => { setReviewModal({ open: false, alert: null }); reviewForm.reset(); },
         });
     };
 
@@ -430,12 +421,13 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                                                     {alert.session?.course && ` • ${alert.session.course.nama}`}
                                                 </p>
                                             </div>
-                                            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-                                                onClick={() => { setReviewModal({ open: true, alert }); reviewForm.setData({ status: alert.status, notes: '' }); }}
-                                                className="p-2.5 rounded-xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-400 hover:text-blue-500 hover:border-blue-500/30 transition-all opacity-0 group-hover:opacity-100"
-                                            >
-                                                <Eye className="h-5 w-5" />
-                                            </motion.button>
+                                            <Link href={`/admin/fraud-detection/${alert.id}`}>
+                                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                                                    className="p-2.5 rounded-xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-400 hover:text-blue-500 hover:border-blue-500/30 transition-all opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <Eye className="h-5 w-5" />
+                                                </motion.div>
+                                            </Link>
                                         </div>
                                     </motion.div>
                                 );
@@ -470,92 +462,6 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                     </div>
                 )}
             </motion.div>
-
-            {/* ═══════ REVIEW MODAL ═══════ */}
-            <AnimatePresence>
-                {reviewModal.open && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={() => setReviewModal({ open: false, alert: null })}
-                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                            className="relative w-full max-w-lg rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
-                        >
-                            {/* Header */}
-                            <div className="relative p-6 flex flex-col items-center text-center overflow-hidden">
-                                <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }} transition={{ duration: 6, repeat: Infinity, repeatType: 'reverse' }}
-                                    className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-blue-500/20 blur-3xl"
-                                />
-                                <motion.div initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-                                    className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-xl ring-4 ring-white/10 bg-gradient-to-br from-blue-500 to-indigo-600 relative z-10"
-                                >
-                                    <Eye className="h-8 w-8 text-white" />
-                                </motion.div>
-                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-1 relative z-10">Review Alert</h2>
-                            </div>
-
-                            {reviewModal.alert && (
-                                <div className="px-6 pb-4 overflow-y-auto flex-1 space-y-4">
-                                    {/* Alert Info */}
-                                    <div className="rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/5 p-4">
-                                        <p className="font-semibold text-neutral-900 dark:text-white mb-1">{reviewModal.alert.mahasiswa?.nama} <span className="text-neutral-500 font-normal">({reviewModal.alert.mahasiswa?.nim})</span></p>
-                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">{reviewModal.alert.description}</p>
-                                    </div>
-                                    {/* Evidence */}
-                                    <div>
-                                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 block">Evidence</label>
-                                        <pre className="p-3 bg-neutral-50 dark:bg-white/5 border border-neutral-100 dark:border-white/5 rounded-xl text-xs text-neutral-700 dark:text-neutral-300 overflow-auto max-h-[150px] font-mono">
-                                            {JSON.stringify(reviewModal.alert.evidence, null, 2)}
-                                        </pre>
-                                    </div>
-                                    {/* Status */}
-                                    <div>
-                                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 block">Status</label>
-                                        <select value={reviewForm.data.status} onChange={(e) => reviewForm.setData('status', e.target.value)}
-                                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                        >
-                                            <option value="investigating">Investigating</option>
-                                            <option value="confirmed">Confirmed</option>
-                                            <option value="dismissed">Dismissed</option>
-                                        </select>
-                                    </div>
-                                    {/* Notes */}
-                                    <div>
-                                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 block">Catatan</label>
-                                        <Textarea
-                                            className="bg-white/60 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                            value={reviewForm.data.notes} onChange={(e) => reviewForm.setData('notes', e.target.value)}
-                                            placeholder="Tambahkan catatan..." rows={3}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Footer */}
-                            <div className="p-4 border-t border-neutral-100 dark:border-white/5 flex justify-between items-center bg-neutral-50/80 dark:bg-neutral-900/80">
-                                <button onClick={() => setReviewModal({ open: false, alert: null })} className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-white/10 transition-colors">
-                                    <Minimize2 className="h-5 w-5 text-neutral-400" />
-                                </button>
-                                <div className="flex gap-3">
-                                    <Button variant="outline" onClick={() => setReviewModal({ open: false, alert: null })} className="rounded-full">
-                                        Batal
-                                    </Button>
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button onClick={handleReview} disabled={reviewForm.processing} className="rounded-full px-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20">
-                                            <CheckCheck className="h-4 w-4 mr-2" />
-                                            {reviewForm.processing ? 'Menyimpan...' : 'Simpan'}
-                                        </Button>
-                                    </motion.div>
-                                </div>
-                                <div className="w-9" />
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </AppLayout>
     );
 }

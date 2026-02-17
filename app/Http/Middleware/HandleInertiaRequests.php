@@ -57,6 +57,17 @@ class HandleInertiaRequests extends Middleware
         $mahasiswa = null;
         if (auth()->guard('mahasiswa')->check()) {
             $mahasiswaUser = auth()->guard('mahasiswa')->user();
+            
+            // Calculate unread warning count
+            $attendanceWarningsCount = $mahasiswaUser->attendanceWarnings()
+                ->where('is_read', false)
+                ->count();
+                
+            $appNotificationsCount = AppNotification::forUser('mahasiswa', $mahasiswaUser->id)
+                ->whereIn('type', ['warning', 'alert', 'reminder'])
+                ->unread()
+                ->count();
+                
             $mahasiswa = [
                 'id' => $mahasiswaUser->id,
                 'nama' => $mahasiswaUser->nama,
@@ -64,6 +75,7 @@ class HandleInertiaRequests extends Middleware
                 'email' => $mahasiswaUser->email,
                 'avatar_url' => $mahasiswaUser->avatar_url,
                 'initials' => $mahasiswaUser->initials ?? strtoupper(substr($mahasiswaUser->nama, 0, 2)),
+                'warningCount' => $attendanceWarningsCount + $appNotificationsCount,
             ];
         }
 

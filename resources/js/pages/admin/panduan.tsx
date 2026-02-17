@@ -8,8 +8,9 @@ import {
     ScrollText, Zap, Shield, Bell, Database, Lock, Smartphone, Globe,
     ArrowRight, Copy, Check, Star, Lightbulb, Download, Upload, RefreshCw,
     Eye, Trash2, Plus, Pencil, FileText, Mail, Key, Server, Cpu, HardDrive,
-    Wifi, AlertCircle, TrendingUp, Award, Target, Layers, Terminal, Code,
+    Wifi, AlertCircle, TrendingUp, Award, Target, Layers, Terminal, Code, Home,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const chapters = [
     {
@@ -100,8 +101,8 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <Info className="h-5 w-5" /> Tentang TPLK004 Attendance System
                     </h4>
                     <p className="text-slate-600 dark:text-slate-400">
-                        Sistem Absensi TPLK004 adalah platform manajemen kehadiran berbasis AI yang dirancang khusus untuk 
-                        Fakultas Ilmu Komputer UNPAM. Sistem ini menggunakan teknologi pengenalan wajah, QR Code dinamis, 
+                        Sistem Absensi TPLK004 adalah platform manajemen kehadiran berbasis AI yang dirancang khusus untuk
+                        Fakultas Ilmu Komputer UNPAM. Sistem ini menggunakan teknologi pengenalan wajah, QR Code dinamis,
                         dan geofencing untuk memastikan keakuratan dan keamanan data kehadiran.
                     </p>
                 </div>
@@ -131,8 +132,8 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <AlertTriangle className="h-5 w-5" /> Aturan UNPAM
                     </h4>
                     <p className="text-slate-600 dark:text-slate-400">
-                        Sesuai peraturan UNPAM, mahasiswa yang tidak hadir (Alpha) sebanyak <strong>3 kali atau lebih</strong> dalam 
-                        satu mata kuliah <strong>tidak diperbolehkan mengikuti Ujian Akhir Semester (UAS)</strong>. 
+                        Sesuai peraturan UNPAM, mahasiswa yang tidak hadir (Alpha) sebanyak <strong>3 kali atau lebih</strong> dalam
+                        satu mata kuliah <strong>tidak diperbolehkan mengikuti Ujian Akhir Semester (UAS)</strong>.
                         Sistem ini akan secara otomatis menandai mahasiswa yang berisiko.
                     </p>
                 </div>
@@ -290,8 +291,8 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <Info className="h-5 w-5" /> Cara Kerja Token Dinamis
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Token QR berubah setiap <strong>30 detik</strong> secara otomatis. Ini mencegah mahasiswa 
-                        menyebarkan screenshot QR Code kepada teman yang tidak hadir. Setiap token hanya valid 
+                        Token QR berubah setiap <strong>30 detik</strong> secara otomatis. Ini mencegah mahasiswa
+                        menyebarkan screenshot QR Code kepada teman yang tidak hadir. Setiap token hanya valid
                         untuk satu kali penggunaan per mahasiswa.
                     </p>
                 </div>
@@ -386,7 +387,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <Camera className="h-5 w-5" /> Teknologi yang Digunakan
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Sistem menggunakan algoritma deep learning untuk mendeteksi dan mencocokkan wajah. 
+                        Sistem menggunakan algoritma deep learning untuk mendeteksi dan mencocokkan wajah.
                         Akurasi mencapai 99.5% dalam kondisi pencahayaan normal. Proses verifikasi hanya membutuhkan 1-2 detik.
                     </p>
                 </div>
@@ -483,7 +484,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <MapPin className="h-5 w-5" /> Cara Kerja Geofencing
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Sistem menggunakan GPS perangkat mahasiswa untuk memvalidasi lokasi. Jika mahasiswa berada di luar 
+                        Sistem menggunakan GPS perangkat mahasiswa untuk memvalidasi lokasi. Jika mahasiswa berada di luar
                         radius yang ditentukan dari titik pusat kampus, absensi akan ditolak atau ditandai untuk review.
                     </p>
                 </div>
@@ -705,7 +706,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                 <h4 className="font-semibold text-lg">Voting Kas Demokratis:</h4>
                 <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800">
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Sistem mendukung voting demokratis untuk keputusan penggunaan kas. Mahasiswa dapat mengusulkan 
+                        Sistem mendukung voting demokratis untuk keputusan penggunaan kas. Mahasiswa dapat mengusulkan
                         dan memberikan suara untuk pengeluaran kas. Keputusan diambil berdasarkan suara mayoritas.
                     </p>
                 </div>
@@ -785,7 +786,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <AlertTriangle className="h-5 w-5" /> Mahasiswa Berisiko
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Sistem akan otomatis menandai mahasiswa dengan 3x atau lebih alpha. Mahasiswa ini berisiko 
+                        Sistem akan otomatis menandai mahasiswa dengan 3x atau lebih alpha. Mahasiswa ini berisiko
                         tidak dapat mengikuti UAS sesuai peraturan UNPAM. Segera hubungi mahasiswa yang bersangkutan.
                     </p>
                 </div>
@@ -967,7 +968,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         <AlertTriangle className="h-5 w-5" /> Sanksi Kecurangan
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Mahasiswa yang terbukti melakukan kecurangan absensi dapat dikenakan sanksi sesuai peraturan akademik, 
+                        Mahasiswa yang terbukti melakukan kecurangan absensi dapat dikenakan sanksi sesuai peraturan akademik,
                         termasuk pembatalan kehadiran dan pelaporan ke pihak fakultas.
                     </p>
                 </div>
@@ -1208,13 +1209,30 @@ export default function AdminPanduan() {
         <AppLayout>
             <Head title="Panduan Admin" />
 
-            <div className="flex h-[calc(100vh-4rem)]">
-                {/* Sidebar Navigation */}
-                <div className="w-80 border-r bg-slate-50/50 dark:bg-black/50 overflow-y-auto flex-shrink-0">
-                    <div className="p-4 border-b sticky top-0 bg-slate-50/95 dark:bg-black/95 backdrop-blur z-10">
-                        <div className="flex items-center gap-2 mb-4">
-                            <BookOpen className="h-6 w-6 text-blue-600" />
-                            <h1 className="text-lg font-bold">Panduan Admin</h1>
+            {/* Advanced Background - Uang Kas Style */}
+            <div className="fixed inset-0 bg-slate-50 dark:bg-black/80 lg:rounded-tl-3xl z-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[100px] animate-pulse" />
+                <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px] animate-pulse delay-700" />
+                <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] rounded-full bg-pink-500/10 blur-[80px]" />
+            </div>
+
+            <div className="relative z-10 flex h-full gap-6 p-6">
+                {/* Modern Glass Sidebar */}
+                <motion.div
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="w-80 flex-shrink-0 flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-2xl overflow-hidden h-[calc(100vh-6rem)]"
+                >
+                    <div className="p-6 border-b border-white/10 bg-white/10 backdrop-blur-md">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                                <BookOpen className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold text-slate-800 dark:text-white">Panduan Admin</h1>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Dokumentasi & Bantuan</p>
+                            </div>
                         </div>
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -1222,18 +1240,25 @@ export default function AdminPanduan() {
                                 type="text"
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Cari panduan..."
-                                className="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800"
+                                placeholder="Cari topik..."
+                                className="w-full rounded-xl border border-white/20 bg-white/50 pl-10 pr-4 py-2.5 text-sm text-slate-800 transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:bg-black/20 dark:text-white dark:border-white/10 dark:focus:border-indigo-500"
                             />
                         </div>
                     </div>
 
-                    <div className="p-4 space-y-4">
-                        {filteredChapters.map(chapter => {
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+                        {filteredChapters.map((chapter, index) => {
                             const Icon = chapter.icon;
                             const isActive = chapter.id === activeChapter;
                             return (
-                                <div key={chapter.id}>
+                                <motion.div
+                                    key={chapter.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 + index * 0.05 }}
+                                    className={`rounded-2xl transition-all duration-300 overflow-hidden ${isActive ? 'bg-white/60 dark:bg-white/5 shadow-lg border border-white/20' : 'hover:bg-white/30 dark:hover:bg-white/5'
+                                        }`}
+                                >
                                     <button
                                         onClick={() => {
                                             setActiveChapter(chapter.id);
@@ -1241,107 +1266,190 @@ export default function AdminPanduan() {
                                                 setActiveSection(chapter.sections[0].id);
                                             }
                                         }}
-                                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                                            isActive
-                                                ? `bg-gradient-to-r ${chapter.color} text-white shadow-lg`
-                                                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
-                                        }`}
+                                        className={`w-full flex items-center gap-3 p-3 transition-all ${isActive
+                                                ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10'
+                                                : ''
+                                            }`}
                                     >
-                                        <Icon className="h-5 w-5" />
-                                        <span className="font-medium">{chapter.title}</span>
-                                        <ChevronRight className={`h-4 w-4 ml-auto transition-transform ${isActive ? 'rotate-90' : ''}`} />
-                                    </button>
-                                    {isActive && (
-                                        <div className="mt-2 ml-4 space-y-1">
-                                            {chapter.sections.map(section => (
-                                                <button
-                                                    key={section.id}
-                                                    onClick={() => setActiveSection(section.id)}
-                                                    className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${
-                                                        activeSection === section.id
-                                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-medium'
-                                                            : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'
-                                                    }`}
-                                                >
-                                                    {section.title}
-                                                </button>
-                                            ))}
+                                        <div className={`p-2 rounded-lg ${isActive ? `bg-gradient-to-br ${chapter.color} text-white shadow-md` : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'}`}>
+                                            <Icon className="h-5 w-5" />
                                         </div>
-                                    )}
-                                </div>
+                                        <span className={`font-semibold text-sm ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                                            {chapter.title}
+                                        </span>
+                                        <ChevronRight className={`h-4 w-4 ml-auto text-slate-400 transition-transform duration-300 ${isActive ? 'rotate-90 text-indigo-500' : ''}`} />
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {isActive && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            >
+                                                <div className="pb-2 px-2 space-y-1">
+                                                    {chapter.sections.map(section => (
+                                                        <motion.button
+                                                            key={section.id}
+                                                            whileHover={{ x: 4 }}
+                                                            onClick={() => setActiveSection(section.id)}
+                                                            className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-colors relative ${activeSection === section.id
+                                                                    ? 'text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20'
+                                                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                                                                }`}
+                                                        >
+                                                            {activeSection === section.id && (
+                                                                <motion.div
+                                                                    layoutId="activeSectionIndicator"
+                                                                    className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-1 bg-indigo-500 rounded-r-full"
+                                                                />
+                                                            )}
+                                                            <span className="relative z-10 pl-2">{section.title}</span>
+                                                        </motion.button>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </motion.div>
                             );
                         })}
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Main Content */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="max-w-4xl mx-auto p-8">
-                        {/* Breadcrumb */}
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                            <span>Panduan</span>
-                            <ChevronRight className="h-4 w-4" />
-                            <span>{currentChapter?.title}</span>
-                            <ChevronRight className="h-4 w-4" />
-                            <span className="text-foreground font-medium">{currentContent?.title}</span>
-                        </div>
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col gap-6 overflow-hidden h-[calc(100vh-6rem)]">
+                    {/* Header Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        className="relative overflow-hidden rounded-3xl p-8 shrink-0 shadow-2xl"
+                    >
+                        {/* Animated Gradient Background */}
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                            style={{ backgroundSize: '200% 200%' }}
+                        />
+                        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
 
-                        {/* Content Header */}
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-3xl font-bold">{currentContent?.title}</h2>
-                            <button
+                        {/* Floating Orbs */}
+                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse" />
+                        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse delay-1000" />
+
+                        <div className="relative z-10 flex items-center justify-between">
+                            <div>
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="flex items-center gap-2 text-indigo-100 mb-2"
+                                >
+                                    <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur text-xs font-semibold border border-white/20">Panduan v1.0</span>
+                                    <span className="h-1 w-1 rounded-full bg-white/50" />
+                                    <span className="text-sm font-medium">{currentChapter?.title}</span>
+                                </motion.div>
+                                <motion.h1
+                                    className="text-3xl font-bold text-white tracking-tight drop-shadow-md"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    {currentContent?.title}
+                                </motion.h1>
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={handleCopyLink}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur border border-white/30 text-white hover:bg-white/30 transition-all shadow-lg text-sm font-medium"
                             >
-                                {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                                {copied ? 'Tersalin!' : 'Salin Link'}
-                            </button>
+                                {copied ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+                                {copied ? 'Link Tersalin!' : 'Salin Link'}
+                            </motion.button>
                         </div>
+                    </motion.div>
 
-                        {/* Content Body */}
-                        <div className="prose prose-slate dark:prose-invert max-w-none">
-                            {currentContent?.content}
+                    {/* Content Body - Glass Card */}
+                    <motion.div
+                        key={activeSection}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex-1 overflow-y-auto rounded-3xl border border-white/20 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl shadow-2xl p-8 scrollbar-hide relative"
+                    >
+                        <div className="max-w-4xl mx-auto pb-10">
+                            {/* Breadcrumbs inside content */}
+                            <div className="flex items-center gap-2 text-sm text-slate-500 mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
+                                <Home className="h-4 w-4" />
+                                <ChevronRight className="h-4 w-4 text-slate-300" />
+                                <span>Panduan</span>
+                                <ChevronRight className="h-4 w-4 text-slate-300" />
+                                <span className="text-slate-700 dark:text-slate-300 font-medium">{currentChapter?.title}</span>
+                                <ChevronRight className="h-4 w-4 text-slate-300" />
+                                <span className="text-indigo-600 dark:text-indigo-400 font-bold">{currentContent?.title}</span>
+                            </div>
+
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1, duration: 0.4 }}
+                                className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h4:text-lg prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-li:text-slate-600 dark:prose-li:text-slate-300 marker:text-indigo-500"
+                            >
+                                {currentContent?.content}
+                            </motion.div>
+
+                            {/* Navigation Footer */}
+                            <div className="flex items-center justify-between mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+                                {(() => {
+                                    const allSections = chapters.flatMap(c => c.sections.map(s => ({ ...s, chapterId: c.id })));
+                                    const currentIndex = allSections.findIndex(s => s.id === activeSection);
+                                    const prevSection = currentIndex > 0 ? allSections[currentIndex - 1] : null;
+                                    const nextSection = currentIndex < allSections.length - 1 ? allSections[currentIndex + 1] : null;
+
+                                    return (
+                                        <>
+                                            {prevSection ? (
+                                                <motion.button
+                                                    whileHover={{ x: -5 }}
+                                                    onClick={() => {
+                                                        setActiveChapter(prevSection.chapterId);
+                                                        setActiveSection(prevSection.id);
+                                                    }}
+                                                    className="group flex flex-col items-start gap-1 text-left"
+                                                >
+                                                    <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Sebelumnya</span>
+                                                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-semibold group-hover:text-indigo-600 transition-colors">
+                                                        <ArrowRight className="h-4 w-4 rotate-180" />
+                                                        <span>{prevSection.title}</span>
+                                                    </div>
+                                                </motion.button>
+                                            ) : <div />}
+                                            {nextSection && (
+                                                <motion.button
+                                                    whileHover={{ x: 5 }}
+                                                    onClick={() => {
+                                                        setActiveChapter(nextSection.chapterId);
+                                                        setActiveSection(nextSection.id);
+                                                    }}
+                                                    className="group flex flex-col items-end gap-1 text-right"
+                                                >
+                                                    <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Selanjutnya</span>
+                                                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200 font-semibold group-hover:text-indigo-600 transition-colors">
+                                                        <span>{nextSection.title}</span>
+                                                        <ArrowRight className="h-4 w-4" />
+                                                    </div>
+                                                </motion.button>
+                                            )}
+                                        </>
+                                    );
+                                })()}
+                            </div>
                         </div>
-
-                        {/* Navigation Footer */}
-                        <div className="flex items-center justify-between mt-12 pt-8 border-t">
-                            {(() => {
-                                const allSections = chapters.flatMap(c => c.sections.map(s => ({ ...s, chapterId: c.id })));
-                                const currentIndex = allSections.findIndex(s => s.id === activeSection);
-                                const prevSection = currentIndex > 0 ? allSections[currentIndex - 1] : null;
-                                const nextSection = currentIndex < allSections.length - 1 ? allSections[currentIndex + 1] : null;
-
-                                return (
-                                    <>
-                                        {prevSection ? (
-                                            <button
-                                                onClick={() => {
-                                                    setActiveChapter(prevSection.chapterId);
-                                                    setActiveSection(prevSection.id);
-                                                }}
-                                                className="flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                            >
-                                                <ArrowRight className="h-4 w-4 rotate-180" />
-                                                <span>{prevSection.title}</span>
-                                            </button>
-                                        ) : <div />}
-                                        {nextSection && (
-                                            <button
-                                                onClick={() => {
-                                                    setActiveChapter(nextSection.chapterId);
-                                                    setActiveSection(nextSection.id);
-                                                }}
-                                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                                            >
-                                                <span>{nextSection.title}</span>
-                                                <ArrowRight className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                    </>
-                                );
-                            })()}
-                        </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </AppLayout>

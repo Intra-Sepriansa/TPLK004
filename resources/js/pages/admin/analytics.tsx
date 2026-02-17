@@ -1,0 +1,848 @@
+import React, { useState, useEffect } from 'react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, router } from '@inertiajs/react';
+import {
+    BarChart3, TrendingUp, Users, Clock, AlertTriangle, Filter,
+    Calendar, Download, ChevronDown, ArrowUpRight, ArrowDownRight,
+    Zap, Brain, Shield, Search, MoreHorizontal, PieChart,
+    Activity, Target, Smartphone, Moon, Sun, Cloud, Edit, X
+} from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import {
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    BarChart, Bar, PieChart as RePieChart, Pie, Cell, Legend
+} from 'recharts';
+
+// --- Interface Definitions ---
+
+interface Stats {
+    total_attendance: number;
+    attendance_rate: number;
+    rate_change: number;
+    late_count: number;
+    fraud_attempts: number;
+}
+
+interface TrendData {
+    name: string;
+    date: string;
+    hadir: number;
+    telat: number;
+    audit: number;
+}
+
+interface DeviceData {
+    name: string;
+    value: number;
+    color: string;
+}
+
+interface Student {
+    id: number;
+    name: string;
+    nim: string;
+    department: string;
+    attendance: string;
+    status: string;
+}
+
+interface Insight {
+    type: string;
+    title: string;
+    description: string;
+    icon: string;
+}
+
+interface AnalyticsProps {
+    stats: Stats;
+    attendanceTrend: TrendData[];
+    deviceDistribution: DeviceData[];
+    topPerformers: Student[];
+    aiInsights: Insight[];
+    filters: {
+        period: string;
+    };
+}
+
+// --- Animation Variants ---
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+            delayChildren: 0.2
+        }
+    }
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring', stiffness: 300, damping: 24 }
+    }
+};
+
+const cardHover: Variants = {
+    hover: { scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 10 } }
+};
+
+export default function Analytics({ stats, attendanceTrend, deviceDistribution, topPerformers, aiInsights, filters }: AnalyticsProps) {
+    const [timeRange, setTimeRange] = useState(filters.period || 'week');
+    const [isExporting, setIsExporting] = useState(false);
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const [studentDetail, setStudentDetail] = useState<any>(null);
+    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+    const [activeTab, setActiveTab] = useState('overview'); // overview, history, calendar
+
+    // Sync local state with props if filters change externally
+    useEffect(() => {
+        setTimeRange(filters.period);
+    }, [filters.period]);
+
+    const handleTimeRangeChange = (range: string) => {
+        setTimeRange(range);
+        // @ts-ignore
+        router.visit(route('admin.analytics', { period: range }), {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['stats', 'attendanceTrend', 'deviceDistribution', 'topPerformers', 'aiInsights', 'filters'],
+        });
+    };
+
+    const handleExport = () => {
+        setIsExporting(true);
+        // Clean way to trigger download without navigation
+        window.location.href = `/admin/analytics/export?period=${timeRange}`;
+        setTimeout(() => setIsExporting(false), 2000);
+    };
+
+
+    const handleStudentClick = async (id: number) => {
+        setSelectedStudentId(id);
+        setIsLoadingDetail(true);
+        try {
+            // @ts-ignore
+            const response = await fetch(route('admin.analytics.student.detail', id));
+            if (!response.ok) throw new Error('Failed to fetch');
+            const data = await response.json();
+            setStudentDetail(data);
+        } catch (error) {
+            console.error("Failed to fetch student details:", error);
+        } finally {
+            setIsLoadingDetail(false);
+        }
+    };
+
+    const closeModal = () => {
+        setSelectedStudentId(null);
+        setStudentDetail(null);
+    };
+
+    // Helper to map icon string to component
+    const getIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'AlertTriangle': return <AlertTriangle className="h-5 w-5" />;
+            case 'TrendingUp': return <TrendingUp className="h-5 w-5" />;
+            case 'Moon': return <Moon className="h-5 w-5" />;
+            case 'Sun': return <Sun className="h-5 w-5" />;
+            case 'Cloud': return <Cloud className="h-5 w-5" />;
+            default: return <Brain className="h-5 w-5" />;
+        }
+    };
+
+    return (
+        <AppLayout>
+            <Head title="Analitik & Laporan" />
+
+            <motion.div
+                className="p-6 space-y-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+
+                {/* Header Section - Matched to Uang Kas */}
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                >
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-40 backdrop-blur-3xl" />
+
+                    {/* Floating Animations (Pulses) */}
+                    {[0, 1, 2].map(i => (
+                        <motion.div
+                            key={i}
+                            className="absolute right-16 top-1/2 -translate-y-1/2 h-40 w-40 rounded-full border border-white/10"
+                            animate={{ scale: [1, 2], opacity: [0.3, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                        />
+                    ))}
+
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                            <motion.div
+                                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-inner"
+                                whileHover={{ scale: 1.05, rotate: 5 }}
+                                transition={{ type: 'spring', stiffness: 300 }}
+                            >
+                                <BarChart3 className="h-10 w-10 text-white" />
+                            </motion.div>
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-xs font-medium border border-white/10">Admin Dashboard</span>
+                                </div>
+                                <h1 className="text-4xl font-bold text-white tracking-tight">Analitik Performa</h1>
+                                <p className="mt-2 text-indigo-100 text-lg opacity-90 max-w-lg leading-relaxed">
+                                    Real-time insights & data-driven monitoring.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-4">
+                            <div className="flex bg-black/20 backdrop-blur-lg border border-white/10 rounded-xl p-1.5 shadow-lg">
+                                {['day', 'week', 'month', 'year'].map((range) => (
+                                    <button
+                                        key={range}
+                                        onClick={() => handleTimeRangeChange(range)}
+                                        className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${timeRange === range
+                                            ? 'bg-white text-indigo-600 shadow-xl scale-105'
+                                            : 'text-indigo-100 hover:bg-white/10 hover:text-white'
+                                            }`}
+                                    >
+                                        {range.charAt(0).toUpperCase() + range.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleExport}
+                                disabled={isExporting}
+                                className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold shadow-lg shadow-black/20 transition-all hover:bg-indigo-50 disabled:opacity-70"
+                            >
+                                {isExporting ? <Activity className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                                {isExporting ? 'Exporting...' : 'Export Report'}
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* KPI Stats Grid */}
+                <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                >
+                    {[
+                        { title: 'Total Kehadiran', value: stats.total_attendance.toLocaleString(), change: `${stats.rate_change > 0 ? '+' : ''}${stats.rate_change}%`, isUp: stats.rate_change >= 0, icon: Users, color: 'indigo' },
+                        { title: 'Tingkat Kehadiran', value: `${stats.attendance_rate}%`, change: 'vs prev period', isUp: stats.rate_change >= 0, icon: Clock, color: 'emerald' },
+                        { title: 'Terlambat', value: stats.late_count.toString(), change: 'Check Logs', isUp: false, icon: AlertTriangle, color: 'amber' },
+                        { title: 'Fraud Attempts', value: stats.fraud_attempts.toString(), change: 'Stable', isUp: true, icon: Shield, color: 'rose' },
+                    ].map((stat, i) => (
+                        <motion.div
+                            key={i}
+                            variants={itemVariants}
+                            whileHover="hover"
+                            className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 dark:bg-neutral-900/60 backdrop-blur-xl p-6 shadow-lg transition-all hover:shadow-xl dark:border-white/10"
+                        >
+                            <motion.div
+                                className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-${stat.color}-500/10 blur-2xl transition-all group-hover:bg-${stat.color}-500/20`}
+                                variants={cardHover}
+                            />
+
+                            <div className="relative z-10 flex justify-between items-start mb-4">
+                                <div className={`p-3 rounded-2xl bg-${stat.color}-100 dark:bg-${stat.color}-900/40 text-${stat.color}-600 dark:text-${stat.color}-400 ring-4 ring-white dark:ring-black/20`}>
+                                    <stat.icon className="h-6 w-6" />
+                                </div>
+                                <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full border ${stat.isUp
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800'
+                                    : 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800'
+                                    }`}>
+                                    {stat.isUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                                    {stat.change}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">{stat.title}</h3>
+                                <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{stat.value}</div>
+                            </div>
+
+                            {/* Decorative Progress Bar - Dynamic Width */}
+                            <div className="mt-5 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    className={`h-full bg-${stat.color}-500 rounded-full`}
+                                    initial={{ width: 0 }}
+                                    animate={{
+                                        width: stat.value.includes('%')
+                                            ? stat.value
+                                            : stat.value === '0' || stat.value === '0.0' ? '0%' : '70%'
+                                    }}
+                                    transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
+                                />
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* Main Content Grid */}
+                <div className="grid lg:grid-cols-3 gap-8">
+
+                    {/* Attendance Trend Chart */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="lg:col-span-2 rounded-3xl border border-white/60 bg-white/80 dark:bg-neutral-900/60 backdrop-blur-xl p-8 shadow-xl dark:border-white/10"
+                    >
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">Tren Kehadiran</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Overview statistik kehadiran per periode</p>
+                            </div>
+                            <div className="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <span className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 px-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-sm" /> Hadir
+                                </span>
+                                <div className="w-px h-4 bg-slate-300 dark:bg-slate-700" />
+                                <span className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300 px-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm" /> Telat
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="h-[350px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={attendanceTrend} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorHadir" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                        </linearGradient>
+                                        <linearGradient id="colorTelat" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.4} />
+                                            <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#64748B', fontSize: 12, fontWeight: 500 }}
+                                        dy={15}
+                                    />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#64748B', fontSize: 12, fontWeight: 500 }}
+                                        dx={-10}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(8px)', borderRadius: '16px', border: '1px solid rgba(226, 232, 240, 0.8)', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
+                                        itemStyle={{ fontSize: '13px', fontWeight: 'bold', paddingTop: '4px' }}
+                                        labelStyle={{ color: '#1E293B', fontWeight: 'bold', marginBottom: '8px' }}
+                                    />
+                                    <Area type="monotone" dataKey="hadir" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorHadir)" activeDot={{ r: 6, strokeWidth: 0, fill: '#4F46E5' }} animationDuration={1500} />
+                                    <Area type="monotone" dataKey="telat" stroke="#f43f5e" strokeWidth={4} fillOpacity={1} fill="url(#colorTelat)" activeDot={{ r: 6, strokeWidth: 0, fill: '#E11D48' }} animationDuration={1500} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </motion.div>
+
+                    {/* AI Insights Panel */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-3xl border border-indigo-200/50 dark:border-indigo-800/50 bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-900/20 dark:to-purple-900/20 backdrop-blur-xl p-8 shadow-xl relative overflow-hidden flex flex-col"
+                    >
+                        {/* Animated background accent */}
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 blur-3xl rounded-full animate-pulse" />
+
+                        <div className="relative z-10 mb-6">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+                                    <Brain className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">AI Insights</h3>
+                            </div>
+                            <p className="text-indigo-600/80 dark:text-indigo-300 text-sm">Automated analysis based on your data.</p>
+                        </div>
+
+                        <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                            <AnimatePresence mode='wait'>
+                                {aiInsights.length > 0 ? (
+                                    aiInsights.map((insight, index) => (
+                                        <motion.div
+                                            key={index}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className="p-5 rounded-2xl bg-white/70 dark:bg-black/30 border border-indigo-100 dark:border-indigo-800/30 shadow-sm hover:bg-white/90 transition-colors cursor-default"
+                                        >
+                                            <h4 className={`font-bold text-sm mb-2 flex items-center gap-2 ${insight.type === 'warning' ? 'text-rose-700 dark:text-rose-300' :
+                                                insight.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' :
+                                                    'text-indigo-800 dark:text-indigo-200'
+                                                }`}>
+                                                {getIcon(insight.icon)} {insight.title}
+                                            </h4>
+                                            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                                                {insight.description}
+                                            </p>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-center text-sm text-indigo-400 py-10 flex flex-col items-center gap-2"
+                                    >
+                                        <Activity className="h-8 w-8 opacity-50 animate-pulse" />
+                                        <span>Analyzing data patterns...</span>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <button className="mt-6 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group">
+                            <Zap className="h-4 w-4 group-hover:fill-current transition-all" />
+                            Generate Full Report
+                        </button>
+                    </motion.div>
+                </div>
+
+                {/* Secondary Charts & Tables */}
+                <div className="grid lg:grid-cols-3 gap-8 pb-8">
+                    {/* Device Distribution */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-3xl border border-white/60 bg-white/80 dark:bg-[#18181b] backdrop-blur-xl p-8 shadow-xl flex flex-col items-center justify-center min-h-[400px] dark:border-white/10 relative overflow-hidden"
+                    >
+                        {/* Subtle Background Glows */}
+                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                        <h3 className="font-bold text-slate-800 dark:text-white mb-2 self-start w-full flex items-center gap-2 text-lg z-10 relative">
+                            <Smartphone className="h-5 w-5 text-indigo-500" /> Device Distribution
+                        </h3>
+                        <div className="w-full flex-1 relative flex items-center justify-center z-10">
+                            <ResponsiveContainer width="100%" height={300}>
+                                <RePieChart>
+                                    <Pie
+                                        data={deviceDistribution.length > 0 ? deviceDistribution : [{ name: 'No Data', value: 1, color: '#e2e8f0' }]}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={80}
+                                        outerRadius={105}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                        stroke="none"
+                                        animationDuration={1500}
+                                    >
+                                        {deviceDistribution.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip
+                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', backgroundColor: '#1e293b', color: '#fff' }}
+                                        itemStyle={{ fontWeight: 'bold', color: '#fff' }}
+                                    />
+                                    <Legend iconType="circle" verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: '20px', color: '#94a3b8' }} />
+                                </RePieChart>
+                            </ResponsiveContainer>
+                            {/* Center Text */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] text-center pointer-events-none">
+                                <div className="text-3xl font-black text-slate-800 dark:text-white">
+                                    {deviceDistribution.length > 0 ? deviceDistribution.reduce((a, b) => a + b.value, 0) : '0'}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Total Devices</div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Top Students List - Redesigned */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="lg:col-span-2 rounded-3xl bg-[#18181b] border border-white/10 shadow-2xl p-8 overflow-hidden relative"
+                    >
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-8 z-10 relative">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full border border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                                    <div className="h-4 w-4 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                </div>
+                                Top Attendance
+                            </h3>
+                            <button
+                                // @ts-ignore
+                                onClick={() => router.visit(route('admin.mahasiswa'))}
+                                className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                            >
+                                View All Students
+                            </button>
+                        </div>
+
+                        {/* List Headers */}
+                        <div className="grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-4 overflow-x-auto sm:overflow-visible min-w-[600px] sm:min-w-full">
+                            <div className="col-span-5">Mahasiswa</div>
+                            <div className="col-span-3">Jurusan</div>
+                            <div className="col-span-2 text-center">Kehadiran</div>
+                            <div className="col-span-2 text-right">Status</div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-px w-full bg-white/10 mb-4" />
+
+                        {/* Scrollable List */}
+                        <div className="space-y-3">
+                            <AnimatePresence>
+                                {topPerformers.length > 0 ? (
+                                    topPerformers.map((student, i) => (
+                                        <motion.div
+                                            key={student.id}
+                                            onClick={() => handleStudentClick(student.id)}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.1 * i, type: 'spring', stiffness: 200, damping: 20 }}
+                                            whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.03)' }}
+                                            whileTap={{ scale: 0.99 }}
+                                            className="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl cursor-pointer group transition-colors bg-white/5 border border-white/5 hover:border-indigo-500/30 min-w-[600px] sm:min-w-full"
+                                        >
+                                            {/* Mahasiswa Column */}
+                                            <div className="col-span-5 flex items-center gap-4">
+                                                <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${i === 0 ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/30' :
+                                                    i === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-blue-500/30' :
+                                                        'bg-gradient-to-br from-slate-700 to-slate-600'
+                                                    }`}>
+                                                    {student.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-white text-sm group-hover:text-indigo-400 transition-colors line-clamp-1">{student.name}</div>
+                                                    <div className="text-xs text-slate-500 font-medium">{student.nim}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Jurusan Column */}
+                                            <div className="col-span-3 text-sm font-medium text-slate-400">
+                                                {student.department === 'Teknik Informatika' ? 'Umum' : student.department}
+                                            </div>
+
+                                            {/* Kehadiran Column */}
+                                            <div className="col-span-2 flex justify-center">
+                                                <div className="px-3 py-1.5 rounded-lg bg-[#27272a] border border-white/10 text-white font-bold text-xs min-w-[3rem] text-center shadow-inner">
+                                                    {student.attendance.replace(' Sesi', '')} Sesi
+                                                </div>
+                                            </div>
+
+                                            {/* Status Column */}
+                                            <div className="col-span-2 flex justify-end">
+                                                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-lg border ${student.status === 'Excellent' || student.status === 'Good'
+                                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10'
+                                                    : 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10'
+                                                    }`}>
+                                                    {student.status === 'Excellent' ? 'Good' : student.status}
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className="py-12 text-center text-slate-600 font-medium italic">
+                                        No data available yet
+                                    </div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* Subtle Background Glows */}
+                        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+                    </motion.div>
+                </div>
+            </motion.div>
+
+            {/* Student Detail Modal */}
+            <AnimatePresence>
+                {selectedStudentId && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={closeModal}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-4xl bg-white dark:bg-[#1a1a1a] rounded-3xl shadow-2xl overflow-hidden border border-white/10 z-10 flex flex-col max-h-[90vh]"
+                        >
+                            {isLoadingDetail ? (
+                                <div className="h-96 flex items-center justify-center flex-col gap-3">
+                                    <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-sm font-medium text-slate-500">Loading comprehensive profile...</span>
+                                </div>
+                            ) : studentDetail ? (
+                                <div className="flex flex-col h-full">
+                                    {/* Modal Header */}
+                                    <div className="relative h-40 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden shrink-0">
+                                        <div className="absolute inset-0 bg-black/10" />
+                                        <div className="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl animate-pulse" />
+                                        <div className="absolute left-10 bottom-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+
+                                        <div className="absolute top-6 right-6 flex gap-3 z-20">
+                                            <button className="p-2 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors backdrop-blur-md border border-white/10" title="Download Report">
+                                                <Download className="w-5 h-5" />
+                                            </button>
+                                            <button className="p-2 bg-white/20 text-white rounded-full hover:bg-white/30 transition-colors backdrop-blur-md border border-white/10" title="Edit Student">
+                                                <Edit className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={closeModal}
+                                                className="p-2 bg-black/20 text-white rounded-full hover:bg-black/40 transition-colors backdrop-blur-md border border-white/5"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        <div className="absolute bottom-0 left-0 w-full px-8 pb-6 flex items-end gap-6 translate-y-8 z-20">
+                                            <div className="h-32 w-32 rounded-3xl bg-white dark:bg-[#1a1a1a] p-2 shadow-2xl rotate-3 transform origin-bottom-left transition-transform hover:rotate-0">
+                                                <div className="h-full w-full rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-5xl font-black text-white shadow-inner">
+                                                    {studentDetail.student.avatar_letter}
+                                                </div>
+                                            </div>
+                                            <div className="mb-10 text-white pb-1">
+                                                <h2 className="text-3xl font-bold tracking-tight">{studentDetail.student.name}</h2>
+                                                <div className="flex items-center gap-3 text-indigo-100 mt-1">
+                                                    <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/10">{studentDetail.student.department}</span>
+                                                    <span className="text-sm font-medium opacity-80">{studentDetail.student.nim}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Navigation Tabs */}
+                                    <div className="mt-12 px-8 border-b border-slate-200 dark:border-slate-800 flex gap-8 shrink-0">
+                                        {['overview', 'history', 'calendar'].map((tab) => (
+                                            <button
+                                                key={tab}
+                                                onClick={() => setActiveTab(tab)}
+                                                className={`pb-4 text-sm font-bold capitalize transition-all relative ${activeTab === tab
+                                                    ? 'text-indigo-600 dark:text-indigo-400'
+                                                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                                                    }`}
+                                            >
+                                                {tab}
+                                                {activeTab === tab && (
+                                                    <motion.div
+                                                        layoutId="activeTab"
+                                                        className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 dark:bg-indigo-400 rounded-t-full"
+                                                    />
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Scrollable Content Area */}
+                                    <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                                        <AnimatePresence mode='wait'>
+                                            {activeTab === 'overview' && (
+                                                <motion.div
+                                                    key="overview"
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -20 }}
+                                                >
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                                        <div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                                                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Kehadiran</div>
+                                                            <div className="text-2xl font-black text-slate-900 dark:text-white">{studentDetail.student.total_attendance}</div>
+                                                            <div className="text-xs text-emerald-500 font-bold mt-1">Sesi Terdata</div>
+                                                        </div>
+                                                        <div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                                                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Rate</div>
+                                                            <div className="text-2xl font-black text-slate-900 dark:text-white">{studentDetail.student.attendance_rate}%</div>
+                                                            <div className="text-xs text-indigo-500 font-bold mt-1">{studentDetail.student.status}</div>
+                                                        </div>
+                                                        <div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                                                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Avg Check-in</div>
+                                                            <div className="text-2xl font-black text-slate-900 dark:text-white">{studentDetail.student.avg_check_in || '--:--'}</div>
+                                                            <div className="text-xs text-amber-500 font-bold mt-1">WIB</div>
+                                                        </div>
+                                                        <div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10">
+                                                            <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Late Count</div>
+                                                            <div className="text-2xl font-black text-slate-900 dark:text-white">{studentDetail.student.late_count || 0}</div>
+                                                            <div className="text-xs text-rose-500 font-bold mt-1">Times</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                                                        <TrendingUp className="w-5 h-5 text-indigo-500" /> Weekly Activity
+                                                    </h3>
+                                                    <div className="h-64 w-full bg-slate-50 dark:bg-white/5 rounded-3xl p-4 mb-8 border border-slate-100 dark:border-white/5">
+                                                        <ResponsiveContainer width="100%" height="100%">
+                                                            <AreaChart data={studentDetail.weekly_activity}>
+                                                                <defs>
+                                                                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                                                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                                                    </linearGradient>
+                                                                </defs>
+                                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.3} />
+                                                                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8', fontWeight: 600 }} dy={10} />
+                                                                <YAxis hide />
+                                                                <Tooltip
+                                                                    contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: 'none', color: '#fff' }}
+                                                                    itemStyle={{ color: '#fff' }}
+                                                                />
+                                                                <Area type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorCount)" />
+                                                            </AreaChart>
+                                                        </ResponsiveContainer>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+
+                                            {activeTab === 'history' && (
+                                                <motion.div
+                                                    key="history"
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -20 }}
+                                                >
+                                                    <div className="bg-slate-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-slate-100 dark:border-white/5">
+                                                        <table className="w-full text-sm text-left">
+                                                            <thead className="bg-slate-100 dark:bg-white/10 text-xs uppercase text-slate-500 font-bold">
+                                                                <tr>
+                                                                    <th className="px-6 py-4">Date & Time</th>
+                                                                    <th className="px-6 py-4">Status</th>
+                                                                    <th className="px-6 py-4 text-right">Device</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                                                {studentDetail.recent_logs.map((log: any) => (
+                                                                    <tr key={log.id} className="hover:bg-white dark:hover:bg-white/5 transition-colors">
+                                                                        <td className="px-6 py-4">
+                                                                            <div className="font-bold text-slate-900 dark:text-white">{log.date}</div>
+                                                                            <div className="text-xs text-slate-500">{log.time}</div>
+                                                                        </td>
+                                                                        <td className="px-6 py-4">
+                                                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${log.status === 'On Time'
+                                                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                                                                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                                                                }`}>
+                                                                                <span className={`w-1.5 h-1.5 rounded-full ${log.status === 'On Time' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                                                                                {log.status}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td className="px-6 py-4 text-right font-medium text-slate-600 dark:text-slate-400">
+                                                                            {log.device}
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+
+                                            {activeTab === 'calendar' && (
+                                                <motion.div
+                                                    key="calendar"
+                                                    initial={{ opacity: 0, x: 20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -20 }}
+                                                >
+                                                    <div className="bg-slate-50 dark:bg-white/5 rounded-3xl overflow-hidden border border-slate-100 dark:border-white/5 p-6">
+                                                        {/* Calendar Header */}
+                                                        <div className="flex items-center justify-between mb-8">
+                                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                                                                    <Calendar className="w-5 h-5" />
+                                                                </div>
+                                                                {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+                                                            </h3>
+                                                            <div className="flex gap-4">
+                                                                <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                                                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span> Hadir
+                                                                </div>
+                                                                <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+                                                                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50"></span> Alpha / Libur
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Dynamic Calendar Grid */}
+                                                        <div className="grid grid-cols-7 gap-y-4 gap-x-2">
+                                                            {['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'].map((day) => (
+                                                                <div key={day} className="text-center text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                                                    {day.substr(0, 3)}
+                                                                </div>
+                                                            ))}
+
+                                                            {/* Empty slots for start of month */}
+                                                            {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay() }).map((_, i) => (
+                                                                <div key={`pad-${i}`} />
+                                                            ))}
+
+                                                            {/* Days of Month */}
+                                                            {Array.from({ length: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate() }).map((_, i) => {
+                                                                const day = i + 1;
+                                                                const month = new Date().getMonth() + 1;
+                                                                const year = new Date().getFullYear();
+                                                                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                                                                // Check if this date exists in calendar_data
+                                                                const log = (studentDetail.calendar_data || []).find((d: any) => d.date === dateStr);
+                                                                const hasPresence = !!log;
+                                                                const isLate = log?.status === 'late' || log?.status === 'Late';
+                                                                const isWeekend = new Date(year, month - 1, day).getDay() === 0 || new Date(year, month - 1, day).getDay() === 6;
+
+                                                                return (
+                                                                    <motion.div
+                                                                        key={day}
+                                                                        whileHover={{ scale: 1.1, translateY: -2 }}
+                                                                        className={`aspect-square rounded-xl flex flex-col items-center justify-center text-sm font-bold transition-all cursor-pointer border relative overflow-hidden group ${hasPresence
+                                                                            ? (isLate
+                                                                                ? 'bg-amber-500 text-white border-amber-600 shadow-lg shadow-amber-500/30'
+                                                                                : 'bg-emerald-500 text-white border-emerald-600 shadow-lg shadow-emerald-500/30')
+                                                                            : (isWeekend ? 'bg-slate-100/50 text-slate-300 dark:bg-white/5 dark:text-slate-700 border-transparent' : 'bg-white text-slate-700 border-slate-200 dark:bg-white/5 dark:text-slate-300 dark:border-white/10 hover:border-indigo-500 dark:hover:border-indigo-500')
+                                                                            }`}
+                                                                    >
+                                                                        <span className="relative z-10">{day}</span>
+                                                                        {hasPresence && (
+                                                                            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                        )}
+                                                                    </motion.div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+                            ) : null}
+                        </motion.div>
+                    </div >
+                )
+                }
+            </AnimatePresence >
+        </AppLayout >
+    );
+}

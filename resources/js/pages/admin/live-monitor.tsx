@@ -6,6 +6,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import LogDetailModal from '@/components/admin/live-monitor/log-detail-modal';
+import SessionDetailModal from '@/components/admin/live-monitor/session-detail-modal';
 
 // Helper for classes
 function cn(...inputs: ClassValue[]) {
@@ -64,6 +66,7 @@ interface ActiveSession {
     course: { nama: string } | null;
     start_at: string | null;
     end_at: string | null;
+    nama: string; // Add nama to interface as it's used in ActiveSession
 }
 
 interface PageProps {
@@ -81,6 +84,12 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; i
     present: { label: 'Hadir', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle },
     late: { label: 'Terlambat', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Clock },
     rejected: { label: 'Ditolak', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10 border-red-500/20', icon: XCircle },
+    // Add other statuses if needed
+    hadir: { label: 'Hadir', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', icon: CheckCircle },
+    terlambat: { label: 'Terlambat', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', icon: Clock },
+    ditolak: { label: 'Ditolak', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-500/10 border-red-500/20', icon: XCircle },
+    izin: { label: 'Izin', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20', icon: AlertTriangle },
+    sakit: { label: 'Sakit', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20', icon: AlertTriangle },
 };
 
 // Animation Variants
@@ -145,6 +154,10 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastUpdate, setLastUpdate] = useState(new Date());
 
+    // UI State for Modals
+    const [selectedLog, setSelectedLog] = useState<Log | null>(null);
+    const [selectedSession, setSelectedSession] = useState<RecentSession | null>(null);
+
     const fetchLogs = useCallback(async () => {
         const query = activeSession?.id ? `?session_id=${activeSession.id}` : '';
         try {
@@ -170,115 +183,83 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
 
     const pieData = statusDistribution.map(s => ({ name: statusConfig[s.status]?.label || s.status, value: s.total }));
 
+    // Generate formatted time string for the big display
+    const timeString = lastUpdate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ' : ');
+
     return (
         <AppLayout>
             <Head title="Live Monitor" />
+
+            {/* Modals */}
+            <LogDetailModal
+                isOpen={!!selectedLog}
+                onClose={() => setSelectedLog(null)}
+                log={selectedLog}
+            />
+            <SessionDetailModal
+                isOpen={!!selectedSession}
+                onClose={() => setSelectedSession(null)}
+                session={selectedSession}
+            />
+
             <motion.div
-                className="p-6 space-y-6"
+                className="p-6 space-y-8"
+                variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                variants={containerVariants}
             >
-                {/* ─── Hero Header ─── */}
+                {/* ─── Hero Header & Refresh Section ─── */}
+                {/* ─── Hero Header & Refresh Section ─── */}
                 <motion.div
-                    variants={headerVariants}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    variants={itemVariants}
+                    className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
-                    {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
-                    />
+                    {/* Title Section */}
+                    <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 shadow-2xl">
+                        <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-white/10 blur-3xl animate-pulse" />
+                        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-40 w-40 rounded-full bg-black/10 blur-2xl" />
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* Pulsating Rings */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-
-                    <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                            <motion.div
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
-                            >
-                                <Radar className="h-8 w-8 text-white" />
-                            </motion.div>
+                        <div className="relative z-10 flex items-center gap-5">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner border border-white/30 shrink-0">
+                                <Radar className="h-8 w-8 text-white animate-spin-slow" />
+                            </div>
                             <div>
-                                <motion.p
-                                    className="text-sm text-indigo-100 font-medium tracking-wide uppercase"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    Real-time Monitoring
-                                </motion.p>
-                                <motion.h1
-                                    className="text-3xl font-bold text-white tracking-tight"
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                >
+                                <h1 className="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-md">
                                     Live Monitor
-                                </motion.h1>
-                                <motion.p
-                                    className="mt-1 text-indigo-100 text-sm opacity-90"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.4 }}
-                                >
-                                    Memantau aktivitas absensi mahasiswa secara langsung.
-                                </motion.p>
+                                </h1>
+                                <p className="text-sm text-indigo-100 font-medium max-w-lg leading-relaxed">
+                                    Pantau aktivitas absensi dan status sesi perkuliahan secara <span className="text-white font-bold underline decoration-pink-400 underline-offset-4">real-time</span>.
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-xs text-indigo-200">Terakhir diperbarui</p>
-                                <p className="font-mono text-lg font-bold text-white tracking-wider">{lastUpdate.toLocaleTimeString('id-ID')}</p>
-                            </div>
+                    {/* Refresh / Time Section (Purple Gradient) */}
+                    <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-violet-600 to-indigo-600 p-8 shadow-xl flex items-center justify-between">
+                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+                        <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                        <div className="relative z-10">
+                            <p className="text-indigo-200 text-xs font-bold uppercase tracking-widest mb-1">Terakhir diperbarui</p>
+                            <p className="text-2xl font-mono font-bold text-white tracking-wider drop-shadow-sm">
+                                {lastUpdate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ' : ')}
+                            </p>
+                        </div>
+
+                        <div className="relative z-10">
                             <motion.button
                                 onClick={handleRefresh}
                                 disabled={isRefreshing}
-                                className="group relative flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 hover:bg-white/30 transition-all backdrop-blur-xl border border-white/30 shadow-lg overflow-hidden"
-                                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.3)" }}
+                                className="group relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 hover:bg-white/20 transition-all backdrop-blur-xl border border-white/20 shadow-lg overflow-hidden"
+                                whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(255,255,255,0.2)" }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <motion.div
                                     animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
                                     transition={{ duration: 1, repeat: isRefreshing ? Infinity : 0, ease: "linear" }}
                                 >
-                                    <RefreshCw className={cn("h-5 w-5 text-white")} />
+                                    <RefreshCw className="h-5 w-5 text-white" />
                                 </motion.div>
-                                {isRefreshing && (
-                                    <motion.div
-                                        className="absolute inset-0 bg-white/20"
-                                        initial={{ scale: 0, opacity: 0 }}
-                                        animate={{ scale: 2, opacity: 0 }}
-                                        transition={{ duration: 0.6 }}
-                                    />
-                                )}
                             </motion.button>
                         </div>
                     </div>
@@ -447,29 +428,33 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                     {/* ─── Recent Logs ─── */}
                     <motion.div
                         variants={itemVariants}
-                        className="flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden h-full"
+                        className="flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden h-full p-6"
                     >
-                        <div className="p-6 border-b border-white/10 dark:border-white/5 bg-gradient-to-r from-white/30 to-white/10 dark:from-white/5 dark:to-transparent">
+                        <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
                                     <Radar className="h-5 w-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Aktivitas Terbaru</h2>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Aktivitas Terbaru</h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Real-time scan logs</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto max-h-[500px] p-4 space-y-3">
+
+                        <div className="flex-1 overflow-y-auto max-h-[500px] space-y-3 pr-2 custom-scrollbar">
                             <AnimatePresence mode="popLayout">
                                 {logs.length === 0 ? (
                                     <motion.div
-                                        className="p-16 text-center"
+                                        className="p-12 text-center"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                     >
-                                        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 mb-4">
-                                            <Radar className="h-10 w-10 text-neutral-400" />
+                                        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 mb-4">
+                                            <Radar className="h-8 w-8 text-neutral-400" />
                                         </div>
-                                        <p className="text-neutral-500 dark:text-neutral-400 text-lg">Belum ada scan masuk</p>
+                                        <p className="text-neutral-500 dark:text-neutral-400 text-sm">Belum ada scan masuk</p>
                                     </motion.div>
                                 ) : logs.map((log, index) => {
                                     const cfg = statusConfig[log.status] || { label: log.status, color: 'text-neutral-600 dark:text-neutral-400', bg: 'bg-neutral-100 dark:bg-neutral-800', icon: AlertTriangle };
@@ -480,30 +465,31 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 20 }}
-                                            className="group relative flex items-center justify-between p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white dark:hover:bg-neutral-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+                                            onClick={() => setSelectedLog(log)}
+                                            className="group relative flex items-center justify-between p-3 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white dark:hover:bg-neutral-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                                         >
-                                            <div className="flex items-center gap-5">
-                                                <div className={cn("flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-all group-hover:scale-110 group-hover:rotate-6", cfg.bg, cfg.color)}>
-                                                    <Icon className="h-7 w-7" />
+                                            <div className="flex items-center gap-4">
+                                                <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl shadow-sm transition-all group-hover:scale-110 group-hover:rotate-6", cfg.bg, cfg.color)}>
+                                                    <Icon className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-lg text-neutral-900 dark:text-white leading-tight mb-1">{log.name}</p>
-                                                    <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                                        <span className="font-mono bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded text-xs">{log.nim}</span>
+                                                    <p className="font-semibold text-base text-neutral-900 dark:text-white leading-tight mb-0.5">{log.name}</p>
+                                                    <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                                        <span className="font-mono bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded">{log.nim}</span>
                                                         <span>•</span>
                                                         <span className="truncate max-w-[150px]">{log.course}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="font-mono text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">{log.time}</p>
-                                                <div className="flex items-center gap-2 justify-end mt-2">
+                                                <p className="font-mono text-sm font-bold text-neutral-900 dark:text-white tracking-tight">{log.time}</p>
+                                                <div className="flex items-center gap-2 justify-end mt-1">
                                                     {log.distance_m !== null && (
-                                                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 px-2 py-1 rounded-lg border border-neutral-200 dark:border-neutral-700 shadow-sm">
+                                                        <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-700 shadow-sm">
                                                             {log.distance_m}m
                                                         </span>
                                                     )}
-                                                    <span className={cn("text-xs font-bold px-2 py-1 rounded-lg border shadow-sm", cfg.bg, cfg.color, cfg.bg.replace('bg-', 'border-'))}>
+                                                    <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border shadow-sm", cfg.bg, cfg.color, cfg.bg.replace('bg-', 'border-'))}>
                                                         {cfg.label}
                                                     </span>
                                                 </div>
@@ -518,45 +504,50 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                     {/* ─── Recent Sessions ─── */}
                     <motion.div
                         variants={itemVariants}
-                        className="flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden h-full"
+                        className="flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden h-full p-6"
                     >
-                        <div className="p-6 border-b border-white/10 dark:border-white/5 bg-gradient-to-r from-white/30 to-white/10 dark:from-white/5 dark:to-transparent">
+                        <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30">
                                     <Timer className="h-5 w-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Sesi Terbaru</h2>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Sesi Terbaru</h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Jadwal & status sesi</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+                        <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                             {recentSessions.map((s, index) => (
                                 <motion.div
                                     key={s.id}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="group flex items-center justify-between p-4 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white dark:hover:bg-neutral-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                                    onClick={() => setSelectedSession(s)}
+                                    className="group flex items-center justify-between p-3 rounded-2xl bg-neutral-50/50 dark:bg-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white dark:hover:bg-neutral-800 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                                 >
-                                    <div className="flex items-center gap-5">
+                                    <div className="flex items-center gap-4">
                                         <div className={cn(
-                                            "flex h-14 w-14 items-center justify-center rounded-2xl shadow-sm transition-all group-hover:scale-110 group-hover:rotate-6",
+                                            "flex h-10 w-10 items-center justify-center rounded-xl shadow-sm transition-all group-hover:scale-110 group-hover:rotate-6",
                                             s.is_active
                                                 ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
                                                 : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700'
                                         )}>
-                                            {s.is_active ? <Play className="h-7 w-7 fill-current" /> : <Clock className="h-7 w-7" />}
+                                            {s.is_active ? <Play className="h-5 w-5 fill-current" /> : <Clock className="h-5 w-5" />}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-lg text-neutral-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-1">
+                                            <p className="font-semibold text-base text-neutral-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-0.5">
                                                 {s.course_name}
                                             </p>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-md bg-neutral-200/50 dark:bg-neutral-700/50 border border-neutral-200 dark:border-neutral-700">
-                                                    Pertemuan #{s.meeting_number}
+                                                <span className="text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 px-1.5 py-0.5 rounded bg-neutral-200/50 dark:bg-neutral-700/50 border border-neutral-200 dark:border-neutral-700">
+                                                    #{s.meeting_number}
                                                 </span>
                                                 {s.is_active && (
-                                                    <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 animate-pulse">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                                    <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 animate-pulse">
+                                                        <span className="w-1 h-1 rounded-full bg-current" />
                                                         LIVE
                                                     </span>
                                                 )}
@@ -564,8 +555,8 @@ export default function LiveMonitor({ activeSession, recentLogs: initialLogs, to
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-3xl font-bold text-neutral-900 dark:text-white leading-none">{s.total_attendance}</p>
-                                        <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500 mt-1 uppercase tracking-wide">kehadiran</p>
+                                        <p className="text-xl font-bold text-neutral-900 dark:text-white leading-none">{s.total_attendance}</p>
+                                        <p className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 mt-1 uppercase tracking-wide">hadir</p>
                                     </div>
                                 </motion.div>
                             ))}

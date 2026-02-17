@@ -454,7 +454,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         <motion.div
                             key={i}
                             variants={itemVariants}
-                            className="rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5"
                             whileHover={{ scale: 1.05, y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         >
@@ -474,7 +474,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                 {/* Filters */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                    className="rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50"
                 >
                     <div className="flex gap-4">
                         <div className="relative flex-1">
@@ -511,7 +511,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                     {tugasList.length === 0 ? (
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-16 text-center shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            className="rounded-3xl border border-white/20 bg-white/40 p-16 text-center shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40"
                         >
                             <div className="relative mx-auto w-24 h-24 mb-6">
                                 <motion.div
@@ -534,7 +534,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
                                 whileHover={{ x: 4 }}
-                                className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 cursor-pointer group ${tugas.is_overdue ? 'border-red-300 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/10' : ''}`}
+                                className={`rounded-3xl border border-white/20 bg-white/40 p-5 shadow-sm backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 cursor-pointer group ${tugas.is_overdue ? 'border-red-300 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/10' : ''}`}
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1" onClick={() => router.visit(`/admin/tugas/${tugas.id}`)}>

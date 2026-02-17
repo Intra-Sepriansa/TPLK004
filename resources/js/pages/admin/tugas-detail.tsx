@@ -125,8 +125,24 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                     transition={{ duration: 0.5 }}
                     className="relative mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 opacity-90" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90" />
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
+
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-50"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
 
                     {/* Floating Orbs */}
                     <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse" />
@@ -195,7 +211,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                 >
                     {/* Left Column: Details */}
                     <div className="lg:col-span-2 space-y-8">
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-300">
+                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 p-8 relative overflow-hidden group hover:border-white/30 transition-all duration-300">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-[100px] -mr-8 -mt-8 transition-all group-hover:bg-indigo-500/20" />
 
                             <div className="flex items-center gap-3 mb-6">
@@ -234,7 +250,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                         </motion.div>
 
                         {/* Discussion Section */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden flex flex-col h-[600px] relative transition-all duration-300 hover:border-white/20">
+                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden flex flex-col h-[600px] relative transition-all duration-300 hover:border-white/30">
                             <div className="p-6 border-b border-white/10 bg-white/5 backdrop-blur-md flex justify-between items-center sticky top-0 z-10">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
@@ -386,7 +402,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
 
                     {/* Right Column: Sidebar Info */}
                     <div className="space-y-6">
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 relative overflow-hidden group hover:border-white/20 transition-all duration-300">
+                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 p-6 relative overflow-hidden group hover:border-white/30 transition-all duration-300">
                             <h3 className="text-lg font-semibold mb-6 flex items-center gap-2 text-white">
                                 <Info className="h-5 w-5 text-indigo-400" /> Informasi Detail
                             </h3>

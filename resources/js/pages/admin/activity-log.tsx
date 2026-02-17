@@ -88,166 +88,209 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
             <Head title="Log Aktivitas" />
 
             <div className="p-6 space-y-6">
-                {/* Header */}
+                {/* ═══════ HEADER — Matching Uang Kas Style ═══════ */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl border border-slate-200 dark:border-slate-800/50"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    <motion.div 
-                        className="flex items-center gap-4"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1, duration: 0.3 }}
-                    >
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Floating Animations (Pulses) */}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+                    />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+                    />
+
+                    <div className="relative flex items-center gap-6">
                         <motion.div
-                            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur border border-indigo-500/30"
+                            className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl"
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
-                            transition={{ delay: 0.15, duration: 0.3, type: "spring", stiffness: 200 }}
-                            whileHover={{ scale: 1.05, rotate: 5 }}
+                            transition={{ delay: 0.15, duration: 0.5, type: "spring", stiffness: 200 }}
+                            whileHover={{ scale: 1.1, rotate: 10 }}
                         >
-                            <ScrollText className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <ScrollText className="h-10 w-10 text-white" />
                         </motion.div>
                         <div>
-                            <motion.p 
-                                className="text-sm text-indigo-200/80"
+                            <motion.p
+                                className="text-indigo-100 font-medium tracking-wide mb-1"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.2, duration: 0.2 }}
                             >
-                                Monitoring
+                                Monitoring Sistem
                             </motion.p>
-                            <motion.h1 
-                                className="text-3xl font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent"
+                            <motion.h1
+                                className="text-4xl font-bold text-white tracking-tight"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.25, duration: 0.2 }}
                             >
                                 Log Aktivitas Admin
                             </motion.h1>
+                            <motion.p
+                                className="mt-2 text-indigo-50 border-l-2 border-indigo-300/50 pl-3 italic text-sm max-w-xl"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3, duration: 0.2 }}
+                            >
+                                Pantau dan audit setiap aksi yang dilakukan pengguna dalam sistem secara realtime.
+                            </motion.p>
                         </div>
-                    </motion.div>
-                    <motion.p 
-                        className="mt-4 text-indigo-100/70 max-w-2xl"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3, duration: 0.2 }}
-                    >
-                        Pantau semua aktivitas yang dilakukan di sistem
-                    </motion.p>
+                    </div>
                 </motion.div>
 
-                {/* Stats - Dock Style */}
-                <div className="grid gap-4 md:grid-cols-3">
+                {/* Stats - Advanced Glassmorphism & Glowing Orbs */}
+                <div className="grid gap-6 md:grid-cols-3">
                     {[
-                        { icon: Activity, label: 'Total Aktivitas', value: stats.total, color: 'from-indigo-500/20 to-purple-500/20', iconColor: 'text-indigo-600 dark:text-indigo-400', borderColor: 'border-indigo-500/30' },
-                        { icon: Clock, label: 'Hari Ini', value: stats.today, color: 'from-emerald-500/20 to-teal-500/20', iconColor: 'text-emerald-600 dark:text-emerald-400', borderColor: 'border-emerald-500/30' },
-                        { icon: Calendar, label: 'Minggu Ini', value: stats.this_week, color: 'from-blue-500/20 to-cyan-500/20', iconColor: 'text-blue-600 dark:text-blue-400', borderColor: 'border-blue-500/30' },
+                        { icon: Activity, label: 'Total Aktivitas', value: stats.total, color: 'from-indigo-500 to-purple-500', glow: 'bg-indigo-500' },
+                        { icon: Clock, label: 'Hari Ini', value: stats.today, color: 'from-emerald-500 to-teal-500', glow: 'bg-emerald-500' },
+                        { icon: Calendar, label: 'Minggu Ini', value: stats.this_week, color: 'from-blue-500 to-cyan-500', glow: 'bg-blue-500' },
                     ].map((stat, index) => (
                         <motion.div
                             key={stat.label}
-                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{ 
-                                delay: 0.05 + index * 0.015, 
-                                duration: 0.15,
-                                ease: "easeOut"
-                            }}
-                            whileHover={{ scale: 1.05, y: -5 }}
-                            className="group relative overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl cursor-pointer"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.1 + index * 0.1 }}
+                            whileHover="hover"
+                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:border-white/5"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ backgroundImage: `linear-gradient(to bottom right, ${stat.color})` }} />
-                            
-                            <div className="relative z-10 flex items-center gap-4">
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 dark:opacity-10`} />
+
+                            {/* Glowing Orb */}
+                            <motion.div
+                                variants={{
+                                    hover: { scale: 1.5, opacity: 0.5 },
+                                    initial: { scale: 1, opacity: 0.2 }
+                                }}
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glow} blur-3xl transition-all duration-500`}
+                            />
+
+                            <div className="relative flex items-center gap-4">
                                 <motion.div
-                                    className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} backdrop-blur border ${stat.borderColor}`}
-                                    whileHover={{ rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 300 }}
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
                                 >
-                                    <stat.icon className={`h-7 w-7 ${stat.iconColor}`} />
+                                    <stat.icon className="h-7 w-7" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{stat.value}</p>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
                 </div>
 
-                {/* Filter Section */}
+                {/* Filter Section - Glassmorphism */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
-                    className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <Filter className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Filter Data</h2>
+                    <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                            <Filter className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                        <h2 className="font-bold text-lg text-gray-800 dark:text-white">Filter Data</h2>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600 dark:text-slate-400" />
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && handleFilter()}
-                                placeholder="Cari aktivitas..."
-                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
-                            />
+                    <div className="grid gap-6 md:grid-cols-4">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pencarian</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleFilter()}
+                                    placeholder="Cari aktivitas..."
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/20 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <select
-                                value={action}
-                                onChange={e => setAction(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
-                            >
-                                <option value="all">Semua Aksi</option>
-                                {actions.map(a => (
-                                    <option key={a} value={a}>{actionConfig[a]?.label || a}</option>
-                                ))}
-                            </select>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</label>
+                            <div className="relative">
+                                <select
+                                    value={action}
+                                    onChange={e => setAction(e.target.value)}
+                                    className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/20 text-sm focus:ring-2 focus:ring-indigo-500 transition-all appearance-none"
+                                >
+                                    <option value="all">Semua Aksi</option>
+                                    {actions.map(a => (
+                                        <option key={a} value={a}>{actionConfig[a]?.label || a}</option>
+                                    ))}
+                                </select>
+                                <Filter className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                            </div>
                         </div>
-                        <div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</label>
                             <input
                                 type="date"
                                 value={date}
                                 onChange={e => setDate(e.target.value)}
-                                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-black/50 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/20 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
                             />
                         </div>
-                        <div>
+                        <div className="flex items-end">
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleFilter}
-                                className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2.5 text-sm font-medium text-white hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg"
+                                className="flex items-center justify-center gap-2 w-full rounded-xl bg-indigo-600 text-white py-2.5 text-sm font-semibold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all"
                             >
                                 <RefreshCw className="h-4 w-4" />
-                                Filter
+                                Terapkan Filter
                             </motion.button>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Activity Logs Table */}
+                {/* Activity Logs Table - Glassmorphism */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.12, duration: 0.2, ease: "easeOut" }}
-                    className="rounded-2xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl overflow-hidden"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-800/50">
+                    <div className="p-6 border-b border-gray-100 dark:border-gray-800">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Riwayat Aktivitas</h2>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                    <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <h2 className="font-bold text-lg text-gray-800 dark:text-white">Riwayat Aktivitas</h2>
                             </div>
-                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                            <span className="text-sm font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
                                 Halaman {logs.current_page} dari {logs.last_page}
                             </span>
                         </div>
@@ -255,22 +298,22 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="bg-slate-50 dark:bg-black/50">
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">User</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Aksi</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Model</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Deskripsi</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">IP</th>
+                                <tr className="bg-gray-50/50 dark:bg-white/5">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Waktu</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Model</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">IP</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-800/50">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                 <AnimatePresence>
                                     {logs.data.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="px-4 py-12 text-center">
-                                                <Activity className="h-10 w-10 mx-auto text-slate-600 mb-2" />
-                                                <p className="text-slate-600 dark:text-slate-400">Tidak ada log aktivitas</p>
+                                            <td colSpan={6} className="px-6 py-12 text-center">
+                                                <Activity className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                                                <p className="text-gray-500 font-medium">Tidak ada log aktivitas</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -281,45 +324,46 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     exit={{ opacity: 0, x: 20 }}
-                                                    transition={{ delay: 0.14 + index * 0.01, duration: 0.15 }}
-                                                    whileHover={{ backgroundColor: 'rgba(51, 65, 85, 0.3)' }}
-                                                    className="transition-colors cursor-pointer"
+                                                    transition={{ delay: 0.05 * index }}
+                                                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
+                                                    className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
                                                     onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
                                                 >
-                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-300">
                                                         {log.created_at}
                                                     </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs ring-2 ring-white ml-1">
                                                                 <User className="h-4 w-4" />
                                                             </div>
-                                                            <span className="text-sm font-medium text-slate-900 dark:text-white">{log.user}</span>
+                                                            <span className="text-sm font-bold text-gray-800 dark:text-white">{log.user}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-3">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
                                                         {getActionBadge(log.action)}
                                                     </td>
-                                                    <td className="px-4 py-3">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
                                                         {log.model_type ? (
-                                                            <div className="flex items-center gap-1">
-                                                                <Database className="h-3 w-3 text-slate-500" />
-                                                                <span className="text-sm text-slate-600 dark:text-slate-400">
-                                                                    {log.model_type}
-                                                                    {log.model_id && <span className="text-slate-500"> #{log.model_id}</span>}
+                                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 w-fit">
+                                                                <Database className="h-3 w-3 text-gray-500" />
+                                                                <span className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                                                                    {log.model_type.split('\\').pop()}
+                                                                    {log.model_id && <span className="text-gray-400"> #{log.model_id}</span>}
                                                                 </span>
                                                             </div>
                                                         ) : (
-                                                            <span className="text-sm text-slate-500">-</span>
+                                                            <span className="text-sm text-gray-400">-</span>
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 max-w-xs truncate">
+                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
                                                         {log.description}
                                                     </td>
-                                                    <td className="px-4 py-3 text-sm text-slate-500 font-mono">
+                                                    <td className="px-6 py-4 text-sm text-gray-500 font-mono">
                                                         {log.ip_address || '-'}
                                                     </td>
                                                 </motion.tr>
+                                                {/* Expanded Details - Glassmorphism */}
                                                 {expandedLog === log.id && (log.old_values || log.new_values) && (
                                                     <motion.tr
                                                         key={`${log.id}-detail`}
@@ -328,20 +372,26 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                                         exit={{ opacity: 0, height: 0 }}
                                                         transition={{ duration: 0.3 }}
                                                     >
-                                                        <td colSpan={6} className="px-4 py-4 bg-slate-50 dark:bg-black/50">
-                                                            <div className="grid md:grid-cols-2 gap-4">
+                                                        <td colSpan={6} className="px-6 py-6 bg-gray-50/50 dark:bg-black/20">
+                                                            <div className="grid md:grid-cols-2 gap-6">
                                                                 {log.old_values && Object.keys(log.old_values).length > 0 && (
-                                                                    <div>
-                                                                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Nilai Lama:</p>
-                                                                        <pre className="text-xs bg-red-900/20 p-3 rounded-lg overflow-auto text-red-300 border border-red-500/30">
+                                                                    <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
+                                                                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-red-200 dark:border-red-800/30">
+                                                                            <div className="h-2 w-2 rounded-full bg-red-500" />
+                                                                            <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider">Data Lama</p>
+                                                                        </div>
+                                                                        <pre className="text-xs font-mono text-red-800 dark:text-red-300 overflow-auto max-h-40 whitespace-pre-wrap">
                                                                             {JSON.stringify(log.old_values, null, 2)}
                                                                         </pre>
                                                                     </div>
                                                                 )}
                                                                 {log.new_values && Object.keys(log.new_values).length > 0 && (
-                                                                    <div>
-                                                                        <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Nilai Baru:</p>
-                                                                        <pre className="text-xs bg-emerald-900/20 p-3 rounded-lg overflow-auto text-emerald-300 border border-emerald-500/30">
+                                                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900/30 dark:bg-emerald-900/10">
+                                                                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-emerald-200 dark:border-emerald-800/30">
+                                                                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                                            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Data Baru</p>
+                                                                        </div>
+                                                                        <pre className="text-xs font-mono text-emerald-800 dark:text-emerald-300 overflow-auto max-h-40 whitespace-pre-wrap">
                                                                             {JSON.stringify(log.new_values, null, 2)}
                                                                         </pre>
                                                                     </div>
@@ -359,7 +409,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     </div>
                     {/* Pagination */}
                     {logs.last_page > 1 && (
-                        <div className="p-4 border-t border-slate-200 dark:border-slate-800/50 flex justify-center gap-2">
+                        <div className="p-6 border-t border-gray-100 dark:border-gray-800 flex justify-center gap-2">
                             {logs.links.map((link, i) => (
                                 <motion.button
                                     key={i}
@@ -367,13 +417,12 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                     whileTap={{ scale: link.url ? 0.95 : 1 }}
                                     onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                     disabled={!link.url}
-                                    className={`px-3 py-1 rounded text-sm transition-all ${
-                                        link.active
-                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${link.active
+                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
                                             : link.url
-                                            ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:bg-slate-700/50'
-                                            : 'bg-slate-900/50 text-slate-600 cursor-not-allowed'
-                                    }`}
+                                                ? 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-900 dark:text-gray-600'
+                                        }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
                             ))}

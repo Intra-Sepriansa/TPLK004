@@ -88,6 +88,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Admin Mahasiswa
     Route::get('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'index'])->name('admin.mahasiswa');
     Route::post('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
+    Route::get('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'show'])->name('admin.mahasiswa.show');
     Route::patch('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'update'])->name('admin.mahasiswa.update');
     Route::delete('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'destroy'])->name('admin.mahasiswa.destroy');
     Route::post('admin/mahasiswa/{mahasiswa}/reset-password', [\App\Http\Controllers\Admin\MahasiswaController::class, 'resetPassword'])->name('admin.mahasiswa.reset-password');
@@ -167,6 +168,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Analytics
     Route::get('admin/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics');
+    Route::get('admin/analytics/export', [\App\Http\Controllers\Admin\AnalyticsController::class, 'export'])->name('admin.analytics.export');
+    Route::get('admin/analytics/student/{id}', [\App\Http\Controllers\Admin\AnalyticsController::class, 'getStudentDetail'])->name('admin.analytics.student.detail');
     
     // Admin Activity Log
     Route::get('admin/activity-log', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-log');

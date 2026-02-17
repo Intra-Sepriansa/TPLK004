@@ -38,6 +38,9 @@ import {
     MessageSquareWarning,
     CheckCheck,
     Minimize2,
+    Trophy,
+    Sparkles,
+    PartyPopper,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -96,7 +99,7 @@ interface RecentLog {
 }
 
 interface Warning {
-    id: number;
+    id: string | number;
     title: string;
     message: string;
     type: string;
@@ -321,49 +324,7 @@ export default function UserRekapan() {
                 className="space-y-6 p-6 relative z-10"
             >
                 {/* Warnings Section - Only visible if there are warnings */}
-                {warnings.length > 0 && (
-                    <motion.div
-                        variants={itemVariants}
-                        className="space-y-3"
-                    >
-                        {warnings.map((warning, index) => (
-                            <motion.div
-                                key={warning.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                onClick={() => setSelectedWarning(warning)}
-                                className={cn(
-                                    "p-4 rounded-xl border flex gap-4 relative overflow-hidden shadow-lg cursor-pointer transition-transform hover:scale-[1.01] active:scale-[0.99]",
-                                    warning.type === 'warning'
-                                        ? "bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-100"
-                                        : "bg-blue-50 border-blue-200 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100"
-                                )}
-                            >
-                                <div className={cn(
-                                    "p-2 rounded-lg flex-shrink-0 h-fit",
-                                    warning.type === 'warning' ? "bg-amber-100 text-amber-600 dark:bg-amber-800 dark:text-amber-200" : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-200"
-                                )}>
-                                    {warning.type === 'warning' ? <AlertTriangle className="h-5 w-5" /> : <BellRing className="h-5 w-5" />}
-                                </div>
-                                <div className="space-y-1 relative z-10 flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="font-semibold">{warning.title}</h3>
-                                        <span className="text-xs opacity-70 bg-white/50 px-2 py-0.5 rounded-full backdrop-blur-sm dark:bg-black/20">
-                                            {warning.created_at}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm opacity-90 leading-relaxed whitespace-pre-wrap">{warning.message}</p>
-                                </div>
-
-                                {/* Background decoration */}
-                                <div className="absolute -right-4 -top-4 opacity-5 pointer-events-none">
-                                    <AlertTriangle className="h-32 w-32 rotate-12" />
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                )}
+                {/* Warnings moved to sidebar */}
 
                 {/* Header Card - ULTRA ADVANCED */}
                 <motion.div
@@ -816,90 +777,7 @@ export default function UserRekapan() {
                                 </ResponsiveContainer>
                             </motion.div>
                         )}
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="space-y-6">
-                        {/* Distribution Pie Chart */}
-                        {distribution.some(d => d.value > 0) && (
-                            <motion.div
-                                variants={itemVariants}
-                                whileHover={{ scale: 1.01, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80"
-                            >
-                                <div className="flex items-center gap-2 mb-4">
-                                    <motion.div
-                                        whileHover={{ scale: 1.2, y: -2 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                    >
-                                        <Award className="h-5 w-5 text-amber-600" />
-                                    </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
-                                        Distribusi Status
-                                    </h2>
-                                </div>
-                                <ResponsiveContainer width="100%" height={200}>
-                                    <PieChart>
-                                        <Pie
-                                            data={distribution.filter(d => d.value > 0)}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={50}
-                                            outerRadius={80}
-                                            paddingAngle={3}
-                                            dataKey="value"
-                                        >
-                                            {distribution.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip content={<CustomTooltip />} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                <div className="flex justify-center gap-4 mt-2">
-                                    {distribution.filter(d => d.value > 0).map((entry, index) => (
-                                        <div key={index} className="flex items-center gap-2 text-xs">
-                                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                                            <span className="text-slate-600 dark:text-slate-400">
-                                                {entry.name}: {entry.value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {/* Attendance Rate Card */}
-                        <motion.div
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.02, y: -3 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-sm dark:from-gray-900 dark:to-black"
-                        >
-                            <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
-                            <div className="flex items-end gap-2 mt-2">
-                                <span className="text-4xl font-bold">
-                                    <AnimatedCounter value={stats.attendanceRate} suffix="%" />
-                                </span>
-                                {stats.attendanceRate >= 75 ? (
-                                    <span className="text-emerald-400 text-sm mb-1 flex items-center gap-1">
-                                        <Zap className="h-4 w-4" /> Bagus!
-                                    </span>
-                                ) : (
-                                    <span className="text-amber-400 text-sm mb-1">Perlu ditingkatkan</span>
-                                )}
-                            </div>
-                            <Progress
-                                value={stats.attendanceRate}
-                                className="mt-4 h-2 bg-slate-700"
-                            />
-                            <p className="text-xs text-slate-400 mt-2">
-                                Minimal 75% untuk memenuhi syarat kehadiran
-                            </p>
-                        </motion.div>
-
-                        {/* Recent Activity */}
+                        {/* Recent Activity - Moved to Main Column */}
                         <motion.div
                             variants={itemVariants}
                             className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
@@ -920,8 +798,16 @@ export default function UserRekapan() {
                             </div>
                             <div className="divide-y dark:divide-gray-800">
                                 {recentLogs.length === 0 ? (
-                                    <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
-                                        Belum ada aktivitas
+                                    <div className="flex flex-col items-center justify-center py-12 px-6 text-center space-y-4">
+                                        <div className="p-4 rounded-full bg-slate-50 dark:bg-white/5">
+                                            <Clock className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="font-medium text-slate-900 dark:text-white">Belum ada aktivitas</p>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                                                Aktivitas absensi dan perkuliahan kamu akan muncul di sini.
+                                            </p>
+                                        </div>
                                     </div>
                                 ) : (
                                     recentLogs.map((log, index) => {
@@ -952,15 +838,224 @@ export default function UserRekapan() {
                                     })
                                 )}
                             </div>
-                            <div className="p-4 border-t dark:border-gray-800 bg-slate-50 dark:bg-white/5">
-                                <Link href="/user/history">
-                                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                        <Button variant="ghost" className="w-full text-sm text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-900/20">
-                                            Lihat Riwayat Lengkap
-                                            <ChevronRight className="h-4 w-4 ml-1" />
-                                        </Button>
+                            {recentLogs.length > 0 && (
+                                <div className="p-4 border-t dark:border-gray-800 bg-slate-50 dark:bg-white/5">
+                                    <Link href="/user/history">
+                                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                                            <Button variant="ghost" className="w-full text-sm text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-900/20">
+                                                Lihat Riwayat Lengkap
+                                                <ChevronRight className="h-4 w-4 ml-1" />
+                                            </Button>
+                                        </motion.div>
+                                    </Link>
+                                </div>
+                            )}
+                        </motion.div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-6">
+                        {/* Warnings Widget - PREMIUM STYLE */}
+                        {warnings.length > 0 && (
+                            <motion.div
+                                variants={itemVariants}
+                                className="rounded-2xl border border-amber-200/70 bg-gradient-to-br from-amber-50/50 to-orange-50/50 p-0 shadow-lg dark:from-amber-900/10 dark:to-orange-900/10 dark:border-amber-700/30 overflow-hidden backdrop-blur-sm"
+                            >
+                                <div className="p-4 border-b border-amber-200/50 dark:border-amber-700/30 flex justify-between items-center bg-white/40 dark:bg-white/5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-700/50">
+                                            <BellRing className="h-4 w-4" />
+                                        </div>
+                                        <h3 className="font-bold text-amber-900 dark:text-amber-100 text-sm">
+                                            Pemberitahuan ({warnings.length})
+                                        </h3>
+                                    </div>
+                                    <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+                                </div>
+
+                                <div className="max-h-[300px] overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                                    {warnings.map((warning, index) => (
+                                        <motion.div
+                                            key={warning.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            onClick={() => setSelectedWarning(warning)}
+                                            className="group relative p-3 rounded-xl bg-white/40 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-all cursor-pointer border border-transparent hover:border-amber-200 dark:hover:border-amber-700/50 hover:shadow-md"
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className={cn(
+                                                    "mt-1 p-1.5 h-fit rounded-lg flex-shrink-0",
+                                                    warning.type === 'warning'
+                                                        ? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                                                        : warning.type === 'appreciation'
+                                                            ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                                            : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                                                )}>
+                                                    {warning.type === 'warning' ? <AlertTriangle className="h-3.5 w-3.5" /> :
+                                                        warning.type === 'appreciation' ? <PartyPopper className="h-3.5 w-3.5" /> :
+                                                            <BellRing className="h-3.5 w-3.5" />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start mb-0.5">
+                                                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate pr-2">
+                                                            {warning.title}
+                                                        </h4>
+                                                        <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                                                            {warning.created_at.split(',')[0]}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                                        {warning.message}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            {!warning.is_read && (
+                                                <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-black" />
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                        {/* Distribution Pie Chart */}
+                        {distribution.some(d => d.value > 0) && (
+                            <motion.div
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.01, y: -2 }}
+                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            >
+                                <div className="flex items-center gap-3 p-6 border-b dark:border-gray-800">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2, y: -2 }}
+                                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/30"
+                                    >
+                                        <Award className="h-5 w-5" />
                                     </motion.div>
-                                </Link>
+                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                        Distribusi Status
+                                    </h2>
+                                </div>
+                                <div className="p-6">
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <PieChart>
+                                            <Pie
+                                                data={distribution.filter(d => d.value > 0)}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                                cornerRadius={4}
+                                            >
+                                                {distribution.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip content={<CustomTooltip />} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div className="flex justify-center gap-4 mt-2 flex-wrap">
+                                        {distribution.filter(d => d.value > 0).map((entry, index) => (
+                                            <div key={index} className="flex items-center gap-2 text-xs font-medium">
+                                                <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: entry.color }} />
+                                                <span className="text-slate-600 dark:text-slate-400">
+                                                    {entry.name}: {entry.value}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* Attendance Rate Card */}
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02, y: -3 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-xl shadow-slate-200/50 dark:from-gray-900 dark:to-black dark:shadow-black/50 dark:border-gray-800"
+                        >
+                            <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
+                            <div className="flex items-end gap-2 mt-2">
+                                <span className="text-4xl font-bold tracking-tight">
+                                    <AnimatedCounter value={stats.attendanceRate} suffix="%" />
+                                </span>
+                                {stats.attendanceRate >= 75 ? (
+                                    <span className="text-emerald-400 text-sm mb-1 flex items-center gap-1 font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                                        <Zap className="h-3 w-3" /> Bagus!
+                                    </span>
+                                ) : (
+                                    <span className="text-amber-400 text-sm mb-1 font-medium bg-amber-400/10 px-2 py-0.5 rounded-full">Perlu ditingkatkan</span>
+                                )}
+                            </div>
+                            <Progress
+                                value={stats.attendanceRate}
+                                className="mt-4 h-2 bg-slate-700/50"
+                            />
+                        </motion.div>
+
+                        {/* Weekly Streak Widget - CLEAN GLASS */}
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                        >
+                            <div className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Weekly Streak</p>
+                                        <div className="mt-1 flex items-baseline gap-1.5">
+                                            <span className="text-3xl font-black text-slate-900 dark:text-white">
+                                                {recentLogs.length > 0 ? '3' : '0'}
+                                            </span>
+                                            <span className="text-xs font-medium text-slate-500">hari</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-2.5 bg-orange-100 rounded-xl dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                                        <Zap className="h-5 w-5" />
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex gap-1">
+                                    {[...Array(7)].map((_, i) => (
+                                        <div key={i} className={cn(
+                                            "h-1.5 flex-1 rounded-full transition-all",
+                                            i < 3 ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]" : "bg-slate-100 dark:bg-white/10"
+                                        )} />
+                                    ))}
+                                </div>
+                                <p className="mt-3 text-[10px] text-slate-400 text-center">
+                                    Pertahankan performa untuk badge "Rajin"!
+                                </p>
+                            </div>
+                        </motion.div>
+
+                        {/* Next Achievement Widget - CLEAN GLASS */}
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.02 }}
+                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                        >
+                            <div className="p-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2.5 bg-indigo-100 rounded-xl dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                        <Trophy className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">Top 10% Attendance</h3>
+                                        <p className="text-[10px] text-slate-500">Unlock level selanjutnya</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider">
+                                        <span className="text-indigo-600 dark:text-indigo-400">Progres</span>
+                                        <span className="text-slate-900 dark:text-white">85%</span>
+                                    </div>
+                                    <Progress value={85} className="h-2 bg-indigo-50 dark:bg-white/5 text-indigo-600" />
+                                </div>
                             </div>
                         </motion.div>
 
@@ -1028,7 +1123,9 @@ export default function UserRekapan() {
                                 "p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden",
                                 selectedWarning.type === 'warning'
                                     ? "bg-gradient-to-b from-amber-50 to-white dark:from-amber-900/20 dark:to-neutral-900"
-                                    : "bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-neutral-900"
+                                    : selectedWarning.type === 'appreciation'
+                                        ? "bg-gradient-to-b from-indigo-50 to-white dark:from-indigo-900/20 dark:to-neutral-900"
+                                        : "bg-gradient-to-b from-blue-50 to-white dark:from-blue-900/20 dark:to-neutral-900"
                             )}>
                                 {/* Background Icon */}
                                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -1038,7 +1135,8 @@ export default function UserRekapan() {
                                         transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
                                         className={cn(
                                             "absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-20",
-                                            selectedWarning.type === 'warning' ? "bg-amber-400" : "bg-blue-400"
+                                            selectedWarning.type === 'warning' ? "bg-amber-400" :
+                                                selectedWarning.type === 'appreciation' ? "bg-indigo-400" : "bg-blue-400"
                                         )}
                                     />
                                     <motion.div
@@ -1047,7 +1145,8 @@ export default function UserRekapan() {
                                         transition={{ duration: 8, repeat: Infinity, repeatType: "reverse" }}
                                         className={cn(
                                             "absolute -bottom-20 -left-20 w-64 h-64 rounded-full blur-3xl opacity-20",
-                                            selectedWarning.type === 'warning' ? "bg-orange-400" : "bg-cyan-400"
+                                            selectedWarning.type === 'warning' ? "bg-orange-400" :
+                                                selectedWarning.type === 'appreciation' ? "bg-purple-400" : "bg-cyan-400"
                                         )}
                                     />
                                 </div>
@@ -1060,11 +1159,15 @@ export default function UserRekapan() {
                                         "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-xl ring-4 ring-white dark:ring-neutral-800 relative z-10",
                                         selectedWarning.type === 'warning'
                                             ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white"
-                                            : "bg-gradient-to-br from-blue-400 to-cyan-500 text-white"
+                                            : selectedWarning.type === 'appreciation'
+                                                ? "bg-gradient-to-br from-indigo-400 to-purple-500 text-white"
+                                                : "bg-gradient-to-br from-blue-400 to-cyan-500 text-white"
                                     )}
                                 >
                                     {selectedWarning.type === 'warning' ? (
                                         <MessageSquareWarning className="h-10 w-10" />
+                                    ) : selectedWarning.type === 'appreciation' ? (
+                                        <PartyPopper className="h-10 w-10" />
                                     ) : (
                                         <BellRing className="h-10 w-10" />
                                     )}

@@ -125,9 +125,9 @@ const ensureLeafletIcons = (() => {
     let configured = false;
     return () => {
         if (configured) return;
-        L.Icon.Default.prototype.options.iconUrl = 'https://cdn-icons-png.flaticon.com/512/684/684908.png';
-        L.Icon.Default.prototype.options.iconSize = [40, 40];
-        L.Icon.Default.prototype.options.iconAnchor = [20, 40];
+        L.Icon.Default.prototype.options.iconUrl = 'https://cdn-icons-png.flaticon.com/512/9446/9446953.png';
+        L.Icon.Default.prototype.options.iconSize = [48, 48];
+        L.Icon.Default.prototype.options.iconAnchor = [24, 48];
         L.Icon.Default.prototype.options.shadowUrl = '';
         configured = true;
     };
@@ -150,6 +150,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
     const [showViolations, setShowViolations] = useState(true);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [mapExpanded, setMapExpanded] = useState(false);
+    const [hoveredCard, setHoveredCard] = useState<string | null>(null); // New state for hover effect
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
@@ -284,7 +285,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
     // Sync map marker/circle with form data
     useEffect(() => {
         if (!mapReady || !markerRef.current || !circleRef.current) return;
-        const pos: [number, number] = [form.data.geofence_lat, form.data.geofence_lng];
+        const pos: [number, number] = [Number(form.data.geofence_lat), Number(form.data.geofence_lng)];
         markerRef.current.setLatLng(pos);
         circleRef.current.setLatLng(pos);
         mapInstanceRef.current?.panTo(pos, { animate: true });
@@ -323,8 +324,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                             exit={{ opacity: 0, y: -20, x: 30, scale: 0.85 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                             className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-2xl px-5 py-4 shadow-2xl backdrop-blur-xl border ${toast.type === 'success'
-                                    ? 'bg-emerald-50/95 text-emerald-800 border-emerald-200/50 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-700/50'
-                                    : 'bg-red-50/95 text-red-800 border-red-200/50 dark:bg-red-900/80 dark:text-red-200 dark:border-red-700/50'
+                                ? 'bg-emerald-50/95 text-emerald-800 border-emerald-200/50 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-700/50'
+                                : 'bg-red-50/95 text-red-800 border-red-200/50 dark:bg-red-900/80 dark:text-red-200 dark:border-red-700/50'
                                 }`}
                         >
                             <motion.div
@@ -377,17 +378,17 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 
                     {/* Floating radar pulses */}
                     <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        className="absolute right-16 top-1/2 -tranneutral-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
                         animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
                     />
                     <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        className="absolute right-16 top-1/2 -tranneutral-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
                         animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
                     />
                     <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        className="absolute right-16 top-1/2 -tranneutral-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
                         animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
                     />
@@ -439,14 +440,52 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                 </motion.div>
 
                 {/* ═══════════ Stats Cards ═══════════ */}
+                {/* ═══════════ Stats Cards ═══════════ */}
                 <motion.div
-                    className="grid gap-4 md:grid-cols-4"
+                    className="grid gap-6 md:grid-cols-4"
                     variants={containerVariants}
                 >
-                    <StatCard icon={AlertTriangle} label="Total Pelanggaran" value={violationStats.total_violations} color="red" delay={0.1} />
-                    <StatCard icon={Activity} label="Hari Ini" value={violationStats.today_violations} color="amber" delay={0.15} />
-                    <StatCard icon={TrendingUp} label="Minggu Ini" value={violationStats.week_violations} color="orange" delay={0.2} />
-                    <StatCard icon={Target} label="Rata-rata Jarak" value={violationStats.avg_distance} suffix="m" color="indigo" delay={0.25} />
+                    <StatCard
+                        id="total"
+                        icon={AlertTriangle}
+                        label="Total Pelanggaran"
+                        value={violationStats.total_violations}
+                        color="red"
+                        delay={0.1}
+                        hoveredCard={hoveredCard}
+                        setHoveredCard={setHoveredCard}
+                    />
+                    <StatCard
+                        id="today"
+                        icon={Activity}
+                        label="Hari Ini"
+                        value={violationStats.today_violations}
+                        color="amber"
+                        delay={0.15}
+                        hoveredCard={hoveredCard}
+                        setHoveredCard={setHoveredCard}
+                    />
+                    <StatCard
+                        id="week"
+                        icon={TrendingUp}
+                        label="Minggu Ini"
+                        value={violationStats.week_violations}
+                        color="orange"
+                        delay={0.2}
+                        hoveredCard={hoveredCard}
+                        setHoveredCard={setHoveredCard}
+                    />
+                    <StatCard
+                        id="distance"
+                        icon={Target}
+                        label="Rata-rata Jarak"
+                        value={violationStats.avg_distance}
+                        suffix="m"
+                        color="indigo"
+                        delay={0.25}
+                        hoveredCard={hoveredCard}
+                        setHoveredCard={setHoveredCard}
+                    />
                 </motion.div>
 
                 {/* ═══════════ Map + Settings ═══════════ */}
@@ -454,7 +493,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     {/* Map Card */}
                     <motion.div
                         variants={itemVariants}
-                        className={`rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 ${mapExpanded ? 'lg:col-span-2' : ''}`}
+                        className={`group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40 ${mapExpanded ? 'lg:col-span-2' : ''}`}
                         whileHover={cardHover}
                     >
                         <div className="flex items-center justify-between mb-4">
@@ -466,41 +505,41 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 >
                                     <MapPin className="h-4 w-4" />
                                 </motion.div>
-                                <h2 className="font-bold text-slate-900 dark:text-white">Peta Geofence</h2>
+                                <h2 className="font-bold text-neutral-900 dark:text-white">Peta Geofence</h2>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-3 text-xs">
                                     <span className="flex items-center gap-1.5">
                                         <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
-                                        <span className="text-slate-500 dark:text-slate-400">Dalam zona</span>
+                                        <span className="text-neutral-500 dark:text-neutral-400">Dalam zona</span>
                                     </span>
                                     <span className="flex items-center gap-1.5">
                                         <span className="h-2.5 w-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
-                                        <span className="text-slate-500 dark:text-slate-400">Pelanggaran</span>
+                                        <span className="text-neutral-500 dark:text-neutral-400">Pelanggaran</span>
                                     </span>
                                 </div>
                                 <motion.button
                                     onClick={() => setMapExpanded(!mapExpanded)}
-                                    className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    className="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                 >
-                                    <Maximize2 className="h-4 w-4 text-slate-400" />
+                                    <Maximize2 className="h-4 w-4 text-neutral-400" />
                                 </motion.button>
                             </div>
                         </div>
 
-                        <div className={`relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-all duration-300 ${mapExpanded ? 'h-[500px]' : 'h-80'}`}>
+                        <div className={`relative rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 transition-all duration-300 ${mapExpanded ? 'h-[500px]' : 'h-80'}`}>
                             <div ref={mapRef} className="h-full w-full" />
                             {!mapReady && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
                                     <motion.div
                                         className="flex flex-col items-center gap-3"
                                         animate={{ opacity: [0.5, 1, 0.5] }}
                                         transition={{ duration: 1.5, repeat: Infinity }}
                                     >
-                                        <Globe className="h-8 w-8 text-slate-400" />
-                                        <p className="text-sm text-slate-500">Memuat peta...</p>
+                                        <Globe className="h-8 w-8 text-neutral-400" />
+                                        <p className="text-sm text-neutral-500">Memuat peta...</p>
                                     </motion.div>
                                 </div>
                             )}
@@ -509,20 +548,20 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                         {/* Info cards below map */}
                         <div className="mt-4 grid grid-cols-3 gap-2">
                             <motion.div
-                                className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+                                className="p-3 rounded-xl bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50"
                                 whileHover={{ scale: 1.03, y: -2 }}
                                 transition={{ type: 'spring', stiffness: 400 }}
                             >
-                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Latitude</p>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">{form.data.geofence_lat}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">Latitude</p>
+                                <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono">{form.data.geofence_lat}</p>
                             </motion.div>
                             <motion.div
-                                className="p-3 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/50 dark:border-slate-700/50"
+                                className="p-3 rounded-xl bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900/50 dark:to-neutral-800/50 border border-neutral-200/50 dark:border-neutral-700/50"
                                 whileHover={{ scale: 1.03, y: -2 }}
                                 transition={{ type: 'spring', stiffness: 400 }}
                             >
-                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Longitude</p>
-                                <p className="text-sm font-bold text-slate-900 dark:text-white font-mono">{form.data.geofence_lng}</p>
+                                <p className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">Longitude</p>
+                                <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono">{form.data.geofence_lng}</p>
                             </motion.div>
                             <motion.div
                                 className="p-3 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 border border-indigo-200/50 dark:border-indigo-700/50"
@@ -539,7 +578,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     {!mapExpanded && (
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                             whileHover={cardHover}
                         >
                             <div className="flex items-center gap-3 mb-6">
@@ -551,8 +590,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                     <Navigation className="h-4 w-4" />
                                 </motion.div>
                                 <div>
-                                    <h2 className="font-bold text-slate-900 dark:text-white">Pengaturan Zona</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">Atur titik lokasi & radius</p>
+                                    <h2 className="font-bold text-neutral-900 dark:text-white">Pengaturan Zona</h2>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">Atur titik lokasi & radius</p>
                                 </div>
                             </div>
 
@@ -577,10 +616,10 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, x: -10 }}
                                                 className={`text-xs font-medium px-3 py-1.5 rounded-lg ${locationStatus.includes('berhasil')
-                                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                                                        : locationStatus.includes('Mengambil')
-                                                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                                                            : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                    : locationStatus.includes('Mengambil')
+                                                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                        : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                                                     }`}
                                             >
                                                 {locationStatus}
@@ -591,16 +630,31 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 
                                 {/* Latitude */}
                                 <div className="space-y-1.5">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                         <Crosshair className="h-3.5 w-3.5 text-indigo-500" />
                                         Latitude
                                     </label>
                                     <motion.input
-                                        type="number"
-                                        step="any"
+                                        type="text"
+                                        inputMode="decimal"
                                         value={form.data.geofence_lat}
-                                        onChange={e => form.setData('geofence_lat', parseFloat(e.target.value) || 0)}
-                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        onChange={e => {
+                                            const val = e.target.value.replace(',', '.');
+                                            // Allow partial inputs (like "106.") or negative signs
+                                            if (val === '' || val === '-' || val.endsWith('.')) {
+                                                // @ts-ignore - temporary string allowed for typing
+                                                form.setData('geofence_lat', val);
+                                            } else {
+                                                const num = parseFloat(val);
+                                                if (!isNaN(num)) form.setData('geofence_lat', num);
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            // Ensure it's a number on blur
+                                            const val = typeof form.data.geofence_lat === 'string' ? parseFloat(form.data.geofence_lat) : form.data.geofence_lat;
+                                            form.setData('geofence_lat', isNaN(val) ? 0 : val);
+                                        }}
+                                        className="w-full rounded-xl border border-neutral-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-white transition-all"
                                         whileFocus={{ scale: 1.01, borderColor: '#6366f1' }}
                                     />
                                     {form.errors.geofence_lat && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_lat}</p>}
@@ -608,16 +662,30 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 
                                 {/* Longitude */}
                                 <div className="space-y-1.5">
-                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                         <Crosshair className="h-3.5 w-3.5 text-purple-500" />
                                         Longitude
                                     </label>
                                     <motion.input
-                                        type="number"
-                                        step="any"
+                                        type="text"
+                                        inputMode="decimal"
                                         value={form.data.geofence_lng}
-                                        onChange={e => form.setData('geofence_lng', parseFloat(e.target.value) || 0)}
-                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        onChange={e => {
+                                            const val = e.target.value.replace(',', '.');
+                                            // Allow partial inputs (like "106.") or negative signs
+                                            if (val === '' || val === '-' || val.endsWith('.')) {
+                                                // @ts-ignore - temporary string allowed for typing
+                                                form.setData('geofence_lng', val);
+                                            } else {
+                                                const num = parseFloat(val);
+                                                if (!isNaN(num)) form.setData('geofence_lng', num);
+                                            }
+                                        }}
+                                        onBlur={() => {
+                                            const val = typeof form.data.geofence_lng === 'string' ? parseFloat(form.data.geofence_lng) : form.data.geofence_lng;
+                                            form.setData('geofence_lng', isNaN(val) ? 0 : val);
+                                        }}
+                                        className="w-full rounded-xl border border-neutral-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-white transition-all"
                                         whileFocus={{ scale: 1.01, borderColor: '#a855f7' }}
                                     />
                                     {form.errors.geofence_lng && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_lng}</p>}
@@ -626,7 +694,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 {/* Radius with visualisation */}
                                 <div className="space-y-2">
                                     <label className="flex items-center justify-between">
-                                        <span className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
                                             <Ruler className="h-3.5 w-3.5 text-pink-500" />
                                             Radius
                                         </span>
@@ -641,7 +709,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                         onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 100)}
                                         className="w-full h-2 rounded-full appearance-none cursor-pointer bg-gradient-to-r from-indigo-200 to-purple-200 dark:from-indigo-800 dark:to-purple-800 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-br [&::-webkit-slider-thumb]:from-indigo-500 [&::-webkit-slider-thumb]:to-purple-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-indigo-500/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing"
                                     />
-                                    <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                                    <div className="flex justify-between text-[10px] text-neutral-400 font-medium">
                                         <span>10m</span>
                                         <span>250m</span>
                                         <span>500m</span>
@@ -654,7 +722,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                         max={5000}
                                         value={form.data.geofence_radius_m}
                                         onChange={e => form.setData('geofence_radius_m', parseInt(e.target.value) || 100)}
-                                        className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 dark:border-slate-700 dark:bg-slate-900/50 dark:text-white transition-all"
+                                        className="w-full rounded-xl border border-neutral-200 bg-white/50 px-4 py-3 text-sm font-mono focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-white transition-all"
                                         whileFocus={{ scale: 1.01, borderColor: '#ec4899' }}
                                     />
                                     {form.errors.geofence_radius_m && <p className="text-xs text-red-500 mt-1">{form.errors.geofence_radius_m}</p>}
@@ -665,8 +733,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                     type="submit"
                                     disabled={form.processing}
                                     className={`w-full flex items-center justify-center gap-2.5 rounded-xl px-5 py-3.5 text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed ${saveSuccess
-                                            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25'
-                                            : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/25'
+                                        : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30'
                                         }`}
                                     whileHover={{ scale: 1.02, y: -2 }}
                                     whileTap={{ scale: 0.98 }}
@@ -689,7 +757,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     {/* Trend Chart */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                         whileHover={cardHover}
                     >
                         <div className="flex items-center gap-3 mb-5">
@@ -701,8 +769,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 <TrendingUp className="h-4 w-4" />
                             </motion.div>
                             <div>
-                                <h2 className="font-bold text-slate-900 dark:text-white">Tren Pelanggaran</h2>
-                                <p className="text-xs text-slate-500">7 hari terakhir</p>
+                                <h2 className="font-bold text-neutral-900 dark:text-white">Tren Pelanggaran</h2>
+                                <p className="text-xs text-neutral-500">7 hari terakhir</p>
                             </div>
                         </div>
                         <div className="h-64">
@@ -742,7 +810,7 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     {/* Distribution Chart */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                         whileHover={cardHover}
                     >
                         <div className="flex items-center gap-3 mb-5">
@@ -754,8 +822,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 <Target className="h-4 w-4" />
                             </motion.div>
                             <div>
-                                <h2 className="font-bold text-slate-900 dark:text-white">Distribusi Jarak</h2>
-                                <p className="text-xs text-slate-500">Sebaran jarak absensi</p>
+                                <h2 className="font-bold text-neutral-900 dark:text-white">Distribusi Jarak</h2>
+                                <p className="text-xs text-neutral-500">Sebaran jarak absensi</p>
                             </div>
                         </div>
                         <div className="h-64">
@@ -792,11 +860,11 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                 {/* ═══════════ Recent Violations Table ═══════════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
+                    className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-sm backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     whileHover={{ scale: 1.005 }}
                 >
                     <motion.div
-                        className="p-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-slate-900/50 dark:to-slate-800/30 cursor-pointer"
+                        className="p-5 border-b border-neutral-200 dark:border-neutral-800 bg-white/30 dark:bg-neutral-900/20 cursor-pointer"
                         onClick={() => setShowViolations(!showViolations)}
                     >
                         <div className="flex items-center justify-between">
@@ -809,15 +877,15 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                     <AlertTriangle className="h-4 w-4" />
                                 </motion.div>
                                 <div>
-                                    <h2 className="font-bold text-slate-900 dark:text-white">Pelanggaran Terbaru</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{recentViolations.length} pelanggaran tercatat</p>
+                                    <h2 className="font-bold text-neutral-900 dark:text-white">Pelanggaran Terbaru</h2>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{recentViolations.length} pelanggaran tercatat</p>
                                 </div>
                             </div>
                             <motion.div
                                 animate={{ rotate: showViolations ? 180 : 0 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
-                                <ChevronDown className="h-5 w-5 text-slate-400" />
+                                <ChevronDown className="h-5 w-5 text-neutral-400" />
                             </motion.div>
                         </div>
                     </motion.div>
@@ -834,15 +902,15 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
                                         <thead>
-                                            <tr className="bg-slate-50/80 dark:bg-slate-900/50">
-                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mahasiswa</th>
-                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">NIM</th>
-                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Jarak</th>
-                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mata Kuliah</th>
-                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Waktu</th>
+                                            <tr className="bg-neutral-50/80 dark:bg-neutral-900/50">
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Mahasiswa</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">NIM</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Jarak</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Mata Kuliah</th>
+                                                <th className="px-5 py-3.5 text-left text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Waktu</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                        <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
                                             {recentViolations.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={5} className="px-5 py-16 text-center">
@@ -852,8 +920,8 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                                             transition={{ type: 'spring', stiffness: 200 }}
                                                         >
                                                             <Shield className="h-12 w-12 mx-auto text-emerald-300 mb-3" />
-                                                            <p className="text-slate-500 font-medium">Tidak ada pelanggaran</p>
-                                                            <p className="text-xs text-slate-400 mt-1">Semua absensi dalam zona yang ditentukan</p>
+                                                            <p className="text-neutral-500 font-medium">Tidak ada pelanggaran</p>
+                                                            <p className="text-xs text-neutral-400 mt-1">Semua absensi dalam zona yang ditentukan</p>
                                                         </motion.div>
                                                     </td>
                                                 </tr>
@@ -868,26 +936,26 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                                 >
                                                     <td className="px-5 py-3.5">
                                                         <div className="flex items-center gap-2.5">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-bold">
                                                                 {v.mahasiswa.charAt(0).toUpperCase()}
                                                             </div>
-                                                            <span className="text-sm font-semibold text-slate-900 dark:text-white">{v.mahasiswa}</span>
+                                                            <span className="text-sm font-semibold text-neutral-900 dark:text-white">{v.mahasiswa}</span>
                                                         </div>
                                                     </td>
-                                                    <td className="px-5 py-3.5 text-sm text-slate-500 dark:text-slate-400 font-mono">{v.nim}</td>
+                                                    <td className="px-5 py-3.5 text-sm text-neutral-500 dark:text-neutral-400 font-mono">{v.nim}</td>
                                                     <td className="px-5 py-3.5">
                                                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${(v.distance_m ?? 0) > 500
-                                                                ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                                                                : (v.distance_m ?? 0) > 200
-                                                                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
-                                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                                                            ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                                            : (v.distance_m ?? 0) > 200
+                                                                ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                                                                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
                                                             }`}>
                                                             <AlertTriangle className="h-3 w-3" />
                                                             {v.distance_m ?? '-'}m
                                                         </span>
                                                     </td>
-                                                    <td className="px-5 py-3.5 text-sm text-slate-600 dark:text-slate-400">{v.course}</td>
-                                                    <td className="px-5 py-3.5 text-xs text-slate-400 font-mono">{v.scanned_at}</td>
+                                                    <td className="px-5 py-3.5 text-sm text-neutral-600 dark:text-neutral-400">{v.course}</td>
+                                                    <td className="px-5 py-3.5 text-xs text-neutral-400 font-mono">{v.scanned_at}</td>
                                                 </motion.tr>
                                             ))}
                                         </tbody>
@@ -903,75 +971,108 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
 }
 
 // ═══════════ Stat Card Component ═══════════
-function StatCard({ icon: Icon, label, value, color, suffix, delay = 0 }: {
+function StatCard({
+    id,
+    icon: Icon,
+    label,
+    value,
+    color,
+    suffix,
+    delay = 0,
+    hoveredCard,
+    setHoveredCard
+}: {
+    id: string;
     icon: any;
     label: string;
     value: number | string;
     color: string;
     suffix?: string;
     delay?: number;
+    hoveredCard: string | null;
+    setHoveredCard: (id: string | null) => void;
 }) {
-    const colorMap: Record<string, { icon: string; border: string; text: string }> = {
+    const colorMap: Record<string, { icon: string; border: string; text: string; bg: string; glow: string }> = {
         red: {
-            icon: 'bg-gradient-to-br from-red-500 to-rose-500 shadow-red-500/25',
+            icon: 'bg-gradient-to-br from-red-400 to-rose-600 shadow-red-500/30',
             border: 'border-t-red-500',
-            text: 'text-red-600 dark:text-red-400',
+            text: 'text-neutral-900 dark:text-white',
+            bg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10',
+            glow: 'bg-red-500',
         },
         amber: {
-            icon: 'bg-gradient-to-br from-amber-500 to-yellow-500 shadow-amber-500/25',
+            icon: 'bg-gradient-to-br from-amber-400 to-yellow-600 shadow-amber-500/30',
             border: 'border-t-amber-500',
-            text: 'text-amber-600 dark:text-amber-400',
+            text: 'text-neutral-900 dark:text-white',
+            bg: 'from-amber-500/5 to-yellow-500/5 dark:from-amber-500/10 dark:to-yellow-500/10',
+            glow: 'bg-amber-500',
         },
         orange: {
-            icon: 'bg-gradient-to-br from-orange-500 to-amber-500 shadow-orange-500/25',
+            icon: 'bg-gradient-to-br from-orange-400 to-amber-600 shadow-orange-500/30',
             border: 'border-t-orange-500',
-            text: 'text-orange-600 dark:text-orange-400',
+            text: 'text-neutral-900 dark:text-white',
+            bg: 'from-orange-500/5 to-amber-500/5 dark:from-orange-500/10 dark:to-amber-500/10',
+            glow: 'bg-orange-500',
         },
         blue: {
-            icon: 'bg-gradient-to-br from-blue-500 to-blue-600 shadow-blue-500/25',
+            icon: 'bg-gradient-to-br from-blue-400 to-cyan-600 shadow-blue-500/30',
             border: 'border-t-blue-500',
-            text: 'text-blue-600 dark:text-blue-400',
+            text: 'text-neutral-900 dark:text-white',
+            bg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10',
+            glow: 'bg-blue-500',
         },
         indigo: {
-            icon: 'bg-gradient-to-br from-indigo-500 to-purple-500 shadow-indigo-500/25',
+            icon: 'bg-gradient-to-br from-indigo-400 to-purple-600 shadow-indigo-500/30',
             border: 'border-t-indigo-500',
-            text: 'text-indigo-600 dark:text-indigo-400',
+            text: 'text-neutral-900 dark:text-white',
+            bg: 'from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10',
+            glow: 'bg-indigo-500',
         },
     };
 
     const c = colorMap[color] || colorMap.blue;
     const numVal = typeof value === 'string' ? parseFloat(value) || 0 : value;
+    const isHovered = hoveredCard === id;
 
     return (
         <motion.div
             variants={itemVariants}
-            className={`relative rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden border-t-[3px] ${c.border}`}
-            whileHover={{
-                scale: 1.05,
-                y: -6,
-                boxShadow: '0 20px 40px -12px rgba(0,0,0,0.12)',
-            }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-lg dark:border-white/5"
+            onHoverStart={() => setHoveredCard(id)}
+            onHoverEnd={() => setHoveredCard(null)}
+            whileHover={{ scale: 1.03, y: -8 }}
         >
-            <div className="flex items-center gap-3.5">
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.bg}`} />
+
+            <motion.div
+                animate={{
+                    scale: isHovered ? 1.5 : 1,
+                    opacity: isHovered ? 0.4 : 0.2,
+                }}
+                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.glow} blur-3xl transition-all duration-500`}
+            />
+
+            <div className="relative flex items-center gap-4">
                 <motion.div
-                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-lg ${c.icon}`}
+                    className={`flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg ${c.icon}`}
                     whileHover={{ rotate: [0, -10, 10, -5, 5, 0], scale: 1.1 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-7 w-7" />
                 </motion.div>
                 <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{label}</p>
-                    <motion.p
-                        className={`text-2xl font-extrabold ${c.text}`}
+                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</p>
+                    <motion.div
+                        className="mt-1"
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ type: 'spring', stiffness: 200, damping: 15, delay }}
                     >
-                        <AnimatedCounter value={numVal} suffix={suffix} />
-                        {suffix && <span className="text-base ml-0.5">{suffix}</span>}
-                    </motion.p>
+                        <span className={`text-2xl font-bold ${c.text}`}>
+                            <AnimatedCounter value={numVal} suffix={suffix} />
+                        </span>
+                        {/* {suffix && <span className="text-base ml-1 text-neutral-500 dark:text-neutral-400">{suffix}</span>} */}
+                    </motion.div>
                 </div>
             </div>
         </motion.div>

@@ -8,6 +8,9 @@ use App\Models\MataKuliah;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Dosen;
+use App\Models\Schedule;
+use App\Models\Course;
 
 class ImportService
 {
@@ -15,28 +18,111 @@ class ImportService
     {
         return match($type) {
             'mahasiswa' => [
-                'columns' => ['nim', 'nama', 'email', 'no_hp', 'kelas'],
-                'sample' => [
-                    ['2024001', 'John Doe', 'john@example.com', '081234567890', '06TPLK004'],
-                    ['2024002', 'Jane Smith', 'jane@example.com', '081234567891', '06TPLK004'],
-                ],
+                'columns' => ['nim', 'nama', 'email', 'no_hp', 'kelas', 'fakultas', 'prodi', 'semester', 'angkatan'],
+                'sample' => $this->getMahasiswaSample(),
+            ],
+            'dosen' => [
+                'columns' => ['nidn', 'nama', 'email', 'no_hp', 'fakultas', 'jabatan_fungsional', 'pendidikan_terakhir'],
+                'sample' => $this->getDosenSample(),
             ],
             'mata_kuliah' => [
-                'columns' => ['kode', 'nama', 'sks', 'semester'],
-                'sample' => [
-                    ['MK001', 'Pemrograman Web', '3', '5'],
-                    ['MK002', 'Basis Data', '3', '5'],
-                ],
+                'columns' => ['kode_mk', 'nama_mk', 'sks', 'semester', 'sifat', 'prasyarat'],
+                'sample' => $this->getMataKuliahSample(),
             ],
             'jadwal' => [
-                'columns' => ['kode_matkul', 'hari', 'jam_mulai', 'jam_selesai', 'ruangan'],
-                'sample' => [
-                    ['MK001', 'Senin', '08:00', '10:30', 'Lab 1'],
-                    ['MK002', 'Selasa', '13:00', '15:30', 'Lab 2'],
-                ],
+                'columns' => ['kode_mk', 'nidn_dosen', 'hari', 'jam_mulai', 'jam_selesai', 'ruangan', 'kelas', 'semester_aktif'],
+                'sample' => $this->getJadwalSample(),
             ],
             default => [],
         };
+    }
+
+    private function getMahasiswaSample(): array
+    {
+        $latest = Mahasiswa::latest()->first();
+        if ($latest) {
+            return [[
+                $latest->nim,
+                $latest->nama,
+                $latest->email ?? 'email@student.unpam.ac.id',
+                $latest->no_hp ?? '081234567890',
+                $latest->kelas ?? '01TPLP001',
+                $latest->fakultas ?? 'Ilmu Komputer',
+                $latest->prodi ?? 'Teknik Informatika',
+                (string) ($latest->semester ?? '1'),
+                (string) ($latest->angkatan ?? date('Y')),
+            ]];
+        }
+        return [['2024001', 'M. Rizki', 'rizki@student.unpam.ac.id', '081234567890', '04TPLP001', 'Ilmu Komputer', 'Teknik Informatika', '4', '2022']];
+    }
+
+    private function getDosenSample(): array
+    {
+        $latest = Dosen::latest()->first();
+        if ($latest) {
+            return [[
+                $latest->nidn,
+                $latest->nama,
+                $latest->email ?? 'dosen@unpam.ac.id',
+                $latest->no_hp ?? '081298765432',
+                $latest->fakultas ?? 'Ilmu Komputer',
+                'Lektor',
+                'S2'
+            ]];
+        }
+        return [['0420018801', 'Dr. Budi Santoso, M.Kom', 'budi@dosen.unpam.ac.id', '081298765432', 'Ilmu Komputer', 'Lektor Kepala', 'S3']];
+    }
+
+    private function getMataKuliahSample(): array
+    {
+        // Try getting from MataKuliah model first, else Course model
+        $latest = MataKuliah::latest()->first();
+        if ($latest) {
+            return [[
+                $latest->kode,
+                $latest->nama,
+                (string) $latest->sks,
+                (string) ($latest->semester ?? 1),
+                'Wajib',
+                '-'
+            ]];
+        }
+        
+        // Fallback to Course model if exists
+        $latestCourse = Course::latest()->first();
+        if ($latestCourse) {
+             return [[
+                $latestCourse->code,
+                $latestCourse->name,
+                '3',
+                '1',
+                'Wajib',
+                '-'
+            ]];
+        }
+
+        return [['TPL001', 'Pemrograman Web 1', '3', '3', 'Wajib', '-']];
+    }
+
+    private function getJadwalSample(): array
+    {
+        $latest = Schedule::latest()->first();
+        if ($latest) {
+            $courseCode = $latest->course ? $latest->course->code : 'TPL001';
+            $dosenNidn = $latest->dosen ? $latest->dosen->nidn : '0420018801';
+            
+            return [[
+                $courseCode,
+                $dosenNidn,
+                $latest->hari,
+                $latest->jam_mulai,
+                $latest->jam_selesai,
+                $latest->ruangan,
+                '04TPLP001', // Kelas usually linked to schedule but simplified here
+                $latest->semester ?? 'Ganjil 2024/2025'
+            ]];
+        }
+        return [['TPL001', '0420018801', 'Senin', '08:00:00', '10:30:00', 'V.301', '04TPLP001', 'Ganjil 2024/2025']];
     }
 
     public function previewImport(UploadedFile $file, string $type): array

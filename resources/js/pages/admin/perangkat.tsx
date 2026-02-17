@@ -272,9 +272,7 @@ export default function AdminPerangkat({
                 {/* Filter */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
-                    whileHover={{ scale: 1.002 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <Filter className="h-5 w-5 text-blue-600" />
@@ -312,35 +310,47 @@ export default function AdminPerangkat({
                     variants={containerVariants}
                 >
                     {/* Card 1: Total Activity */}
-                    <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black group">
+                    <motion.div
+                        variants={itemVariants}
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="relative z-10 flex flex-col justify-between h-full">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
+                                <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl text-white shadow-lg shadow-blue-500/20">
                                     <Activity className="h-6 w-6" />
                                 </div>
                             </div>
                             <div>
                                 <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.total_scans}</h3>
-                                <p className="text-sm text-slate-500 font-medium">Total Scan</p>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total Scan</p>
                             </div>
-                            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg p-2 w-fit">
+                            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white/50 dark:bg-white/5 rounded-lg p-2 w-fit backdrop-blur-sm border border-white/10">
                                 <Cpu className="h-3 w-3" />
                                 {stats.unique_devices} Perangkat Unik
                             </div>
                         </div>
-                        <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-1/4 translate-y-1/4">
+                        <div className="absolute right-0 bottom-0 opacity-5 transform translate-x-1/4 translate-y-1/4 group-hover:scale-110 transition-transform duration-500">
                             <Activity className="h-40 w-40 text-blue-600" />
                         </div>
                     </motion.div>
 
                     {/* Card 2: Platform Dominance (Android vs iOS) */}
-                    <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black group">
+                    <motion.div
+                        variants={itemVariants}
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="relative z-10">
                             <div className="flex items-center justify-between mb-6">
-                                <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl text-emerald-600 dark:text-emerald-400">
+                                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-500/20">
                                     <Smartphone className="h-6 w-6" />
                                 </div>
-                                <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-1 rounded">OS Utama</span>
+                                <span className="text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/20">OS Utama</span>
                             </div>
                             <div className="space-y-4">
                                 <div>
@@ -348,8 +358,8 @@ export default function AdminPerangkat({
                                         <span className="text-slate-600 dark:text-slate-300">Android</span>
                                         <span className="font-bold text-slate-900 dark:text-white">{stats.android_percentage}%</span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${stats.android_percentage}%` }}></div>
+                                    <div className="h-2 w-full bg-slate-200/50 dark:bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${stats.android_percentage}%` }}></div>
                                     </div>
                                 </div>
                                 <div>
@@ -357,8 +367,8 @@ export default function AdminPerangkat({
                                         <span className="text-slate-600 dark:text-slate-300">iOS</span>
                                         <span className="font-bold text-slate-900 dark:text-white">{stats.ios_percentage}%</span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${stats.ios_percentage}%` }}></div>
+                                    <div className="h-2 w-full bg-slate-200/50 dark:bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ width: `${stats.ios_percentage}%` }}></div>
                                     </div>
                                 </div>
                             </div>
@@ -366,10 +376,16 @@ export default function AdminPerangkat({
                     </motion.div>
 
                     {/* Card 3: Form Factors */}
-                    <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black group">
+                    <motion.div
+                        variants={itemVariants}
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="relative z-10">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
+                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg shadow-indigo-500/20">
                                     <Monitor className="h-6 w-6" />
                                 </div>
                             </div>
@@ -400,10 +416,16 @@ export default function AdminPerangkat({
                     </motion.div>
 
                     {/* Card 4: Other / Health */}
-                    <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black group">
+                    <motion.div
+                        variants={itemVariants}
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="relative z-10 flex flex-col justify-between h-full">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-xl text-amber-600 dark:text-amber-400">
+                                <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl text-white shadow-lg shadow-amber-500/20">
                                     <Server className="h-6 w-6" />
                                 </div>
                             </div>
@@ -431,7 +453,7 @@ export default function AdminPerangkat({
                     {/* Daily Trend */}
                     <motion.div
                         variants={slideInLeft}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                         whileHover={{ scale: 1.01, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -458,7 +480,7 @@ export default function AdminPerangkat({
                     {/* OS Distribution Pie */}
                     <motion.div
                         variants={slideInRight}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                         whileHover={{ scale: 1.01, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -499,7 +521,7 @@ export default function AdminPerangkat({
                     {/* Device Model Distribution */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                         whileHover={{ scale: 1.01, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -523,7 +545,7 @@ export default function AdminPerangkat({
                     {/* Top Devices */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl dark:border-white/5 overflow-hidden"
                         whileHover={{ scale: 1.01, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -564,7 +586,7 @@ export default function AdminPerangkat({
                     {/* Device Type Distribution */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black"
+                        className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
                         whileHover={{ scale: 1.01, y: -2 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -597,7 +619,7 @@ export default function AdminPerangkat({
                 {/* Recent Logs Table */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black overflow-hidden"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl dark:border-white/5 overflow-hidden"
                 >
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800">
                         <div className="flex items-center gap-2">

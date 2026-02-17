@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
+use App\Models\FraudAlert;
+
 class MahasiswaController extends Controller
 {
     public function index(Request $request)
@@ -118,6 +120,61 @@ class MahasiswaController extends Controller
         $mahasiswa->update($request->only(['nama', 'nim', 'fakultas', 'kelas', 'semester']));
         
         return back()->with('success', 'Data mahasiswa berhasil diperbarui.');
+    }
+    
+    public function show(Mahasiswa $mahasiswa)
+    {
+        // Load relationships
+        $mahasiswa->load(['attendanceLogs' => function ($q) {
+            $q->latest()->take(50);
+        }]);
+
+        // Calculate Stats
+        $stats = [
+            'total_attendance' => $mahasiswa->attendanceLogs()->count(),
+            'present' => $mahasiswa->attendanceLogs()->where('status', 'present')->count(),
+            'late' => $mahasiswa->attendanceLogs()->where('status', 'late')->count(),
+            'alpha' => $mahasiswa->attendanceLogs()->where('status', 'alpha')->count(),
+            'permit' => $mahasiswa->attendanceLogs()->where('status', 'permit')->count(),
+        ];
+
+        // Calculate Attendance Rate
+        $totalSessions = 1; // Avoid division by zero, replace with actual session count if available
+        // In this context, we can use total_attendance as a proxy for now, or fetch total active sessions
+        // For accurate %, we need Total Sessions so far. 
+        // Let's assume 14 meetings x classes enrolled. For now, we'll use attendance count.
+        
+        $attendanceRate = ($stats['total_attendance'] > 0) 
+            ? round((($stats['present'] + $stats['late']) / $stats['total_attendance']) * 100) 
+            : 0;
+
+        // Recent Activity
+        $recentActivity = $mahasiswa->attendanceLogs()
+            ->latest('scanned_at')
+            ->take(10)
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'id' => $log->id,
+                    'status' => $log->status,
+                    'time' => $log->scanned_at,
+                    'date' => $log->scanned_at ? $log->scanned_at->format('Y-m-d') : '-',
+                    'device' => $log->device_model,
+                    'location' => $log->latitude ? 'GPS Verified' : 'No GPS',
+                ];
+            });
+
+        // Fraud History
+        $fraudHistory = FraudAlert::where('mahasiswa_id', $mahasiswa->id)
+            ->latest()
+            ->get();
+
+        return Inertia::render('admin/mahasiswa-detail', [
+            'mahasiswa' => $mahasiswa,
+            'stats' => array_merge($stats, ['rate' => $attendanceRate]),
+            'recentActivity' => $recentActivity,
+            'fraudHistory' => $fraudHistory,
+        ]);
     }
     
     public function destroy(Mahasiswa $mahasiswa)

@@ -138,6 +138,12 @@ const reportNavItems: NavItem[] = [
         href: '/admin/fraud-detection',
         icon: Shield,
     },
+
+    {
+        title: 'Analitik',
+        href: '/admin/analytics',
+        icon: FileBarChart,
+    },
     {
         title: 'Notification Center',
         href: '/admin/notification-center',

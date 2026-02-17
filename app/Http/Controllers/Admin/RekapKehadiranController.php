@@ -424,13 +424,14 @@ class RekapKehadiranController extends Controller
             'mahasiswa_id' => 'required|exists:mahasiswa,id',
             'title' => 'required|string|max:255',
             'message' => 'required|string',
+            'type' => 'nullable|string|in:warning,notice,danger,info,appreciation',
         ]);
         
         AttendanceWarning::create([
             'mahasiswa_id' => $validated['mahasiswa_id'],
             'title' => $validated['title'],
             'message' => $validated['message'],
-            'type' => 'warning',
+            'type' => $validated['type'] ?? 'warning',
             'is_read' => false,
         ]);
         

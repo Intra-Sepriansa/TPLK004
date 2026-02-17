@@ -20,7 +20,9 @@ import {
     ChevronDown,
     ArrowDownRight,
     Zap,
-    MessageSquareWarning
+    MessageSquareWarning,
+    PartyPopper,
+    Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -199,6 +201,11 @@ export default function AdminRekapKehadiran({
     const [showWarningModal, setShowWarningModal] = useState(false);
     const [selectedStudentForWarning, setSelectedStudentForWarning] = useState<LowAttendance | null>(null);
     const [warningMessage, setWarningMessage] = useState('');
+
+    // Appreciation System State
+    const [showAppreciationModal, setShowAppreciationModal] = useState(false);
+    const [selectedStudentForAppreciation, setSelectedStudentForAppreciation] = useState<TopAttendee | null>(null);
+    const [appreciationMessage, setAppreciationMessage] = useState('');
 
     const handleFilter = () => {
         router.get('/admin/rekap-kehadiran', { date_from: dateFrom, date_to: dateTo, course_id: courseId, status }, { preserveState: true });
@@ -742,39 +749,78 @@ export default function AdminRekapKehadiran({
 
                     {/* Side Section (Top & Low) */}
                     <div className="space-y-6">
-                        {/* Top Attendees */}
+                        {/* Top Attendees — Advanced UI (Matching Mahasiswa Menu) */}
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/40 overflow-hidden"
+                            className="relative overflow-hidden rounded-3xl text-white shadow-2xl"
                         >
-                            <div className="p-4 border-b border-neutral-100 dark:border-neutral-800 bg-white/50 dark:bg-black/20">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 text-white shadow-lg shadow-yellow-500/20">
-                                        <Award className="h-5 w-5" />
+                            {/* Animated Gradient Background */}
+                            <motion.div
+                                className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                                animate={{
+                                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                                }}
+                                transition={{
+                                    duration: 15,
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                }}
+                                style={{
+                                    backgroundSize: '200% 200%',
+                                }}
+                            />
+
+                            {/* Decorative Orbs */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                            <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                            <div className="relative p-6 border-b border-white/10">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
+                                        <Award className="h-6 w-6 text-yellow-300" />
                                     </div>
-                                    <h2 className="font-bold text-neutral-900 dark:text-white">Top Kehadiran</h2>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white">Top Kehadiran</h2>
+                                        <p className="text-xs text-indigo-100">Mahasiswa paling rajin</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-2 space-y-1">
+
+                            <div className="relative p-4 space-y-2">
                                 {topAttendees.map((student, i) => (
                                     <motion.div
                                         key={student.id}
                                         whileHover={{ scale: 1.02, x: 5 }}
-                                        className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/60 dark:hover:bg-neutral-800/50 transition-all cursor-pointer border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
+                                        className="flex items-center gap-3 p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all cursor-pointer border border-white/10 hover:border-white/30 group"
                                     >
-                                        <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-sm ${i === 0 ? 'bg-yellow-100 text-yellow-700 ring-4 ring-yellow-500/20' :
-                                            i === 1 ? 'bg-slate-100 text-slate-700 ring-4 ring-slate-500/20' :
-                                                i === 2 ? 'bg-orange-100 text-orange-700 ring-4 ring-orange-500/20' :
-                                                    'bg-neutral-100 text-neutral-600'
+                                        <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg ${i === 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-900 border border-yellow-200' :
+                                            i === 1 ? 'bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800 border border-slate-200' :
+                                                i === 2 ? 'bg-gradient-to-br from-orange-300 to-orange-500 text-orange-900 border border-orange-200' :
+                                                    'bg-white/20 text-white border border-white/20'
                                             }`}>
                                             {i + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-neutral-900 dark:text-white truncate">{student.nama}</p>
-                                            <p className="text-xs text-neutral-500">{student.nim}</p>
+                                            <p className="text-sm font-bold text-white truncate group-hover:text-yellow-100 transition-colors">{student.nama}</p>
+                                            <p className="text-xs text-indigo-200">{student.nim}</p>
                                         </div>
-                                        <div className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
-                                            {student.total_attendance}x
+
+                                        <div className="flex items-center gap-2">
+                                            <div className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-100 text-xs font-bold border border-emerald-400/30">
+                                                {student.total_attendance}x
+                                            </div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedStudentForAppreciation(student);
+                                                    setShowAppreciationModal(true);
+                                                }}
+                                                className="p-2 rounded-lg bg-white/20 hover:bg-white/40 text-white border border-white/30 transition-all shadow-lg hover:rotate-12 hover:scale-110 active:scale-95"
+                                                title="Kirim Apresiasi"
+                                            >
+                                                <PartyPopper className="h-4 w-4" />
+                                            </button>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -1179,6 +1225,94 @@ export default function AdminRekapKehadiran({
                                             className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white hover:bg-red-700 shadow-lg shadow-red-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Kirim Peringatan
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* ═══════ APPRECIATION MODAL ═══════ */}
+            <AnimatePresence>
+                {showAppreciationModal && selectedStudentForAppreciation && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowAppreciationModal(false)}
+                            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                        />
+
+                        {/* Modal Container */}
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto border border-white/20 dark:border-neutral-800"
+                            >
+                                {/* Modal Header */}
+                                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                                    <div className="relative flex items-center gap-4">
+                                        <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center">
+                                            <Sparkles className="h-6 w-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-white">Kirim Apresiasi</h3>
+                                            <p className="text-sm text-indigo-100">Kepada {selectedStudentForAppreciation.nama}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 space-y-4">
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Pesan Apresiasi</label>
+                                        <textarea
+                                            value={appreciationMessage}
+                                            onChange={(e) => setAppreciationMessage(e.target.value)}
+                                            placeholder="Tulis pesan apresiasi di sini... (Contoh: Pertahankan kehadiranmu!)"
+                                            className="w-full h-32 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 resize-none"
+                                        />
+                                        <p className="text-xs text-neutral-500">
+                                            Pesan ini akan muncul di menu <strong>Evaluasi Studi</strong> mahasiswa.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex gap-3 pt-2">
+                                        <button
+                                            onClick={() => setShowAppreciationModal(false)}
+                                            className="flex-1 px-4 py-2.5 rounded-xl border border-neutral-200 text-sm font-bold text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (!appreciationMessage.trim()) return;
+
+                                                router.post('/admin/attendance/warning', {
+                                                    mahasiswa_id: selectedStudentForAppreciation.id,
+                                                    title: 'Apresiasi Kehadiran',
+                                                    message: appreciationMessage,
+                                                    type: 'appreciation'
+                                                }, {
+                                                    onSuccess: () => {
+                                                        setShowAppreciationModal(false);
+                                                        setAppreciationMessage('');
+                                                    },
+                                                    preserveScroll: true,
+                                                });
+                                            }}
+                                            disabled={!appreciationMessage.trim()}
+                                            className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-sm font-bold text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Kirim Apresiasi
                                         </button>
                                     </div>
                                 </div>

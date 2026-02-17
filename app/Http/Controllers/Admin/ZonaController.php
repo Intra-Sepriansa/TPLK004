@@ -112,9 +112,15 @@ class ZonaController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        // Sanitize input: replace commas with dots
+        $request->merge([
+            'geofence_lat' => str_replace(',', '.', $request->input('geofence_lat')),
+            'geofence_lng' => str_replace(',', '.', $request->input('geofence_lng')),
+        ]);
+
         $validated = $request->validate([
-            'geofence_lat' => 'required|numeric',
-            'geofence_lng' => 'required|numeric',
+            'geofence_lat' => 'required|numeric|between:-90,90',
+            'geofence_lng' => 'required|numeric|between:-180,180',
             'geofence_radius_m' => 'required|integer|min:10|max:5000',
         ]);
 
