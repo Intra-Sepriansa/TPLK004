@@ -7,6 +7,7 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -20,17 +21,33 @@ class CourseController extends Controller
         
         // Get courses using dosen_id from mata_kuliah table
         $courses = MataKuliah::where('dosen_id', $dosen->id)->get()->map(function ($course) {
-            $totalSessions = AttendanceSession::where('course_id', $course->id)->count();
-            $totalLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))->count();
-            $presentLogs = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))
-                ->whereIn('status', ['present', 'late'])->count();
+            $sessions = AttendanceSession::where('course_id', $course->id)->with('logs')->get();
+            $totalSessions = $sessions->count();
+            $activeSessions = $sessions->where('is_active', true)->count();
+            
+            $totalLogs = $sessions->sum(fn($s) => $s->logs->count());
+            $presentLogs = $sessions->sum(fn($s) => $s->logs->whereIn('status', ['present', 'late'])->count());
+            $lateLogs = $sessions->sum(fn($s) => $s->logs->where('status', 'late')->count());
             
             $students = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($course) {
                 $q->whereHas('session', fn($s) => $s->where('course_id', $course->id));
             })->count();
-            
-            // Total students = all students in system
-            $totalStudents = Mahasiswa::count();
+
+            // Low attendance students (<70%)
+            $lowAttendanceCount = 0;
+            $studentIds = AttendanceLog::whereHas('session', fn($q) => $q->where('course_id', $course->id))
+                ->distinct()->pluck('mahasiswa_id');
+            foreach ($studentIds as $sid) {
+                $sLogs = AttendanceLog::where('mahasiswa_id', $sid)
+                    ->whereHas('session', fn($q) => $q->where('course_id', $course->id));
+                $sTotal = $sLogs->count();
+                $sPresent = (clone $sLogs)->whereIn('status', ['present', 'late'])->count();
+                if ($sTotal > 0 && ($sPresent / $sTotal) * 100 < 70) {
+                    $lowAttendanceCount++;
+                }
+            }
+
+            $latestSession = $sessions->sortByDesc('start_at')->first();
 
             return [
                 'id' => $course->id,
@@ -38,10 +55,28 @@ class CourseController extends Controller
                 'kode' => $course->kode ?? '-',
                 'sks' => $course->sks,
                 'totalSessions' => $totalSessions,
-                'totalStudents' => $totalStudents,
+                'activeSessions' => $activeSessions,
+                'totalStudents' => $students,
                 'attendanceRate' => $totalLogs > 0 ? round(($presentLogs / $totalLogs) * 100) : 0,
+                'lateCount' => $lateLogs,
+                'lowAttendanceStudents' => $lowAttendanceCount,
+                'latestSession' => $latestSession?->start_at?->format('d M Y'),
             ];
         });
+
+        // Aggregate stats
+        $allSessionIds = AttendanceSession::whereIn('course_id', $courses->pluck('id'))->pluck('id');
+        $totalLogsAll = AttendanceLog::whereIn('session_id', $allSessionIds)->count();
+        $presentLogsAll = AttendanceLog::whereIn('session_id', $allSessionIds)->whereIn('status', ['present', 'late'])->count();
+
+        $stats = [
+            'totalCourses' => $courses->count(),
+            'totalStudents' => $courses->sum('totalStudents'),
+            'totalSessions' => $courses->sum('totalSessions'),
+            'activeSessions' => $courses->sum('activeSessions'),
+            'avgAttendanceRate' => $totalLogsAll > 0 ? round(($presentLogsAll / $totalLogsAll) * 100, 1) : 0,
+            'lowAttendanceStudents' => $courses->sum('lowAttendanceStudents'),
+        ];
 
         return Inertia::render('dosen/courses', [
             'dosen' => [
@@ -50,6 +85,7 @@ class CourseController extends Controller
                 'nidn' => $dosen->nidn,
             ],
             'courses' => $courses,
+            'stats' => $stats,
         ]);
     }
 
