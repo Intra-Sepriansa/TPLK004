@@ -6,7 +6,7 @@ import {
     CheckCircle2, Clock, XCircle, AlertTriangle, ShieldAlert,
     ChevronRight, ExternalLink, GraduationCap, Building2,
     Activity, History, FileText, BadgeCheck, MoreHorizontal,
-    Share2, Edit
+    Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -124,13 +124,6 @@ export default function MahasiswaDetail({ mahasiswa, stats, recentActivity, frau
                                     </p>
                                 </motion.div>
                             </div>
-
-                            {/* Action Button */}
-                            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="w-full md:w-auto pb-4">
-                                <button className="w-full md:w-auto px-8 py-3 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2">
-                                    <Edit className="h-4 w-4" /> Edit Profile
-                                </button>
-                            </motion.div>
                         </div>
                     </div>
 
