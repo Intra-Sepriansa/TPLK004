@@ -39,9 +39,10 @@ class AdminActivityLog extends Model
         ?string $modelType = null,
         ?int $modelId = null,
         ?array $oldValues = null,
-        ?array $newValues = null
+        ?array $newValues = null,
+        $user = null
     ): self {
-        $user = auth()->user();
+        $user = $user ?? auth()->user();
         
         return self::create([
             'user_id' => $user ? $user->id : null,

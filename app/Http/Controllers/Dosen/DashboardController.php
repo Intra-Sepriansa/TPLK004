@@ -151,6 +151,35 @@ class DashboardController extends Controller
                 'student_count' => Mahasiswa::whereHas('attendanceLogs', fn($q) => $q->where('attendance_session_id', $s->id))->count(),
             ]);
 
+        // Courses list for filter dropdown
+        $coursesList = $courses->map(fn($c) => [
+            'id' => $c->id,
+            'nama' => $c->nama,
+        ]);
+
+        // Weekly trend (last 7 days)
+        $weeklyTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dayLabel = $date->format('D');
+
+            $dayPresent = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
+                ->whereDate('scanned_at', $date)
+                ->whereIn('status', ['present', 'late'])
+                ->count();
+
+            $dayTotal = AttendanceLog::whereHas('session', fn($q) => $q->whereIn('course_id', $courseIds))
+                ->whereDate('scanned_at', $date)
+                ->count();
+
+            $weeklyTrend[] = [
+                'day' => $dayLabel,
+                'date' => $date->format('d M'),
+                'present' => $dayPresent,
+                'total' => $dayTotal,
+            ];
+        }
+
         return Inertia::render('dosen/dashboard', [
             'dosen' => [
                 'id' => $dosen->id,
@@ -176,6 +205,8 @@ class DashboardController extends Controller
             'courseStats' => $courseStats,
             'recentActivity' => $recentActivity,
             'todaySchedule' => $todaySchedule,
+            'coursesList' => $coursesList,
+            'weeklyTrend' => $weeklyTrend,
         ]);
     }
 }

@@ -16,11 +16,12 @@ class LogSuccessfulLogin
     {
         AdminActivityLog::log(
             'login',
-            "User  logged in from " . request()->ip(),
+            "User logged in from " . request()->ip(),
             null,
             null,
             null,
-            null
+            null,
+            $event->user
         );
     }
 }
