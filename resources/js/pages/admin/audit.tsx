@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import {
     ShieldCheck,
@@ -871,16 +871,13 @@ export default function AdminAudit({
                                         >
                                             Close
                                         </button>
-                                        <button
-                                            onClick={() => {
-                                                // Export or view more details
-                                                console.log('View more details for log:', selectedLog.id);
-                                            }}
+                                        <Link
+                                            href={`/admin/audit/${selectedLog.id}`}
                                             className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                                         >
                                             <Eye className="h-4 w-4" />
                                             View Full Details
-                                        </button>
+                                        </Link>
                                     </motion.div>
                                 </div>
                             </motion.div>

@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Advanced Audit & Rekap
     Route::get('admin/audit', [AuditController::class, 'index'])->name('admin.audit');
+    Route::get('admin/audit/{id}', [AuditController::class, 'show'])->name('admin.audit.show');
     Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');

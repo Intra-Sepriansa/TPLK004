@@ -68,6 +68,29 @@ class AuditController extends Controller
         ]);
     }
     
+    public function show($id)
+    {
+        $auditLog = AuditLog::with(['mahasiswa', 'session.course.dosen'])
+            ->findOrFail($id);
+        
+        // Get related logs (same user, same day, or same event type)
+        $relatedLogs = AuditLog::with(['mahasiswa', 'session.course'])
+            ->where('id', '!=', $id)
+            ->where(function ($query) use ($auditLog) {
+                $query->where('mahasiswa_id', $auditLog->mahasiswa_id)
+                    ->orWhere('event_type', $auditLog->event_type)
+                    ->orWhereDate('created_at', $auditLog->created_at->toDateString());
+            })
+            ->latest()
+            ->take(10)
+            ->get();
+        
+        return Inertia::render('admin/audit-detail', [
+            'auditLog' => $auditLog,
+            'relatedLogs' => $relatedLogs,
+        ]);
+    }
+    
     public function exportPdf(Request $request)
     {
         $dateFrom = $request->get('date_from', now()->subDays(7)->toDateString());
