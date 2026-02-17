@@ -625,7 +625,9 @@ export default function AdminAudit({
                                                 exit={{ opacity: 0, x: 20 }}
                                                 transition={{ delay: 0.05 * index }}
                                                 className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors cursor-pointer"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    console.log('Row clicked, log:', log);
                                                     setSelectedLog(log);
                                                     setShowDetailModal(true);
                                                 }}
@@ -669,7 +671,10 @@ export default function AdminAudit({
 
             {/* ═══════ DETAIL MODAL ═══════ */}
             <AnimatePresence>
-                {showDetailModal && selectedLog && (
+                {(() => {
+                    console.log('Modal state:', { showDetailModal, selectedLog });
+                    return showDetailModal && selectedLog;
+                })() && (
                     <>
                         {/* Backdrop */}
                         <motion.div
