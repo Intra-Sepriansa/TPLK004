@@ -66,7 +66,8 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
     const [search, setSearch] = useState(filters.search);
     const [action, setAction] = useState(filters.action);
     const [date, setDate] = useState(filters.date || '');
-    const [expandedLog, setExpandedLog] = useState<number | null>(null);
+    const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
 
     const handleFilter = () => {
         router.get('/admin/activity-log', { search, action, date: date || undefined }, { preserveState: true });
@@ -318,89 +319,53 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                         </tr>
                                     ) : (
                                         logs.data.map((log, index) => (
-                                            <>
-                                                <motion.tr
-                                                    key={log.id}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    exit={{ opacity: 0, x: 20 }}
-                                                    transition={{ delay: 0.05 * index }}
-                                                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
-                                                    className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                                                    onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
-                                                >
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-300">
-                                                        {log.created_at}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs ring-2 ring-white ml-1">
-                                                                <User className="h-4 w-4" />
-                                                            </div>
-                                                            <span className="text-sm font-bold text-gray-800 dark:text-white">{log.user}</span>
+                                            <motion.tr
+                                                key={log.id}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: 20 }}
+                                                transition={{ delay: 0.05 * index }}
+                                                whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
+                                                className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                                                onClick={() => {
+                                                    setSelectedLog(log);
+                                                    setShowDetailModal(true);
+                                                }}
+                                            >
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600 dark:text-gray-300">
+                                                    {log.created_at}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs ring-2 ring-white ml-1">
+                                                            <User className="h-4 w-4" />
                                                         </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {getActionBadge(log.action)}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {log.model_type ? (
-                                                            <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 w-fit">
-                                                                <Database className="h-3 w-3 text-gray-500" />
-                                                                <span className="text-xs font-mono text-gray-600 dark:text-gray-400">
-                                                                    {log.model_type.split('\\').pop()}
-                                                                    {log.model_id && <span className="text-gray-400"> #{log.model_id}</span>}
-                                                                </span>
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-sm text-gray-400">-</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
-                                                        {log.description}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500 font-mono">
-                                                        {log.ip_address || '-'}
-                                                    </td>
-                                                </motion.tr>
-                                                {/* Expanded Details - Glassmorphism */}
-                                                {expandedLog === log.id && (log.old_values || log.new_values) && (
-                                                    <motion.tr
-                                                        key={`${log.id}-detail`}
-                                                        initial={{ opacity: 0, height: 0 }}
-                                                        animate={{ opacity: 1, height: 'auto' }}
-                                                        exit={{ opacity: 0, height: 0 }}
-                                                        transition={{ duration: 0.3 }}
-                                                    >
-                                                        <td colSpan={6} className="px-6 py-6 bg-gray-50/50 dark:bg-black/20">
-                                                            <div className="grid md:grid-cols-2 gap-6">
-                                                                {log.old_values && Object.keys(log.old_values).length > 0 && (
-                                                                    <div className="rounded-xl border border-red-200 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
-                                                                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-red-200 dark:border-red-800/30">
-                                                                            <div className="h-2 w-2 rounded-full bg-red-500" />
-                                                                            <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider">Data Lama</p>
-                                                                        </div>
-                                                                        <pre className="text-xs font-mono text-red-800 dark:text-red-300 overflow-auto max-h-40 whitespace-pre-wrap">
-                                                                            {JSON.stringify(log.old_values, null, 2)}
-                                                                        </pre>
-                                                                    </div>
-                                                                )}
-                                                                {log.new_values && Object.keys(log.new_values).length > 0 && (
-                                                                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900/30 dark:bg-emerald-900/10">
-                                                                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-emerald-200 dark:border-emerald-800/30">
-                                                                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                                                                            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Data Baru</p>
-                                                                        </div>
-                                                                        <pre className="text-xs font-mono text-emerald-800 dark:text-emerald-300 overflow-auto max-h-40 whitespace-pre-wrap">
-                                                                            {JSON.stringify(log.new_values, null, 2)}
-                                                                        </pre>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    </motion.tr>
-                                                )}
-                                            </>
+                                                        <span className="text-sm font-bold text-gray-800 dark:text-white">{log.user}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {getActionBadge(log.action)}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {log.model_type ? (
+                                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 w-fit">
+                                                            <Database className="h-3 w-3 text-gray-500" />
+                                                            <span className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                                                                {log.model_type.split('\\').pop()}
+                                                                {log.model_id && <span className="text-gray-400"> #{log.model_id}</span>}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-sm text-gray-400">-</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
+                                                    {log.description}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500 font-mono">
+                                                    {log.ip_address || '-'}
+                                                </td>
+                                            </motion.tr>
                                         ))
                                     )}
                                 </AnimatePresence>
@@ -418,10 +383,10 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                     onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                     disabled={!link.url}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${link.active
-                                            ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
-                                            : link.url
-                                                ? 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
-                                                : 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-900 dark:text-gray-600'
+                                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30'
+                                        : link.url
+                                            ? 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
+                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-900 dark:text-gray-600'
                                         }`}
                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                 />
@@ -430,6 +395,189 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     )}
                 </motion.div>
             </div>
+
+            {/* ═══════ DETAIL MODAL ═══════ */}
+            <AnimatePresence>
+                {showDetailModal && selectedLog && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowDetailModal(false)}
+                            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                        />
+
+                        {/* Modal Container */}
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                className="w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto border border-white/20 dark:border-neutral-800 flex flex-col max-h-[90vh]"
+                            >
+                                {/* Modal Header with Gradient */}
+                                <div className="relative h-32 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 flex items-start justify-between overflow-hidden shrink-0">
+                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+
+                                    {/* Floating Particles */}
+                                    {[...Array(5)].map((_, i) => (
+                                        <motion.div
+                                            key={i}
+                                            className="absolute w-2 h-2 bg-white/30 rounded-full"
+                                            style={{
+                                                left: `${Math.random() * 100}%`,
+                                                top: `${Math.random() * 100}%`,
+                                            }}
+                                            animate={{
+                                                y: [0, -20, 0],
+                                                opacity: [0.3, 0.6, 0.3],
+                                            }}
+                                            transition={{
+                                                duration: 3 + Math.random() * 2,
+                                                repeat: Infinity,
+                                                delay: Math.random() * 2,
+                                            }}
+                                        />
+                                    ))}
+
+                                    <div className="relative z-10 flex items-center gap-4">
+                                        <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
+                                            <Activity className="h-8 w-8" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white">
+                                                Detail Aktivitas
+                                            </h3>
+                                            <p className="text-blue-100 flex items-center gap-2">
+                                                <span className="font-mono bg-white/10 px-2 py-0.5 rounded text-sm">#{selectedLog.id}</span>
+                                                <span className="w-1 h-1 rounded-full bg-white/50" />
+                                                <span>{selectedLog.created_at}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setShowDetailModal(false)}
+                                        className="relative z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-md"
+                                    >
+                                        <div className="sr-only">Close</div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                {/* Modal Body - Scrollable */}
+                                <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
+                                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
+                                                    <User className="h-5 w-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium uppercase">User</p>
+                                                    <p className="font-bold text-gray-800 dark:text-white">{selectedLog.user}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
+                                                    <Database className="h-5 w-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium uppercase">Model Target</p>
+                                                    <p className="font-bold text-gray-800 dark:text-white font-mono text-sm">
+                                                        {selectedLog.model_type?.split('\\').pop() || '-'}
+                                                        {selectedLog.model_id && <span className="text-gray-400"> #{selectedLog.model_id}</span>}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                                                    <Activity className="h-5 w-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium uppercase">Action</p>
+                                                    <div className="mt-1">{getActionBadge(selectedLog.action)}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
+                                                    <ScrollText className="h-5 w-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-gray-500 font-medium uppercase">Deskripsi</p>
+                                                    <p className="font-medium text-gray-800 dark:text-white text-sm">{selectedLog.description}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Data Comparison */}
+                                    {(selectedLog.old_values || selectedLog.new_values) && (
+                                        <div className="space-y-4">
+                                            <h4 className="font-bold text-lg text-gray-800 dark:text-white flex items-center gap-2">
+                                                <Activity className="h-5 w-5 text-indigo-500" />
+                                                Perubahan Data
+                                            </h4>
+                                            <div className="grid md:grid-cols-2 gap-6">
+                                                {/* Old Values */}
+                                                <div className="rounded-2xl border border-red-200 bg-red-50/50 dark:border-red-900/30 dark:bg-red-900/10 overflow-hidden">
+                                                    <div className="px-4 py-3 bg-red-100/50 dark:bg-red-900/30 border-b border-red-200 dark:border-red-800/30 flex items-center gap-2">
+                                                        <div className="h-2 w-2 rounded-full bg-red-500" />
+                                                        <p className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider">Data Lama</p>
+                                                    </div>
+                                                    <div className="p-4 overflow-auto max-h-96 custom-scrollbar">
+                                                        {selectedLog.old_values ? (
+                                                            <pre className="text-xs font-mono text-red-800 dark:text-red-300 whitespace-pre-wrap leading-relaxed">
+                                                                {JSON.stringify(selectedLog.old_values, null, 2)}
+                                                            </pre>
+                                                        ) : (
+                                                            <p className="text-sm text-gray-400 italic text-center py-4">Tidak ada data lama</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* New Values */}
+                                                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/30 dark:bg-emerald-900/10 overflow-hidden">
+                                                    <div className="px-4 py-3 bg-emerald-100/50 dark:bg-emerald-900/30 border-b border-emerald-200 dark:border-emerald-800/30 flex items-center gap-2">
+                                                        <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Data Baru</p>
+                                                    </div>
+                                                    <div className="p-4 overflow-auto max-h-96 custom-scrollbar">
+                                                        {selectedLog.new_values ? (
+                                                            <pre className="text-xs font-mono text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap leading-relaxed">
+                                                                {JSON.stringify(selectedLog.new_values, null, 2)}
+                                                            </pre>
+                                                        ) : (
+                                                            <p className="text-sm text-gray-400 italic text-center py-4">Tidak ada data baru</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-black/20 shrink-0">
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={() => setShowDetailModal(false)}
+                                            className="px-6 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold shadow-sm hover:bg-gray-50 transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                                        >
+                                            Tutup
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </>
+                )}
+            </AnimatePresence>
         </AppLayout>
     );
 }

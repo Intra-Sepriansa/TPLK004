@@ -23,5 +23,20 @@ class AppServiceProvider extends ServiceProvider
     {
         // Explicit model binding for notifications
         Route::model('notification', AppNotification::class);
+
+        // Register AdminActivityObserver
+        \App\Models\User::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\Mahasiswa::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\Dosen::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\Course::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\MataKuliah::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\Schedule::observe(\App\Observers\AdminActivityObserver::class);
+        \App\Models\Setting::observe(\App\Observers\AdminActivityObserver::class);
+
+        // Register Login Event Listener
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            \App\Listeners\LogSuccessfulLogin::class
+        );
     }
 }

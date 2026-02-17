@@ -9,6 +9,7 @@ class AdminActivityLog extends Model
 {
     protected $fillable = [
         'user_id',
+        'user_type',
         'action',
         'model_type',
         'model_id',
@@ -24,9 +25,9 @@ class AdminActivityLog extends Model
         'new_values' => 'array',
     ];
 
-    public function user(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 
     /**
@@ -40,8 +41,11 @@ class AdminActivityLog extends Model
         ?array $oldValues = null,
         ?array $newValues = null
     ): self {
+        $user = auth()->user();
+        
         return self::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user ? $user->id : null,
+            'user_type' => $user ? $user->getMorphClass() : null, // Handle User, Mahasiswa, Dosen
             'action' => $action,
             'model_type' => $modelType,
             'model_id' => $modelId,
