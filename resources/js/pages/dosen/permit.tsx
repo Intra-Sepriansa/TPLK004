@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,14 +12,17 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Clock, CheckCircle, XCircle, Zap, Heart, Users, Calendar, AlertTriangle, Timer,
-    Sparkles, ArrowUpDown, RefreshCw, Paperclip, Eye, Check, X, Archive, ChevronLeft, ChevronRight,
-    Search, LayoutGrid, List, FileText, Shield, Trophy,
+    Clock, CheckCircle, XCircle, Heart, Calendar, AlertTriangle, Timer,
+    Sparkles, ArrowUpDown, Paperclip, Eye, Check, X, ChevronLeft, ChevronRight,
+    Search, LayoutGrid, List, FileText, Shield, BookOpen, User, MapPin,
+    ChevronDown, ExternalLink, Download, Activity,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
 
-// ═══ Types ═══
+/* ═══════════════════════════════════════════════════ */
+/*                     TYPES                          */
+/* ═══════════════════════════════════════════════════ */
 type Permit = {
     id: number;
     mahasiswa: { id: number; nama: string; nim: string; avatar?: string };
@@ -43,208 +46,206 @@ type Session = { id: number; mata_kuliah: string; tanggal: string; tanggal_displ
 type Stats = { total: number; pending: number; approved_today: number; rejected: number; auto_approved: number; sick_leave: number; family_emergency: number; official_event: number; suspicious: number; avg_response_time: number };
 type Props = { permits: Permit[]; sessions: Session[]; stats: Stats; filters: any };
 
-// ═══ Animation Variants (EXACT from Kas Admin) ═══
-const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } } as const;
-const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } } as const;
-const cardVariants = { hidden: { opacity: 0, scale: 0.9 }, visible: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } }, hover: { scale: 1.03, y: -8, transition: { type: 'spring', stiffness: 400, damping: 10 } } } as const;
+/* ═══════════════════════════════════════════════════ */
+/*              ANIMATION VARIANTS                    */
+/* ═══════════════════════════════════════════════════ */
+const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } } } as const;
+const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } };
+const cardHover = { scale: 1.03, y: -6, transition: { type: 'spring' as const, stiffness: 400, damping: 15 } };
+const viewTransition = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -12 }, transition: { duration: 0.25 } };
 
-// ═══ Helpers ═══
-const formatDateRange = (start: string, end: string) => start === end ? moment(start).format('DD MMM YYYY') : `${moment(start).format('DD MMM')} – ${moment(end).format('DD MMM YYYY')}`;
-const formatRelativeTime = (date: string) => moment(date, 'DD MMM YYYY HH:mm').fromNow();
+/* ═══════════════════════════════════════════════════ */
+/*                   HELPERS                          */
+/* ═══════════════════════════════════════════════════ */
+const fmtDateRange = (s: string, e: string) => s === e ? moment(s).format('DD MMM YYYY') : `${moment(s).format('DD MMM')} – ${moment(e).format('DD MMM YYYY')}`;
+const fmtRelative = (d: string) => moment(d, 'DD MMM YYYY HH:mm').fromNow();
 
+/* ═══════════════════════════════════════════════════ */
+/*                 MAIN COMPONENT                     */
+/* ═══════════════════════════════════════════════════ */
 export default function PermitPage({ permits: initialPermits, sessions, stats, filters }: Props) {
     const [permits, setPermits] = useState(initialPermits);
     const [viewMode, setViewMode] = useState<'kanban' | 'table' | 'calendar'>('kanban');
     const [search, setSearch] = useState('');
-    const [selectedSession, setSelectedSession] = useState(filters.session_id || 'all');
+    const [selectedSession, setSelectedSession] = useState(filters?.session_id?.toString() || 'all');
     const [selectedType, setSelectedType] = useState('all');
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-
-    // Modal State
     const [detailPermit, setDetailPermit] = useState<Permit | null>(null);
-    const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+    const [isRejectOpen, setIsRejectOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
     const [processingId, setProcessingId] = useState<number | null>(null);
-
-    // Calendar State
     const [currentMonth, setCurrentMonth] = useState(moment());
-
-    // Table Selection
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-    const filteredPermits = useMemo(() => {
-        return permits.filter(p => {
-            const matchSearch = p.mahasiswa.nama.toLowerCase().includes(search.toLowerCase()) || p.mahasiswa.nim.includes(search);
-            const matchSession = selectedSession === 'all' || p.session.id.toString() === selectedSession;
-            const matchType = selectedType === 'all' || p.type === selectedType;
-            return matchSearch && matchSession && matchType;
-        });
-    }, [permits, search, selectedSession, selectedType]);
+    /* ── Filtered Data ── */
+    const filtered = useMemo(() => permits.filter(p => {
+        const s = search.toLowerCase();
+        return (p.mahasiswa.nama.toLowerCase().includes(s) || p.mahasiswa.nim.includes(s))
+            && (selectedSession === 'all' || p.session.id.toString() === selectedSession)
+            && (selectedType === 'all' || p.type === selectedType);
+    }), [permits, search, selectedSession, selectedType]);
 
-    const pendingPermits = filteredPermits.filter(p => p.status === 'pending');
-    const approvedPermits = filteredPermits.filter(p => p.status === 'approved');
-    const rejectedPermits = filteredPermits.filter(p => p.status === 'rejected');
+    const pending = useMemo(() => filtered.filter(p => p.status === 'pending'), [filtered]);
+    const approved = useMemo(() => filtered.filter(p => p.status === 'approved'), [filtered]);
+    const rejected = useMemo(() => filtered.filter(p => p.status === 'rejected'), [filtered]);
 
-    // ═══ Actions ═══
-    const quickApprove = (permit: Permit) => {
+    /* ── Actions ── */
+    const doApprove = useCallback((permit: Permit) => {
         setProcessingId(permit.id);
-        router.patch(route('dosen.permits.approve', permit.id), {}, {
-            onSuccess: () => { setPermits(prev => prev.map(p => p.id === permit.id ? { ...p, status: 'approved' } : p)); setProcessingId(null); setDetailPermit(null); },
+        router.patch(`/dosen/permits/${permit.id}/approve`, {}, {
+            onSuccess: () => { setPermits(prev => prev.map(p => p.id === permit.id ? { ...p, status: 'approved' as const } : p)); setProcessingId(null); setDetailPermit(null); },
             onError: () => setProcessingId(null),
         });
-    };
+    }, []);
 
-    const quickReject = (permit: Permit) => { setDetailPermit(permit); setIsRejectionModalOpen(true); };
+    const openReject = useCallback((permit: Permit) => { setDetailPermit(permit); setIsRejectOpen(true); }, []);
 
-    const handleReject = () => {
+    const doReject = useCallback(() => {
         if (!detailPermit || !rejectionReason) return;
         setProcessingId(detailPermit.id);
-        router.patch(route('dosen.permits.reject', detailPermit.id), { rejection_reason: rejectionReason }, {
-            onSuccess: () => { setPermits(prev => prev.map(p => p.id === detailPermit.id ? { ...p, status: 'rejected', rejection_reason: rejectionReason } : p)); setProcessingId(null); setDetailPermit(null); setIsRejectionModalOpen(false); setRejectionReason(''); },
+        router.patch(`/dosen/permits/${detailPermit.id}/reject`, { rejection_reason: rejectionReason }, {
+            onSuccess: () => { setPermits(prev => prev.map(p => p.id === detailPermit.id ? { ...p, status: 'rejected' as const, rejection_reason: rejectionReason } : p)); setProcessingId(null); setDetailPermit(null); setIsRejectOpen(false); setRejectionReason(''); },
             onError: () => setProcessingId(null),
         });
-    };
+    }, [detailPermit, rejectionReason]);
 
-    const handleBulkApprove = () => {
-        if (selectedIds.length === 0) return;
-        router.post(route('dosen.permits.bulk-approve'), { permit_ids: selectedIds }, {
-            onSuccess: () => { setPermits(prev => prev.map(p => selectedIds.includes(p.id) ? { ...p, status: 'approved' } : p)); setSelectedIds([]); },
+    const doBulkApprove = useCallback(() => {
+        if (!selectedIds.length) return;
+        router.post('/dosen/permits/bulk-approve', { permit_ids: selectedIds }, {
+            onSuccess: () => { setPermits(prev => prev.map(p => selectedIds.includes(p.id) ? { ...p, status: 'approved' as const } : p)); setSelectedIds([]); },
         });
+    }, [selectedIds]);
+
+    const toggleId = (id: number) => setSelectedIds(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+
+    /* ── Badges ── */
+    const typeBadge = (t: string) => t === 'sakit'
+        ? <Badge className="bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20"><Heart className="h-3 w-3 mr-1" /> Sakit</Badge>
+        : <Badge className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"><FileText className="h-3 w-3 mr-1" /> Izin</Badge>;
+
+    const statusBadge = (s: string) => {
+        if (s === 'approved') return <Badge className="bg-emerald-500 text-white"><CheckCircle className="h-3 w-3 mr-1" /> Disetujui</Badge>;
+        if (s === 'rejected') return <Badge className="bg-red-500 text-white"><XCircle className="h-3 w-3 mr-1" /> Ditolak</Badge>;
+        return <Badge className="bg-amber-500 text-white"><Clock className="h-3 w-3 mr-1" /> Menunggu</Badge>;
     };
 
-    const toggleSelect = (id: number) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-    const selectAll = () => { const pendingIds = pendingPermits.map(p => p.id); setSelectedIds(prev => prev.length === pendingIds.length ? [] : pendingIds); };
-
-    // ═══ Badge Helpers ═══
-    const getPermitTypeBadge = (type: string) => type === 'sakit'
-        ? <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-900/20 dark:text-pink-300"><Heart className="h-3 w-3 mr-1" /> Sakit</Badge>
-        : <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-300"><FileText className="h-3 w-3 mr-1" /> Izin</Badge>;
-
-    const getStatusBadge = (status: string) => {
-        if (status === 'approved') return <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white"><CheckCircle className="h-3 w-3 mr-1" /> Disetujui</Badge>;
-        if (status === 'rejected') return <Badge className="bg-red-500 hover:bg-red-600 text-white"><XCircle className="h-3 w-3 mr-1" /> Ditolak</Badge>;
-        return <Badge className="bg-amber-500 hover:bg-amber-600 text-white"><Clock className="h-3 w-3 mr-1" /> Menunggu</Badge>;
-    };
-
-    // ═══ Summary Card Data ═══
-    const summaryCards = [
-        { key: 'total', title: 'Total Requests', value: stats.total, subtitle: `${stats.total} bulan ini`, Icon: FileText, gradient: 'from-blue-400 to-indigo-600', shadowColor: 'shadow-blue-500/30', glowBg: 'bg-blue-500', overlayGradient: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10', hoverShadow: 'hover:shadow-blue-500/10', trend: 'up' as const },
-        { key: 'pending', title: 'Pending Approval', value: stats.pending, subtitle: 'perlu review segera', Icon: Clock, gradient: 'from-amber-400 to-orange-600', shadowColor: 'shadow-amber-500/30', glowBg: 'bg-amber-500', overlayGradient: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', hoverShadow: 'hover:shadow-amber-500/10', pulse: stats.pending > 5 },
-        { key: 'approved', title: 'Approved Today', value: stats.approved_today, subtitle: `${stats.approved_today} dari ${stats.total} request`, Icon: CheckCircle, gradient: 'from-emerald-400 to-teal-600', shadowColor: 'shadow-emerald-500/30', glowBg: 'bg-emerald-500', overlayGradient: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', hoverShadow: 'hover:shadow-emerald-500/10' },
-        { key: 'rejected', title: 'Rejected', value: stats.rejected, subtitle: 'dengan alasan', Icon: XCircle, gradient: 'from-red-400 to-rose-600', shadowColor: 'shadow-red-500/30', glowBg: 'bg-red-500', overlayGradient: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', hoverShadow: 'hover:shadow-red-500/10' },
-        { key: 'auto', title: 'Auto-Approved', value: stats.auto_approved, subtitle: 'by AI system', Icon: Zap, gradient: 'from-purple-400 to-violet-600', shadowColor: 'shadow-purple-500/30', glowBg: 'bg-purple-500', overlayGradient: 'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10', hoverShadow: 'hover:shadow-purple-500/10', ai: true },
-        { key: 'sick', title: 'Sick Leave', value: stats.sick_leave, subtitle: 'dengan surat dokter', Icon: Heart, gradient: 'from-pink-400 to-rose-600', shadowColor: 'shadow-pink-500/30', glowBg: 'bg-pink-500', overlayGradient: 'from-pink-500/5 to-rose-500/5 dark:from-pink-500/10 dark:to-rose-500/10', hoverShadow: 'hover:shadow-pink-500/10' },
-        { key: 'family', title: 'Family Emergency', value: stats.family_emergency, subtitle: 'urgent cases', Icon: Users, gradient: 'from-orange-400 to-red-600', shadowColor: 'shadow-orange-500/30', glowBg: 'bg-orange-500', overlayGradient: 'from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10', hoverShadow: 'hover:shadow-orange-500/10' },
-        { key: 'event', title: 'Official Event', value: stats.official_event, subtitle: 'lomba, seminar, dll', Icon: Trophy, gradient: 'from-indigo-400 to-purple-600', shadowColor: 'shadow-indigo-500/30', glowBg: 'bg-indigo-500', overlayGradient: 'from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10', hoverShadow: 'hover:shadow-indigo-500/10' },
-        { key: 'suspicious', title: 'Suspicious Patterns', value: stats.suspicious, subtitle: 'perlu verifikasi', Icon: AlertTriangle, gradient: 'from-red-500 to-orange-600', shadowColor: 'shadow-red-500/30', glowBg: 'bg-red-600', overlayGradient: 'from-red-500/5 to-orange-500/5 dark:from-red-500/10 dark:to-orange-500/10', hoverShadow: 'hover:shadow-red-500/10', alert: true },
-        { key: 'response', title: 'Avg Response Time', value: `${stats.avg_response_time}h`, subtitle: 'dalam jam', Icon: Timer, gradient: 'from-green-400 to-emerald-600', shadowColor: 'shadow-green-500/30', glowBg: 'bg-green-500', overlayGradient: 'from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10', hoverShadow: 'hover:shadow-green-500/10' },
+    /* ── Summary Cards (4 Essential) ── */
+    const cards = [
+        { key: 'total', label: 'Total Perizinan', val: stats.total, sub: `${stats.total} bulan ini`, Icon: FileText, grad: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500', overlay: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
+        { key: 'pending', label: 'Menunggu Review', val: stats.pending, sub: 'perlu review segera', Icon: Clock, grad: 'from-amber-500 to-orange-600', glow: 'bg-amber-500', overlay: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', pulse: stats.pending > 0 },
+        { key: 'approved', label: 'Disetujui Hari Ini', val: stats.approved_today, sub: `dari ${stats.total} request`, Icon: CheckCircle, grad: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500', overlay: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        { key: 'rejected', label: 'Ditolak', val: stats.rejected, sub: 'dengan alasan', Icon: XCircle, grad: 'from-red-500 to-rose-600', glow: 'bg-red-500', overlay: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
     ];
 
-    // ═══ Calendar Helpers ═══
-    const calendarDays = useMemo(() => {
-        const start = moment(currentMonth).startOf('month').startOf('week');
-        return Array.from({ length: 42 }, (_, i) => moment(start).add(i, 'days'));
+    /* ── Calendar ── */
+    const calDays = useMemo(() => {
+        const s = moment(currentMonth).startOf('month').startOf('week');
+        return Array.from({ length: 42 }, (_, i) => moment(s).add(i, 'days'));
     }, [currentMonth]);
+    const permitsOnDay = (d: moment.Moment) => filtered.filter(p => p.start_date === d.format('YYYY-MM-DD'));
 
-    const getPermitsForDay = (day: moment.Moment) => filteredPermits.filter(p => p.start_date === day.format('YYYY-MM-DD'));
-
+    /* ═══════════════════════════════════════════════════ */
+    /*                    RENDER                          */
+    /* ═══════════════════════════════════════════════════ */
     return (
-        <DosenLayout title="Persetujuan Izin">
+        <DosenLayout>
             <Head title="Persetujuan Izin" />
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 md:p-6 space-y-5">
 
-                {/* ═══ HEADER — Exact Kas Admin Style ═══ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} style={{ backgroundSize: '200% 200%' }} />
+                {/* ════════════════ HEADER ════════════════ */}
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl min-h-[160px] md:min-h-[180px]">
+                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    {/* 3 Pulse Rings */}
-                    {[0, 1, 2].map(delay => (
-                        <motion.div key={delay} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay }} />
-                    ))}
-
-                    <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
-                                <motion.div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                    <Shield className="h-8 w-8 text-white" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Perizinan</p>
-                                    <h1 className="text-3xl font-bold text-white">Persetujuan Izin</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">Kelola permohonan izin mahasiswa dengan AI verification system</p>
-                                </div>
+                    {/* Decorative orbs */}
+                    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-pink-400/10 blur-3xl" />
+                    <div className="absolute top-1/2 left-1/3 h-48 w-48 rounded-full bg-indigo-300/10 blur-3xl" />
+                    {/* Animated pulse rings */}
+                    {[0, 1, 2].map(i => <motion.div key={i} className="absolute right-20 top-1/2 -translate-y-1/2 h-36 w-36 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.8], opacity: [0.4, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeOut', delay: i * 1.2 }} />)}
+                    {/* Grid pattern overlay */}
+                    <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                    <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-5">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-16 w-16 md:h-[72px] md:w-[72px] items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl">
+                                <Shield className="h-8 w-8 md:h-9 md:w-9" />
+                            </motion.div>
+                            <div className="space-y-1.5">
+                                <p className="text-xs md:text-sm text-indigo-200 font-semibold tracking-widest uppercase">Manajemen Perizinan</p>
+                                <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">Persetujuan Izin</h1>
+                                <p className="text-sm md:text-base text-indigo-100/80 max-w-xl leading-relaxed">Kelola permohonan izin mahasiswa dengan sistem verifikasi AI terintegrasi</p>
                             </div>
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                <div className="p-2 bg-indigo-500/20 rounded-lg"><Sparkles className="h-6 w-6 text-white" /></div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }} className="flex items-center gap-4 rounded-2xl bg-white/15 backdrop-blur-xl px-6 py-4 border border-white/20 shadow-lg">
+                                <div className="p-2.5 rounded-xl bg-white/15 backdrop-blur-sm"><Sparkles className="h-5 w-5" /></div>
                                 <div>
-                                    <p className="text-xs text-indigo-100">AI Accuracy</p>
-                                    <p className="text-2xl font-bold text-white">94%</p>
+                                    <p className="text-[10px] text-indigo-200 uppercase tracking-wider font-semibold">AI Accuracy</p>
+                                    <p className="text-2xl font-extrabold tracking-tight">94<span className="text-base font-bold text-indigo-200">%</span></p>
+                                </div>
+                            </motion.div>
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }} className="flex items-center gap-4 rounded-2xl bg-white/15 backdrop-blur-xl px-6 py-4 border border-white/20 shadow-lg">
+                                <div className="p-2.5 rounded-xl bg-white/15 backdrop-blur-sm"><Activity className="h-5 w-5" /></div>
+                                <div>
+                                    <p className="text-[10px] text-indigo-200 uppercase tracking-wider font-semibold">Response</p>
+                                    <p className="text-2xl font-extrabold tracking-tight">{stats.avg_response_time}<span className="text-base font-bold text-indigo-200">h</span></p>
                                 </div>
                             </motion.div>
                         </div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setViewMode('kanban')} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
-                                <LayoutGrid className="h-4 w-4" /> Kanban Board
-                            </motion.button>
-                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setViewMode('table')} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
-                                <List className="h-4 w-4" /> Table View
-                            </motion.button>
-                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setViewMode('calendar')} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
-                                <Calendar className="h-4 w-4" /> Calendar
-                            </motion.button>
-                        </motion.div>
                     </div>
                 </motion.div>
 
-                {/* ═══ 10 SUMMARY CARDS — Exact Kas Admin Glassmorphism ═══ */}
-                <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                    {summaryCards.map(card => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.hoverShadow)}>
-                            <div className={`absolute inset-0 bg-gradient-to-br ${card.overlayGradient}`} />
-                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }} className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${card.glowBg} blur-3xl transition-all duration-500`} />
+                {/* ════════════════ SUMMARY CARDS ════════════════ */}
+                <motion.div variants={containerVariants} className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+                    {cards.map(c => (
+                        <motion.div key={c.key} variants={itemVariants} whileHover={cardHover} onHoverStart={() => setHoveredCard(c.key)} onHoverEnd={() => setHoveredCard(null)}
+                            className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-lg backdrop-blur-xl dark:border-white/5 cursor-pointer">
+                            <div className={`absolute inset-0 bg-gradient-to-br ${c.overlay}`} />
+                            <motion.div animate={{ scale: hoveredCard === c.key ? 1.5 : 1, opacity: hoveredCard === c.key ? 0.4 : 0.15 }} className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${c.glow} blur-3xl transition-all duration-500`} />
                             <div className="relative flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${card.gradient} text-white shadow-lg ${card.shadowColor}`}>
-                                    <card.Icon className="h-7 w-7" />
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.grad} text-white shadow-lg`}>
+                                    <c.Icon className="h-6 w-6" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.title}</p>
-                                    <div className="mt-1 flex items-center gap-2">
-                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">{card.value}</span>
-                                        {card.ai && <Sparkles className="h-4 w-4 text-purple-500" />}
-                                        {card.alert && stats.suspicious > 0 && <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1, repeat: Infinity }}><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
-                                        {card.pulse && stats.pending > 5 && <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" /></span>}
-                                        {card.trend && <Badge variant="outline" className="border-0 bg-emerald-500/10 text-emerald-600 text-xs">↑</Badge>}
+                                <div className="min-w-0">
+                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.label}</p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">{c.val}</span>
+                                        {c.pulse && <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" /></span>}
                                     </div>
-                                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5">{card.subtitle}</p>
+                                    <p className="text-[11px] text-neutral-500 dark:text-neutral-500">{c.sub}</p>
                                 </div>
                             </div>
                         </motion.div>
                     ))}
                 </motion.div>
 
-                {/* ═══ TOOLBAR ═══ */}
-                <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 backdrop-blur-xl shadow-xl">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" /><Input placeholder="Cari mahasiswa..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 w-64 bg-white/60 dark:bg-neutral-800/60 border-white/20" /></div>
+                {/* ════════════════ TOOLBAR ════════════════ */}
+                <motion.div variants={itemVariants} className="rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 md:p-4 backdrop-blur-xl shadow-lg">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="relative flex-1 min-w-[200px]">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                                <Input placeholder="Cari mahasiswa..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 bg-white/60 dark:bg-neutral-800/60 border-white/30 h-9 text-sm" />
+                            </div>
                             <Select value={selectedSession} onValueChange={setSelectedSession}>
-                                <SelectTrigger className="w-48 bg-white/60 dark:bg-neutral-800/60 border-white/20"><SelectValue placeholder="Filter Sesi" /></SelectTrigger>
-                                <SelectContent><SelectItem value="all">Semua Sesi</SelectItem>{sessions.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.mata_kuliah} - {s.tanggal}</SelectItem>)}</SelectContent>
+                                <SelectTrigger className="w-44 bg-white/60 dark:bg-neutral-800/60 border-white/30 h-9 text-sm"><SelectValue placeholder="Sesi" /></SelectTrigger>
+                                <SelectContent><SelectItem value="all">Semua Sesi</SelectItem>{sessions.map(s => <SelectItem key={s.id} value={s.id.toString()}>{s.mata_kuliah}</SelectItem>)}</SelectContent>
                             </Select>
                             <Select value={selectedType} onValueChange={setSelectedType}>
-                                <SelectTrigger className="w-36 bg-white/60 dark:bg-neutral-800/60 border-white/20"><SelectValue placeholder="Tipe" /></SelectTrigger>
-                                <SelectContent><SelectItem value="all">Semua Tipe</SelectItem><SelectItem value="izin">Izin</SelectItem><SelectItem value="sakit">Sakit</SelectItem></SelectContent>
+                                <SelectTrigger className="w-32 bg-white/60 dark:bg-neutral-800/60 border-white/30 h-9 text-sm"><SelectValue placeholder="Tipe" /></SelectTrigger>
+                                <SelectContent><SelectItem value="all">Semua</SelectItem><SelectItem value="izin">Izin</SelectItem><SelectItem value="sakit">Sakit</SelectItem></SelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-center gap-2">
-                            {selectedIds.length > 0 && <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white" onClick={handleBulkApprove}><Check className="h-4 w-4 mr-1" /> Approve {selectedIds.length}</Button>}
-                            <div className="flex bg-white/60 dark:bg-neutral-800/60 rounded-xl p-1 border border-white/20">
-                                {(['kanban', 'table', 'calendar'] as const).map(mode => (
-                                    <button key={mode} onClick={() => setViewMode(mode)} className={cn("p-2 rounded-lg transition-all", viewMode === mode ? "bg-white dark:bg-neutral-700 shadow-md text-indigo-600 dark:text-indigo-400" : "text-neutral-500 hover:text-neutral-700")}>
-                                        {mode === 'kanban' ? <LayoutGrid className="h-4 w-4" /> : mode === 'table' ? <List className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
+                        <div className="flex items-center gap-2 self-end md:self-auto">
+                            {selectedIds.length > 0 && <Button size="sm" className="h-9 bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg" onClick={doBulkApprove}><Check className="h-4 w-4 mr-1" /> Approve ({selectedIds.length})</Button>}
+                            <div className="flex bg-white/60 dark:bg-neutral-800/60 rounded-xl p-1 border border-white/30">
+                                {([
+                                    { mode: 'kanban' as const, icon: LayoutGrid, tip: 'Kanban' },
+                                    { mode: 'table' as const, icon: List, tip: 'Table' },
+                                    { mode: 'calendar' as const, icon: Calendar, tip: 'Calendar' },
+                                ]).map(v => (
+                                    <button key={v.mode} onClick={() => setViewMode(v.mode)} title={v.tip}
+                                        className={cn("p-2 rounded-lg transition-all", viewMode === v.mode ? "bg-white dark:bg-neutral-700 shadow-md text-indigo-600 dark:text-indigo-400" : "text-neutral-400 hover:text-neutral-600")}>
+                                        <v.icon className="h-4 w-4" />
                                     </button>
                                 ))}
                             </div>
@@ -252,215 +253,212 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                     </div>
                 </motion.div>
 
-                {/* ═══ KANBAN VIEW ═══ */}
-                {viewMode === 'kanban' && (
-                    <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        {([
-                            { status: 'pending', items: pendingPermits, label: 'Pending', Icon: Clock, color: 'amber', borderColor: 'border-amber-200 dark:border-amber-800', bgColor: 'bg-amber-50/50 dark:bg-amber-900/10' },
-                            { status: 'approved', items: approvedPermits, label: 'Approved', Icon: CheckCircle, color: 'emerald', borderColor: 'border-emerald-200 dark:border-emerald-800', bgColor: 'bg-emerald-50/50 dark:bg-emerald-900/10' },
-                            { status: 'rejected', items: rejectedPermits, label: 'Rejected', Icon: XCircle, color: 'red', borderColor: 'border-red-200 dark:border-red-800', bgColor: 'bg-red-50/50 dark:bg-red-900/10' },
-                            { status: 'archived', items: [] as Permit[], label: 'Archived', Icon: Archive, color: 'slate', borderColor: 'border-slate-200 dark:border-slate-800', bgColor: 'bg-slate-50/50 dark:bg-slate-900/10' },
-                        ]).map(col => (
-                            <motion.div key={col.status} variants={itemVariants} className={cn("rounded-2xl border p-4", col.borderColor, col.bgColor)}>
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <col.Icon className={`h-5 w-5 text-${col.color}-600`} />
-                                        <h3 className={`font-bold text-${col.color}-900 dark:text-${col.color}-100`}>{col.label}</h3>
+                {/* ════════════════ VIEW CONTENT ════════════════ */}
+                <AnimatePresence mode="wait">
+                    {/* ──── KANBAN ──── */}
+                    {viewMode === 'kanban' && (
+                        <motion.div key="kanban" {...viewTransition} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {([
+                                { key: 'pending', items: pending, label: 'Menunggu', Icon: Clock, borderCls: 'border-amber-300/40 dark:border-amber-700/30', bgCls: 'bg-amber-50/30 dark:bg-amber-950/10', badgeCls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300', iconCls: 'text-amber-500' },
+                                { key: 'approved', items: approved, label: 'Disetujui', Icon: CheckCircle, borderCls: 'border-emerald-300/40 dark:border-emerald-700/30', bgCls: 'bg-emerald-50/30 dark:bg-emerald-950/10', badgeCls: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300', iconCls: 'text-emerald-500' },
+                                { key: 'rejected', items: rejected, label: 'Ditolak', Icon: XCircle, borderCls: 'border-red-300/40 dark:border-red-700/30', bgCls: 'bg-red-50/30 dark:bg-red-950/10', badgeCls: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300', iconCls: 'text-red-500' },
+                            ]).map(col => (
+                                <div key={col.key} className={cn("rounded-2xl border-2 p-4", col.borderCls, col.bgCls)}>
+                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-200/50 dark:border-neutral-700/50">
+                                        <div className="flex items-center gap-2">
+                                            <col.Icon className={cn("h-5 w-5", col.iconCls)} />
+                                            <h3 className="font-bold text-sm">{col.label}</h3>
+                                        </div>
+                                        <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-bold", col.badgeCls)}>{col.items.length}</span>
                                     </div>
-                                    <span className={`px-2 py-1 rounded-full bg-${col.color}-200 dark:bg-${col.color}-800 text-${col.color}-900 dark:text-${col.color}-100 text-xs font-bold`}>{col.items.length}</span>
-                                </div>
-                                <div className="space-y-3 max-h-[calc(100vh-300px)] overflow-y-auto">
-                                    <AnimatePresence>
-                                        {col.items.map(permit => (
-                                            <motion.div key={permit.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} whileHover={{ scale: 1.02 }}
-                                                className="rounded-xl border-2 border-white/60 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4 cursor-pointer shadow-sm hover:shadow-md transition-shadow">
-                                                {/* Student Info */}
-                                                <div className="flex items-center gap-3 mb-3">
-                                                    <Avatar className="h-9 w-9 border-2 border-white shadow-sm"><AvatarImage src={permit.mahasiswa.avatar} /><AvatarFallback>{permit.mahasiswa.nama[0]}</AvatarFallback></Avatar>
-                                                    <div className="flex-1 min-w-0"><p className="font-semibold text-sm truncate">{permit.mahasiswa.nama}</p><p className="text-xs text-neutral-500">{permit.mahasiswa.nim}</p></div>
-                                                    {permit.is_urgent && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }}><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
-                                                </div>
-                                                {/* Type Badge */}
-                                                <div className="mb-2">{getPermitTypeBadge(permit.type)}</div>
-                                                {/* Date & Duration */}
-                                                <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 mb-1"><Calendar className="h-3 w-3" /><span>{formatDateRange(permit.start_date, permit.end_date)}</span></div>
-                                                <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 mb-2"><Timer className="h-3 w-3" /><span>{permit.duration} hari</span></div>
-                                                {/* Reason */}
-                                                <p className="text-xs text-neutral-600 dark:text-neutral-400 line-clamp-2 mb-3">{permit.reason}</p>
-                                                {/* AI Recommendation */}
-                                                <div className={cn("flex items-center gap-2 p-2 rounded-lg text-xs mb-3", permit.ai_recommendation === 'approve' ? "bg-green-50 text-green-700 dark:bg-green-900/20" : permit.ai_recommendation === 'reject' ? "bg-red-50 text-red-700 dark:bg-red-900/20" : "bg-amber-50 text-amber-700 dark:bg-amber-900/20")}>
-                                                    <Sparkles className="h-3 w-3" />
-                                                    <span className="font-semibold">AI: {permit.ai_recommendation === 'approve' ? 'Recommend Approve' : permit.ai_recommendation === 'reject' ? 'Recommend Reject' : 'Need Review'}</span>
-                                                    <span className="ml-auto">{permit.ai_confidence}%</span>
-                                                </div>
-                                                {/* Attachments */}
-                                                {permit.attachments.length > 0 && <div className="flex items-center gap-1 text-xs text-neutral-500 mb-3"><Paperclip className="h-3 w-3" /><span>{permit.attachments.length} file(s)</span></div>}
-                                                {/* Quick Actions */}
-                                                {col.status === 'pending' && (
-                                                    <div className="flex gap-2">
-                                                        <Button size="sm" className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white" onClick={() => quickApprove(permit)} disabled={processingId === permit.id}><Check className="h-3 w-3 mr-1" /> Approve</Button>
-                                                        <Button size="sm" variant="outline" onClick={() => setDetailPermit(permit)}><Eye className="h-3 w-3" /></Button>
-                                                        <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => quickReject(permit)}><X className="h-3 w-3" /></Button>
+                                    <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+                                        {col.items.length === 0 && <div className="text-center py-10 text-neutral-400"><FileText className="h-10 w-10 mx-auto mb-2 opacity-30" /><p className="text-sm">Tidak ada data</p></div>}
+                                        {col.items.map(p => (
+                                            <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.01, y: -2 }}
+                                                className="rounded-xl border border-white/60 dark:border-neutral-700/60 bg-white dark:bg-neutral-900 p-0 shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden" onClick={() => router.visit(`/dosen/permits/${p.id}`)}>
+                                                {/* Card Top Color Accent */}
+                                                <div className={cn("h-1", p.status === 'pending' ? 'bg-gradient-to-r from-amber-400 to-orange-500' : p.status === 'approved' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : 'bg-gradient-to-r from-red-400 to-rose-500')} />
+                                                <div className="p-4">
+                                                    {/* Student Info */}
+                                                    <div className="flex items-center gap-3 mb-3">
+                                                        <Avatar className="h-12 w-12 flex-shrink-0 border-2 border-white dark:border-neutral-800 shadow-sm ring-2 ring-neutral-100 dark:ring-neutral-800">
+                                                            <AvatarImage src={p.mahasiswa.avatar} />
+                                                            <AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white text-xs font-bold">{p.mahasiswa.nama[0]}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-bold text-sm truncate text-neutral-900 dark:text-white">{p.mahasiswa.nama}</p>
+                                                            <p className="text-[11px] text-neutral-500 font-medium">{p.mahasiswa.nim}</p>
+                                                        </div>
+                                                        {p.is_urgent && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20"><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
                                                     </div>
-                                                )}
-                                                {col.status !== 'pending' && <Button size="sm" variant="ghost" className="w-full" onClick={() => setDetailPermit(permit)}><Eye className="h-3 w-3 mr-1" /> Detail</Button>}
-                                                {/* Time */}
-                                                <div className="mt-2 text-xs text-neutral-400 text-center">{formatRelativeTime(permit.created_at)}</div>
+
+                                                    {/* Meta Info Row */}
+                                                    <div className="flex items-center flex-wrap gap-1.5 mb-3">
+                                                        {typeBadge(p.type)}
+                                                        <Badge variant="outline" className="text-[10px] px-2 py-0 h-5 font-medium"><BookOpen className="h-2.5 w-2.5 mr-1" />{p.session.mata_kuliah}</Badge>
+                                                        <Badge variant="outline" className="text-[10px] px-2 py-0 h-5 font-medium"><Calendar className="h-2.5 w-2.5 mr-1" />{fmtDateRange(p.start_date, p.end_date)}</Badge>
+                                                    </div>
+
+                                                    {/* Reason - Styled Container */}
+                                                    <div className="relative rounded-lg bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-700/50 p-3 mb-3">
+                                                        <div className="absolute top-2 left-2.5 text-neutral-300 dark:text-neutral-600">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983z" /></svg>
+                                                        </div>
+                                                        <p className="text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed pl-5 line-clamp-3">{p.reason}</p>
+                                                    </div>
+
+                                                    {/* AI Recommendation */}
+                                                    <div className={cn("flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs", p.ai_recommendation === 'approve' ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/30" : p.ai_recommendation === 'reject' ? "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300 border border-red-100 dark:border-red-800/30" : "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300 border border-amber-100 dark:border-amber-800/30")}>
+                                                        <Sparkles className="h-3.5 w-3.5" />
+                                                        <span className="font-semibold">AI: {p.ai_recommendation === 'approve' ? 'Setujui' : p.ai_recommendation === 'reject' ? 'Tolak' : 'Review'}</span>
+                                                        <div className="ml-auto flex items-center gap-1.5">
+                                                            <div className="w-16 h-1.5 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                                                                <div className={cn("h-full rounded-full", p.ai_confidence >= 80 ? 'bg-emerald-500' : p.ai_confidence >= 60 ? 'bg-amber-500' : 'bg-red-500')} style={{ width: `${p.ai_confidence}%` }} />
+                                                            </div>
+                                                            <span className="font-bold">{p.ai_confidence}%</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions for Pending */}
+                                                    {col.key === 'pending' && (
+                                                        <div className="flex gap-2 mt-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                                                            <Button size="sm" className="flex-1 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs shadow-md hover:shadow-lg" onClick={e => { e.stopPropagation(); doApprove(p); }} disabled={processingId === p.id}><Check className="h-3.5 w-3.5 mr-1" /> Setujui</Button>
+                                                            <Button size="sm" variant="outline" className="h-8 text-xs hover:bg-neutral-50 dark:hover:bg-neutral-800" onClick={e => { e.stopPropagation(); router.visit(`/dosen/permits/${p.id}`); }}><Eye className="h-3.5 w-3.5" /></Button>
+                                                            <Button size="sm" variant="outline" className="h-8 text-xs text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800/30 dark:hover:bg-red-900/20" onClick={e => { e.stopPropagation(); openReject(p); }}><X className="h-3.5 w-3.5" /></Button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Timestamp */}
+                                                    <div className="flex items-center justify-center gap-1.5 mt-2.5 pt-2 border-t border-dashed border-neutral-100 dark:border-neutral-800">
+                                                        <Clock className="h-3 w-3 text-neutral-300" />
+                                                        <p className="text-[10px] text-neutral-400 font-medium">{fmtRelative(p.created_at)}</p>
+                                                    </div>
+                                                </div>
                                             </motion.div>
                                         ))}
-                                    </AnimatePresence>
-                                    {col.items.length === 0 && <div className="text-center py-8 text-neutral-400 text-sm">Tidak ada data</div>}
+                                    </div>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                )}
+                            ))}
+                        </motion.div>
+                    )}
 
-                {/* ═══ TABLE VIEW ═══ */}
-                {viewMode === 'table' && (
-                    <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl overflow-hidden shadow-xl">
-                        <table className="w-full">
-                            <thead className="bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-black">
-                                <tr>
-                                    <th className="px-4 py-3"><Checkbox checked={selectedIds.length === pendingPermits.length && pendingPermits.length > 0} onCheckedChange={selectAll} /></th>
-                                    <th className="px-4 py-3 text-left"><Button variant="ghost" size="sm">Mahasiswa <ArrowUpDown className="ml-2 h-4 w-4" /></Button></th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase">Tipe</th>
-                                    <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase">Date Range</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase">Duration</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase">Status</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase">AI Score</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase">Priority</th>
-                                    <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-                                {filteredPermits.map((permit, index) => (
-                                    <motion.tr key={permit.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}
-                                        className={cn("hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-colors", permit.is_urgent && "bg-red-50/50 dark:bg-red-900/10")}>
-                                        <td className="px-4 py-3"><Checkbox checked={selectedIds.includes(permit.id)} onCheckedChange={() => toggleSelect(permit.id)} /></td>
-                                        <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar className="h-8 w-8"><AvatarImage src={permit.mahasiswa.avatar} /><AvatarFallback>{permit.mahasiswa.nama[0]}</AvatarFallback></Avatar><div><p className="font-semibold text-sm">{permit.mahasiswa.nama}</p><p className="text-xs text-neutral-500">{permit.mahasiswa.nim}</p></div></div></td>
-                                        <td className="px-4 py-3">{getPermitTypeBadge(permit.type)}</td>
-                                        <td className="px-4 py-3 text-sm">{formatDateRange(permit.start_date, permit.end_date)}</td>
-                                        <td className="px-4 py-3 text-center"><span className="px-2 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-semibold">{permit.duration} hari</span></td>
-                                        <td className="px-4 py-3 text-center">{getStatusBadge(permit.status)}</td>
-                                        <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1"><Sparkles className="h-3 w-3 text-purple-500" /><span className={cn("text-sm font-semibold", permit.ai_confidence >= 80 ? "text-green-600" : permit.ai_confidence >= 60 ? "text-amber-600" : "text-red-600")}>{permit.ai_confidence}%</span></div></td>
-                                        <td className="px-4 py-3 text-center">{permit.is_urgent ? <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold"><AlertTriangle className="h-3 w-3" /> Urgent</motion.div> : <span className="text-xs text-neutral-500">Normal</span>}</td>
-                                        <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1">
-                                            {permit.status === 'pending' && <><Button size="sm" className="h-8 bg-gradient-to-r from-emerald-500 to-teal-500 text-white" onClick={() => quickApprove(permit)}><Check className="h-3 w-3" /></Button><Button size="sm" variant="destructive" className="h-8" onClick={() => quickReject(permit)}><X className="h-3 w-3" /></Button></>}
-                                            <Button size="sm" variant="outline" className="h-8" onClick={() => setDetailPermit(permit)}><Eye className="h-3 w-3" /></Button>
-                                        </div></td>
-                                    </motion.tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </motion.div>
-                )}
-
-                {/* ═══ CALENDAR VIEW ═══ */}
-                {viewMode === 'calendar' && (
-                    <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-6 shadow-xl">
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                                <Button variant="outline" size="icon" onClick={() => setCurrentMonth(m => moment(m).subtract(1, 'month'))}><ChevronLeft className="h-4 w-4" /></Button>
-                                <h3 className="text-2xl font-bold">{currentMonth.format('MMMM YYYY')}</h3>
-                                <Button variant="outline" size="icon" onClick={() => setCurrentMonth(m => moment(m).add(1, 'month'))}><ChevronRight className="h-4 w-4" /></Button>
+                    {/* ──── TABLE ──── */}
+                    {viewMode === 'table' && (
+                        <motion.div key="table" {...viewTransition} className="rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl overflow-hidden shadow-lg">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/50">
+                                            <th className="px-4 py-3 w-10"><Checkbox checked={selectedIds.length === pending.length && pending.length > 0} onCheckedChange={() => { const ids = pending.map(p => p.id); setSelectedIds(prev => prev.length === ids.length ? [] : ids); }} /></th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Mahasiswa</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Tipe</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Mata Kuliah</th>
+                                            <th className="px-4 py-3 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Tanggal</th>
+                                            <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wider">AI</th>
+                                            <th className="px-4 py-3 text-center text-xs font-semibold text-neutral-500 uppercase tracking-wider">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
+                                        {filtered.length === 0 && <tr><td colSpan={8} className="text-center py-12 text-neutral-400"><FileText className="h-10 w-10 mx-auto mb-2 opacity-30" /><p>Tidak ada data</p></td></tr>}
+                                        {filtered.map((p, i) => (
+                                            <motion.tr key={p.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}
+                                                className={cn("hover:bg-white/60 dark:hover:bg-neutral-800/40 transition-colors cursor-pointer", p.is_urgent && "bg-red-50/30 dark:bg-red-900/5")}
+                                                onClick={() => router.visit(`/dosen/permits/${p.id}`)}>
+                                                <td className="px-4 py-3" onClick={e => e.stopPropagation()}><Checkbox checked={selectedIds.includes(p.id)} onCheckedChange={() => toggleId(p.id)} /></td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="h-8 w-8"><AvatarImage src={p.mahasiswa.avatar} /><AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white text-[10px]">{p.mahasiswa.nama[0]}</AvatarFallback></Avatar>
+                                                        <div><p className="font-semibold text-sm">{p.mahasiswa.nama}</p><p className="text-[11px] text-neutral-500">{p.mahasiswa.nim}</p></div>
+                                                        {p.is_urgent && <AlertTriangle className="h-3.5 w-3.5 text-red-500 animate-pulse" />}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">{typeBadge(p.type)}</td>
+                                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{p.session.mata_kuliah}</td>
+                                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400 whitespace-nowrap">{fmtDateRange(p.start_date, p.end_date)}</td>
+                                                <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
+                                                <td className="px-4 py-3 text-center">
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        <Sparkles className="h-3 w-3 text-purple-500" />
+                                                        <span className={cn("font-semibold", p.ai_confidence >= 80 ? "text-emerald-600" : p.ai_confidence >= 60 ? "text-amber-600" : "text-red-600")}>{p.ai_confidence}%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex items-center justify-center gap-1">
+                                                        {p.status === 'pending' && <>
+                                                            <Button size="sm" className="h-7 px-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white" onClick={() => doApprove(p)} disabled={processingId === p.id}><Check className="h-3 w-3" /></Button>
+                                                            <Button size="sm" variant="destructive" className="h-7 px-2" onClick={() => openReject(p)}><X className="h-3 w-3" /></Button>
+                                                        </>}
+                                                        <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => router.visit(`/dosen/permits/${p.id}`)}><Eye className="h-3 w-3" /></Button>
+                                                    </div>
+                                                </td>
+                                            </motion.tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                            <Button size="sm" variant="outline" onClick={() => setCurrentMonth(moment())}>Today</Button>
-                        </div>
-                        <div className="grid grid-cols-7 gap-2">
-                            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="text-center text-sm font-semibold text-neutral-600 dark:text-neutral-400 py-2">{d}</div>)}
-                            {calendarDays.map((day, i) => {
-                                const dayPermits = getPermitsForDay(day);
-                                const isToday = day.isSame(moment(), 'day');
-                                const isCurrent = day.month() === currentMonth.month();
-                                return (
-                                    <motion.div key={i} whileHover={{ scale: 1.02 }} className={cn("min-h-[120px] rounded-xl border-2 p-2 cursor-pointer transition-colors",
-                                        isToday && "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20",
-                                        !isToday && isCurrent && "border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/50",
-                                        !isCurrent && "border-neutral-100 dark:border-neutral-800 opacity-50")}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className={cn("text-sm font-semibold", isToday && "text-indigo-600 dark:text-indigo-400", !isToday && isCurrent && "text-neutral-900 dark:text-white", !isCurrent && "text-neutral-400")}>{day.format('D')}</span>
-                                            {dayPermits.length > 0 && <span className="px-1.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold">{dayPermits.length}</span>}
-                                        </div>
-                                        <div className="space-y-1">
-                                            {dayPermits.slice(0, 3).map(p => (
-                                                <div key={p.id} onClick={() => setDetailPermit(p)} className={cn("text-xs p-1 rounded truncate",
-                                                    p.status === 'pending' && "bg-amber-100 text-amber-700 dark:bg-amber-900/30",
-                                                    p.status === 'approved' && "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30",
-                                                    p.status === 'rejected' && "bg-red-100 text-red-700 dark:bg-red-900/30"
-                                                )}>{p.mahasiswa.nama.split(' ')[0]}</div>
-                                            ))}
-                                            {dayPermits.length > 3 && <div className="text-xs text-neutral-500 text-center">+{dayPermits.length - 3} more</div>}
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
-                )}
+                        </motion.div>
+                    )}
 
-                {/* ═══ DETAIL MODAL ═══ */}
-                <Dialog open={!!detailPermit} onOpenChange={open => !open && setDetailPermit(null)}>
-                    <DialogContent className="max-w-2xl bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl border border-white/20">
-                        <DialogHeader><DialogTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-indigo-600" /> Detail Permohonan Izin</DialogTitle></DialogHeader>
+                    {/* ──── CALENDAR ──── */}
+                    {viewMode === 'calendar' && (
+                        <motion.div key="calendar" {...viewTransition} className="rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-4 md:p-6 shadow-lg">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3">
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(m => moment(m).subtract(1, 'month'))}><ChevronLeft className="h-4 w-4" /></Button>
+                                    <h3 className="text-lg font-bold min-w-[160px] text-center">{currentMonth.format('MMMM YYYY')}</h3>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setCurrentMonth(m => moment(m).add(1, 'month'))}><ChevronRight className="h-4 w-4" /></Button>
+                                </div>
+                                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setCurrentMonth(moment())}>Hari Ini</Button>
+                            </div>
+                            <div className="grid grid-cols-7 gap-1">
+                                {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => <div key={d} className="text-center text-[11px] font-semibold text-neutral-500 py-2">{d}</div>)}
+                                {calDays.map((day, i) => {
+                                    const dp = permitsOnDay(day);
+                                    const isToday = day.isSame(moment(), 'day');
+                                    const isCur = day.month() === currentMonth.month();
+                                    return (
+                                        <div key={i} className={cn("min-h-[80px] md:min-h-[100px] rounded-lg border p-1.5 transition-colors", isToday ? "border-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/15 ring-1 ring-indigo-400/30" : isCur ? "border-neutral-200/60 dark:border-neutral-700/40 hover:bg-neutral-50 dark:hover:bg-neutral-800/30" : "border-transparent opacity-40")}>
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={cn("text-xs font-semibold", isToday ? "bg-indigo-500 text-white px-1.5 py-0.5 rounded-md" : isCur ? "text-neutral-900 dark:text-white" : "text-neutral-400")}>{day.format('D')}</span>
+                                                {dp.length > 0 && <span className="w-5 h-5 flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold">{dp.length}</span>}
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                {dp.slice(0, 2).map(p => (
+                                                    <div key={p.id} onClick={() => router.visit(`/dosen/permits/${p.id}`)} className={cn("text-[10px] px-1.5 py-0.5 rounded cursor-pointer truncate font-medium",
+                                                        p.status === 'pending' ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" :
+                                                            p.status === 'approved' ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" :
+                                                                "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                                    )}>{p.mahasiswa.nama.split(' ')[0]}</div>
+                                                ))}
+                                                {dp.length > 2 && <p className="text-[9px] text-neutral-400 text-center">+{dp.length - 2}</p>}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+
+
+                {/* ════════════════ REJECTION MODAL ════════════════ */}
+                <Dialog open={isRejectOpen} onOpenChange={setIsRejectOpen}>
+                    <DialogContent className="max-w-md bg-white dark:bg-neutral-950 rounded-2xl">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2"><div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20"><XCircle className="h-5 w-5 text-red-500" /></div> Alasan Penolakan</DialogTitle>
+                        </DialogHeader>
                         {detailPermit && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800">
-                                        <Avatar className="h-12 w-12 border-2 border-white shadow"><AvatarImage src={detailPermit.mahasiswa.avatar} /><AvatarFallback>{detailPermit.mahasiswa.nama[0]}</AvatarFallback></Avatar>
-                                        <div><h3 className="font-bold">{detailPermit.mahasiswa.nama}</h3><p className="text-sm text-neutral-500">{detailPermit.mahasiswa.nim}</p></div>
-                                    </div>
-                                    <div><Label className="text-xs font-bold text-neutral-500 uppercase">Status & Tipe</Label><div className="flex gap-2 mt-1">{getPermitTypeBadge(detailPermit.type)}{getStatusBadge(detailPermit.status)}{detailPermit.is_urgent && <Badge variant="destructive" className="animate-pulse">Urgent</Badge>}</div></div>
-                                    <div><Label className="text-xs font-bold text-neutral-500 uppercase">Mata Kuliah</Label><p className="font-medium mt-1">{detailPermit.session.mata_kuliah}</p></div>
-                                    <div><Label className="text-xs font-bold text-neutral-500 uppercase">Tanggal</Label><p className="font-medium mt-1">{detailPermit.session.tanggal_display}</p></div>
-                                    <div><Label className="text-xs font-bold text-neutral-500 uppercase">Alasan</Label><p className="mt-1 text-sm bg-neutral-50 dark:bg-neutral-800 p-3 rounded-lg border">{detailPermit.reason}</p></div>
-                                    {detailPermit.rejection_reason && <div><Label className="text-xs font-bold text-red-500 uppercase">Alasan Penolakan</Label><p className="mt-1 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200">{detailPermit.rejection_reason}</p></div>}
-                                </div>
-                                <div className="space-y-4">
-                                    {/* AI Analysis Panel */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800">
-                                        <div className="flex items-center gap-2 mb-3"><div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white"><Sparkles className="h-4 w-4" /></div><h4 className="font-bold text-purple-900 dark:text-purple-100">AI Verification</h4></div>
-                                        <div className="space-y-3">
-                                            <div className="p-3 rounded-lg bg-white dark:bg-neutral-900">
-                                                <div className="flex justify-between mb-2"><div><p className="text-xs text-neutral-500">AI Recommendation</p><span className={cn("text-xl font-bold", detailPermit.ai_recommendation === 'approve' ? "text-green-600" : detailPermit.ai_recommendation === 'reject' ? "text-red-600" : "text-amber-600")}>{detailPermit.ai_recommendation === 'approve' ? 'APPROVE' : detailPermit.ai_recommendation === 'reject' ? 'REJECT' : 'REVIEW NEEDED'}</span></div><div className="text-right"><p className="text-xs text-neutral-500">Confidence</p><span className="text-xl font-bold text-purple-600">{detailPermit.ai_confidence}%</span></div></div>
-                                                <div className="h-2 rounded-full bg-neutral-200 overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${detailPermit.ai_confidence}%` }} className="h-full bg-gradient-to-r from-purple-500 to-pink-500" /></div>
-                                            </div>
-                                            <div className="p-3 rounded-lg bg-white dark:bg-neutral-900">
-                                                <div className="flex justify-between mb-1"><span className="text-sm font-semibold">Document Authenticity</span><span className={cn("text-sm font-bold", detailPermit.document_score >= 80 ? "text-green-600" : "text-amber-600")}>{detailPermit.document_score}%</span></div>
-                                                <div className="h-1.5 rounded-full bg-neutral-200 overflow-hidden"><div className={cn("h-full", detailPermit.document_score >= 80 ? "bg-green-500" : "bg-amber-500")} style={{ width: `${detailPermit.document_score}%` }} /></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Attachment */}
-                                    {detailPermit.attachment && (
-                                        <div><Label className="text-xs font-bold text-neutral-500 uppercase mb-2 block">Lampiran</Label>
-                                            <a href={detailPermit.attachment} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors group">
-                                                <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 dark:bg-indigo-900/20"><Paperclip className="h-5 w-5" /></div>
-                                                <div className="flex-1 overflow-hidden"><p className="font-medium text-sm truncate">Dokumen Pendukung</p><p className="text-xs text-neutral-400">Klik untuk melihat</p></div>
-                                            </a>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900">
+                                <Avatar className="h-8 w-8"><AvatarImage src={detailPermit.mahasiswa.avatar} /><AvatarFallback>{detailPermit.mahasiswa.nama[0]}</AvatarFallback></Avatar>
+                                <div><p className="font-semibold text-sm">{detailPermit.mahasiswa.nama}</p><p className="text-[11px] text-neutral-500">{detailPermit.mahasiswa.nim}</p></div>
                             </div>
                         )}
-                        <DialogFooter className="gap-2 mt-4">
-                            {detailPermit?.status === 'pending' && (<>
-                                <Button variant="destructive" onClick={() => setIsRejectionModalOpen(true)} disabled={processingId === detailPermit?.id}><X className="h-4 w-4 mr-2" /> Tolak</Button>
-                                <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white" onClick={() => detailPermit && quickApprove(detailPermit)} disabled={processingId === detailPermit?.id}><Check className="h-4 w-4 mr-2" /> Setujui</Button>
-                            </>)}
-                            <Button variant="outline" onClick={() => setDetailPermit(null)}>Tutup</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-
-                {/* ═══ REJECTION MODAL ═══ */}
-                <Dialog open={isRejectionModalOpen} onOpenChange={setIsRejectionModalOpen}>
-                    <DialogContent className="bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl">
-                        <DialogHeader><DialogTitle className="flex items-center gap-2"><XCircle className="h-5 w-5 text-red-500" /> Alasan Penolakan</DialogTitle></DialogHeader>
-                        <Textarea placeholder="Tuliskan alasan penolakan izin..." value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} rows={4} />
-                        <DialogFooter>
-                            <Button variant="ghost" onClick={() => { setIsRejectionModalOpen(false); setRejectionReason(''); }}>Batal</Button>
-                            <Button variant="destructive" onClick={handleReject} disabled={!rejectionReason || processingId !== null}>Kirim Penolakan</Button>
+                        <Textarea placeholder="Tuliskan alasan penolakan izin..." value={rejectionReason} onChange={e => setRejectionReason(e.target.value)} rows={4} className="resize-none" />
+                        <DialogFooter className="gap-2">
+                            <Button variant="ghost" onClick={() => { setIsRejectOpen(false); setRejectionReason(''); }}>Batal</Button>
+                            <Button variant="destructive" onClick={doReject} disabled={!rejectionReason || processingId !== null}><X className="h-4 w-4 mr-2" /> Kirim Penolakan</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Award, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap, Clock, User, Edit3, CheckCircle, AlertTriangle, FileText, Users, TrendingUp } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
@@ -25,8 +25,8 @@ type Tugas = {
 };
 type Props = { tugas: Tugas; diskusi: Diskusi[] };
 
-const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } };
-const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } } };
+const containerVariants: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08 } } };
+const itemVariants: Variants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } } };
 
 export default function DosenTugasDetail({ tugas, diskusi }: Props) {
     const [message, setMessage] = useState('');
@@ -288,8 +288,8 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                             {/* Message Card */}
                                             <motion.div
                                                 className={`relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 ${d.is_pinned
-                                                        ? 'bg-amber-50/60 dark:bg-amber-900/20 border-amber-300/30 dark:border-amber-700/30 shadow-lg shadow-amber-500/10'
-                                                        : 'bg-white/50 dark:bg-neutral-800/50 border-white/30 dark:border-neutral-700/30 hover:shadow-lg'
+                                                    ? 'bg-amber-50/60 dark:bg-amber-900/20 border-amber-300/30 dark:border-amber-700/30 shadow-lg shadow-amber-500/10'
+                                                    : 'bg-white/50 dark:bg-neutral-800/50 border-white/30 dark:border-neutral-700/30 hover:shadow-lg'
                                                     }`}
                                                 whileHover={{ scale: 1.01, y: -2 }}
                                             >

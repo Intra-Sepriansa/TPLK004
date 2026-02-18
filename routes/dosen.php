@@ -70,6 +70,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
 
     // Permits (Izin/Sakit)
     Route::get('/permits', [\App\Http\Controllers\Dosen\PermitController::class, 'index'])->name('permits');
+    Route::get('/permits/{permit}', [\App\Http\Controllers\Dosen\PermitController::class, 'show'])->name('permits.show');
     Route::patch('/permits/{permit}/approve', [\App\Http\Controllers\Dosen\PermitController::class, 'approve'])->name('permits.approve');
     Route::patch('/permits/{permit}/reject', [\App\Http\Controllers\Dosen\PermitController::class, 'reject'])->name('permits.reject');
     Route::post('/permits/bulk-approve', [\App\Http\Controllers\Dosen\PermitController::class, 'bulkApprove'])->name('permits.bulk-approve');

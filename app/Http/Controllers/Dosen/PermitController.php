@@ -118,6 +118,64 @@ class PermitController extends Controller
         ]);
     }
 
+    public function show(AttendancePermit $permit): InertiaResponse
+    {
+        $dosen = auth('dosen')->user();
+
+        // Verify this permit belongs to dosen's course
+        $permit->load(['mahasiswa', 'session.course']);
+        if ($permit->session->course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        // Mock AI Analysis (same as index)
+        $confidence = rand(75, 99);
+        $docScore = rand(70, 98);
+        $isUrgent = $permit->type === 'sakit' || rand(0, 10) > 8;
+
+        $recommendation = 'review';
+        if ($confidence > 85 && $docScore > 80) $recommendation = 'approve';
+        if ($confidence < 60 || $docScore < 60) $recommendation = 'reject';
+        if ($permit->status !== 'pending') $recommendation = $permit->status;
+
+        $permitData = [
+            'id' => $permit->id,
+            'mahasiswa' => [
+                'id' => $permit->mahasiswa->id,
+                'nama' => $permit->mahasiswa->nama,
+                'nim' => $permit->mahasiswa->nim,
+                'avatar' => $permit->mahasiswa->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode($permit->mahasiswa->nama),
+                'email' => $permit->mahasiswa->email ?? null,
+                'phone' => $permit->mahasiswa->phone ?? null,
+            ],
+            'type' => $permit->type,
+            'reason' => $permit->reason,
+            'attachment' => $permit->attachment ? Storage::url($permit->attachment) : null,
+            'attachments' => $permit->attachment ? [['id' => 1, 'url' => Storage::url($permit->attachment), 'name' => 'Dokumen Pendukung']] : [],
+            'status' => $permit->status,
+            'rejection_reason' => $permit->rejection_reason,
+            'session' => [
+                'id' => $permit->session->id,
+                'mata_kuliah' => $permit->session->course?->nama ?? '-',
+                'tanggal' => $permit->session->start_at->format('Y-m-d'),
+                'tanggal_display' => $permit->session->start_at->translatedFormat('l, d F Y'),
+            ],
+            'created_at' => $permit->created_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            'start_date' => $permit->session->start_at->format('Y-m-d'),
+            'end_date' => $permit->session->start_at->format('Y-m-d'),
+            'duration' => 1,
+            'is_urgent' => $isUrgent,
+            'ai_confidence' => $confidence,
+            'ai_recommendation' => $recommendation,
+            'document_score' => $docScore,
+            'approved_at' => $permit->approved_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+        ];
+
+        return Inertia::render('dosen/permit-detail', [
+            'permit' => $permitData,
+        ]);
+    }
+
     public function approve(Request $request, AttendancePermit $permit): RedirectResponse
     {
         $dosen = auth('dosen')->user();
