@@ -112,13 +112,14 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
         });
     }, [sessions, search, filterCourse, filterStatus, activeTab]);
 
+    // Calculate present count from totalAttendance - totalLate
+    const totalPresent = stats.totalAttendance - stats.totalLate;
+
     const summaryCards = [
-        { key: 'total', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.thisMonthSessions} bulan ini`, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'active', icon: Play, label: 'Sesi Aktif', value: stats.activeSessions, sub: 'Sedang berlangsung', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10', pulse: true },
-        { key: 'attendance', icon: Users, label: 'Total Kehadiran', value: stats.totalAttendance, sub: 'Hadir + terlambat', gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
-        { key: 'rate', icon: TrendingUp, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
-        { key: 'late', icon: Clock, label: 'Terlambat', value: stats.totalLate, sub: 'Total mahasiswa', gradient: 'from-rose-400 to-pink-600', glow: 'bg-rose-500', shadow: 'hover:shadow-rose-500/10' },
-        { key: 'rejected', icon: XCircle, label: 'Ditolak', value: stats.totalRejected, sub: 'Verifikasi gagal', gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
+        { key: 'total', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} sesi aktif`, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'present', icon: CheckCircle, label: 'Hadir', value: totalPresent, sub: 'tepat waktu', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'late', icon: Clock, label: 'Terlambat', value: stats.totalLate, sub: 'total mahasiswa', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'rate', icon: TrendingUp, label: 'Rata-rata', value: stats.avgAttendanceRate, suffix: '%', sub: 'tingkat kehadiran', gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
     ];
 
     const tabs = [
@@ -200,32 +201,28 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                 </motion.div>
 
                 {/* ═══════ SUMMARY CARDS — 6 Cards with Glow ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                {/* ═══════ SUMMARY CARDS — 4 Cards with Glow ═══════ */}
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {summaryCards.map(card => (
                         <motion.div key={card.key} variants={cardVariants} whileHover="hover"
                             onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
+                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
                             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient)} />
                             <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
-                                className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
-                            <div className="relative flex items-center gap-3">
+                                className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
+                            <div className="relative flex items-center gap-4">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-6 w-6" />
-                                    {card.pulse && (
-                                        <motion.div className="absolute inset-0 rounded-2xl border-2 border-emerald-400"
-                                            animate={{ scale: [1, 1.3], opacity: [0.6, 0] }}
-                                            transition={{ duration: 1.5, repeat: Infinity }} />
-                                    )}
+                                    className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
+                                    <card.icon className="h-7 w-7" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
-                                    <div className="mt-0.5">
-                                        <span className="text-xl font-bold text-neutral-900 dark:text-white">
+                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
+                                    <div className="mt-1">
+                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">
                                             <AnimatedCounter value={card.value} suffix={card.suffix} duration={1500} />
                                         </span>
                                     </div>
-                                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{card.sub}</p>
+                                    <p className="text-xs text-neutral-400 mt-1">{card.sub}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -400,7 +397,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                                     <td className="px-4 py-4">
                                                         <div className="flex items-center justify-center gap-1">
                                                             <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                                                                onClick={() => router.get(`/dosen/sessions/${session.id}`)}
+                                                                onClick={() => router.get(`/dosen/sesi-absen/${session.id}`)}
                                                                 className="p-2 rounded-lg text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors" title="Detail">
                                                                 <Eye className="h-4 w-4" />
                                                             </motion.button>
@@ -445,7 +442,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
                                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/50 dark:bg-neutral-900/50 shadow-xl backdrop-blur-xl dark:border-white/5 cursor-pointer"
-                                        onClick={() => router.get(`/dosen/sessions/${session.id}`)}>
+                                        onClick={() => router.get(`/dosen/sesi-absen/${session.id}`)}>
                                         {/* Gradient accent bar */}
                                         <div className={cn("h-1.5 w-full bg-gradient-to-r", session.is_active ? "from-emerald-400 to-teal-500" : "from-neutral-300 to-neutral-400 dark:from-neutral-700 dark:to-neutral-600")} />
 
@@ -500,7 +497,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                             {/* Quick Actions */}
                                             <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10">
                                                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                                                    onClick={(e) => { e.stopPropagation(); router.get(`/dosen/sessions/${session.id}`); }}
+                                                    onClick={(e) => { e.stopPropagation(); router.get(`/dosen/sesi-absen/${session.id}`); }}
                                                     className="flex-1 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:bg-indigo-500/20 transition-colors">
                                                     Detail
                                                 </motion.button>

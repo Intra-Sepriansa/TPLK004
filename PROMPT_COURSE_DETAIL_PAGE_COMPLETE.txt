@@ -1,0 +1,590 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PROMPT LENGKAP: HALAMAN DETAIL MATA KULIAH - ULTRA ADVANCED
+  File Baru: resources/js/pages/dosen/course-detail.tsx
+═══════════════════════════════════════════════════════════════════════════════
+
+KONSEP: Halaman baru (BUKAN modal) dengan 15+ fungsi advanced, UI/UX 100% copy
+dari menu Uang Kas Admin, dengan charts, analytics, AI predictions, dan banyak
+fitur interaktif lainnya.
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 1: ROUTING & NAVIGATION
+═══════════════════════════════════════════════════════════════════════════════
+
+URL: /dosen/courses/{course_id}
+File: resources/js/pages/dosen/course-detail.tsx
+Layout: DosenLayout
+Title: Detail Mata Kuliah - {Nama Mata Kuliah}
+
+NAVIGASI:
+- Dari halaman /dosen/courses → klik card mata kuliah
+- Update courses.tsx: Ganti onClick modal dengan Link/router.visit
+- Breadcrumb: Dashboard > Mata Kuliah > {Nama Mata Kuliah}
+- Back button: Kembali ke /dosen/courses
+
+Route (routes/web.php):
+Route::get('/dosen/courses/{course}', [CourseController::class, 'show'])
+    ->name('dosen.courses.show');
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 2: UI/UX SPECIFICATION - 100% COPY DARI KAS ADMIN
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️ CRITICAL: EXACT COPY dari resources/js/pages/admin/kas.tsx
+
+WARNA & GRADIENT:
+- Header: bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500
+- Animated background dengan backgroundPosition animation
+- 3 pulse rings dengan scale & opacity animation
+- Glow orbs: -right-20 -top-20 dan -bottom-20 -left-20
+- Overlay: from-white/5 to-transparent opacity-30
+
+GLASSMORPHISM CARDS:
+- Border: border-white/20
+- Background: bg-white/40 dark:bg-neutral-900/40
+- Backdrop: backdrop-blur-xl
+- Shadow: shadow-xl
+- Hover: scale 1.03, y: -8
+- Glow orb per card: animated dengan hover state
+
+ANIMATION VARIANTS:
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300 } },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1 },
+    hover: { scale: 1.03, y: -8 },
+};
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 3: STRUKTUR HALAMAN
+═══════════════════════════════════════════════════════════════════════════════
+
+SECTION 1: HEADER (Animated Gradient - Copy Kas Admin)
+-------------------------------------------------------
+- Back button (ArrowLeft icon) → /dosen/courses
+- Icon mata kuliah (BookOpen) dengan glassmorphism container
+- Nama mata kuliah (H1, bold, white)
+- Kode & SKS (subtitle, indigo-100)
+- Quick stats badge (Total Mahasiswa, Sesi Aktif)
+- Action buttons:
+  * Buat Sesi Baru
+  * Export Laporan
+  * Kirim Pengumuman
+  * Pengaturan
+
+SECTION 2: SUMMARY CARDS (4 Cards - Glassmorphism)
+---------------------------------------------------
+Grid: md:grid-cols-2 lg:grid-cols-4
+
+Card 1: Total Mahasiswa
+- Icon: Users (Blue/Cyan gradient)
+- Value: {total_students}
+- Subtitle: "terdaftar aktif"
+- Trend: ↑ +5 vs bulan lalu
+
+Card 2: Total Sesi
+- Icon: Calendar (Violet/Purple gradient)
+- Value: {total_sessions}
+- Subtitle: "{active_sessions} sesi aktif"
+
+Card 3: Rata-rata Kehadiran
+- Icon: TrendingUp (Emerald/Teal gradient)
+- Value: {avg_attendance_rate}%
+- Subtitle: "tingkat kehadiran"
+- Color coding: >90% green, 80-90% blue, <80% red
+
+Card 4: Mahasiswa At-Risk
+- Icon: AlertTriangle (Red/Rose gradient)
+- Value: {at_risk_count}
+- Subtitle: "perlu perhatian"
+- Pulse animation jika > 0
+
+SECTION 3: TAB NAVIGATION (3 Tabs)
+-----------------------------------
+Tabs: Overview | Mahasiswa | Sesi Absen
+
+Style: Modern pills dengan animated indicator (layoutId)
+Background: bg-neutral-100/50 dark:bg-neutral-900/50
+Active: bg-white dark:bg-neutral-800 dengan shadow
+
+SECTION 4: TAB CONTENT (Scrollable)
+------------------------------------
+Setiap tab dengan AnimatePresence untuk smooth transition
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 4: TAB OVERVIEW - 15 FUNGSI ADVANCED
+═══════════════════════════════════════════════════════════════════════════════
+
+FUNGSI 1: DETAIL MATA KULIAH CARD
+----------------------------------
+Glassmorphism card dengan 2 columns:
+
+Column 1 - Informasi Dasar:
+- Kode Mata Kuliah: {kode} (font-mono)
+- SKS: {sks}
+- Semester: {semester}
+- Tahun Akademik: {academic_year}
+- Dosen Pengampu: {dosen_nama}
+
+Column 2 - Statistik:
+- Total Pertemuan: {total_sessions}
+- Sesi Aktif: {active_sessions} (green badge)
+- Sesi Selesai: {completed_sessions}
+- Terakhir Update: {last_updated} (relative time)
+
+FUNGSI 2: ATTENDANCE TREND CHART (Line Chart)
+----------------------------------------------
+Library: Recharts
+Type: LineChart dengan AreaChart overlay
+
+Data:
+- X-axis: Pertemuan (1, 2, 3, ..., 16)
+- Y-axis: Persentase (0-100%)
+- Lines:
+  * Hadir (green): Persentase hadir tepat waktu
+  * Terlambat (amber): Persentase terlambat
+  * Tidak Hadir (red): Persentase tidak hadir
+  * Target (dashed blue): 75% threshold
+
+Features:
+- Tooltip dengan detail per pertemuan
+- Legend dengan toggle visibility
+- Zoom & pan (optional)
+- Export as image button
+- Responsive width
+
+Container: Glassmorphism card
+Title: "Trend Kehadiran Per Pertemuan"
+Height: 400px
+
+FUNGSI 3: ATTENDANCE DISTRIBUTION (Donut Chart)
+------------------------------------------------
+Library: Recharts
+Type: PieChart dengan inner radius (donut)
+
+Segments:
+- Excellent (>90%): Green - {excellent_count} mahasiswa
+- Good (80-89%): Blue - {good_count} mahasiswa
+- Fair (70-79%): Yellow - {fair_count} mahasiswa
+- Poor (60-69%): Orange - {poor_count} mahasiswa
+- Fail (<60%): Red - {fail_count} mahasiswa
+
+Features:
+- Center text: Total students
+- Percentage labels
+- Interactive hover dengan tooltip
+- Legend dengan counts
+- Click segment untuk filter students di tab Mahasiswa
+
+Container: Glassmorphism card
+Title: "Distribusi Status Kehadiran"
+Height: 400px
+
+FUNGSI 4: SESSION PERFORMANCE BAR CHART
+----------------------------------------
+Library: Recharts
+Type: BarChart (grouped bars)
+
+Data:
+- X-axis: Pertemuan (1-16)
+- Y-axis: Jumlah mahasiswa
+- Bars:
+  * Hadir (green)
+  * Terlambat (amber)
+  * Tidak Hadir (red)
+
+Features:
+- Stacked or grouped bars (toggle)
+- Tooltip dengan detail
+- Click bar untuk detail pertemuan
+- Horizontal scroll jika banyak pertemuan
+- Export data
+
+Container: Glassmorphism card
+Title: "Performa Per Pertemuan"
+Height: 400px
+
+FUNGSI 5: AI PREDICTIONS PANEL
+-------------------------------
+Glassmorphism card dengan 3 prediction cards:
+
+A. Predicted Next Session Attendance
+   - Prediction: 85% ± 5%
+   - Confidence: High/Medium/Low
+   - Based on: Historical data, day of week, time
+   - Recommendation: "Optimal time: Selasa 10:00"
+
+B. At-Risk Students Prediction
+   - Predicted at-risk: 3 students
+   - Risk factors: Low attendance, declining trend
+   - Recommended action: "Send reminder 2 days before"
+   - Early warning: List of students
+
+C. Final Grade Prediction
+   - Average predicted grade: B+
+   - Pass rate: 92%
+   - Based on: Attendance + assignments
+   - What-if scenarios: "If attendance improves 10%..."
+
+Container: Glassmorphism card
+Title: "AI Predictions & Insights"
+Icon: Sparkles (animated)
+
+FUNGSI 6: RECENT ACTIVITIES TIMELINE
+-------------------------------------
+Timeline dengan 10 aktivitas terakhir:
+
+Format per item:
+[Icon] [Activity Text]                    [Time Ago]
+       [Additional Info]
+
+Contoh:
+🎯 Sesi #5 dibuat                         2 jam yang lalu
+   Machine Learning Basics - 18 Feb 2026
+
+✅ 15 mahasiswa hadir                     3 jam yang lalu
+   Pertemuan #4 - Attendance rate: 95%
+
+⚠️ 2 mahasiswa terlambat                  5 jam yang lalu
+   Ahmad Fauzi, Budi Santoso
+
+Types:
+- Session created/updated/deleted
+- Attendance logged
+- Student enrolled/dropped
+- Assignment created
+- Grade updated
+- Announcement sent
+
+Container: Glassmorphism card
+Title: "Aktivitas Terbaru"
+Max items: 10
+Show more button
+
+FUNGSI 7: QUICK STATS GRID
+---------------------------
+Grid 2x3 dengan mini stat cards:
+
+Stats:
+- Total Hadir: {present_count}
+- Total Terlambat: {late_count}
+- Total Tidak Hadir: {absent_count}
+- Avg Response Time: {avg_response_time}
+- Peak Attendance Day: {peak_day}
+- Lowest Attendance Day: {lowest_day}
+
+Style: Small glassmorphism cards dengan icon & value
+
+FUNGSI 8: PERFORMANCE COMPARISON
+---------------------------------
+Compare dengan:
+- Mata kuliah lain (same dosen)
+- Semester sebelumnya
+- Department average
+- University benchmark
+
+Visualization: Radar chart atau bar chart
+Metrics: Attendance rate, completion rate, grade average
+
+Container: Glassmorphism card
+Title: "Perbandingan Performa"
+
+FUNGSI 9: STUDENT ENGAGEMENT METRICS
+-------------------------------------
+Metrics:
+- Participation rate: {participation_rate}%
+- Question frequency: {questions_per_session}
+- Discussion activity: {discussion_count}
+- Resource access: {resource_views}
+- Assignment completion: {assignment_completion}%
+
+Visualization: Progress bars dengan color coding
+
+Container: Glassmorphism card
+Title: "Tingkat Keterlibatan Mahasiswa"
+
+FUNGSI 10: EXPORT & REPORTS
+----------------------------
+Quick export buttons:
+
+Buttons:
+- Export PDF (Full Report)
+- Export Excel (Data Only)
+- Export CSV (Raw Data)
+- Generate Custom Report
+- Schedule Auto Report
+
+Modal untuk custom report:
+- Select date range
+- Choose sections
+- Select format
+- Add branding
+- Schedule recurring
+
+FUNGSI 11: NOTIFICATION CENTER
+-------------------------------
+Bell icon dengan badge count
+
+Notifications:
+- Low attendance alerts
+- Session reminders
+- Deadline warnings
+- Achievement notifications
+- System updates
+
+Features:
+- Mark as read/unread
+- Filter by type
+- Archive
+- Quick actions
+
+FUNGSI 12: QUICK ACTIONS MENU
+------------------------------
+Floating action button (bottom-right)
+
+Actions:
+- Buat Sesi Baru
+- Kirim Pengumuman
+- Export Laporan
+- Lihat Statistik
+- Atur Pengingat
+- Bagikan Link
+- Pengaturan
+
+FUNGSI 13: SEARCH & FILTER
+---------------------------
+Global search untuk:
+- Students
+- Sessions
+- Activities
+- Announcements
+
+Filters:
+- Date range
+- Status
+- Type
+- Category
+
+FUNGSI 14: BULK OPERATIONS
+---------------------------
+Select multiple items untuk:
+- Send notification
+- Export data
+- Update status
+- Assign task
+- Generate report
+
+Progress indicator untuk bulk ops
+
+FUNGSI 15: REAL-TIME UPDATES
+-----------------------------
+WebSocket connection untuk:
+- New attendance logged
+- Session activated/closed
+- Student enrolled
+- Announcement sent
+
+Auto-update UI dengan smooth animation
+Show notification toast
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 5: TAB MAHASISWA
+═══════════════════════════════════════════════════════════════════════════════
+
+FILTER & SEARCH SECTION
+------------------------
+Glassmorphism container dengan:
+
+1. Search Input
+   - Icon: Search
+   - Placeholder: "Cari mahasiswa..."
+   - Real-time filtering (debounced 300ms)
+   - Clear button
+
+2. Filters
+   - Status: All, Excellent, Good, Fair, Poor, Fail
+   - Gender: All, Laki-laki, Perempuan
+   - Kelas: All, A, B, C
+   - At-Risk: All, Yes, No
+
+3. Sort
+   - Nama (A-Z, Z-A)
+   - NIM (Asc, Desc)
+   - Attendance Rate (High-Low, Low-High)
+
+4. View Mode
+   - List view (table)
+   - Grid view (cards)
+
+MAHASISWA TABLE (List View)
+----------------------------
+Columns:
+- Checkbox (select)
+- Avatar + Nama
+- NIM
+- Hadir / Total
+- Attendance Rate (progress bar)
+- Status Badge
+- Trend (↑↓)
+- Actions (View, Notify)
+
+Features:
+- Sortable columns
+- Row hover effect
+- Multi-select
+- Bulk actions toolbar
+- Pagination (50 per page)
+- Export selected
+
+MAHASISWA GRID (Grid View)
+---------------------------
+Grid: md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+
+Card per mahasiswa:
+- Avatar
+- Nama + NIM
+- Attendance rate (circular progress)
+- Stats: Hadir, Terlambat, Absent
+- Status badge
+- View detail button
+
+MAHASISWA DETAIL MODAL
+-----------------------
+Full-screen modal dengan tabs:
+- Overview: Stats, chart, badges
+- Riwayat: List presensi
+- Tugas: List assignments
+- Analytics: Detailed analytics
+
+Actions:
+- Send notification
+- View full profile
+- Export data
+- Generate report
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 6: TAB SESI ABSEN
+═══════════════════════════════════════════════════════════════════════════════
+
+FILTER & ACTIONS
+----------------
+- Filter Status: All, Active, Completed, Scheduled
+- Filter Month: Dropdown
+- Sort: Latest, Oldest, Attendance Rate
+- Create New Session button
+
+SESSION LIST
+------------
+List dengan glassmorphism cards:
+
+Card per sesi:
+- Meeting number + Title
+- Date & Time
+- Status badge (Active/Completed/Scheduled)
+- Attendance stats: Hadir, Terlambat, Absent
+- Attendance rate (progress bar)
+- Actions: View Detail, Activate/Close, Export
+
+Features:
+- Click card untuk detail
+- Quick actions per sesi
+- Bulk actions
+- Real-time status update
+
+SESSION DETAIL (Navigate to /dosen/sessions/{id})
+--------------------------------------------------
+Link ke halaman detail sesi yang sudah ada
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 7: BACKEND IMPLEMENTATION
+═══════════════════════════════════════════════════════════════════════════════
+
+CONTROLLER
+----------
+File: app/Http/Controllers/Dosen/CourseController.php
+
+Method: show($courseId)
+
+Return Inertia dengan data:
+- course: Course details
+- stats: Statistics
+- students: List mahasiswa dengan attendance
+- sessions: List sesi dengan attendance
+- activities: Recent activities
+- predictions: AI predictions
+- charts: Chart data
+
+ROUTES
+------
+Route::get('/dosen/courses/{course}', [CourseController::class, 'show']);
+Route::get('/dosen/courses/{course}/export', [CourseController::class, 'export']);
+Route::post('/dosen/courses/{course}/notify', [CourseController::class, 'notify']);
+
+DATABASE QUERIES
+----------------
+Optimize dengan:
+- Eager loading
+- Caching (5 minutes)
+- Pagination
+- Index optimization
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 8: RESPONSIVE DESIGN
+═══════════════════════════════════════════════════════════════════════════════
+
+MOBILE (<640px):
+- Stack cards vertically
+- Collapse filters
+- Simplified charts
+- Bottom navigation
+
+TABLET (640-1024px):
+- 2 column grid
+- Collapsible sidebar
+- Touch-friendly buttons
+
+DESKTOP (>1024px):
+- Full layout
+- All features visible
+- Keyboard shortcuts
+
+
+═══════════════════════════════════════════════════════════════════════════════
+CATATAN PENTING
+═══════════════════════════════════════════════════════════════════════════════
+
+1. File baru: resources/js/pages/dosen/course-detail.tsx
+2. UI/UX 100% copy dari kas admin
+3. Semua 15 fungsi HARUS ada
+4. Data REAL dari database
+5. Charts dengan Recharts
+6. Animations dengan Framer Motion
+7. Real-time dengan WebSocket
+8. Export ke PDF/Excel/CSV
+9. Mobile responsive
+10. Loading states
+11. Error handling
+12. Keyboard shortcuts
+13. Accessibility compliant
+14. Performance optimized
+15. SEO friendly
+
+═══════════════════════════════════════════════════════════════════════════════
+END OF PROMPT
+═══════════════════════════════════════════════════════════════════════════════

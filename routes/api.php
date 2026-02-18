@@ -87,3 +87,9 @@ Route::middleware(['web', 'auth:dosen'])->prefix('dosen/api/settings')->group(fu
     Route::get('/export', [\App\Http\Controllers\Dosen\SettingsController::class, 'export'])->name('api.dosen.settings.export');
     Route::get('/export-pdf', [\App\Http\Controllers\Dosen\SettingsController::class, 'exportPdf'])->name('api.dosen.settings.export-pdf');
 });
+
+// AI Verification Status API
+Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->group(function () {
+    Route::get('/attendance/{id}/ai-status', [\App\Http\Controllers\Api\AttendanceAIStatusController::class, 'show'])
+        ->name('api.attendance.ai-status');
+});

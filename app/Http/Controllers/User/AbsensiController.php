@@ -1091,8 +1091,51 @@ class AbsensiController extends Controller
             ? 'late'
             : 'present';
 
-        $deviceInfo = $validated['device_info'] ?? '';
-        $deviceOs = $this->detectOs($deviceInfo);
+        // Parse device info JSON
+        $deviceInfoRaw = $validated['device_info'] ?? '';
+        $deviceData = [];
+        if ($deviceInfoRaw && str_starts_with(trim($deviceInfoRaw), '{')) {
+            $deviceData = json_decode($deviceInfoRaw, true) ?? [];
+        }
+
+        $deviceOs = $deviceData['os'] ?? $this->detectOs($deviceInfoRaw);
+        $deviceType = $deviceData['device_type'] ?? 'mobile';
+        $deviceModel = $deviceData['device_model'] ?? Str::limit($deviceInfoRaw, 120, '');
+        $browser = $deviceData['browser'] ?? null;
+        $userAgent = $deviceData['user_agent'] ?? $deviceInfoRaw;
+        $platform = $deviceData['platform'] ?? null;
+        $screenResolution = $deviceData['screen_resolution'] ?? null;
+        $timezone = $deviceData['timezone'] ?? null;
+        $ipAddress = $request->ip();
+
+        // Generate device fingerprint
+        $fingerprintData = json_encode([
+            'ua' => $userAgent,
+            'screen' => $screenResolution,
+            'tz' => $timezone,
+            'platform' => $platform,
+        ]);
+        $deviceFingerprint = hash('sha256', $fingerprintData);
+
+        // Check if device is trusted (used before by this student)
+        $isDeviceTrusted = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+            ->where('device_fingerprint', $deviceFingerprint)
+            ->exists();
+
+        // Reverse geocode address (best-effort, non-blocking)
+        $address = null;
+        try {
+            $geoResponse = Http::timeout(3)->get('https://nominatim.openstreetmap.org/reverse', [
+                'lat' => $latitude,
+                'lon' => $longitude,
+                'format' => 'json',
+            ]);
+            if ($geoResponse->successful()) {
+                $address = $geoResponse->json('display_name');
+            }
+        } catch (\Exception $e) {
+            // Silently fail — address is optional
+        }
 
         $log = AttendanceLog::create([
             'attendance_session_id' => $session->id,
@@ -1104,9 +1147,21 @@ class AbsensiController extends Controller
             'selfie_path' => $path,
             'latitude' => $latitude,
             'longitude' => $longitude,
+            // Enhanced device info
             'device_os' => $deviceOs,
-            'device_model' => Str::limit($deviceInfo, 120, ''),
-            'device_type' => 'mobile',
+            'device_model' => $deviceModel,
+            'device_type' => $deviceType,
+            'browser' => $browser,
+            'user_agent' => Str::limit($userAgent, 500, ''),
+            'platform' => $platform,
+            'screen_resolution' => $screenResolution,
+            'timezone' => $timezone,
+            'ip_address' => $ipAddress,
+            'device_fingerprint' => $deviceFingerprint,
+            'is_device_trusted' => $isDeviceTrusted,
+            // Location
+            'accuracy' => $accuracy,
+            'address' => $address ? Str::limit($address, 500, '') : null,
         ]);
 
         if ($path) {
@@ -1114,6 +1169,9 @@ class AbsensiController extends Controller
                 'attendance_log_id' => $log->id,
                 'status' => 'pending',
             ]);
+
+            // Dispatch AI verification job
+            \App\Jobs\ProcessSelfieVerification::dispatch($log->id);
         }
 
         $statusLabel = $status === 'late' ? 'Terlambat' : 'Hadir';

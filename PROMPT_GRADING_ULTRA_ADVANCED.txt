@@ -1,0 +1,604 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PROMPT: SISTEM PENILAIAN KEHADIRAN MAHASISWA - ULTRA ADVANCED
+═══════════════════════════════════════════════════════════════════════════════
+
+BAGIAN 1: KONSEP DASAR & FILOSOFI SISTEM PENILAIAN
+═══════════════════════════════════════════════════════════════════════════════
+
+1.1 TUJUAN UTAMA SISTEM
+------------------------
+Membangun sistem penilaian kehadiran mahasiswa yang SANGAT CANGGIH dengan fitur:
+- Kalkulasi otomatis nilai kehadiran berdasarkan presensi real-time
+- Sistem grading A-E dengan threshold yang dapat dikonfigurasi
+- Analisis mendalam per mahasiswa dengan riwayat lengkap
+- Export data ke multiple format (CSV, PDF, Excel)
+- Filter dan pencarian advanced dengan multiple criteria
+- Visualisasi statistik dan distribusi nilai
+- Override manual untuk kasus khusus dengan audit trail
+- Prediksi kelayakan UAS berdasarkan attendance rate
+- Real-time updates saat ada perubahan data presensi
+
+1.2 PRINSIP DESAIN
+------------------
+A. AUTOMATIC CALCULATION
+   - Nilai dihitung otomatis dari data presensi real
+   - Update real-time saat ada perubahan status kehadiran
+   - Formula transparan dan dapat diaudit
+   - Tidak ada manual input nilai (kecuali override)
+
+B. FAIRNESS & TRANSPARENCY
+   - Setiap mahasiswa dapat melihat detail perhitungan nilai mereka
+   - Kriteria penilaian jelas dan konsisten
+   - Audit trail lengkap untuk setiap perubahan
+   - Override harus disertai alasan yang valid
+
+C. FLEXIBILITY
+   - Threshold nilai dapat dikonfigurasi per mata kuliah
+   - Bobot kehadiran dapat disesuaikan
+   - Support multiple grading systems (A-E, 0-100, Pass/Fail)
+   - Custom rules untuk kasus khusus
+
+D. ANALYTICS & INSIGHTS
+   - Statistik distribusi nilai real-time
+   - Identifikasi mahasiswa at-risk
+   - Trend analysis kehadiran
+   - Comparison antar kelas/semester
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 2: FORMULA PERHITUNGAN NILAI - DETAIL MATEMATIS
+═══════════════════════════════════════════════════════════════════════════════
+
+2.1 SISTEM POIN KEHADIRAN
+--------------------------
+
+POIN PER STATUS KEHADIRAN:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Status          │  Poin  │  Keterangan                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  present         │  100   │  Hadir tepat waktu                          │
+│  late            │  75    │  Hadir terlambat (< 15 menit)               │
+│  permit          │  50    │  Izin dengan surat resmi                    │
+│  sick            │  50    │  Sakit dengan surat dokter                  │
+│  absent          │  0     │  Tidak hadir tanpa keterangan               │
+│  rejected        │  0     │  Presensi ditolak (fraud/invalid)           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+CATATAN PENTING:
+- Poin dapat dikonfigurasi per mata kuliah di settings
+- Late threshold (15 menit) dapat disesuaikan
+- Permit dan sick memerlukan dokumen pendukung
+- Rejected tidak dihitung dalam total sessions
+
+2.2 FORMULA PERHITUNGAN NILAI AKHIR
+------------------------------------
+
+STEP 1: Hitung Total Poin
+--------------------------
+Total Poin = Σ (Poin per Pertemuan)
+
+Contoh:
+Pertemuan 1: present (100)
+Pertemuan 2: late (75)
+Pertemuan 3: present (100)
+Pertemuan 4: sick (50)
+Pertemuan 5: absent (0)
+Total Poin = 100 + 75 + 100 + 50 + 0 = 325
+
+STEP 2: Hitung Maksimum Poin Possible
+--------------------------------------
+Max Poin = Total Pertemuan × 100
+
+Contoh:
+Total Pertemuan = 5
+Max Poin = 5 × 100 = 500
+
+STEP 3: Hitung Persentase Kehadiran
+------------------------------------
+Attendance Rate = (Total Poin / Max Poin) × 100
+
+Contoh:
+Attendance Rate = (325 / 500) × 100 = 65%
+
+STEP 4: Hitung Rata-rata Poin
+------------------------------
+Average Points = Total Poin / Total Pertemuan
+
+Contoh:
+Average Points = 325 / 5 = 65
+
+STEP 5: Konversi ke Nilai Huruf (Grade Letter)
+-----------------------------------------------
+Berdasarkan Attendance Rate:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Attendance Rate  │  Grade  │  Keterangan                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│  >= 90%           │  A      │  Excellent - Sangat Baik                  │
+│  80% - 89%        │  B      │  Good - Baik                              │
+│  70% - 79%        │  C      │  Satisfactory - Cukup                     │
+│  60% - 69%        │  D      │  Poor - Kurang                            │
+│  < 60%            │  E      │  Fail - Gagal                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Contoh:
+Attendance Rate = 65%
+Grade = D (Poor)
+
+STEP 6: Tentukan Kelayakan UAS
+-------------------------------
+Mahasiswa dapat mengikuti UAS jika:
+- Attendance Rate >= 75% (threshold default)
+- ATAU memiliki izin/sakit yang valid untuk absence
+
+Formula:
+can_take_uas = (attendance_rate >= 75) OR (valid_permits >= required_permits)
+
+Contoh:
+Attendance Rate = 65% (< 75%)
+Valid Permits = 0
+can_take_uas = FALSE (Tidak bisa UAS)
+
+2.3 FORMULA ALTERNATIF (WEIGHTED SYSTEM)
+-----------------------------------------
+
+Untuk sistem yang lebih kompleks, dapat menggunakan weighted scoring:
+
+Nilai Akhir = (Kehadiran × 40%) + (Tugas × 30%) + (UTS × 15%) + (UAS × 15%)
+
+Dimana:
+- Kehadiran = Attendance Rate (dari formula di atas)
+- Tugas = Rata-rata nilai tugas
+- UTS = Nilai Ujian Tengah Semester
+- UAS = Nilai Ujian Akhir Semester
+
+Contoh:
+Kehadiran = 85% → 85 × 0.4 = 34
+Tugas = 80 → 80 × 0.3 = 24
+UTS = 75 → 75 × 0.15 = 11.25
+UAS = 90 → 90 × 0.15 = 13.5
+Nilai Akhir = 34 + 24 + 11.25 + 13.5 = 82.75 → Grade B
+
+2.4 SPECIAL CASES & EDGE CASES
+-------------------------------
+
+CASE 1: Mahasiswa Join Late (Masuk Terlambat)
+----------------------------------------------
+Jika mahasiswa join setelah beberapa pertemuan:
+- Hanya hitung pertemuan setelah join date
+- Max Poin = (Total Pertemuan - Missed Before Join) × 100
+- Tidak penalize untuk pertemuan sebelum join
+
+CASE 2: Pertemuan Dibatalkan (Class Cancelled)
+-----------------------------------------------
+Jika pertemuan dibatalkan oleh dosen:
+- Tidak dihitung dalam Total Pertemuan
+- Tidak affect Max Poin
+- Status = "cancelled" (tidak masuk perhitungan)
+
+CASE 3: Override Manual
+-----------------------
+Jika dosen melakukan override status:
+- Gunakan poin dari status baru
+- Simpan audit trail (old status, new status, reason, timestamp)
+- Recalculate semua nilai terkait
+- Notify mahasiswa tentang perubahan
+
+CASE 4: Mahasiswa Cuti/Drop
+----------------------------
+Jika mahasiswa cuti atau drop:
+- Status = "inactive"
+- Tidak masuk dalam perhitungan statistik kelas
+- Nilai di-freeze pada saat cuti/drop
+- Dapat di-reactivate jika kembali
+
+CASE 5: Remedial/Makeup
+-----------------------
+Jika ada remedial untuk absence:
+- Mahasiswa dapat submit makeup assignment
+- Jika approved, status berubah dari absent → permit
+- Poin berubah dari 0 → 50
+- Recalculate nilai otomatis
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 3: UI/UX SPECIFICATION - EXACT COPY FROM KAS ADMIN
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️ CRITICAL: SEMUA warna, gradient, animasi, dan style HARUS 100% SAMA dengan
+resources/js/pages/admin/kas.tsx - TIDAK BOLEH ADA PERBEDAAN SEDIKIT PUN!
+
+3.1 WARNA & GRADIENT (EXACT COPY)
+----------------------------------
+
+HEADER BACKGROUND:
+bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500
+
+ANIMATED BACKGROUND:
+<motion.div
+    className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+    animate={{
+        backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+    }}
+    transition={{
+        duration: 15,
+        repeat: Infinity,
+        ease: "linear"
+    }}
+    style={{
+        backgroundSize: '200% 200%',
+    }}
+/>
+
+OVERLAY & ORBS:
+<div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+<div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+<div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+3 PULSE RINGS (Animated):
+<motion.div
+    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+    transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+/>
+<motion.div
+    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+    transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+/>
+<motion.div
+    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+    transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
+/>
+
+ICON CONTAINER:
+rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30
+
+ACTION BUTTONS:
+rounded-xl bg-white/20 px-5 py-2.5 backdrop-blur-md border border-white/20 shadow-lg
+hover:bg-white/30
+
+CONTAINER CARDS:
+rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl
+
+SUMMARY CARDS:
+rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl
+transition-all hover:shadow-[color]-500/10 dark:border-white/5
+
+GLOW ORB (per card):
+<motion.div
+    animate={{
+        scale: hoveredCard === 'cardName' ? 1.5 : 1,
+        opacity: hoveredCard === 'cardName' ? 0.4 : 0.2,
+    }}
+    className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[color]-500 blur-3xl transition-all duration-500"
+/>
+
+GRADIENT ICON CONTAINER:
+rounded-2xl bg-gradient-to-br from-[color]-400 to-[color]-600 text-white shadow-lg shadow-[color]-500/30
+
+3.2 ANIMATION VARIANTS (EXACT COPY)
+------------------------------------
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.1,
+        },
+    },
+} as const;
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 24,
+        },
+    },
+} as const;
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring',
+            stiffness: 300,
+            damping: 20,
+        },
+    },
+    hover: {
+        scale: 1.03,
+        y: -8,
+        transition: {
+            type: 'spring',
+            stiffness: 400,
+            damping: 10,
+        },
+    },
+} as const;
+
+3.3 HEADER SECTION (EXACT STYLE)
+---------------------------------
+
+<motion.div
+    variants={itemVariants}
+    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+>
+    {/* Animated Gradient Background */}
+    <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+        animate={{
+            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+        }}
+        transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear"
+        }}
+        style={{
+            backgroundSize: '200% 200%',
+        }}
+    />
+
+    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+    {/* Floating Animations (Pulses) */}
+    <motion.div
+        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+    />
+    <motion.div
+        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+    />
+    <motion.div
+        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
+    />
+
+    <div className="relative">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex items-center gap-5">
+                <motion.div
+                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                    whileHover={{ scale: 1.1, rotate: 10 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                >
+                    <GraduationCap className="h-8 w-8 text-white" />
+                </motion.div>
+                <div>
+                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Penilaian Kehadiran</p>
+                    <h1 className="text-3xl font-bold text-white">Nilai Mahasiswa</h1>
+                    <p className="mt-1 text-indigo-100 max-w-lg">
+                        Sistem Kalkulasi Otomatis Berbasis Presensi Real-Time
+                    </p>
+                </div>
+            </div>
+
+            {/* Quick Action Buttons */}
+            <div className="flex items-center gap-3">
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                >
+                    <Download className="h-4 w-4" />
+                    Export
+                </motion.button>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                >
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                </motion.button>
+            </div>
+        </div>
+    </div>
+</motion.div>
+
+3.4 SUMMARY CARDS (10 CARDS - EXACT STYLE)
+-------------------------------------------
+
+Card 1: Total Mahasiswa
+<motion.div
+    variants={cardVariants}
+    whileHover="hover"
+    onHoverStart={() => setHoveredCard('total')}
+    onHoverEnd={() => setHoveredCard(null)}
+    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-blue-500/10 dark:border-white/5"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10" />
+    <motion.div
+        animate={{
+            scale: hoveredCard === 'total' ? 1.5 : 1,
+            opacity: hoveredCard === 'total' ? 0.4 : 0.2,
+        }}
+        className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500"
+    />
+    <div className="relative flex items-center gap-4">
+        <motion.div
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white shadow-lg shadow-blue-500/30"
+        >
+            <Users className="h-7 w-7" />
+        </motion.div>
+        <div>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
+            <div className="mt-1">
+                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                    {stats.total_students}
+                </span>
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">terdaftar</p>
+        </div>
+    </div>
+</motion.div>
+
+Card 2: Rata-rata Kehadiran
+<motion.div
+    variants={cardVariants}
+    whileHover="hover"
+    onHoverStart={() => setHoveredCard('average')}
+    onHoverEnd={() => setHoveredCard(null)}
+    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
+    <motion.div
+        animate={{
+            scale: hoveredCard === 'average' ? 1.5 : 1,
+            opacity: hoveredCard === 'average' ? 0.4 : 0.2,
+        }}
+        className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
+    />
+    <div className="relative flex items-center gap-4">
+        <motion.div
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
+        >
+            <TrendingUp className="h-7 w-7" />
+        </motion.div>
+        <div>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Rata-rata</p>
+            <div className="mt-1">
+                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                    {stats.average_attendance_rate}%
+                </span>
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">kehadiran</p>
+        </div>
+    </div>
+</motion.div>
+
+Card 3: Total Pertemuan
+<motion.div
+    variants={cardVariants}
+    whileHover="hover"
+    onHoverStart={() => setHoveredCard('sessions')}
+    onHoverEnd={() => setHoveredCard(null)}
+    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-purple-500/10 dark:border-white/5"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10" />
+    <motion.div
+        animate={{
+            scale: hoveredCard === 'sessions' ? 1.5 : 1,
+            opacity: hoveredCard === 'sessions' ? 0.4 : 0.2,
+        }}
+        className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500 blur-3xl transition-all duration-500"
+    />
+    <div className="relative flex items-center gap-4">
+        <motion.div
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 text-white shadow-lg shadow-purple-500/30"
+        >
+            <Award className="h-7 w-7" />
+        </motion.div>
+        <div>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Pertemuan</p>
+            <div className="mt-1">
+                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                    {stats.total_sessions}
+                </span>
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">total sesi</p>
+        </div>
+    </div>
+</motion.div>
+
+Card 4: Mahasiswa At-Risk
+<motion.div
+    variants={cardVariants}
+    whileHover="hover"
+    onHoverStart={() => setHoveredCard('risk')}
+    onHoverEnd={() => setHoveredCard(null)}
+    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-red-500/10 dark:border-white/5"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10" />
+    <motion.div
+        animate={{
+            scale: hoveredCard === 'risk' ? 1.5 : 1,
+            opacity: hoveredCard === 'risk' ? 0.4 : 0.2,
+        }}
+        className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500"
+    />
+    <div className="relative flex items-center gap-4">
+        <motion.div
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-400 to-rose-600 text-white shadow-lg shadow-red-500/30"
+        >
+            <AlertTriangle className="h-7 w-7" />
+        </motion.div>
+        <div>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Tidak Bisa UAS</p>
+            <div className="mt-1">
+                <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                    {stats.students_at_risk}
+                </span>
+            </div>
+            <p className="text-xs text-neutral-400 mt-1">mahasiswa</p>
+        </div>
+    </div>
+</motion.div>
+
+Card 5: Grade Distribution (Special Card)
+<motion.div
+    variants={cardVariants}
+    whileHover="hover"
+    onHoverStart={() => setHoveredCard('distribution')}
+    onHoverEnd={() => setHoveredCard(null)}
+    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-indigo-500/10 dark:border-white/5"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10" />
+    <motion.div
+        animate={{
+            scale: hoveredCard === 'distribution' ? 1.5 : 1,
+            opacity: hoveredCard === 'distribution' ? 0.4 : 0.2,
+        }}
+        className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-500 blur-3xl transition-all duration-500"
+    />
+    <div className="relative">
+        <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-3">Distribusi Grade</p>
+        <div className="flex justify-center gap-2">
+            {Object.entries(stats.grade_distribution).map(([grade, count]) => (
+                <div key={grade} className="text-center">
+                    <motion.div
+                        whileHover={{ rotate: 10, scale: 1.15 }}
+                        className={`w-8 h-8 rounded-full ${getGradeColor(grade)} text-white text-sm font-bold flex items-center justify-center mx-auto shadow-lg`}
+                    >
+                        {grade}
+                    </motion.div>
+                    <p className="text-xs mt-1.5 font-semibold text-gray-600 dark:text-gray-400">{count}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+</motion.div>
+
+Card 6-10: Additional Stats (Same Pattern)
+- Grade A Count (Green)
+- Grade B Count (Blue)
+- Grade C Count (Yellow)
+- Grade D Count (Orange)
+- Grade E Count (Red)
+
+CATATAN PENTING:
+- Setiap card HARUS memiliki glow orb yang animated
+- Hover effect HARUS sama persis (scale 1.03, y: -8)
+- Icon container HARUS gradient dengan shadow
+- Semua transisi HARUS smooth dengan spring animation

@@ -55,7 +55,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<'name' | 'students' | 'attendance' | 'sessions'>('name');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    const [activeTab, setActiveTab] = useState<'all' | 'high' | 'attention'>('all');
+    const [activeTab, setActiveTab] = useState<'all' | 'high'>('all');
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
     const [detailTab, setDetailTab] = useState<'overview' | 'students' | 'sessions'>('overview');
@@ -65,8 +65,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
             .filter(c => {
                 const matchSearch = c.nama.toLowerCase().includes(searchQuery.toLowerCase()) || c.kode.toLowerCase().includes(searchQuery.toLowerCase());
                 const matchTab = activeTab === 'all' ||
-                    (activeTab === 'high' && c.attendanceRate >= 80) ||
-                    (activeTab === 'attention' && (c.attendanceRate < 70 || c.lowAttendanceStudents > 0));
+                    (activeTab === 'high' && c.attendanceRate >= 80);
                 return matchSearch && matchTab;
             })
             .sort((a, b) => {
@@ -83,14 +82,11 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
         { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Aktif', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
         { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
         { key: 'rate', icon: TrendingUp, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
-        { key: 'active', icon: Play, label: 'Sesi Aktif', value: stats.activeSessions, sub: 'Sedang berlangsung', gradient: 'from-cyan-400 to-sky-600', glow: 'bg-cyan-500', shadow: 'hover:shadow-cyan-500/10', pulse: true },
-        { key: 'low', icon: AlertTriangle, label: 'Perlu Perhatian', value: stats.lowAttendanceStudents, sub: 'Kehadiran <70%', gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     const tabs = [
         { key: 'all' as const, label: 'Semua Mata Kuliah', count: courses.length },
         { key: 'high' as const, label: 'Kehadiran Tinggi', count: courses.filter(c => c.attendanceRate >= 80).length },
-        { key: 'attention' as const, label: 'Perlu Perhatian', count: courses.filter(c => c.attendanceRate < 70 || c.lowAttendanceStudents > 0).length },
     ];
 
     return (
@@ -155,8 +151,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                     </div>
                 </motion.div>
 
-                {/* ═══════ SUMMARY CARDS — 6 with Glow ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                {/* ═══════ SUMMARY CARDS — 4 Cards with Glow ═══════ */}
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {summaryCards.map(card => (
                         <motion.div key={card.key} variants={cardVariants} whileHover="hover"
                             onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}

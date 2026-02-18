@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import AIGradingPanel from '@/components/dosen/ai-grading-panel';
 import { useState, useEffect, useMemo } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
@@ -432,6 +433,18 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                     </DialogContent>
                 </Dialog>
             </motion.div>
+
+            {/* ═══ AI Grading Assistant ═══ */}
+            <AIGradingPanel
+                selectedSubmission={selectedSubmission}
+                maxGrade={tugas.max_grade}
+                onApplyScore={(score, feedback) => {
+                    if (selectedSubmission) {
+                        setGradeForm({ grade: score, feedback });
+                        setShowGradeDialog(true);
+                    }
+                }}
+            />
         </DosenLayout>
     );
 }

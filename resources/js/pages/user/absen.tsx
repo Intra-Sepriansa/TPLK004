@@ -1,5 +1,6 @@
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { captureDeviceInfo } from '@/utils/deviceCapture';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -192,7 +193,7 @@ export default function UserAbsensi() {
     const selfieStreamRef = useRef<MediaStream | null>(null);
 
     useEffect(() => {
-        form.setData('device_info', navigator.userAgent);
+        form.setData('device_info', JSON.stringify(captureDeviceInfo()));
         // html5-qrcode is always available
         setScanAvailable(true);
         setSelfieAvailable(Boolean(navigator.mediaDevices?.getUserMedia));
@@ -511,7 +512,7 @@ export default function UserAbsensi() {
 
     const resetAttendance = () => {
         form.reset();
-        form.setData('device_info', navigator.userAgent);
+        form.setData('device_info', JSON.stringify(captureDeviceInfo()));
         stopSelfie(); stopScan(); setScanning(false);
         setLocationCollecting(false); setAutoLocationTriggered(false);
         setSelfieStatus(''); setScanStatus(''); setLocationStatus('');

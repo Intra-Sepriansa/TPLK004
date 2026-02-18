@@ -21,6 +21,9 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
 
     // Sesi Absen
     Route::get('/sesi-absen', [SesiAbsenController::class, 'index'])->name('sesi-absen');
+    Route::get('/sesi-absen/{session}', [SesiAbsenController::class, 'show'])->name('sesi-absen.show');
+    Route::get('/sesi-absen/{session}/export-pdf', [SesiAbsenController::class, 'exportPdf'])->name('sesi-absen.export-pdf');
+    Route::post('/sesi-absen/{session}/send-reminder', [SesiAbsenController::class, 'sendReminder'])->name('sesi-absen.send-reminder');
 
     // Courses
     Route::get('/courses', [CourseController::class, 'index'])->name('courses');
@@ -38,14 +41,17 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::patch('/attendance-sessions/{session}/activate', [SessionController::class, 'activate'])->name('attendance-sessions.activate.dosen');
     Route::patch('/attendance-sessions/{session}/close', [SessionController::class, 'close'])->name('attendance-sessions.close.dosen');
 
-    // Verification
+    // Verification (AI-Powered)
     Route::get('/verify', [VerificationController::class, 'index'])->name('verify');
+    Route::get('/verify/{verification}', [VerificationController::class, 'show'])->name('verify.show');
     Route::patch('/verify/{verification}/approve', [VerificationController::class, 'approve'])->name('verify.approve');
     Route::patch('/verify/{verification}/reject', [VerificationController::class, 'reject'])->name('verify.reject');
+    Route::post('/verify/{verification}/scan-ai', [VerificationController::class, 'scanAI'])->name('verify.scan-ai');
 
     // Rekapan
     Route::get('/rekapan', [RekapanController::class, 'index'])->name('rekapan');
     Route::get('/rekapan/pdf', [RekapanController::class, 'exportPdf'])->name('rekapan.pdf');
+    Route::get('/rekapan/{log}', [RekapanController::class, 'show'])->name('rekapan.show');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');

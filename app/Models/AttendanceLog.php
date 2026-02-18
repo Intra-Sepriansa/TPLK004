@@ -23,10 +23,44 @@ class AttendanceLog extends Model
         'device_model',
         'device_type',
         'note',
+        // Enhanced device info
+        'browser',
+        'user_agent',
+        'platform',
+        'screen_resolution',
+        'timezone',
+        'ip_address',
+        'device_fingerprint',
+        'is_device_trusted',
+        // Enhanced location
+        'accuracy',
+        'address',
+        // AI processing
+        'ai_processing_step',
+        'face_detected',
+        'face_match_score',
+        'is_live_photo',
+        'spoofing_detected',
+        'image_quality_score',
+        'ai_confidence',
+        'ai_recommendation',
+        'is_suspicious',
+        'risk_score',
+        'fraud_flags',
+        'ai_analysis_json',
+        'ai_processed_at',
     ];
 
     protected $casts = [
         'scanned_at' => 'datetime',
+        'ai_processed_at' => 'datetime',
+        'fraud_flags' => 'array',
+        'ai_analysis_json' => 'array',
+        'is_device_trusted' => 'boolean',
+        'face_detected' => 'boolean',
+        'is_live_photo' => 'boolean',
+        'spoofing_detected' => 'boolean',
+        'is_suspicious' => 'boolean',
     ];
 
     public function session(): BelongsTo

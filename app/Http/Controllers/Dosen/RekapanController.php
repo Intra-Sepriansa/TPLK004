@@ -18,11 +18,15 @@ class RekapanController extends Controller
         $dosen = Auth::guard('dosen')->user();
         
         // Get courses taught by this dosen
-        $courses = MataKuliah::where('dosen_id', $dosen->id)->get();
+        $courses = MataKuliah::where('dosen_id', $dosen->id)
+            ->withCount(['sessions as session_count'])
+            ->get();
         
         // Get selected course
         $selectedCourseId = $request->get('course_id');
         $selectedSessionId = $request->get('session_id');
+        $searchQuery = $request->get('search', '');
+        $statusFilter = $request->get('status', 'all');
         
         $sessions = [];
         $attendanceLogs = [];
@@ -32,14 +36,31 @@ class RekapanController extends Controller
         if ($selectedCourseId) {
             $selectedCourse = MataKuliah::find($selectedCourseId);
             $sessions = AttendanceSession::where('course_id', $selectedCourseId)
+                ->withCount('logs as attendance_count')
                 ->orderBy('meeting_number')
                 ->get();
         }
         
         if ($selectedSessionId) {
             $selectedSession = AttendanceSession::with('course')->find($selectedSessionId);
-            $attendanceLogs = AttendanceLog::with('mahasiswa')
-                ->where('attendance_session_id', $selectedSessionId)
+            
+            $logsQuery = AttendanceLog::with('mahasiswa')
+                ->where('attendance_session_id', $selectedSessionId);
+            
+            // Status filter
+            if ($statusFilter && $statusFilter !== 'all') {
+                $logsQuery->where('status', $statusFilter);
+            }
+            
+            // Search filter
+            if ($searchQuery) {
+                $logsQuery->whereHas('mahasiswa', function ($q) use ($searchQuery) {
+                    $q->where('nama', 'like', "%{$searchQuery}%")
+                      ->orWhere('nim', 'like', "%{$searchQuery}%");
+                });
+            }
+            
+            $attendanceLogs = $logsQuery
                 ->orderBy('scanned_at')
                 ->get()
                 ->map(function ($log) {
@@ -60,12 +81,24 @@ class RekapanController extends Controller
                 });
         }
         
-        // Statistics
+        // Statistics (always from unfiltered session data for accurate totals)
+        $totalLogs = $selectedSessionId
+            ? AttendanceLog::where('attendance_session_id', $selectedSessionId)->get()
+            : collect();
+        
+        $totalCount = $totalLogs->count();
+        $hadirCount = $totalLogs->where('status', 'present')->count();
+        $terlambatCount = $totalLogs->where('status', 'late')->count();
+        $tidakHadirCount = $totalLogs->where('status', 'absent')->count();
+        
         $stats = [
-            'total' => count($attendanceLogs),
-            'hadir' => collect($attendanceLogs)->where('status', 'present')->count(),
-            'terlambat' => collect($attendanceLogs)->where('status', 'late')->count(),
-            'tidak_hadir' => collect($attendanceLogs)->where('status', 'absent')->count(),
+            'total' => $totalCount,
+            'hadir' => $hadirCount,
+            'terlambat' => $terlambatCount,
+            'tidak_hadir' => $tidakHadirCount,
+            'attendance_rate' => $totalCount > 0
+                ? round((($hadirCount + $terlambatCount) / $totalCount) * 100, 1)
+                : 0,
         ];
         
         return Inertia::render('dosen/rekapan', [
@@ -73,6 +106,9 @@ class RekapanController extends Controller
                 'id' => $dosen->id,
                 'nama' => $dosen->nama,
                 'nidn' => $dosen->nidn,
+                'email' => $dosen->email ?? '',
+                'avatar_url' => $dosen->avatar_url ?? null,
+                'initials' => $dosen->initials,
             ],
             'courses' => $courses,
             'sessions' => $sessions,
@@ -82,6 +118,10 @@ class RekapanController extends Controller
             'selectedCourse' => $selectedCourse,
             'selectedSession' => $selectedSession,
             'stats' => $stats,
+            'filters' => [
+                'search' => $searchQuery,
+                'status' => $statusFilter,
+            ],
         ]);
     }
 
@@ -138,6 +178,143 @@ class RekapanController extends Controller
         return $pdf->download($filename);
     }
     
+    public function show(AttendanceLog $log)
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        // Load all relationships
+        $log->load(['mahasiswa', 'session.course', 'selfieVerification', 'fraudAlerts']);
+
+        // Ensure the log belongs to a course owned by this dosen
+        $course = $log->session?->course;
+        if (!$course || $course->dosen_id !== $dosen->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Mahasiswa info
+        $mhs = $log->mahasiswa;
+
+        // Attendance history for this student in this course
+        $history = AttendanceLog::with('session')
+            ->where('mahasiswa_id', $log->mahasiswa_id)
+            ->whereHas('session', function ($q) use ($course) {
+                $q->where('course_id', $course->id);
+            })
+            ->orderBy('scanned_at', 'desc')
+            ->get()
+            ->map(function ($h) {
+                return [
+                    'id' => $h->id,
+                    'meeting_number' => $h->session?->meeting_number,
+                    'status' => $h->status,
+                    'scanned_at' => $h->scanned_at?->format('H:i:s'),
+                    'scanned_date' => $h->scanned_at?->format('d/m/Y'),
+                ];
+            });
+
+        // Calculate student attendance stats for this course
+        $totalSessions = AttendanceSession::where('course_id', $course->id)->count();
+        $studentPresent = $history->where('status', 'present')->count();
+        $studentLate = $history->where('status', 'late')->count();
+        $studentAbsent = $history->where('status', 'absent')->count();
+        $studentRate = $totalSessions > 0
+            ? round((($studentPresent + $studentLate) / $totalSessions) * 100, 1)
+            : 0;
+
+        return Inertia::render('dosen/rekapan-detail', [
+            'dosen' => [
+                'id' => $dosen->id,
+                'nama' => $dosen->nama,
+                'nidn' => $dosen->nidn,
+            ],
+            'log' => [
+                'id' => $log->id,
+                'status' => $log->status,
+                'scanned_at' => $log->scanned_at?->format('H:i:s'),
+                'scanned_date' => $log->scanned_at?->format('d F Y'),
+                'scanned_full' => $log->scanned_at?->format('d/m/Y H:i:s'),
+                'note' => $log->note,
+                // Location
+                'latitude' => $log->latitude,
+                'longitude' => $log->longitude,
+                'distance_m' => $log->distance_m,
+                'accuracy' => $log->accuracy,
+                'address' => $log->address,
+                // Device
+                'device_os' => $log->device_os,
+                'device_model' => $log->device_model,
+                'device_type' => $log->device_type,
+                'browser' => $log->browser,
+                'platform' => $log->platform,
+                'screen_resolution' => $log->screen_resolution,
+                'timezone' => $log->timezone,
+                'ip_address' => $log->ip_address,
+                'device_fingerprint' => $log->device_fingerprint,
+                'is_device_trusted' => $log->is_device_trusted,
+                // AI Analysis
+                'selfie_path' => $log->selfie_path,
+                'face_detected' => $log->face_detected,
+                'face_match_score' => $log->face_match_score,
+                'is_live_photo' => $log->is_live_photo,
+                'spoofing_detected' => $log->spoofing_detected,
+                'image_quality_score' => $log->image_quality_score,
+                'ai_confidence' => $log->ai_confidence,
+                'ai_recommendation' => $log->ai_recommendation,
+                'is_suspicious' => $log->is_suspicious,
+                'risk_score' => $log->risk_score,
+                'fraud_flags' => $log->fraud_flags,
+                'ai_analysis_json' => $log->ai_analysis_json,
+                'ai_processing_step' => $log->ai_processing_step,
+                'ai_processed_at' => $log->ai_processed_at?->format('d/m/Y H:i:s'),
+            ],
+            'mahasiswa' => [
+                'id' => $mhs?->id,
+                'nama' => $mhs?->nama ?? '-',
+                'nim' => $mhs?->nim ?? '-',
+                'fakultas' => $mhs?->fakultas ?? 'Teknik',
+                'prodi' => $mhs?->prodi ?? 'Teknik Informatika',
+                'kelas' => $mhs?->kelas ?? '-',
+                'jenis_reguler' => $mhs?->jenis_reguler ?? 'Reguler A',
+                'semester' => $mhs?->semester ?? '-',
+                'avatar_url' => $mhs?->avatar_url,
+            ],
+            'course' => [
+                'id' => $course->id,
+                'nama' => $course->nama,
+                'sks' => $course->sks,
+            ],
+            'session' => [
+                'id' => $log->session?->id,
+                'meeting_number' => $log->session?->meeting_number,
+                'title' => $log->session?->title,
+                'start_at' => $log->session?->start_at?->format('d F Y H:i'),
+                'end_at' => $log->session?->end_at?->format('d F Y H:i'),
+            ],
+            'selfieVerification' => $log->selfieVerification ? [
+                'status' => $log->selfieVerification->status,
+                'verified_by_name' => $log->selfieVerification->verified_by_name,
+                'verified_at' => $log->selfieVerification->verified_at?->format('d/m/Y H:i'),
+                'rejection_reason' => $log->selfieVerification->rejection_reason,
+                'note' => $log->selfieVerification->note,
+            ] : null,
+            'fraudAlerts' => $log->fraudAlerts->map(fn($a) => [
+                'id' => $a->id,
+                'type' => $a->type,
+                'severity' => $a->severity,
+                'description' => $a->description,
+                'status' => $a->status,
+            ]),
+            'history' => $history,
+            'studentStats' => [
+                'total_sessions' => $totalSessions,
+                'present' => $studentPresent,
+                'late' => $studentLate,
+                'absent' => $studentAbsent,
+                'attendance_rate' => $studentRate,
+            ],
+        ]);
+    }
+
     private function getStatusLabel(string $status): string
     {
         return match ($status) {

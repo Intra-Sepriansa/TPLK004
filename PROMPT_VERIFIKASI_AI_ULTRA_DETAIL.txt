@@ -1,0 +1,2894 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PROMPT: SISTEM VERIFIKASI SELFIE AI - ULTRA ADVANCED & SUPER DETAIL
+═══════════════════════════════════════════════════════════════════════════════
+
+BAGIAN 1: KONSEP DASAR & FILOSOFI SISTEM
+═══════════════════════════════════════════════════════════════════════════════
+
+1.1 TUJUAN UTAMA SISTEM
+------------------------
+Membangun sistem verifikasi selfie kehadiran mahasiswa berbasis Artificial Intelligence
+yang mampu:
+- Memproses data REAL dari database (TIDAK BOLEH DUMMY DATA)
+- Melakukan analisis biometrik wajah secara mendalam
+- Mendeteksi fraud dan kecurangan dengan akurasi tinggi
+- Memberikan rekomendasi keputusan verifikasi otomatis
+- Menyediakan audit trail lengkap untuk setiap verifikasi
+
+1.2 PRINSIP DESAIN
+------------------
+A. DATA INTEGRITY
+   - Semua data HARUS diambil langsung dari database production
+   - Tidak ada hardcoded values atau dummy data
+   - Setiap field kosong sebelum AI scan, terisi setelah scan
+   - Data historical harus akurat dan traceable
+
+B. REAL-TIME PROCESSING
+   - AI processing time bervariasi (9-16 detik) sesuai kompleksitas
+   - Progress indicator real-time untuk setiap step
+   - WebSocket/SSE untuk update status tanpa refresh
+   - Queue system untuk handle multiple requests
+
+C. TRANSPARENCY
+   - Setiap keputusan AI harus explainable
+   - Confidence score untuk setiap analisis
+   - Timeline lengkap dari submit hingga final decision
+   - Visual indicators untuk suspicious patterns
+
+D. SECURITY & PRIVACY
+   - Akses terbatas untuk Admin dan Dosen saja
+   - Audit log untuk setiap aktivitas verifikasi
+   - Enkripsi untuk data sensitif (foto, lokasi)
+   - Rate limiting untuk prevent abuse
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 2: STRUKTUR UI - LAYOUT & KOMPONEN
+═══════════════════════════════════════════════════════════════════════════════
+
+2.1 HEADER CONTAINER (Bagian Paling Atas)
+------------------------------------------
+POSISI: Top of page, full width
+FUNGSI: Control center untuk AI scanning
+
+KOMPONEN WAJIB:
+┌─────────────────────────────────────────────────────────────────────────┐
+│  [ICON]  Verifikasi Selfie Mahasiswa                    [STATUS] [BTN]  │
+│          AI-Powered Face Recognition                                     │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  TOMBOL SCAN DENGAN AI (Primary Action)                          │  │
+│  │  - Warna: Gradient indigo-purple-pink                            │  │
+│  │  - Icon: Sparkles + Bot                                          │  │
+│  │  - State: Idle / Processing / Completed                          │  │
+│  │  - Progress Bar: 0-100% saat processing                          │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+│  STATUS INDICATOR:                                                       │
+│  ○ Idle: "Siap untuk scan" (abu-abu)                                   │
+│  ◉ Processing: "AI sedang menganalisis..." (kuning, animated pulse)    │
+│  ● Completed: "Analisis selesai" (hijau)                               │
+│                                                                          │
+│  PROGRESS BAR DETAIL (Saat Processing):                                 │
+│  ▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░ 45%                                              │
+│  Current Step: "Analyzing facial biometrics..."                         │
+│  Estimated Time: 8 seconds remaining                                    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+INFORMASI SESI PRESENSI:
+- Mata Kuliah: [Nama MK]
+- Kelas: [Kode Kelas]
+- Waktu: [Tanggal & Jam]
+- Total Mahasiswa: [Jumlah]
+- Pending Verification: [Jumlah] (highlight merah jika > 0)
+
+TOMBOL AKSI TAMBAHAN:
+[⚡ Quick Verify Mode] [🔄 Refresh] [📊 View Analytics] [⚙️ Settings]
+
+
+2.2 FACE COMPARISON SECTION (Container Utama #1)
+-------------------------------------------------
+POSISI: Di bawah header, full width
+LAYOUT: 2 kolom (Reference Photo | Selfie Photo)
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  FACE COMPARISON ANALYSIS                                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────────────────┐    ┌──────────────────────────┐         │
+│  │   FOTO REFERENSI         │    │   FOTO SELFIE            │         │
+│  │   (Database Mahasiswa)   │    │   (Presensi Saat Ini)    │         │
+│  │                          │    │                          │         │
+│  │  [KONDISI AWAL]          │    │  [KONDISI AWAL]          │         │
+│  │  ┌────────────────────┐  │    │  ┌────────────────────┐  │         │
+│  │  │                    │  │    │  │                    │  │         │
+│  │  │   PLACEHOLDER      │  │    │  │   PLACEHOLDER      │  │         │
+│  │  │   KOSONG           │  │    │  │   KOSONG           │  │         │
+│  │  │                    │  │    │  │                    │  │         │
+│  │  │   "Menunggu AI     │  │    │  │   "Menunggu AI     │  │         │
+│  │  │    Scan..."        │  │    │  │    Scan..."        │  │         │
+│  │  │                    │  │    │  │                    │  │         │
+│  │  │   [Icon: Camera]   │  │    │  │   [Icon: Camera]   │  │         │
+│  │  └────────────────────┘  │    │  └────────────────────┘  │         │
+│  │                          │    │                          │         │
+│  │  [KONDISI SETELAH SCAN]  │    │  [KONDISI SETELAH SCAN]  │         │
+│  │  ┌────────────────────┐  │    │  ┌────────────────────┐  │         │
+│  │  │  [FOTO REAL]       │  │    │  │  [FOTO REAL]       │  │         │
+│  │  │  dari tabel        │  │    │  │  dari tabel        │  │         │
+│  │  │  mahasiswa         │  │    │  │  kehadiran         │  │         │
+│  │  │                    │  │    │  │                    │  │         │
+│  │  │  + Facial          │  │    │  │  + Facial          │  │         │
+│  │  │    Landmarks       │  │    │  │    Landmarks       │  │         │
+│  │  │    Overlay         │  │    │  │    Overlay         │  │         │
+│  │  │  (68 titik deteksi)│  │    │  │  (68 titik deteksi)│  │         │
+│  │  └────────────────────┘  │    │  └────────────────────┘  │         │
+│  │                          │    │                          │         │
+│  │  📸 Sumber:              │    │  📸 Sumber:              │         │
+│  │  Database Mahasiswa      │    │  Presensi ID: #12345     │         │
+│  │  NIM: 2021010001         │    │  Waktu: 08:15:23         │         │
+│  │  Upload: 01/09/2024      │    │  Upload: 18/02/2026      │         │
+│  └──────────────────────────┘    └──────────────────────────┘         │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  SIMILARITY ANALYSIS RESULT                                       │  │
+│  │                                                                   │  │
+│  │  Similarity Score: ████████████████░░░░ 87.5%                    │  │
+│  │  Match Status: ✅ VERIFIED                                        │  │
+│  │  Confidence Level: ████████████████████░ 95.2%                   │  │
+│  │                                                                   │  │
+│  │  FACIAL LANDMARKS DETECTED:                                       │  │
+│  │  ✓ Eyes: 2/2 detected                                            │  │
+│  │  ✓ Nose: 1/1 detected                                            │  │
+│  │  ✓ Mouth: 1/1 detected                                           │  │
+│  │  ✓ Face Contour: 17/17 points                                    │  │
+│  │  ✓ Total Landmarks: 68/68 points                                 │  │
+│  │                                                                   │  │
+│  │  COMPARISON METRICS:                                              │  │
+│  │  • Euclidean Distance: 0.42 (threshold: 0.6)                    │  │
+│  │  • Cosine Similarity: 0.875                                      │  │
+│  │  • Face Encoding Match: 128/128 dimensions                       │  │
+│  │                                                                   │  │
+│  │  [Button: 🔍 View Detailed Analysis]  [Button: 📊 Compare More]  │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+DATA SOURCE MAPPING:
+--------------------
+FOTO REFERENSI:
+- Query: SELECT foto_profil FROM mahasiswa WHERE id = {mahasiswa_id}
+- Field: mahasiswa.foto_profil
+- Path: storage/app/public/mahasiswa/photos/{nim}.jpg
+
+FOTO SELFIE:
+- Query: SELECT selfie_path FROM kehadiran WHERE id = {kehadiran_id}
+- Field: kehadiran.selfie_path
+- Path: storage/app/public/attendance/selfies/{timestamp}_{nim}.jpg
+
+SIMILARITY CALCULATION:
+- Algorithm: FaceNet / DeepFace / face_recognition library
+- Model: dlib's 68-point face landmark predictor
+- Threshold: 
+  * > 85% = VERIFIED (hijau)
+  * 70-85% = NEEDS_REVIEW (kuning)
+  * < 70% = REJECTED (merah)
+
+
+2.3 AI ANALYSIS REPORT (Container Utama #2 - Gabungan dengan Device Info)
+--------------------------------------------------------------------------
+POSISI: Di bawah Face Comparison Section
+LAYOUT: Accordion/Tabs dengan 4 sub-section
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  AI COMPREHENSIVE ANALYSIS REPORT                                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  [KONDISI AWAL - SEBELUM SCAN]                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │  ⏳ Menunggu Analisis AI...                                       │  │
+│  │                                                                   │  │
+│  │  [Skeleton Loader Animation]                                      │  │
+│  │  ▓▓▓▓░░░░░░░░░░░░░░░░                                            │  │
+│  │  ▓▓▓▓▓▓░░░░░░░░░░░░░░                                            │  │
+│  │  ▓▓▓░░░░░░░░░░░░░░░░░                                            │  │
+│  │                                                                   │  │
+│  │  Klik "Scan dengan AI" untuk memulai analisis                    │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+│  [KONDISI SETELAH SCAN - DATA REAL]                                     │
+│                                                                          │
+│  ┌─ A. BIOMETRIC ANALYSIS ─────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  1. FACE QUALITY SCORE: ████████████████░░░░ 82/100              │  │
+│  │     ├─ Lighting Quality: ████████████████████ 95/100 ✓ Excellent│  │
+│  │     ├─ Image Sharpness: ██████████████░░░░░░ 72/100 ⚠ Moderate │  │
+│  │     ├─ Face Angle: ██████████████████░░░░ 88/100 ✓ Good         │  │
+│  │     ├─ Resolution: ████████████████████░░ 90/100 ✓ High         │  │
+│  │     └─ Occlusion: ████████████████████████ 100/100 ✓ None       │  │
+│  │                                                                   │  │
+│  │  2. LIVENESS DETECTION: ████████████████████░ 91/100 ✅ REAL     │  │
+│  │     ├─ Texture Analysis: ████████████████████ 94/100 ✓ Natural  │  │
+│  │     ├─ Depth Perception: ██████████████████░░ 88/100 ✓ 3D Face  │  │
+│  │     ├─ Motion Blur: ████████████████████░░ 89/100 ✓ Detected    │  │
+│  │     ├─ Screen Detection: ████████████████████ 95/100 ✓ No Screen│  │
+│  │     └─ Print Attack: ████████████████████░░ 92/100 ✓ Not Print  │  │
+│  │                                                                   │  │
+│  │     🛡️ Anti-Spoofing Result: PASSED                              │  │
+│  │     Confidence: 91.2% (Threshold: 60%)                           │  │
+│  │     Risk Level: LOW                                               │  │
+│  │                                                                   │  │
+│  │  3. AGE ESTIMATION: 21 tahun                                      │  │
+│  │     ├─ Detected Age: 21 years old                                │  │
+│  │     ├─ Database Age: 22 years old (from DOB: 15/03/2004)        │  │
+│  │     ├─ Age Difference: 1 year                                    │  │
+│  │     └─ Validation: ✅ MATCH (tolerance: ±3 years)                │  │
+│  │                                                                   │  │
+│  │  4. GENDER DETECTION: Male                                        │  │
+│  │     ├─ Detected Gender: Male (confidence: 96.8%)                 │  │
+│  │     ├─ Database Gender: Male                                     │  │
+│  │     └─ Validation: ✅ MATCH                                       │  │
+│  │                                                                   │  │
+│  │  5. EMOTION ANALYSIS: Neutral                                     │  │
+│  │     ├─ Primary Emotion: Neutral (68.5%)                          │  │
+│  │     ├─ Secondary: Happy (18.2%)                                  │  │
+│  │     ├─ Other: Surprise (8.1%), Sad (3.2%), Angry (2.0%)         │  │
+│  │     └─ Assessment: ✅ Natural expression                          │  │
+│  │                                                                   │  │
+│  │  6. FACE ATTRIBUTES:                                              │  │
+│  │     ├─ Glasses: ❌ Not Detected                                   │  │
+│  │     ├─ Mask: ❌ Not Detected                                      │  │
+│  │     ├─ Hat/Cap: ❌ Not Detected                                   │  │
+│  │     ├─ Beard: ✅ Detected (light stubble)                         │  │
+│  │     ├─ Mustache: ❌ Not Detected                                  │  │
+│  │     └─ Accessories: ❌ None                                        │  │
+│  │                                                                   │  │
+│  │  7. FACIAL EXPRESSION CONSISTENCY:                                │  │
+│  │     Compare with 5 previous attendance photos:                   │  │
+│  │     ├─ Photo 1 (17/02): Similarity 89% ✓                         │  │
+│  │     ├─ Photo 2 (16/02): Similarity 91% ✓                         │  │
+│  │     ├─ Photo 3 (15/02): Similarity 87% ✓                         │  │
+│  │     ├─ Photo 4 (14/02): Similarity 93% ✓                         │  │
+│  │     └─ Photo 5 (13/02): Similarity 88% ✓                         │  │
+│  │     Average Consistency: 89.6% ✅ CONSISTENT                      │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+│  ┌─ B. DEVICE & LOCATION INFORMATION ──────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  📱 DEVICE INFORMATION:                                           │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ Device Model: iPhone 13 Pro                                 │ │  │
+│  │  │ Manufacturer: Apple Inc.                                    │ │  │
+│  │  │ OS: iOS 17.2.1                                              │ │  │
+│  │  │ Browser: Safari 17.2                                        │ │  │
+│  │  │ Screen Resolution: 1170x2532                                │ │  │
+│  │  │ User Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_2_1...)  │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  🌐 NETWORK INFORMATION:                                          │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ IP Address: 103.147.xxx.xxx                                 │ │  │
+│  │  │ ISP: Telkomsel                                              │ │  │
+│  │  │ Connection Type: Mobile Data (4G LTE)                       │ │  │
+│  │  │ Network Speed: ~15 Mbps                                     │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  📍 GPS LOCATION:                                                 │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ Latitude: -6.200000                                         │ │  │
+│  │  │ Longitude: 106.816666                                       │ │  │
+│  │  │ Accuracy: ±8 meters                                         │ │  │
+│  │  │ Altitude: 12m above sea level                               │ │  │
+│  │  │ Timestamp: 2026-02-18 08:15:23 WIB                          │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  🎯 ZONE VALIDATION:                                              │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ Zone Name: Kampus Utama - Gedung A                          │ │  │
+│  │  │ Zone Center: -6.200100, 106.816500                          │ │  │
+│  │  │ Allowed Radius: 50 meters                                   │ │  │
+│  │  │ Actual Distance: 23 meters ✅ DALAM ZONA                    │ │  │
+│  │  │ Status: ✅ VALID LOCATION                                    │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  [Button: 🗺️ View on Map]  [Button: 📊 Location History]        │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+DATA SOURCE MAPPING (Device & Location):
+----------------------------------------
+DEVICE INFO:
+- Query: SELECT device_info FROM kehadiran WHERE id = {kehadiran_id}
+- Field: kehadiran.device_info (JSON column)
+- Parse JSON untuk extract:
+  * device_model: device_info->device
+  * os: device_info->os
+  * browser: device_info->browser
+  * user_agent: device_info->user_agent
+  * screen_resolution: device_info->screen
+
+NETWORK INFO:
+- IP Address: kehadiran.ip_address
+- ISP: Lookup via IP geolocation API
+- Connection Type: device_info->connection_type
+
+GPS LOCATION:
+- Latitude: kehadiran.latitude
+- Longitude: kehadiran.longitude
+- Accuracy: kehadiran.accuracy
+- Timestamp: kehadiran.waktu_absen
+
+ZONE VALIDATION:
+- Query: SELECT * FROM zona_presensi WHERE id = {zona_id}
+- Zone Center: zona_presensi.latitude, zona_presensi.longitude
+- Radius: zona_presensi.radius
+- Calculate Distance: Haversine formula
+  Formula: 
+  a = sin²(Δlat/2) + cos(lat1) × cos(lat2) × sin²(Δlon/2)
+  c = 2 × atan2(√a, √(1−a))
+  distance = R × c (R = 6371 km)
+
+
+│  ┌─ C. FRAUD DETECTION INDICATORS ─────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  🔍 FRAUD ANALYSIS RESULT: ✅ LOW RISK                            │  │
+│  │  Overall Risk Score: 15/100 (Safe)                               │  │
+│  │                                                                   │  │
+│  │  DETECTION CHECKS:                                                │  │
+│  │                                                                   │  │
+│  │  1. ✅ MULTIPLE FACE DETECTION                                    │  │
+│  │     Status: PASSED                                                │  │
+│  │     Faces Detected: 1 (Expected: 1)                              │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  2. ✅ PHOTO QUALITY CHECK                                        │  │
+│  │     Status: PASSED                                                │  │
+│  │     Quality Score: 82/100                                         │  │
+│  │     Blur Level: Low (acceptable)                                  │  │
+│  │     Resolution: 1920x1080 (sufficient)                            │  │
+│  │     Lighting: Good                                                │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  3. ✅ DUPLICATE PHOTO CHECK                                      │  │
+│  │     Status: PASSED                                                │  │
+│  │     Hash: a3f5b8c9d2e1f4g7h6i5j4k3l2m1n0o9                       │  │
+│  │     Previous Uses: 0 times                                        │  │
+│  │     Last Used: Never                                              │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  4. ✅ LOCATION ANOMALY CHECK                                     │  │
+│  │     Status: PASSED                                                │  │
+│  │     GPS Accuracy: ±8m (Good)                                      │  │
+│  │     Distance from Zone: 23m (Within 50m radius)                  │  │
+│  │     GPS Spoofing: Not Detected                                    │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  5. ⚠️ DEVICE ANOMALY CHECK                                       │  │
+│  │     Status: WARNING                                               │  │
+│  │     Current Device: iPhone 13 Pro                                 │  │
+│  │     Previous Devices:                                             │  │
+│  │       • iPhone 13 Pro (15 times) ✓                               │  │
+│  │       • Samsung Galaxy S21 (2 times) ⚠️                          │  │
+│  │     Device Change: No (same as usual)                             │  │
+│  │     Risk: Low (15/100)                                            │  │
+│  │     Note: Mahasiswa pernah menggunakan device berbeda            │  │
+│  │                                                                   │  │
+│  │  6. ✅ TIME ANOMALY CHECK                                         │  │
+│  │     Status: PASSED                                                │  │
+│  │     Attendance Time: 08:15:23 WIB                                 │  │
+│  │     Session Time: 08:00 - 10:00 WIB                              │  │
+│  │     Typical Pattern: Usually attends at 08:10-08:20              │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  7. ✅ BEHAVIORAL PATTERN CHECK                                   │  │
+│  │     Status: PASSED                                                │  │
+│  │     Attendance Rate: 95% (19/20 sessions)                         │  │
+│  │     Late Rate: 10% (2/20 sessions)                               │  │
+│  │     Pattern: Consistent and reliable                              │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  8. ✅ VELOCITY CHECK                                             │  │
+│  │     Status: PASSED                                                │  │
+│  │     Last Attendance: 17/02/2026 14:30 at Gedung B                │  │
+│  │     Current Attendance: 18/02/2026 08:15 at Gedung A             │  │
+│  │     Time Difference: 17 hours 45 minutes                          │  │
+│  │     Distance: 2.3 km                                              │  │
+│  │     Physically Possible: ✅ Yes                                    │  │
+│  │     Risk: None                                                    │  │
+│  │                                                                   │  │
+│  │  FRAUD INDICATORS SUMMARY:                                        │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ Total Checks: 8                                             │ │  │
+│  │  │ Passed: 7 ✅                                                 │ │  │
+│  │  │ Warnings: 1 ⚠️                                               │ │  │
+│  │  │ Failed: 0 ❌                                                 │ │  │
+│  │  │                                                             │ │  │
+│  │  │ FINAL RISK ASSESSMENT:                                      │ │  │
+│  │  │ Risk Level: 🟢 LOW (15/100)                                 │ │  │
+│  │  │ Recommendation: ✅ SAFE TO APPROVE                           │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+│  ┌─ D. HISTORICAL COMPARISON ──────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  📊 HISTORICAL ATTENDANCE ANALYSIS                                │  │
+│  │                                                                   │  │
+│  │  PREVIOUS 5 ATTENDANCE PHOTOS:                                    │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ [Photo 1]  [Photo 2]  [Photo 3]  [Photo 4]  [Photo 5]      │ │  │
+│  │  │ 17/02/26   16/02/26   15/02/26   14/02/26   13/02/26       │ │  │
+│  │  │ 89% match  91% match  87% match  93% match  88% match       │ │  │
+│  │  │ ✅ Valid   ✅ Valid   ✅ Valid   ✅ Valid   ✅ Valid         │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  CONSISTENCY METRICS:                                             │  │
+│  │  ├─ Average Similarity: 89.6%                                     │  │
+│  │  ├─ Standard Deviation: 2.1% (Very Consistent)                   │  │
+│  │  ├─ Outliers: 0 detected                                          │  │
+│  │  └─ Assessment: ✅ HIGHLY CONSISTENT                              │  │
+│  │                                                                   │  │
+│  │  ATTENDANCE PATTERN:                                              │  │
+│  │  ┌─────────────────────────────────────────────────────────────┐ │  │
+│  │  │ Total Sessions: 20                                          │ │  │
+│  │  │ Attended: 19 (95%)                                          │ │  │
+│  │  │ Absent: 1 (5%)                                              │ │  │
+│  │  │ Late: 2 (10%)                                               │ │  │
+│  │  │ On Time: 17 (85%)                                           │ │  │
+│  │  │                                                             │ │  │
+│  │  │ Average Arrival Time: 08:12 WIB                             │ │  │
+│  │  │ Most Common Device: iPhone 13 Pro (88%)                     │ │  │
+│  │  │ Most Common Location: Gedung A (75%)                        │ │  │
+│  │  └─────────────────────────────────────────────────────────────┘ │  │
+│  │                                                                   │  │
+│  │  BEHAVIORAL INSIGHTS:                                             │  │
+│  │  ✓ Reliable student with excellent attendance                    │  │
+│  │  ✓ Consistent in using same device                               │  │
+│  │  ✓ Usually attends from campus location                          │  │
+│  │  ✓ Punctual with minimal late arrivals                           │  │
+│  │  ✓ No suspicious patterns detected                               │  │
+│  │                                                                   │  │
+│  │  [Button: 📈 View Full History]  [Button: 📊 Analytics]          │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+DATA SOURCE MAPPING (Fraud & Historical):
+------------------------------------------
+FRAUD DETECTION:
+- Photo Hash: MD5/SHA256 hash dari file selfie
+- Duplicate Check: 
+  Query: SELECT COUNT(*) FROM kehadiran 
+         WHERE selfie_hash = {current_hash} 
+         AND id != {current_id}
+
+- Device History:
+  Query: SELECT device_info->device as device, COUNT(*) as count
+         FROM kehadiran 
+         WHERE mahasiswa_id = {mahasiswa_id}
+         GROUP BY device
+         ORDER BY count DESC
+
+- Velocity Check:
+  Query: SELECT latitude, longitude, waktu_absen
+         FROM kehadiran
+         WHERE mahasiswa_id = {mahasiswa_id}
+         ORDER BY waktu_absen DESC
+         LIMIT 2
+
+HISTORICAL DATA:
+- Previous Photos:
+  Query: SELECT selfie_path, waktu_absen, status
+         FROM kehadiran
+         WHERE mahasiswa_id = {mahasiswa_id}
+         AND status = 'verified'
+         ORDER BY waktu_absen DESC
+         LIMIT 5
+
+- Attendance Pattern:
+  Query: SELECT 
+           COUNT(*) as total,
+           SUM(CASE WHEN status = 'verified' THEN 1 ELSE 0 END) as attended,
+           SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, sesi_start, waktu_absen) > 15 
+               THEN 1 ELSE 0 END) as late
+         FROM kehadiran
+         WHERE mahasiswa_id = {mahasiswa_id}
+
+
+2.4 VERIFICATION TIMELINE (Hasil Akhir - Reporting)
+----------------------------------------------------
+POSISI: Di bawah AI Analysis Report
+FUNGSI: Menampilkan timeline lengkap proses verifikasi sebagai audit trail
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  VERIFICATION TIMELINE & AUDIT TRAIL                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  ⏱️ [08:15:23] PRESENSI DITERIMA                                 │   │
+│  │  ├─ Mahasiswa: Ahmad Fauzi (NIM: 2021010001)                    │   │
+│  │  ├─ Mata Kuliah: Pemrograman Web (IF-301)                       │   │
+│  │  ├─ Sesi: Pertemuan 8 - 18 Februari 2026                        │   │
+│  │  ├─ Waktu Submit: 08:15:23 WIB                                  │   │
+│  │  ├─ Device: iPhone 13 Pro (iOS 17.2.1)                          │   │
+│  │  ├─ Location: -6.200000, 106.816666 (Gedung A)                  │   │
+│  │  └─ Status: ⏳ Pending Verification                              │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  🤖 [08:15:25] AI PROCESSING STARTED                             │   │
+│  │  ├─ Trigger: Manual scan by Dosen (Dr. Budi Santoso)           │   │
+│  │  ├─ AI Engine: FaceNet v2.1 + DeepFace                          │   │
+│  │  ├─ Processing Mode: Comprehensive Analysis                      │   │
+│  │  ├─ Queue Position: 1 of 3                                      │   │
+│  │  └─ Status: 🔄 Processing... (Estimated: 12 seconds)            │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  📸 [08:15:28] FACE DETECTION COMPLETED                          │   │
+│  │  ├─ Duration: 3.2 seconds                                       │   │
+│  │  ├─ Faces Detected: 1                                           │   │
+│  │  ├─ Face Confidence: 99.8%                                      │   │
+│  │  ├─ Landmarks Detected: 68/68 points                            │   │
+│  │  ├─ Face Quality: 82/100                                        │   │
+│  │  └─ Status: ✅ Success                                           │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  🔍 [08:15:31] FACE COMPARISON COMPLETED                         │   │
+│  │  ├─ Duration: 2.8 seconds                                       │   │
+│  │  ├─ Reference Photo: mahasiswa/2021010001.jpg                   │   │
+│  │  ├─ Selfie Photo: attendance/20260218_081523_2021010001.jpg     │   │
+│  │  ├─ Similarity Score: 87.5%                                     │   │
+│  │  ├─ Euclidean Distance: 0.42                                    │   │
+│  │  ├─ Cosine Similarity: 0.875                                    │   │
+│  │  ├─ Match Status: ✅ VERIFIED                                    │   │
+│  │  └─ Confidence: 95.2%                                            │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  🛡️ [08:15:34] LIVENESS DETECTION COMPLETED                      │   │
+│  │  ├─ Duration: 2.5 seconds                                       │   │
+│  │  ├─ Liveness Score: 91/100                                      │   │
+│  │  ├─ Texture Analysis: Natural (94/100)                          │   │
+│  │  ├─ Depth Perception: 3D Face Detected (88/100)                 │   │
+│  │  ├─ Screen Detection: No Screen (95/100)                        │   │
+│  │  ├─ Print Attack: Not Detected (92/100)                         │   │
+│  │  ├─ Result: ✅ REAL PERSON                                       │   │
+│  │  └─ Risk Level: LOW                                              │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  📱 [08:15:36] DEVICE VALIDATION COMPLETED                       │   │
+│  │  ├─ Duration: 1.8 seconds                                       │   │
+│  │  ├─ Device: iPhone 13 Pro                                       │   │
+│  │  ├─ OS: iOS 17.2.1                                              │   │
+│  │  ├─ Browser: Safari 17.2                                        │   │
+│  │  ├─ IP Address: 103.147.xxx.xxx (Telkomsel)                     │   │
+│  │  ├─ Device History: Used 15 times before ✓                      │   │
+│  │  ├─ Trusted Device: ✅ Yes                                       │   │
+│  │  └─ Risk Level: LOW                                              │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  📍 [08:15:37] LOCATION VALIDATION COMPLETED                     │   │
+│  │  ├─ Duration: 1.2 seconds                                       │   │
+│  │  ├─ GPS: -6.200000, 106.816666                                  │   │
+│  │  ├─ Accuracy: ±8 meters                                         │   │
+│  │  ├─ Zone: Kampus Utama - Gedung A                               │   │
+│  │  ├─ Zone Center: -6.200100, 106.816500                          │   │
+│  │  ├─ Distance: 23 meters                                         │   │
+│  │  ├─ Allowed Radius: 50 meters                                   │   │
+│  │  ├─ Status: ✅ WITHIN ZONE                                       │   │
+│  │  └─ Risk Level: NONE                                             │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  🔍 [08:15:39] FRAUD DETECTION COMPLETED                         │   │
+│  │  ├─ Duration: 2.3 seconds                                       │   │
+│  │  ├─ Total Checks: 8                                             │   │
+│  │  ├─ Passed: 7 ✅                                                 │   │
+│  │  ├─ Warnings: 1 ⚠️ (Device used before)                         │   │
+│  │  ├─ Failed: 0 ❌                                                 │   │
+│  │  ├─ Risk Score: 15/100                                          │   │
+│  │  ├─ Risk Level: 🟢 LOW                                          │   │
+│  │  └─ Fraud Indicators: None critical                              │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  📊 [08:15:41] HISTORICAL ANALYSIS COMPLETED                     │   │
+│  │  ├─ Duration: 1.9 seconds                                       │   │
+│  │  ├─ Previous Photos Analyzed: 5                                 │   │
+│  │  ├─ Average Similarity: 89.6%                                   │   │
+│  │  ├─ Consistency Score: 97.9%                                    │   │
+│  │  ├─ Attendance Rate: 95% (19/20)                                │   │
+│  │  ├─ Behavioral Pattern: ✅ CONSISTENT                            │   │
+│  │  └─ Assessment: Reliable student                                 │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  ✅ [08:15:42] FINAL VERIFICATION RESULT                         │   │
+│  │  ├─ Total Processing Time: 17 seconds                           │   │
+│  │  ├─ Overall Confidence: 93.8%                                   │   │
+│  │  ├─ Face Match: ✅ VERIFIED (87.5%)                              │   │
+│  │  ├─ Liveness: ✅ REAL (91%)                                      │   │
+│  │  ├─ Location: ✅ VALID (23m from zone)                           │   │
+│  │  ├─ Device: ✅ TRUSTED                                           │   │
+│  │  ├─ Fraud Risk: 🟢 LOW (15/100)                                 │   │
+│  │  ├─ Historical: ✅ CONSISTENT (89.6%)                            │   │
+│  │  │                                                               │   │
+│  │  ├─ FINAL DECISION: ✅ APPROVED                                  │   │
+│  │  ├─ Recommendation: Safe to approve automatically               │   │
+│  │  ├─ Action Required: None (Auto-approved by AI)                 │   │
+│  │  │                                                               │   │
+│  │  └─ Verified by: AI System (Auto)                               │   │
+│  │     Reviewed by: Dr. Budi Santoso (Dosen)                       │   │
+│  │     Timestamp: 18/02/2026 08:15:42 WIB                          │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │  💾 [08:15:43] DATA SAVED TO DATABASE                            │   │
+│  │  ├─ Verification ID: VRF-20260218-001                           │   │
+│  │  ├─ Attendance ID: ATT-20260218-081523-001                      │   │
+│  │  ├─ Status Updated: pending → verified                          │   │
+│  │  ├─ AI Analysis Stored: ✅ Yes                                   │   │
+│  │  ├─ Audit Log Created: ✅ Yes                                    │   │
+│  │  └─ Notification Sent: ✅ To Mahasiswa                           │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                          │
+│  [Button: 📄 Download Report]  [Button: 📧 Send to Email]               │
+│  [Button: 🔄 Re-verify]  [Button: ❌ Reject Verification]               │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+TIMELINE DATA SOURCE:
+---------------------
+Setiap step dalam timeline disimpan di tabel verification_logs:
+
+CREATE TABLE verification_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    verification_id VARCHAR(50),
+    kehadiran_id BIGINT,
+    step_name VARCHAR(100),
+    step_status ENUM('processing', 'completed', 'failed'),
+    duration_seconds DECIMAL(5,2),
+    result_data JSON,
+    timestamp TIMESTAMP,
+    created_at TIMESTAMP
+);
+
+Insert log untuk setiap step:
+INSERT INTO verification_logs (
+    verification_id, kehadiran_id, step_name, 
+    step_status, duration_seconds, result_data, timestamp
+) VALUES (
+    'VRF-20260218-001', 12345, 'Face Detection',
+    'completed', 3.2, 
+    '{"faces": 1, "confidence": 99.8, "landmarks": 68}',
+    '2026-02-18 08:15:28'
+);
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 3: PROSES AI SCANNING - DETAIL TEKNIS
+═══════════════════════════════════════════════════════════════════════════════
+
+3.1 TRIGGER SCAN (User Action)
+-------------------------------
+STEP 1: User klik tombol "Scan dengan AI"
+- Button state berubah dari "Idle" ke "Processing"
+- Disable button untuk prevent double-click
+- Tampilkan loading spinner + progress bar
+- Kirim request ke backend
+
+Frontend Code (React/TypeScript):
+```typescript
+const handleScanWithAI = async (attendanceId: number) => {
+    setIsScanning(true);
+    setProgress(0);
+    
+    try {
+        // Start WebSocket connection untuk real-time updates
+        const ws = new WebSocket(`ws://localhost:6001/verification/${attendanceId}`);
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            setProgress(data.progress);
+            setCurrentStep(data.step);
+            setStepDetails(data.details);
+        };
+        
+        // Trigger AI scan
+        const response = await axios.post(`/api/dosen/verification/scan/${attendanceId}`);
+        
+        if (response.data.success) {
+            toast.success('AI Scan completed successfully!');
+            setVerificationResult(response.data.result);
+        }
+    } catch (error) {
+        toast.error('AI Scan failed. Please try again.');
+    } finally {
+        setIsScanning(false);
+        ws.close();
+    }
+};
+```
+
+Backend Endpoint:
+POST /api/dosen/verification/scan/{attendance_id}
+
+3.2 DATA COLLECTION (Backend Process)
+--------------------------------------
+STEP 2: Backend mengumpulkan semua data yang diperlukan
+
+Controller: app/Http/Controllers/Dosen/VerificationController.php
+
+```php
+public function scan(Request $request, $attendanceId)
+{
+    // 1. Get attendance record
+    $attendance = Kehadiran::with(['mahasiswa', 'sesi', 'zona'])
+        ->findOrFail($attendanceId);
+    
+    // 2. Validate access (dosen hanya bisa verify mahasiswa di kelasnya)
+    if (!$this->canVerify($attendance)) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+    
+    // 3. Get reference photo from mahasiswa
+    $referencePhoto = Storage::path($attendance->mahasiswa->foto_profil);
+    
+    // 4. Get selfie photo from attendance
+    $selfiePhoto = Storage::path($attendance->selfie_path);
+    
+    // 5. Get historical data (last 5 verified attendances)
+    $historicalData = Kehadiran::where('mahasiswa_id', $attendance->mahasiswa_id)
+        ->where('status', 'verified')
+        ->orderBy('waktu_absen', 'desc')
+        ->limit(5)
+        ->get();
+    
+    // 6. Get device history
+    $deviceHistory = Kehadiran::where('mahasiswa_id', $attendance->mahasiswa_id)
+        ->select(DB::raw('device_info->>"$.device" as device'), DB::raw('COUNT(*) as count'))
+        ->groupBy('device')
+        ->orderBy('count', 'desc')
+        ->get();
+    
+    // 7. Get zone information
+    $zone = $attendance->zona;
+    
+    // 8. Dispatch AI verification job
+    $verificationId = 'VRF-' . date('Ymd') . '-' . str_pad($attendanceId, 6, '0', STR_PAD_LEFT);
+    
+    VerifyAttendanceJob::dispatch([
+        'verification_id' => $verificationId,
+        'attendance_id' => $attendanceId,
+        'reference_photo' => $referencePhoto,
+        'selfie_photo' => $selfiePhoto,
+        'historical_data' => $historicalData,
+        'device_history' => $deviceHistory,
+        'zone' => $zone,
+        'user_id' => auth()->id(),
+    ]);
+    
+    return response()->json([
+        'success' => true,
+        'verification_id' => $verificationId,
+        'message' => 'AI verification started'
+    ]);
+}
+```
+
+3.3 AI PROCESSING (Queue Job)
+------------------------------
+STEP 3: AI Service memproses data secara asynchronous
+
+Job: app/Jobs/VerifyAttendanceJob.php
+
+```php
+class VerifyAttendanceJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    
+    protected $data;
+    
+    public function handle()
+    {
+        $aiService = new SelfieVerificationAIService();
+        
+        // Log start
+        $this->logStep('AI Processing Started', 'processing', 0);
+        
+        // Step 1: Face Detection (3 seconds)
+        $this->broadcastProgress(10, 'Detecting faces...');
+        $faceDetection = $aiService->detectFaces($this->data['selfie_photo']);
+        $this->logStep('Face Detection Completed', 'completed', 3.2, $faceDetection);
+        
+        // Step 2: Face Comparison (3 seconds)
+        $this->broadcastProgress(30, 'Comparing faces...');
+        $faceComparison = $aiService->compareFaces(
+            $this->data['reference_photo'],
+            $this->data['selfie_photo']
+        );
+        $this->logStep('Face Comparison Completed', 'completed', 2.8, $faceComparison);
+        
+        // Step 3: Liveness Detection (2 seconds)
+        $this->broadcastProgress(50, 'Checking liveness...');
+        $liveness = $aiService->detectLiveness($this->data['selfie_photo']);
+        $this->logStep('Liveness Detection Completed', 'completed', 2.5, $liveness);
+        
+        // Step 4: Device Validation (2 seconds)
+        $this->broadcastProgress(65, 'Validating device...');
+        $deviceValidation = $aiService->validateDevice(
+            $this->data['attendance_id'],
+            $this->data['device_history']
+        );
+        $this->logStep('Device Validation Completed', 'completed', 1.8, $deviceValidation);
+        
+        // Step 5: Location Validation (1 second)
+        $this->broadcastProgress(75, 'Validating location...');
+        $locationValidation = $aiService->validateLocation(
+            $this->data['attendance_id'],
+            $this->data['zone']
+        );
+        $this->logStep('Location Validation Completed', 'completed', 1.2, $locationValidation);
+        
+        // Step 6: Fraud Detection (2 seconds)
+        $this->broadcastProgress(85, 'Detecting fraud patterns...');
+        $fraudDetection = $aiService->detectFraud([
+            'face_comparison' => $faceComparison,
+            'liveness' => $liveness,
+            'device' => $deviceValidation,
+            'location' => $locationValidation,
+        ]);
+        $this->logStep('Fraud Detection Completed', 'completed', 2.3, $fraudDetection);
+        
+        // Step 7: Historical Analysis (2 seconds)
+        $this->broadcastProgress(95, 'Analyzing historical data...');
+        $historicalAnalysis = $aiService->analyzeHistorical(
+            $this->data['historical_data'],
+            $faceComparison
+        );
+        $this->logStep('Historical Analysis Completed', 'completed', 1.9, $historicalAnalysis);
+        
+        // Step 8: Final Decision (1 second)
+        $this->broadcastProgress(100, 'Generating final result...');
+        $finalDecision = $aiService->makeFinalDecision([
+            'face_comparison' => $faceComparison,
+            'liveness' => $liveness,
+            'device' => $deviceValidation,
+            'location' => $locationValidation,
+            'fraud' => $fraudDetection,
+            'historical' => $historicalAnalysis,
+        ]);
+        
+        // Update attendance status
+        $attendance = Kehadiran::find($this->data['attendance_id']);
+        $attendance->status = $finalDecision['status']; // verified/rejected/needs_review
+        $attendance->ai_confidence = $finalDecision['confidence'];
+        $attendance->ai_analysis = json_encode($finalDecision);
+        $attendance->verified_by = $this->data['user_id'];
+        $attendance->verified_at = now();
+        $attendance->save();
+        
+        $this->logStep('Final Verification Result', 'completed', 17, $finalDecision);
+        $this->logStep('Data Saved to Database', 'completed', 1);
+        
+        // Broadcast completion
+        broadcast(new VerificationCompleted($this->data['verification_id'], $finalDecision));
+    }
+    
+    protected function broadcastProgress($percentage, $message)
+    {
+        broadcast(new VerificationProgress(
+            $this->data['verification_id'],
+            $percentage,
+            $message
+        ));
+    }
+    
+    protected function logStep($stepName, $status, $duration = 0, $result = null)
+    {
+        VerificationLog::create([
+            'verification_id' => $this->data['verification_id'],
+            'kehadiran_id' => $this->data['attendance_id'],
+            'step_name' => $stepName,
+            'step_status' => $status,
+            'duration_seconds' => $duration,
+            'result_data' => $result ? json_encode($result) : null,
+            'timestamp' => now(),
+        ]);
+    }
+}
+```
+
+
+3.4 AI SERVICE IMPLEMENTATION
+------------------------------
+Service: app/Services/SelfieVerificationAIService.php
+
+```php
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+
+class SelfieVerificationAIService
+{
+    protected $faceApiUrl;
+    protected $faceApiKey;
+    
+    public function __construct()
+    {
+        $this->faceApiUrl = config('services.face_api.url');
+        $this->faceApiKey = config('services.face_api.key');
+    }
+    
+    /**
+     * Detect faces in image
+     */
+    public function detectFaces($imagePath)
+    {
+        $imageData = base64_encode(file_get_contents($imagePath));
+        
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->faceApiKey,
+        ])->post($this->faceApiUrl . '/detect', [
+            'image' => $imageData,
+            'return_landmarks' => true,
+            'return_attributes' => true,
+        ]);
+        
+        $result = $response->json();
+        
+        return [
+            'faces_detected' => count($result['faces']),
+            'confidence' => $result['faces'][0]['confidence'] ?? 0,
+            'landmarks' => $result['faces'][0]['landmarks'] ?? [],
+            'quality_score' => $this->calculateQualityScore($result['faces'][0]),
+        ];
+    }
+    
+    /**
+     * Compare two faces
+     */
+    public function compareFaces($referencePhoto, $selfiePhoto)
+    {
+        $refData = base64_encode(file_get_contents($referencePhoto));
+        $selfieData = base64_encode(file_get_contents($selfiePhoto));
+        
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->faceApiKey,
+        ])->post($this->faceApiUrl . '/compare', [
+            'image1' => $refData,
+            'image2' => $selfieData,
+        ]);
+        
+        $result = $response->json();
+        
+        $similarity = $result['similarity'] * 100; // Convert to percentage
+        
+        return [
+            'similarity_score' => round($similarity, 2),
+            'euclidean_distance' => $result['distance'],
+            'cosine_similarity' => $result['cosine'],
+            'match_status' => $this->getMatchStatus($similarity),
+            'confidence' => $result['confidence'],
+        ];
+    }
+    
+    /**
+     * Detect if photo is from real person (liveness)
+     */
+    public function detectLiveness($imagePath)
+    {
+        $imageData = base64_encode(file_get_contents($imagePath));
+        
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->faceApiKey,
+        ])->post($this->faceApiUrl . '/liveness', [
+            'image' => $imageData,
+        ]);
+        
+        $result = $response->json();
+        
+        return [
+            'liveness_score' => $result['liveness_score'],
+            'is_real' => $result['liveness_score'] >= 60,
+            'texture_analysis' => $result['texture_score'],
+            'depth_perception' => $result['depth_score'],
+            'screen_detection' => $result['screen_score'],
+            'print_attack' => $result['print_score'],
+            'risk_level' => $this->getRiskLevel($result['liveness_score']),
+        ];
+    }
+    
+    /**
+     * Validate device information
+     */
+    public function validateDevice($attendanceId, $deviceHistory)
+    {
+        $attendance = \App\Models\Kehadiran::find($attendanceId);
+        $currentDevice = json_decode($attendance->device_info, true);
+        
+        // Check if device has been used before
+        $deviceUsageCount = $deviceHistory->where('device', $currentDevice['device'])->first();
+        $isTrusted = $deviceUsageCount && $deviceUsageCount->count >= 3;
+        
+        // Check for device anomaly
+        $isAnomaly = false;
+        if ($deviceHistory->count() > 0) {
+            $mostUsedDevice = $deviceHistory->first();
+            $isAnomaly = $currentDevice['device'] !== $mostUsedDevice->device;
+        }
+        
+        return [
+            'device_model' => $currentDevice['device'],
+            'os' => $currentDevice['os'],
+            'browser' => $currentDevice['browser'],
+            'ip_address' => $attendance->ip_address,
+            'is_trusted' => $isTrusted,
+            'usage_count' => $deviceUsageCount->count ?? 0,
+            'is_anomaly' => $isAnomaly,
+            'risk_level' => $isAnomaly ? 'MEDIUM' : 'LOW',
+        ];
+    }
+    
+    /**
+     * Validate GPS location
+     */
+    public function validateLocation($attendanceId, $zone)
+    {
+        $attendance = \App\Models\Kehadiran::find($attendanceId);
+        
+        // Calculate distance using Haversine formula
+        $distance = $this->calculateDistance(
+            $attendance->latitude,
+            $attendance->longitude,
+            $zone->latitude,
+            $zone->longitude
+        );
+        
+        $isValid = $distance <= $zone->radius;
+        
+        return [
+            'latitude' => $attendance->latitude,
+            'longitude' => $attendance->longitude,
+            'accuracy' => $attendance->accuracy,
+            'zone_name' => $zone->nama,
+            'zone_center' => [
+                'lat' => $zone->latitude,
+                'lng' => $zone->longitude,
+            ],
+            'distance' => round($distance, 2),
+            'allowed_radius' => $zone->radius,
+            'is_valid' => $isValid,
+            'risk_level' => $isValid ? 'NONE' : 'HIGH',
+        ];
+    }
+    
+    /**
+     * Detect fraud patterns
+     */
+    public function detectFraud($data)
+    {
+        $indicators = [];
+        $riskScore = 0;
+        
+        // Check 1: Multiple faces
+        if ($data['face_comparison']['faces_detected'] > 1) {
+            $indicators[] = 'Multiple faces detected';
+            $riskScore += 40;
+        }
+        
+        // Check 2: Low similarity
+        if ($data['face_comparison']['similarity_score'] < 70) {
+            $indicators[] = 'Low face similarity';
+            $riskScore += 40;
+        }
+        
+        // Check 3: Liveness failed
+        if (!$data['liveness']['is_real']) {
+            $indicators[] = 'Liveness detection failed';
+            $riskScore += 40;
+        }
+        
+        // Check 4: Location invalid
+        if (!$data['location']['is_valid']) {
+            $indicators[] = 'Location outside zone';
+            $riskScore += 30;
+        }
+        
+        // Check 5: Device anomaly
+        if ($data['device']['is_anomaly']) {
+            $indicators[] = 'Unusual device detected';
+            $riskScore += 15;
+        }
+        
+        // Check 6: Duplicate photo
+        $isDuplicate = $this->checkDuplicatePhoto($data['selfie_photo']);
+        if ($isDuplicate) {
+            $indicators[] = 'Photo used before';
+            $riskScore += 35;
+        }
+        
+        return [
+            'risk_score' => min($riskScore, 100),
+            'risk_level' => $this->getRiskLevelFromScore($riskScore),
+            'indicators' => $indicators,
+            'total_checks' => 8,
+            'passed' => 8 - count($indicators),
+            'failed' => count($indicators),
+        ];
+    }
+    
+    /**
+     * Analyze historical attendance patterns
+     */
+    public function analyzeHistorical($historicalData, $currentComparison)
+    {
+        $similarities = [];
+        
+        foreach ($historicalData as $record) {
+            $similarity = $this->compareFaces(
+                $record->selfie_path,
+                $currentComparison['selfie_photo']
+            );
+            $similarities[] = $similarity['similarity_score'];
+        }
+        
+        $avgSimilarity = count($similarities) > 0 ? array_sum($similarities) / count($similarities) : 0;
+        $stdDev = $this->calculateStdDev($similarities);
+        
+        return [
+            'previous_photos' => count($historicalData),
+            'similarities' => $similarities,
+            'average_similarity' => round($avgSimilarity, 2),
+            'std_deviation' => round($stdDev, 2),
+            'consistency_score' => $this->calculateConsistencyScore($stdDev),
+            'is_consistent' => $stdDev < 5, // Low deviation = consistent
+        ];
+    }
+    
+    /**
+     * Make final verification decision
+     */
+    public function makeFinalDecision($data)
+    {
+        $scores = [
+            'face_match' => $data['face_comparison']['similarity_score'],
+            'liveness' => $data['liveness']['liveness_score'],
+            'location' => $data['location']['is_valid'] ? 100 : 0,
+            'device' => $data['device']['is_trusted'] ? 100 : 50,
+            'fraud' => 100 - $data['fraud']['risk_score'],
+            'historical' => $data['historical']['consistency_score'],
+        ];
+        
+        // Weighted average
+        $weights = [
+            'face_match' => 0.35,
+            'liveness' => 0.25,
+            'location' => 0.15,
+            'device' => 0.10,
+            'fraud' => 0.10,
+            'historical' => 0.05,
+        ];
+        
+        $overallConfidence = 0;
+        foreach ($scores as $key => $score) {
+            $overallConfidence += $score * $weights[$key];
+        }
+        
+        // Decision logic
+        $status = 'needs_review';
+        $recommendation = 'Manual review required';
+        
+        if ($data['fraud']['risk_score'] >= 60) {
+            $status = 'rejected';
+            $recommendation = 'Auto-reject due to high fraud risk';
+        } elseif ($overallConfidence >= 85 && $data['fraud']['risk_score'] < 30) {
+            $status = 'verified';
+            $recommendation = 'Safe to approve automatically';
+        }
+        
+        return [
+            'status' => $status,
+            'confidence' => round($overallConfidence, 2),
+            'recommendation' => $recommendation,
+            'scores' => $scores,
+            'weights' => $weights,
+            'details' => $data,
+        ];
+    }
+    
+    // Helper methods
+    protected function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // meters
+        
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        
+        $a = sin($dLat/2) * sin($dLat/2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon/2) * sin($dLon/2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        
+        return $earthRadius * $c;
+    }
+    
+    protected function getMatchStatus($similarity)
+    {
+        if ($similarity >= 85) return 'VERIFIED';
+        if ($similarity >= 70) return 'NEEDS_REVIEW';
+        return 'REJECTED';
+    }
+    
+    protected function getRiskLevel($score)
+    {
+        if ($score >= 80) return 'LOW';
+        if ($score >= 60) return 'MEDIUM';
+        return 'HIGH';
+    }
+    
+    protected function getRiskLevelFromScore($score)
+    {
+        if ($score >= 60) return 'HIGH';
+        if ($score >= 30) return 'MEDIUM';
+        return 'LOW';
+    }
+    
+    protected function calculateStdDev($values)
+    {
+        $count = count($values);
+        if ($count === 0) return 0;
+        
+        $mean = array_sum($values) / $count;
+        $variance = array_sum(array_map(function($x) use ($mean) {
+            return pow($x - $mean, 2);
+        }, $values)) / $count;
+        
+        return sqrt($variance);
+    }
+    
+    protected function calculateConsistencyScore($stdDev)
+    {
+        // Lower std dev = higher consistency
+        return max(0, 100 - ($stdDev * 10));
+    }
+}
+```
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 4: DATABASE SCHEMA & QUERIES
+═══════════════════════════════════════════════════════════════════════════════
+
+4.1 TABEL YANG DIGUNAKAN
+-------------------------
+
+1. TABEL: mahasiswa
+   Menyimpan data mahasiswa termasuk foto profil
+
+CREATE TABLE mahasiswa (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nim VARCHAR(20) UNIQUE NOT NULL,
+    nama VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    foto_profil VARCHAR(255), -- Path ke foto referensi
+    tanggal_lahir DATE,
+    jenis_kelamin ENUM('L', 'P'),
+    alamat TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+2. TABEL: kehadiran
+   Menyimpan data presensi mahasiswa termasuk selfie
+
+CREATE TABLE kehadiran (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    mahasiswa_id BIGINT NOT NULL,
+    sesi_id BIGINT NOT NULL,
+    zona_id BIGINT,
+    selfie_path VARCHAR(255), -- Path ke foto selfie
+    selfie_hash VARCHAR(64), -- MD5/SHA256 hash untuk detect duplicate
+    status ENUM('pending', 'verified', 'rejected', 'needs_review') DEFAULT 'pending',
+    waktu_absen TIMESTAMP,
+    
+    -- Location data
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    accuracy DECIMAL(8, 2), -- GPS accuracy in meters
+    
+    -- Device data (JSON)
+    device_info JSON, -- {device, os, browser, user_agent, screen, connection_type}
+    ip_address VARCHAR(45),
+    
+    -- AI Analysis results
+    ai_confidence DECIMAL(5, 2), -- Overall confidence score
+    ai_analysis JSON, -- Full AI analysis result
+    face_match_score DECIMAL(5, 2),
+    liveness_score DECIMAL(5, 2),
+    fraud_risk_score DECIMAL(5, 2),
+    
+    -- Verification info
+    verified_by BIGINT, -- User ID (dosen/admin)
+    verified_at TIMESTAMP,
+    rejection_reason TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id),
+    FOREIGN KEY (sesi_id) REFERENCES sesi_absen(id),
+    FOREIGN KEY (zona_id) REFERENCES zona_presensi(id),
+    FOREIGN KEY (verified_by) REFERENCES users(id),
+    
+    INDEX idx_mahasiswa (mahasiswa_id),
+    INDEX idx_status (status),
+    INDEX idx_waktu (waktu_absen),
+    INDEX idx_hash (selfie_hash)
+);
+
+3. TABEL: zona_presensi
+   Menyimpan zona geografis yang diizinkan untuk presensi
+
+CREATE TABLE zona_presensi (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nama VARCHAR(255) NOT NULL,
+    deskripsi TEXT,
+    latitude DECIMAL(10, 8) NOT NULL,
+    longitude DECIMAL(11, 8) NOT NULL,
+    radius INT NOT NULL, -- Radius in meters
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+4. TABEL: verification_logs
+   Menyimpan log detail setiap step verifikasi AI
+
+CREATE TABLE verification_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    verification_id VARCHAR(50) NOT NULL,
+    kehadiran_id BIGINT NOT NULL,
+    step_name VARCHAR(100) NOT NULL,
+    step_status ENUM('processing', 'completed', 'failed') NOT NULL,
+    duration_seconds DECIMAL(5, 2),
+    result_data JSON,
+    error_message TEXT,
+    timestamp TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (kehadiran_id) REFERENCES kehadiran(id),
+    
+    INDEX idx_verification (verification_id),
+    INDEX idx_kehadiran (kehadiran_id),
+    INDEX idx_timestamp (timestamp)
+);
+
+5. TABEL: audit_logs
+   Menyimpan audit trail untuk semua aktivitas verifikasi
+
+CREATE TABLE audit_logs (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    action VARCHAR(100) NOT NULL, -- 'verify', 'reject', 'scan', 'approve'
+    entity_type VARCHAR(50) NOT NULL, -- 'attendance', 'verification'
+    entity_id BIGINT NOT NULL,
+    old_values JSON,
+    new_values JSON,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    
+    INDEX idx_user (user_id),
+    INDEX idx_entity (entity_type, entity_id),
+    INDEX idx_created (created_at)
+);
+
+4.2 QUERY EXAMPLES
+------------------
+
+A. GET ATTENDANCE WITH ALL RELATED DATA
+```sql
+SELECT 
+    k.*,
+    m.nim, m.nama, m.email, m.foto_profil, m.tanggal_lahir, m.jenis_kelamin,
+    z.nama as zona_nama, z.latitude as zona_lat, z.longitude as zona_lng, z.radius as zona_radius,
+    s.nama as sesi_nama, s.waktu_mulai, s.waktu_selesai,
+    u.name as verified_by_name
+FROM kehadiran k
+LEFT JOIN mahasiswa m ON k.mahasiswa_id = m.id
+LEFT JOIN zona_presensi z ON k.zona_id = z.id
+LEFT JOIN sesi_absen s ON k.sesi_id = s.id
+LEFT JOIN users u ON k.verified_by = u.id
+WHERE k.id = ?;
+```
+
+B. GET HISTORICAL ATTENDANCE FOR COMPARISON
+```sql
+SELECT 
+    id, selfie_path, waktu_absen, status, face_match_score
+FROM kehadiran
+WHERE mahasiswa_id = ?
+    AND status = 'verified'
+    AND id != ? -- Exclude current attendance
+ORDER BY waktu_absen DESC
+LIMIT 5;
+```
+
+C. GET DEVICE USAGE HISTORY
+```sql
+SELECT 
+    JSON_UNQUOTE(JSON_EXTRACT(device_info, '$.device')) as device,
+    JSON_UNQUOTE(JSON_EXTRACT(device_info, '$.os')) as os,
+    COUNT(*) as usage_count,
+    MAX(waktu_absen) as last_used
+FROM kehadiran
+WHERE mahasiswa_id = ?
+GROUP BY device, os
+ORDER BY usage_count DESC;
+```
+
+D. CHECK DUPLICATE PHOTO
+```sql
+SELECT 
+    id, mahasiswa_id, waktu_absen, status
+FROM kehadiran
+WHERE selfie_hash = ?
+    AND id != ?
+LIMIT 1;
+```
+
+E. GET VERIFICATION TIMELINE
+```sql
+SELECT 
+    step_name,
+    step_status,
+    duration_seconds,
+    result_data,
+    timestamp
+FROM verification_logs
+WHERE verification_id = ?
+ORDER BY timestamp ASC;
+```
+
+F. GET ATTENDANCE STATISTICS FOR MAHASISWA
+```sql
+SELECT 
+    COUNT(*) as total_sessions,
+    SUM(CASE WHEN status = 'verified' THEN 1 ELSE 0 END) as attended,
+    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
+    SUM(CASE WHEN TIMESTAMPDIFF(MINUTE, s.waktu_mulai, k.waktu_absen) > 15 
+        THEN 1 ELSE 0 END) as late_count,
+    AVG(k.face_match_score) as avg_face_match,
+    AVG(k.ai_confidence) as avg_confidence
+FROM kehadiran k
+LEFT JOIN sesi_absen s ON k.sesi_id = s.id
+WHERE k.mahasiswa_id = ?;
+```
+
+G. GET PENDING VERIFICATIONS FOR DOSEN
+```sql
+SELECT 
+    k.*,
+    m.nim, m.nama, m.foto_profil,
+    s.nama as sesi_nama,
+    mk.nama as mata_kuliah
+FROM kehadiran k
+INNER JOIN mahasiswa m ON k.mahasiswa_id = m.id
+INNER JOIN sesi_absen s ON k.sesi_id = s.id
+INNER JOIN mata_kuliah mk ON s.mata_kuliah_id = mk.id
+WHERE k.status = 'pending'
+    AND mk.dosen_id = ? -- Current dosen
+ORDER BY k.waktu_absen DESC;
+```
+
+H. CALCULATE DISTANCE BETWEEN TWO POINTS (Haversine)
+```sql
+SELECT 
+    k.id,
+    k.latitude,
+    k.longitude,
+    z.latitude as zone_lat,
+    z.longitude as zone_lng,
+    (
+        6371000 * acos(
+            cos(radians(z.latitude)) * 
+            cos(radians(k.latitude)) * 
+            cos(radians(k.longitude) - radians(z.longitude)) + 
+            sin(radians(z.latitude)) * 
+            sin(radians(k.latitude))
+        )
+    ) as distance_meters
+FROM kehadiran k
+INNER JOIN zona_presensi z ON k.zona_id = z.id
+WHERE k.id = ?;
+```
+
+I. INSERT VERIFICATION LOG
+```sql
+INSERT INTO verification_logs (
+    verification_id,
+    kehadiran_id,
+    step_name,
+    step_status,
+    duration_seconds,
+    result_data,
+    timestamp
+) VALUES (?, ?, ?, ?, ?, ?, NOW());
+```
+
+J. UPDATE ATTENDANCE STATUS AFTER VERIFICATION
+```sql
+UPDATE kehadiran
+SET 
+    status = ?,
+    ai_confidence = ?,
+    ai_analysis = ?,
+    face_match_score = ?,
+    liveness_score = ?,
+    fraud_risk_score = ?,
+    verified_by = ?,
+    verified_at = NOW(),
+    updated_at = NOW()
+WHERE id = ?;
+```
+
+K. INSERT AUDIT LOG
+```sql
+INSERT INTO audit_logs (
+    user_id,
+    action,
+    entity_type,
+    entity_id,
+    old_values,
+    new_values,
+    ip_address,
+    user_agent
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+```
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 5: DECISION MATRIX & FRAUD DETECTION LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+5.1 DECISION MATRIX
+-------------------
+
+FINAL DECISION berdasarkan kombinasi dari semua faktor:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  DECISION MATRIX                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  CONDITION 1: HIGH RISK (Auto-Reject)                                   │
+│  ────────────────────────────────────────────────────────────────────   │
+│  IF ANY of these conditions are TRUE:                                   │
+│    • Face Similarity < 70%                                              │
+│    • Liveness Score < 60%                                               │
+│    • Multiple Faces Detected (> 1)                                      │
+│    • Location Distance > Zone Radius                                    │
+│    • Fraud Risk Score >= 60                                             │
+│                                                                          │
+│  THEN:                                                                   │
+│    Status: REJECTED                                                      │
+│    Action: Auto-reject, notify admin                                    │
+│    Recommendation: Manual review required                                │
+│    Notification: Send to mahasiswa & dosen                              │
+│                                                                          │
+│  ────────────────────────────────────────────────────────────────────   │
+│                                                                          │
+│  CONDITION 2: MEDIUM RISK (Needs Review)                                │
+│  ────────────────────────────────────────────────────────────────────   │
+│  IF ANY of these conditions are TRUE:                                   │
+│    • Face Similarity 70-85%                                             │
+│    • Liveness Score 60-80%                                              │
+│    • Device Anomaly Detected                                            │
+│    • Photo Quality < 70                                                 │
+│    • Fraud Risk Score 30-59                                             │
+│    • Historical Consistency < 80%                                       │
+│                                                                          │
+│  THEN:                                                                   │
+│    Status: NEEDS_REVIEW                                                  │
+│    Action: Hold for manual review                                       │
+│    Recommendation: Dosen/Admin must verify manually                     │
+│    Notification: Alert dosen for review                                 │
+│                                                                          │
+│  ────────────────────────────────────────────────────────────────────   │
+│                                                                          │
+│  CONDITION 3: LOW RISK (Auto-Approve)                                   │
+│  ────────────────────────────────────────────────────────────────────   │
+│  IF ALL of these conditions are TRUE:                                   │
+│    • Face Similarity >= 85%                                             │
+│    • Liveness Score >= 80%                                              │
+│    • Single Face Detected                                               │
+│    • Location Within Zone                                               │
+│    • Fraud Risk Score < 30                                              │
+│    • Overall Confidence >= 85%                                          │
+│    • Historical Consistency >= 80%                                      │
+│                                                                          │
+│  THEN:                                                                   │
+│    Status: VERIFIED                                                      │
+│    Action: Auto-approve                                                  │
+│    Recommendation: Safe to approve automatically                         │
+│    Notification: Confirm to mahasiswa                                   │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+5.2 FRAUD DETECTION INDICATORS
+-------------------------------
+
+8 CHECKS yang dilakukan untuk mendeteksi fraud:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 1: MULTIPLE FACE DETECTION                                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Detect if more than one person in photo                       │
+│  Method: Face detection algorithm counts faces                          │
+│  Risk: HIGH (40 points)                                                  │
+│  Pass Condition: Exactly 1 face detected                                │
+│  Fail Condition: 0 faces or > 1 faces                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 2: FACE SIMILARITY SCORE                                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Verify if selfie matches reference photo                      │
+│  Method: Face encoding comparison (FaceNet/DeepFace)                    │
+│  Risk: HIGH (40 points if < 70%)                                        │
+│  Pass Condition: Similarity >= 70%                                      │
+│  Fail Condition: Similarity < 70%                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 3: LIVENESS DETECTION                                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Detect if photo is from real person (not photo of photo)     │
+│  Method: Texture, depth, screen, print attack detection                │
+│  Risk: HIGH (40 points if failed)                                       │
+│  Pass Condition: Liveness score >= 60%                                  │
+│  Fail Condition: Liveness score < 60%                                   │
+│  Sub-checks:                                                             │
+│    • Texture Analysis: Natural skin texture vs printed                  │
+│    • Depth Perception: 3D face vs 2D image                              │
+│    • Screen Detection: Real face vs phone/tablet screen                 │
+│    • Print Attack: Real face vs printed photo                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 4: PHOTO QUALITY                                                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Ensure photo quality is sufficient for analysis               │
+│  Method: Check blur, resolution, lighting, occlusion                    │
+│  Risk: MEDIUM (25 points if poor quality)                               │
+│  Pass Condition: Quality score >= 70                                    │
+│  Fail Condition: Quality score < 70                                     │
+│  Sub-checks:                                                             │
+│    • Blur Level: Image sharpness                                        │
+│    • Resolution: Minimum 640x480                                        │
+│    • Lighting: Not too dark or too bright                               │
+│    • Occlusion: Face not covered by objects                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 5: DUPLICATE PHOTO                                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Detect if same photo used multiple times                      │
+│  Method: Compare MD5/SHA256 hash with previous submissions              │
+│  Risk: HIGH (35 points if duplicate)                                    │
+│  Pass Condition: Hash not found in database                             │
+│  Fail Condition: Hash exists in previous submissions                    │
+│  Implementation:                                                         │
+│    1. Calculate hash of uploaded photo                                  │
+│    2. Query database for matching hash                                  │
+│    3. If found, mark as duplicate                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 6: LOCATION VALIDATION                                            │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Verify student is within allowed zone                         │
+│  Method: Calculate GPS distance using Haversine formula                 │
+│  Risk: HIGH (30 points if outside zone)                                 │
+│  Pass Condition: Distance <= Zone Radius                                │
+│  Fail Condition: Distance > Zone Radius                                 │
+│  Additional Checks:                                                      │
+│    • GPS Accuracy: Should be < 50 meters                                │
+│    • GPS Spoofing: Check for impossible movements                       │
+│    • Location History: Compare with previous locations                  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 7: DEVICE ANOMALY                                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Detect unusual device usage patterns                          │
+│  Method: Compare current device with historical usage                   │
+│  Risk: MEDIUM (15 points if anomaly)                                    │
+│  Pass Condition: Device used before OR first time                       │
+│  Fail Condition: Different device from usual pattern                    │
+│  Analysis:                                                               │
+│    • Device History: Count usage per device                             │
+│    • Most Used Device: Identify primary device                          │
+│    • Device Change: Flag if different from usual                        │
+│    • Trust Score: Higher if device used 3+ times                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  CHECK 8: VELOCITY CHECK (Impossible Travel)                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Purpose: Detect if student could physically travel between locations   │
+│  Method: Calculate distance and time between consecutive attendances    │
+│  Risk: HIGH (35 points if impossible)                                   │
+│  Pass Condition: Travel is physically possible                          │
+│  Fail Condition: Distance too far for time elapsed                      │
+│  Calculation:                                                            │
+│    1. Get last attendance location and time                             │
+│    2. Calculate distance to current location                            │
+│    3. Calculate time difference                                         │
+│    4. Check if speed required is realistic (< 100 km/h)                 │
+│  Example:                                                                │
+│    Last: Gedung A at 08:00                                              │
+│    Current: Gedung B (50km away) at 08:15                               │
+│    Required Speed: 200 km/h → IMPOSSIBLE → FRAUD                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+5.3 RISK SCORING SYSTEM
+------------------------
+
+Total Risk Score = Sum of all failed checks (max 100)
+
+Risk Level Classification:
+┌──────────────────────────────────────────────────────────────┐
+│  Score Range  │  Risk Level  │  Color  │  Action            │
+├──────────────────────────────────────────────────────────────┤
+│  0-29         │  🟢 LOW      │  Green  │  Auto-approve      │
+│  30-59        │  🟡 MEDIUM   │  Yellow │  Manual review     │
+│  60-100       │  🔴 HIGH     │  Red    │  Auto-reject       │
+└──────────────────────────────────────────────────────────────┘
+
+Example Scenarios:
+
+SCENARIO 1: Perfect Attendance
+- All checks passed
+- Risk Score: 0
+- Risk Level: LOW
+- Decision: AUTO-APPROVE
+
+SCENARIO 2: Minor Issues
+- Device anomaly detected (15 points)
+- Photo quality slightly low (10 points)
+- Risk Score: 25
+- Risk Level: LOW
+- Decision: AUTO-APPROVE (with warning)
+
+SCENARIO 3: Moderate Concerns
+- Face similarity 75% (borderline)
+- Device anomaly (15 points)
+- Location accuracy poor (10 points)
+- Risk Score: 40
+- Risk Level: MEDIUM
+- Decision: NEEDS MANUAL REVIEW
+
+SCENARIO 4: High Risk
+- Face similarity 65% (40 points)
+- Liveness failed (40 points)
+- Risk Score: 80
+- Risk Level: HIGH
+- Decision: AUTO-REJECT
+
+5.4 CONFIDENCE CALCULATION
+---------------------------
+
+Overall Confidence = Weighted Average of all scores
+
+Weights:
+- Face Match: 35%
+- Liveness: 25%
+- Location: 15%
+- Device: 10%
+- Fraud: 10%
+- Historical: 5%
+
+Formula:
+Confidence = (FaceMatch × 0.35) + (Liveness × 0.25) + (Location × 0.15) + 
+             (Device × 0.10) + ((100 - FraudScore) × 0.10) + (Historical × 0.05)
+
+Example:
+- Face Match: 87.5%
+- Liveness: 91%
+- Location: 100% (valid)
+- Device: 100% (trusted)
+- Fraud: 15 (so 85%)
+- Historical: 89.6%
+
+Confidence = (87.5 × 0.35) + (91 × 0.25) + (100 × 0.15) + 
+             (100 × 0.10) + (85 × 0.10) + (89.6 × 0.05)
+           = 30.625 + 22.75 + 15 + 10 + 8.5 + 4.48
+           = 91.355%
+
+Result: 91.4% confidence → AUTO-APPROVE
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 6: UI/UX DETAILS & INTERACTION PATTERNS
+═══════════════════════════════════════════════════════════════════════════════
+
+6.1 LOADING STATES & ANIMATIONS
+--------------------------------
+
+STATE 1: IDLE (Before Scan)
+┌─────────────────────────────────────────────────────────────────────────┐
+│  [Button: 🤖 Scan dengan AI]  ← Enabled, gradient background           │
+│  Status: "Siap untuk scan"                                              │
+│  All data sections: Empty placeholders with skeleton loaders            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STATE 2: PROCESSING (During Scan)
+┌─────────────────────────────────────────────────────────────────────────┐
+│  [Button: ⏳ Processing...]  ← Disabled, pulsing animation              │
+│  Status: "AI sedang menganalisis..."                                    │
+│                                                                          │
+│  Progress Bar:                                                           │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ 65%                                              │
+│  Current Step: "Validating device information..."                       │
+│  Estimated Time: 5 seconds remaining                                    │
+│                                                                          │
+│  Real-time Updates via WebSocket:                                       │
+│  ✓ Face Detection (3.2s)                                                │
+│  ✓ Face Comparison (2.8s)                                               │
+│  ✓ Liveness Detection (2.5s)                                            │
+│  ✓ Device Validation (1.8s)                                             │
+│  ⏳ Location Validation... (in progress)                                │
+│  ⏸ Fraud Detection (pending)                                            │
+│  ⏸ Historical Analysis (pending)                                        │
+│  ⏸ Final Decision (pending)                                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+STATE 3: COMPLETED (After Scan)
+┌─────────────────────────────────────────────────────────────────────────┐
+│  [Button: ✅ Scan Completed]  ← Disabled, green background              │
+│  Status: "Analisis selesai - 91.4% confidence"                          │
+│                                                                          │
+│  Progress Bar:                                                           │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%                                             │
+│  Total Time: 17 seconds                                                 │
+│                                                                          │
+│  All data sections: Populated with real data, animated fade-in          │
+│  Action Buttons: [✅ Approve] [❌ Reject] [🔄 Re-scan]                  │
+└─────────────────────────────────────────────────────────────────────────┘
+
+6.2 SKELETON LOADERS (Before Scan)
+-----------------------------------
+
+Face Comparison Section:
+```tsx
+<div className="animate-pulse">
+    <div className="grid grid-cols-2 gap-6">
+        {/* Reference Photo Skeleton */}
+        <div className="space-y-3">
+            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+        </div>
+        
+        {/* Selfie Photo Skeleton */}
+        <div className="space-y-3">
+            <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+        </div>
+    </div>
+    
+    {/* Similarity Score Skeleton */}
+    <div className="mt-6 space-y-3">
+        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
+    </div>
+</div>
+```
+
+AI Analysis Report Skeleton:
+```tsx
+<div className="animate-pulse space-y-4">
+    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+    <div className="space-y-2">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6" />
+    </div>
+</div>
+```
+
+6.3 PROGRESS INDICATOR COMPONENT
+---------------------------------
+
+```tsx
+interface ProgressStep {
+    name: string;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    duration?: number;
+    progress?: number;
+}
+
+const VerificationProgress = ({ steps, currentStep }: Props) => {
+    return (
+        <div className="space-y-4">
+            {steps.map((step, index) => (
+                <motion.div
+                    key={step.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={cn(
+                        "flex items-center gap-4 p-4 rounded-xl border",
+                        step.status === 'completed' && "bg-green-50 border-green-200",
+                        step.status === 'processing' && "bg-blue-50 border-blue-200",
+                        step.status === 'failed' && "bg-red-50 border-red-200",
+                        step.status === 'pending' && "bg-gray-50 border-gray-200"
+                    )}
+                >
+                    {/* Status Icon */}
+                    <div className="flex-shrink-0">
+                        {step.status === 'completed' && (
+                            <CheckCircle className="h-6 w-6 text-green-600" />
+                        )}
+                        {step.status === 'processing' && (
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >
+                                <Loader2 className="h-6 w-6 text-blue-600" />
+                            </motion.div>
+                        )}
+                        {step.status === 'failed' && (
+                            <XCircle className="h-6 w-6 text-red-600" />
+                        )}
+                        {step.status === 'pending' && (
+                            <Clock className="h-6 w-6 text-gray-400" />
+                        )}
+                    </div>
+                    
+                    {/* Step Info */}
+                    <div className="flex-1">
+                        <p className="font-medium text-gray-900">{step.name}</p>
+                        {step.duration && (
+                            <p className="text-sm text-gray-500">
+                                Completed in {step.duration}s
+                            </p>
+                        )}
+                        {step.status === 'processing' && step.progress && (
+                            <div className="mt-2">
+                                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-blue-600"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${step.progress}%` }}
+                                        transition={{ duration: 0.3 }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            ))}
+        </div>
+    );
+};
+```
+
+6.4 WEBSOCKET IMPLEMENTATION
+-----------------------------
+
+Frontend (React):
+```typescript
+import { useEffect, useState } from 'react';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+// Initialize Laravel Echo
+window.Pusher = Pusher;
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    forceTLS: true,
+});
+
+const useVerificationProgress = (verificationId: string) => {
+    const [progress, setProgress] = useState(0);
+    const [currentStep, setCurrentStep] = useState('');
+    const [steps, setSteps] = useState<ProgressStep[]>([]);
+    
+    useEffect(() => {
+        if (!verificationId) return;
+        
+        // Listen for progress updates
+        window.Echo.channel(`verification.${verificationId}`)
+            .listen('VerificationProgress', (e: any) => {
+                setProgress(e.progress);
+                setCurrentStep(e.step);
+                
+                // Update steps array
+                setSteps(prev => {
+                    const newSteps = [...prev];
+                    const stepIndex = newSteps.findIndex(s => s.name === e.step);
+                    if (stepIndex >= 0) {
+                        newSteps[stepIndex].status = 'processing';
+                        newSteps[stepIndex].progress = e.progress;
+                    }
+                    return newSteps;
+                });
+            })
+            .listen('VerificationStepCompleted', (e: any) => {
+                setSteps(prev => {
+                    const newSteps = [...prev];
+                    const stepIndex = newSteps.findIndex(s => s.name === e.step);
+                    if (stepIndex >= 0) {
+                        newSteps[stepIndex].status = 'completed';
+                        newSteps[stepIndex].duration = e.duration;
+                    }
+                    return newSteps;
+                });
+            })
+            .listen('VerificationCompleted', (e: any) => {
+                setProgress(100);
+                // Handle completion
+            });
+        
+        return () => {
+            window.Echo.leave(`verification.${verificationId}`);
+        };
+    }, [verificationId]);
+    
+    return { progress, currentStep, steps };
+};
+```
+
+Backend (Laravel Events):
+```php
+// Event: VerificationProgress
+class VerificationProgress implements ShouldBroadcast
+{
+    public $verificationId;
+    public $progress;
+    public $step;
+    
+    public function broadcastOn()
+    {
+        return new Channel('verification.' . $this->verificationId);
+    }
+}
+
+// Event: VerificationStepCompleted
+class VerificationStepCompleted implements ShouldBroadcast
+{
+    public $verificationId;
+    public $step;
+    public $duration;
+    public $result;
+    
+    public function broadcastOn()
+    {
+        return new Channel('verification.' . $this->verificationId);
+    }
+}
+
+// Event: VerificationCompleted
+class VerificationCompleted implements ShouldBroadcast
+{
+    public $verificationId;
+    public $finalResult;
+    
+    public function broadcastOn()
+    {
+        return new Channel('verification.' . $this->verificationId);
+    }
+}
+```
+
+6.5 PHOTO VIEWER WITH ZOOM
+---------------------------
+
+```tsx
+import { useState } from 'react';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+
+const PhotoViewer = ({ imageUrl, landmarks }: Props) => {
+    const [showLandmarks, setShowLandmarks] = useState(true);
+    
+    return (
+        <div className="relative">
+            <TransformWrapper
+                initialScale={1}
+                minScale={0.5}
+                maxScale={4}
+            >
+                {({ zoomIn, zoomOut, resetTransform }) => (
+                    <>
+                        {/* Controls */}
+                        <div className="absolute top-4 right-4 z-10 flex gap-2">
+                            <button
+                                onClick={() => zoomIn()}
+                                className="p-2 bg-white rounded-lg shadow-lg"
+                            >
+                                <ZoomIn className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => zoomOut()}
+                                className="p-2 bg-white rounded-lg shadow-lg"
+                            >
+                                <ZoomOut className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => resetTransform()}
+                                className="p-2 bg-white rounded-lg shadow-lg"
+                            >
+                                <Maximize className="h-5 w-5" />
+                            </button>
+                            <button
+                                onClick={() => setShowLandmarks(!showLandmarks)}
+                                className="p-2 bg-white rounded-lg shadow-lg"
+                            >
+                                <Eye className="h-5 w-5" />
+                            </button>
+                        </div>
+                        
+                        {/* Image */}
+                        <TransformComponent>
+                            <div className="relative">
+                                <img
+                                    src={imageUrl}
+                                    alt="Face"
+                                    className="w-full h-auto rounded-xl"
+                                />
+                                
+                                {/* Facial Landmarks Overlay */}
+                                {showLandmarks && landmarks && (
+                                    <svg
+                                        className="absolute inset-0 w-full h-full"
+                                        viewBox="0 0 100 100"
+                                        preserveAspectRatio="none"
+                                    >
+                                        {landmarks.map((point, index) => (
+                                            <circle
+                                                key={index}
+                                                cx={point.x}
+                                                cy={point.y}
+                                                r="0.5"
+                                                fill="lime"
+                                                stroke="white"
+                                                strokeWidth="0.1"
+                                            />
+                                        ))}
+                                    </svg>
+                                )}
+                            </div>
+                        </TransformComponent>
+                    </>
+                )}
+            </TransformWrapper>
+        </div>
+    );
+};
+```
+
+6.6 TOAST NOTIFICATIONS
+------------------------
+
+```typescript
+import { toast } from 'sonner';
+
+// Success notification
+toast.success('Verifikasi berhasil!', {
+    description: 'Presensi mahasiswa telah disetujui',
+    duration: 5000,
+});
+
+// Error notification
+toast.error('Verifikasi gagal!', {
+    description: 'Terjadi kesalahan saat memproses AI scan',
+    duration: 5000,
+});
+
+// Loading notification
+const toastId = toast.loading('AI sedang memproses...', {
+    description: 'Mohon tunggu beberapa saat',
+});
+
+// Update loading to success
+toast.success('Scan selesai!', {
+    id: toastId,
+    description: 'Hasil analisis tersedia',
+});
+
+// Warning notification
+toast.warning('Perlu review manual', {
+    description: 'Confidence score di bawah threshold',
+    action: {
+        label: 'Review',
+        onClick: () => router.visit(`/dosen/verification/${id}`),
+    },
+});
+```
+
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 7: SECURITY & PERMISSIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+7.1 ACCESS CONTROL
+------------------
+
+ROLE-BASED ACCESS:
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  ADMIN                                                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Permissions:                                                            │
+│  ✓ View all verifications (all classes, all dosen)                      │
+│  ✓ Scan with AI (any attendance)                                        │
+│  ✓ Approve/Reject (any attendance)                                      │
+│  ✓ View full AI analysis report                                         │
+│  ✓ View verification timeline                                           │
+│  ✓ Export reports                                                        │
+│  ✓ View audit logs                                                       │
+│  ✓ Override AI decisions                                                │
+│  ✓ Configure AI settings                                                │
+│  ✓ Manage zones                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  DOSEN                                                                   │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Permissions:                                                            │
+│  ✓ View verifications (only their classes)                              │
+│  ✓ Scan with AI (only their students)                                   │
+│  ✓ Approve/Reject (only their students)                                 │
+│  ✓ View full AI analysis report                                         │
+│  ✓ View verification timeline                                           │
+│  ✓ Export reports (their classes only)                                  │
+│  ✗ View audit logs (limited)                                            │
+│  ✗ Override AI decisions (must request admin)                           │
+│  ✗ Configure AI settings                                                │
+│  ✗ Manage zones                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  MAHASISWA                                                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│  Permissions:                                                            │
+│  ✓ View own verification status                                         │
+│  ✓ View basic verification result (approved/rejected)                   │
+│  ✗ View AI analysis details                                             │
+│  ✗ View verification timeline                                           │
+│  ✗ Scan with AI                                                          │
+│  ✗ Approve/Reject                                                        │
+│  ✗ Export reports                                                        │
+│  ✗ View audit logs                                                       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+7.2 MIDDLEWARE IMPLEMENTATION
+------------------------------
+
+```php
+// Middleware: CheckVerificationAccess
+class CheckVerificationAccess
+{
+    public function handle($request, Closure $next)
+    {
+        $user = auth()->user();
+        $attendanceId = $request->route('id');
+        
+        // Admin has full access
+        if ($user->role === 'admin') {
+            return $next($request);
+        }
+        
+        // Dosen can only access their students
+        if ($user->role === 'dosen') {
+            $attendance = Kehadiran::with('sesi.mataKuliah')->find($attendanceId);
+            
+            if (!$attendance) {
+                abort(404);
+            }
+            
+            // Check if dosen teaches this class
+            if ($attendance->sesi->mataKuliah->dosen_id !== $user->id) {
+                abort(403, 'Unauthorized: You can only verify your own students');
+            }
+            
+            return $next($request);
+        }
+        
+        // Mahasiswa cannot access verification page
+        abort(403, 'Unauthorized: Students cannot access verification');
+    }
+}
+
+// Apply middleware to routes
+Route::middleware(['auth', 'check.verification.access'])->group(function () {
+    Route::get('/dosen/verification', [VerificationController::class, 'index']);
+    Route::get('/dosen/verification/{id}', [VerificationController::class, 'show']);
+    Route::post('/dosen/verification/scan/{id}', [VerificationController::class, 'scan']);
+    Route::post('/dosen/verification/approve/{id}', [VerificationController::class, 'approve']);
+    Route::post('/dosen/verification/reject/{id}', [VerificationController::class, 'reject']);
+});
+```
+
+7.3 RATE LIMITING
+-----------------
+
+Prevent abuse of AI scanning:
+
+```php
+// config/rate-limiting.php
+return [
+    'ai_scan' => [
+        'max_attempts' => 10, // Max 10 scans
+        'decay_minutes' => 1, // Per minute
+    ],
+    'verification_action' => [
+        'max_attempts' => 30, // Max 30 actions
+        'decay_minutes' => 1, // Per minute
+    ],
+];
+
+// Apply rate limiting
+Route::middleware(['throttle:ai_scan'])->group(function () {
+    Route::post('/dosen/verification/scan/{id}', [VerificationController::class, 'scan']);
+});
+
+// Custom rate limiter
+RateLimiter::for('ai_scan', function (Request $request) {
+    return Limit::perMinute(10)->by($request->user()->id);
+});
+```
+
+7.4 DATA ENCRYPTION
+-------------------
+
+Encrypt sensitive data:
+
+```php
+// Model: Kehadiran
+class Kehadiran extends Model
+{
+    protected $casts = [
+        'device_info' => 'encrypted:array',
+        'ai_analysis' => 'encrypted:array',
+    ];
+    
+    // Encrypt GPS coordinates
+    public function setLatitudeAttribute($value)
+    {
+        $this->attributes['latitude'] = encrypt($value);
+    }
+    
+    public function getLatitudeAttribute($value)
+    {
+        return decrypt($value);
+    }
+    
+    public function setLongitudeAttribute($value)
+    {
+        $this->attributes['longitude'] = encrypt($value);
+    }
+    
+    public function getLongitudeAttribute($value)
+    {
+        return decrypt($value);
+    }
+}
+```
+
+7.5 AUDIT LOGGING
+-----------------
+
+Log all verification activities:
+
+```php
+// Service: AuditLogService
+class AuditLogService
+{
+    public static function log($action, $entityType, $entityId, $oldValues = null, $newValues = null)
+    {
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'action' => $action,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'old_values' => $oldValues ? json_encode($oldValues) : null,
+            'new_values' => $newValues ? json_encode($newValues) : null,
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+    }
+}
+
+// Usage in Controller
+public function approve(Request $request, $id)
+{
+    $attendance = Kehadiran::findOrFail($id);
+    $oldStatus = $attendance->status;
+    
+    $attendance->status = 'verified';
+    $attendance->verified_by = auth()->id();
+    $attendance->verified_at = now();
+    $attendance->save();
+    
+    // Log the action
+    AuditLogService::log(
+        'approve_verification',
+        'attendance',
+        $id,
+        ['status' => $oldStatus],
+        ['status' => 'verified', 'verified_by' => auth()->id()]
+    );
+    
+    return response()->json(['success' => true]);
+}
+```
+
+7.6 FILE UPLOAD SECURITY
+-------------------------
+
+Secure photo uploads:
+
+```php
+// Validation rules
+$request->validate([
+    'selfie' => [
+        'required',
+        'image',
+        'mimes:jpeg,jpg,png',
+        'max:5120', // 5MB max
+        'dimensions:min_width=640,min_height=480',
+    ],
+]);
+
+// Sanitize filename
+$filename = Str::random(40) . '.' . $request->file('selfie')->extension();
+
+// Store with proper permissions
+$path = $request->file('selfie')->storeAs(
+    'attendance/selfies',
+    $filename,
+    'private' // Not publicly accessible
+);
+
+// Generate signed URL for viewing
+$url = Storage::temporaryUrl(
+    $path,
+    now()->addMinutes(30)
+);
+```
+
+7.7 API AUTHENTICATION
+----------------------
+
+Secure AI API calls:
+
+```php
+// config/services.php
+return [
+    'face_api' => [
+        'url' => env('FACE_API_URL'),
+        'key' => env('FACE_API_KEY'),
+        'secret' => env('FACE_API_SECRET'),
+    ],
+];
+
+// Service: FaceAPIClient
+class FaceAPIClient
+{
+    protected function getAuthHeaders()
+    {
+        $timestamp = time();
+        $signature = hash_hmac(
+            'sha256',
+            $timestamp . config('services.face_api.key'),
+            config('services.face_api.secret')
+        );
+        
+        return [
+            'Authorization' => 'Bearer ' . config('services.face_api.key'),
+            'X-Timestamp' => $timestamp,
+            'X-Signature' => $signature,
+        ];
+    }
+    
+    public function makeRequest($endpoint, $data)
+    {
+        $response = Http::withHeaders($this->getAuthHeaders())
+            ->timeout(30)
+            ->retry(3, 1000)
+            ->post(config('services.face_api.url') . $endpoint, $data);
+        
+        if ($response->failed()) {
+            throw new \Exception('Face API request failed: ' . $response->body());
+        }
+        
+        return $response->json();
+    }
+}
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 8: ERROR HANDLING & EDGE CASES
+═══════════════════════════════════════════════════════════════════════════════
+
+8.1 ERROR SCENARIOS
+-------------------
+
+SCENARIO 1: No Face Detected
+```php
+if ($faceDetection['faces_detected'] === 0) {
+    return [
+        'status' => 'rejected',
+        'reason' => 'No face detected in photo',
+        'recommendation' => 'Ask student to retake photo with clear face visible',
+        'confidence' => 0,
+    ];
+}
+```
+
+SCENARIO 2: Multiple Faces Detected
+```php
+if ($faceDetection['faces_detected'] > 1) {
+    return [
+        'status' => 'rejected',
+        'reason' => 'Multiple faces detected',
+        'recommendation' => 'Only one person should be in the photo',
+        'confidence' => 0,
+    ];
+}
+```
+
+SCENARIO 3: Poor Photo Quality
+```php
+if ($qualityScore < 50) {
+    return [
+        'status' => 'needs_review',
+        'reason' => 'Photo quality too low',
+        'recommendation' => 'Request better quality photo',
+        'confidence' => $qualityScore,
+    ];
+}
+```
+
+SCENARIO 4: AI Service Timeout
+```php
+try {
+    $result = $aiService->compareFaces($ref, $selfie);
+} catch (TimeoutException $e) {
+    Log::error('AI service timeout', ['attendance_id' => $id]);
+    
+    return response()->json([
+        'error' => 'AI service is currently unavailable',
+        'message' => 'Please try again in a few moments',
+    ], 503);
+}
+```
+
+SCENARIO 5: Missing Reference Photo
+```php
+if (!Storage::exists($mahasiswa->foto_profil)) {
+    return [
+        'status' => 'needs_review',
+        'reason' => 'Reference photo not found',
+        'recommendation' => 'Upload student reference photo first',
+        'confidence' => 0,
+    ];
+}
+```
+
+SCENARIO 6: GPS Not Available
+```php
+if (!$attendance->latitude || !$attendance->longitude) {
+    // Don't auto-reject, but flag for review
+    $locationScore = 50; // Neutral score
+    $warnings[] = 'GPS location not available';
+}
+```
+
+SCENARIO 7: Duplicate Photo Hash
+```php
+$duplicate = Kehadiran::where('selfie_hash', $hash)
+    ->where('id', '!=', $currentId)
+    ->first();
+
+if ($duplicate) {
+    return [
+        'status' => 'rejected',
+        'reason' => 'Photo already used',
+        'recommendation' => 'This photo was used on ' . $duplicate->waktu_absen,
+        'confidence' => 0,
+    ];
+}
+```
+
+8.2 FALLBACK MECHANISMS
+------------------------
+
+If AI service fails, use fallback:
+
+```php
+public function verifyWithFallback($attendanceId)
+{
+    try {
+        // Try primary AI service
+        return $this->verifyWithPrimaryAI($attendanceId);
+    } catch (\Exception $e) {
+        Log::warning('Primary AI failed, using fallback', [
+            'attendance_id' => $attendanceId,
+            'error' => $e->getMessage(),
+        ]);
+        
+        try {
+            // Try secondary AI service
+            return $this->verifyWithSecondaryAI($attendanceId);
+        } catch (\Exception $e2) {
+            Log::error('All AI services failed', [
+                'attendance_id' => $attendanceId,
+                'error' => $e2->getMessage(),
+            ]);
+            
+            // Manual review required
+            return [
+                'status' => 'needs_review',
+                'reason' => 'AI service unavailable',
+                'recommendation' => 'Manual verification required',
+                'confidence' => 0,
+            ];
+        }
+    }
+}
+```
+
+8.3 RETRY LOGIC
+---------------
+
+```php
+use Illuminate\Support\Facades\Retry;
+
+$result = Retry::times(3)
+    ->sleep(1000) // 1 second between retries
+    ->when(function ($exception) {
+        return $exception instanceof TimeoutException;
+    })
+    ->attempt(function () use ($aiService, $data) {
+        return $aiService->compareFaces($data['ref'], $data['selfie']);
+    });
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 9: TESTING & VALIDATION
+═══════════════════════════════════════════════════════════════════════════════
+
+9.1 UNIT TESTS
+--------------
+
+```php
+// tests/Unit/SelfieVerificationAIServiceTest.php
+class SelfieVerificationAIServiceTest extends TestCase
+{
+    public function test_detect_faces_returns_correct_structure()
+    {
+        $service = new SelfieVerificationAIService();
+        $result = $service->detectFaces(storage_path('test/face.jpg'));
+        
+        $this->assertArrayHasKey('faces_detected', $result);
+        $this->assertArrayHasKey('confidence', $result);
+        $this->assertArrayHasKey('landmarks', $result);
+        $this->assertArrayHasKey('quality_score', $result);
+    }
+    
+    public function test_compare_faces_calculates_similarity()
+    {
+        $service = new SelfieVerificationAIService();
+        $result = $service->compareFaces(
+            storage_path('test/ref.jpg'),
+            storage_path('test/selfie.jpg')
+        );
+        
+        $this->assertArrayHasKey('similarity_score', $result);
+        $this->assertGreaterThanOrEqual(0, $result['similarity_score']);
+        $this->assertLessThanOrEqual(100, $result['similarity_score']);
+    }
+    
+    public function test_fraud_detection_identifies_high_risk()
+    {
+        $service = new SelfieVerificationAIService();
+        $data = [
+            'face_comparison' => ['similarity_score' => 50],
+            'liveness' => ['is_real' => false],
+            'location' => ['is_valid' => false],
+            'device' => ['is_anomaly' => true],
+        ];
+        
+        $result = $service->detectFraud($data);
+        
+        $this->assertEquals('HIGH', $result['risk_level']);
+        $this->assertGreaterThan(60, $result['risk_score']);
+    }
+}
+```
+
+9.2 INTEGRATION TESTS
+---------------------
+
+```php
+// tests/Feature/VerificationControllerTest.php
+class VerificationControllerTest extends TestCase
+{
+    public function test_dosen_can_scan_their_student()
+    {
+        $dosen = User::factory()->create(['role' => 'dosen']);
+        $attendance = Kehadiran::factory()->create([
+            'sesi_id' => Sesi::factory()->create([
+                'mata_kuliah_id' => MataKuliah::factory()->create([
+                    'dosen_id' => $dosen->id
+                ])
+            ])
+        ]);
+        
+        $response = $this->actingAs($dosen)
+            ->postJson("/api/dosen/verification/scan/{$attendance->id}");
+        
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'verification_id',
+                'message',
+            ]);
+    }
+    
+    public function test_dosen_cannot_scan_other_dosen_student()
+    {
+        $dosen = User::factory()->create(['role' => 'dosen']);
+        $otherDosen = User::factory()->create(['role' => 'dosen']);
+        $attendance = Kehadiran::factory()->create([
+            'sesi_id' => Sesi::factory()->create([
+                'mata_kuliah_id' => MataKuliah::factory()->create([
+                    'dosen_id' => $otherDosen->id
+                ])
+            ])
+        ]);
+        
+        $response = $this->actingAs($dosen)
+            ->postJson("/api/dosen/verification/scan/{$attendance->id}");
+        
+        $response->assertStatus(403);
+    }
+}
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+BAGIAN 10: DEPLOYMENT & MONITORING
+═══════════════════════════════════════════════════════════════════════════════
+
+10.1 ENVIRONMENT VARIABLES
+--------------------------
+
+```env
+# AI Service Configuration
+FACE_API_URL=https://api.facerecognition.com/v1
+FACE_API_KEY=your_api_key_here
+FACE_API_SECRET=your_api_secret_here
+FACE_API_TIMEOUT=30
+
+# Queue Configuration
+QUEUE_CONNECTION=redis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# Broadcasting Configuration
+BROADCAST_DRIVER=pusher
+PUSHER_APP_ID=your_app_id
+PUSHER_APP_KEY=your_app_key
+PUSHER_APP_SECRET=your_app_secret
+PUSHER_APP_CLUSTER=ap1
+
+# Storage Configuration
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_BUCKET=your_bucket_name
+```
+
+10.2 MONITORING & LOGGING
+--------------------------
+
+```php
+// Log AI processing metrics
+Log::channel('ai_metrics')->info('AI Verification Completed', [
+    'verification_id' => $verificationId,
+    'attendance_id' => $attendanceId,
+    'total_duration' => $totalDuration,
+    'confidence' => $confidence,
+    'status' => $status,
+    'steps' => $steps,
+]);
+
+// Monitor queue performance
+Queue::after(function (JobProcessed $event) {
+    if ($event->job->resolveName() === 'App\Jobs\VerifyAttendanceJob') {
+        Metrics::increment('ai_verification.completed');
+        Metrics::timing('ai_verification.duration', $event->job->getDuration());
+    }
+});
+```
+
+═══════════════════════════════════════════════════════════════════════════════
+RINGKASAN IMPLEMENTASI
+═══════════════════════════════════════════════════════════════════════════════
+
+CHECKLIST IMPLEMENTASI:
+
+Frontend (React/TypeScript):
+☐ Header container dengan scan button
+☐ Face Comparison section dengan photo viewers
+☐ AI Analysis Report dengan 4 sub-sections
+☐ Verification Timeline component
+☐ Progress indicator dengan WebSocket
+☐ Skeleton loaders untuk loading states
+☐ Photo zoom functionality
+☐ Toast notifications
+☐ Responsive design
+
+Backend (Laravel/PHP):
+☐ VerificationController dengan scan, approve, reject methods
+☐ SelfieVerificationAIService dengan semua AI functions
+☐ VerifyAttendanceJob untuk async processing
+☐ Database migrations untuk semua tables
+☐ Middleware untuk access control
+☐ Rate limiting configuration
+☐ Audit logging service
+☐ WebSocket events untuk real-time updates
+
+Database:
+☐ mahasiswa table
+☐ kehadiran table dengan AI fields
+☐ zona_presensi table
+☐ verification_logs table
+☐ audit_logs table
+
+Security:
+☐ Role-based access control
+☐ Data encryption untuk sensitive fields
+☐ Rate limiting untuk AI endpoints
+☐ Audit logging untuk all actions
+☐ Secure file uploads
+
+Testing:
+☐ Unit tests untuk AI service
+☐ Integration tests untuk controllers
+☐ Feature tests untuk complete flow
+
+CRITICAL REMINDERS:
+1. TIDAK ADA DUMMY DATA - Semua data HARUS real dari database
+2. Data kosong sebelum scan, terisi setelah scan
+3. Progress real-time via WebSocket
+4. AI processing time bervariasi (9-16 detik)
+5. Decision matrix berdasarkan risk score
+6. Audit trail lengkap untuk compliance
+7. Security & permissions ketat
+8. Error handling comprehensive
+
+═══════════════════════════════════════════════════════════════════════════════
+END OF PROMPT
+═══════════════════════════════════════════════════════════════════════════════
