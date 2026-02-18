@@ -22,34 +22,58 @@ class TugasGradingController extends Controller
             abort(403);
         }
 
-        $submissions = TugasSubmission::with('mahasiswa')
+        $rawSubmissions = TugasSubmission::with('mahasiswa')
             ->where('tugas_id', $tuga->id)
             ->orderBy('submitted_at', 'desc')
-            ->get()
-            ->map(fn($s) => [
-                'id' => $s->id,
-                'mahasiswa' => [
-                    'id' => $s->mahasiswa->id,
-                    'nama' => $s->mahasiswa->nama,
-                    'nim' => $s->mahasiswa->nim,
-                ],
-                'content' => $s->content,
-                'file_path' => $s->file_path ? Storage::url($s->file_path) : null,
-                'file_name' => $s->file_name,
-                'status' => $s->status,
-                'grade' => $s->grade,
-                'grade_letter' => $s->grade_letter,
-                'feedback' => $s->feedback,
-                'submitted_at' => $s->submitted_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
-                'graded_at' => $s->graded_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
-                'is_late' => $s->isLate(),
-            ]);
+            ->get();
+
+        $submissions = $rawSubmissions->map(fn($s) => [
+            'id' => $s->id,
+            'mahasiswa' => [
+                'id' => $s->mahasiswa->id,
+                'nama' => $s->mahasiswa->nama,
+                'nim' => $s->mahasiswa->nim,
+            ],
+            'content' => $s->content,
+            'file_path' => $s->file_path ? Storage::url($s->file_path) : null,
+            'file_name' => $s->file_name,
+            'status' => $s->status,
+            'grade' => $s->grade,
+            'grade_letter' => $s->grade_letter,
+            'feedback' => $s->feedback,
+            'submitted_at' => $s->submitted_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            'graded_at' => $s->graded_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            'is_late' => $s->isLate(),
+        ]);
+
+        // Enhanced stats
+        $graded = $rawSubmissions->whereNotNull('grade');
+        $lateCount = $rawSubmissions->filter(fn($s) => $s->isLate())->count();
+        $highestSub = $graded->sortByDesc('grade')->first();
+        $lowestSub = $graded->sortBy('grade')->first();
+
+        // Grade distribution
+        $distribution = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0];
+        foreach ($graded as $s) {
+            $letter = $s->grade_letter ?? 'E';
+            if (isset($distribution[$letter])) $distribution[$letter]++;
+        }
+
+        // Total students fallback: use submission count
+        $totalStudents = $rawSubmissions->count();
 
         $stats = [
             'total' => $submissions->count(),
-            'graded' => $submissions->where('status', 'graded')->count(),
-            'pending' => $submissions->whereIn('status', ['submitted', 'late'])->count(),
-            'avg_grade' => $submissions->where('grade', '!=', null)->avg('grade') ?? 0,
+            'graded' => $graded->count(),
+            'pending' => $rawSubmissions->whereIn('status', ['submitted', 'late'])->count(),
+            'avg_grade' => round($graded->avg('grade') ?? 0, 2),
+            'highest_score' => $highestSub?->grade ?? 0,
+            'highest_scorer' => $highestSub?->mahasiswa?->nama ?? '-',
+            'lowest_score' => $lowestSub?->grade ?? 0,
+            'late_count' => $lateCount,
+            'late_penalty_percent' => $tuga->late_penalty_percent ?? 10,
+            'distribution' => $distribution,
+            'total_students' => $totalStudents,
         ];
 
         return Inertia::render('dosen/tugas-grading', [
@@ -57,7 +81,9 @@ class TugasGradingController extends Controller
                 'id' => $tuga->id,
                 'judul' => $tuga->judul,
                 'deadline' => $tuga->deadline?->format('Y-m-d H:i'),
+                'deadline_display' => $tuga->deadline?->translatedFormat('l, d F Y H:i'),
                 'max_grade' => $tuga->max_grade ?? 100,
+                'course_nama' => $tuga->course?->nama ?? '-',
             ],
             'submissions' => $submissions,
             'stats' => $stats,

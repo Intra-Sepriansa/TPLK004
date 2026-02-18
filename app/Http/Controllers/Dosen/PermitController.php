@@ -17,7 +17,7 @@ class PermitController extends Controller
     public function index(Request $request): InertiaResponse
     {
         $dosen = auth('dosen')->user();
-        $status = $request->get('status', 'pending');
+        $status = $request->get('status', 'all'); // Default all to show board
         $sessionId = $request->get('session_id');
 
         // Get sessions for this dosen's courses
@@ -47,36 +47,67 @@ class PermitController extends Controller
             $query->where('attendance_session_id', $sessionId);
         }
 
-        $permits = $query->get()->map(fn($p) => [
-            'id' => $p->id,
-            'mahasiswa' => [
-                'id' => $p->mahasiswa->id,
-                'nama' => $p->mahasiswa->nama,
-                'nim' => $p->mahasiswa->nim,
-            ],
-            'type' => $p->type,
-            'reason' => $p->reason,
-            'attachment' => $p->attachment ? Storage::url($p->attachment) : null,
-            'status' => $p->status,
-            'rejection_reason' => $p->rejection_reason,
-            'session' => [
-                'id' => $p->session->id,
-                'mata_kuliah' => $p->session->course?->nama ?? '-',
-                'tanggal' => $p->session->start_at->format('Y-m-d'),
-                'tanggal_display' => $p->session->start_at->translatedFormat('l, d F Y'),
-            ],
-            'created_at' => $p->created_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
-        ]);
+        $allPermits = $query->get();
 
-        // Stats
+        $permits = $allPermits->map(function ($p) {
+            // Mock AI Analysis
+            $confidence = rand(75, 99);
+            $docScore = rand(70, 98);
+            $isUrgent = $p->type === 'sakit' || rand(0, 10) > 8;
+            
+            // AI Recommendation logic
+            $recommendation = 'review';
+            if ($confidence > 85 && $docScore > 80) $recommendation = 'approve';
+            if ($confidence < 60 || $docScore < 60) $recommendation = 'reject';
+            if ($p->status !== 'pending') $recommendation = $p->status; // Match status if already decided
+
+            return [
+                'id' => $p->id,
+                'mahasiswa' => [
+                    'id' => $p->mahasiswa->id,
+                    'nama' => $p->mahasiswa->nama,
+                    'nim' => $p->mahasiswa->nim,
+                    'avatar' => $p->mahasiswa->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode($p->mahasiswa->nama),
+                ],
+                'type' => $p->type,
+                'reason' => $p->reason,
+                'attachment' => $p->attachment ? Storage::url($p->attachment) : null,
+                'attachments' => $p->attachment ? [['id' => 1, 'url' => Storage::url($p->attachment), 'name' => 'Dokumen Pendukung']] : [], // Mock multiple attachments structure
+                'status' => $p->status,
+                'rejection_reason' => $p->rejection_reason,
+                'session' => [
+                    'id' => $p->session->id,
+                    'mata_kuliah' => $p->session->course?->nama ?? '-',
+                    'tanggal' => $p->session->start_at->format('Y-m-d'),
+                    'tanggal_display' => $p->session->start_at->translatedFormat('l, d F Y'),
+                ],
+                'created_at' => $p->created_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
+                'start_date' => $p->session->start_at->format('Y-m-d'),
+                'end_date' => $p->session->start_at->format('Y-m-d'), // Assuming 1 day for now
+                'duration' => 1,
+                'is_urgent' => $isUrgent,
+                'ai_confidence' => $confidence,
+                'ai_recommendation' => $recommendation,
+                'document_score' => $docScore,
+            ];
+        });
+
+        // Advanced Stats for 10 Cards
+        $total = $allPermits->count();
         $stats = [
-            'total' => AttendancePermit::whereIn('attendance_session_id', $sessionIds)->count(),
-            'pending' => AttendancePermit::whereIn('attendance_session_id', $sessionIds)->where('status', 'pending')->count(),
-            'approved' => AttendancePermit::whereIn('attendance_session_id', $sessionIds)->where('status', 'approved')->count(),
-            'rejected' => AttendancePermit::whereIn('attendance_session_id', $sessionIds)->where('status', 'rejected')->count(),
+            'total' => $total,
+            'pending' => $allPermits->where('status', 'pending')->count(),
+            'approved_today' => $allPermits->where('status', 'approved')->where('approved_at', '>=', now()->startOfDay())->count(),
+            'rejected' => $allPermits->where('status', 'rejected')->count(),
+            'auto_approved' => $allPermits->where('status', 'approved')->count() > 0 ? rand(0, $allPermits->where('status', 'approved')->count()) : 0, // Mock
+            'sick_leave' => $allPermits->where('type', 'sakit')->count(),
+            'family_emergency' => $allPermits->where('type', 'izin')->filter(fn($p) => str_contains(strtolower($p->reason), 'keluarga'))->count(),
+            'official_event' => $allPermits->where('type', 'izin')->filter(fn($p) => str_contains(strtolower($p->reason), 'lomba') || str_contains(strtolower($p->reason), 'seminar'))->count(),
+            'suspicious' => $permits->where('ai_confidence', '<', 60)->count(),
+            'avg_response_time' => 4.2, // Mock hours
         ];
 
-        return Inertia::render('dosen/permits', [
+        return Inertia::render('dosen/permit', [
             'permits' => $permits,
             'sessions' => $mySessions,
             'stats' => $stats,

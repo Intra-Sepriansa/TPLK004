@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
+use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Models\Tugas;
 use App\Models\TugasDiskusi;
+use App\Models\TugasSubmission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,11 +22,13 @@ class TugasController extends Controller
         $search = $request->get('search', '');
         $courseId = $request->get('course_id', 'all');
         $status = $request->get('status', 'all');
+        $priority = $request->get('priority', 'all');
+        $jenis = $request->get('jenis', 'all');
 
         // Get courses taught by this dosen
         $dosenCourseIds = MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
 
-        $query = Tugas::with(['course.dosen'])
+        $query = Tugas::with(['course.dosen', 'submissions', 'diskusi'])
             ->whereIn('course_id', $dosenCourseIds)
             ->orderBy('deadline', 'asc');
 
@@ -43,7 +47,27 @@ class TugasController extends Controller
             $query->where('status', $status);
         }
 
-        $tugasList = $query->get()->map(function ($tugas) {
+        if ($priority !== 'all') {
+            $query->where('prioritas', $priority);
+        }
+
+        if ($jenis !== 'all') {
+            $query->where('jenis', $jenis);
+        }
+
+        $totalStudents = Mahasiswa::count();
+
+        $tugasList = $query->get()->map(function ($tugas) use ($totalStudents) {
+            $submissions = $tugas->submissions;
+            $submissionCount = $submissions->count();
+            $gradedCount = $submissions->whereNotNull('grade')->count();
+            $pendingReview = $submissions->whereNull('grade')->count();
+            $lateSubmissions = $submissions->where('status', 'late')->count();
+            $avgScore = $submissions->whereNotNull('grade')->avg('grade');
+            $completionRate = $totalStudents > 0
+                ? round(($submissionCount / $totalStudents) * 100)
+                : 0;
+
             return [
                 'id' => $tugas->id,
                 'judul' => $tugas->judul,
@@ -61,8 +85,16 @@ class TugasController extends Controller
                 'created_by_type' => $tugas->created_by_type,
                 'is_overdue' => $tugas->isOverdue(),
                 'days_until_deadline' => $tugas->days_until_deadline,
-                'diskusi_count' => $tugas->diskusi()->count(),
+                'diskusi_count' => $tugas->diskusi->count(),
                 'created_at' => $tugas->created_at->format('d M Y'),
+                'submission_count' => $submissionCount,
+                'total_students' => $totalStudents,
+                'pending_review' => $pendingReview,
+                'graded_count' => $gradedCount,
+                'late_submissions' => $lateSubmissions,
+                'average_score' => round($avgScore ?? 0, 1),
+                'max_grade' => $tugas->max_grade ?? 100,
+                'completion_rate' => $completionRate,
             ];
         });
 
@@ -71,12 +103,26 @@ class TugasController extends Controller
             'nama' => $c->nama,
         ]);
 
-        // Stats
+        // Aggregate stats
+        $allTugas = Tugas::whereIn('course_id', $dosenCourseIds);
+        $allSubmissions = TugasSubmission::whereHas('tugas', fn($q) => $q->whereIn('course_id', $dosenCourseIds));
+
+        $totalSubmissions = (clone $allSubmissions)->count();
+        $totalGraded = (clone $allSubmissions)->whereNotNull('grade')->count();
+
         $stats = [
-            'total' => Tugas::whereIn('course_id', $dosenCourseIds)->count(),
-            'published' => Tugas::whereIn('course_id', $dosenCourseIds)->where('status', 'published')->count(),
-            'draft' => Tugas::whereIn('course_id', $dosenCourseIds)->where('status', 'draft')->count(),
-            'overdue' => Tugas::whereIn('course_id', $dosenCourseIds)->where('status', 'published')->where('deadline', '<', now())->count(),
+            'total' => (clone $allTugas)->count(),
+            'published' => (clone $allTugas)->where('status', 'published')->count(),
+            'draft' => (clone $allTugas)->where('status', 'draft')->count(),
+            'closed' => (clone $allTugas)->where('status', 'closed')->count(),
+            'overdue' => (clone $allTugas)->where('status', 'published')->where('deadline', '<', now())->count(),
+            'total_submissions' => $totalSubmissions,
+            'pending_review' => (clone $allSubmissions)->whereNull('grade')->count(),
+            'avg_completion_rate' => $tugasList->count() > 0 ? round($tugasList->avg('completion_rate'), 1) : 0,
+            'avg_score' => round((clone $allSubmissions)->whereNotNull('grade')->avg('grade') ?? 0, 1),
+            'late_submissions' => (clone $allSubmissions)->where('status', 'late')->count(),
+            'active_discussions' => TugasDiskusi::whereHas('tugas', fn($q) => $q->whereIn('course_id', $dosenCourseIds))->count(),
+            'grading_progress' => $totalSubmissions > 0 ? round(($totalGraded / $totalSubmissions) * 100) : 0,
         ];
 
         return Inertia::render('dosen/tugas', [
@@ -87,6 +133,8 @@ class TugasController extends Controller
                 'search' => $search,
                 'course_id' => $courseId,
                 'status' => $status,
+                'priority' => $priority,
+                'jenis' => $jenis,
             ],
         ]);
     }
