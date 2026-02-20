@@ -28,6 +28,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     // Courses
     Route::get('/courses', [CourseController::class, 'index'])->name('courses');
     Route::get('/courses/{course}', [CourseController::class, 'show'])->name('courses.show');
+    Route::get('/courses/{course}/export-pdf', [CourseController::class, 'exportPdf'])->name('courses.export-pdf');
     Route::get('/courses/{course}/students', [CourseController::class, 'students'])->name('courses.students');
     Route::get('/courses/{course}/students/{mahasiswa}', [CourseController::class, 'studentDetail'])->name('courses.student-detail');
 

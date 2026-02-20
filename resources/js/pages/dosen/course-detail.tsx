@@ -248,14 +248,15 @@ export default function CourseDetail({
 
 
     const handleExport = (type: 'pdf' | 'excel' | 'csv') => {
-        // In a real app, this would trigger a download
-        alert(`Exporting course data to ${type.toUpperCase()}...`);
-        // router.get(`/dosen/courses/${course.id}/export?type=${type}`);
+        if (type === 'pdf') {
+            window.location.href = `/dosen/courses/${course.id}/export-pdf`;
+        } else {
+            alert(`Belum didukung untuk format ${type.toUpperCase()}`);
+        }
     };
 
     const handleCreateSession = () => {
-        // router.visit(`/dosen/courses/${course.id}/sessions/create`);
-        alert("Navigating to create session page...");
+        router.visit('/dosen/sesi-absen');
     };
 
     const handleSendAnnouncement = () => {

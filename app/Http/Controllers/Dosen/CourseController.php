@@ -69,13 +69,14 @@ class CourseController extends Controller
         $totalLogsAll = AttendanceLog::whereIn('attendance_session_id', $allSessionIds)->count();
         $presentLogsAll = AttendanceLog::whereIn('attendance_session_id', $allSessionIds)->whereIn('status', ['present', 'late'])->count();
 
+        $totalMahasiswaGlobal = Mahasiswa::count();
         $stats = [
             'totalCourses' => $courses->count(),
             'totalHadir' => $presentLogsAll,
-            'totalStudents' => Mahasiswa::count(),
+            'totalStudents' => $totalMahasiswaGlobal,
             'totalSessions' => $courses->sum('totalSessions'),
             'activeSessions' => $courses->sum('activeSessions'),
-            'avgAttendanceRate' => $totalLogsAll > 0 ? round(($presentLogsAll / $totalLogsAll) * 100, 1) : 0,
+            'avgAttendanceRate' => $totalMahasiswaGlobal > 0 ? round(($presentLogsAll / $totalMahasiswaGlobal) * 100) : 0,
             'lowAttendanceStudents' => $courses->sum('lowAttendanceStudents'),
         ];
 
@@ -122,10 +123,8 @@ class CourseController extends Controller
                 : 0,
         ]);
 
-        // Students with attendance
-        $students = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($course) {
-            $q->whereHas('session', fn($s) => $s->where('course_id', $course->id));
-        })->get()->map(function ($m) use ($course) {
+        // All students
+        $students = Mahasiswa::all()->map(function ($m) use ($course) {
             $logs = AttendanceLog::where('mahasiswa_id', $m->id)
                 ->whereHas('session', fn($q) => $q->where('course_id', $course->id));
             $total = $logs->count();
@@ -276,9 +275,7 @@ class CourseController extends Controller
             abort(403);
         }
 
-        $students = Mahasiswa::whereHas('attendanceLogs', function ($q) use ($course) {
-            $q->whereHas('session', fn($s) => $s->where('course_id', $course->id));
-        })->get()->map(function ($m) use ($course) {
+        $students = Mahasiswa::all()->map(function ($m) use ($course) {
             $logs = AttendanceLog::where('mahasiswa_id', $m->id)
                 ->whereHas('session', fn($q) => $q->where('course_id', $course->id));
             $total = $logs->count();
@@ -350,5 +347,84 @@ class CourseController extends Controller
                 'rate' => $total > 0 ? round((($present + $late) / $total) * 100) : 0,
             ],
         ]);
+    }
+
+    public function exportPdf(MataKuliah $course, Request $request)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        if ($course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        $sessions = AttendanceSession::where('course_id', $course->id)->orderBy('meeting_number')->get();
+        // Since we want to show all students, use Mahasiswa::all()
+        $mahasiswaList = Mahasiswa::orderBy('nama')->get();
+
+        $students = [];
+        $totalPresent = 0;
+        $totalLate = 0;
+        $totalAbsent = 0;
+
+        foreach ($mahasiswaList as $mahasiswa) {
+            $attendances = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+                ->whereHas('session', fn($q) => $q->where('course_id', $course->id))
+                ->get()
+                ->keyBy('attendance_session_id');
+
+            $presentCount = $attendances->where('status', 'present')->count();
+            $lateCount = $attendances->where('status', 'late')->count();
+            $absentCount = $sessions->count() - $presentCount - $lateCount;
+
+            $totalPresent += $presentCount;
+            $totalLate += $lateCount;
+            $totalAbsent += $absentCount;
+
+            $rate = $sessions->count() > 0 
+                ? round((($presentCount + $lateCount) / $sessions->count()) * 100, 1) 
+                : 0;
+            
+            $students[] = [
+                'id' => $mahasiswa->id,
+                'nim' => $mahasiswa->nim,
+                'nama' => $mahasiswa->nama,
+                'attendances' => $attendances,
+                'present_count' => $presentCount,
+                'late_count' => $lateCount,
+                'absent_count' => $absentCount,
+                'rate' => $rate,
+            ];
+        }
+
+        $totalPossible = count($mahasiswaList) * $sessions->count();
+        $totalAttendances = $totalPresent + $totalLate;
+        $attendanceRate = $totalPossible > 0 ? round(($totalAttendances / $totalPossible) * 100, 1) : 0;
+        
+        $stats = [
+            'total_sessions' => $sessions->count(),
+            'total_students' => count($mahasiswaList),
+            'present' => $totalPresent,
+            'late' => $totalLate,
+            'absent' => $totalAbsent,
+            'attendance_rate' => $attendanceRate,
+        ];
+
+        $data = [
+            'course' => $course,
+            'sessions' => $sessions,
+            'students' => $students,
+            'stats' => $stats,
+            'semester' => 'Ganjil',
+            'tanggal' => now()->timezone('Asia/Jakarta')->translatedFormat('d F Y'),
+            'tempat' => 'Tangerang Selatan',
+            'logoUnpam' => public_path('logo-unpam.png'),
+            'logoSasmita' => public_path('sasmita.png'),
+        ];
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.dosen-course-report', $data);
+        $pdf->setPaper('A4', 'portrait');
+        
+        $filename = 'Laporan_Kehadiran_' . str_replace(' ', '_', $course->nama) . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }
