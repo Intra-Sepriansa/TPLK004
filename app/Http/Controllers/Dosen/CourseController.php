@@ -71,7 +71,8 @@ class CourseController extends Controller
 
         $stats = [
             'totalCourses' => $courses->count(),
-            'totalStudents' => $courses->sum('totalStudents'),
+            'totalHadir' => $presentLogsAll,
+            'totalStudents' => Mahasiswa::count(),
             'totalSessions' => $courses->sum('totalSessions'),
             'activeSessions' => $courses->sum('activeSessions'),
             'avgAttendanceRate' => $totalLogsAll > 0 ? round(($presentLogsAll / $totalLogsAll) * 100, 1) : 0,

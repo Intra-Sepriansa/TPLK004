@@ -22,6 +22,7 @@ interface Course {
 
 interface Stats {
     totalCourses: number;
+    totalHadir: number;
     totalStudents: number;
     totalSessions: number;
     activeSessions: number;
@@ -78,8 +79,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
     }, [courses, searchQuery, sortBy, activeTab]);
 
     const summaryCards = [
-        { key: 'total', icon: BookOpen, label: 'Total Mata Kuliah', value: stats.totalCourses, sub: 'Semester ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Aktif', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'total', icon: CheckCircle, label: 'Total Hadir', value: stats.totalHadir, sub: 'Semua sesi rute ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Semua Status', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
         { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10', pulse: false },
         { key: 'rate', icon: TrendingUp, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
     ];
@@ -120,8 +121,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                 className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
                                 <div className="p-2 bg-indigo-500/20 rounded-lg"><Sparkles className="h-6 w-6 text-white" /></div>
                                 <div>
-                                    <p className="text-xs text-indigo-100">Total Mata Kuliah</p>
-                                    <p className="text-2xl font-bold text-white">{stats.totalCourses}</p>
+                                    <p className="text-xs text-indigo-100">Total Hadir</p>
+                                    <p className="text-2xl font-bold text-white">{stats.totalHadir}</p>
                                 </div>
                             </motion.div>
                         </div>

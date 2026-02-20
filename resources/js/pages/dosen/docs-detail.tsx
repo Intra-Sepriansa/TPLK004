@@ -416,78 +416,48 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
             `}</style>
 
             <div className="space-y-6 p-6">
-                {/* Header with Gradient - Matching Student Docs Style */}
+                {/* Header - Matching Docs List Style */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Orbs */}
+                    {/* Animated Gradient Background */}
                     <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600"
                         animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0],
-                        }}
-                        transition={{
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1.2, 1, 1.2],
-                            rotate: [0, -90, 0],
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
                         transition={{
                             duration: 15,
                             repeat: Infinity,
                             ease: "linear"
                         }}
-                        className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
                     />
 
-                    {/* Floating Icons */}
-                    {[BookOpen, Award, Star, Sparkles, CheckCircle].map((Icon, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ 
-                                opacity: [0.1, 0.3, 0.1],
-                                y: [0, -20, 0],
-                                x: [0, Math.sin(i) * 10, 0]
-                            }}
-                            transition={{
-                                duration: 3 + i,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                            }}
-                            className="absolute text-white/20"
-                            style={{
-                                left: `${15 + i * 18}%`,
-                                top: `${20 + (i % 2) * 40}%`,
-                            }}
-                        >
-                            <Icon className="h-8 w-8" />
-                        </motion.div>
-                    ))}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Large Floating Icon in Background */}
+                    {/* Pulsating Rings */}
                     <motion.div
-                        animate={{
-                            y: [0, -15, 0],
-                            rotate: [0, 5, -5, 0],
-                        }}
-                        transition={{
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute right-8 top-8 opacity-10"
-                    >
-                        <BookOpen className="h-32 w-32" />
-                    </motion.div>
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+                    />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+                    />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
+                    />
 
                     <div className="relative">
                         <button
