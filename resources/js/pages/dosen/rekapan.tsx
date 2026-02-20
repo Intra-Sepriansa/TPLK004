@@ -295,7 +295,7 @@ export default function DosenRekapan({
         <DosenLayout>
             <Head title="Rekapan Kehadiran" />
 
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-8">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
                 {/* ═══════ HEADER — Dosen Profile ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
                     <motion.div
@@ -431,7 +431,7 @@ export default function DosenRekapan({
 
                 {/* ═══════ STATS CARDS ═══════ */}
                 {sessionId && (
-                    <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         {statCards.map(card => (
                             <motion.div
                                 key={card.key}
@@ -467,7 +467,7 @@ export default function DosenRekapan({
 
                 {/* ═══════ ATTENDANCE RATE BAR ═══════ */}
                 {sessionId && stats.total > 0 && (
-                    <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
+                    <motion.div initial="hidden" animate="visible" variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/20">

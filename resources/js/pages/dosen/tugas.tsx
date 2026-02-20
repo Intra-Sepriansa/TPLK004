@@ -142,16 +142,10 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
     };
 
     const summaryCards = [
-        { key: 'total', icon: FileText, label: 'Total Tugas', value: stats.total, subtitle: `${stats.published} aktif, ${stats.draft} draft`, color: 'from-indigo-500 to-purple-500', glow: 'bg-indigo-500' },
-        { key: 'submissions', icon: Send, label: 'Total Submissions', value: stats.total_submissions, subtitle: `${stats.pending_review} pending review`, color: 'from-emerald-500 to-teal-500', glow: 'bg-emerald-500' },
-        { key: 'pending', icon: Clock, label: 'Pending Review', value: stats.pending_review, subtitle: 'perlu penilaian', color: 'from-amber-500 to-orange-500', glow: 'bg-amber-500' },
-        { key: 'completion', icon: BarChart3, label: 'Completion Rate', value: stats.avg_completion_rate, subtitle: 'dari semua tugas', color: 'from-violet-500 to-purple-500', glow: 'bg-violet-500', suffix: '%' },
-        { key: 'score', icon: Award, label: 'Average Score', value: stats.avg_score, subtitle: 'nilai rata-rata', color: 'from-pink-500 to-rose-500', glow: 'bg-pink-500' },
-        { key: 'late', icon: AlertTriangle, label: 'Late Submissions', value: stats.late_submissions, subtitle: 'pengumpulan terlambat', color: 'from-red-500 to-rose-500', glow: 'bg-red-500' },
-        { key: 'overdue', icon: Timer, label: 'Overdue Tasks', value: stats.overdue, subtitle: 'perlu perhatian', color: 'from-orange-500 to-red-500', glow: 'bg-orange-500' },
-        { key: 'discussions', icon: MessageSquare, label: 'Diskusi Aktif', value: stats.active_discussions, subtitle: 'diskusi berjalan', color: 'from-blue-500 to-cyan-500', glow: 'bg-blue-500' },
-        { key: 'grading', icon: TrendingUp, label: 'Grading Progress', value: stats.grading_progress, subtitle: 'progress penilaian', color: 'from-green-500 to-emerald-500', glow: 'bg-green-500', suffix: '%' },
-        { key: 'closed', icon: ShieldAlert, label: 'Tugas Selesai', value: stats.closed, subtitle: 'telah ditutup', color: 'from-slate-500 to-gray-500', glow: 'bg-slate-500' },
+        { key: 'total', icon: FileText, label: 'Total Tugas', value: stats.total, sub: `${stats.published} aktif, ${stats.draft} draft`, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'pending', icon: Clock, label: 'Perlu Penilaian', value: stats.pending_review, sub: 'Menunggu direview', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'completion', icon: CheckCircle, label: 'Tingkat Penyelesaian', value: stats.avg_completion_rate, suffix: '%', sub: 'Rata-rata kelas', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'overdue', icon: AlertTriangle, label: 'Perlu Perhatian', value: stats.overdue, sub: 'Tugas overdue', gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     const tabs = [
@@ -166,57 +160,80 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
             <Head title="Informasi Tugas" />
             <motion.div className="space-y-6 p-4 md:p-6" variants={containerVariants} initial="hidden" animate="visible">
                 {/* ═══ HEADER ═══ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-6 md:p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
-                    {[1, 2, 3].map(i => <motion.div key={i} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" animate={{ scale: [1, 2.5, 1], opacity: [0.3, 0, 0.3] }} transition={{ duration: 4, repeat: Infinity, delay: i, ease: 'easeInOut' }} style={{ width: 120 * i, height: 120 * i }} />)}
-                    <motion.div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 8, repeat: Infinity }} />
-                    <motion.div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-pink-400/20 blur-3xl" animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.05, 0.15] }} transition={{ duration: 10, repeat: Infinity }} />
-                    <div className="relative z-10">
-                        <div className="flex items-center justify-between flex-wrap gap-4">
-                            <div className="flex items-center gap-4">
-                                <motion.div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg" whileHover={{ scale: 1.1, rotate: 5 }}>
-                                    <ClipboardList className="h-7 w-7" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    <div className="relative">
+                        <div className="flex flex-wrap items-center justify-between gap-6">
+                            <div className="flex items-center gap-5">
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
+                                    <ClipboardList className="h-8 w-8" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-white/70 font-medium">Manajemen</p>
-                                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">Informasi Tugas <Sparkles className="h-6 w-6" /></h1>
+                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Tugas</p>
+                                    <h1 className="text-3xl font-bold text-white">Informasi Tugas</h1>
+                                    <p className="mt-1 text-indigo-100">Kelola dan pantau tugas mahasiswa</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-medium backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-colors">
-                                    <Plus className="h-4 w-4" /> Tambah Tugas
-                                </motion.button>
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-medium backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-colors">
-                                    <Download className="h-4 w-4" /> Export
-                                </motion.button>
-                                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-medium backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-colors">
-                                    <BarChart3 className="h-4 w-4" /> Analytics
-                                </motion.button>
-                            </div>
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
+                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                <div className="p-2 bg-indigo-500/20 rounded-lg"><Sparkles className="h-6 w-6 text-white" /></div>
+                                <div>
+                                    <p className="text-xs text-indigo-100">Total Tugas</p>
+                                    <p className="text-2xl font-bold text-white">{stats.total}</p>
+                                </div>
+                            </motion.div>
                         </div>
-                        <p className="mt-4 text-white/70 max-w-xl">Kelola dan pantau tugas untuk mahasiswa secara komprehensif</p>
+
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
+                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowCreate(true)}
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:bg-white/30">
+                                <Plus className="h-4 w-4" /> Tambah Tugas
+                            </motion.button>
+                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:bg-white/30">
+                                <Download className="h-4 w-4" /> Export
+                            </motion.button>
+                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:bg-white/30">
+                                <BarChart3 className="h-4 w-4" /> Analytics
+                            </motion.button>
+                        </motion.div>
                     </div>
                 </motion.div>
 
-                {/* ═══ 10 SUMMARY CARDS ═══ */}
-                <motion.div className="grid grid-cols-2 md:grid-cols-5 gap-4" variants={containerVariants}>
+                {/* ═══════ 4 SUMMARY CARDS ═══════ */}
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {summaryCards.map((card) => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onMouseEnter={() => setHoveredCard(card.key)} onMouseLeave={() => setHoveredCard(null)} className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl cursor-pointer">
-                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }} className={cn('absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500', card.glow)} />
-                            <div className="relative z-10">
-                                <div className={cn('flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg mb-3', card.color)}>
-                                    <card.icon className="h-5 w-5" />
+                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
+                            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient)} />
+                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
+                                className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
+                            <div className="relative flex items-center gap-3">
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
+                                    <card.icon className="h-6 w-6" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
+                                    <span className="text-xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={card.value} suffix={card.suffix} />
+                                    </span>
+                                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{card.sub}</p>
                                 </div>
-                                <p className="text-2xl font-bold text-slate-900 dark:text-white"><AnimatedCounter value={card.value} suffix={card.suffix} /></p>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">{card.label}</p>
-                                <p className="text-xs text-slate-500 mt-0.5">{card.subtitle}</p>
                             </div>
                         </motion.div>
                     ))}
                 </motion.div>
 
                 {/* ═══ FILTERS ═══ */}
-                <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl">
+                <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/5">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white"><Filter className="h-4 w-4" /></div>

@@ -9,6 +9,65 @@ use Inertia\Inertia;
 
 class NotificationController extends Controller
 {
+    public function create()
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        if (!$dosen) {
+            return redirect()->route('login');
+        }
+
+        // Get courses taught by this dosen with mahasiswa count
+        $courses = \App\Models\MataKuliah::where('dosen_id', $dosen->id)
+            ->get()
+            ->map(function ($course) {
+                $count = \App\Models\Mahasiswa::count(); // all mahasiswa for now
+                return [
+                    'id' => $course->id,
+                    'nama' => $course->nama,
+                    'kode' => $course->id, // use id as code fallback
+                    'mahasiswa_count' => $count,
+                ];
+            });
+
+        // Get all mahasiswa (accessible by this dosen)
+        $mahasiswa = \App\Models\Mahasiswa::all()->map(function ($m) {
+            return [
+                'id' => $m->id,
+                'nama' => $m->nama,
+                'nim' => $m->nim,
+                'kelas' => $m->kelas ?? '-',
+            ];
+        });
+
+        // Get notification templates
+        $templates = \App\Models\NotificationTemplate::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($t) {
+                return [
+                    'id' => $t->id,
+                    'name' => $t->name,
+                    'type' => $t->type,
+                    'title' => $t->subject,
+                    'message' => $t->body,
+                    'usage_count' => 0,
+                ];
+            });
+
+        return Inertia::render('dosen/notification-detail', [
+            'dosen' => [
+                'id' => $dosen->id,
+                'nama' => $dosen->nama,
+                'nidn' => $dosen->nidn,
+                'email' => $dosen->email,
+            ],
+            'courses' => $courses,
+            'mahasiswa' => $mahasiswa,
+            'templates' => $templates,
+        ]);
+    }
+
     public function index()
     {
         $dosen = Auth::guard('dosen')->user();
@@ -17,53 +76,57 @@ class NotificationController extends Controller
             return redirect()->route('login');
         }
 
-        // Get notifications FOR this dosen (received)
-        $receivedNotifications = AppNotification::forUser('dosen', $dosen->id)
-            ->orderByDesc('created_at')
-            ->get();
+        // 1. Received Notifications (Paginated)
+        $receivedQuery = AppNotification::forUser('dosen', $dosen->id)
+            ->orderByDesc('created_at');
+            
+        $totalReceived = $receivedQuery->count();
+        $unreadCount = (clone $receivedQuery)->unread()->count();
+        $notifications = $receivedQuery->paginate(20, ['*'], 'page');
 
-        // Get notifications SENT BY this dosen
-        $sentNotifications = AppNotification::where('created_by_type', 'dosen')
+        // 2. Sent Notifications (Paginated)
+        $sentQuery = AppNotification::where('created_by_type', 'dosen')
             ->where('created_by_id', $dosen->id)
-            ->orderByDesc('created_at')
-            ->get();
+            ->orderByDesc('created_at');
+            
+        $sentNotifications = $sentQuery->paginate(20, ['*'], 'sent_page');
 
-        // Merge and paginate
-        $allNotifications = $receivedNotifications->merge($sentNotifications)
-            ->sortByDesc('created_at')
-            ->values();
+        // 3. Stats Calculation
+        $now = now();
+        $stats = [
+            'total' => $totalReceived,
+            'unread' => $unreadCount,
+            'read' => $totalReceived - $unreadCount,
+            'sent_today' => (clone $sentQuery)->whereDate('created_at', $now->toDateString())->count(),
+            'sent_this_week' => (clone $sentQuery)->whereBetween('created_at', [$now->startOfWeek(), $now->copy()->endOfWeek()])->count(),
+            'sent_this_month' => (clone $sentQuery)->whereMonth('created_at', $now->month)->whereYear('created_at', $now->year)->count(),
+        ];
 
-        // Paginate manually
-        $perPage = 20;
-        $currentPage = request()->get('page', 1);
-        $notifications = new \Illuminate\Pagination\LengthAwarePaginator(
-            $allNotifications->forPage($currentPage, $perPage),
-            $allNotifications->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        $unreadCount = AppNotification::forUser('dosen', $dosen->id)
-            ->unread()
-            ->count();
-
-        // Get dosen's course for notification creation
-        $course = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->first();
-        
-        // Get mahasiswa in dosen's course
-        $mahasiswa = [];
-        if ($course) {
-            $mahasiswa = \App\Models\Mahasiswa::all();
-        }
+        // 4. Courses and Mahasiswa
+        $courses = \App\Models\MataKuliah::where('dosen_id', $dosen->id)
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'nama' => $c->nama,
+                    'kode' => $c->id,
+                ];
+            });
+            
+        $mahasiswa = \App\Models\Mahasiswa::select('id', 'nama', 'nim')->get();
 
         return Inertia::render('dosen/notifications', [
-            'dosen' => $dosen,
+            'dosen' => [
+                'id' => $dosen->id,
+                'nama' => $dosen->nama,
+                'nidn' => $dosen->nidn,
+                'email' => $dosen->email,
+            ],
             'notifications' => $notifications,
-            'unreadCount' => $unreadCount,
-            'course' => $course,
+            'sentNotifications' => $sentNotifications,
+            'stats' => $stats,
+            'courses' => $courses,
             'mahasiswa' => $mahasiswa,
-            'sentNotifications' => $sentNotifications->take(10),
         ]);
     }
 

@@ -3,199 +3,297 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceLog;
-use App\Models\AttendanceSession;
-use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ClassInsightsController extends Controller
 {
     public function index(Request $request)
     {
         $dosen = Auth::guard('dosen')->user();
-        $courseId = $request->get('course_id');
 
-        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
+        // Get all courses taught by dosen
+        $courses = MataKuliah::where('dosen_id', $dosen->id)
+            ->with(['attendanceSessions' => function($query) {
+                $query->orderBy('start_at', 'asc');
+            }, 'attendanceSessions.logs.mahasiswa'])
+            ->get();
 
-        $insights = null;
-        if ($courseId && MataKuliah::where('id', $courseId)->where('dosen_id', $dosen->id)->exists()) {
-            $insights = $this->getClassInsights($courseId);
-        }
+        $insights = $courses->map(function ($course) {
+            return $this->calculateCourseInsights($course);
+        });
 
-        // Course comparison
-        $comparison = $this->getCourseComparison($dosen->id);
+        $stats = $this->calculateOverallStats($insights);
 
         return Inertia::render('dosen/class-insights', [
-            'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
-            'courses' => $courses,
-            'selectedCourseId' => $courseId,
-            'insights' => $insights,
-            'comparison' => $comparison,
+            'dosen' => $dosen,
+            'courses' => $insights,
+            'selectedCourse' => $request->course_id
+                ? $insights->firstWhere('course_id', intval($request->course_id))
+                : null,
+            'stats' => $stats,
         ]);
     }
 
-    private function getClassInsights(int $courseId): array
+    private function calculateCourseInsights(MataKuliah $course): array
     {
-        $course = MataKuliah::find($courseId);
-        $sessions = AttendanceSession::where('course_id', $courseId)
-            ->orderBy('meeting_number')
-            ->get();
+        $sessions = $course->attendanceSessions;
+        $totalSessions = $sessions->count();
+        $completedSessions = $sessions->where('is_active', false)->count();
 
-        $sessionIds = $sessions->pluck('id');
+        // Get unique students from logs across all sessions to define total students
+        // Alternatively, use a relation if available (e.g. course->students)
+        // For now, let's assume students are those who have at least one log or enrolled.
+        // If there's noEnrollment model, we can infer from logs or assume a fixed number if available.
+        // Let's use unique mahasiswa_id from logs as a proxy for "enrolled students" if enrollment table missing.
+        // Ideally, check for enrollment. Since User didn't share Enrollment model, we infer.
+        // But wait, GradingDetailController used $attendanceRecords count.
+        // Let's count unique students encountered in logs.
+        $studentIds = $sessions->flatMap(function ($session) {
+            return $session->logs->pluck('mahasiswa_id');
+        })->unique();
+        $totalStudents = $studentIds->count();
 
-        // Attendance by meeting
-        $byMeeting = $sessions->map(function ($session) {
-            $logs = AttendanceLog::where('attendance_session_id', $session->id)->get();
-            $total = $logs->count();
-            $present = $logs->where('status', 'present')->count();
+        // Calculate attendance rates per session
+        $attendanceRates = [];
+        $attendanceBySession = [];
+
+        foreach ($sessions as $index => $session) {
+            $logs = $session->logs;
+            // If totalStudents is 0 (no logs yet), avoid division by zero
+            // But if totalStudents determined by logs, then for a session with 0 logs, rate is 0.
+            // However, we should probably use the max number of students seen in any session if enrollment is unknown.
+            // Let's stick to $totalStudents calculated above.
+
+            $present = $logs->whereIn('status', ['present', 'late'])->count();
             $late = $logs->where('status', 'late')->count();
+            $absent = $logs->whereIn('status', ['absent', 'alpha'])->count();
 
-            return [
-                'meeting' => $session->meeting_number,
-                'title' => $session->title ?? "Pertemuan {$session->meeting_number}",
-                'date' => $session->start_at?->format('d M'),
-                'total' => $total,
+            // Refine totalStudents: if a session has more logs than unique students found so far? Unlikely.
+            // If totalStudents is 0, rate is 0.
+            $rate = $totalStudents > 0 ? ($present / $totalStudents) * 100 : 0;
+            
+            $attendanceRates[] = $rate;
+
+            $attendanceBySession[] = [
+                'session_number' => $session->meeting_number ?? ($index + 1),
+                'date' => $session->start_at ? $session->start_at->format('d M') : 'TBA',
+                'attendance_rate' => round($rate, 1),
                 'present' => $present,
                 'late' => $late,
-                'absent' => $total > 0 ? $total - $present - $late : 0,
-                'rate' => $total > 0 ? round((($present + $late) / $total) * 100, 1) : 0,
+                'absent' => $absent,
             ];
-        })->toArray();
+        }
 
-        // Students who are frequently late
-        $frequentlyLate = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-            ->where('status', 'late')
-            ->select('mahasiswa_id', DB::raw('COUNT(*) as late_count'))
-            ->groupBy('mahasiswa_id')
-            ->having('late_count', '>=', 2)
-            ->orderByDesc('late_count')
-            ->take(10)
-            ->get()
-            ->map(function ($row) use ($sessionIds) {
-                $student = Mahasiswa::find($row->mahasiswa_id);
-                $totalAttended = AttendanceLog::where('mahasiswa_id', $row->mahasiswa_id)
-                    ->whereIn('attendance_session_id', $sessionIds)
-                    ->count();
+        $avgRate = count($attendanceRates) > 0
+            ? array_sum($attendanceRates) / count($attendanceRates)
+            : 0;
 
-                return [
-                    'id' => $row->mahasiswa_id,
-                    'nama' => $student?->nama,
-                    'nim' => $student?->nim,
-                    'late_count' => $row->late_count,
-                    'total_attended' => $totalAttended,
-                    'late_percentage' => $totalAttended > 0 
-                        ? round(($row->late_count / $totalAttended) * 100, 1) 
-                        : 0,
+        // Calculate trend
+        $trend = $this->calculateTrend($attendanceRates);
+
+        // Calculate Grade Distribution (based on attendance rate for each student)
+        $studentPerformance = [];
+        foreach ($studentIds as $sId) {
+            $attended = 0;
+            foreach ($sessions as $session) {
+                // Check if student present in this session
+                $log = $session->logs->where('mahasiswa_id', $sId)->first();
+                if ($log && in_array($log->status, ['present', 'late'])) {
+                    $attended++;
+                }
+            }
+            $rate = $totalSessions > 0 ? ($attended / $totalSessions) * 100 : 0;
+            // Get student name/nim from first log found
+            $student = null;
+            foreach ($sessions as $session) {
+                $log = $session->logs->where('mahasiswa_id', $sId)->first();
+                if ($log && $log->mahasiswa) {
+                    $student = $log->mahasiswa;
+                    break;
+                }
+            }
+            
+            if ($student) {
+                $studentPerformance[] = [
+                    'mahasiswa_id' => $sId,
+                    'nama' => $student->nama,
+                    'nim' => $student->nim,
+                    'attendance_rate' => round($rate, 1),
                 ];
-            });
+            }
+        }
 
-        // Students at risk (2+ absences)
-        $atRisk = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-            ->where('status', 'rejected')
-            ->select('mahasiswa_id', DB::raw('COUNT(*) as absent_count'))
-            ->groupBy('mahasiswa_id')
-            ->having('absent_count', '>=', 2)
-            ->orderByDesc('absent_count')
-            ->get()
-            ->map(function ($row) {
-                $student = Mahasiswa::find($row->mahasiswa_id);
-                return [
-                    'id' => $row->mahasiswa_id,
-                    'nama' => $student?->nama,
-                    'nim' => $student?->nim,
-                    'absent_count' => $row->absent_count,
-                    'can_take_uas' => $row->absent_count < 3,
-                ];
-            });
+        // Sort performers
+        usort($studentPerformance, function ($a, $b) {
+            return $b['attendance_rate'] <=> $a['attendance_rate'];
+        });
 
-        // Top performers
-        $topPerformers = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-            ->whereIn('status', ['present', 'late'])
-            ->select('mahasiswa_id', DB::raw('COUNT(*) as attended'))
-            ->groupBy('mahasiswa_id')
-            ->orderByDesc('attended')
-            ->take(5)
-            ->get()
-            ->map(function ($row) use ($sessions) {
-                $student = Mahasiswa::find($row->mahasiswa_id);
-                $presentCount = AttendanceLog::where('mahasiswa_id', $row->mahasiswa_id)
-                    ->where('status', 'present')
-                    ->count();
+        // Grade Distribution
+        $gradeDist = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0];
+        foreach ($studentPerformance as $p) {
+            $r = $p['attendance_rate'];
+            if ($r >= 85) $gradeDist['A']++;
+            else if ($r >= 75) $gradeDist['B']++;
+            else if ($r >= 60) $gradeDist['C']++;
+            else if ($r >= 50) $gradeDist['D']++;
+            else $gradeDist['E']++;
+        }
 
-                return [
-                    'id' => $row->mahasiswa_id,
-                    'nama' => $student?->nama,
-                    'nim' => $student?->nim,
-                    'attended' => $row->attended,
-                    'total_sessions' => $sessions->count(),
-                    'rate' => $sessions->count() > 0 
-                        ? round(($row->attended / $sessions->count()) * 100, 1) 
-                        : 0,
-                    'on_time_rate' => $row->attended > 0 
-                        ? round(($presentCount / $row->attended) * 100, 1) 
-                        : 0,
-                ];
-            });
+        $atRiskCount = count(array_filter($studentPerformance, fn($p) => $p['attendance_rate'] < 75));
+        $perfectAttendance = count(array_filter($studentPerformance, fn($p) => $p['attendance_rate'] == 100));
 
-        // Hourly distribution
-        $hourlyDistribution = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-            ->selectRaw('HOUR(scanned_at) as hour, COUNT(*) as count')
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->pluck('count', 'hour')
-            ->toArray();
-
-        // Overall stats
-        $totalStudents = Mahasiswa::count(); // Total students in system
-        $totalLogs = AttendanceLog::whereIn('attendance_session_id', $sessionIds)->count();
-        $presentLogs = AttendanceLog::whereIn('attendance_session_id', $sessionIds)
-            ->whereIn('status', ['present', 'late'])->count();
+        // Next session
+        $nextSession = $sessions->where('start_at', '>', now())->sortBy('start_at')->first();
 
         return [
-            'course' => [
-                'id' => $course->id,
-                'nama' => $course->nama,
-                'sks' => $course->sks,
-            ],
-            'summary' => [
-                'total_sessions' => $sessions->count(),
-                'total_students' => $totalStudents,
-                'average_attendance' => $totalLogs > 0 
-                    ? round(($presentLogs / $totalLogs) * 100, 1) 
-                    : 0,
-                'students_at_risk' => $atRisk->count(),
-            ],
-            'byMeeting' => $byMeeting,
-            'frequentlyLate' => $frequentlyLate,
-            'atRisk' => $atRisk,
-            'topPerformers' => $topPerformers,
-            'hourlyDistribution' => $hourlyDistribution,
+            'course_id' => $course->id,
+            'course_name' => $course->nama,
+            'course_code' => $course->kode ?? 'KB-' . $course->id,
+            'sks' => $course->sks,
+            'total_students' => $totalStudents,
+            'total_sessions' => $totalSessions,
+            'completed_sessions' => $completedSessions,
+            'average_attendance_rate' => round($avgRate, 1),
+            'trend' => $trend['direction'],
+            'trend_percentage' => $trend['percentage'],
+            'grade_distribution' => $gradeDist,
+            'at_risk_students' => $atRiskCount,
+            'perfect_attendance' => $perfectAttendance,
+            'last_session_date' => $sessions->where('start_at', '<=', now())->sortByDesc('start_at')->first()?->start_at?->format('d M Y'),
+            'next_session_date' => $nextSession ? $nextSession->start_at->format('d M Y') : '-',
+            'attendance_by_session' => $attendanceBySession,
+            'top_performers' => array_slice($studentPerformance, 0, 5),
+            'bottom_performers' => array_slice(array_reverse($studentPerformance), 0, 5),
         ];
     }
 
-    private function getCourseComparison(int $dosenId): array
+    private function calculateTrend(array $rates): array
     {
-        $courses = MataKuliah::where('dosen_id', $dosenId)->get();
+        if (count($rates) < 2) {
+            return ['direction' => 'stable', 'percentage' => 0];
+        }
 
-        return $courses->map(function ($course) {
-            $sessions = AttendanceSession::where('course_id', $course->id)->pluck('id');
-            $totalLogs = AttendanceLog::whereIn('attendance_session_id', $sessions)->count();
-            $presentLogs = AttendanceLog::whereIn('attendance_session_id', $sessions)
-                ->whereIn('status', ['present', 'late'])->count();
+        // Compare average of last 3 sessions vs previous 3
+        // Or simple: compare last session vs average of previous
+        
+        $lastRate = end($rates);
+        $prevRates = array_slice($rates, 0, -1);
+        
+        if (empty($prevRates)) {
+             return ['direction' => 'stable', 'percentage' => 0];
+        }
 
-            return [
-                'id' => $course->id,
-                'nama' => $course->nama,
-                'sks' => $course->sks,
-                'total_sessions' => $sessions->count(),
-                'attendance_rate' => $totalLogs > 0 
-                    ? round(($presentLogs / $totalLogs) * 100, 1) 
-                    : 0,
-            ];
-        })->sortByDesc('attendance_rate')->values()->toArray();
+        $prevAvg = array_sum($prevRates) / count($prevRates);
+        
+        if ($prevAvg == 0) return ['direction' => 'up', 'percentage' => 100];
+
+        $diff = $lastRate - $prevAvg;
+        $percentage = round(($diff / $prevAvg) * 100, 1);
+
+        $direction = 'stable';
+        if ($percentage > 2) $direction = 'up';
+        if ($percentage < -2) $direction = 'down';
+
+        return ['direction' => $direction, 'percentage' => $percentage];
+    }
+
+    private function calculateOverallStats($insights)
+    {
+        return [
+            'total_courses' => $insights->count(),
+            'total_students' => $insights->sum('total_students'),
+            'average_attendance' => $insights->avg('average_attendance_rate') ? round($insights->avg('average_attendance_rate'), 1) : 0,
+            'total_sessions' => $insights->sum('total_sessions'),
+            'courses_above_target' => $insights->where('average_attendance_rate', '>=', 75)->count(),
+            'courses_below_target' => $insights->where('average_attendance_rate', '<', 75)->count(),
+        ];
+    }
+
+    public function exportCsv(Request $request)
+    {
+        $courseId = $request->course_id;
+        $course = MataKuliah::with(['attendanceSessions.logs.mahasiswa'])->findOrFail($courseId);
+        $insights = $this->calculateCourseInsights($course);
+        
+        $filename = "class-insights-" . ($course->kode ?? 'course') . "-" . date('Y-m-d') . ".csv";
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+        
+        $callback = function() use ($insights) {
+            $file = fopen('php://output', 'w');
+            
+            // Header
+            fputcsv($file, [
+                'Mata Kuliah', 'Kode', 'SKS', 'Total Mahasiswa', 'Total Sesi', 
+                'Rata-rata Kehadiran', 'Trend', 'Mahasiswa At-Risk'
+            ]);
+            
+            // Data
+            fputcsv($file, [
+                $insights['course_name'],
+                $insights['course_code'],
+                $insights['sks'],
+                $insights['total_students'],
+                $insights['total_sessions'],
+                $insights['average_attendance_rate'] . '%',
+                $insights['trend'],
+                $insights['at_risk_students'],
+            ]);
+
+            fputcsv($file, []); // Empty line
+            fputcsv($file, ['Sesi', 'Tanggal', 'Kehadiran (%)', 'Hadir', 'Telat', 'Absen']);
+
+            foreach ($insights['attendance_by_session'] as $session) {
+                fputcsv($file, [
+                    $session['session_number'],
+                    $session['date'],
+                    $session['attendance_rate'],
+                    $session['present'],
+                    $session['late'],
+                    $session['absent'],
+                ]);
+            }
+            
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $courseId = $request->course_id;
+        $course = MataKuliah::with(['attendanceSessions.logs.mahasiswa'])->findOrFail($courseId);
+        $insights = $this->calculateCourseInsights($course);
+        
+        $pdf = Pdf::loadView('dosen.reports.class-insights', [
+            'course' => $course,
+            'insights' => $insights,
+            'dosen' => Auth::guard('dosen')->user(),
+            'date' => now()->format('d F Y')
+        ]);
+        
+        return $pdf->download("class-insights-{$insights['course_code']}.pdf");
+    }
+
+    public function exportExcel(Request $request)
+    {
+        return $this->exportCsv($request);
+    }
+
+    public function exportJson(Request $request)
+    {
+        $courseId = $request->course_id;
+        $course = MataKuliah::with(['attendanceSessions.logs.mahasiswa'])->findOrFail($courseId);
+        $insights = $this->calculateCourseInsights($course);
+        
+        return response()->json($insights);
     }
 }

@@ -132,17 +132,12 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
     const confidenceBg = (c: number) => c >= 85 ? 'bg-emerald-500' : c >= 70 ? 'bg-amber-500' : 'bg-red-500';
 
     /* ═══ Card data for summary row ═══ */
+    /* ═══ Card data for summary row ═══ */
     const summaryCards = [
-        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'semua waktu', icon: Camera, colors: ['blue', 'indigo'] },
-        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'perlu verifikasi', icon: Clock, colors: ['amber', 'orange'] },
-        { key: 'approved', label: 'Disetujui', value: stats.approved_today, sub: 'hari ini', icon: CheckCircle, colors: ['emerald', 'teal'] },
-        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'tidak valid', icon: XCircle, colors: ['red', 'rose'] },
-        { key: 'ai', label: 'AI Verified', value: stats.ai_verified, sub: 'by AI system', icon: Sparkles, colors: ['purple', 'violet'] },
-        { key: 'suspicious', label: 'Suspicious', value: stats.suspicious, sub: 'perlu review', icon: AlertTriangle, colors: ['orange', 'red'] },
-        { key: 'face', label: 'Face Match', value: `${stats.face_match_rate}%`, sub: 'rata-rata', icon: User, colors: ['indigo', 'purple'] },
-        { key: 'location', label: 'Location Valid', value: stats.location_valid, sub: 'dalam radius', icon: MapPin, colors: ['green', 'emerald'] },
-        { key: 'device', label: 'Trusted Devices', value: stats.device_trusted, sub: 'perangkat', icon: Smartphone, colors: ['cyan', 'blue'] },
-        { key: 'time', label: 'Avg Time', value: `${stats.avg_response_time}m`, sub: 'response', icon: Timer, colors: ['pink', 'rose'] },
+        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'Total data masuk', icon: Camera, gradient: 'from-blue-400 to-indigo-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'Perlu tinjauan', icon: Clock, gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'approved', label: 'Disetujui', value: stats.approved_today, sub: 'Hari ini', icon: CheckCircle, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'Ditolak sistem/dosen', icon: XCircle, gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     return (
@@ -153,20 +148,10 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
 
                 {/* ═══════════════════ HERO HEADER ═══════════════════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -217,23 +202,23 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                 </motion.div>
 
                 {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 grid-cols-2 md:grid-cols-5">
-                    {summaryCards.map(card => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover"
-                            onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={`group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-${card.colors[0]}-500/10 dark:border-white/5`}>
-                            <div className={`absolute inset-0 bg-gradient-to-br from-${card.colors[0]}-500/5 to-${card.colors[1]}-500/5 dark:from-${card.colors[0]}-500/10 dark:to-${card.colors[1]}-500/10`} />
+                {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    {summaryCards.map((card) => (
+                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
+                            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient)} />
                             <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-${card.colors[0]}-500 blur-3xl transition-all duration-500`} />
+                                className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-3">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-${card.colors[0]}-400 to-${card.colors[1]}-600 text-white shadow-lg shadow-${card.colors[0]}-500/30`}>
+                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
                                     <card.icon className="h-6 w-6" />
                                 </motion.div>
                                 <div>
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
                                     <span className="text-xl font-bold text-neutral-900 dark:text-white">{card.value}</span>
-                                    <p className="text-[10px] text-neutral-400">{card.sub}</p>
+                                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{card.sub}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -241,8 +226,9 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                 </motion.div>
 
                 {/* ═══════════════════ FILTERS & SEARCH ═══════════════════ */}
+                {/* ═══════════════════ FILTERS & SEARCH ═══════════════════ */}
                 <motion.div variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl p-5">
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl p-5 dark:border-white/5">
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="relative flex-1 min-w-[200px]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />

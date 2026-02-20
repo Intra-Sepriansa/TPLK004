@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Award, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap, Clock, User, Edit3, CheckCircle, AlertTriangle, FileText, Users, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
     pesan: string; visibility: string; recipient_name: string | null; is_pinned: boolean;
     reply_to_id: number | null; reply_to?: { sender_name: string; pesan: string } | null;
+    is_me: boolean;
     created_at: string; time_ago: string;
 };
 type Tugas = {
@@ -45,6 +47,8 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
             preserveScroll: true,
         });
     };
+
+    const { auth } = usePage<any>().props;
 
     const handleReply = (d: Diskusi) => { setReplyTo(d); inputRef.current?.focus(); };
     const togglePin = (id: number) => router.patch(`/dosen/tugas/diskusi/${id}/pin`, {}, { preserveScroll: true });
@@ -272,66 +276,69 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                             <AnimatePresence>
                                 {diskusi.map((d, index) => {
                                     const replyTarget = d.reply_to_id ? diskusi.find(x => x.id === d.reply_to_id) : null;
+                                    const isMe = d.is_me;
                                     return (
-                                        <motion.div key={d.id} initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.05, duration: 0.3 }} className={`relative group ${d.is_pinned ? 'order-first' : ''}`}>
+                                        <motion.div key={d.id} initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: index * 0.05, duration: 0.3 }} className={cn("relative group flex w-full", isMe ? "justify-end" : "justify-start", d.is_pinned ? "order-first" : "")}>
                                             {/* Reply indicator */}
                                             {replyTarget && (
-                                                <motion.div className="ml-6 mb-3 pl-4 border-l-2 border-purple-400 dark:border-purple-600" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                                                    <div className="flex items-center gap-2 text-xs p-3 bg-white/50 dark:bg-neutral-800/50 rounded-xl border border-white/30 dark:border-neutral-700/50 backdrop-blur-sm">
+                                                <motion.div className={cn("absolute -top-8 mb-3 pl-4 border-l-2", isMe ? "right-0 border-r-2 border-l-0 pr-4 pl-0 text-right" : "left-0 border-purple-400 dark:border-purple-600")} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                                                    <div className="flex items-center gap-2 text-xs p-2 bg-white/50 dark:bg-neutral-800/50 rounded-xl border border-white/30 dark:border-neutral-700/50 backdrop-blur-sm">
                                                         <CornerDownRight className="h-3.5 w-3.5 text-purple-500 flex-shrink-0" />
-                                                        <span className="font-semibold text-purple-600 dark:text-purple-400">Membalas {replyTarget.sender_name}:</span>
-                                                        <span className="truncate text-slate-600 dark:text-slate-400">"{replyTarget.pesan}"</span>
+                                                        <span className="font-semibold text-purple-600 dark:text-purple-400">Balas {replyTarget.sender_name}:</span>
+                                                        <span className="truncate max-w-[150px] text-slate-600 dark:text-slate-400">"{replyTarget.pesan}"</span>
                                                     </div>
                                                 </motion.div>
                                             )}
 
                                             {/* Message Card */}
                                             <motion.div
-                                                className={`relative overflow-hidden rounded-2xl border backdrop-blur-sm transition-all duration-300 ${d.is_pinned
-                                                    ? 'bg-amber-50/60 dark:bg-amber-900/20 border-amber-300/30 dark:border-amber-700/30 shadow-lg shadow-amber-500/10'
-                                                    : 'bg-white/50 dark:bg-neutral-800/50 border-white/30 dark:border-neutral-700/30 hover:shadow-lg'
-                                                    }`}
+                                                className={cn(
+                                                    "relative overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 max-w-[85%] md:max-w-[70%]",
+                                                    d.is_pinned ? "bg-amber-50/80 dark:bg-amber-900/30 border-amber-300/30 dark:border-amber-700/30 shadow-lg shadow-amber-500/10" :
+                                                        isMe ? "bg-gradient-to-br from-indigo-600 to-violet-700 border-indigo-500/30 shadow-lg shadow-indigo-500/20" :
+                                                            "bg-white/60 dark:bg-neutral-800/60 border-white/30 dark:border-neutral-700/30 hover:shadow-lg"
+                                                )}
                                                 whileHover={{ scale: 1.01, y: -2 }}
                                             >
                                                 {d.is_pinned && (
-                                                    <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-bl-xl flex items-center gap-1">
+                                                    <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-bl-xl flex items-center gap-1 z-10">
                                                         <Pin className="h-3 w-3" /> Pinned
                                                     </div>
                                                 )}
 
-                                                <div className="flex gap-4 p-5">
+                                                <div className={cn("flex gap-4 p-5", isMe ? "flex-row-reverse" : "")}>
                                                     <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                                                        <Avatar className="h-12 w-12 ring-2 ring-white/50 dark:ring-neutral-700/50 shadow-lg flex-shrink-0">
-                                                            <AvatarFallback className={`${getSenderStyle(d.sender_type)} text-lg font-bold`}>
+                                                        <Avatar className="h-10 w-10 ring-2 ring-white/20 dark:ring-neutral-700/50 shadow-lg flex-shrink-0">
+                                                            <AvatarFallback className={cn("text-sm font-bold", isMe ? "bg-white/20 text-white" : getSenderStyle(d.sender_type))}>
                                                                 {d.sender_name.charAt(0)}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                     </motion.div>
 
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 flex-wrap mb-3">
-                                                            <span className="font-bold text-base text-slate-900 dark:text-white">{d.sender_name}</span>
-                                                            <Badge variant="outline" className="text-xs capitalize font-medium border-slate-200/50 dark:border-neutral-700/50">{d.sender_type}</Badge>
-                                                            {d.visibility === 'private' && <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-semibold shadow-lg">🔒 Private</Badge>}
-                                                            <span className="text-xs text-slate-500 ml-auto">{d.time_ago}</span>
+                                                    <div className={cn("flex-1 min-w-0", isMe ? "text-right" : "text-left")}>
+                                                        <div className={cn("flex items-center gap-2 flex-wrap mb-2", isMe ? "justify-end" : "justify-start")}>
+                                                            <span className={cn("font-bold text-sm", isMe ? "text-white" : "text-slate-900 dark:text-white")}>{d.sender_name}</span>
+                                                            {!isMe && <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize font-medium border-slate-200/50 dark:border-neutral-700/50">{d.sender_type}</Badge>}
+                                                            {d.visibility === 'private' && <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-1.5 py-0 font-semibold shadow-lg">🔒 Private</Badge>}
+                                                            <span className={cn("text-[10px]", isMe ? "text-indigo-200" : "text-slate-400 ml-auto")}>{d.time_ago}</span>
                                                         </div>
 
-                                                        <p className="text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-4 whitespace-pre-wrap">{d.pesan}</p>
+                                                        <p className={cn("text-sm leading-relaxed mb-3 whitespace-pre-wrap", isMe ? "text-white/95" : "text-slate-700 dark:text-slate-300")}>{d.pesan}</p>
 
-                                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                        <div className={cn("flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200", isMe ? "justify-end" : "justify-start")}>
                                                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                                <Button variant="ghost" size="sm" onClick={() => handleReply(d)} className="h-8 text-xs hover:bg-purple-100/50 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-medium">
-                                                                    <Reply className="h-3.5 w-3.5 mr-1.5" /> Balas
+                                                                <Button variant="ghost" size="sm" onClick={() => handleReply(d)} className={cn("h-7 px-2 text-xs font-medium", isMe ? "text-indigo-200 hover:bg-white/10 hover:text-white" : "hover:bg-purple-100/50 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400")}>
+                                                                    <Reply className="h-3 w-3 mr-1" /> Balas
                                                                 </Button>
                                                             </motion.div>
                                                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                                <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-8 text-xs hover:bg-amber-100/50 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-medium">
-                                                                    <Pin className="h-3.5 w-3.5 mr-1.5" /> {d.is_pinned ? 'Unpin' : 'Pin'}
+                                                                <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className={cn("h-7 px-2 text-xs font-medium", isMe ? "text-indigo-200 hover:bg-white/10 hover:text-white" : "hover:bg-amber-100/50 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400")}>
+                                                                    <Pin className="h-3 w-3 mr-1" /> {d.is_pinned ? 'Unpin' : 'Pin'}
                                                                 </Button>
                                                             </motion.div>
                                                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                                <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(d.id)} className="h-8 text-xs text-red-600 dark:text-red-400 hover:bg-red-100/50 dark:hover:bg-red-900/30 font-medium">
-                                                                    <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Hapus
+                                                                <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(d.id)} className={cn("h-7 px-2 text-xs font-medium", isMe ? "text-red-200 hover:bg-red-500/20 hover:text-red-100" : "text-red-600 dark:text-red-400 hover:bg-red-100/50 dark:hover:bg-red-900/30")}>
+                                                                    <Trash2 className="h-3 w-3 mr-1" /> Hapus
                                                                 </Button>
                                                             </motion.div>
                                                         </div>

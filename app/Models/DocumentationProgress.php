@@ -51,7 +51,7 @@ class DocumentationProgress extends Model
         $sections = $this->completed_sections ?? [];
         if (!in_array($section, $sections)) {
             $sections[] = $section;
-            $this->completed_sections = $sections;
+            $this->completed_sections = array_values($sections);
             $this->last_read_at = now();
             $this->checkCompletion();
             $this->save();
@@ -64,8 +64,7 @@ class DocumentationProgress extends Model
      */
     public function markSectionsComplete(array $sections): self
     {
-        $currentSections = $this->completed_sections ?? [];
-        $this->completed_sections = array_unique(array_merge($currentSections, $sections));
+        $this->completed_sections = array_values(array_unique($sections));
         $this->last_read_at = now();
         $this->checkCompletion();
         $this->save();

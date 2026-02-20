@@ -80,7 +80,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
     const summaryCards = [
         { key: 'total', icon: BookOpen, label: 'Total Mata Kuliah', value: stats.totalCourses, sub: 'Semester ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
         { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Aktif', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
+        { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10', pulse: false },
         { key: 'rate', icon: TrendingUp, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
     ];
 
@@ -96,19 +96,12 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
 
                 {/* ═══════ HEADER — Kas Admin Style ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i }} />
-                    ))}
+                    {/* Ripple animation removed */}
 
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -164,11 +157,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
                                     className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
                                     <card.icon className="h-6 w-6" />
-                                    {card.pulse && (
-                                        <motion.div className="absolute inset-0 rounded-2xl border-2 border-cyan-400"
-                                            animate={{ scale: [1, 1.3], opacity: [0.6, 0] }}
-                                            transition={{ duration: 1.5, repeat: Infinity }} />
-                                    )}
+                                    {/* Pulse animation removed */}
                                 </motion.div>
                                 <div>
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
@@ -262,7 +251,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ delay: i * 0.05 }}
                                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/50 dark:bg-neutral-900/50 shadow-xl backdrop-blur-xl dark:border-white/5 cursor-pointer"
-                                        onClick={() => { setSelectedCourse(course); setDetailTab('overview'); }}>
+                                        onClick={() => router.visit(`/dosen/courses/${course.id}`)}>
                                         {/* Gradient accent bar */}
                                         <div className={cn("h-1.5 w-full bg-gradient-to-r",
                                             course.attendanceRate >= 80 ? "from-emerald-400 to-teal-500" :
@@ -279,8 +268,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                     <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 dark:border-indigo-800/50 text-xs font-bold text-indigo-600 dark:text-indigo-400">{course.sks} SKS</span>
                                                     {course.activeSessions > 0 && (
                                                         <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                                                            <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                                                                animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                                                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                             {course.activeSessions} aktif
                                                         </span>
                                                     )}
@@ -378,7 +366,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
                                                 transition={{ delay: i * 0.03, type: 'spring', stiffness: 300, damping: 24 }}
                                                 className="border-b border-white/5 hover:bg-white/30 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                                                onClick={() => { setSelectedCourse(course); setDetailTab('overview'); }}>
+                                                onClick={() => router.visit(`/dosen/courses/${course.id}`)}>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow">
@@ -415,8 +403,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                 <td className="px-4 py-4 text-center">
                                                     {course.activeSessions > 0 ? (
                                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                                                            <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                                                                animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                                                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                             {course.activeSessions} Aktif
                                                         </span>
                                                     ) : (
@@ -462,11 +449,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                     <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 blur-2xl" />
                                         <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-                                        {[0, 1].map(i => (
-                                            <motion.div key={i} className="absolute right-8 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10"
-                                                animate={{ scale: [1, 2], opacity: [0.3, 0] }}
-                                                transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.8 }} />
-                                        ))}
+                                        {/* Animation removed */}
                                         <div className="relative flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
@@ -620,10 +603,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                 </div>
                                                 <div className="rounded-2xl border border-white/20 bg-white/50 dark:bg-neutral-800/50 p-6 backdrop-blur-lg">
                                                     <div className="grid grid-cols-3 gap-3 mb-4">
-                                                        <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 text-center">
-                                                            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{selectedCourse.totalSessions}</p>
-                                                            <p className="text-[10px] text-blue-500">Total Sesi</p>
-                                                        </div>
+
                                                         <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/50 text-center">
                                                             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{selectedCourse.activeSessions}</p>
                                                             <p className="text-[10px] text-emerald-500">Aktif</p>

@@ -25,11 +25,145 @@ class SessionTemplateController extends Controller
 
         $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
 
+        $stats = [
+            'total_templates' => $templates->count(),
+            'active_templates' => $templates->where('is_active', true)->count(),
+            'auto_activate_templates' => $templates->where('auto_activate', true)->count(),
+            'average_duration' => $templates->count() > 0 ? round($templates->avg('duration_minutes')) : 0,
+        ];
+
         return Inertia::render('dosen/session-templates', [
             'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
             'templates' => $templates,
             'courses' => $courses,
+            'stats' => $stats,
         ]);
+    }
+
+    public function create()
+    {
+        $dosen = Auth::guard('dosen')->user();
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
+
+        return Inertia::render('dosen/session-detail', [
+            'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
+            'courses' => $courses,
+            'mode' => 'create',
+        ]);
+    }
+
+    public function edit(SessionTemplate $template)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        if ($template->dosen_id !== $dosen->id) abort(403);
+
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->get(['id', 'nama', 'sks']);
+
+        return Inertia::render('dosen/session-detail', [
+            'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
+            'template' => $template->load('course'),
+            'courses' => $courses,
+            'mode' => 'edit',
+        ]);
+    }
+
+    public function storeAdvanced(Request $request)
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'category' => 'required|in:regular,exam,lab,seminar,custom',
+            'course_id' => 'nullable|exists:mata_kuliah,id',
+            'tags' => 'nullable|array',
+            'duration_minutes' => 'required|integer|min:30|max:300',
+            'qr_refresh_interval' => 'required|integer|min:10|max:120',
+            'allow_late_minutes' => 'integer|min:0|max:60',
+            'grace_period_minutes' => 'integer|min:0|max:30',
+            'default_days' => 'nullable|array',
+            'require_selfie' => 'boolean',
+            'selfie_verification_level' => 'in:basic,strict,ai',
+            'require_location' => 'boolean',
+            'location_radius_meters' => 'integer|min:10|max:500',
+            'anti_spoofing' => 'boolean',
+            'max_attempts' => 'integer|min:1|max:10',
+            'auto_activate' => 'boolean',
+            'auto_activate_time' => 'nullable|string',
+            'auto_deactivate' => 'boolean',
+            'auto_deactivate_time' => 'nullable|string',
+            'send_reminder' => 'boolean',
+            'reminder_minutes_before' => 'integer|min:5|max:60',
+            'is_active' => 'boolean',
+            'is_draft' => 'boolean',
+        ]);
+
+        $validated['dosen_id'] = $dosen->id;
+        $validated['default_start_time'] = '08:00';
+        $validated['default_end_time'] = '10:00';
+
+        SessionTemplate::create($validated);
+
+        return redirect()->route('dosen.session-templates')->with('success', $validated['is_draft'] ? 'Draft tersimpan.' : 'Template berhasil dibuat.');
+    }
+
+    public function updateAdvanced(Request $request, SessionTemplate $template)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        if ($template->dosen_id !== $dosen->id) abort(403);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'category' => 'required|in:regular,exam,lab,seminar,custom',
+            'course_id' => 'nullable|exists:mata_kuliah,id',
+            'tags' => 'nullable|array',
+            'duration_minutes' => 'required|integer|min:30|max:300',
+            'qr_refresh_interval' => 'required|integer|min:10|max:120',
+            'allow_late_minutes' => 'integer|min:0|max:60',
+            'grace_period_minutes' => 'integer|min:0|max:30',
+            'default_days' => 'nullable|array',
+            'require_selfie' => 'boolean',
+            'selfie_verification_level' => 'in:basic,strict,ai',
+            'require_location' => 'boolean',
+            'location_radius_meters' => 'integer|min:10|max:500',
+            'anti_spoofing' => 'boolean',
+            'max_attempts' => 'integer|min:1|max:10',
+            'auto_activate' => 'boolean',
+            'auto_activate_time' => 'nullable|string',
+            'auto_deactivate' => 'boolean',
+            'auto_deactivate_time' => 'nullable|string',
+            'send_reminder' => 'boolean',
+            'reminder_minutes_before' => 'integer|min:5|max:60',
+            'is_active' => 'boolean',
+            'is_draft' => 'boolean',
+        ]);
+
+        $template->update($validated);
+
+        return redirect()->route('dosen.session-templates')->with('success', 'Template berhasil diperbarui.');
+    }
+
+    public function saveDraft(Request $request)
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        $data = $request->all();
+        $data['dosen_id'] = $dosen->id;
+        $data['is_draft'] = true;
+        $data['default_start_time'] = '08:00';
+        $data['default_end_time'] = '10:00';
+
+        if ($request->id) {
+            $template = SessionTemplate::where('id', $request->id)->where('dosen_id', $dosen->id)->first();
+            if ($template) {
+                $template->update($data);
+            }
+        } else {
+            SessionTemplate::create(array_merge($data, ['name' => $data['name'] ?? 'Draft Template']));
+        }
+
+        return back()->with('success', 'Draft tersimpan.');
     }
 
     public function store(Request $request)
@@ -211,5 +345,27 @@ class SessionTemplateController extends Controller
         ]);
 
         return back()->with('success', 'Sesi berhasil dibuat dari template.');
+    }
+
+    public function duplicate(SessionTemplate $template)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        if ($template->dosen_id !== $dosen->id) abort(403);
+
+        $newTemplate = $template->replicate();
+        $newTemplate->name = $template->name . ' (Copy)';
+        $newTemplate->save();
+
+        return back()->with('success', 'Template berhasil diduplikasi.');
+    }
+
+    public function toggleActive(SessionTemplate $template)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        if ($template->dosen_id !== $dosen->id) abort(403);
+
+        $template->update(['is_active' => !$template->is_active]);
+
+        return back()->with('success', $template->is_active ? 'Template diaktifkan.' : 'Template dinonaktifkan.');
     }
 }

@@ -216,6 +216,7 @@ class TugasController extends Controller
                     'sender_name' => $d->replyTo->sender_name,
                     'pesan' => $d->replyTo->pesan,
                 ] : null,
+                'is_me' => $d->sender_id === $dosen->id && $d->sender_type === 'dosen',
                 'created_at' => $d->created_at->format('d M Y H:i'),
                 'time_ago' => $d->created_at->diffForHumans(),
             ]);

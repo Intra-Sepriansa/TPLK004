@@ -155,17 +155,12 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
     };
 
     /* ═══ Summary Cards ═══ */
+    /* ═══ Summary Cards ═══ */
     const summaryCards = [
-        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'semua waktu', icon: Camera, gradient: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500', shadow: 'shadow-blue-500/30' },
-        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'perlu verifikasi', icon: Clock, gradient: 'from-amber-500 to-orange-600', glow: 'bg-amber-500', shadow: 'shadow-amber-500/30' },
-        { key: 'approved', label: 'Disetujui Hari Ini', value: stats.approved_today, sub: 'hari ini', icon: CheckCircle, gradient: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500', shadow: 'shadow-emerald-500/30' },
-        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'tidak valid', icon: XCircle, gradient: 'from-red-500 to-rose-600', glow: 'bg-red-500', shadow: 'shadow-red-500/30' },
-        { key: 'ai', label: 'AI Auto-Approve', value: stats.ai_auto_approved, sub: 'by AI system', icon: Brain, gradient: 'from-purple-500 to-violet-600', glow: 'bg-purple-500', shadow: 'shadow-purple-500/30' },
-        { key: 'suspicious', label: 'Suspicious', value: stats.suspicious, sub: 'perlu review manual', icon: AlertTriangle, gradient: 'from-orange-500 to-red-600', glow: 'bg-orange-500', shadow: 'shadow-orange-500/30' },
-        { key: 'face', label: 'Face Match Rate', value: `${stats.face_match_rate}%`, sub: 'rata-rata akurasi', icon: User, gradient: 'from-indigo-500 to-purple-600', glow: 'bg-indigo-500', shadow: 'shadow-indigo-500/30' },
-        { key: 'location', label: 'Location Valid', value: stats.location_valid, sub: 'dalam radius', icon: MapPin, gradient: 'from-green-500 to-emerald-600', glow: 'bg-green-500', shadow: 'shadow-green-500/30' },
-        { key: 'device', label: 'Trusted Devices', value: stats.device_trusted, sub: 'perangkat terpercaya', icon: Smartphone, gradient: 'from-cyan-500 to-blue-600', glow: 'bg-cyan-500', shadow: 'shadow-cyan-500/30' },
-        { key: 'time', label: 'Avg Processing', value: `${stats.avg_processing_time}ms`, sub: 'AI response time', icon: Timer, gradient: 'from-pink-500 to-rose-600', glow: 'bg-pink-500', shadow: 'shadow-pink-500/30' },
+        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'Total data masuk', icon: Camera, gradient: 'from-blue-400 to-indigo-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'Perlu tinjauan', icon: Clock, gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'approved', label: 'Disetujui', value: stats.approved_today, sub: 'Hari ini', icon: CheckCircle, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'Ditolak sistem/dosen', icon: XCircle, gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     return (
@@ -176,20 +171,10 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
 
                 {/* ═══════════════════ HERO HEADER ═══════════════════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -205,19 +190,18 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                 </div>
                             </div>
 
-                            {/* AI Engine Status Badges */}
+                            {/* AI Engine Status Badges (Simplified) */}
                             <div className="flex items-center gap-3">
-                                {[
-                                    { icon: Brain, label: 'AI Engine', value: 'Active', color: 'from-purple-500/30 to-pink-500/30' },
-                                    { icon: Clock, label: 'Pending', value: stats.pending, color: 'from-amber-500/30 to-orange-500/30' },
-                                    { icon: Shield, label: 'Hari Ini', value: stats.today, color: 'from-emerald-500/30 to-teal-500/30' },
-                                ].map((badge, i) => (
-                                    <motion.div key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.1, type: 'spring' }}
-                                        className={`flex items-center gap-3 rounded-2xl bg-gradient-to-r ${badge.color} backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10`}>
-                                        <div className="p-2 bg-white/10 rounded-lg"><badge.icon className="h-5 w-5 text-white" /></div>
-                                        <div><p className="text-[10px] text-white/60 uppercase tracking-wider">{badge.label}</p><p className="text-lg font-bold text-white">{badge.value}</p></div>
-                                    </motion.div>
-                                ))}
+                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                    <div className="p-2 bg-amber-500/20 rounded-lg"><Clock className="h-6 w-6 text-white" /></div>
+                                    <div><p className="text-xs text-indigo-100">Pending</p><p className="text-2xl font-bold text-white">{stats.pending}</p></div>
+                                </motion.div>
+                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                    <div className="p-2 bg-emerald-500/20 rounded-lg"><CheckCircle className="h-6 w-6 text-white" /></div>
+                                    <div><p className="text-xs text-indigo-100">Hari Ini</p><p className="text-2xl font-bold text-white">{stats.today}</p></div>
+                                </motion.div>
                             </div>
                         </div>
 
@@ -241,23 +225,23 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                 </motion.div>
 
                 {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 grid-cols-2 md:grid-cols-5">
-                    {summaryCards.map(card => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover"
-                            onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5">
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-white/5" />
-                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.15 }}
-                                className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
+                {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    {summaryCards.map((card) => (
+                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
+                            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient)} />
+                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
+                                className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-3">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient, card.shadow)}>
+                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
                                     <card.icon className="h-6 w-6" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{card.label}</p>
+                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
                                     <span className="text-xl font-bold text-neutral-900 dark:text-white">{card.value}</span>
-                                    <p className="text-[9px] text-neutral-400">{card.sub}</p>
+                                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{card.sub}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -266,7 +250,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
 
                 {/* ═══════════════════ FILTERS ═══════════════════ */}
                 <motion.div variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl p-5">
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl p-5 dark:border-white/5">
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="relative flex-1 min-w-[200px]">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />

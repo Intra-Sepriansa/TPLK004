@@ -88,18 +88,36 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::get('/grading/student/{mahasiswaId}', [\App\Http\Controllers\Dosen\GradingController::class, 'studentReport'])->name('grading.student');
     Route::post('/grading/override', [\App\Http\Controllers\Dosen\GradingController::class, 'override'])->name('grading.override');
     
+    // Grading Detail (Individual Student)
+    Route::get('/grading/detail/{mahasiswaId}', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'show'])->name('grading.detail');
+    Route::post('/grading/detail/update-status', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'updateStatus'])->name('grading.detail.update-status');
+    Route::post('/grading/detail/add-note', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'addNote'])->name('grading.detail.add-note');
+    Route::delete('/grading/detail/note/{noteId}', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'deleteNote'])->name('grading.detail.delete-note');
+    
     // Class Insights
     Route::get('/class-insights', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'index'])->name('class-insights');
+    Route::post('/class-insights/export-csv', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'exportCsv'])->name('class-insights.export-csv');
+    Route::post('/class-insights/export-pdf', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'exportPdf'])->name('class-insights.export-pdf');
+    Route::post('/class-insights/export-excel', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'exportExcel'])->name('class-insights.export-excel');
+    Route::post('/class-insights/export-json', [\App\Http\Controllers\Dosen\ClassInsightsController::class, 'exportJson'])->name('class-insights.export-json');
     
     // Session Templates
+    Route::get('/session-templates/create', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'create'])->name('session-templates.create');
+    Route::get('/session-templates/{template}/edit', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'edit'])->name('session-templates.edit');
+    Route::post('/session-templates/advanced', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'storeAdvanced'])->name('session-templates.store-advanced');
+    Route::put('/session-templates/{template}/advanced', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'updateAdvanced'])->name('session-templates.update-advanced');
+    Route::post('/session-templates/draft', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'saveDraft'])->name('session-templates.draft');
     Route::get('/session-templates', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'index'])->name('session-templates');
     Route::post('/session-templates', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'store'])->name('session-templates.store');
     Route::patch('/session-templates/{template}', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'update'])->name('session-templates.update');
     Route::delete('/session-templates/{template}', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'destroy'])->name('session-templates.destroy');
     Route::post('/session-templates/{template}/generate', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'generateSessions'])->name('session-templates.generate');
     Route::post('/session-templates/{template}/create-session', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'createFromTemplate'])->name('session-templates.create-session');
+    Route::post('/session-templates/{template}/duplicate', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'duplicate'])->name('session-templates.duplicate');
+    Route::patch('/session-templates/{template}/toggle-active', [\App\Http\Controllers\Dosen\SessionTemplateController::class, 'toggleActive'])->name('session-templates.toggle-active');
     
     // Notifications
+    Route::get('/notifications/create', [\App\Http\Controllers\Dosen\NotificationController::class, 'create'])->name('notifications.create');
     Route::get('/notifications', [\App\Http\Controllers\Dosen\NotificationController::class, 'index'])->name('notifications');
     Route::post('/notifications', [\App\Http\Controllers\Dosen\NotificationController::class, 'store'])->name('notifications.store');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Dosen\NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -108,15 +126,21 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     
     // Settings Page (Inertia)
     Route::get('/settings', [\App\Http\Controllers\Dosen\SettingsController::class, 'page'])->name('settings');
-    Route::get('/docs', function () {
+    Route::get('/docs', function (\App\Services\DocumentationService $docsService) {
         $dosen = auth()->guard('dosen')->user();
+        
+        $guides = $docsService->getGuidesWithProgress($dosen, 'dosen');
+        $stats = $docsService->getStats($dosen, 'dosen');
+        
         return inertia('dosen/docs', [
             'dosen' => [
                 'id' => $dosen->id,
                 'nama' => $dosen->nama,
                 'nidn' => $dosen->nidn,
                 'email' => $dosen->email,
-            ]
+            ],
+            'guides' => $guides,
+            'stats' => $stats
         ]);
     })->name('docs');
     Route::get('/docs/{guideId}', function ($guideId) {
