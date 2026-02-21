@@ -77,6 +77,29 @@ class SesiAbsenController extends Controller
     }
 
     /**
+     * Show the ultra-advanced create session page
+     */
+    public function create(): Response
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        // Fetch courses for the grid selection, along with their highest existing meeting number
+        $courses = MataKuliah::where('dosen_id', $dosen->id)->select('id', 'nama', 'sks')->get();
+        
+        // Calculate the next meeting number for each course
+        $coursesWithNextMeeting = $courses->map(function ($course) {
+            $maxMeeting = \App\Models\AttendanceSession::where('course_id', $course->id)->max('meeting_number');
+            $course->next_meeting_number = $maxMeeting ? $maxMeeting + 1 : 1;
+            return $course;
+        });
+
+        return Inertia::render('dosen/sesi-absen-create', [
+            'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
+            'courses' => $coursesWithNextMeeting,
+        ]);
+    }
+
+    /**
      * Detail page for a single session — command center with AI analytics
      */
     public function show(AttendanceSession $session): Response

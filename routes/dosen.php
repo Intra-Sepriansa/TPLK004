@@ -21,6 +21,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
 
     // Sesi Absen
     Route::get('/sesi-absen', [SesiAbsenController::class, 'index'])->name('sesi-absen');
+    Route::get('/sesi-absen/create', [SesiAbsenController::class, 'create'])->name('sesi-absen.create');
     Route::get('/sesi-absen/{session}', [SesiAbsenController::class, 'show'])->name('sesi-absen.show');
     Route::get('/sesi-absen/{session}/export-pdf', [SesiAbsenController::class, 'exportPdf'])->name('sesi-absen.export-pdf');
     Route::post('/sesi-absen/{session}/send-reminder', [SesiAbsenController::class, 'sendReminder'])->name('sesi-absen.send-reminder');

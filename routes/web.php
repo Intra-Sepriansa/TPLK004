@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RekapKehadiranController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SelfieVerificationController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\VerifikasiSelfieController;
 use App\Http\Controllers\Auth\MahasiswaAuthController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\User\AbsensiController;
@@ -122,15 +123,23 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Live Monitor
     Route::get('admin/live-monitor', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'index'])->name('admin.live-monitor');
+    Route::get('admin/live-monitor/refresh', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'refresh'])->name('admin.live-monitor.refresh');
+    Route::get('admin/live-monitor/export-today', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'exportToday'])->name('admin.live-monitor.export-today');
     Route::get('admin/live-monitor/logs', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'logs'])->name('admin.live-monitor.logs');
+    Route::get('admin/live-monitor/aktivitas-terbaru', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'aktivitasTerbaru'])->name('admin.live-monitor.aktivitas-terbaru');
+    Route::get('admin/live-monitor/aktivitas-terbaru/export', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'exportAktivitasTerbaru'])->name('admin.live-monitor.aktivitas-terbaru.export');
+    Route::get('admin/live-monitor/aktivitas-terbaru/{id}/export-pdf', [\App\Http\Controllers\Admin\LiveMonitorController::class, 'exportAktivitasDetailPdf'])->name('admin.live-monitor.aktivitas-terbaru.export-detail');
     
     // Admin Verifikasi Selfie
-    Route::get('admin/verifikasi-selfie', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'index'])->name('admin.verifikasi-selfie');
-    Route::patch('admin/verifikasi-selfie/{selfieVerification}/approve', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
-    Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
-    Route::post('admin/verifikasi-selfie/bulk-approve', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkApprove'])->name('admin.verifikasi-selfie.bulk-approve');
-    Route::post('admin/verifikasi-selfie/bulk-reject', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'bulkReject'])->name('admin.verifikasi-selfie.bulk-reject');
-    Route::patch('admin/verifikasi-selfie/{selfieVerification}/consume-view', [\App\Http\Controllers\Admin\VerifikasiSelfieController::class, 'consumeViewRequest'])->name('admin.verifikasi-selfie.consume-view');
+    Route::get('admin/verifikasi-selfie', [VerifikasiSelfieController::class, 'index'])->name('admin.verifikasi-selfie');
+    Route::get('admin/verifikasi-selfie/{id}', [SelfieVerificationController::class, 'show'])->name('admin.verifikasi-selfie.show');
+    Route::post('admin/verifikasi-selfie/{id}/approve', [SelfieVerificationController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
+    Route::post('admin/verifikasi-selfie/{id}/reject', [SelfieVerificationController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/approve', [VerifikasiSelfieController::class, 'approve'])->name('admin.verifikasi-selfie.approve');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/reject', [VerifikasiSelfieController::class, 'reject'])->name('admin.verifikasi-selfie.reject');
+    Route::post('admin/verifikasi-selfie/bulk-approve', [VerifikasiSelfieController::class, 'bulkApprove'])->name('admin.verifikasi-selfie.bulk-approve');
+    Route::post('admin/verifikasi-selfie/bulk-reject', [VerifikasiSelfieController::class, 'bulkReject'])->name('admin.verifikasi-selfie.bulk-reject');
+    Route::patch('admin/verifikasi-selfie/{selfieVerification}/consume-view', [VerifikasiSelfieController::class, 'consumeViewRequest'])->name('admin.verifikasi-selfie.consume-view');
     
     // Admin Zona
     Route::get('admin/zona', [\App\Http\Controllers\Admin\ZonaController::class, 'index'])->name('admin.zona');
@@ -138,6 +147,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Sesi Absen
     Route::get('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'index'])->name('admin.sesi-absen');
+    Route::get('admin/sesi-absen/create', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'create'])->name('admin.sesi-absen.create');
     Route::post('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'store'])->name('admin.sesi-absen.store');
     Route::get('admin/sesi-absen/pdf', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'exportPdf'])->name('admin.sesi-absen.pdf');
     Route::get('admin/sesi-absen/{session}', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'show'])->name('admin.sesi-absen.show');

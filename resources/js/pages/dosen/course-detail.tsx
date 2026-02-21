@@ -256,7 +256,7 @@ export default function CourseDetail({
     };
 
     const handleCreateSession = () => {
-        router.visit('/dosen/sesi-absen');
+        router.visit(`/dosen/sesi-absen/create?course_id=${course.id}`);
     };
 
     const handleSendAnnouncement = () => {
@@ -400,8 +400,9 @@ export default function CourseDetail({
                                 <motion.button
                                     whileHover={{ scale: 1.05, y: -2 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={handleSendAnnouncement}
+                                    onClick={() => router.visit('/dosen/notifications/create')}
                                     className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                    title="Kirim Pengumuman"
                                 >
                                     <Bell className="h-4 w-4" />
                                 </motion.button>
@@ -409,7 +410,9 @@ export default function CourseDetail({
                                 <motion.button
                                     whileHover={{ scale: 1.05, y: -2 }}
                                     whileTap={{ scale: 0.95 }}
+                                    onClick={() => router.visit('/dosen/settings')}
                                     className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                    title="Pengaturan"
                                 >
                                     <Settings className="h-4 w-4" />
                                 </motion.button>

@@ -87,9 +87,23 @@ class SessionController extends Controller
             abort(403, 'Anda tidak memiliki akses ke mata kuliah ini.');
         }
 
+        $meetingNumber = $validated['meeting_number'];
+        $isDuplicate = AttendanceSession::where('course_id', $validated['course_id'])
+            ->where('meeting_number', $meetingNumber)
+            ->exists();
+
+        $message = 'Sesi berhasil dibuat.';
+
+        if ($isDuplicate) {
+            // Find the highest existing meeting number for this course and add 1
+            $maxMeetingNumber = AttendanceSession::where('course_id', $validated['course_id'])->max('meeting_number');
+            $meetingNumber = $maxMeetingNumber + 1;
+            $message = "Pertemuan {$validated['meeting_number']} sudah ada. Sistem otomatis membuat Pertemuan {$meetingNumber}.";
+        }
+
         $session = AttendanceSession::create([
             'course_id' => $validated['course_id'],
-            'meeting_number' => $validated['meeting_number'],
+            'meeting_number' => $meetingNumber,
             'title' => $validated['title'] ?? null,
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'],
@@ -98,7 +112,7 @@ class SessionController extends Controller
             'created_by_dosen_id' => $dosen->id,
         ]);
 
-        return back()->with('success', 'Sesi berhasil dibuat.');
+        return redirect()->route('dosen.sesi-absen')->with('success', $message);
     }
 
     public function activate(AttendanceSession $session): \Illuminate\Http\RedirectResponse

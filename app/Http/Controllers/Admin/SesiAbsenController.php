@@ -183,16 +183,36 @@ class SesiAbsenController extends Controller
             'timeline' => $timeline,
         ]);
     }
+    public function create(): Response
+    {
+        $courses = MataKuliah::with('dosen')->orderBy('nama')->get()->map(fn($c) => [
+            'id' => $c->id,
+            'nama' => $c->nama,
+            'sks' => $c->sks,
+            'dosen' => $c->dosen?->nama ?? '-',
+        ]);
 
+        return Inertia::render('admin/sesi-absen/create', [
+            'courses' => $courses,
+        ]);
+    }
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
-            'meeting_number' => 'required|integer|min:1|max:21',
+            'meeting_number' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:21',
+                \Illuminate\Validation\Rule::unique('attendance_sessions')->where('course_id', $request->course_id)
+            ],
             'title' => 'nullable|string|max:255',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
             'auto_activate' => 'boolean',
+        ], [
+            'meeting_number.unique' => 'Pertemuan ke-' . $request->meeting_number . ' untuk mata kuliah ini sudah ada.'
         ]);
 
         // Deactivate other sessions if auto_activate
@@ -210,17 +230,25 @@ class SesiAbsenController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Sesi absen berhasil dibuat.');
+        return redirect()->route('admin.sesi-absen')->with('success', 'Sesi absen berhasil dibuat.');
     }
 
     public function update(Request $request, AttendanceSession $session): RedirectResponse
     {
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
-            'meeting_number' => 'required|integer|min:1|max:21',
+            'meeting_number' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:21',
+                \Illuminate\Validation\Rule::unique('attendance_sessions')->where('course_id', $request->course_id)->ignore($session->id)
+            ],
             'title' => 'nullable|string|max:255',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
+        ], [
+            'meeting_number.unique' => 'Pertemuan ke-' . $request->meeting_number . ' untuk mata kuliah ini sudah ada.'
         ]);
 
         $session->update($request->only(['course_id', 'meeting_number', 'title', 'start_at', 'end_at']));

@@ -1,0 +1,39 @@
+Instruksi Pembuatan Halaman "Buat Sesi Absen Baru" (Ultra Advance)
+
+Tugas: Buatkan halaman `create.tsx` untuk Dosen saat membuat Sesi Absensi Baru. Halaman ini bukan modal, melainkan halaman penuh (Full Page) dengan UI/UX yang SANGAT ultra-advance.
+
+1. SYARAT MUTLAK UI/UX (SESUAIKAN 100% DENGAN ADMIN UANG KAS - kas.tsx):
+- Tema Global: Dark mode elegan dengan estetika Glassmorphism premium tinggi.
+- Header Container: Wajib menggunakan efek gradient sphere animasi lengkap persis seperti di `kas.tsx`! Ini mencakup background `bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600`, animasi `hue-rotate`, grain noise overlay (`bg-[url('...noise.svg')]`), mix-blend overlay, dan floating blurred orbs yang bergerak-gerak.
+- Style Container Konten: Gunakan container berbentuk kartu-kartu besar dengan extreme rounding (`rounded-[2.5rem]`), border `border-white/10` atau `border-white/20`, background translucent (`bg-white/5` atau `bg-neutral-900/60`), dan `backdrop-blur-3xl`.
+- Interaksi & Animasi: Selalu gunakan `framer-motion` untuk setiap transisi. Berikan stagger enter animation untuk semua elemen. Hover pada container harus memunculkan efek gradient glow dari balik layar.
+
+2. KEGUNAAN & FUNGSIONALITAS ADVANCE BAGI DOSEN (UX CERDAS):
+Buat agar halaman ini terasa seperti "Smart Assistant" bagi Dosen, bukan sekadar form kaku.
+- Pemilihan Kelas/Mata Kuliah Cerdas: Buat pilihan mata kuliah berupa Grid Card interaktif (menampilkan SKS, Kelas, dan Info Jadwal), bukan sekadar dropdown standar.
+- Pengaturan Waktu Praktis (Quick Presets): Selain input date dan time standar, sertakan tombol cepat seperti: 
+  > "Mulai Sekarang (Otomatis 2 SKS / 100 menit)"
+  > "Sesuai Jadwal Kuliah Normal"
+  > "Shift Malam"
+- Kontrol Keamanan Absensi Pintar (Anti-Titip Absen): Pisahkan area konfigurasi parameter kehadiran secara visual:
+  > Toggle "Wajibkan Foto Selfie AI" (Face detection & liveness check).
+  > Toggle "Batas Lokasi (Geofencing)" lengkap dengan slide input toleransi radius (misal: 50 Meter, 100 Meter) lengkap dengan visual icon GPS.
+- Topik & Rencana Perkuliahan: Field text area yang modern untuk menulis materi hari ini.
+- Otomatisasi & Pengumuman:
+  > Toggle "Aktifkan otomatis saat jam mulai tiba".
+  > Toggle "Broadcast notifikasi pengumuman ke mahasiswa tentang kelas ini".
+
+3. LAYOUT ARSITEKTUR HALAMAN:
+- Gunakan 2-Column Layout pada resolusi Desktop:
+  * Kolom Kiri (65%): Form input utama yang terbagi dalam beberapa Section Card (1. Pilih Kelas, 2. Waktu & Topik, 3. Aturan Hadir). Setiap section header harus punya icon Lucide yang menyala.
+  * Kolom Kanan (35% - Sticky Base): Kotak "Live Summary" berbentuk seperti Tiket Event Holografik. Menampilkan rekap instan dari data yang diinput Dosen di kolom kiri (Nama Matkul, Jam Mulai, Aturan).
+- Bottom Action Bar: Panel sticky di bagian bawah layar berisi tombol "Batal" dan Tombol raksasa "Buat Sesi & Mulai" yang menggunakan gradient animated glow.
+
+4. TEKNOLOGI & STANDAR KODE:
+- Gunakan React, `@inertiajs/react`, `framer-motion`, dan `lucide-react`.
+- Tulis dengan TypeScript yang ketat tanpa implicit any. 
+- Buat state management form dengan `useForm` dari Inertia.
+- Desain harus FULLY RESPONSIVE (kolom kanan pindah ke bawah di layar kecil).
+- Jangan abaikan detail padding, letter spacing, dan tipografi modern.
+
+Tujuan Akhir: Membuat Dosen takjub saat ingin membuat sesi baru karena tampilannya sangat cantik, futuristik, dan fiturnya sangat meringankan beban operasional Dosen.

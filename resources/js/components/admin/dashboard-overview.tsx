@@ -28,6 +28,11 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dashboardIcon from '@/assets/admin/dashboard/dashboard-icon.png';
+import totalIcon from '@/assets/admin/dashboard/total-icon.png';
+import hadirIcon from '@/assets/admin/dashboard/hadir-icon.png';
+import terlambatIcon from '@/assets/admin/dashboard/terlambat-icon.png';
+import selfieIcon from '@/assets/admin/dashboard/selfie-icon.png';
 import {
     Area,
     AreaChart,
@@ -221,13 +226,13 @@ export default function DashboardOverview({
 
                 <div className="relative">
                     <div className="flex flex-wrap items-start justify-between gap-6">
-                        <div className="flex items-center gap-5">
+                        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                             <motion.div
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex shrink-0 h-20 w-20"
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
                             >
-                                <Sparkles className="h-8 w-8" />
+                                <img src={dashboardIcon} alt="Dashboard Admin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                             </motion.div>
                             <div>
                                 <p className="text-sm text-indigo-100 font-medium tracking-wide">Selamat datang di</p>
@@ -238,18 +243,18 @@ export default function DashboardOverview({
                             </div>
                         </div>
 
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-col w-full sm:w-auto items-center sm:items-end gap-2 mt-4 sm:mt-0">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.6, type: 'spring' }}
-                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
+                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-4 py-2 sm:px-6 sm:py-3 shadow-lg border border-white/10"
                             >
-                                <div className="text-right">
-                                    <p className="text-3xl font-bold tabular-nums">
+                                <div className="text-center sm:text-right">
+                                    <p className="text-2xl sm:text-3xl font-bold tabular-nums">
                                         {currentTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                                     </p>
-                                    <p className="text-xs text-indigo-200">
+                                    <p className="text-[10px] sm:text-xs text-indigo-200">
                                         {currentTime.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                     </p>
                                 </div>
@@ -262,51 +267,51 @@ export default function DashboardOverview({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7 }}
-                        className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
+                        className="flex flex-nowrap w-full overflow-x-auto gap-2 sm:gap-3 mt-6 sm:mt-8 pt-6 pb-2 border-t border-white/10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                     >
                         <motion.a
                             href="/admin/sesi-absen"
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-indigo-600 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+                            className="inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl bg-white px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold text-indigo-600 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <CalendarCheck className="h-4 w-4" />
+                            <CalendarCheck className="h-3.5 w-3.5" />
                             Buat Sesi
                         </motion.a>
                         <motion.a
                             href="/admin/qr-builder"
-                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
+                            className="inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl bg-white/20 px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
                             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <QrCode className="h-4 w-4" />
+                            <QrCode className="h-3.5 w-3.5" />
                             Generate QR
                         </motion.a>
                         <motion.a
                             href="/admin/rekap-kehadiran"
-                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
+                            className="inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl bg-white/20 px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
                             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <FileBarChart className="h-4 w-4" />
+                            <FileBarChart className="h-3.5 w-3.5" />
                             Export Laporan
                         </motion.a>
                         <motion.button
                             onClick={() => router.reload()}
-                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
+                            className="inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl bg-white/20 px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
                             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <RefreshCw className="h-4 w-4" />
+                            <RefreshCw className="h-3.5 w-3.5" />
                             Refresh
                         </motion.button>
                         <motion.a
                             href="/admin/pengaturan"
-                            className="inline-flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
+                            className="inline-flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-xl bg-white/20 px-3 py-1.5 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/30 border border-white/20 shadow-lg"
                             whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <Settings className="h-4 w-4" />
+                            <Settings className="h-3.5 w-3.5" />
                             Pengaturan
                         </motion.a>
                     </motion.div>
@@ -315,12 +320,12 @@ export default function DashboardOverview({
 
             {/* ═══════ STATS CARDS — Advanced Glassmorphism ═══════ */}
             <motion.div
-                className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+                className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
                 variants={containerVariants}
             >
                 {stats.map((stat, index) => {
-                    const icons = [UserCheck, Clock, Camera, Users];
-                    const Icon = icons[index] ?? Users;
+                    const icons = [hadirIcon, terlambatIcon, selfieIcon, totalIcon];
+                    const IconImg = icons[index] ?? totalIcon;
                     const colorConfigs = [
                         { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
                         { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
@@ -333,7 +338,7 @@ export default function DashboardOverview({
                     return (
                         <motion.div
                             key={stat.title}
-                            className={`group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
                             variants={cardVariants}
                             whileHover="hover"
                             onHoverStart={() => setHoveredCard(cardKey)}
@@ -347,21 +352,21 @@ export default function DashboardOverview({
                                 }}
                                 className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorConfig.bg} blur-3xl transition-all duration-500`}
                             />
-                            <div className="relative flex items-center gap-4">
+                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${colorConfig.from} ${colorConfig.to} text-white shadow-lg ${colorConfig.shadow}`}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
                                 >
-                                    <Icon className="h-7 w-7" />
+                                    <img src={IconImg} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.title}</p>
-                                    <div className="mt-1">
-                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.title}</p>
+                                    <div className="mt-0.5 sm:mt-1">
+                                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                             {stat.value?.toLocaleString?.() ?? stat.value}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-neutral-400 mt-0.5">{stat.note}</p>
+                                    <p className="text-[8px] sm:text-xs leading-tight text-neutral-400 mt-0.5">{stat.note}</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -560,9 +565,9 @@ export default function DashboardOverview({
                                     whileHover={{ scale: 1.03, x: 4 }}
                                 >
                                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
-                                            index === 1 ? 'bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200' :
-                                                index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
-                                                    'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                                        index === 1 ? 'bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200' :
+                                            index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
+                                                'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
                                         }`}>
                                         {index + 1}
                                     </div>

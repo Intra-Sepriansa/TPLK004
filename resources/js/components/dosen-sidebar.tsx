@@ -8,8 +8,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { formatShortName } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import AppLogoIcon from './app-logo-icon';
@@ -119,6 +120,7 @@ type DosenInfo = {
     nama: string;
     nidn: string;
     initials?: string;
+    avatar_url?: string;
 };
 
 export function DosenSidebar() {
@@ -158,15 +160,16 @@ export function DosenSidebar() {
                 <div className="rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 p-3">
                     <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
+                            {dosen?.avatar_url && <AvatarImage src={dosen.avatar_url} alt={dosen.nama} className="object-cover" />}
                             <AvatarFallback className="bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200">
                                 {dosen?.initials || initials(dosen?.nama ?? 'Dosen')}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 text-sm">
-                            <p className="truncate font-semibold text-sidebar-foreground">
-                                {dosen?.nama ?? 'Dosen'}
+                        <div className="flex-1 min-w-0">
+                            <p className="truncate font-semibold text-sidebar-foreground text-xs">
+                                {dosen?.nama ? formatShortName(dosen.nama) : 'Dosen'}
                             </p>
-                            <p className="text-xs text-sidebar-foreground/60">
+                            <p className="text-[10px] text-sidebar-foreground/60 truncate mt-0.5">
                                 NIDN {dosen?.nidn ?? '-'}
                             </p>
                         </div>

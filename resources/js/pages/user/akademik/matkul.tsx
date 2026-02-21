@@ -10,10 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { 
+import {
     BookOpen, Plus, ArrowLeft, Monitor, Building2, Clock, Calendar,
     Trash2, Edit, CheckCircle2, GraduationCap, CheckCircle, XCircle, Sparkles,
-    TrendingUp, Target
+    TrendingUp, Target, BookA
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, FormEvent, useEffect, useRef } from 'react';
@@ -49,7 +49,7 @@ const dayNames: Record<string, string> = {
 export default function AcademicCourses({ courses }: Props) {
     const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
     const flash = props.flash;
-    
+
     const [showForm, setShowForm] = useState(false);
     const [editingCourse, setEditingCourse] = useState<Course | null>(null);
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -94,7 +94,7 @@ export default function AcademicCourses({ courses }: Props) {
         total: courses.length,
         online: courses.filter(c => c.mode === 'online').length,
         offline: courses.filter(c => c.mode === 'offline').length,
-        avgProgress: courses.length > 0 
+        avgProgress: courses.length > 0
             ? Math.round(courses.reduce((sum, c) => sum + c.progress, 0) / courses.length)
             : 0,
     };
@@ -164,7 +164,7 @@ export default function AcademicCourses({ courses }: Props) {
     };
 
     const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
-    
+
     const handleDelete = () => {
         if (deleteDialog.id) {
             router.delete(`/user/akademik/matkul/${deleteDialog.id}`, {});
@@ -200,11 +200,10 @@ export default function AcademicCourses({ courses }: Props) {
                             initial={{ opacity: 0, y: -50, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${
-                                toast.type === 'success' 
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
-                                    : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                            }`}
+                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${toast.type === 'success'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
+                                : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                                }`}
                         >
                             {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                             <span className="text-sm font-medium">{toast.message}</span>
@@ -244,7 +243,7 @@ export default function AcademicCourses({ courses }: Props) {
                             }}
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
-                        
+
                         {/* Floating Book Icons */}
                         {[...Array(20)].map((_, i) => (
                             <motion.div
@@ -271,7 +270,7 @@ export default function AcademicCourses({ courses }: Props) {
                             </motion.div>
                         ))}
                     </div>
-                    
+
                     <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
@@ -289,9 +288,9 @@ export default function AcademicCourses({ courses }: Props) {
                                     animate={{ scale: 1, rotate: 0 }}
                                     transition={{ type: "spring", stiffness: 200, damping: 15 }}
                                     whileHover={{ scale: 1.15, y: -3 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
+                                    className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-xl"
                                 >
-                                    <BookOpen className="h-8 w-8" />
+                                    <BookA className="h-16 w-16 text-white" />
                                 </motion.div>
                                 <div>
                                     <motion.p
@@ -327,147 +326,147 @@ export default function AcademicCourses({ courses }: Props) {
                                         </Button>
                                     </motion.div>
                                 </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>{editingCourse ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}</DialogTitle>
-                                <DialogDescription>
-                                    {editingCourse ? 'Perbarui informasi mata kuliah' : 'Tambah mata kuliah baru untuk semester ini'}
-                                </DialogDescription>
-                            </DialogHeader>
-                            <form onSubmit={handleSubmit} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Nama Mata Kuliah</Label>
-                                    <Input
-                                        value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
-                                        placeholder="Contoh: Kecerdasan Buatan"
-                                    />
-                                    {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>SKS</Label>
-                                        <Select value={data.sks} onValueChange={(v) => setData('sks', v)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="2">2 SKS (14 pertemuan)</SelectItem>
-                                                <SelectItem value="3">3 SKS (21 pertemuan)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.sks && <p className="text-sm text-red-500">{errors.sks}</p>}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Mode</Label>
-                                        <Select value={data.mode} onValueChange={(v: 'online' | 'offline') => setData('mode', v)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="online">Online</SelectItem>
-                                                <SelectItem value="offline">Offline</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Hari</Label>
-                                        <Select value={data.schedule_day} onValueChange={(v) => setData('schedule_day', v)}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="monday">Senin</SelectItem>
-                                                <SelectItem value="tuesday">Selasa</SelectItem>
-                                                <SelectItem value="wednesday">Rabu</SelectItem>
-                                                <SelectItem value="thursday">Kamis</SelectItem>
-                                                <SelectItem value="friday">Jumat</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Jam</Label>
-                                        <Input
-                                            type="time"
-                                            value={data.schedule_time}
-                                            onChange={(e) => setData('schedule_time', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                {!editingCourse && (
-                                    <div className="space-y-2">
-                                        <Label>Tanggal Mulai (Opsional)</Label>
-                                        <Input
-                                            type="date"
-                                            value={data.start_date}
-                                            onChange={(e) => setData('start_date', e.target.value)}
-                                        />
-                                        <p className="text-xs text-muted-foreground">Untuk menghitung jadwal pertemuan</p>
-                                    </div>
-                                )}
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={closeForm}>Batal</Button>
-                                    <Button type="submit" disabled={processing}>
-                                        {processing ? 'Menyimpan...' : editingCourse ? 'Perbarui' : 'Simpan'}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-4 text-white/90 text-lg"
-                >
-                    Kelola mata kuliah semester ini
-                </motion.p>
-                
-                {/* Quick Stats with Dock-Style Animations */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
-                >
-                    {[
-                        { icon: BookOpen, label: 'Total Matkul', value: stats.total, color: 'emerald' },
-                        { icon: Monitor, label: 'Online', value: stats.online, color: 'blue' },
-                        { icon: Building2, label: 'Offline', value: stats.offline, color: 'teal' },
-                        { icon: TrendingUp, label: 'Avg Progress', value: stats.avgProgress, suffix: '%', color: 'cyan' },
-                    ].map((stat, index) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
-                            whileHover={{ 
-                                scale: 1.05, 
-                                y: -5,
-                                boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
-                            }}
-                            className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>{editingCourse ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}</DialogTitle>
+                                        <DialogDescription>
+                                            {editingCourse ? 'Perbarui informasi mata kuliah' : 'Tambah mata kuliah baru untuk semester ini'}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label>Nama Mata Kuliah</Label>
+                                            <Input
+                                                value={data.name}
+                                                onChange={(e) => setData('name', e.target.value)}
+                                                placeholder="Contoh: Kecerdasan Buatan"
+                                            />
+                                            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>SKS</Label>
+                                                <Select value={data.sks} onValueChange={(v) => setData('sks', v)}>
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="2">2 SKS (14 pertemuan)</SelectItem>
+                                                        <SelectItem value="3">3 SKS (21 pertemuan)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {errors.sks && <p className="text-sm text-red-500">{errors.sks}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Mode</Label>
+                                                <Select value={data.mode} onValueChange={(v: 'online' | 'offline') => setData('mode', v)}>
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="online">Online</SelectItem>
+                                                        <SelectItem value="offline">Offline</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Hari</Label>
+                                                <Select value={data.schedule_day} onValueChange={(v) => setData('schedule_day', v)}>
+                                                    <SelectTrigger>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="monday">Senin</SelectItem>
+                                                        <SelectItem value="tuesday">Selasa</SelectItem>
+                                                        <SelectItem value="wednesday">Rabu</SelectItem>
+                                                        <SelectItem value="thursday">Kamis</SelectItem>
+                                                        <SelectItem value="friday">Jumat</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Jam</Label>
+                                                <Input
+                                                    type="time"
+                                                    value={data.schedule_time}
+                                                    onChange={(e) => setData('schedule_time', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        {!editingCourse && (
+                                            <div className="space-y-2">
+                                                <Label>Tanggal Mulai (Opsional)</Label>
+                                                <Input
+                                                    type="date"
+                                                    value={data.start_date}
+                                                    onChange={(e) => setData('start_date', e.target.value)}
+                                                />
+                                                <p className="text-xs text-muted-foreground">Untuk menghitung jadwal pertemuan</p>
+                                            </div>
+                                        )}
+                                        <DialogFooter>
+                                            <Button type="button" variant="outline" onClick={closeForm}>Batal</Button>
+                                            <Button type="submit" disabled={processing}>
+                                                {processing ? 'Menyimpan...' : editingCourse ? 'Perbarui' : 'Simpan'}
+                                            </Button>
+                                        </DialogFooter>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="mt-4 text-white/90 text-lg"
                         >
-                            <div className="flex items-center gap-2 mb-2">
+                            Kelola mata kuliah semester ini
+                        </motion.p>
+
+                        {/* Quick Stats with Dock-Style Animations */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
+                        >
+                            {[
+                                { icon: BookOpen, label: 'Total Matkul', value: stats.total, color: 'emerald' },
+                                { icon: Monitor, label: 'Online', value: stats.online, color: 'blue' },
+                                { icon: Building2, label: 'Offline', value: stats.offline, color: 'teal' },
+                                { icon: TrendingUp, label: 'Avg Progress', value: stats.avgProgress, suffix: '%', color: 'cyan' },
+                            ].map((stat, index) => (
                                 <motion.div
-                                    whileHover={{ scale: 1.2, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                    key={stat.label}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
+                                    whileHover={{
+                                        scale: 1.05,
+                                        y: -5,
+                                        boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
+                                    }}
+                                    className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
                                 >
-                                    <stat.icon className="h-5 w-5 text-white/80" />
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <motion.div
+                                            whileHover={{ scale: 1.2, y: -2 }}
+                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                        >
+                                            <stat.icon className="h-5 w-5 text-white/80" />
+                                        </motion.div>
+                                        <p className="text-white/80 text-xs font-medium">{stat.label}</p>
+                                    </div>
+                                    <p className="text-3xl font-bold">
+                                        <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
+                                    </p>
                                 </motion.div>
-                                <p className="text-white/80 text-xs font-medium">{stat.label}</p>
-                            </div>
-                            <p className="text-3xl font-bold">
-                                <AnimatedCounter value={stat.value} suffix={stat.suffix} duration={1500} />
-                            </p>
+                            ))}
                         </motion.div>
-                    ))}
+                    </div>
                 </motion.div>
-            </div>
-        </motion.div>
 
                 {/* Info Card */}
                 <motion.div
@@ -477,7 +476,7 @@ export default function AcademicCourses({ courses }: Props) {
                 >
                     <div className="p-4">
                         <div className="flex items-start gap-3">
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.2, y: -2 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
                                 className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg"
@@ -529,7 +528,7 @@ export default function AcademicCourses({ courses }: Props) {
                                     }}
                                     className="inline-block"
                                 >
-                                    <BookOpen className="h-16 w-16 mx-auto text-emerald-400 mb-3 opacity-50" />
+                                    <BookA className="h-24 w-24 mx-auto mb-3 text-slate-300 dark:text-slate-700 opacity-50 drop-shadow-sm" />
                                 </motion.div>
                                 <p className="text-muted-foreground font-medium mb-2">Belum ada mata kuliah</p>
                                 <p className="text-sm text-muted-foreground mb-4">Tambahkan mata kuliah untuk mulai tracking</p>
@@ -600,7 +599,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
         >
             {/* Top Color Bar */}
             <div className={`h-2 ${course.mode === 'offline' ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-blue-400 to-blue-600'}`} />
-            
+
             {/* Glow Effect */}
             <motion.div
                 className={`absolute inset-0 ${course.mode === 'offline' ? 'bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10' : 'bg-gradient-to-br from-blue-500/10 via-cyan-500/10 to-indigo-500/10'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
@@ -613,7 +612,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                     ease: "easeInOut"
                 }}
             />
-            
+
             <div className="relative z-10 p-5">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
@@ -643,14 +642,14 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                         </motion.div>
                     </div>
                 </div>
-                
+
                 <motion.h3
                     whileHover={{ x: 5 }}
                     className="font-bold text-lg text-slate-900 dark:text-white mb-4"
                 >
                     {course.name}
                 </motion.h3>
-                
+
                 {/* Schedule */}
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                     <motion.div whileHover={{ scale: 1.1 }} className="flex items-center gap-1">
@@ -674,7 +673,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
 
                 {/* Milestones */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                    <motion.div 
+                    <motion.div
                         whileHover={{ scale: 1.05, y: -2 }}
                         className={`p-3 rounded-xl text-center ${course.current_meeting >= course.uts_meeting ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-300 dark:border-emerald-700' : 'bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800'}`}
                     >
@@ -689,7 +688,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                             )}
                         </p>
                     </motion.div>
-                    <motion.div 
+                    <motion.div
                         whileHover={{ scale: 1.05, y: -2 }}
                         className={`p-3 rounded-xl text-center ${course.current_meeting >= course.uas_meeting ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-300 dark:border-emerald-700' : 'bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800'}`}
                     >
@@ -709,8 +708,8 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
                 {/* Mark Meeting Complete */}
                 {course.current_meeting < course.total_meetings && (
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             className="w-full rounded-xl border-2 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:border-emerald-500"
                             onClick={() => handleMarkMeeting(course.id, course.current_meeting + 1)}
                         >

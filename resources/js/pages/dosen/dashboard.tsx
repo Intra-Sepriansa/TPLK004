@@ -4,12 +4,9 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
     AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import {
-    BookOpen, Users, Calendar, TrendingUp, Clock, CheckCircle2, AlertCircle, ChevronRight, Play,
-    Eye, QrCode, FileText, BarChart3, Settings, ClipboardList, Zap, X, Sparkles, Award, Image,
-} from 'lucide-react';
+import { BookOpen, Users, Calendar, TrendingUp, Clock, CheckCircle2, AlertCircle, ChevronRight, Play, Eye, QrCode, FileText, BarChart3, Settings, ClipboardList, Zap, X, Sparkles, Award, Image, GraduationCap, LayoutDashboard, Presentation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, formatShortName } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
@@ -99,7 +96,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
     const summaryCards = [
         { key: 'courses', icon: BookOpen, label: 'Total Mata Kuliah', value: stats.totalCourses, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
         { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, gradient: 'from-purple-400 to-violet-600', glow: 'bg-purple-500', shadow: 'hover:shadow-purple-500/10' },
+        { key: 'sessions', icon: LayoutDashboard, label: 'Total Sesi', value: stats.totalSessions, gradient: 'from-purple-400 to-violet-600', glow: 'bg-purple-500', shadow: 'hover:shadow-purple-500/10' },
         { key: 'attendance', icon: TrendingUp, label: 'Tingkat Kehadiran', value: stats.attendanceRate, suffix: '%', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
     ];
 
@@ -130,12 +127,16 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-2xl font-bold">
-                                    {dosen.initials}
+                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-2xl font-bold overflow-hidden shadow-lg">
+                                    {dosen.avatar_url ? (
+                                        <img src={dosen.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                                    ) : (
+                                        dosen.initials
+                                    )}
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Selamat Datang,</p>
-                                    <h1 className="text-3xl font-bold text-white">{dosen.nama}</h1>
+                                    <h1 className="text-3xl font-bold text-white">{formatShortName(dosen.nama)}</h1>
                                     <p className="mt-1 text-indigo-100">NIDN: {dosen.nidn} • {dosen.email}</p>
                                 </div>
                             </div>
@@ -179,9 +180,9 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
                                 className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-7 w-7" />
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10, y: -2 }}
+                                    className={cn("flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg text-white", card.gradient)}>
+                                    <card.icon className="h-8 w-8" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>

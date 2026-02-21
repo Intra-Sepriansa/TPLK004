@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useMemo } from 'react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import CourseImg from '@/assets/dosen/dashboard/course-icon.png';
 
 interface Course {
     id: number;
@@ -108,8 +109,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
-                                    <BookOpen className="h-8 w-8" />
+                                    className="h-24 w-24 drop-shadow-2xl">
+                                    <img src={CourseImg} alt="Mata Kuliah" className="h-full w-full object-contain" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Mata Kuliah</p>
@@ -240,7 +241,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                 {viewMode === 'grid' && (
                     filteredCourses.length === 0 ? (
                         <motion.div variants={cardVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-16 text-center shadow-xl backdrop-blur-xl dark:border-white/5">
-                            <BookOpen className="h-12 w-12 mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
+                            <img src={CourseImg} alt="Kosong" className="h-24 w-24 mx-auto mb-3 opacity-50 grayscale drop-shadow-sm" />
                             <p className="text-neutral-500 font-medium">{searchQuery ? 'Tidak ada hasil' : 'Belum ada mata kuliah'}</p>
                             <p className="text-xs text-neutral-400 mt-1">{searchQuery ? `Tidak ditemukan mata kuliah "${searchQuery}"` : 'Anda belum ditugaskan ke mata kuliah manapun.'}</p>
                         </motion.div>
@@ -262,8 +263,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                         <div className="p-6">
                                             <div className="flex items-start justify-between mb-3">
                                                 <motion.div whileHover={{ rotate: 10, scale: 1.1 }}
-                                                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
-                                                    <BookOpen className="h-6 w-6" />
+                                                    className="h-16 w-16 drop-shadow-xl">
+                                                    <img src={CourseImg} alt="Course Logo" className="h-full w-full object-contain" />
                                                 </motion.div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 dark:border-indigo-800/50 text-xs font-bold text-indigo-600 dark:text-indigo-400">{course.sks} SKS</span>
@@ -358,7 +359,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                         {filteredCourses.length === 0 ? (
                                             <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                                 <td colSpan={7} className="px-6 py-16 text-center">
-                                                    <BookOpen className="h-12 w-12 mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
+                                                    <img src={CourseImg} alt="Kosong" className="h-20 w-20 mx-auto mb-3 opacity-50 grayscale drop-shadow-sm" />
                                                     <p className="text-neutral-500 font-medium">Tidak ada mata kuliah ditemukan</p>
                                                 </td>
                                             </motion.tr>
@@ -370,8 +371,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                 onClick={() => router.visit(`/dosen/courses/${course.id}`)}>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow">
-                                                            <BookOpen className="h-5 w-5" />
+                                                        <div className="h-12 w-12 drop-shadow-lg">
+                                                            <img src={CourseImg} alt="Course Logo" className="h-full w-full object-contain" />
                                                         </div>
                                                         <div>
                                                             <p className="font-semibold text-neutral-900 dark:text-white">{course.nama}</p>
@@ -454,8 +455,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                         <div className="relative flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                                    <BookOpen className="h-7 w-7" />
+                                                    className="h-20 w-20 drop-shadow-2xl">
+                                                    <img src={CourseImg} alt={selectedCourse.nama} className="h-full w-full object-contain" />
                                                 </motion.div>
                                                 <div>
                                                     <h3 className="text-2xl font-bold">{selectedCourse.nama}</h3>

@@ -1,6 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity, CheckCircle, XCircle, Crosshair, Globe, Shield, Radar, Ruler, ChevronDown, ChevronUp, Maximize2, LocateFixed } from 'lucide-react';
+import { MapPin, AlertTriangle, TrendingUp, Target, Navigation, Save, RefreshCw, Users, Activity, CheckCircle, XCircle, Crosshair, Globe, Shield, Radar, ArrowLeft, Ruler, ChevronDown, ChevronUp, Maximize2, LocateFixed } from 'lucide-react';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell } from 'recharts';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
@@ -143,6 +143,13 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
         geofence_radius_m: geofence.radius_m,
     });
 
+    // Check if the current form data perfectly matches the original saved `geofence` props
+    const isSavedLoc = useMemo(() => {
+        return form.data.geofence_lat === geofence.lat &&
+            form.data.geofence_lng === geofence.lng &&
+            form.data.geofence_radius_m === geofence.radius_m;
+    }, [form.data.geofence_lat, form.data.geofence_lng, form.data.geofence_radius_m, geofence]);
+
     const [mapReady, setMapReady] = useState(false);
     const [locationStatus, setLocationStatus] = useState<string | null>(null);
     const [locationLoading, setLocationLoading] = useState(false);
@@ -182,7 +189,28 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
             onSuccess: () => {
                 setSaveSuccess(true);
                 setToast({ type: 'success', message: 'Zona geofence berhasil disimpan!' });
-                setTimeout(() => { setToast(null); setSaveSuccess(false); }, 3000);
+
+                const params = new URLSearchParams(window.location.search);
+                const redirectTarget = params.get('redirect');
+
+                if (redirectTarget) {
+                    try {
+                        const savedForm = sessionStorage.getItem('sesiAbsenForm');
+                        if (savedForm) {
+                            const parsedForm = JSON.parse(savedForm);
+                            // Update create.tsx form memory with the newly committed geofence
+                            parsedForm.zona_lat = form.data.geofence_lat.toString();
+                            parsedForm.zona_lng = form.data.geofence_lng.toString();
+                            parsedForm.zona_radius = form.data.geofence_radius_m;
+                            sessionStorage.setItem('sesiAbsenForm', JSON.stringify(parsedForm));
+                        }
+                    } catch (e) {
+                        console.error('Failed to sync session storage', e);
+                    }
+                    setTimeout(() => { router.visit(redirectTarget); }, 1500);
+                } else {
+                    setTimeout(() => { setToast(null); setSaveSuccess(false); }, 3000);
+                }
             },
             onError: (errors) => {
                 const errorMsg = Object.values(errors).flat().join(', ') || 'Gagal menyimpan zona';
@@ -351,6 +379,18 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                     )}
                 </AnimatePresence>
 
+                {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('redirect') && (
+                    <motion.button
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        onClick={() => router.visit(new URLSearchParams(window.location.search).get('redirect')!)}
+                        className="mb-2 inline-flex items-center gap-2 rounded-xl bg-white/50 hover:bg-neutral-100 dark:bg-neutral-800/50 dark:hover:bg-neutral-800 px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 transition-colors border border-black/10 dark:border-white/20 backdrop-blur-md"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Kembali ke Form Sesi
+                    </motion.button>
+                )}
+
                 {/* ═══════════ Header — Matching Verifikasi Selfie Style ═══════════ */}
                 <motion.div
                     variants={headerVariants}
@@ -505,7 +545,20 @@ export default function Zona({ geofence, violationStats, distanceDistribution, r
                                 >
                                     <MapPin className="h-4 w-4" />
                                 </motion.div>
-                                <h2 className="font-bold text-neutral-900 dark:text-white">Peta Geofence</h2>
+                                <div className="flex items-center gap-3">
+                                    <h2 className="font-bold text-neutral-900 dark:text-white">Peta Geofence</h2>
+                                    {isSavedLoc ? (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                                            <CheckCircle className="w-3 h-3" />
+                                            Tersimpan
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">
+                                            <AlertTriangle className="w-3 h-3" />
+                                            Belum Disimpan
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-3 text-xs">

@@ -1,11 +1,12 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import DosenLayout from '@/layouts/dosen-layout';
-import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, XCircle, RefreshCw, Eye, X, Sparkles, TrendingUp, AlertCircle, BookOpen, Grid, List, Download, Settings, FileText, Zap, ChevronRight, BarChart3, Copy, Trash2, Filter, MoreHorizontal } from 'lucide-react';
+import { Calendar, Play, Pause, Plus, Search, Clock, Users, CheckCircle, XCircle, RefreshCw, Eye, X, Sparkles, TrendingUp, AlertCircle, BookOpen, Grid, List, Download, Settings, FileText, Zap, ChevronRight, BarChart3, Copy, Trash2, Filter, MoreHorizontal, Info } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { cn } from '@/lib/utils';
+import SesiBaruIcon from '@/assets/admin/sesi-absen/sesi-baru-icon.png';
 
 interface Session {
     id: number;
@@ -45,6 +46,10 @@ interface PageProps {
     sessions: Session[];
     courses: Course[];
     stats: Stats;
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
 const containerVariants = {
@@ -64,6 +69,9 @@ const cardVariants = {
 } as const;
 
 export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: PageProps) {
+    const { props } = usePage<any>();
+    const { flash } = props;
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedSession, setSelectedSession] = useState<Session | null>(null);
     const [search, setSearch] = useState('');
@@ -72,6 +80,15 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [activeTab, setActiveTab] = useState<'all' | 'active' | 'history'>('all');
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+    const [showToast, setShowToast] = useState(false);
+
+    useEffect(() => {
+        if (flash?.success || flash?.error) {
+            setShowToast(true);
+            const timer = setTimeout(() => setShowToast(false), 5000); // Hide after 5 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [flash]);
 
     const createForm = useForm({
         course_id: '',
@@ -131,6 +148,53 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
     return (
         <DosenLayout>
             <Head title="Sesi Absen" />
+
+            {/* ═══════ ADVANCED TOAST NOTIFICATION ═══════ */}
+            <AnimatePresence>
+                {showToast && (flash?.success || flash?.error) && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -50, scale: 0.9, filter: 'blur(10px)' }}
+                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, scale: 0.9, filter: 'blur(5px)', transition: { duration: 0.2 } }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        className="fixed top-20 right-4 md:right-8 z-50 flex max-w-sm w-full shadow-2xl"
+                    >
+                        <div className={cn(
+                            "relative overflow-hidden rounded-2xl border p-4 backdrop-blur-3xl shadow-2xl w-full",
+                            flash.success
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-50"
+                                : "bg-rose-500/10 border-rose-500/30 text-rose-50"
+                        )}>
+                            {/* Animated background glow */}
+                            <div className={cn(
+                                "absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl opacity-50",
+                                flash.success ? "bg-emerald-500" : "bg-rose-500"
+                            )} />
+
+                            <div className="relative flex items-start gap-4">
+                                <div className={cn(
+                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                                    flash.success ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                                )}>
+                                    {flash.success ? <CheckCircle className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-sm font-bold text-white mb-1">
+                                        {flash.success ? 'Sistem AI Diperbarui' : 'Terjadi Kesalahan'}
+                                    </h4>
+                                    <p className="text-xs text-white/80 leading-relaxed">
+                                        {flash.success || flash.error}
+                                    </p>
+                                </div>
+                                <button onClick={() => setShowToast(false)} className="shrink-0 text-white/50 hover:text-white transition-colors">
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
 
                 {/* ═══════ HEADER — Kas Admin Style ═══════ */}
@@ -176,12 +240,12 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                         {/* Action Buttons */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
                             className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            {[
-                                { icon: Plus, label: 'Buat Sesi Baru', onClick: () => { createForm.setData({ ...createForm.data, start_at: defaultStart, end_at: defaultEnd }); setShowCreateModal(true); } },
+                            {([
+                                { icon: Plus, label: 'Buat Sesi Baru', href: '/dosen/sesi-absen/create' },
                                 { icon: FileText, label: 'Template Sesi', href: '/dosen/session-templates' },
                                 { icon: Download, label: 'Export Laporan', href: '/dosen/rekapan' },
                                 { icon: Settings, label: 'Pengaturan', href: '/dosen/settings' },
-                            ].map(btn => (
+                            ] as { icon: any; label: string; href?: string; onClick?: () => void }[]).map(btn => (
                                 btn.href ? (
                                     <Link key={btn.label} href={btn.href}>
                                         <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
@@ -546,8 +610,8 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                         <div className="relative flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                                    className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                                    <Calendar className="h-7 w-7" />
+                                                    className="relative shrink-0">
+                                                    <img src={SesiBaruIcon} alt="Sesi Baru" className="h-20 w-20 object-contain drop-shadow-xl pointer-events-none" />
                                                 </motion.div>
                                                 <div>
                                                     <h3 className="text-2xl font-bold">Buat Sesi Absen Baru</h3>

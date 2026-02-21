@@ -1,10 +1,16 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { QrCode, RefreshCw, Clock, Zap, Activity, CheckCircle, XCircle, Timer, Copy, Download, Play, History, Sparkles, AlertCircle, ArrowRight, Plus } from 'lucide-react';
+import { QrCode, RefreshCw, Clock, Zap, Activity, CheckCircle, XCircle, Timer, Copy, Download, Play, History, Sparkles, AlertCircle, ArrowRight, ArrowLeft, Plus } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QRCode from 'qrcode';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+
+import QrBuilderIcon from '@/assets/admin/qr-builder/qr-icon.png';
+import TokenIcon from '@/assets/admin/qr-builder/token-icon.png';
+import TokenAktifIcon from '@/assets/admin/qr-builder/token-aktif-icon.png';
+import HariIcon from '@/assets/admin/qr-builder/hari-icon.png';
+import { QRCodeAnimated } from '@/components/ui/qr-code-animated';
 
 interface Session {
     id: number;
@@ -211,6 +217,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState<number | null>(null);
     const [copied, setCopied] = useState(false);
+    const [emptyQrKey, setEmptyQrKey] = useState(0);
     const rotatingRef = useRef(false);
     const ttlLabel = useMemo(() => formatTtl(tokenTtlSeconds), [tokenTtlSeconds]);
 
@@ -417,29 +424,40 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-start justify-between gap-6">
-                            <div>
-                                <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 sm:gap-4">
+                            <div className="text-center sm:text-left">
+                                {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('redirect') && (
+                                    <motion.button
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        onClick={() => router.visit(new URLSearchParams(window.location.search).get('redirect')!)}
+                                        className="mb-4 sm:mb-6 inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2 text-sm font-medium text-white transition-colors border border-white/20 backdrop-blur-md"
+                                    >
+                                        <ArrowLeft className="h-4 w-4" />
+                                        Kembali ke Form Sesi
+                                    </motion.button>
+                                )}
+                                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-3 mb-2">
                                     <motion.div
-                                        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                        className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 relative items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
                                         whileHover={{ scale: 1.1, rotate: 10 }}
                                         transition={{ type: 'spring', stiffness: 300 }}
                                     >
-                                        <QrCode className="h-7 w-7" />
+                                        <img src={QrBuilderIcon} alt="QR Builder" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                     </motion.div>
                                     <div>
                                         <p className="text-sm text-indigo-200">Generator Token</p>
-                                        <h1 className="text-3xl font-bold">QR Builder</h1>
+                                        <h1 className="text-2xl sm:text-3xl font-bold">QR Builder</h1>
                                     </div>
                                 </div>
-                                <p className="text-indigo-100 max-w-xl mt-4">
+                                <p className="text-indigo-100 max-w-xl mt-3 sm:mt-4 text-sm sm:text-base">
                                     Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}. Sistem akan memperbarui token secara otomatis untuk keamanan maksimal.
                                 </p>
                             </div>
 
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex flex-col items-center sm:items-end gap-2 text-center sm:text-right mt-4 sm:mt-0">
                                 {activeSession ? (
-                                    <div className="text-right">
+                                    <>
                                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/20 backdrop-blur mb-2">
                                             <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                                             <span className="text-sm font-semibold">Sesi Aktif</span>
@@ -450,14 +468,14 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                         <p className="text-white font-semibold">
                                             Pertemuan #{activeSession.meeting_number}
                                         </p>
-                                    </div>
+                                    </>
                                 ) : (
-                                    <div className="text-right">
+                                    <>
                                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 backdrop-blur mb-2">
                                             <AlertCircle className="h-4 w-4 text-amber-300" />
                                             <span className="text-sm font-semibold text-amber-200">Belum Ada Sesi</span>
                                         </div>
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -466,13 +484,13 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
 
                 {/* ─── Stats Cards ─── */}
                 <motion.div
-                    className="grid gap-4 md:grid-cols-4"
+                    className="grid gap-4 grid-cols-2 md:grid-cols-4"
                     variants={containerVariants}
                 >
-                    <StatCard icon={QrCode} label="Total Token" value={tokenStats.total_generated} color="blue" delay={0.1} />
-                    <StatCard icon={Zap} label="Hari Ini" value={tokenStats.total_today} color="emerald" delay={0.2} />
-                    <StatCard icon={CheckCircle} label="Token Aktif" value={tokenStats.active_tokens} color="green" delay={0.3} />
-                    <StatCard icon={Clock} label="Token Expired" value={tokenStats.expired_tokens} color="amber" delay={0.4} />
+                    <StatCard imageIcon={TokenIcon} label="Total Token" value={tokenStats.total_generated} color="blue" delay={0.1} />
+                    <StatCard imageIcon={HariIcon} label="Hari Ini" value={tokenStats.total_today} color="orange" delay={0.2} />
+                    <StatCard imageIcon={TokenAktifIcon} label="Token Aktif" value={tokenStats.active_tokens} color="green" delay={0.3} />
+                    <StatCard imageIcon={TokenIcon} label="Token Expired" value={tokenStats.expired_tokens} color="blue" delay={0.4} />
                 </motion.div>
 
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -541,18 +559,21 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
 
                                 <div className="relative text-center">
                                     {/* Floating QR Icon */}
-                                    <motion.div
-                                        className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400/20 to-purple-500/20 border border-indigo-500/10"
-                                        variants={floatVariants}
-                                        animate="float"
+                                    <div
+                                        className="mx-auto mb-5 flex items-center justify-center"
                                     >
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                        >
-                                            <QrCode className="h-10 w-10 text-indigo-400" />
-                                        </motion.div>
-                                    </motion.div>
+                                        <div className="flex items-center justify-center opacity-80 mix-blend-screen drop-shadow-xl">
+                                            <QRCodeAnimated
+                                                key={`empty-qr-${emptyQrKey}`}
+                                                data="NO_SESSION_ACTIVE_WAITING"
+                                                size={100}
+                                                color="#818cf8"
+                                                onComplete={() => {
+                                                    setTimeout(() => setEmptyQrKey(prev => prev + 1), 2000);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
 
                                     <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-2">
                                         Belum Ada Sesi Aktif
@@ -609,7 +630,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 {/* QR Display */}
                                 <div className="flex flex-col items-center">
                                     <AnimatePresence mode="wait">
-                                        {qrUrl ? (
+                                        {token ? (
                                             <motion.div
                                                 key="qr-code"
                                                 variants={qrVariants}
@@ -618,18 +639,19 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 exit="exit"
                                                 className="relative"
                                             >
-                                                <motion.img
-                                                    src={qrUrl}
-                                                    alt="QR"
-                                                    className="h-64 w-64 rounded-2xl border-4 border-white shadow-lg"
-                                                    variants={timeLeft !== null && timeLeft <= 30 ? pulseVariants : {}}
-                                                    animate={timeLeft !== null && timeLeft <= 30 ? "pulse" : ""}
-                                                />
+                                                <div className={`p-4 rounded-3xl backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-300 ${timeLeft !== null && timeLeft <= 30 ? 'bg-amber-500/10 border-amber-500/50 shadow-amber-500/20' : 'bg-white/80 dark:bg-neutral-900/80 shadow-indigo-500/10'}`}>
+                                                    <QRCodeAnimated
+                                                        data={token}
+                                                        size={280}
+                                                        color="#4f46e5" /* indigo-600 */
+                                                        logoUrl="/logo-unpam.png"
+                                                    />
+                                                </div>
                                                 {timeLeft !== null && timeLeft <= 30 && (
                                                     <motion.div
                                                         initial={{ scale: 0 }}
                                                         animate={{ scale: 1 }}
-                                                        className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs font-bold shadow-lg shadow-amber-500/30"
+                                                        className="absolute -top-4 -right-4 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white font-bold shadow-lg shadow-amber-500/30 ring-4 ring-white dark:ring-neutral-900"
                                                     >
                                                         <motion.span
                                                             key={timeLeft}
@@ -645,7 +667,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                                 <motion.div
                                                     variants={glowVariants}
                                                     animate="glow"
-                                                    className="absolute inset-0 rounded-2xl"
+                                                    className="absolute inset-0 rounded-3xl"
                                                     style={{ zIndex: -1 }}
                                                 />
                                             </motion.div>
@@ -1063,14 +1085,19 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
 }
 
 /* ─── StatCard Component — Glassmorphism + Gradient Icons ─── */
-function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; label: string; value: number; color: string; delay?: number }) {
-    const gradients: Record<string, { from: string; to: string; shadow: string; bg: string }> = {
-        blue: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
-        emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        green: { from: 'from-green-400', to: 'to-emerald-600', shadow: 'shadow-green-500/30', bg: 'from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10' },
-        amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+function StatCard({ icon: Icon, imageIcon, label, value, color, delay = 0 }: { icon?: any; imageIcon?: string; label: string; value: number; color: string; delay?: number }) {
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Map colors to matching dashboard configurations
+    const colorConfigs: Record<string, any> = {
+        emerald: { bg: 'bg-emerald-500', hoverShadow: 'group-hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', iconBg: 'from-emerald-400 to-teal-600 shadow-emerald-500/30' },
+        orange: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-orange-400 to-orange-600 shadow-orange-500/30' },
+        amber: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-amber-400 to-orange-600 shadow-amber-500/30' },
+        purple: { bg: 'bg-violet-500', hoverShadow: 'group-hover:shadow-violet-500/10', gradientBg: 'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10', iconBg: 'from-violet-400 to-purple-600 shadow-violet-500/30' },
+        blue: { bg: 'bg-sky-500', hoverShadow: 'group-hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', iconBg: 'from-sky-400 to-indigo-600 shadow-sky-500/30' },
+        green: { bg: 'bg-green-500', hoverShadow: 'group-hover:shadow-green-500/10', gradientBg: 'from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10', iconBg: 'from-green-400 to-emerald-600 shadow-green-500/30' },
     };
-    const g = gradients[color] ?? gradients.blue;
+    const c = colorConfigs[color] ?? colorConfigs.blue;
 
     return (
         <motion.div
@@ -1093,6 +1120,9 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; l
                 damping: 20,
                 mass: 0.8,
             }}
+            className={`group h-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer`}
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
             whileHover={{
                 scale: 1.05,
                 y: -8,
@@ -1103,43 +1133,57 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }: { icon: any; l
                 }
             }}
             whileTap={{ scale: 0.95 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 cursor-pointer transition-all duration-300"
             style={{ perspective: 1000 }}
         >
-            {/* Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${g.bg}`} />
-            {/* Glow Orb */}
-            <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${g.from} ${g.to} opacity-10 blur-2xl transition-all duration-500 group-hover:opacity-25 group-hover:scale-150`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradientBg}`} />
 
-            <div className="relative flex items-center gap-3">
-                <motion.div
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${g.from} ${g.to} text-white shadow-lg ${g.shadow}`}
-                    whileHover={{ scale: 1.15, rotate: 8 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                >
-                    <Icon className="h-5 w-5" />
-                </motion.div>
+            <motion.div
+                initial={false}
+                animate={{
+                    scale: isHovered ? 1.5 : 1,
+                    opacity: isHovered ? 0.4 : 0.2,
+                }}
+                transition={{ duration: 0.5 }}
+                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.bg} blur-3xl transition-all duration-500`}
+            />
+
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+                {imageIcon ? (
+                    <motion.div
+                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        <img src={imageIcon} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" alt={label} />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        className={`relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${c.iconBg} text-white shadow-lg`}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
+                    </motion.div>
+                )}
                 <div>
                     <motion.p
-                        className="text-xs text-neutral-500 dark:text-neutral-400"
+                        className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: delay + 0.1 }}
                     >
                         {label}
                     </motion.p>
-                    <motion.p
-                        className="text-xl font-bold text-neutral-900 dark:text-white"
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{
-                            delay: delay + 0.2,
-                            type: 'spring',
-                            stiffness: 300,
-                        }}
-                    >
-                        {value}
-                    </motion.p>
+                    <div className="mt-0.5 sm:mt-1">
+                        <motion.span
+                            className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: delay + 0.2, type: 'spring', stiffness: 300 }}
+                        >
+                            {value}
+                        </motion.span>
+                    </div>
                 </div>
             </div>
         </motion.div>
