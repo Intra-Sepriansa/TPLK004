@@ -28,6 +28,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
+
+import iconPerangkat from '@/assets/admin/perangkat/perangkat-icon.png';
+import iconTotalScan from '@/assets/admin/perangkat/total-scan.png';
+import iconOS from '@/assets/admin/perangkat/os.png';
+import iconPerangkatCard from '@/assets/admin/perangkat/perangkat.png';
+import iconLainnya from '@/assets/admin/perangkat/lainnya.png';
 import {
     AreaChart,
     Area,
@@ -249,24 +255,69 @@ export default function AdminPerangkat({
 
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Monitor className="h-8 w-8 text-white" />
+                                    <img src={iconPerangkat} alt="Perangkat" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Analisis Sistem</p>
-                                    <h1 className="text-3xl font-bold text-white">Perangkat Pengguna</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Perangkat Pengguna</h1>
+                                    <p className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed">
                                         Monitor distribusi sistem operasi, tipe perangkat, dan kompatibilitas aplikasi secara real-time.
                                     </p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </motion.div>
+
+                {/* ══════ Key Stats Cards (Matching Dashboard Style) ══════ */}
+                <motion.div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4" variants={containerVariants}>
+                    {[
+                        { id: 'total', label: 'Total Scan', value: stats.total_scans, sub: `${stats.unique_devices} Perangkat Unik`, iconImg: iconTotalScan, hoverShadow: 'hover:shadow-blue-500/10', glowBg: 'bg-blue-500', gradBg: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
+                        { id: 'os', label: 'OS Utama', value: `${stats.android_percentage}%`, sub: `Android: ${stats.android_count} | iOS: ${stats.ios_count}`, iconImg: iconOS, hoverShadow: 'hover:shadow-emerald-500/10', glowBg: 'bg-emerald-500', gradBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+                        { id: 'device', label: 'Perangkat', value: stats.mobile_count + stats.tablet_count + stats.desktop_count, sub: `Mobile: ${stats.mobile_count} | Desktop: ${stats.desktop_count}`, iconImg: iconPerangkatCard, hoverShadow: 'hover:shadow-purple-500/10', glowBg: 'bg-purple-500', gradBg: 'from-purple-500/5 to-fuchsia-500/5 dark:from-purple-500/10 dark:to-fuchsia-500/10' },
+                        { id: 'other', label: 'Lainnya', value: stats.other_count, sub: `${stats.total_scans > 0 ? (stats.other_count / stats.total_scans * 100).toFixed(1) : 0}% dari total`, iconImg: iconLainnya, hoverShadow: 'hover:shadow-amber-500/10', glowBg: 'bg-amber-500', gradBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+                    ].map((stat, i) => (
+                        <motion.div
+                            key={stat.id}
+                            variants={itemVariants}
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5`}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradBg}`} />
+                            <motion.div
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glowBg} blur-3xl opacity-20 group-hover:opacity-40 transition-all duration-500`}
+                            />
+
+                            <div className="relative flex flex-row items-center gap-3 sm:gap-4 text-left">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                >
+                                    <img src={stat.iconImg} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <motion.p
+                                        className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white mt-0.5 sm:mt-1"
+                                        initial={{ scale: 0.5, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.1 }}
+                                    >
+                                        {stat.value}
+                                    </motion.p>
+                                    <p className="text-[9px] sm:text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">{stat.sub}</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
                 </motion.div>
 
                 {/* Filter */}
@@ -302,147 +353,6 @@ export default function AdminPerangkat({
                             </motion.div>
                         </div>
                     </div>
-                </motion.div>
-
-                {/* ══════ Key Stats Cards (Consolidated) ══════ */}
-                <motion.div
-                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
-                    variants={containerVariants}
-                >
-                    {/* Card 1: Total Activity */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="relative z-10 flex flex-col justify-between h-full">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl text-white shadow-lg shadow-blue-500/20">
-                                    <Activity className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.total_scans}</h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Total Scan</p>
-                            </div>
-                            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white/50 dark:bg-white/5 rounded-lg p-2 w-fit backdrop-blur-sm border border-white/10">
-                                <Cpu className="h-3 w-3" />
-                                {stats.unique_devices} Perangkat Unik
-                            </div>
-                        </div>
-                        <div className="absolute right-0 bottom-0 opacity-5 transform translate-x-1/4 translate-y-1/4 group-hover:scale-110 transition-transform duration-500">
-                            <Activity className="h-40 w-40 text-blue-600" />
-                        </div>
-                    </motion.div>
-
-                    {/* Card 2: Platform Dominance (Android vs iOS) */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl text-white shadow-lg shadow-emerald-500/20">
-                                    <Smartphone className="h-6 w-6" />
-                                </div>
-                                <span className="text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-1 rounded-lg border border-emerald-500/20">OS Utama</span>
-                            </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-slate-600 dark:text-slate-300">Android</span>
-                                        <span className="font-bold text-slate-900 dark:text-white">{stats.android_percentage}%</span>
-                                    </div>
-                                    <div className="h-2 w-full bg-slate-200/50 dark:bg-white/10 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${stats.android_percentage}%` }}></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-slate-600 dark:text-slate-300">iOS</span>
-                                        <span className="font-bold text-slate-900 dark:text-white">{stats.ios_percentage}%</span>
-                                    </div>
-                                    <div className="h-2 w-full bg-slate-200/50 dark:bg-white/10 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ width: `${stats.ios_percentage}%` }}></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Card 3: Form Factors */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl text-white shadow-lg shadow-indigo-500/20">
-                                    <Monitor className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <Smartphone className="h-4 w-4 text-slate-400" />
-                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Mobile</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{stats.mobile_count}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <Tablet className="h-4 w-4 text-slate-400" />
-                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Tablet</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{stats.tablet_count}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                    <div className="flex items-center gap-2">
-                                        <Monitor className="h-4 w-4 text-slate-400" />
-                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Desktop</span>
-                                    </div>
-                                    <span className="text-sm font-bold text-slate-900 dark:text-white">{stats.desktop_count}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Card 4: Other / Health */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5"
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="relative z-10 flex flex-col justify-between h-full">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl text-white shadow-lg shadow-amber-500/20">
-                                    <Server className="h-6 w-6" />
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white h-9">{stats.other_count}</h3>
-                                <p className="text-sm text-slate-500 font-medium">Lainnya / Tidak Terdeteksi</p>
-                            </div>
-                            <div className="mt-4">
-                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-2">
-                                    <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${(stats.other_count / stats.total_scans) * 100}%` }}></div>
-                                </div>
-                                <p className="text-xs text-slate-400">
-                                    {(stats.other_count / stats.total_scans * 100).toFixed(1)}% dari total lalu lintas
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
                 </motion.div>
 
                 {/* Charts Row */}

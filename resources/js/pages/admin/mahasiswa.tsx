@@ -57,6 +57,7 @@ interface Mahasiswa {
     fakultas?: string;
     kelas?: string;
     semester?: number;
+    avatar_url?: string;
     created_at?: string;
 }
 
@@ -1149,9 +1150,17 @@ export default function AdminMahasiswa({
                                             >
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${getInitialColor(m.nama)} flex items-center justify-center text-white font-bold text-xs shadow-sm`}>
-                                                            {getInitials(m.nama)}
-                                                        </div>
+                                                        {m.avatar_url ? (
+                                                            <img
+                                                                src={m.avatar_url}
+                                                                alt={m.nama}
+                                                                className="h-9 w-9 rounded-lg object-cover shadow-sm"
+                                                            />
+                                                        ) : (
+                                                            <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${getInitialColor(m.nama)} flex items-center justify-center text-white font-bold text-xs shadow-sm`}>
+                                                                {getInitials(m.nama)}
+                                                            </div>
+                                                        )}
                                                         <p className="font-semibold text-neutral-900 dark:text-white text-sm">{m.nama}</p>
                                                     </div>
                                                 </td>
