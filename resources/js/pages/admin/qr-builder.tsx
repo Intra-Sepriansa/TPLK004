@@ -83,38 +83,51 @@ const formatCountdown = (seconds: number) => {
 };
 
 // Advanced Animation Variants
-const containerVariants: Variants = {
+const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
             staggerChildren: 0.08,
             delayChildren: 0.1,
-            when: "beforeChildren",
         },
     },
-};
+} as const;
 
-const itemVariants: Variants = {
-    hidden: {
-        opacity: 0,
-        y: 60,
-        scale: 0.8,
-        rotateX: -15,
-    },
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
     visible: {
         opacity: 1,
         y: 0,
-        scale: 1,
-        rotateX: 0,
         transition: {
-            type: 'spring',
-            stiffness: 150,
-            damping: 20,
-            mass: 0.8,
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 24,
         },
     },
-};
+} as const;
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 300,
+            damping: 20,
+        },
+    },
+    hover: {
+        scale: 1.03,
+        y: -8,
+        transition: {
+            type: 'spring' as const,
+            stiffness: 400,
+            damping: 10,
+        },
+    },
+} as const;
 
 const headerVariants: Variants = {
     hidden: {
@@ -439,20 +452,41 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                 )}
                                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-3 mb-2">
                                     <motion.div
-                                        className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 relative items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                        whileHover={{ scale: 1.1, rotate: 10 }}
-                                        transition={{ type: 'spring', stiffness: 300 }}
+                                        className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 relative items-center justify-center"
+                                        initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                        transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                        whileHover={{ scale: 1.05, rotate: 5 }}
                                     >
                                         <img src={QrBuilderIcon} alt="QR Builder" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                     </motion.div>
-                                    <div>
-                                        <p className="text-sm text-indigo-200">Generator Token</p>
-                                        <h1 className="text-2xl sm:text-3xl font-bold">QR Builder</h1>
+                                    <div className="flex-1 mt-1 sm:mt-0">
+                                        <motion.p
+                                            className="text-sm text-indigo-200"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            Generator Token
+                                        </motion.p>
+                                        <motion.h1
+                                            className="text-2xl sm:text-3xl font-bold"
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.4 }}
+                                        >
+                                            QR Builder
+                                        </motion.h1>
                                     </div>
                                 </div>
-                                <p className="text-indigo-100 max-w-xl mt-3 sm:mt-4 text-sm sm:text-base">
+                                <motion.p
+                                    className="text-indigo-100 max-w-xl mt-3 sm:mt-4 text-sm sm:text-base leading-relaxed"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
                                     Generate QR code token untuk absensi dengan rotasi otomatis setiap {ttlLabel}. Sistem akan memperbarui token secara otomatis untuk keamanan maksimal.
-                                </p>
+                                </motion.p>
                             </div>
 
                             <div className="flex flex-col items-center sm:items-end gap-2 text-center sm:text-right mt-4 sm:mt-0">
@@ -485,12 +519,17 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                 {/* ─── Stats Cards ─── */}
                 <motion.div
                     className="grid gap-4 grid-cols-2 md:grid-cols-4"
-                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.6 } }
+                    }}
                 >
-                    <StatCard imageIcon={TokenIcon} label="Total Token" value={tokenStats.total_generated} color="blue" delay={0.1} />
-                    <StatCard imageIcon={HariIcon} label="Hari Ini" value={tokenStats.total_today} color="orange" delay={0.2} />
-                    <StatCard imageIcon={TokenAktifIcon} label="Token Aktif" value={tokenStats.active_tokens} color="green" delay={0.3} />
-                    <StatCard imageIcon={TokenIcon} label="Token Expired" value={tokenStats.expired_tokens} color="blue" delay={0.4} />
+                    <StatCard imageIcon={TokenIcon} label="Total Token" value={tokenStats.total_generated} color="purple" />
+                    <StatCard imageIcon={HariIcon} label="Hari Ini" value={tokenStats.total_today} color="orange" />
+                    <StatCard imageIcon={TokenAktifIcon} label="Token Aktif" value={tokenStats.active_tokens} color="green" />
+                    <StatCard imageIcon={TokenIcon} label="Token Expired" value={tokenStats.expired_tokens} color="purple" />
                 </motion.div>
 
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -1085,7 +1124,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
 }
 
 /* ─── StatCard Component — Glassmorphism + Gradient Icons ─── */
-function StatCard({ icon: Icon, imageIcon, label, value, color, delay = 0 }: { icon?: any; imageIcon?: string; label: string; value: number; color: string; delay?: number }) {
+function StatCard({ icon: Icon, imageIcon, label, value, color }: { icon?: any; imageIcon?: string; label: string; value: number; color: string }) {
     const [isHovered, setIsHovered] = useState(false);
 
     // Map colors to matching dashboard configurations
@@ -1101,37 +1140,14 @@ function StatCard({ icon: Icon, imageIcon, label, value, color, delay = 0 }: { i
 
     return (
         <motion.div
-            initial={{
-                opacity: 0,
-                y: 50,
-                scale: 0.7,
-                rotateY: -90,
+            variants={{
+                hidden: { opacity: 0, y: 30, scale: 0.9 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } }
             }}
-            animate={{
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                rotateY: 0,
-            }}
-            transition={{
-                delay,
-                type: 'spring',
-                stiffness: 200,
-                damping: 20,
-                mass: 0.8,
-            }}
+            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
             className={`group h-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer`}
             onHoverStart={() => setIsHovered(true)}
             onHoverEnd={() => setIsHovered(false)}
-            whileHover={{
-                scale: 1.05,
-                y: -8,
-                transition: {
-                    type: 'spring',
-                    stiffness: 400,
-                    damping: 10
-                }
-            }}
             whileTap={{ scale: 0.95 }}
             style={{ perspective: 1000 }}
         >
@@ -1166,23 +1182,13 @@ function StatCard({ icon: Icon, imageIcon, label, value, color, delay = 0 }: { i
                     </motion.div>
                 )}
                 <div>
-                    <motion.p
-                        className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: delay + 0.1 }}
-                    >
+                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">
                         {label}
-                    </motion.p>
+                    </p>
                     <div className="mt-0.5 sm:mt-1">
-                        <motion.span
-                            className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white"
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: delay + 0.2, type: 'spring', stiffness: 300 }}
-                        >
-                            {value}
-                        </motion.span>
+                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                            {value?.toLocaleString?.() ?? value}
+                        </span>
                     </div>
                 </div>
             </div>

@@ -36,18 +36,18 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1, when: "beforeChildren" as const } },
 } as const;
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+    hidden: { opacity: 0, y: 60, scale: 0.9, rotateX: -10, filter: 'blur(8px)' },
+    visible: { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 300, damping: 15, mass: 0.8 } },
 } as const;
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 20 } },
-    hover: { scale: 1.03, y: -8, transition: { type: 'spring' as const, stiffness: 400, damping: 10 } },
+    hidden: { opacity: 0, scale: 0.85, rotateX: -15, filter: 'blur(8px)' },
+    visible: { opacity: 1, scale: 1, rotateX: 0, filter: 'blur(0px) brightness(1) drop-shadow(0 0px 0px rgba(0,0,0,0))', transition: { type: 'spring' as const, stiffness: 150, damping: 16, mass: 0.8 } },
+    hover: { scale: 1.05, y: -12, rotateY: 4, rotateX: -4, filter: 'brightness(1.05) drop-shadow(0 20px 30px rgba(0,0,0,0.15))', transition: { type: 'spring' as const, stiffness: 300, damping: 15, mass: 0.8 } },
 } as const;
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -177,6 +177,22 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
                             className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
                             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient.replace('from-', 'from-').replace('to-', 'to-'))} />
+
+                            {/* Advanced Animated Inner Glow Orb */}
+                            <motion.div
+                                className={cn("absolute -left-10 -top-10 h-32 w-32 rounded-full blur-3xl opacity-40 mix-blend-screen pointer-events-none", card.glow)}
+                                animate={{
+                                    x: [0, 30, 0],
+                                    y: [0, 20, 0],
+                                    scale: [1, 1.3, 1],
+                                }}
+                                transition={{
+                                    duration: 8 + Math.random() * 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                }}
+                            />
+
                             <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
                                 className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-4">

@@ -73,6 +73,10 @@ class SelfieVerificationController extends Controller
             ];
         }, $fraudFlags);
 
+        // Build photo URLs - strip leading /storage/ from paths if present to avoid double-storage
+        $avatarPath = $mhs && $mhs->avatar_url ? ltrim(str_replace('/storage/', '', $mhs->avatar_url), '/') : null;
+        $selfiePath = $log && $log->selfie_path ? ltrim(str_replace('/storage/', '', $log->selfie_path), '/') : null;
+
         return \Inertia\Inertia::render('admin/verifikasi-selfie-detail', [
             'verification' => [
                 'id' => 'VER-' . str_pad($model->id, 6, '0', STR_PAD_LEFT),
@@ -80,12 +84,12 @@ class SelfieVerificationController extends Controller
                     'name' => $mhs->nama ?? 'Unknown',
                     'nim' => $mhs->nim ?? '-',
                     'initials' => strtoupper(substr($mhs->nama ?? 'U', 0, 2)),
-                    'photo' => $mhs && $mhs->avatar_url ? asset('storage/' . $mhs->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode($mhs->nama ?? 'U') . '&background=random',
+                    'photo' => $avatarPath ? asset('storage/' . $avatarPath) : 'https://ui-avatars.com/api/?name=' . urlencode($mhs->nama ?? 'U') . '&background=random',
                     'major' => $mhs->prodi ?? 'Informatika',
                     'semester' => $mhs->semester ?? 5,
                 ],
-                'reference_photo' => $mhs && $mhs->avatar_url ? asset('storage/' . $mhs->avatar_url) : 'https://ui-avatars.com/api/?name=' . urlencode($mhs->nama ?? 'U') . '&background=random',
-                'selfie_photo' => $log && $log->selfie_path ? asset('storage/' . $log->selfie_path) : null,
+                'reference_photo' => $avatarPath ? asset('storage/' . $avatarPath) : 'https://ui-avatars.com/api/?name=' . urlencode($mhs->nama ?? 'U') . '&background=random',
+                'selfie_photo' => $selfiePath ? asset('storage/' . $selfiePath) : null,
                 'match_score' => $log->face_match_score ?? 0,
                 'confidence_level' => $log->ai_confidence ?? 0,
                 'status' => $model->status,

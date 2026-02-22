@@ -85,7 +85,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     );
 };
 
-// Animation variants — Matching Uang Kas
+// Animation variants — Matching Uang Kas & Sesi Absen
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -93,43 +93,33 @@ const containerVariants = {
         transition: {
             staggerChildren: 0.08,
             delayChildren: 0.1,
-        },
-    },
+        }
+    }
 } as const;
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 300,
-            damping: 24,
-        },
-    },
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
+    }
 } as const;
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
+        y: 0,
         scale: 1,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 300,
-            damping: 20,
-        },
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
     },
     hover: {
-        scale: 1.03,
-        y: -8,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 400,
-            damping: 10,
-        },
-    },
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring', stiffness: 400, damping: 15 }
+    }
 } as const;
 
 export default function DashboardOverview({
@@ -184,8 +174,10 @@ export default function DashboardOverview({
         >
             {/* ═══════ HERO HEADER — Matching Uang Kas Style ═══════ */}
             <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                 className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
-                variants={itemVariants}
             >
                 {/* Animated Gradient Background */}
                 <motion.div
@@ -208,38 +200,52 @@ export default function DashboardOverview({
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                 {/* Pulsating Rings */}
-                <motion.div
-                    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                />
-                <motion.div
-                    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                />
-                <motion.div
-                    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                    animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                />
+                {[0, 1, 2].map((i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                    />
+                ))}
 
                 <div className="relative">
                     <div className="flex flex-wrap items-start justify-between gap-6">
                         <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                             <motion.div
-                                className="relative flex shrink-0 h-20 w-20"
+                                className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 whileHover={{ scale: 1.05, rotate: 5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
                             >
                                 <img src={dashboardIcon} alt="Dashboard Admin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                             </motion.div>
-                            <div>
-                                <p className="text-sm text-indigo-100 font-medium tracking-wide">Selamat datang di</p>
-                                <h1 className="text-3xl font-bold text-white">Dashboard Admin</h1>
-                                <p className="mt-1 text-indigo-100 max-w-lg">
+                            <div className="flex-1 mt-1 sm:mt-0">
+                                <motion.p
+                                    className="text-sm text-indigo-100 font-medium tracking-wide"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                >
+                                    Selamat datang di
+                                </motion.p>
+                                <motion.h1
+                                    className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    Dashboard Admin
+                                </motion.h1>
+                                <motion.p
+                                    className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
                                     Pantau kehadiran mahasiswa secara real-time dengan sistem absensi berbasis AI, QR code dinamis, dan verifikasi selfie.
-                                </p>
+                                </motion.p>
                             </div>
                         </div>
 
@@ -264,9 +270,12 @@ export default function DashboardOverview({
 
                     {/* Action Buttons */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.6 } }
+                        }}
                         className="flex flex-nowrap w-full overflow-x-auto gap-2 sm:gap-3 mt-6 sm:mt-8 pt-6 pb-2 border-t border-white/10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                     >
                         <motion.a
@@ -321,7 +330,12 @@ export default function DashboardOverview({
             {/* ═══════ STATS CARDS — Advanced Glassmorphism ═══════ */}
             <motion.div
                 className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
-                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+                }}
             >
                 {stats.map((stat, index) => {
                     const icons = [hadirIcon, terlambatIcon, selfieIcon, totalIcon];
@@ -339,17 +353,22 @@ export default function DashboardOverview({
                         <motion.div
                             key={stat.title}
                             className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
-                            variants={cardVariants}
-                            whileHover="hover"
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.9 },
+                                visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } }
+                            }}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                             onHoverStart={() => setHoveredCard(cardKey)}
                             onHoverEnd={() => setHoveredCard(null)}
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${colorConfig.gradientBg}`} />
                             <motion.div
+                                initial={false}
                                 animate={{
                                     scale: hoveredCard === cardKey ? 1.5 : 1,
                                     opacity: hoveredCard === cardKey ? 0.4 : 0.2,
                                 }}
+                                transition={{ duration: 0.5 }}
                                 className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorConfig.bg} blur-3xl transition-all duration-500`}
                             />
                             <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
@@ -378,7 +397,12 @@ export default function DashboardOverview({
             {/* ═══════ MAIN CONTENT GRID ═══════ */}
             <motion.div
                 className="grid gap-6 lg:grid-cols-3"
-                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                }}
             >
                 {/* Weekly Attendance Chart */}
                 <motion.div
@@ -473,7 +497,12 @@ export default function DashboardOverview({
             {/* ═══════ SECOND ROW ═══════ */}
             <motion.div
                 className="grid gap-6 lg:grid-cols-3"
-                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                }}
             >
                 {/* Recent Activity */}
                 <motion.div
@@ -593,7 +622,12 @@ export default function DashboardOverview({
             {/* ═══════ THIRD ROW ═══════ */}
             <motion.div
                 className="grid gap-6 lg:grid-cols-2"
-                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                }}
             >
                 {/* Course Stats */}
                 <motion.div
@@ -635,7 +669,12 @@ export default function DashboardOverview({
                 {/* Device & Hourly Stats */}
                 <motion.div
                     className="grid gap-6 sm:grid-cols-2"
-                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                    }}
                 >
                     {/* Device Distribution */}
                     <motion.div
@@ -715,7 +754,12 @@ export default function DashboardOverview({
             {/* ═══════ SECURITY & SESSION INFO ═══════ */}
             <motion.div
                 className="grid gap-6 lg:grid-cols-3"
-                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                }}
             >
                 {/* Active Session */}
                 <motion.div

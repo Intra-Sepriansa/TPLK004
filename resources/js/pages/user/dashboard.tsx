@@ -128,34 +128,36 @@ const CHART_COLORS = {
     absent: '#f43f5e',
 };
 
-// Animation variants - UPGRADED
+// Animation variants - ULTRA PREMIUM ENHANCED
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.04,
-            delayChildren: 0.05,
+            staggerChildren: 0.15,
+            delayChildren: 0.1,
             when: "beforeChildren" as const,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { 
-        opacity: 0, 
-        y: 30, 
-        scale: 0.92,
-        rotateX: -8,
+    hidden: {
+        opacity: 0,
+        y: 60,
+        scale: 0.85,
+        rotateX: -15,
+        filter: 'blur(8px)',
     },
     visible: {
         opacity: 1,
         y: 0,
         scale: 1,
         rotateX: 0,
+        filter: 'blur(0px)',
         transition: {
             type: 'spring' as const,
-            stiffness: 100,
+            stiffness: 300,
             damping: 15,
             mass: 0.8,
         },
@@ -163,29 +165,35 @@ const itemVariants = {
 };
 
 const cardHoverVariants = {
-    rest: { 
-        scale: 1, 
+    rest: {
+        scale: 1,
         y: 0,
         rotateY: 0,
         rotateX: 0,
+        filter: 'brightness(1) drop-shadow(0 0px 0px rgba(0,0,0,0))',
     },
     hover: {
-        scale: 1.03,
-        y: -8,
-        rotateY: 3,
-        rotateX: 2,
+        scale: 1.05,
+        y: -12,
+        rotateY: 4,
+        rotateX: -4,
+        filter: 'brightness(1.05) drop-shadow(0 20px 30px rgba(0,0,0,0.15))',
         transition: {
             type: 'spring' as const,
-            stiffness: 400,
-            damping: 20,
+            stiffness: 300,
+            damping: 15,
+            mass: 0.8,
         },
     },
     tap: {
-        scale: 0.97,
+        scale: 0.96,
+        rotateY: 0,
+        rotateX: 0,
+        filter: 'brightness(0.95)',
         transition: {
             type: 'spring' as const,
             stiffness: 500,
-            damping: 30,
+            damping: 25,
         },
     },
 };
@@ -232,8 +240,8 @@ const shimmerVariants = {
 };
 
 const slideInVariants = {
-    hidden: { 
-        x: -50, 
+    hidden: {
+        x: -50,
         opacity: 0,
         scale: 0.9,
     },
@@ -383,7 +391,7 @@ function QuickStatCard({
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileHover={{ opacity: 1, scale: 1 }}
             />
-            
+
             {/* Shimmer Effect */}
             <motion.div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100"
@@ -405,16 +413,32 @@ function QuickStatCard({
             <motion.div
                 className="absolute inset-0 rounded-2xl"
                 initial={{ opacity: 0 }}
-                whileHover={{ 
+                whileHover={{
                     opacity: 1,
                     boxShadow: `0 0 30px ${glowColors[color]}`,
                 }}
                 transition={{ duration: 0.3 }}
             />
-            
+
+            {/* Advanced Animated Inner Glow Orb */}
+            <motion.div
+                className="absolute left-0 top-0 h-32 w-32 rounded-full blur-2xl opacity-40 mix-blend-screen pointer-events-none"
+                style={{ background: `radial-gradient(circle, ${glowColors[color]}, transparent)` }}
+                animate={{
+                    x: [-20, 20, -20],
+                    y: [-20, 40, -20],
+                    scale: [1, 1.2, 1],
+                }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                }}
+            />
+
             <div className="relative flex items-center gap-3">
                 <motion.div
-                    whileHover={{ 
+                    whileHover={{
                         rotate: [0, -10, 10, -10, 0],
                         scale: 1.15,
                     }}
@@ -426,7 +450,7 @@ function QuickStatCard({
                 <div className="flex-1">
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
                     <div className="flex items-baseline gap-2">
-                        <motion.p 
+                        <motion.p
                             className="text-2xl font-bold text-gray-900 dark:text-white"
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
@@ -453,7 +477,7 @@ function QuickStatCard({
                         )}
                     </div>
                     {subtext && (
-                        <motion.p 
+                        <motion.p
                             initial={{ opacity: 0, y: 5 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
@@ -470,7 +494,7 @@ function QuickStatCard({
                 <motion.div
                     className="absolute top-2 right-2"
                     initial={{ scale: 0, rotate: 0, opacity: 0 }}
-                    whileHover={{ 
+                    whileHover={{
                         scale: [0, 1.2, 1],
                         rotate: [0, 180, 360],
                         opacity: [0, 1, 1],
@@ -568,14 +592,14 @@ export default function UserDashboard() {
                 className="space-y-6 p-6"
             >
                 {/* Welcome Card - ULTRA ADVANCED with Student Theme */}
-                <motion.div 
+                <motion.div
                     variants={itemVariants}
                     whileHover={{ scale: 1.01, rotateY: 1 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
                     style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
                     {/* Ultra Advanced Animated Background Orbs */}
-                    <motion.div 
+                    <motion.div
                         animate={{
                             scale: [1, 1.4, 1],
                             rotate: [0, 180, 360],
@@ -590,7 +614,7 @@ export default function UserDashboard() {
                         }}
                         className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
                     />
-                    <motion.div 
+                    <motion.div
                         animate={{
                             scale: [1, 1.5, 1],
                             rotate: [360, 180, 0],
@@ -605,7 +629,7 @@ export default function UserDashboard() {
                         }}
                         className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
                     />
-                    <motion.div 
+                    <motion.div
                         animate={{
                             scale: [1, 1.3, 1],
                             rotate: [0, -90, 0],
@@ -621,13 +645,13 @@ export default function UserDashboard() {
                         }}
                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
-                    
+
                     {/* 30 Floating Particles with Advanced Physics */}
                     {[...Array(30)].map((_, i) => (
                         <motion.div
                             key={i}
                             initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{ 
+                            animate={{
                                 opacity: [0, 0.8, 1, 0.6, 0],
                                 scale: [0, 1.8, 1.2, 0.8, 0],
                                 y: [0, -50, -100, -150, -200],
@@ -646,17 +670,17 @@ export default function UserDashboard() {
                                 height: `${3 + Math.random() * 10}px`,
                                 left: `${10 + (i * 3) % 80}%`,
                                 top: `${20 + (i % 4) * 20}%`,
-                                background: i % 3 === 0 
-                                    ? 'rgba(255, 255, 255, 0.6)' 
-                                    : i % 3 === 1 
-                                        ? 'rgba(6, 182, 212, 0.5)' 
+                                background: i % 3 === 0
+                                    ? 'rgba(255, 255, 255, 0.6)'
+                                    : i % 3 === 1
+                                        ? 'rgba(6, 182, 212, 0.5)'
                                         : 'rgba(59, 130, 246, 0.5)',
                                 filter: 'blur(1px)',
                                 boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
                             }}
                         />
                     ))}
-                    
+
                     {/* Floating Icons with Advanced Animations */}
                     <motion.div
                         animate={{
@@ -691,7 +715,7 @@ export default function UserDashboard() {
                     >
                         <Target className="h-20 w-20" />
                     </motion.div>
-                    
+
                     {/* Animated Rings */}
                     {[...Array(3)].map((_, i) => (
                         <motion.div
@@ -713,12 +737,12 @@ export default function UserDashboard() {
                             }}
                         />
                     ))}
-                    
+
                     <div className="relative flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-5">
-                            <motion.div 
-                                whileHover={{ 
-                                    scale: 1.2, 
+                            <motion.div
+                                whileHover={{
+                                    scale: 1.2,
                                     rotate: [0, -8, 8, 0],
                                     boxShadow: "0 0 40px rgba(255,255,255,0.6)"
                                 }}
@@ -759,7 +783,7 @@ export default function UserDashboard() {
                                 )}
                             </motion.div>
                             <div>
-                                <motion.p 
+                                <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2, type: "spring" }}
@@ -767,7 +791,7 @@ export default function UserDashboard() {
                                 >
                                     Selamat datang kembali,
                                 </motion.p>
-                                <motion.h1 
+                                <motion.h1
                                     initial={{ opacity: 0, x: -20, scale: 0.9 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
                                     transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
@@ -798,10 +822,10 @@ export default function UserDashboard() {
                                 </motion.div>
                             </div>
                         </div>
-                        
+
                         <div className="hidden sm:flex items-center gap-3">
                             {stats.currentStreak > 0 && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
@@ -809,7 +833,7 @@ export default function UserDashboard() {
                                     className="relative flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl ring-2 ring-white/40 cursor-pointer shadow-xl"
                                 >
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             scale: [1, 1.15, 1],
                                             rotate: [0, 5, -5, 0],
                                         }}
@@ -817,7 +841,7 @@ export default function UserDashboard() {
                                     >
                                         <Flame className="h-6 w-6 text-orange-300" />
                                     </motion.div>
-                                    <motion.span 
+                                    <motion.span
                                         className="font-extrabold text-xl"
                                         animate={{ scale: [1, 1.12, 1] }}
                                         transition={{ duration: 1.5, repeat: Infinity }}
@@ -885,7 +909,7 @@ export default function UserDashboard() {
                     </div>
 
                     {/* Mobile CTA with Ultra Enhanced Animation */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.7 }}
@@ -900,7 +924,7 @@ export default function UserDashboard() {
                                     <motion.div
                                         className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-400/20"
                                         animate={{ x: ['-100%', '100%'] }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "linear",
@@ -962,10 +986,10 @@ export default function UserDashboard() {
                     <div className="space-y-6 lg:col-span-2">
                         {/* Upcoming Session - Enhanced */}
                         {nextSession && (
-                            <motion.div 
+                            <motion.div
                                 variants={itemVariants}
-                                whileHover={{ 
-                                    scale: 1.02, 
+                                whileHover={{
+                                    scale: 1.02,
                                     y: -4,
                                     boxShadow: "0 20px 25px -5px rgba(245, 158, 11, 0.2)",
                                 }}
@@ -976,21 +1000,21 @@ export default function UserDashboard() {
                                 <motion.div
                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                                     animate={{ x: ['-100%', '100%'] }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 3,
                                         repeat: Infinity,
                                         ease: "linear",
                                         repeatDelay: 2,
                                     }}
                                 />
-                                
+
                                 <div className="flex items-center justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-2">
                                         <motion.div
-                                            animate={{ 
+                                            animate={{
                                                 rotate: [0, 10, -10, 0],
                                             }}
-                                            transition={{ 
+                                            transition={{
                                                 duration: 2,
                                                 repeat: Infinity,
                                                 ease: "easeInOut",
@@ -1002,9 +1026,9 @@ export default function UserDashboard() {
                                             Sesi Berikutnya
                                         </h2>
                                     </div>
-                                    <motion.span 
+                                    <motion.span
                                         className="px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-medium shadow-lg"
-                                        animate={{ 
+                                        animate={{
                                             scale: [1, 1.05, 1],
                                             boxShadow: [
                                                 '0 0 0 0 rgba(245, 158, 11, 0.4)',
@@ -1012,7 +1036,7 @@ export default function UserDashboard() {
                                                 '0 0 0 0 rgba(245, 158, 11, 0)',
                                             ],
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "easeInOut",
@@ -1042,7 +1066,7 @@ export default function UserDashboard() {
                                             })}
                                         </p>
                                     </motion.div>
-                                    <motion.div 
+                                    <motion.div
                                         className="text-center"
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -1072,10 +1096,10 @@ export default function UserDashboard() {
                         )}
 
                         {/* This Week Progress - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.01, 
+                            whileHover={{
+                                scale: 1.01,
                                 y: -3,
                                 boxShadow: "0 10px 20px -5px rgba(14, 165, 233, 0.2)",
                             }}
@@ -1087,11 +1111,11 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: 1.2,
                                             rotate: [0, -10, 10, 0],
                                         }}
@@ -1103,7 +1127,7 @@ export default function UserDashboard() {
                                         Progress Minggu Ini
                                     </h2>
                                 </div>
-                                <motion.span 
+                                <motion.span
                                     className="text-sm text-gray-500"
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -1129,15 +1153,15 @@ export default function UserDashboard() {
 
                             <div className="mt-4 grid grid-cols-7 gap-1 relative z-10">
                                 {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day, i) => (
-                                    <motion.div 
-                                        key={day} 
+                                    <motion.div
+                                        key={day}
                                         className="text-center"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.4 + i * 0.05, type: "spring", stiffness: 200 }}
                                     >
                                         <p className="text-[10px] text-gray-400 mb-1">{day}</p>
-                                        <motion.div 
+                                        <motion.div
                                             className={cn(
                                                 'h-8 w-8 mx-auto rounded-lg flex items-center justify-center text-xs font-medium',
                                                 i < stats.thisWeekAttendance
@@ -1146,7 +1170,7 @@ export default function UserDashboard() {
                                                         ? 'bg-gray-100 text-gray-400 dark:bg-gray-800'
                                                         : 'bg-gray-50 text-gray-300 dark:bg-gray-900'
                                             )}
-                                            whileHover={{ 
+                                            whileHover={{
                                                 scale: 1.15,
                                                 rotate: i < stats.thisWeekAttendance ? [0, -5, 5, 0] : 0,
                                             }}
@@ -1160,10 +1184,10 @@ export default function UserDashboard() {
                         </motion.div>
 
                         {/* Weekly Attendance Chart - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.01, 
+                            whileHover={{
+                                scale: 1.01,
                                 y: -3,
                                 boxShadow: "0 10px 20px -5px rgba(99, 102, 241, 0.2)",
                             }}
@@ -1175,11 +1199,11 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: 1.2,
                                             rotate: [0, -10, 10, 0],
                                         }}
@@ -1215,10 +1239,10 @@ export default function UserDashboard() {
                         </motion.div>
 
                         {/* Monthly Trend Chart - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.01, 
+                            whileHover={{
+                                scale: 1.01,
                                 y: -3,
                                 boxShadow: "0 10px 20px -5px rgba(16, 185, 129, 0.2)",
                             }}
@@ -1230,15 +1254,15 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: 1.2,
                                             y: [-2, 2, -2],
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             y: { duration: 1, repeat: Infinity },
                                             scale: { duration: 0.3 }
                                         }}
@@ -1294,10 +1318,10 @@ export default function UserDashboard() {
                         </motion.div>
 
                         {/* Recent Activity - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.01, 
+                            whileHover={{
+                                scale: 1.01,
                                 y: -3,
                                 boxShadow: "0 10px 20px -5px rgba(139, 92, 246, 0.2)",
                             }}
@@ -1309,14 +1333,14 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             rotate: [0, 15, -15, 0],
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "easeInOut",
@@ -1340,7 +1364,7 @@ export default function UserDashboard() {
 
                             <div className="space-y-3 relative z-10">
                                 {recentActivity.length === 0 ? (
-                                    <motion.p 
+                                    <motion.p
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="text-sm text-gray-500 text-center py-4"
@@ -1356,21 +1380,21 @@ export default function UserDashboard() {
                                                 key={activity.id}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ 
+                                                transition={{
                                                     delay: index * 0.1,
                                                     type: "spring",
                                                     stiffness: 200,
                                                 }}
-                                                whileHover={{ 
-                                                    scale: 1.02, 
+                                                whileHover={{
+                                                    scale: 1.02,
                                                     x: 5,
                                                     backgroundColor: "rgba(0,0,0,0.02)",
                                                 }}
                                                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors cursor-pointer"
                                             >
-                                                <motion.div 
+                                                <motion.div
                                                     className={cn('flex h-9 w-9 items-center justify-center rounded-full', colorClass)}
-                                                    whileHover={{ 
+                                                    whileHover={{
                                                         scale: 1.15,
                                                         rotate: [0, -10, 10, 0],
                                                     }}
@@ -1396,10 +1420,10 @@ export default function UserDashboard() {
                     <div className="space-y-6">
                         {/* Attendance Distribution Pie Chart - Enhanced */}
                         {pieData.length > 0 && (
-                            <motion.div 
+                            <motion.div
                                 variants={itemVariants}
-                                whileHover={{ 
-                                    scale: 1.02, 
+                                whileHover={{
+                                    scale: 1.02,
                                     y: -4,
                                     boxShadow: "0 10px 20px -5px rgba(139, 92, 246, 0.2)",
                                 }}
@@ -1411,10 +1435,10 @@ export default function UserDashboard() {
                                     className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100"
                                     transition={{ duration: 0.3 }}
                                 />
-                                
+
                                 <div className="flex items-center gap-2 mb-4 relative z-10">
                                     <motion.div
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: 1.2,
                                             rotate: 360,
                                         }}
@@ -1455,8 +1479,8 @@ export default function UserDashboard() {
 
                                 <div className="flex justify-center gap-4 mt-2 relative z-10">
                                     {pieData.map((entry, index) => (
-                                        <motion.div 
-                                            key={index} 
+                                        <motion.div
+                                            key={index}
                                             className="flex items-center gap-2 text-xs"
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -1478,10 +1502,10 @@ export default function UserDashboard() {
                         )}
 
                         {/* Achievements - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.02, 
+                            whileHover={{
+                                scale: 1.02,
                                 y: -4,
                                 boxShadow: "0 10px 20px -5px rgba(245, 158, 11, 0.2)",
                             }}
@@ -1493,15 +1517,15 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             rotate: [0, -10, 10, -10, 0],
                                             scale: [1, 1.1, 1],
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 3,
                                             repeat: Infinity,
                                             ease: "easeInOut",
@@ -1528,12 +1552,12 @@ export default function UserDashboard() {
                                         key={i}
                                         initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
                                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                        transition={{ 
+                                        transition={{
                                             delay: i * 0.1,
                                             type: "spring",
                                             stiffness: 200,
                                         }}
-                                        whileHover={{ 
+                                        whileHover={{
                                             scale: achievement.unlocked ? 1.15 : 1.05,
                                             y: -5,
                                             rotate: achievement.unlocked ? [0, -5, 5, 0] : 0,
@@ -1563,7 +1587,7 @@ export default function UserDashboard() {
                                         Lihat Semua Pencapaian
                                         <motion.div
                                             animate={{ x: [0, 3, 0] }}
-                                            transition={{ 
+                                            transition={{
                                                 duration: 1.5,
                                                 repeat: Infinity,
                                                 ease: "easeInOut",
@@ -1577,10 +1601,10 @@ export default function UserDashboard() {
                         </motion.div>
 
                         {/* Quick Links - Enhanced */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.01, 
+                            whileHover={{
+                                scale: 1.01,
                                 y: -3,
                                 boxShadow: "0 10px 20px -5px rgba(0, 0, 0, 0.1)",
                             }}
@@ -1592,7 +1616,7 @@ export default function UserDashboard() {
                                 className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-slate-500/5 opacity-0 group-hover:opacity-100"
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <h2 className="font-semibold text-gray-900 dark:text-white mb-4 relative z-10">
                                 Menu Cepat
                             </h2>
@@ -1608,13 +1632,13 @@ export default function UserDashboard() {
                                         <motion.div
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ 
+                                            transition={{
                                                 delay: index * 0.1,
                                                 type: "spring",
                                                 stiffness: 200,
                                             }}
-                                            whileHover={{ 
-                                                scale: 1.03, 
+                                            whileHover={{
+                                                scale: 1.03,
                                                 x: 5,
                                                 backgroundColor: "rgba(0,0,0,0.02)",
                                             }}
@@ -1624,14 +1648,14 @@ export default function UserDashboard() {
                                                 <motion.div
                                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100"
                                                     animate={{ x: ['-100%', '100%'] }}
-                                                    transition={{ 
+                                                    transition={{
                                                         duration: 1.5,
                                                         repeat: Infinity,
                                                         ease: "linear",
                                                     }}
                                                 />
                                                 <motion.div
-                                                    whileHover={{ 
+                                                    whileHover={{
                                                         scale: 1.2,
                                                         rotate: [0, -10, 10, 0],
                                                     }}
@@ -1643,7 +1667,7 @@ export default function UserDashboard() {
                                                 <span className="relative z-10">{item.label}</span>
                                                 <motion.div
                                                     animate={{ x: [0, 3, 0] }}
-                                                    transition={{ 
+                                                    transition={{
                                                         duration: 1.5,
                                                         repeat: Infinity,
                                                         ease: "easeInOut",
@@ -1660,10 +1684,10 @@ export default function UserDashboard() {
                         </motion.div>
 
                         {/* Attendance Rate Card - Enhanced with Student Theme */}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.03, 
+                            whileHover={{
+                                scale: 1.03,
                                 y: -5,
                                 boxShadow: "0 20px 25px -5px rgba(6, 182, 212, 0.4)",
                             }}
@@ -1700,7 +1724,7 @@ export default function UserDashboard() {
                                 }}
                                 className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-400/30 blur-3xl"
                             />
-                            
+
                             {/* Floating particles */}
                             {[...Array(10)].map((_, i) => (
                                 <motion.div
@@ -1726,8 +1750,8 @@ export default function UserDashboard() {
                                     }}
                                 />
                             ))}
-                            
-                            <motion.p 
+
+                            <motion.p
                                 className="text-sm text-cyan-100 font-semibold relative z-10"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -1736,11 +1760,11 @@ export default function UserDashboard() {
                                 Tingkat Kehadiran
                             </motion.p>
                             <div className="flex items-end gap-2 mt-2 relative z-10">
-                                <motion.span 
+                                <motion.span
                                     className="text-5xl font-extrabold"
                                     initial={{ scale: 0, rotate: -180 }}
                                     animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ 
+                                    transition={{
                                         type: "spring",
                                         stiffness: 200,
                                         delay: 0.3,
@@ -1749,14 +1773,14 @@ export default function UserDashboard() {
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
                                 </motion.span>
                                 {stats.attendanceRate >= 75 ? (
-                                    <motion.span 
+                                    <motion.span
                                         className="text-cyan-200 text-sm mb-2 flex items-center gap-1 font-semibold"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.5 }}
                                     >
                                         <motion.div
-                                            animate={{ 
+                                            animate={{
                                                 scale: [1, 1.3, 1],
                                                 rotate: [0, 15, -15, 0],
                                             }}
@@ -1767,7 +1791,7 @@ export default function UserDashboard() {
                                         Luar Biasa!
                                     </motion.span>
                                 ) : (
-                                    <motion.span 
+                                    <motion.span
                                         className="text-amber-300 text-sm mb-2 font-semibold"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -1788,13 +1812,13 @@ export default function UserDashboard() {
                                     value={stats.attendanceRate}
                                     className="mt-4 h-3 bg-white/20 backdrop-blur"
                                     indicatorClassName={cn(
-                                        stats.attendanceRate >= 75 
-                                            ? 'bg-gradient-to-r from-cyan-300 to-teal-300' 
+                                        stats.attendanceRate >= 75
+                                            ? 'bg-gradient-to-r from-cyan-300 to-teal-300'
                                             : 'bg-gradient-to-r from-amber-300 to-orange-300'
                                     )}
                                 />
                             </motion.div>
-                            <motion.p 
+                            <motion.p
                                 className="text-xs text-cyan-100 mt-3 relative z-10 font-medium"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}

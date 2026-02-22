@@ -231,8 +231,10 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
                             <motion.div
                                 className="relative flex shrink-0 h-24 w-24 sm:h-20 sm:w-20"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 whileHover={{ scale: 1.05, rotate: 5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
                             >
                                 <img src={courseIcon} alt="Sesi Absen" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </motion.div>
@@ -395,10 +397,10 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     }}
                 >
                     {[
-                        { imageIcon: courseIcon, label: 'Total Sesi', value: stats.total_sessions, sub: 'Semua waktu', color: 'blue' },
+                        { imageIcon: courseIcon, label: 'Total Sesi', value: stats.total_sessions, sub: 'Semua waktu', color: 'purple' },
                         { imageIcon: sesiIcon, label: 'Sesi Aktif', value: stats.active_sessions, sub: 'Saat ini', color: 'emerald' },
                         { imageIcon: hariIcon, label: 'Hari Ini', value: stats.today_sessions, sub: `${stats.today_attendance} kehadiran`, color: 'orange' },
-                        { imageIcon: rataRataIcon, label: 'Rata-rata', value: stats.avg_attendance_per_session, sub: 'Per sesi', color: 'purple' },
+                        { imageIcon: rataRataIcon, label: 'Rata-rata', value: stats.avg_attendance_per_session, sub: 'Per sesi', color: 'blue' },
                     ].map((card, i) => (
                         <motion.div
                             key={i}

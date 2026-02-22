@@ -14,6 +14,9 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+// Asset Icons
+import VerifikasiSelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
+
 interface FacialLandmark {
     x: number;
     y: number;
@@ -129,26 +132,56 @@ const aiPulseVariants: Variants = {
     },
 };
 
+// AI Processing phases
+const AI_PHASES = [
+    { label: 'Memulai AI Engine...', detail: 'Loading neural network model v2.4.1', icon: Cpu, duration: 1200 },
+    { label: 'Memuat Data Referensi...', detail: 'Fetching embedding vektor dari database', icon: User, duration: 1000 },
+    { label: 'Deteksi Wajah...', detail: 'Detecting faces with MTCNN pipeline', icon: ScanFace, duration: 1500 },
+    { label: 'Ekstraksi Landmark Wajah...', detail: 'Extracting 68 facial landmark points', icon: Scan, duration: 1800 },
+    { label: 'Perbandingan Biometrik...', detail: 'Comparing feature vectors with cosine similarity', icon: Brain, duration: 2000 },
+    { label: 'Kalkulasi Skor Kecocokan...', detail: 'Computing weighted confidence aggregation', icon: BarChart3, duration: 1200 },
+    { label: 'Analisis Selesai', detail: 'All checks completed successfully', icon: CheckCircle, duration: 500 },
+];
+
 export default function VerifikasiSelfieDetail({ verification: initialVerification, facialLandmarks: initialLandmarks, facialFeatures, confidenceMetrics, relatedVerifications }: PageProps) {
     const [verification, setVerification] = useState<Verification>(initialVerification);
     const [facialLandmarks, setFacialLandmarks] = useState(initialLandmarks);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [aiPhase, setAiPhase] = useState(-1); // -1 = not started, 0-5 = processing, 6 = complete
+    const [aiComplete, setAiComplete] = useState(false);
+
+    // AI Processing animation sequence
+    useEffect(() => {
+        // Start AI analysis automatically
+        const startDelay = setTimeout(() => {
+            setIsProcessing(true);
+            setAiPhase(0);
+        }, 800);
+
+        return () => clearTimeout(startDelay);
+    }, []);
 
     useEffect(() => {
-        // Here we simulate the real-time AI processing WebSocket connection
-        // In a real scenario, you might subscribe to a Pusher channel:
-        // const channel = pusher.subscribe(`verification.${verification.id}`);
-        // channel.bind('processing-update', (data) => { ... });
+        if (aiPhase < 0 || aiPhase >= AI_PHASES.length) return;
 
-        if (verification.status === 'pending') {
-            setIsProcessing(true);
-            const timer = setTimeout(() => {
+        const phase = AI_PHASES[aiPhase];
+        const timer = setTimeout(() => {
+            if (aiPhase < AI_PHASES.length - 1) {
+                setAiPhase(prev => prev + 1);
+            } else {
+                // Final phase - complete!
                 setIsProcessing(false);
-                toast.success('AI Analysis Completed');
-            }, 3000); // Simulate connection established and initial processing done
-            return () => clearTimeout(timer);
-        }
-    }, [verification.id, verification.status]);
+                setAiComplete(true);
+                toast.success('🧠 AI Analysis Completed', {
+                    description: `Match Score: ${verification.match_score}% | Confidence: ${verification.confidence_level}%`,
+                });
+            }
+        }, phase.duration);
+
+        return () => clearTimeout(timer);
+    }, [aiPhase]);
+
+    const aiProgress = aiPhase < 0 ? 0 : Math.min(((aiPhase + 1) / AI_PHASES.length) * 100, 100);
 
     const handleVerify = async (action: 'approve' | 'reject') => {
         setIsProcessing(true);
@@ -171,7 +204,8 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
 
             <div className="p-6 space-y-6">
                 {/* 1. HEADER SECTION */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-5 sm:p-8 text-white shadow-2xl">
+                    {/* Animated Gradient Background */}
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
@@ -181,47 +215,118 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Pulsating Rings */}
                     <motion.div
                         className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
                         animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
                     />
-                    <div className="relative">
-                        <div className="flex items-center justify-between flex-wrap gap-6">
-                            <div className="flex items-center gap-5">
-                                <Button variant="ghost" onClick={() => router.visit('/admin/verifikasi-selfie')} className="text-white hover:bg-white/20">
-                                    <ChevronLeft className="h-5 w-5 mr-2" />
-                                    Kembali
-                                </Button>
-                                <div className="h-12 w-px bg-white/20" />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+                    />
+
+                    <div className="relative space-y-5">
+                        {/* Back Button Row */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <Button
+                                variant="ghost"
+                                onClick={() => router.visit('/admin/verifikasi-selfie')}
+                                className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl px-3 py-2 h-auto text-sm gap-1.5 group"
+                            >
+                                <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+                                Kembali ke Daftar
+                            </Button>
+                        </motion.div>
+
+                        {/* Main Header Content */}
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5 sm:gap-6">
+                            {/* Left: Icon + Title */}
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-white"
+                                    className="relative flex shrink-0 h-16 w-16 sm:h-20 sm:w-20 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 250, delay: 0.2 }}
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    <Scan className="h-8 w-8 text-white" />
+                                    <img
+                                        src={VerifikasiSelfieIcon}
+                                        alt="Verifikasi Selfie"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.5)]"
+                                    />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">AI Face Recognition</p>
-                                    <h1 className="text-3xl font-bold text-white">Verifikasi Selfie Detail</h1>
-                                    <p className="mt-1 text-indigo-100">Analisis wajah dengan teknologi AI</p>
+                                <div className="mt-1 sm:mt-0">
+                                    <motion.p
+                                        className="text-[10px] sm:text-xs text-indigo-200 font-semibold tracking-widest uppercase mb-1"
+                                        initial={{ opacity: 0, y: -5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        AI Face Recognition
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight"
+                                        initial={{ opacity: 0, y: -5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.35 }}
+                                    >
+                                        Verifikasi Selfie Detail
+                                    </motion.h1>
+                                    <motion.p
+                                        className="text-xs sm:text-sm text-indigo-100/80 mt-1.5 max-w-md leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.45 }}
+                                    >
+                                        Analisis wajah mendalam dengan teknologi AI untuk validasi kehadiran mahasiswa
+                                    </motion.p>
                                 </div>
                             </div>
+
+                            {/* Right: AI Status Badge */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0 }}
+                                initial={{ opacity: 0, scale: 0.5 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.6, type: 'spring' }}
+                                transition={{ delay: 0.6, type: 'spring', stiffness: 200 }}
                                 whileHover={{ scale: 1.05, y: -3 }}
-                                className="relative group"
+                                className="relative group shrink-0"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
-                                <div className="relative flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/30 text-white">
-                                    <motion.div animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
-                                        <Sparkles className="h-6 w-6 text-cyan-300" />
-                                    </motion.div>
+                                <div className={cn(
+                                    "absolute inset-0 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity",
+                                    aiComplete ? "bg-gradient-to-r from-emerald-400 to-green-500" : "bg-gradient-to-r from-cyan-400 to-blue-500"
+                                )} />
+                                <div className="relative flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur-xl px-5 py-3 sm:px-6 sm:py-4 shadow-2xl border border-white/20 text-white">
+                                    {!aiComplete ? (
+                                        <motion.div
+                                            animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+                                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        >
+                                            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-300" />
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{ type: 'spring', stiffness: 300 }}
+                                        >
+                                            <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-300" />
+                                        </motion.div>
+                                    )}
                                     <div>
-                                        <p className="text-xs text-indigo-100 font-medium">AI Status</p>
-                                        <p className="text-xl font-black">ANALYZING</p>
+                                        <p className="text-[10px] sm:text-xs text-indigo-200/80 font-semibold tracking-wide uppercase">AI Status</p>
+                                        <p className={cn(
+                                            "text-base sm:text-lg font-black tracking-wider",
+                                            aiComplete ? "text-emerald-300" : "text-cyan-300"
+                                        )}>
+                                            {aiComplete ? 'COMPLETE' : 'PROCESSING'}
+                                        </p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -234,42 +339,153 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                     {/* LEFT COLUMN: Image Comparison */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* AI Face Comparison */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 backdrop-blur-xl shadow-xl dark:border-white/5">
+                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 backdrop-blur-xl shadow-xl dark:border-white/5">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-                                    <Brain className="h-6 w-6 text-cyan-500" /> AI Face Comparison
+                                <h2 className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                                    <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-500" /> AI Face Comparison
                                 </h2>
-                                <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 1.5, repeat: Infinity }} className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white text-sm font-medium shadow-lg">
-                                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Loader2 className="h-4 w-4" /></motion.div>
-                                    AI Processing...
-                                </motion.div>
+                                {!aiComplete ? (
+                                    <motion.div
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{ duration: 1.5, repeat: Infinity }}
+                                        className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white text-xs sm:text-sm font-medium shadow-lg"
+                                    >
+                                        <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" /></motion.div>
+                                        AI Processing...
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 200 }}
+                                        className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs sm:text-sm font-bold shadow-lg"
+                                    >
+                                        <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Complete
+                                    </motion.div>
+                                )}
                             </div>
 
+                            {/* AI Processing HUD Overlay */}
+                            {!aiComplete && aiPhase >= 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mb-6 p-4 sm:p-5 rounded-2xl bg-black/90 border border-cyan-500/30 text-white space-y-4"
+                                >
+                                    {/* Progress bar */}
+                                    <div className="flex items-center justify-between text-xs text-cyan-400 font-mono mb-1">
+                                        <span>PHASE {aiPhase + 1}/{AI_PHASES.length}</span>
+                                        <span>{Math.round(aiProgress)}%</span>
+                                    </div>
+                                    <div className="relative h-2 bg-neutral-800 rounded-full overflow-hidden">
+                                        <motion.div
+                                            className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-full relative overflow-hidden"
+                                            animate={{ width: `${aiProgress}%` }}
+                                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                                        >
+                                            <motion.div
+                                                animate={{ x: ['-100%', '200%'] }}
+                                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                                            />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Phase steps */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                                        {AI_PHASES.map((phase, idx) => {
+                                            const PhaseIcon = phase.icon;
+                                            const isActive = idx === aiPhase;
+                                            const isDone = idx < aiPhase;
+                                            return (
+                                                <motion.div
+                                                    key={idx}
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: idx <= aiPhase ? 1 : 0.3, x: 0 }}
+                                                    transition={{ delay: idx * 0.05 }}
+                                                    className={cn(
+                                                        "flex items-center gap-2.5 px-3 py-2 rounded-xl border text-xs transition-all",
+                                                        isActive && "bg-cyan-500/10 border-cyan-500/40 text-cyan-300",
+                                                        isDone && "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+                                                        !isActive && !isDone && "border-neutral-800 text-neutral-500"
+                                                    )}
+                                                >
+                                                    <div className="shrink-0">
+                                                        {isDone ? (
+                                                            <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                                        ) : isActive ? (
+                                                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}>
+                                                                <Loader2 className="h-4 w-4 text-cyan-400" />
+                                                            </motion.div>
+                                                        ) : (
+                                                            <PhaseIcon className="h-4 w-4" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-semibold truncate">{phase.label}</p>
+                                                        {(isActive || isDone) && (
+                                                            <p className="text-[10px] text-neutral-500 font-mono truncate">{phase.detail}</p>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Terminal-style log */}
+                                    <div className="mt-2 p-3 rounded-lg bg-black border border-neutral-800 font-mono text-[10px] sm:text-xs text-green-400 space-y-1 max-h-24 overflow-y-auto">
+                                        {aiPhase >= 0 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-cyan-400">INFO</span> Neural network model loaded</p>}
+                                        {aiPhase >= 1 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-cyan-400">INFO</span> Reference embedding fetched (512-dim vector)</p>}
+                                        {aiPhase >= 2 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-green-400">OK</span> Face detected in reference: 1 face(s)</p>}
+                                        {aiPhase >= 2 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-green-400">OK</span> Face detected in selfie: 1 face(s)</p>}
+                                        {aiPhase >= 3 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-cyan-400">INFO</span> Extracted 68 landmark points per face</p>}
+                                        {aiPhase >= 4 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-cyan-400">INFO</span> Computing cosine similarity...</p>}
+                                        {aiPhase >= 5 && <p><span className="text-neutral-600">[{new Date().toLocaleTimeString()}]</span> <span className="text-yellow-400">RESULT</span> Match score: {verification.match_score}%</p>}
+                                    </div>
+                                </motion.div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Reference */}
+                                {/* Reference Photo */}
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
                                         <h3 className="font-semibold text-neutral-900 dark:text-white">Foto Referensi</h3>
                                         <Badge variant="outline">Database</Badge>
                                     </div>
                                     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
-                                        <img src={verification.reference_photo} alt="Reference" className="w-full h-full object-cover" />
-                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="absolute inset-0">
-                                            <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.7, type: 'spring' }} className="absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 border-cyan-400 rounded-lg">
-                                                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-4 border-l-4 border-cyan-400" />
-                                                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-4 border-r-4 border-cyan-400" />
-                                                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-4 border-l-4 border-cyan-400" />
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4 border-cyan-400" />
-                                                <div className="absolute -top-8 left-0 px-3 py-1 bg-cyan-500 text-white text-xs font-bold rounded-full">FACE DETECTED</div>
+                                        <img src={verification.student.photo} alt="Reference" className="w-full h-full object-cover" />
+
+                                        {/* Scanning line - only during processing */}
+                                        {!aiComplete && aiPhase >= 2 && (
+                                            <motion.div variants={scanningVariants} initial="initial" animate="animate" className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                                        )}
+
+                                        {/* Face bounding box - appears after face detection phase */}
+                                        {aiPhase >= 2 && (
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="absolute inset-0">
+                                                <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }} className="absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 border-cyan-400 rounded-lg">
+                                                    <div className="absolute -top-1 -left-1 w-4 h-4 border-t-4 border-l-4 border-cyan-400" />
+                                                    <div className="absolute -top-1 -right-1 w-4 h-4 border-t-4 border-r-4 border-cyan-400" />
+                                                    <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-4 border-l-4 border-cyan-400" />
+                                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4 border-cyan-400" />
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        transition={{ delay: 0.3 }}
+                                                        className="absolute -top-8 left-0 px-3 py-1 bg-cyan-500 text-white text-xs font-bold rounded-full"
+                                                    >FACE DETECTED</motion.div>
+                                                </motion.div>
                                             </motion.div>
-                                            {facialLandmarks.reference.map((point, i) => (
-                                                <motion.div key={i} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.8 + i * 0.02 }} className="absolute w-2 h-2 bg-cyan-400 rounded-full" style={{ left: `${point.x}%`, top: `${point.y}%` }} />
-                                            ))}
-                                        </motion.div>
-                                        <motion.div variants={scanningVariants} initial="initial" animate="animate" className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                                        )}
+
+                                        {/* Landmarks - appear after landmark extraction phase */}
+                                        {aiPhase >= 3 && facialLandmarks.reference.map((point, i) => (
+                                            <motion.div key={i} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: i * 0.03, type: 'spring' }} className="absolute w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_6px_rgba(34,211,238,0.8)]" style={{ left: `${point.x}%`, top: `${point.y}%` }} />
+                                        ))}
                                     </div>
                                 </div>
-                                {/* Selfie */}
+
+                                {/* Selfie Photo */}
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
                                         <h3 className="font-semibold text-neutral-900 dark:text-white">Foto Selfie</h3>
@@ -277,54 +493,139 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                     </div>
                                     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
                                         <img src={verification.selfie_photo} alt="Selfie" className="w-full h-full object-cover" />
-                                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="absolute inset-0">
-                                            <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.7, type: 'spring' }} className={cn("absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 rounded-lg", verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400")}>
-                                                <div className={cn("absolute -top-1 -left-1 w-4 h-4 border-t-4 border-l-4", verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400")} />
-                                                <div className={cn("absolute -top-1 -right-1 w-4 h-4 border-t-4 border-r-4", verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400")} />
-                                                <div className={cn("absolute -bottom-1 -left-1 w-4 h-4 border-b-4 border-l-4", verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400")} />
-                                                <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4", verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400")} />
-                                                <div className={cn("absolute -top-8 left-0 px-3 py-1 text-white text-xs font-bold rounded-full", verification.match_score >= 80 ? "bg-green-500" : verification.match_score >= 60 ? "bg-yellow-500" : "bg-red-500")}>
-                                                    {verification.match_score >= 80 ? "MATCH" : verification.match_score >= 60 ? "PARTIAL MATCH" : "NO MATCH"}
-                                                </div>
+
+                                        {/* Scanning line - only during processing */}
+                                        {!aiComplete && aiPhase >= 2 && (
+                                            <motion.div variants={scanningVariants} initial="initial" animate="animate" className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+                                        )}
+
+                                        {/* Face bounding box - appears after face detection, color based on final result after complete */}
+                                        {aiPhase >= 2 && (
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="absolute inset-0">
+                                                <motion.div
+                                                    initial={{ scale: 0, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    transition={{ type: 'spring', stiffness: 200 }}
+                                                    className={cn(
+                                                        "absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 rounded-lg",
+                                                        aiComplete
+                                                            ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
+                                                            : "border-cyan-400"
+                                                    )}
+                                                >
+                                                    {/* Corners */}
+                                                    {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => {
+                                                        const borderColor = aiComplete
+                                                            ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
+                                                            : "border-cyan-400";
+                                                        const pos = corner.split('-');
+                                                        return (
+                                                            <div key={corner} className={cn(
+                                                                "absolute w-4 h-4",
+                                                                pos[0] === 'top' ? '-top-1' : '-bottom-1',
+                                                                pos[1] === 'left' ? '-left-1' : '-right-1',
+                                                                pos[0] === 'top' ? `border-t-4` : `border-b-4`,
+                                                                pos[1] === 'left' ? `border-l-4` : `border-r-4`,
+                                                                borderColor
+                                                            )} />
+                                                        );
+                                                    })}
+
+                                                    {/* Match label - only after AI completes */}
+                                                    {aiComplete && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            transition={{ type: 'spring', stiffness: 300 }}
+                                                            className={cn(
+                                                                "absolute -top-8 left-0 px-3 py-1 text-white text-xs font-bold rounded-full",
+                                                                verification.match_score >= 80 ? "bg-green-500" : verification.match_score >= 60 ? "bg-yellow-500" : "bg-red-500"
+                                                            )}
+                                                        >
+                                                            {verification.match_score >= 80 ? "MATCH" : verification.match_score >= 60 ? "PARTIAL MATCH" : "NO MATCH"}
+                                                        </motion.div>
+                                                    )}
+
+                                                    {/* "Analyzing..." label during processing */}
+                                                    {!aiComplete && aiPhase >= 2 && (
+                                                        <motion.div
+                                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                                            transition={{ duration: 1, repeat: Infinity }}
+                                                            className="absolute -top-8 left-0 px-3 py-1 bg-cyan-500 text-white text-xs font-bold rounded-full"
+                                                        >ANALYZING...</motion.div>
+                                                    )}
+                                                </motion.div>
                                             </motion.div>
-                                            {facialLandmarks.selfie.map((point, i) => (
-                                                <motion.div key={i} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.8 + i * 0.02 }} className={cn("absolute w-2 h-2 rounded-full", verification.match_score >= 80 ? "bg-green-400" : verification.match_score >= 60 ? "bg-yellow-400" : "bg-red-400")} style={{ left: `${point.x}%`, top: `${point.y}%` }} />
-                                            ))}
-                                        </motion.div>
-                                        <motion.div variants={scanningVariants} initial="initial" animate="animate" className={cn("absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent to-transparent drop-shadow-lg", verification.match_score >= 80 ? "shadow-[0_0_8px_rgba(74,222,128,0.8)] via-green-400" : verification.match_score >= 60 ? "shadow-[0_0_8px_rgba(250,204,21,0.8)] via-yellow-400" : "shadow-[0_0_8px_rgba(248,113,113,0.8)] via-red-400")} />
+                                        )}
+
+                                        {/* Landmarks - appear after extraction, color changes after complete */}
+                                        {aiPhase >= 3 && facialLandmarks.selfie.map((point, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ scale: 0, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                transition={{ delay: i * 0.03, type: 'spring' }}
+                                                className={cn(
+                                                    "absolute w-2 h-2 rounded-full",
+                                                    aiComplete
+                                                        ? verification.match_score >= 80 ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" : verification.match_score >= 60 ? "bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.8)]" : "bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]"
+                                                        : "bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]"
+                                                )}
+                                                style={{ left: `${point.x}%`, top: `${point.y}%` }}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* AI Score Banner */}
-                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }} className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30 border border-cyan-200 dark:border-cyan-800/50">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <motion.div variants={aiPulseVariants} initial="initial" animate="animate" className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30">
-                                            <Brain className="h-6 w-6" />
-                                        </motion.div>
-                                        <div>
-                                            <h3 className="font-bold text-neutral-900 dark:text-white">AI Match Score</h3>
-                                            <p className="text-sm text-neutral-600 dark:text-neutral-400">Confidence Level: {verification.confidence_level}%</p>
+                            {/* AI Score Banner - ONLY after AI completes */}
+                            <AnimatePresence>
+                                {aiComplete && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 150, damping: 15, delay: 0.3 }}
+                                        className="mt-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30 border border-cyan-200 dark:border-cyan-800/50"
+                                    >
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    transition={{ delay: 0.5, type: 'spring' }}
+                                                    className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30"
+                                                >
+                                                    <Brain className="h-6 w-6" />
+                                                </motion.div>
+                                                <div>
+                                                    <h3 className="font-bold text-neutral-900 dark:text-white">AI Match Score</h3>
+                                                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Confidence Level: {verification.confidence_level}%</p>
+                                                </div>
+                                            </div>
+                                            <motion.div
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{ delay: 0.7, type: 'spring', stiffness: 200 }}
+                                                className="text-right"
+                                            >
+                                                <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">{verification.match_score}%</p>
+                                                <p className="text-xs text-neutral-500 mt-1">Match Accuracy</p>
+                                            </motion.div>
                                         </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-4xl font-black bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">{verification.match_score}%</p>
-                                        <p className="text-xs text-neutral-500 mt-1">Match Accuracy</p>
-                                    </div>
-                                </div>
-                                <div className="relative h-4 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                                    <motion.div initial={{ width: 0 }} animate={{ width: `${verification.match_score}%` }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }} className={cn("h-full rounded-full relative overflow-hidden", verification.match_score >= 80 ? "bg-gradient-to-r from-green-400 to-emerald-600" : verification.match_score >= 60 ? "bg-gradient-to-r from-yellow-400 to-amber-600" : "bg-gradient-to-r from-red-400 to-rose-600")}>
-                                        <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                                        <div className="relative h-4 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                                            <motion.div initial={{ width: 0 }} animate={{ width: `${verification.match_score}%` }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.8 }} className={cn("h-full rounded-full relative overflow-hidden", verification.match_score >= 80 ? "bg-gradient-to-r from-green-400 to-emerald-600" : verification.match_score >= 60 ? "bg-gradient-to-r from-yellow-400 to-amber-600" : "bg-gradient-to-r from-red-400 to-rose-600")}>
+                                                <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                                            </motion.div>
+                                        </div>
+                                        <div className="mt-4 flex items-center justify-between">
+                                            <Badge variant={verification.match_score >= 80 ? 'success' : verification.match_score >= 60 ? 'warning' : 'destructive'} className="text-sm px-4 py-2 border-0">
+                                                {verification.match_score >= 80 ? <><CheckCircle className="h-4 w-4 mr-2" /> Verified - High Confidence</> : verification.match_score >= 60 ? <><AlertTriangle className="h-4 w-4 mr-2" /> Partial Match - Review</> : <><XCircle className="h-4 w-4 mr-2" /> No Match</>}
+                                            </Badge>
+                                            <div className="text-xs text-neutral-500 font-medium">Processed in {verification.processing_time}ms</div>
+                                        </div>
                                     </motion.div>
-                                </div>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <Badge variant={verification.match_score >= 80 ? 'success' : verification.match_score >= 60 ? 'warning' : 'destructive'} className="text-sm px-4 py-2 border-0">
-                                        {verification.match_score >= 80 ? <><CheckCircle className="h-4 w-4 mr-2" /> Verified - High Confidence</> : verification.match_score >= 60 ? <><AlertTriangle className="h-4 w-4 mr-2" /> Partial Match - Review</> : <><XCircle className="h-4 w-4 mr-2" /> No Match</>}
-                                    </Badge>
-                                    <div className="text-xs text-neutral-500 font-medium">Processed in {verification.processing_time}ms</div>
-                                </div>
-                            </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
 
                         {/* Detail Analysis */}

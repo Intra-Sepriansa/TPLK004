@@ -44,6 +44,12 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
+import iconMahasiswa from '@/assets/admin/mahasiswa/icon-mahasiswa.png';
+import totalMahasiswaIcon from '@/assets/admin/mahasiswa/total-mahasiswa.png';
+import mahasiswaAktifIcon from '@/assets/admin/mahasiswa/mahasiswa-aktif.png';
+import totalIcon from '@/assets/admin/mahasiswa/total.png';
+import fakultasIcon from '@/assets/admin/mahasiswa/fakultas.png';
+
 interface Mahasiswa {
     id: number;
     nama: string;
@@ -104,8 +110,6 @@ export default function AdminMahasiswa({
     const [fakultas, setFakultas] = useState(filters.fakultas);
     const [kelas, setKelas] = useState(filters.kelas);
     const [showAddForm, setShowAddForm] = useState(false);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [editingId, setEditingId] = useState<number | null>(null);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
     // Warning notification modal state
@@ -231,13 +235,6 @@ export default function AdminMahasiswa({
         semester: 1,
     });
 
-    const editForm = useForm({
-        nama: '',
-        nim: '',
-        fakultas: '',
-        kelas: '',
-        semester: 1,
-    });
 
     const handleFilter = () => {
         router.get('/admin/mahasiswa', { search, fakultas, kelas }, { preserveState: true });
@@ -258,29 +255,6 @@ export default function AdminMahasiswa({
         });
     };
 
-    const startEdit = (m: Mahasiswa) => {
-        setEditingId(m.id);
-        editForm.setData({
-            nama: m.nama,
-            nim: m.nim,
-            fakultas: m.fakultas || '',
-            kelas: m.kelas || '',
-            semester: m.semester || 1,
-        });
-        setShowEditForm(true);
-    };
-
-    const submitEdit = (e: FormEvent) => {
-        e.preventDefault();
-        if (!editingId) return;
-        editForm.patch(`/admin/mahasiswa/${editingId}`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                setEditingId(null);
-                setShowEditForm(false);
-            },
-        });
-    };
 
     const trendData = registrationTrend.labels.map((label, i) => ({
         name: label,
@@ -343,10 +317,10 @@ export default function AdminMahasiswa({
     };
 
     const statsConfig = [
-        { id: 'total', label: 'Total Mahasiswa', value: stats.total, icon: Users, gradient: 'from-blue-400 to-indigo-600', shadow: 'shadow-blue-500/30', glowBg: 'bg-blue-500', gradBg: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
-        { id: 'active', label: 'Aktif Bulan Ini', value: stats.active_this_month, icon: UserCheck, gradient: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30', glowBg: 'bg-emerald-500', gradBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        { id: 'attendance', label: 'Total Kehadiran', value: stats.avg_attendance, icon: TrendingUp, gradient: 'from-purple-400 to-fuchsia-600', shadow: 'shadow-purple-500/30', glowBg: 'bg-purple-500', gradBg: 'from-purple-500/5 to-fuchsia-500/5 dark:from-purple-500/10 dark:to-fuchsia-500/10' },
-        { id: 'fakultas', label: 'Fakultas', value: Object.keys(stats.by_fakultas).length, icon: GraduationCap, gradient: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', glowBg: 'bg-amber-500', gradBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+        { id: 'total', label: 'Total Mahasiswa', value: stats.total, iconImg: totalMahasiswaIcon, hoverShadow: 'hover:shadow-blue-500/10', glowBg: 'bg-blue-500', gradBg: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
+        { id: 'active', label: 'Aktif Bulan Ini', value: stats.active_this_month, iconImg: mahasiswaAktifIcon, hoverShadow: 'hover:shadow-emerald-500/10', glowBg: 'bg-emerald-500', gradBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        { id: 'attendance', label: 'Total Kehadiran', value: stats.avg_attendance, iconImg: totalIcon, hoverShadow: 'hover:shadow-purple-500/10', glowBg: 'bg-purple-500', gradBg: 'from-purple-500/5 to-fuchsia-500/5 dark:from-purple-500/10 dark:to-fuchsia-500/10' },
+        { id: 'fakultas', label: 'Fakultas', value: Object.keys(stats.by_fakultas).length, iconImg: fakultasIcon, hoverShadow: 'hover:shadow-amber-500/10', glowBg: 'bg-amber-500', gradBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
     ];
 
     return (
@@ -403,27 +377,42 @@ export default function AdminMahasiswa({
 
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-6">
-                            <div>
-                                <div className="flex items-center gap-4">
-                                    <motion.div
-                                        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                        whileHover={{ scale: 1.1, rotate: 10 }}
-                                        transition={{ type: 'spring', stiffness: 400 }}
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+                                <motion.div
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                >
+                                    <img src={iconMahasiswa} alt="Data Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                </motion.div>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >Manajemen</motion.p>
+                                    <motion.h1
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >Data Mahasiswa</motion.h1>
+                                    <motion.p
+                                        className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
                                     >
-                                        <GraduationCap className="h-7 w-7" />
-                                    </motion.div>
-                                    <div>
-                                        <p className="text-sm text-indigo-100 font-medium">Manajemen</p>
-                                        <h1 className="text-3xl font-bold">Data Mahasiswa</h1>
-                                    </div>
+                                        Kelola data mahasiswa, pantau kehadiran, dan analisis performa akademik secara real-time.
+                                    </motion.p>
                                 </div>
-                                <p className="mt-4 text-indigo-100 max-w-xl">
-                                    Kelola data mahasiswa, pantau kehadiran, dan analisis performa akademik secara real-time
-                                </p>
                             </div>
 
                             {/* Quick info badges */}
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex flex-col w-full sm:w-auto items-center sm:items-end gap-2 mt-4 sm:mt-0">
                                 <motion.div
                                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"
                                     initial={{ opacity: 0, x: 20 }}
@@ -471,16 +460,15 @@ export default function AdminMahasiswa({
                 </AnimatePresence>
 
                 {/* ═══════ STATS CARDS ═══════ */}
-                <motion.div className="grid gap-4 md:grid-cols-4" variants={containerVariants}>
+                <motion.div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4" variants={containerVariants}>
                     {statsConfig.map((stat, i) => (
                         <motion.div
                             key={stat.id}
                             variants={itemVariants}
-                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl transition-all dark:border-white/5 cursor-default"
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5`}
                             onHoverStart={() => setHoveredCard(stat.id)}
                             onHoverEnd={() => setHoveredCard(null)}
-                            whileHover={{ scale: 1.03, y: -8 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradBg}`} />
                             <motion.div
@@ -491,17 +479,17 @@ export default function AdminMahasiswa({
                                 className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glowBg} blur-3xl transition-all duration-500`}
                             />
 
-                            <div className="relative flex items-center gap-4">
+                            <div className="relative flex flex-row items-center gap-3 sm:gap-4 text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
                                 >
-                                    <stat.icon className="h-7 w-7" />
+                                    <img src={stat.iconImg} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{stat.label}</p>
+                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
                                     <motion.p
-                                        className="text-2xl font-bold text-neutral-900 dark:text-white mt-1"
+                                        className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white mt-0.5 sm:mt-1"
                                         initial={{ scale: 0.5, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.1 }}
@@ -517,7 +505,7 @@ export default function AdminMahasiswa({
                 {/* ═══════ FILTER & ACTIONS ═══════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-sm backdrop-blur-xl dark:border-white/5"
+                    className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl hover:shadow-2xl transition-all backdrop-blur-xl dark:border-white/5"
                 >
                     <div className="flex items-center gap-2 mb-5">
                         <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
@@ -825,192 +813,6 @@ export default function AdminMahasiswa({
                     )}
                 </AnimatePresence>
 
-                {/* ═══════ EDIT FORM MODAL ═══════ */}
-                <AnimatePresence>
-                    {showEditForm && editingId && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
-                            onClick={() => { setShowEditForm(false); setEditingId(null); }}
-                        >
-                            <motion.div
-                                initial={{ scale: 0.9, y: 30, opacity: 0 }}
-                                animate={{ scale: 1, y: 0, opacity: 1 }}
-                                exit={{ scale: 0.9, y: 30, opacity: 0 }}
-                                transition={{ type: 'spring', stiffness: 250, damping: 22 }}
-                                className="w-full max-w-lg rounded-3xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {/* Modal Header */}
-                                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 p-6">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-                                    <div className="relative flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <motion.div
-                                                className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 flex items-center justify-center"
-                                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                            >
-                                                <Edit className="h-6 w-6 text-white" />
-                                            </motion.div>
-                                            <div>
-                                                <h2 className="text-xl font-bold text-white">Edit Mahasiswa</h2>
-                                                <p className="text-sm text-indigo-100">Perbarui informasi mahasiswa</p>
-                                            </div>
-                                        </div>
-                                        <motion.button
-                                            onClick={() => { setShowEditForm(false); setEditingId(null); }}
-                                            className="h-10 w-10 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                        >
-                                            <X className="h-5 w-5 text-white" />
-                                        </motion.button>
-                                    </div>
-                                </div>
-
-                                {/* Modal Body */}
-                                <form onSubmit={submitEdit} className="p-6 space-y-5">
-                                    {/* Preview Card */}
-                                    <motion.div
-                                        className="flex items-center gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                    >
-                                        <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${getInitialColor(editForm.data.nama || 'A')} flex items-center justify-center text-white font-bold text-lg shadow-lg`}>
-                                            {getInitials(editForm.data.nama || 'A')}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-neutral-900 dark:text-white">{editForm.data.nama || 'Nama Mahasiswa'}</p>
-                                            <p className="text-sm text-neutral-500 dark:text-neutral-400">{editForm.data.nim || 'NIM'} • Semester {editForm.data.semester}</p>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Nama */}
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.15 }}
-                                    >
-                                        <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
-                                            <User className="h-3.5 w-3.5" />
-                                            Nama Lengkap <span className="text-red-400">*</span>
-                                        </label>
-                                        <input
-                                            value={editForm.data.nama}
-                                            onChange={e => editForm.setData('nama', e.target.value)}
-                                            placeholder="Nama lengkap"
-                                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
-                                        />
-                                        <InputError message={editForm.errors.nama} />
-                                    </motion.div>
-
-                                    {/* NIM */}
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                    >
-                                        <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
-                                            <Hash className="h-3.5 w-3.5" />
-                                            NIM <span className="text-red-400">*</span>
-                                        </label>
-                                        <input
-                                            value={editForm.data.nim}
-                                            onChange={e => editForm.setData('nim', e.target.value)}
-                                            placeholder="NIM"
-                                            className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
-                                        />
-                                        <InputError message={editForm.errors.nim} />
-                                    </motion.div>
-
-                                    {/* Fakultas & Kelas */}
-                                    <motion.div
-                                        className="grid grid-cols-2 gap-4"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.25 }}
-                                    >
-                                        <div>
-                                            <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
-                                                <Building2 className="h-3.5 w-3.5" />
-                                                Fakultas
-                                            </label>
-                                            <input
-                                                value={editForm.data.fakultas}
-                                                onChange={e => editForm.setData('fakultas', e.target.value)}
-                                                placeholder="Fakultas"
-                                                className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
-                                                <BookOpen className="h-3.5 w-3.5" />
-                                                Kelas
-                                            </label>
-                                            <input
-                                                value={editForm.data.kelas}
-                                                onChange={e => editForm.setData('kelas', e.target.value)}
-                                                placeholder="Kelas"
-                                                className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                                            />
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Semester */}
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                    >
-                                        <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold mb-2">
-                                            <Calendar className="h-3.5 w-3.5" />
-                                            Semester
-                                        </label>
-                                        <input
-                                            type="number"
-                                            min={1}
-                                            max={14}
-                                            value={editForm.data.semester}
-                                            onChange={e => editForm.setData('semester', Number(e.target.value))}
-                                            className="w-full max-w-[120px] rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 px-4 py-3 text-neutral-900 dark:text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                                        />
-                                    </motion.div>
-
-                                    {/* Actions */}
-                                    <motion.div
-                                        className="flex gap-3 pt-3"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.35 }}
-                                    >
-                                        <motion.button
-                                            type="submit"
-                                            disabled={editForm.processing}
-                                            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                        >
-                                            <Save className="h-4 w-4" />
-                                            {editForm.processing ? 'Menyimpan...' : 'Perbarui Data'}
-                                        </motion.button>
-                                        <motion.button
-                                            type="button"
-                                            onClick={() => { setShowEditForm(false); setEditingId(null); }}
-                                            className="px-6 py-3.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-semibold hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                        >
-                                            Batal
-                                        </motion.button>
-                                    </motion.div>
-                                </form>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
 
                 {/* ═══════ WARNING NOTIFICATION MODAL ═══════ */}
                 <AnimatePresence>
@@ -1302,7 +1104,7 @@ export default function AdminMahasiswa({
                     {/* Student Table */}
                     <motion.div
                         variants={slideInLeft}
-                        className="lg:col-span-2 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl overflow-hidden dark:border-white/5"
+                        className="lg:col-span-2 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl hover:shadow-2xl transition-all backdrop-blur-xl overflow-hidden dark:border-white/5"
                     >
                         <div className="p-5 border-b border-neutral-200 dark:border-neutral-800">
                             <div className="flex items-center justify-between">
@@ -1362,7 +1164,7 @@ export default function AdminMahasiswa({
                                                 <td className="px-5 py-3.5 text-right">
                                                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <motion.button
-                                                            onClick={() => startEdit(m)}
+                                                            onClick={() => router.get(`/admin/mahasiswa/${m.id}/edit`)}
                                                             className="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 flex items-center justify-center transition-colors"
                                                             whileHover={{ scale: 1.1 }}
                                                             whileTap={{ scale: 0.9 }}
@@ -1423,7 +1225,7 @@ export default function AdminMahasiswa({
                         {/* Top Performers — Advanced UI */}
                         <motion.div
                             variants={slideInRight}
-                            className="relative overflow-hidden rounded-3xl text-white shadow-2xl"
+                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl hover:shadow-2xl transition-all backdrop-blur-xl overflow-hidden dark:border-white/5"
                         >
                             {/* Animated Gradient Background */}
                             <motion.div
@@ -1505,7 +1307,7 @@ export default function AdminMahasiswa({
                         {/* Low Attendance */}
                         <motion.div
                             variants={slideInRight}
-                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-sm backdrop-blur-xl overflow-hidden dark:border-white/5"
+                            className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl hover:shadow-2xl transition-all backdrop-blur-xl overflow-hidden dark:border-white/5"
                         >
                             <div className="p-4 border-b border-neutral-200 dark:border-neutral-800">
                                 <div className="flex items-center justify-between">
@@ -1571,7 +1373,7 @@ export default function AdminMahasiswa({
                         {trendData.length > 0 && (
                             <motion.div
                                 variants={slideInRight}
-                                className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-sm backdrop-blur-xl dark:border-white/5"
+                                className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl hover:shadow-2xl transition-all backdrop-blur-xl dark:border-white/5"
                             >
                                 <div className="flex items-center gap-2 mb-4">
                                     <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
