@@ -1,5 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+
+declare const route: any;
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +35,6 @@ import {
     BookOpen,
     Calendar,
     CheckCircle,
-    Clock,
     Eye,
     FileText,
     MessageSquare,
@@ -54,6 +55,12 @@ import {
     Pin,
     Lock,
 } from 'lucide-react';
+import InformasiTugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import DraftTugasIcon from '@/assets/admin/informasi-tugas/draft.png';
+import PublishedTugasIcon from '@/assets/admin/informasi-tugas/publised.png';
+import OverdueTugasIcon from '@/assets/admin/informasi-tugas/overdue.png';
+
 
 type Course = { id: number; nama: string; dosen: string | null };
 type Tugas = {
@@ -80,19 +87,20 @@ const containerVariants: Variants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.08,
             delayChildren: 0.1,
         },
     },
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.4 },
-    },
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
+    }
 };
 
 const cardVariants: Variants = {
@@ -103,9 +111,9 @@ const cardVariants: Variants = {
         transition: { type: 'spring', stiffness: 300, damping: 20 },
     },
     hover: {
-        scale: 1.03,
-        y: -5,
-        transition: { type: 'spring', stiffness: 400, damping: 10 },
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring', stiffness: 400, damping: 15 },
     },
 };
 
@@ -120,7 +128,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
     const [search, setSearch] = useState(filters.search);
     const [courseId, setCourseId] = useState(filters.course_id);
     const [status, setStatus] = useState(filters.status);
-    const [showCreate, setShowCreate] = useState(false);
+
     const [showEdit, setShowEdit] = useState(false);
     const [editTugas, setEditTugas] = useState<Tugas | null>(null);
     const [isLoaded, setIsLoaded] = useState(false);
@@ -143,14 +151,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
         setIsLoaded(true);
     }, []);
 
-    const handleCreate = () => {
-        router.post('/admin/tugas', form, {
-            onSuccess: () => {
-                setShowCreate(false);
-                setForm({ course_id: '', judul: '', deskripsi: '', instruksi: '', jenis: 'tugas', deadline: '', prioritas: 'sedang', status: 'draft' });
-            },
-        });
-    };
+
 
     const handleEdit = () => {
         if (!editTugas) return;
@@ -212,30 +213,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
         return <Badge className={styles[jenis]}>{jenis}</Badge>;
     };
 
-    // Animation variants
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.15
-            }
-        }
-    };
 
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: 'spring' as const,
-                stiffness: 100,
-                damping: 12
-            }
-        }
-    };
 
     return (
         <AppLayout>
@@ -289,210 +267,46 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                     />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                    className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center shrink-0"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    <FileText className="h-8 w-8 text-white" />
+                                    <img
+                                        src={InformasiTugasIcon}
+                                        alt="Informasi Tugas"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
+                                    />
                                 </motion.div>
-                                <div>
+                                <div className="mt-1 sm:mt-0 flex-1">
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen</p>
-                                    <h1 className="text-3xl font-bold text-white">Informasi Tugas</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Informasi Tugas</h1>
+                                    <p className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed">
                                         Kelola tugas dan informasi untuk mahasiswa
                                     </p>
                                 </div>
                             </div>
 
-                            <Dialog open={showCreate} onOpenChange={setShowCreate}>
-                                <DialogTrigger asChild>
-                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
+                            <div className="w-full sm:w-auto flex justify-center mt-2 sm:mt-0">
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+                                    <Link href="/admin/tugas/create">
+                                        <Button className="w-full sm:w-auto bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
                                             <Plus className="mr-2 h-4 w-4" /> Tambah Tugas
                                         </Button>
-                                    </motion.div>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-0 shadow-2xl sm:rounded-3xl overflow-hidden">
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                        className="flex flex-col h-full"
-                                    >
-                                        {/* Header */}
-                                        {/* Header */}
-                                        <div className="relative p-6 px-8 border-b border-white/10 bg-gradient-to-r from-indigo-600 to-purple-600 text-white overflow-hidden">
-                                            {/* Decorative Elements */}
-                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-                                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-2xl -ml-12 -mb-12 pointer-events-none" />
-
-                                            <div className="relative flex flex-col items-center gap-4 sm:flex-row sm:items-start z-10">
-                                                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 text-white shadow-inner ring-1 ring-white/20 backdrop-blur-sm">
-                                                    <Sparkles className="h-7 w-7" />
-                                                </div>
-                                                <div className="text-center sm:text-left">
-                                                    <DialogTitle className="text-xl font-bold text-white">
-                                                        Buat Tugas Baru
-                                                    </DialogTitle>
-                                                    <p className="mt-1 text-sm text-indigo-100">
-                                                        Isi form dibawah untuk membuat tugas baru.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-6 px-8 bg-neutral-50 dark:bg-neutral-950/50 max-h-[75vh] overflow-y-auto custom-scrollbar space-y-5">
-
-                                            {/* Mata Kuliah & Judul */}
-                                            <div className="grid grid-cols-1 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Mata Kuliah</Label>
-                                                    <Select value={form.course_id} onValueChange={(v) => setForm({ ...form, course_id: v })}>
-                                                        <SelectTrigger className="h-11 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-xl focus:ring-2 focus:ring-indigo-500/20">
-                                                            <div className="flex items-center gap-2">
-                                                                <BookOpen className="h-4 w-4 text-neutral-400" />
-                                                                <SelectValue placeholder="Pilih Mata Kuliah" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {courses.map((c) => (
-                                                                <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.course_id && <p className="text-xs text-red-500 mt-1 ml-1">{errors.course_id}</p>}
-                                                </div>
-
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Judul Tugas</Label>
-                                                    <div className="relative">
-                                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                                                            <Pencil className="h-4 w-4 text-neutral-400" />
-                                                        </div>
-                                                        <Input
-                                                            value={form.judul}
-                                                            onChange={(e) => setForm({ ...form, judul: e.target.value })}
-                                                            className="pl-10 h-11 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-xl focus:ring-2 focus:ring-indigo-500/20"
-                                                            placeholder="Contoh: Tugas Pertemuan 3..."
-                                                        />
-                                                    </div>
-                                                    {errors.judul && <p className="text-xs text-red-500 mt-1 ml-1">{errors.judul}</p>}
-                                                </div>
-                                            </div>
-
-                                            {/* Kategori & Prioritas */}
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Kategori</Label>
-                                                    <Select value={form.jenis} onValueChange={(v) => setForm({ ...form, jenis: v })}>
-                                                        <SelectTrigger className="h-10 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-lg">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="tugas"><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-blue-500" /> <span>Tugas</span></div></SelectItem>
-                                                            <SelectItem value="quiz"><div className="flex items-center gap-2"><HelpCircle className="h-4 w-4 text-purple-500" /> <span>Quiz</span></div></SelectItem>
-                                                            <SelectItem value="project"><div className="flex items-center gap-2"><Rocket className="h-4 w-4 text-amber-500" /> <span>Project</span></div></SelectItem>
-                                                            <SelectItem value="presentasi"><div className="flex items-center gap-2"><Mic className="h-4 w-4 text-pink-500" /> <span>Presentasi</span></div></SelectItem>
-                                                            <SelectItem value="lainnya"><div className="flex items-center gap-2"><Pin className="h-4 w-4 text-gray-500" /> <span>Lainnya</span></div></SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.jenis && <p className="text-xs text-red-500 mt-1 ml-1">{errors.jenis}</p>}
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Prioritas</Label>
-                                                    <Select value={form.prioritas} onValueChange={(v) => setForm({ ...form, prioritas: v })}>
-                                                        <SelectTrigger className="h-10 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-lg">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="rendah"><div className="flex items-center gap-2"><ArrowDown className="h-4 w-4 text-emerald-500" /> <span>Rendah</span></div></SelectItem>
-                                                            <SelectItem value="sedang"><div className="flex items-center gap-2"><Minus className="h-4 w-4 text-amber-500" /> <span>Sedang</span></div></SelectItem>
-                                                            <SelectItem value="tinggi"><div className="flex items-center gap-2"><ArrowUp className="h-4 w-4 text-red-500" /> <span>Tinggi</span></div></SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.prioritas && <p className="text-xs text-red-500 mt-1 ml-1">{errors.prioritas}</p>}
-                                                </div>
-                                            </div>
-
-                                            {/* Deskripsi & Instruksi */}
-                                            <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold text-neutral-500 ml-1">Deskripsi Singkat</Label>
-                                                    <Textarea
-                                                        value={form.deskripsi}
-                                                        onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
-                                                        rows={2}
-                                                        className="bg-neutral-50 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-indigo-500/20 rounded-lg resize-none"
-                                                        placeholder="Deskripsi tugas..."
-                                                    />
-                                                    {errors.deskripsi && <p className="text-xs text-red-500 mt-1 ml-1">{errors.deskripsi}</p>}
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold text-neutral-500 ml-1">Instruksi Detail</Label>
-                                                    <Textarea
-                                                        value={form.instruksi}
-                                                        onChange={(e) => setForm({ ...form, instruksi: e.target.value })}
-                                                        rows={4}
-                                                        className="bg-neutral-50 dark:bg-neutral-800 border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-indigo-500/20 rounded-lg"
-                                                        placeholder="Instruksi lengkap..."
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Deadline & Status */}
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Deadline</Label>
-                                                    <div className="relative">
-                                                        <Input
-                                                            type="datetime-local"
-                                                            value={form.deadline}
-                                                            onChange={(e) => setForm({ ...form, deadline: e.target.value })}
-                                                            className="h-10 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-lg text-sm"
-                                                        />
-                                                    </div>
-                                                    {errors.deadline && <p className="text-xs text-red-500 mt-1 ml-1">{errors.deadline}</p>}
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 ml-1">Status</Label>
-                                                    <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
-                                                        <SelectTrigger className="h-10 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-lg">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="draft"><div className="flex items-center gap-2"><FileText className="h-4 w-4 text-neutral-400" /> <span>Draft</span></div></SelectItem>
-                                                            <SelectItem value="published"><div className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-emerald-500" /> <span>Published</span></div></SelectItem>
-                                                            <SelectItem value="closed"><div className="flex items-center gap-2"><Lock className="h-4 w-4 text-red-500" /> <span>Closed</span></div></SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.status && <p className="text-xs text-red-500 mt-1 ml-1">{errors.status}</p>}
-                                                </div>
-                                            </div>
-
-                                            {/* Action Button */}
-                                            <div className="pt-2">
-                                                <Button
-                                                    onClick={handleCreate}
-                                                    className="w-full h-12 text-base bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all active:scale-[0.98]"
-                                                >
-                                                    Buat Tugas Baru
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </DialogContent>
-                            </Dialog>
+                                    </Link>
+                                </motion.div>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Stats with Animation */}
                 <motion.div
-                    className="grid gap-6 md:grid-cols-4"
+                    className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
                     variants={containerVariants}
                 >
                     {/* Total Tugas */}
@@ -513,10 +327,15 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         />
                         <div className="relative flex items-center gap-4">
                             <motion.div
+                                className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center"
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400 to-blue-600 text-white shadow-lg shadow-indigo-500/30"
+                                transition={{ type: 'spring', stiffness: 200 }}
                             >
-                                <FileText className="h-7 w-7" />
+                                <img
+                                    src={TotalTugasIcon}
+                                    alt="Total Tugas"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Tugas</p>
@@ -535,22 +354,28 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('published')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5 cursor-pointer"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'published' ? 1.5 : 1,
                                 opacity: hoveredCard === 'published' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500 group-hover:opacity-40 group-hover:scale-150"
                         />
                         <div className="relative flex items-center gap-4">
                             <motion.div
+                                className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center"
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
+                                transition={{ type: 'spring', stiffness: 200 }}
                             >
-                                <CheckCircle className="h-7 w-7" />
+                                <img
+                                    src={PublishedTugasIcon}
+                                    alt="Published"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Published</p>
@@ -569,22 +394,28 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('draft')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-gray-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-gray-500/10 dark:border-white/5 cursor-pointer"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-slate-500/5 dark:from-gray-500/10 dark:to-slate-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'draft' ? 1.5 : 1,
                                 opacity: hoveredCard === 'draft' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gray-500 blur-3xl transition-all duration-500"
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gray-500 blur-3xl transition-all duration-500 group-hover:opacity-40 group-hover:scale-150"
                         />
                         <div className="relative flex items-center gap-4">
                             <motion.div
+                                className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center"
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-400 to-slate-600 text-white shadow-lg shadow-gray-500/30"
+                                transition={{ type: 'spring', stiffness: 200 }}
                             >
-                                <Clock className="h-7 w-7" />
+                                <img
+                                    src={DraftTugasIcon}
+                                    alt="Draft"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Draft</p>
@@ -597,28 +428,33 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         </div>
                     </motion.div>
 
-                    {/* Overdue */}
                     <motion.div
                         variants={cardVariants}
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('overdue')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-rose-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-rose-500/10 dark:border-white/5 cursor-pointer"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'overdue' ? 1.5 : 1,
                                 opacity: hoveredCard === 'overdue' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500"
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500 group-hover:opacity-40 group-hover:scale-150"
                         />
                         <div className="relative flex items-center gap-4">
                             <motion.div
+                                className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center"
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-400 to-rose-600 text-white shadow-lg shadow-red-500/30"
+                                transition={{ type: 'spring', stiffness: 200 }}
                             >
-                                <AlertTriangle className="h-7 w-7" />
+                                <img
+                                    src={OverdueTugasIcon}
+                                    alt="Overdue"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Overdue</p>
@@ -691,11 +527,9 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                         tugasList.map((tugas, index) => (
                             <motion.div
                                 key={tugas.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                whileHover={{ x: 4 }}
-                                className={`rounded-3xl border border-white/20 bg-white/40 p-5 shadow-sm backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 cursor-pointer group hover:shadow-indigo-500/10 transition-all ${tugas.is_overdue ? 'border-red-300 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/10' : ''}`}
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className={`rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 p-5 shadow-sm backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 cursor-pointer group hover:shadow-indigo-500/10 transition-all ${tugas.is_overdue ? 'border-red-300 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/10' : ''}`}
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1" onClick={() => router.visit(`/admin/tugas/${tugas.id}`)}>

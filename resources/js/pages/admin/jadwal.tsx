@@ -1,5 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import JadwalIcon from '@/assets/admin/jadwal/jadwal.png';
 import {
     Calendar,
     Clock,
@@ -301,18 +302,20 @@ export default function AdminJadwal({
 
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Calendar className="h-8 w-8 text-white" />
+                                    <img src={JadwalIcon} alt="Jadwal Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Analisis Sistem</p>
-                                    <h1 className="text-3xl font-bold text-white">Jadwal Sesi Absen</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Jadwal Sesi Absen</h1>
+                                    <p className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed">
                                         Kelola jadwal sesi absensi, aktifkan sesi, dan pantau kehadiran mahasiswa secara real-time.
                                     </p>
                                 </div>

@@ -38,24 +38,36 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2,
+                staggerChildren: 0.08,
+                delayChildren: 0.1,
             },
         },
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 30, scale: 0.9 },
         visible: {
             opacity: 1,
             y: 0,
-            transition: {
-                type: 'spring' as const,
-                stiffness: 300,
-                damping: 20,
-            },
+            scale: 1,
+            transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { opacity: 0, y: 30, scale: 0.9 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
         },
-    } as const;
+        hover: {
+            scale: 1.04,
+            y: -4,
+            transition: { type: 'spring' as const, stiffness: 400, damping: 15 }
+        }
+    };
 
     const getPriorityConfig = (p: string) => {
         const configs: Record<string, { bg: string; text: string; icon: any; label: string }> = {
@@ -108,7 +120,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             }}
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
-                        
+
                         {/* Floating Task Icons */}
                         {[...Array(15)].map((_, i) => (
                             <motion.div
@@ -135,13 +147,13 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </motion.div>
                         ))}
                     </div>
-                    
+
                     <div className="relative z-10">
                         <div className="flex items-center gap-4">
                             <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
                                 whileHover={{ scale: 1.15, y: -3 }}
                                 className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                             >
@@ -174,7 +186,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                         >
                             Lihat dan kelola tugas dari dosen dengan mudah dan terorganisir
                         </motion.p>
-                        
+
                         {/* Quick Stats with Dock-Style Animations */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -193,8 +205,8 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.6 + index * 0.1, type: "spring", stiffness: 200 }}
-                                    whileHover={{ 
-                                        scale: 1.05, 
+                                    whileHover={{
+                                        scale: 1.05,
                                         y: -5,
                                         boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
                                     }}
@@ -232,14 +244,15 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                         <motion.div
                             key={stat.label}
                             variants={itemVariants}
-                            whileHover={{ 
-                                scale: 1.08, 
-                                y: -10,
-                                boxShadow: "0 20px 40px rgba(0,0,0,0.15)"
-                            }}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                             whileTap={{ scale: 0.95 }}
-                            className="group relative rounded-2xl border border-slate-200/50 bg-gradient-to-br from-white to-slate-50 p-5 shadow-lg backdrop-blur dark:border-slate-800/50 dark:from-slate-900/80 dark:to-black/80 overflow-hidden cursor-pointer"
+                            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5 cursor-pointer"
                         >
+                            <div className={`absolute inset-0 bg-gradient-to-br from-slate-500/5 to-slate-500/10 dark:from-slate-500/10 dark:to-slate-500/20`} />
+                            <motion.div
+                                initial={false}
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-500 blur-3xl transition-all duration-500 opacity-20 group-hover:opacity-40 group-hover:scale-150`}
+                            />
                             <div className="relative flex items-center gap-3">
                                 <motion.div
                                     whileHover={{ scale: 1.2, y: -2 }}
@@ -273,12 +286,12 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <Input 
-                                placeholder="Cari tugas..." 
-                                value={search} 
+                            <Input
+                                placeholder="Cari tugas..."
+                                value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && router.get('/user/tugas', { search, course_id: courseId, status }, { preserveState: true })}
-                                className="pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500" 
+                                className="pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
                             />
                         </div>
                         <Select value={courseId} onValueChange={(v) => { setCourseId(v); router.get('/user/tugas', { search, course_id: v, status }, { preserveState: true }); }}>
@@ -338,22 +351,19 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                 {tugasList.map((tugas, index) => {
                                     const priorityConfig = getPriorityConfig(tugas.prioritas);
                                     const PriorityIcon = priorityConfig.icon;
-                                    
+
                                     return (
                                         <motion.div
                                             key={tugas.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
-                                            whileHover={{ scale: 1.02, y: -2 }}
+                                            variants={cardVariants}
+                                            whileHover="hover"
                                             onClick={() => router.visit(`/user/tugas/${tugas.id}`)}
-                                            className={`rounded-2xl border-2 p-5 transition-all duration-300 hover:shadow-xl cursor-pointer group ${
-                                                tugas.is_overdue 
-                                                    ? 'border-red-200 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-800' 
-                                                    : !tugas.is_read 
-                                                        ? 'border-l-4 border-l-blue-500 border-slate-200 dark:border-slate-700' 
-                                                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
-                                            }`}
+                                            className={`rounded-2xl sm:rounded-3xl border-2 p-5 transition-all duration-300 hover:shadow-xl cursor-pointer group ${tugas.is_overdue
+                                                ? 'border-red-200 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-800'
+                                                : !tugas.is_read
+                                                    ? 'border-l-4 border-l-blue-500 border-slate-200 dark:border-slate-700'
+                                                    : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
+                                                }`}
                                         >
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="flex-1">
@@ -379,13 +389,13 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                             </span>
                                                         )}
                                                     </div>
-                                                    
+
                                                     {/* Title */}
                                                     <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                                         {tugas.judul}
                                                     </h3>
                                                     <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-2 mt-2">{tugas.deskripsi}</p>
-                                                    
+
                                                     {/* Meta Info */}
                                                     <div className="flex items-center gap-3 mt-4 flex-wrap">
                                                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
@@ -401,7 +411,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                             {tugas.diskusi_count} diskusi
                                                         </span>
                                                     </div>
-                                                    
+
                                                     {/* Deadline Warning */}
                                                     {!tugas.is_overdue && tugas.days_until_deadline <= 3 && tugas.days_until_deadline >= 0 && (
                                                         <div className="mt-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
@@ -412,11 +422,11 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                                         </div>
                                                     )}
                                                 </div>
-                                                
+
                                                 {/* Action Button */}
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     className="opacity-0 group-hover:opacity-100 transition-all bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-xl"
                                                 >
                                                     <ArrowRight className="h-5 w-5" />

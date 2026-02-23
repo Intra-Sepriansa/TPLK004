@@ -88,33 +88,91 @@ class TugasController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function create(): Response
     {
-        $request->validate([
-            'course_id' => 'required|exists:mata_kuliah,id',
-            'judul' => 'required|string|max:255',
-            'deskripsi' => 'required|string',
-            'instruksi' => 'nullable|string',
-            'jenis' => 'required|in:tugas,quiz,project,presentasi,lainnya',
-            'deadline' => 'required|date|after:now',
-            'prioritas' => 'required|in:rendah,sedang,tinggi',
-            'status' => 'required|in:draft,published',
+        $courses = MataKuliah::with('dosen')->orderBy('nama')->get()->map(fn($c) => [
+            'id' => $c->id,
+            'nama' => $c->nama,
+            'code' => 'MK-' . str_pad($c->id, 3, '0', STR_PAD_LEFT),
+            'sks' => 3,
+            'semester' => 'Semester Gasal',
+            'dosen' => $c->dosen?->nama,
         ]);
 
-        Tugas::create([
-            'course_id' => $request->course_id,
-            'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi,
-            'instruksi' => $request->instruksi,
-            'jenis' => $request->jenis,
-            'deadline' => $request->deadline,
-            'prioritas' => $request->prioritas,
-            'status' => $request->status,
+        // Mock students and templates for now if not available in DB
+        $students = \App\Models\Mahasiswa::select('id', 'nama', 'nim', 'avatar_url as foto')->get();
+        
+        return Inertia::render('admin/tambah-tugas', [
+            'courses' => $courses,
+            'students' => $students,
+            'groups' => [], // Implement group fetching if needed
+            'templates' => [], // Implement template fetching if needed
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:mata_kuliah,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'type' => 'required|string',
+            'deadline' => 'nullable|date',
+            'attachments.*' => 'nullable|file|max:25600', // 25MB max
+        ]);
+
+        // Map frontend type to database enum limits
+        $jenisMap = [
+            'assignment' => 'tugas',
+            'quiz' => 'quiz',
+            'project' => 'project',
+            'presentation' => 'presentasi',
+            'other' => 'lainnya',
+        ];
+        
+        $jenis = $jenisMap[$validated['type']] ?? 'tugas';
+
+        $lampiranUrl = null;
+        $lampiranNama = null;
+
+        // Note: The frontend sends an array of files. The tugas model currently 
+        // assumes one attachment field. Storing the first file if available.
+        if ($request->hasFile('attachments') && count($request->file('attachments')) > 0) {
+            $file = $request->file('attachments')[0];
+            $lampiranNama = $file->getClientOriginalName();
+            $lampiranUrl = current(explode('storage/', $file->store('public/assignments')));
+            $lampiranUrl = str_replace('public/', 'storage/', $file->store('public/assignments'));
+        }
+
+        $tugas = Tugas::create([
+            'course_id' => $validated['course_id'],
+            'judul' => $validated['title'],
+            'deskripsi' => $validated['description'],
+            'jenis' => $jenis,
+            'deadline' => $request->deadline ?? now()->addDays(7),
+            'prioritas' => 'sedang',
+            'status' => 'published',
+            'lampiran_url' => $lampiranUrl,
+            'lampiran_nama' => $lampiranNama,
             'created_by_type' => 'admin',
             'created_by_id' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Tugas berhasil ditambahkan.');
+        // Here we would handle rubrics, attachments, and assignments in a real implementation
+        // Example for rubrics:
+        // if ($request->has('rubrics')) {
+        //     foreach ($request->rubrics as $rubric) {
+        //         $tugas->rubrics()->create([...]);
+        //     }
+        // }
+
+        return redirect()->route('admin.tugas')->with('success', 'Tugas berhasil dipublikasikan.');
+    }
+
+    public function saveDraft(Request $request)
+    {
+        // Implementation for auto-saving drafts (can be via AJAX)
+        return response()->json(['success' => true]);
     }
 
     public function show(Tugas $tuga): Response

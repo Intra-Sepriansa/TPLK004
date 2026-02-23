@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
+import {
     Vote, Plus, ThumbsUp, ThumbsDown, Clock, CheckCircle, XCircle, Users, X, Wallet,
     PieChart, AlertCircle, Target, BarChart3, Info, Sparkles
 } from 'lucide-react';
@@ -183,7 +183,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0, y: 20 }}
-                                animate={{ 
+                                animate={{
                                     opacity: [0.1, 0.3, 0.1],
                                     y: [0, -20, 0],
                                     x: [0, Math.sin(i) * 10, 0]
@@ -214,12 +214,12 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
-                            className="absolute right-12 top-1/2 -translate-y-1/2 text-white/10"
+                            className="absolute right-12 top-1/2 -translate-y-1/2 opacity-20"
                             style={{
                                 filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
                             }}
                         >
-                            <Vote className="h-32 w-32" />
+                            <img src="/build/assets/voting.png" alt="Voting" className="h-40 w-40 object-contain" />
                         </motion.div>
                         <motion.div
                             animate={{
@@ -231,15 +231,15 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 repeat: Infinity,
                                 ease: "easeInOut"
                             }}
-                            className="absolute left-12 top-1/2 -translate-y-1/2 text-white/10"
+                            className="absolute left-12 top-1/2 -translate-y-1/2 opacity-20"
                             style={{
                                 filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
                             }}
                         >
-                            <CheckCircle className="h-28 w-28" />
+                            <img src="/build/assets/disetujui.png" alt="Disetujui" className="h-32 w-32 object-contain" />
                         </motion.div>
                     </div>
-                    
+
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
@@ -275,7 +275,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 }}
                             >
-                                <Button 
+                                <Button
                                     onClick={() => setShowForm(true)}
                                     className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg font-semibold"
                                 >
@@ -291,7 +291,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                         >
                             Usulkan dan vote pengeluaran kas secara demokratis bersama teman sekelas
                         </motion.p>
-                        
+
                         {/* Quick Stats in Header */}
                         <div className="mt-6 grid grid-cols-3 gap-4">
                             {[
@@ -328,19 +328,19 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                             initial={{ opacity: 0, y: 20, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                            whileHover={{ 
-                                scale: 1.05, 
+                            whileHover={{
+                                scale: 1.05,
                                 y: -5,
                                 transition: { type: "spring", stiffness: 400, damping: 10 }
                             }}
                             className="group relative overflow-hidden rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 cursor-pointer"
                         >
                             {/* Glow effect on hover */}
-                            <motion.div 
+                            <motion.div
                                 className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
                                 whileHover={{ scale: 1.1 }}
                             />
-                            
+
                             {/* Animated border glow */}
                             <motion.div
                                 className={`absolute inset-0 rounded-xl bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-20 blur-xl`}
@@ -348,9 +348,9 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 whileHover={{ scale: 1.2 }}
                                 transition={{ duration: 0.3 }}
                             />
-                            
+
                             <div className="relative flex items-center gap-3">
-                                <motion.div 
+                                <motion.div
                                     className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
                                     whileHover={{ rotate: 360, scale: 1.1 }}
                                     transition={{ duration: 0.5 }}
@@ -372,7 +372,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                             <div className="mt-3">
                                 <Progress value={stat.progress} className="h-1.5" />
                             </div>
-                            
+
                             {/* Animated border */}
                             <motion.div
                                 className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-slate-900 dark:via-white to-transparent"
@@ -419,17 +419,15 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleTabChange(tab.value)}
-                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                        activeTab === tab.value
-                                            ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg shadow-teal-500/30'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 hover:shadow-md'
-                                    }`}
+                                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === tab.value
+                                        ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg shadow-teal-500/30'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 hover:shadow-md'
+                                        }`}
                                 >
                                     <tab.icon className="h-4 w-4" />
                                     {tab.label}
-                                    <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                                        activeTab === tab.value ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'
-                                    }`}>
+                                    <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.value ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'
+                                        }`}>
                                         {tab.count}
                                     </span>
                                 </motion.button>
@@ -452,7 +450,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         const StatusIcon = statusConfig.icon;
                                         const categoryConfig = getCategoryConfig(voting.category);
                                         const timeRemaining = getTimeRemaining(voting.voting_deadline);
-                                        
+
                                         return (
                                             <motion.div
                                                 key={voting.id}
@@ -465,31 +463,29 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                             >
                                                 {/* Glow Effect on Hover */}
                                                 <motion.div
-                                                    className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 ${
-                                                        voting.status === 'open' ? 'bg-blue-400' :
+                                                    className={`absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 ${voting.status === 'open' ? 'bg-blue-400' :
                                                         voting.status === 'approved' ? 'bg-emerald-400' :
-                                                        voting.status === 'rejected' ? 'bg-red-400' :
-                                                        'bg-slate-400'
-                                                    }`}
+                                                            voting.status === 'rejected' ? 'bg-red-400' :
+                                                                'bg-slate-400'
+                                                        }`}
                                                 />
-                                                
-                                                <div className={`relative rounded-2xl border-2 p-5 bg-white dark:bg-black/50 hover:shadow-xl transition-all cursor-pointer ${
-                                                    voting.status === 'open' ? 'border-blue-200 dark:border-blue-800 hover:border-blue-300' :
+
+                                                <div className={`relative rounded-2xl border-2 p-5 bg-white dark:bg-black/50 hover:shadow-xl transition-all cursor-pointer ${voting.status === 'open' ? 'border-blue-200 dark:border-blue-800 hover:border-blue-300' :
                                                     voting.status === 'approved' ? 'border-emerald-200 dark:border-emerald-800' :
-                                                    voting.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
-                                                    'border-slate-200 dark:border-slate-700'
-                                                }`}>
+                                                        voting.status === 'rejected' ? 'border-red-200 dark:border-red-800' :
+                                                            'border-slate-200 dark:border-slate-700'
+                                                    }`}>
                                                     {/* Header */}
                                                     <div className="flex items-start justify-between gap-3 mb-3">
                                                         <div className="flex items-center gap-2 flex-wrap">
-                                                            <motion.span 
+                                                            <motion.span
                                                                 whileHover={{ scale: 1.05 }}
                                                                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${statusConfig.bg} ${statusConfig.text} shadow-sm`}
                                                             >
                                                                 <StatusIcon className="h-3.5 w-3.5" />
                                                                 {statusConfig.label}
                                                             </motion.span>
-                                                            <motion.span 
+                                                            <motion.span
                                                                 whileHover={{ scale: 1.05 }}
                                                                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${categoryConfig.color} shadow-sm`}
                                                             >
@@ -502,9 +498,8 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                                 initial={{ scale: 0, rotate: -180 }}
                                                                 animate={{ scale: 1, rotate: 0 }}
                                                                 whileHover={{ scale: 1.1, rotate: 5 }}
-                                                                className={`px-2 py-1 rounded-lg text-xs font-medium shadow-sm ${
-                                                                    voting.my_vote === 'approve' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                                                                }`}
+                                                                className={`px-2 py-1 rounded-lg text-xs font-medium shadow-sm ${voting.my_vote === 'approve' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                                                                    }`}
                                                             >
                                                                 {voting.my_vote === 'approve' ? '✓ Setuju' : '✗ Tolak'}
                                                             </motion.span>
@@ -513,121 +508,121 @@ export default function KasVoting({ votings, stats, filters }: Props) {
 
                                                     {/* Title & Amount */}
                                                     <h4 className="font-bold text-lg text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-emerald-600 transition-colors">{voting.title}</h4>
-                                                <div className="mb-2">
-                                                    <p className="text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
-                                                        {formatCurrency(voting.amount)}
-                                                    </p>
-                                                </div>
-                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">{voting.description}</p>
+                                                    <div className="mb-2">
+                                                        <p className="text-2xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
+                                                            {formatCurrency(voting.amount)}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">{voting.description}</p>
 
-                                                {/* Meta Info */}
-                                                <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-4">
-                                                    <span className="flex items-center gap-1">
-                                                        <Users className="h-3.5 w-3.5" />
-                                                        {voting.creator}
-                                                    </span>
-                                                    {voting.status === 'open' && (
-                                                        <span className="flex items-center gap-1 text-blue-600 font-medium">
-                                                            <Clock className="h-3.5 w-3.5" />
-                                                            {timeRemaining}
+                                                    {/* Meta Info */}
+                                                    <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-4">
+                                                        <span className="flex items-center gap-1">
+                                                            <Users className="h-3.5 w-3.5" />
+                                                            {voting.creator}
                                                         </span>
+                                                        {voting.status === 'open' && (
+                                                            <span className="flex items-center gap-1 text-blue-600 font-medium">
+                                                                <Clock className="h-3.5 w-3.5" />
+                                                                {timeRemaining}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Vote Progress */}
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between text-sm">
+                                                            <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                                                                <Users className="h-4 w-4" />
+                                                                <span className="font-medium">{voting.stats.total}</span> votes
+                                                                {!voting.stats.is_valid && (
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger>
+                                                                                <span className="text-yellow-600 text-xs">(min {voting.min_votes})</span>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent>
+                                                                                <p>Minimal {voting.min_votes} vote untuk valid</p>
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                )}
+                                                            </span>
+                                                            <span className="font-bold text-slate-700 dark:text-slate-300">{voting.stats.approval_percentage}% setuju</span>
+                                                        </div>
+                                                        <div className="flex h-3 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${voting.stats.total > 0 ? (voting.stats.approve / voting.stats.total) * 100 : 0}%` }}
+                                                                transition={{ duration: 1, ease: "easeOut" }}
+                                                                className="bg-gradient-to-r from-emerald-400 to-emerald-600"
+                                                            />
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${voting.stats.total > 0 ? (voting.stats.reject / voting.stats.total) * 100 : 0}%` }}
+                                                                transition={{ duration: 1, ease: "easeOut" }}
+                                                                className="bg-gradient-to-r from-red-400 to-red-600"
+                                                            />
+                                                        </div>
+                                                        <div className="flex justify-between text-xs font-medium">
+                                                            <span className="text-emerald-600 flex items-center gap-1">
+                                                                <ThumbsUp className="h-3 w-3" /> {voting.stats.approve} setuju
+                                                            </span>
+                                                            <span className="text-red-600 flex items-center gap-1">
+                                                                <ThumbsDown className="h-3 w-3" /> {voting.stats.reject} tolak
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Vote Buttons */}
+                                                    {voting.status === 'open' && !voting.is_expired && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ delay: 0.2 }}
+                                                            className="flex gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+                                                        >
+                                                            <motion.div
+                                                                whileHover={{ scale: 1.05 }}
+                                                                whileTap={{ scale: 0.95 }}
+                                                                className="flex-1"
+                                                            >
+                                                                <Button
+                                                                    size="sm"
+                                                                    className={`w-full ${voting.my_vote === 'approve'
+                                                                        ? 'bg-emerald-600 cursor-not-allowed'
+                                                                        : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30'
+                                                                        }`}
+                                                                    onClick={(e) => { e.stopPropagation(); handleVote(voting.id, 'approve'); }}
+                                                                    disabled={voting.my_vote === 'approve'}
+                                                                >
+                                                                    <img src="/build/assets/disetujui.png" alt="Setuju" className="h-4 w-4 mr-1 object-contain" />
+                                                                    {voting.my_vote === 'approve' ? 'Sudah Setuju' : 'Setuju'}
+                                                                </Button>
+                                                            </motion.div>
+                                                            <motion.div
+                                                                whileHover={{ scale: 1.05 }}
+                                                                whileTap={{ scale: 0.95 }}
+                                                                className="flex-1"
+                                                            >
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="destructive"
+                                                                    className={`w-full ${voting.my_vote === 'reject'
+                                                                        ? 'cursor-not-allowed'
+                                                                        : 'shadow-lg shadow-red-500/30'
+                                                                        }`}
+                                                                    onClick={(e) => { e.stopPropagation(); handleVote(voting.id, 'reject'); }}
+                                                                    disabled={voting.my_vote === 'reject'}
+                                                                >
+                                                                    <img src="/build/assets/ditolak.png" alt="Tolak" className="h-4 w-4 mr-1 object-contain" />
+                                                                    {voting.my_vote === 'reject' ? 'Sudah Tolak' : 'Tolak'}
+                                                                </Button>
+                                                            </motion.div>
+                                                        </motion.div>
                                                     )}
                                                 </div>
-
-                                                {/* Vote Progress */}
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between text-sm">
-                                                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                                                            <Users className="h-4 w-4" />
-                                                            <span className="font-medium">{voting.stats.total}</span> votes
-                                                            {!voting.stats.is_valid && (
-                                                                <TooltipProvider>
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger>
-                                                                            <span className="text-yellow-600 text-xs">(min {voting.min_votes})</span>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipContent>
-                                                                            <p>Minimal {voting.min_votes} vote untuk valid</p>
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </TooltipProvider>
-                                                            )}
-                                                        </span>
-                                                        <span className="font-bold text-slate-700 dark:text-slate-300">{voting.stats.approval_percentage}% setuju</span>
-                                                    </div>
-                                                    <div className="flex h-3 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
-                                                        <motion.div
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: `${voting.stats.total > 0 ? (voting.stats.approve / voting.stats.total) * 100 : 0}%` }}
-                                                            transition={{ duration: 1, ease: "easeOut" }}
-                                                            className="bg-gradient-to-r from-emerald-400 to-emerald-600"
-                                                        />
-                                                        <motion.div
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: `${voting.stats.total > 0 ? (voting.stats.reject / voting.stats.total) * 100 : 0}%` }}
-                                                            transition={{ duration: 1, ease: "easeOut" }}
-                                                            className="bg-gradient-to-r from-red-400 to-red-600"
-                                                        />
-                                                    </div>
-                                                    <div className="flex justify-between text-xs font-medium">
-                                                        <span className="text-emerald-600 flex items-center gap-1">
-                                                            <ThumbsUp className="h-3 w-3" /> {voting.stats.approve} setuju
-                                                        </span>
-                                                        <span className="text-red-600 flex items-center gap-1">
-                                                            <ThumbsDown className="h-3 w-3" /> {voting.stats.reject} tolak
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Vote Buttons */}
-                                                {voting.status === 'open' && !voting.is_expired && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: 0.2 }}
-                                                        className="flex gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700"
-                                                    >
-                                                        <motion.div 
-                                                            whileHover={{ scale: 1.05 }} 
-                                                            whileTap={{ scale: 0.95 }}
-                                                            className="flex-1"
-                                                        >
-                                                            <Button
-                                                                size="sm"
-                                                                className={`w-full ${voting.my_vote === 'approve' 
-                                                                    ? 'bg-emerald-600 cursor-not-allowed' 
-                                                                    : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30'
-                                                                }`}
-                                                                onClick={(e) => { e.stopPropagation(); handleVote(voting.id, 'approve'); }}
-                                                                disabled={voting.my_vote === 'approve'}
-                                                            >
-                                                                <ThumbsUp className="h-4 w-4 mr-1" />
-                                                                {voting.my_vote === 'approve' ? 'Sudah Setuju' : 'Setuju'}
-                                                            </Button>
-                                                        </motion.div>
-                                                        <motion.div 
-                                                            whileHover={{ scale: 1.05 }} 
-                                                            whileTap={{ scale: 0.95 }}
-                                                            className="flex-1"
-                                                        >
-                                                            <Button
-                                                                size="sm"
-                                                                variant="destructive"
-                                                                className={`w-full ${voting.my_vote === 'reject' 
-                                                                    ? 'cursor-not-allowed' 
-                                                                    : 'shadow-lg shadow-red-500/30'
-                                                                }`}
-                                                                onClick={(e) => { e.stopPropagation(); handleVote(voting.id, 'reject'); }}
-                                                                disabled={voting.my_vote === 'reject'}
-                                                            >
-                                                                <ThumbsDown className="h-4 w-4 mr-1" />
-                                                                {voting.my_vote === 'reject' ? 'Sudah Tolak' : 'Tolak'}
-                                                            </Button>
-                                                        </motion.div>
-                                                    </motion.div>
-                                                )}
-                                            </div>
-                                        </motion.div>
+                                            </motion.div>
                                         );
                                     })}
                                 </motion.div>
@@ -677,8 +672,8 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     key={i}
                                     initial={{ y: "100%", opacity: 0 }}
-                                    animate={{ 
-                                        y: "-100%", 
+                                    animate={{
+                                        y: "-100%",
                                         opacity: [0, 0.5, 0],
                                         x: [0, Math.sin(i) * 50, 0]
                                     }}
@@ -968,10 +963,10 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         whileTap={{ scale: 0.98 }}
                                         className="flex-1"
                                     >
-                                        <Button 
-                                            type="button" 
-                                            variant="outline" 
-                                            onClick={() => setShowForm(false)} 
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setShowForm(false)}
                                             className="w-full h-14 rounded-xl border-2 text-base font-semibold"
                                         >
                                             Batal
@@ -982,9 +977,9 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         whileTap={{ scale: 0.98 }}
                                         className="flex-1"
                                     >
-                                        <Button 
-                                            type="submit" 
-                                            disabled={processing} 
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
                                             className="relative w-full h-14 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 shadow-lg shadow-teal-500/30 text-base font-semibold overflow-hidden group"
                                         >
                                             {processing ? (
@@ -1046,7 +1041,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 const statusConfig = getStatusConfig(selectedVoting.status);
                                 const StatusIcon = statusConfig.icon;
                                 const categoryConfig = getCategoryConfig(selectedVoting.category);
-                                
+
                                 return (
                                     <>
                                         <div className="flex items-start justify-between mb-6">
@@ -1176,10 +1171,10 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                             >
                                                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
                                                     <Button
-                                                        className={`w-full h-12 ${selectedVoting.my_vote === 'approve' 
-                                                            ? 'bg-emerald-600 cursor-not-allowed' 
+                                                        className={`w-full h-12 ${selectedVoting.my_vote === 'approve'
+                                                            ? 'bg-emerald-600 cursor-not-allowed'
                                                             : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/30'
-                                                        }`}
+                                                            }`}
                                                         onClick={() => handleVote(selectedVoting.id, 'approve')}
                                                         disabled={selectedVoting.my_vote === 'approve'}
                                                     >

@@ -210,8 +210,8 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                     className="grid grid-cols-1 lg:grid-cols-3 gap-8"
                 >
                     {/* Left Column: Details */}
-                    <div className="lg:col-span-2 space-y-8">
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 p-8 relative overflow-hidden group hover:border-white/30 transition-all duration-300">
+                    <div className="contents">
+                        <motion.div variants={itemVariants} className="lg:col-span-2 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 p-8 relative overflow-hidden group hover:border-white/30 transition-all duration-300">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-bl-[100px] -mr-8 -mt-8 transition-all group-hover:bg-indigo-500/20" />
 
                             <div className="flex items-center gap-3 mb-6">
@@ -250,7 +250,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                         </motion.div>
 
                         {/* Discussion Section */}
-                        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden flex flex-col h-[600px] relative transition-all duration-300 hover:border-white/30">
+                        <motion.div variants={itemVariants} className="lg:order-3 lg:col-span-3 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden flex flex-col h-[600px] relative transition-all duration-300 hover:border-white/30">
                             <div className="p-6 border-b border-white/10 bg-white/5 backdrop-blur-md flex justify-between items-center sticky top-0 z-10">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
@@ -401,7 +401,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                     </div>
 
                     {/* Right Column: Sidebar Info */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 lg:order-2">
                         <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 p-6 relative overflow-hidden group hover:border-white/30 transition-all duration-300">
                             <h3 className="text-lg font-semibold mb-6 flex items-center gap-2 text-white">
                                 <Info className="h-5 w-5 text-indigo-400" /> Informasi Detail

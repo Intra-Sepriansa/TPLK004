@@ -109,6 +109,10 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Admin Perangkat
     Route::get('admin/perangkat', [\App\Http\Controllers\Admin\PerangkatController::class, 'index'])->name('admin.perangkat');
     Route::get('admin/perangkat/pdf', [\App\Http\Controllers\Admin\PerangkatController::class, 'exportPdf'])->name('admin.perangkat.pdf');
+    Route::get('admin/perangkat/{id}', [\App\Http\Controllers\Admin\PerangkatController::class, 'show'])->name('admin.perangkat.show');
+    Route::get('admin/perangkat/{id}/export-pdf', [\App\Http\Controllers\Admin\PerangkatController::class, 'exportDetailPdf'])->name('admin.perangkat.export-detail-pdf');
+    Route::post('admin/perangkat/{id}/block', [\App\Http\Controllers\Admin\PerangkatController::class, 'block'])->name('admin.perangkat.block');
+    Route::post('admin/perangkat/{id}/whitelist', [\App\Http\Controllers\Admin\PerangkatController::class, 'whitelist'])->name('admin.perangkat.whitelist');
     
     // Admin Pengaturan
     Route::get('admin/pengaturan', [\App\Http\Controllers\Admin\PengaturanController::class, 'index'])->name('admin.pengaturan');
@@ -225,7 +229,9 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Tugas
     Route::get('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'index'])->name('admin.tugas');
+    Route::get('admin/tugas/create', [\App\Http\Controllers\Admin\TugasController::class, 'create'])->name('admin.tugas.create');
     Route::post('admin/tugas', [\App\Http\Controllers\Admin\TugasController::class, 'store'])->name('admin.tugas.store');
+    Route::post('admin/tugas/draft', [\App\Http\Controllers\Admin\TugasController::class, 'saveDraft'])->name('admin.tugas.draft');
     Route::get('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'show'])->name('admin.tugas.show');
     Route::patch('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'update'])->name('admin.tugas.update');
     Route::delete('admin/tugas/{tuga}', [\App\Http\Controllers\Admin\TugasController::class, 'destroy'])->name('admin.tugas.destroy');

@@ -2,12 +2,17 @@ import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Wallet, Plus, Search, CheckCircle, TrendingUp, TrendingDown, Users,
-    Calendar, DollarSign, Receipt, Check, FileText, Download, Printer,
+    Plus, Search, CheckCircle, TrendingDown, Users,
+    Calendar, Receipt, Check, FileText, Download, Printer,
     ChevronDown, ChevronRight, X, Sparkles, ArrowUpRight, ArrowDownRight,
     Clock, Award, Target, Zap, TrendingUp as TrendUp
 } from 'lucide-react';
 import { useState } from 'react';
+import KasIcon from '@/assets/admin/kas/kas.png';
+import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
+import PemasukanIcon from '@/assets/admin/kas/pemasukan.png';
+import PengeluaranIcon from '@/assets/admin/kas/pengeluaran.png';
+import StatusIcon from '@/assets/admin/kas/status.png';
 
 
 interface MahasiswaKas {
@@ -363,11 +368,15 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                    className="relative flex h-16 w-16 items-center justify-center"
                                     whileHover={{ scale: 1.1, rotate: 10 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    <Wallet className="h-8 w-8 text-white" />
+                                    <img
+                                        src={KasIcon}
+                                        alt="Kas"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
+                                    />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Keuangan</p>
@@ -459,9 +468,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="relative flex items-center gap-4">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center"
                             >
-                                <DollarSign className="h-7 w-7" />
+                                <img
+                                    src={SaldoAktifIcon}
+                                    alt="Saldo Aktif"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Saldo Aktif</p>
@@ -493,9 +506,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="relative flex items-center gap-4">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-purple-600 text-white shadow-lg shadow-violet-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center"
                             >
-                                <TrendingUp className="h-7 w-7" />
+                                <img
+                                    src={PemasukanIcon}
+                                    alt="Total Masuk"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Masuk</p>
@@ -527,9 +544,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="relative flex items-center gap-4">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-400 to-rose-600 text-white shadow-lg shadow-red-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center"
                             >
-                                <TrendingDown className="h-7 w-7" />
+                                <img
+                                    src={PengeluaranIcon}
+                                    alt="Total Keluar"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Keluar</p>
@@ -561,9 +582,13 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <div className="relative flex items-center gap-4">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center"
                             >
-                                <Users className="h-7 w-7" />
+                                <img
+                                    src={StatusIcon}
+                                    alt="Status Pembayaran"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Status Pembayaran</p>

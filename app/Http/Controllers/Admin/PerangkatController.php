@@ -11,6 +11,8 @@ use Inertia\Inertia;
 
 class PerangkatController extends Controller
 {
+    use PerangkatDetailTrait;
+
     public function index(Request $request)
     {
         $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());

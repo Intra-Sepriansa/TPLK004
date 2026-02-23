@@ -128,7 +128,7 @@ export default function AdminPerangkat({
 }: PageProps) {
     const [dateFrom, setDateFrom] = useState(filters.date_from);
     const [dateTo, setDateTo] = useState(filters.date_to);
-    const [selectedLog, setSelectedLog] = useState<DeviceLog | null>(null);
+
 
     const handleFilter = () => {
         router.get('/admin/perangkat', { date_from: dateFrom, date_to: dateTo }, { preserveState: true });
@@ -566,7 +566,7 @@ export default function AdminPerangkat({
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
                                             whileHover={{ x: 4 }}
-                                            onClick={() => setSelectedLog(log)}
+                                            onClick={() => router.visit(`/admin/perangkat/${log.id}`)}
                                         >
                                             <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">{log.scanned_at}</td>
                                             <td className="px-4 py-3">
@@ -604,121 +604,6 @@ export default function AdminPerangkat({
                 </motion.div>
             </motion.div>
 
-            {/* ══════ DETAIL MODAL ══════ */}
-            <AnimatePresence>
-                {selectedLog && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedLog(null)}
-                        />
-                        <motion.div
-                            className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-zinc-900"
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        >
-                            {/* Modal Header */}
-                            <div className="relative overflow-hidden bg-slate-900 p-6 text-white">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 opacity-90" />
-                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-
-                                <div className="relative flex items-start justify-between">
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md border border-white/20 shadow-inner">
-                                            {getDeviceIcon(selectedLog.device_type)}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-indigo-200">Detail Perangkat</p>
-                                            <h2 className="text-xl font-bold">{cleanUserAgent(selectedLog.device_model)}</h2>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => setSelectedLog(null)}
-                                        className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
-                                    >
-                                        <X className="h-5 w-5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Modal Content */}
-                            <div className="p-6 space-y-6">
-                                {/* Info Grid */}
-                                <div className="grid gap-6 md:grid-cols-2">
-                                    <div className="space-y-4">
-                                        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
-                                            <User className="h-4 w-4" />
-                                            Info Mahasiswa
-                                        </h3>
-                                        <div className="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-black/20">
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold dark:bg-blue-900/30 dark:text-blue-400">
-                                                    {selectedLog.mahasiswa.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-slate-900 dark:text-white">{selectedLog.mahasiswa}</p>
-                                                    <p className="text-xs text-slate-500">{selectedLog.nim}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
-                                            <Activity className="h-4 w-4" />
-                                            Info Sesi
-                                        </h3>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/50 dark:bg-black/20">
-                                                <p className="text-xs text-slate-500 mb-1">Waktu Akses</p>
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="h-3 w-3 text-slate-400" />
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{selectedLog.scanned_at}</p>
-                                                </div>
-                                            </div>
-                                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/50 dark:bg-black/20">
-                                                <p className="text-xs text-slate-500 mb-1">OS System</p>
-                                                <div className="flex items-center gap-2">
-                                                    <Cpu className="h-3 w-3 text-slate-400" />
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white">{selectedLog.device_os}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Technical Details */}
-                                <div className="space-y-3">
-                                    <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 pb-2">
-                                        <Code className="h-4 w-4" />
-                                        User Agent String (Raw)
-                                    </h3>
-                                    <div className="relative group">
-                                        <div className="overflow-x-auto rounded-lg bg-slate-900 p-4 text-slate-300 font-mono text-xs leading-relaxed shadow-inner">
-                                            {selectedLog.device_model}
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-slate-500 italic">
-                                        Data ini digunakan untuk identifikasi jenis perangkat dan browser yang digunakan mahasiswa saat melakukan absensi.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Modal Footer */}
-                            <div className="border-t border-slate-100 bg-slate-50 p-4 flex justify-end dark:border-slate-800 dark:bg-black/20">
-                                <Button variant="outline" onClick={() => setSelectedLog(null)}>
-                                    Tutup Detail
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </AppLayout>
     );
 }
