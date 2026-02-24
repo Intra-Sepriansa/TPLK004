@@ -292,9 +292,9 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                             </div>
 
                             <div className="w-full sm:w-auto flex justify-center mt-2 sm:mt-0">
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Link href="/admin/tugas/create">
-                                        <Button className="w-full sm:w-auto bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
+                                        <Button className="bg-white/20 hover:bg-white/30 backdrop-blur border border-white/30 text-white shadow-lg">
                                             <Plus className="mr-2 h-4 w-4" /> Tambah Tugas
                                         </Button>
                                     </Link>
