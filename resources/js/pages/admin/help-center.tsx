@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import helpIcon from '@/assets/admin/help-center/help.png';
+
 interface FAQItem {
     question: string;
     answer: string;
@@ -144,72 +146,93 @@ export default function AdminHelpCenter() {
             </div>
 
             <div className="relative z-10 p-6 space-y-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto scrollbar-hide">
-                {/* Header Section */}
+                {/* Header - Advanced Animated Gradient */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
-                    className="relative overflow-hidden rounded-3xl p-10 shadow-2xl group"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600"
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
                         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                         style={{ backgroundSize: '200% 200%' }}
                     />
 
-                    {/* Floating Orbs */}
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse group-hover:bg-white/30 transition-colors duration-500" />
-                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse delay-1000 group-hover:bg-white/30 transition-colors duration-500" />
-                    <div className="absolute right-20 bottom-10 h-32 w-32 rounded-full bg-white/10 blur-xl animate-bounce duration-[3000ms]" />
+                    {/* Overlay & Glow Orbs */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl p-0 m-0" />
+                    <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl p-0 m-0" />
 
-                    <div className="relative z-10">
-                        <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
-                            <div className="max-w-2xl">
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute right-12 top-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                        />
+                    ))}
+
+                    <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4 z-10">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full md:max-w-2xl">
+                            <motion.div
+                                className="relative flex shrink-0 h-24 w-24 sm:h-20 sm:w-20"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
+                            >
+                                <img src={helpIcon} alt="Help Center" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                            </motion.div>
+                            <div className="flex-1 mt-1 sm:mt-0">
+                                <motion.p
+                                    initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="flex items-center gap-4 mb-4"
+                                    transition={{ delay: 0.3 }}
+                                    className="text-sm text-blue-100 font-medium"
                                 >
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur border border-white/20 shadow-lg">
-                                        <LifeBuoy className="h-8 w-8 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-blue-100 font-medium text-lg">Pusat Bantuan & Dukungan</p>
-                                        <h1 className="text-4xl font-bold text-white tracking-tight drop-shadow-md">Help Center</h1>
-                                    </div>
-                                </motion.div>
+                                    Pusat Bantuan & Dukungan
+                                </motion.p>
+                                <motion.h1
+                                    className="text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-md mb-2"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    Help Center
+                                </motion.h1>
                                 <motion.p
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-blue-50 text-lg leading-relaxed"
+                                    transition={{ delay: 0.5 }}
+                                    className="text-indigo-50 text-sm sm:text-base leading-relaxed"
                                 >
                                     Temukan jawaban cepat untuk pertanyaan Anda, pelajari cara penggunaan sistem, atau hubungi tim support kami jika membutuhkan bantuan khusus.
                                 </motion.p>
                             </div>
-
-                            {/* Search Box */}
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.4 }}
-                                className="w-full md:w-auto md:min-w-[400px]"
-                            >
-                                <div className="relative group/search">
-                                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 group-focus-within/search:text-indigo-500 transition-colors" />
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={e => setSearchQuery(e.target.value)}
-                                        placeholder="Cari pertanyaan atau topik..."
-                                        className="w-full rounded-2xl border-0 bg-white/90 backdrop-blur pl-12 pr-4 py-4 text-slate-900 placeholder-slate-400 shadow-xl focus:ring-4 focus:ring-white/30 transition-all text-base"
-                                    />
-                                </div>
-                            </motion.div>
                         </div>
+
+                        {/* Search Box */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="w-full md:w-auto md:min-w-[400px] shrink-0"
+                        >
+                            <div className="relative group/search">
+                                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 group-focus-within/search:text-indigo-500 transition-colors" />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Cari pertanyaan atau topik..."
+                                    className="w-full rounded-2xl border-0 bg-white/90 backdrop-blur pl-12 pr-4 py-4 text-slate-900 placeholder-slate-400 shadow-xl focus:ring-4 focus:ring-white/30 transition-all text-base"
+                                />
+                            </div>
+                        </motion.div>
                     </div>
                 </motion.div>
 
@@ -269,8 +292,8 @@ export default function AdminHelpCenter() {
                                                 key={cat.id}
                                                 onClick={() => setActiveCategory(cat.id)}
                                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${activeCategory === cat.id
-                                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
-                                                        : 'bg-white/50 dark:bg-black/20 text-slate-600 dark:text-slate-300 border-white/20 hover:bg-white hover:border-indigo-300'
+                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
+                                                    : 'bg-white/50 dark:bg-black/20 text-slate-600 dark:text-slate-300 border-white/20 hover:bg-white hover:border-indigo-300'
                                                     }`}
                                             >
                                                 <cat.icon className="h-3 w-3" />
@@ -306,8 +329,8 @@ export default function AdminHelpCenter() {
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: i * 0.05 }}
                                                 className={`transition-colors group ${expandedFaq === i
-                                                        ? 'bg-indigo-50/50 dark:bg-indigo-900/10'
-                                                        : 'hover:bg-white/30 dark:hover:bg-white/5'
+                                                    ? 'bg-indigo-50/50 dark:bg-indigo-900/10'
+                                                    : 'hover:bg-white/30 dark:hover:bg-white/5'
                                                     }`}
                                             >
                                                 <button
@@ -315,16 +338,16 @@ export default function AdminHelpCenter() {
                                                     className="w-full flex items-start gap-4 p-5 text-left"
                                                 >
                                                     <div className={`p-2 rounded-lg transition-colors mt-0.5 ${expandedFaq === i
-                                                            ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400'
-                                                            : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-indigo-500'
+                                                        ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400'
+                                                        : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-indigo-500'
                                                         }`}>
                                                         <HelpCircle className="h-5 w-5" />
                                                     </div>
                                                     <div className="flex-1">
                                                         <div className="flex items-center justify-between">
                                                             <span className={`font-semibold text-base transition-colors ${expandedFaq === i
-                                                                    ? 'text-indigo-700 dark:text-indigo-300'
-                                                                    : 'text-slate-800 dark:text-slate-200'
+                                                                ? 'text-indigo-700 dark:text-indigo-300'
+                                                                : 'text-slate-800 dark:text-slate-200'
                                                                 }`}>
                                                                 {faq.question}
                                                             </span>
