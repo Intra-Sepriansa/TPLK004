@@ -928,7 +928,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
 
                                 <div className="flex gap-3">
                                     {currentStep < steps.length ? (
-                                        <Button onClick={handleNext} className="rounded-xl h-12 px-8 bg-black hover:bg-slate-800 text-white dark:bg-white dark:text-black dark:hover:bg-slate-200 shadow-xl shadow-black/10 dark:shadow-white/10">
+                                        <Button onClick={handleNext} className="rounded-xl h-12 px-8 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-xl shadow-indigo-500/30 border-0">
                                             Lanjut
                                             <ChevronRight className="w-4 h-4 ml-2" />
                                         </Button>
