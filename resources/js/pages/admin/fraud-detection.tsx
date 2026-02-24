@@ -12,6 +12,11 @@ import {
     ShieldAlert, ShieldCheck, ShieldX, BarChart3,
     Minimize2, CheckCheck, FileWarning,
 } from 'lucide-react';
+import fraudIcon from '@/assets/admin/fraud-detection/fraud.png';
+import totalAlertIcon from '@/assets/admin/fraud-detection/total.png';
+import pendingIcon from '@/assets/admin/fraud-detection/pending.png';
+import criticalIcon from '@/assets/admin/fraud-detection/critical.png';
+import confirmedIcon from '@/assets/admin/fraud-detection/confirmed.png';
 import { useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { FraudScanOverlay } from '@/components/admin/fraud-scan-overlay';
@@ -121,14 +126,14 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
 
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-8">
 
-                {/* ═══════ HEADER — Matching Rekap Kehadiran Style ═══════ */}
+                {/* ═══════ HEADER — Matching Dashboard Style ═══════ */}
                 <motion.div
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500"
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{
                             backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
@@ -142,42 +147,61 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                         }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Animations (Pulses) */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                        />
+                    ))}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Shield className="h-8 w-8 text-white" />
+                                    <img src={fraudIcon} alt="Fraud Detection" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-blue-100 font-medium tracking-wide">Sistem Keamanan</p>
-                                    <h1 className="text-3xl font-bold text-white">Fraud Detection System</h1>
-                                    <p className="mt-1 text-blue-100 max-w-lg">
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Sistem Keamanan
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Fraud Detection System
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
                                         Deteksi kecurangan absensi: GPS spoofing, selfie duplikat, dan anomali lainnya
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col items-end gap-2">
+                            <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto mt-4 sm:mt-0">
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -188,7 +212,7 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                                     {scanning ? <><RefreshCw className="h-5 w-5 animate-spin" /> Scanning...</> : <><Search className="h-5 w-5" /> Jalankan Scan</>}
                                 </motion.button>
                                 {lastScan && (
-                                    <p className="text-xs text-blue-100 opacity-70">
+                                    <p className="text-xs text-indigo-100 opacity-70">
                                         Scan terakhir: {new Date(lastScan.scanned_at).toLocaleString('id-ID')} ({lastScan.duration_seconds}s)
                                     </p>
                                 )}
@@ -198,14 +222,12 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                 </motion.div>
 
                 {/* ═══════ STAT CARDS — Glassmorphism ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {[
-                        { icon: ShieldAlert, label: 'Total Alert', value: stats.total, color: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', hoverShadow: 'hover:shadow-blue-500/10', gradientBg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10', blurColor: 'bg-blue-500' },
-                        { icon: Clock, label: 'Pending', value: stats.pending, color: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', blurColor: 'bg-amber-500' },
-                        { icon: Search, label: 'Investigating', value: stats.investigating, color: 'from-indigo-400 to-blue-600', shadow: 'shadow-indigo-500/30', hoverShadow: 'hover:shadow-indigo-500/10', gradientBg: 'from-indigo-500/5 to-blue-500/5 dark:from-indigo-500/10 dark:to-blue-500/10', blurColor: 'bg-indigo-500' },
-                        { icon: AlertTriangle, label: 'Critical', value: stats.critical, color: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30', hoverShadow: 'hover:shadow-red-500/10', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', blurColor: 'bg-red-500' },
-                        { icon: ShieldX, label: 'Confirmed', value: stats.confirmed, color: 'from-rose-400 to-pink-600', shadow: 'shadow-rose-500/30', hoverShadow: 'hover:shadow-rose-500/10', gradientBg: 'from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10', blurColor: 'bg-rose-500' },
-                        { icon: ShieldCheck, label: 'Dismissed', value: stats.dismissed, color: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', blurColor: 'bg-emerald-500' },
+                        { imgSrc: totalAlertIcon, label: 'Total Alert', value: stats.total, color: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', hoverShadow: 'hover:shadow-blue-500/10', gradientBg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10', blurColor: 'bg-blue-500' },
+                        { imgSrc: pendingIcon, label: 'Pending', value: stats.pending, color: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', blurColor: 'bg-amber-500' },
+                        { imgSrc: criticalIcon, label: 'Critical', value: stats.critical, color: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30', hoverShadow: 'hover:shadow-red-500/10', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', blurColor: 'bg-red-500' },
+                        { imgSrc: confirmedIcon, label: 'Confirmed', value: stats.confirmed, color: 'from-rose-400 to-pink-600', shadow: 'shadow-rose-500/30', hoverShadow: 'hover:shadow-rose-500/10', gradientBg: 'from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10', blurColor: 'bg-rose-500' },
                     ].map((stat) => (
                         <motion.div
                             key={stat.label}
@@ -213,7 +235,7 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                             whileHover="hover"
                             onHoverStart={() => setHoveredCard(stat.label)}
                             onHoverEnd={() => setHoveredCard(null)}
-                            className={cn('group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5', stat.hoverShadow)}
+                            className={cn('group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5', stat.hoverShadow)}
                         >
                             <div className={cn('absolute inset-0 bg-gradient-to-br', stat.gradientBg)} />
                             <motion.div
@@ -223,17 +245,17 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                                 }}
                                 className={cn('absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500', stat.blurColor)}
                             />
-                            <div className="relative flex items-center gap-4">
+                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn('flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg', stat.color, stat.shadow)}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
                                 >
-                                    <stat.icon className="h-7 w-7" />
+                                    <img src={stat.imgSrc} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                                    <div className="mt-1">
-                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <div className="mt-0.5 sm:mt-1">
+                                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                             <AnimatedCounter value={stat.value} duration={1200} />
                                         </span>
                                     </div>

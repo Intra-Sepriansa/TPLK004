@@ -44,6 +44,7 @@ import {
     UserCheck,
     XCircle,
 } from 'lucide-react';
+import rekapanIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
 import {
     Area,
     AreaChart,
@@ -589,21 +590,19 @@ function StudentsSection({
                                         onClick={() =>
                                             link.url
                                                 ? router.get(
-                                                      link.url,
-                                                      {},
-                                                      { preserveScroll: true },
-                                                  )
+                                                    link.url,
+                                                    {},
+                                                    { preserveScroll: true },
+                                                )
                                                 : undefined
                                         }
-                                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-                                            link.active
-                                                ? 'bg-black text-white dark:bg-white dark:text-slate-900'
-                                                : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-black'
-                                        } ${
-                                            link.url
+                                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${link.active
+                                            ? 'bg-black text-white dark:bg-white dark:text-slate-900'
+                                            : 'border border-slate-200 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-black'
+                                            } ${link.url
                                                 ? ''
                                                 : 'cursor-not-allowed opacity-50'
-                                        }`}
+                                            }`}
                                     >
                                         {formatLabel(link.label)}
                                     </button>
@@ -1196,9 +1195,8 @@ function MonitorSection({
                                             {item.time}
                                         </span>
                                         <span
-                                            className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${
-                                                badgeMap[status] ?? 'bg-slate-200 text-slate-700'
-                                            }`}
+                                            className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${badgeMap[status] ?? 'bg-slate-200 text-slate-700'
+                                                }`}
                                         >
                                             {status}
                                         </span>
@@ -1632,8 +1630,8 @@ function AiAttendanceSection({
         cameraPermission === 'granted'
             ? 'Diizinkan'
             : cameraPermission === 'denied'
-              ? 'Ditolak'
-              : 'Perlu izin';
+                ? 'Ditolak'
+                : 'Perlu izin';
     const flowItems = [
         { key: 'scan', label: 'Scan', active: flowStep === 'scan' },
         { key: 'verify', label: 'Verifikasi', active: flowStep === 'verify' },
@@ -1797,8 +1795,8 @@ function AiAttendanceSection({
                                 {maintenanceMode
                                     ? 'Maintenance'
                                     : running
-                                      ? 'Aktif'
-                                      : 'Nonaktif'}
+                                        ? 'Aktif'
+                                        : 'Nonaktif'}
                             </span>
                         </div>
                         <div className="flex items-center justify-between">
@@ -1822,11 +1820,10 @@ function AiAttendanceSection({
                             {flowItems.map((item) => (
                                 <span
                                     key={item.key}
-                                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${
-                                        item.active
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
-                                            : 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-white/60'
-                                    }`}
+                                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 font-semibold ${item.active
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
+                                        : 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-white/60'
+                                        }`}
                                 >
                                     <span className="h-2 w-2 rounded-full bg-current" />
                                     {item.label}
@@ -3316,7 +3313,7 @@ function OverviewSection({
     securitySummary?: DashboardPageProps['securitySummary'];
 }) {
     const [currentTime, setCurrentTime] = useState(new Date());
-    
+
     useEffect(() => {
         const timer = setInterval(() => setCurrentTime(new Date()), 1000);
         return () => clearInterval(timer);
@@ -3583,11 +3580,10 @@ function OverviewSection({
                                     <Icon className="h-5 w-5" />
                                 </div>
                                 <div
-                                    className={`flex items-center gap-1 text-xs font-semibold ${
-                                        trendUp
-                                            ? 'text-emerald-600 dark:text-emerald-300'
-                                            : 'text-rose-600 dark:text-rose-300'
-                                    }`}
+                                    className={`flex items-center gap-1 text-xs font-semibold ${trendUp
+                                        ? 'text-emerald-600 dark:text-emerald-300'
+                                        : 'text-rose-600 dark:text-rose-300'
+                                        }`}
                                 >
                                     {trendUp ? (
                                         <ArrowUpRight className="h-4 w-4" />
@@ -3710,11 +3706,11 @@ function OverviewSection({
                                 <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
                                     {weekly.values.length
                                         ? Math.round(
-                                              weekly.values.reduce(
-                                                  (acc, val) => acc + val,
-                                                  0,
-                                              ) / weekly.values.length,
-                                          )
+                                            weekly.values.reduce(
+                                                (acc, val) => acc + val,
+                                                0,
+                                            ) / weekly.values.length,
+                                        )
                                         : 0}
                                 </p>
                                 <p className="text-xs text-emerald-600">
@@ -3799,10 +3795,9 @@ function OverviewSection({
                                                     {item.time}
                                                 </span>
                                                 <span
-                                                    className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${
-                                                        badgeMap[status] ??
+                                                    className={`inline-flex rounded-full px-2 py-1 text-[11px] font-semibold ${badgeMap[status] ??
                                                         'bg-slate-200 text-slate-700'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {status}
                                                 </span>
@@ -3993,12 +3988,11 @@ function OverviewSection({
                         ) : (
                             (topStudents ?? []).map((student, index) => (
                                 <div key={student.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-black/50 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors">
-                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${
-                                        index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                                    <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
                                         index === 1 ? 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200' :
-                                        index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
-                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
-                                    }`}>
+                                            index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' :
+                                                'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                                        }`}>
                                         {index + 1}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -4174,9 +4168,11 @@ function OverviewSection({
                         <ChevronRight className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" />
                     </a>
                     <a href="/admin/rekap-kehadiran" className="group flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-slate-50 p-4 transition-all hover:bg-white hover:shadow-md dark:border-slate-800/70 dark:bg-black/50 dark:hover:bg-black">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 transition-transform group-hover:scale-110">
-                            <FileBarChart className="h-6 w-6" />
-                        </div>
+                        <img
+                            src={rekapanIcon}
+                            alt="Rekap Kehadiran"
+                            className="h-12 w-12 object-contain transition-transform group-hover:scale-110 drop-shadow-sm"
+                        />
                         <div className="flex-1">
                             <p className="font-semibold text-slate-900 dark:text-white">Rekap</p>
                             <p className="text-sm text-slate-500">Lihat rekap kehadiran</p>

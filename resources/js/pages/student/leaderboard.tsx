@@ -9,6 +9,11 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import StudentLayout from '@/layouts/student-layout';
 import ScrollFloat from '@/components/ui/scroll-float';
 
+// Custom 3D Icons
+import TotalMahasiswaIcon from '@/assets/admin/leaderboard/total-mahasiswa.png';
+import RataRataIcon from '@/assets/admin/leaderboard/rata-rata.png';
+import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+
 interface LeaderboardEntry {
     rank: number;
     id: number;
@@ -50,65 +55,120 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
             <Head title="Leaderboard" />
 
             <div className="space-y-6 p-6">
-                {/* Header dengan animasi */}
+                {/* Animated Header with Dashboard Ultra Advanced Style */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-500 via-orange-500 to-red-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated background particles */}
-                    <div className="absolute inset-0 overflow-hidden">
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-white/30 to-yellow-200/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-orange-300/30 to-red-400/30 blur-3xl"
+                    />
+
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
+                            key={i}
                             animate={{
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 90, 0],
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
                             }}
                             transition={{
-                                duration: 20,
+                                duration: 4,
                                 repeat: Infinity,
-                                ease: "linear"
+                                delay: i * 1.3,
+                                ease: "easeOut"
                             }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
+                            style={{
+                                width: '100px',
+                                height: '100px',
+                            }}
                         />
+                    ))}
+
+                    {/* Floating Academic Icons */}
+                    {[Trophy, Award, Crown, Zap].map((Icon, i) => (
                         <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ opacity: 0, scale: 0 }}
                             animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, -90, 0],
+                                opacity: [0, 0.4, 0],
+                                scale: [0, 1, 0],
+                                y: [0, -40, -80]
                             }}
                             transition={{
-                                duration: 15,
+                                duration: 4,
                                 repeat: Infinity,
-                                ease: "linear"
+                                delay: i * 0.8,
+                                ease: "easeOut"
                             }}
-                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                    </div>
+                            style={{
+                                left: `${15 + i * 22}%`,
+                                top: `${20 + (i % 2) * 40}%`,
+                            }}
+                        >
+                            <Icon className="h-6 w-6 text-white" />
+                        </motion.div>
+                    ))}
 
                     <div className="relative">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-6">
                             <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur"
+                                className="relative flex shrink-0 h-24 w-24"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                             >
-                                <Trophy className="h-8 w-8" />
+                                <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                             </motion.div>
                             <div>
                                 <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-yellow-100"
+                                    className="text-sm text-yellow-100 font-medium tracking-wide flex items-center gap-2"
                                 >
+                                    <Zap className="w-4 h-4" />
                                     Kompetisi Kelas
                                 </motion.p>
                                 <motion.h1
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-3xl font-bold"
+                                    className="text-3xl font-bold mt-1"
                                 >
                                     Leaderboard
                                 </motion.h1>
@@ -116,7 +176,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 }}
-                                    className="text-sm text-yellow-100"
+                                    className="mt-2 text-yellow-100 max-w-lg text-sm leading-relaxed"
                                 >
                                     Compete with your classmates and climb to the top!
                                 </motion.p>
@@ -129,31 +189,35 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                 <div className="grid gap-4 sm:grid-cols-3">
                     {[
                         {
-                            icon: Users,
+                            isCustom: true,
+                            src: TotalMahasiswaIcon,
                             label: 'Total Students',
                             value: stats.total_students,
-                            gradient: 'from-blue-500 to-purple-500',
-                            iconBg: 'bg-blue-500/20',
-                            iconColor: 'text-blue-500',
+                            bgGradient: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
+                            glowBg: 'bg-sky-500',
+                            hoverShadow: 'hover:shadow-sky-500/10',
                             delay: 0.1
                         },
                         {
-                            icon: Zap,
+                            isCustom: true,
+                            src: RataRataIcon,
                             label: 'Avg Points',
                             value: stats.average_points,
-                            gradient: 'from-yellow-500 to-orange-500',
-                            iconBg: 'bg-yellow-500/20',
-                            iconColor: 'text-yellow-500',
+                            bgGradient: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
+                            glowBg: 'bg-amber-500',
+                            hoverShadow: 'hover:shadow-amber-500/10',
                             delay: 0.15
                         },
                         {
+                            isCustom: false,
                             icon: TrendingUp,
                             label: 'Top Streak',
                             value: stats.top_streak,
                             suffix: ' days',
-                            gradient: 'from-orange-500 to-red-500',
-                            iconBg: 'bg-orange-500/20',
                             iconColor: 'text-orange-500',
+                            bgGradient: 'from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10',
+                            glowBg: 'bg-orange-500',
+                            hoverShadow: 'hover:shadow-orange-500/10',
                             delay: 0.2
                         }
                     ].map((stat) => (
@@ -162,40 +226,34 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             initial={{ opacity: 0, y: 20, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                            whileHover={{ 
-                                scale: 1.05, 
-                                y: -5,
-                                transition: { type: "spring", stiffness: 400, damping: 10 }
-                            }}
-                            className="group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 cursor-pointer"
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5 cursor-pointer`}
                         >
-                            {/* Glow effect on hover */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                            
-                            <div className="relative flex items-center gap-3">
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient}`} />
+                            <motion.div
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glowBg} blur-3xl opacity-20 group-hover:opacity-40 transform scale-100 group-hover:scale-150 transition-all duration-500`}
+                            />
+
+                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ delay: stat.delay + 0.1, type: "spring", stiffness: 200 }}
-                                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.iconBg}`}
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
                                 >
-                                    <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
+                                    {stat.isCustom ? (
+                                        <img src={stat.src} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                    ) : (
+                                        stat.icon && <stat.icon className={`h-full w-full object-contain ${stat.iconColor} drop-shadow-md`} />
+                                    )}
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
-                                    </p>
+                                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <div className="mt-0.5 sm:mt-1">
+                                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                            <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            {/* Animated border */}
-                            <motion.div
-                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-slate-900 dark:via-white to-transparent"
-                                initial={{ width: "0%", opacity: 0 }}
-                                whileHover={{ width: "100%", opacity: 0.5 }}
-                                transition={{ duration: 0.3 }}
-                            />
                         </motion.div>
                     ))}
                 </div>
@@ -256,7 +314,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             key={entry.id}
                             initial={{ opacity: 0, scale: 0.8, y: 50 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ 
+                            transition={{
                                 delay: 0.7 + index * 0.1,
                                 type: "spring",
                                 stiffness: 200,
@@ -269,19 +327,18 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                 {/* Podium Height dengan animasi */}
                                 <motion.div
                                     initial={{ height: 0 }}
-                                    animate={{ 
+                                    animate={{
                                         height: entry.rank === 1 ? 128 : entry.rank === 2 ? 96 : 80
                                     }}
                                     transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-                                    className={`rounded-t-2xl border-t-4 ${
-                                        entry.rank === 1
-                                            ? 'border-yellow-500 bg-gradient-to-b from-yellow-500/20 to-transparent'
-                                            : entry.rank === 2
+                                    className={`rounded-t-2xl border-t-4 ${entry.rank === 1
+                                        ? 'border-yellow-500 bg-gradient-to-b from-yellow-500/20 to-transparent'
+                                        : entry.rank === 2
                                             ? 'border-slate-400 bg-gradient-to-b from-slate-400/20 to-transparent'
                                             : 'border-amber-600 bg-gradient-to-b from-amber-600/20 to-transparent'
-                                    }`}
+                                        }`}
                                 />
-                                
+
                                 {/* Card dengan animasi */}
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}

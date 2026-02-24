@@ -68,6 +68,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('selfie-verifications/{selfieVerification}/reject', [SelfieVerificationController::class, 'reject'])->name('selfie-verifications.reject');
     Route::post('selfie-view-requests', [\App\Http\Controllers\Admin\SelfieViewRequestController::class, 'store'])->name('selfie-view-requests.store');
     Route::patch('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('api/settings/theme', [SettingsController::class, 'updateTheme'])->name('settings.theme.update');
+    Route::post('api/settings/reset', [SettingsController::class, 'reset'])->name('settings.reset');
+    Route::post('api/settings/clear-cache', [SettingsController::class, 'clearCache'])->name('settings.clear-cache');
+    Route::post('api/settings/import', [SettingsController::class, 'import'])->name('settings.import');
     Route::patch('settings/geofence', [SettingsController::class, 'updateGeofence'])->name('settings.geofence');
     Route::get('reports/attendance.csv', [ReportController::class, 'export'])->name('reports.export');
     Route::get('reports/audit.csv', [ReportController::class, 'exportAudit'])->name('reports.audit');

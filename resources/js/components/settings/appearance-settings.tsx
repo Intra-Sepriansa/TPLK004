@@ -3,24 +3,17 @@
  * Requirements: 1.4
  */
 
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Type, Layout } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Monitor, Moon, Sun, Type } from 'lucide-react';
-import { useTheme } from '@/contexts/theme-context';
 import type { AppearanceSettings as AppearanceSettingsType } from '@/types/settings';
+import { SettingsCard } from './SettingsCard';
+import { ThemeToggle } from './ThemeToggle';
+import { AnimatedToggle } from './AnimatedToggle';
 
 interface AppearanceSettingsProps {
     settings: AppearanceSettingsType;
     onUpdate: (settings: Partial<AppearanceSettingsType>) => void;
 }
-
-const themes = [
-    { value: 'light', label: 'Terang', icon: Sun },
-    { value: 'dark', label: 'Gelap', icon: Moon },
-    { value: 'system', label: 'Sistem', icon: Monitor },
-] as const;
 
 const fontSizes = [
     { value: 'small', label: 'Kecil', size: 'text-sm' },
@@ -29,128 +22,63 @@ const fontSizes = [
 ] as const;
 
 export function AppearanceSettings({ settings, onUpdate }: AppearanceSettingsProps) {
-    const { theme, setTheme } = useTheme();
-
-    const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
-        setTheme(newTheme);
-        onUpdate({ theme: newTheme });
-    };
-
     return (
         <div className="space-y-6">
-            {/* Theme Selection */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Tema</CardTitle>
-                    <CardDescription>
-                        Pilih tema tampilan yang Anda sukai
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-3 gap-3">
-                        {themes.map((themeOption) => (
-                            <button
-                                key={themeOption.value}
-                                onClick={() => handleThemeChange(themeOption.value)}
-                                className={cn(
-                                    'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors',
-                                    theme === themeOption.value
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-muted hover:border-muted-foreground/50'
-                                )}
-                            >
-                                <themeOption.icon className="h-6 w-6" />
-                                <span className="text-sm font-medium">{themeOption.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Theme Selection using new ThemeToggle component */}
+            <SettingsCard title="Tema Aplikasi" icon={Layout} delay={0.1}>
+                <ThemeToggle />
+            </SettingsCard>
 
-            {/* Font Size */}
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <Type className="h-5 w-5" />
-                        <CardTitle>Ukuran Font</CardTitle>
-                    </div>
-                    <CardDescription>
-                        Sesuaikan ukuran teks untuk kenyamanan membaca
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-3 gap-3">
-                        {fontSizes.map((fontSize) => (
-                            <button
-                                key={fontSize.value}
-                                onClick={() => onUpdate({ fontSize: fontSize.value })}
-                                className={cn(
-                                    'flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors',
-                                    settings.fontSize === fontSize.value
-                                        ? 'border-primary bg-primary/5'
-                                        : 'border-muted hover:border-muted-foreground/50'
-                                )}
-                            >
-                                <span className={cn('font-medium', fontSize.size)}>Aa</span>
-                                <span className="text-sm">{fontSize.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Font Size Selection */}
+            <SettingsCard title="Ukuran Font Text" icon={Type} delay={0.2}>
+                <div className="grid grid-cols-3 gap-3">
+                    {fontSizes.map((fontSize) => (
+                        <button
+                            key={fontSize.value}
+                            onClick={() => onUpdate({ fontSize: fontSize.value })}
+                            className={cn(
+                                'flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-300 hover:scale-105',
+                                settings.fontSize === fontSize.value
+                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 shadow-md shadow-purple-200 dark:shadow-purple-900/20'
+                                    : 'border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700'
+                            )}
+                        >
+                            <span className={cn('font-medium', fontSize.size)}>Aa</span>
+                            <span className="text-sm font-semibold">{fontSize.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </SettingsCard>
 
-            {/* Display Options */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Opsi Tampilan</CardTitle>
-                    <CardDescription>
-                        Sesuaikan tampilan aplikasi sesuai preferensi Anda
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <Label htmlFor="compact-mode">Mode Kompak</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Tampilkan lebih banyak konten dengan spacing yang lebih kecil
-                            </p>
-                        </div>
-                        <Switch
-                            id="compact-mode"
-                            checked={settings.compactMode}
-                            onCheckedChange={(checked) => onUpdate({ compactMode: checked })}
-                        />
-                    </div>
+            {/* Display Options using AnimatedToggle */}
+            <SettingsCard title="Opsi Tata Letak" icon={Layout} delay={0.3}>
+                <div className="space-y-6">
+                    <AnimatedToggle
+                        checked={settings.compactMode}
+                        onChange={() => onUpdate({ compactMode: !settings.compactMode })}
+                        label="Kepadatan Tampilan"
+                        description="Tampilkan lebih banyak data di layar dengan padding yang lebih kecil"
+                    />
 
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <Label htmlFor="animations">Animasi</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Aktifkan animasi dan transisi halus
-                            </p>
-                        </div>
-                        <Switch
-                            id="animations"
-                            checked={settings.animations}
-                            onCheckedChange={(checked) => onUpdate({ animations: checked })}
-                        />
-                    </div>
+                    <div className="h-px bg-gray-200 dark:bg-gray-800" />
 
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <Label htmlFor="sidebar-collapsed">Sidebar Tertutup</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Mulai dengan sidebar dalam keadaan tertutup
-                            </p>
-                        </div>
-                        <Switch
-                            id="sidebar-collapsed"
-                            checked={settings.sidebarCollapsed}
-                            onCheckedChange={(checked) => onUpdate({ sidebarCollapsed: checked })}
-                        />
-                    </div>
-                </CardContent>
-            </Card>
+                    <AnimatedToggle
+                        checked={settings.animations}
+                        onChange={() => onUpdate({ animations: !settings.animations })}
+                        label="Animasi Interface"
+                        description="Aktifkan pergerakan visual, efek bayangan, dan transisi halus."
+                    />
+
+                    <div className="h-px bg-gray-200 dark:bg-gray-800" />
+
+                    <AnimatedToggle
+                        checked={settings.sidebarCollapsed}
+                        onChange={() => onUpdate({ sidebarCollapsed: !settings.sidebarCollapsed })}
+                        label="Minimize Sidebar Default"
+                        description="Tutup navigasi samping saat masuk secara otomatis"
+                    />
+                </div>
+            </SettingsCard>
         </div>
     );
 }

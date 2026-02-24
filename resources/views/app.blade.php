@@ -5,35 +5,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        {{-- Inline script to apply theme immediately before page renders --}}
+        {{-- CRITICAL: Inline script to prevent FOUC --}}
         <script>
             (function() {
-                // Get theme from server (passed via Inertia page props)
-                const serverTheme = '{{ $page['props']['themePreference'] ?? 'light' }}';
+                // Get theme from localStorage
+                const theme = localStorage.getItem('app-theme') || 'light';
+                const root = document.documentElement;
                 
-                // Check localStorage first (for immediate UI response)
-                let storedTheme = localStorage.getItem('theme');
-                
-                // If no localStorage, use server theme
-                if (!storedTheme) {
-                    storedTheme = serverTheme;
-                    localStorage.setItem('theme', serverTheme);
+                // Determine actual theme
+                let actualTheme = 'light';
+                if (theme === 'auto') {
+                    actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                } else {
+                    actualTheme = theme;
                 }
                 
-                // Apply theme
-                if (storedTheme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else if (storedTheme === 'light') {
-                    document.documentElement.classList.remove('dark');
-                } else if (storedTheme === 'auto') {
-                    // Use system preference
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                    }
-                }
+                // Apply immediately (before any CSS loads)
+                root.classList.add('no-transition');
+                root.classList.remove('light', 'dark');
+                root.classList.add(actualTheme);
+                root.setAttribute('data-theme', actualTheme);
+                root.style.colorScheme = actualTheme;
+                
+                // Remove no-transition after a frame
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        root.classList.remove('no-transition');
+                    });
+                });
             })();
         </script>
 

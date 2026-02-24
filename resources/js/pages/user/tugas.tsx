@@ -91,7 +91,9 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
             >
                 {/* Header with Advanced Animations */}
                 <motion.div
-                    variants={itemVariants}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
@@ -154,24 +156,24 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                 initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                 transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                                whileHover={{ scale: 1.15, y: -3 }}
+                                whileHover={{ scale: 1.15, rotate: 5 }}
                                 className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
                             >
                                 <ListTodo className="h-8 w-8" />
                             </motion.div>
                             <div>
                                 <motion.p
-                                    initial={{ opacity: 0, x: -20 }}
+                                    initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
+                                    transition={{ delay: 0.3 }}
                                     className="text-sm text-white/90 font-medium"
                                 >
                                     Akademik
                                 </motion.p>
                                 <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
+                                    initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
+                                    transition={{ delay: 0.4 }}
                                     className="text-3xl font-bold flex items-center gap-2"
                                 >
                                     Informasi Tugas
@@ -179,9 +181,9 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                             </div>
                         </div>
                         <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
                             className="mt-4 text-white/90 text-lg"
                         >
                             Lihat dan kelola tugas dari dosen dengan mudah dan terorganisir

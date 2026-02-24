@@ -186,63 +186,86 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-40 backdrop-blur-3xl" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Animations (Pulses) */}
-                    {[0, 1, 2].map(i => (
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
                             key={i}
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-40 w-40 rounded-full border border-white/10"
-                            animate={{ scale: [1, 2], opacity: [0.3, 0] }}
+                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 3], opacity: [0.3, 0] }}
                             transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
                         />
                     ))}
 
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-6">
-                            <motion.div
-                                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-inner"
-                                whileHover={{ scale: 1.05, rotate: 5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
-                            >
-                                <BarChart3 className="h-10 w-10 text-white" />
-                            </motion.div>
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-xs font-medium border border-white/10">Admin Dashboard</span>
-                                </div>
-                                <h1 className="text-4xl font-bold text-white tracking-tight">Analitik Performa</h1>
-                                <p className="mt-2 text-indigo-100 text-lg opacity-90 max-w-lg leading-relaxed">
-                                    Real-time insights & data-driven monitoring.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col items-end gap-4">
-                            <div className="flex bg-black/20 backdrop-blur-lg border border-white/10 rounded-xl p-1.5 shadow-lg">
-                                {['day', 'week', 'month', 'year'].map((range) => (
-                                    <button
-                                        key={range}
-                                        onClick={() => handleTimeRangeChange(range)}
-                                        className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${timeRange === range
-                                            ? 'bg-white text-indigo-600 shadow-xl scale-105'
-                                            : 'text-indigo-100 hover:bg-white/10 hover:text-white'
-                                            }`}
+                    <div className="relative">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
+                                <motion.div
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-[0_15px_25px_rgba(0,0,0,0.4)]"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                >
+                                    <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                                </motion.div>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
                                     >
-                                        {range.charAt(0).toUpperCase() + range.slice(1)}
-                                    </button>
-                                ))}
+                                        Sistem Laporan
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Analitik Performa
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Pantau analisis data kehadiran, tren performa mahasiswa, dan insight berbasis AI.
+                                    </motion.p>
+                                </div>
                             </div>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={handleExport}
-                                disabled={isExporting}
-                                className="flex items-center gap-2 px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold shadow-lg shadow-black/20 transition-all hover:bg-indigo-50 disabled:opacity-70"
-                            >
-                                {isExporting ? <Activity className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                                {isExporting ? 'Exporting...' : 'Export Report'}
-                            </motion.button>
+
+                            <div className="flex flex-col items-center lg:items-end gap-3 sm:gap-4 w-full lg:w-auto mt-4 lg:mt-0">
+                                <div className="flex w-full sm:w-auto bg-black/20 backdrop-blur-lg border border-white/10 rounded-xl p-1.5 shadow-lg overflow-x-auto custom-scrollbar">
+                                    {['day', 'week', 'month', 'year'].map((range) => (
+                                        <button
+                                            key={range}
+                                            onClick={() => handleTimeRangeChange(range)}
+                                            className={`flex-1 sm:flex-none px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 ${timeRange === range
+                                                ? 'bg-white text-indigo-600 shadow-xl scale-105'
+                                                : 'text-indigo-100 hover:bg-white/10 hover:text-white'
+                                                }`}
+                                        >
+                                            {range.charAt(0).toUpperCase() + range.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleExport}
+                                    disabled={isExporting}
+                                    className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-50"
+                                >
+                                    {isExporting ? <Activity className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+                                    {isExporting ? 'Exporting...' : 'Export Laporan'}
+                                </motion.button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -262,35 +285,36 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                             key={i}
                             variants={itemVariants}
                             whileHover="hover"
-                            className="group relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 dark:bg-neutral-900/60 backdrop-blur-xl p-6 shadow-lg transition-all hover:shadow-xl dark:border-white/10"
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-${stat.color}-500/10 dark:border-white/5`}
                         >
+                            <div className={`absolute inset-0 bg-gradient-to-br from-${stat.color}-500/5 to-${stat.color}-600/5 dark:from-${stat.color}-500/10 dark:to-${stat.color}-600/10`} />
                             <motion.div
-                                className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-${stat.color}-500/10 blur-2xl transition-all group-hover:bg-${stat.color}-500/20`}
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-${stat.color}-500 blur-3xl transition-all opacity-20 group-hover:opacity-40`}
                                 variants={cardHover}
                             />
 
-                            <div className="relative z-10 flex justify-between items-start mb-4">
-                                <div className={`p-3 rounded-2xl bg-${stat.color}-100 dark:bg-${stat.color}-900/40 text-${stat.color}-600 dark:text-${stat.color}-400 ring-4 ring-white dark:ring-black/20`}>
-                                    <stat.icon className="h-6 w-6" />
+                            <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4 mb-4">
+                                <div className={`flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-${stat.color}-400 to-${stat.color}-600 text-white shadow-lg shadow-${stat.color}-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
+                                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </div>
-                                <div className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full border ${stat.isUp
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800'
-                                    : 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800'
+                                <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border ${stat.isUp
+                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
+                                    : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
                                     }`}>
                                     {stat.isUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                                     {stat.change}
                                 </div>
                             </div>
 
-                            <div>
-                                <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-1">{stat.title}</h3>
-                                <div className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{stat.value}</div>
+                            <div className="relative z-10">
+                                <h3 className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{stat.title}</h3>
+                                <div className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">{stat.value}</div>
                             </div>
 
                             {/* Decorative Progress Bar - Dynamic Width */}
-                            <div className="mt-5 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div className="relative z-10 mt-3 sm:mt-5 h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
                                 <motion.div
-                                    className={`h-full bg-${stat.color}-500 rounded-full`}
+                                    className={`h-full bg-gradient-to-r from-${stat.color}-400 to-${stat.color}-600 rounded-full`}
                                     initial={{ width: 0 }}
                                     animate={{
                                         width: stat.value.includes('%')

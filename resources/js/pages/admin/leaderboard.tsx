@@ -13,6 +13,12 @@ import React, { useState } from 'react';
 import { AttendanceChart } from '@/components/analytics/attendance-chart';
 import { Badge } from '@/components/ui/badge';
 
+// Custom 3D Icons
+import TotalMahasiswaIcon from '@/assets/admin/leaderboard/total-mahasiswa.png';
+import KehadiranIcon from '@/assets/admin/leaderboard/kehadiran.png';
+import RataRataIcon from '@/assets/admin/leaderboard/rata-rata.png';
+import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+
 interface LeaderboardEntry {
     id: number;
     nama: string;
@@ -61,70 +67,42 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                 animate={{ opacity: 1 }}
                 className="p-6 space-y-6"
             >
-                {/* Animated Header with Rotating Particles */}
+                {/* Animated Header with Dashboard Ultra Advanced Style */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Orbs */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
-                        />
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
 
-                        {/* Large Floating Icons */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
-                            animate={{
-                                y: [0, -20, 0],
-                                rotate: [0, 5, 0],
-                            }}
-                            transition={{
-                                duration: 6,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute right-8 top-8 opacity-10"
-                        >
-                            <Trophy className="h-32 w-32" />
-                        </motion.div>
-                        <motion.div
-                            animate={{
-                                y: [0, 15, 0],
-                                rotate: [0, -5, 0],
-                            }}
-                            transition={{
-                                duration: 7,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute left-8 bottom-8 opacity-10"
-                        >
-                            <Award className="h-28 w-28" />
-                        </motion.div>
-                    </div>
+                            key={i}
+                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                        />
+                    ))}
 
                     {/* Floating Academic Icons */}
                     {[Trophy, Award, Medal, Crown, Star].map((Icon, i) => (
@@ -153,26 +131,22 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     ))}
 
                     <div className="relative">
-                        <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center gap-6 mb-4">
                             <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                whileHover={{
-                                    scale: 1.1,
-                                    rotate: 360,
-                                    boxShadow: "0 0 30px rgba(255,255,255,0.5)"
-                                }}
-                                className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30 shadow-xl"
+                                className="relative flex shrink-0 h-24 w-24"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                             >
-                                <Trophy className="h-10 w-10" />
+                                <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                             </motion.div>
                             <div>
                                 <motion.p
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-sm text-teal-100 font-medium flex items-center gap-2"
+                                    className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2"
                                 >
                                     <Zap className="w-4 h-4" />
                                     Gamifikasi & Kompetisi
@@ -181,7 +155,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="text-3xl font-bold"
+                                    className="text-3xl font-bold mt-1"
                                 >
                                     Leaderboard Mahasiswa
                                 </motion.h1>
@@ -189,7 +163,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 }}
-                                    className="text-sm text-teal-100 mt-1"
+                                    className="mt-2 text-indigo-100 max-w-lg text-sm leading-relaxed"
                                 >
                                     Ranking mahasiswa berdasarkan kehadiran dan pencapaian
                                 </motion.p>
@@ -249,83 +223,97 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     className="grid gap-4 md:grid-cols-3"
                 >
                     <motion.div
-                        whileHover={{ scale: 1.03, y: -5 }}
+                        whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('students')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="relative overflow-hidden rounded-2xl border border-blue-200/70 bg-gradient-to-br from-blue-50 to-cyan-50 p-5 shadow-lg backdrop-blur dark:border-blue-800/70 dark:from-blue-950/50 dark:to-cyan-950/50"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-sky-500/10 dark:border-white/5"
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'students' ? 1.5 : 1,
-                                opacity: hoveredCard === 'students' ? 0.3 : 0.1,
+                                opacity: hoveredCard === 'students' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-blue-500 blur-3xl"
+                            transition={{ duration: 0.5 }}
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-3">
+                        <div className="relative flex items-center gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/50"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
                             >
-                                <Users className="h-6 w-6" />
+                                <img src={TotalMahasiswaIcon} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">Total Mahasiswa</p>
-                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.total_students}</p>
+                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
+                                <div className="mt-1">
+                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.total_students}</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
+
                     <motion.div
-                        whileHover={{ scale: 1.03, y: -5 }}
+                        whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('attendance')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="relative overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 shadow-lg backdrop-blur dark:border-emerald-800/70 dark:from-emerald-950/50 dark:to-teal-950/50"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'attendance' ? 1.5 : 1,
-                                opacity: hoveredCard === 'attendance' ? 0.3 : 0.1,
+                                opacity: hoveredCard === 'attendance' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-emerald-500 blur-3xl"
+                            transition={{ duration: 0.5 }}
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-3">
+                        <div className="relative flex items-center gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
                             >
-                                <TrendingUp className="h-6 w-6" />
+                                <img src={KehadiranIcon} alt="Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium">Rata-rata Kehadiran</p>
-                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.avg_attendance_rate}%</p>
+                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Kehadiran</p>
+                                <div className="mt-1">
+                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_attendance_rate}%</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
+
                     <motion.div
-                        whileHover={{ scale: 1.03, y: -5 }}
+                        whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('points')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="relative overflow-hidden rounded-2xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-yellow-50 p-5 shadow-lg backdrop-blur dark:border-amber-800/70 dark:from-amber-950/50 dark:to-yellow-950/50"
+                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-amber-500/10 dark:border-white/5"
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10" />
                         <motion.div
+                            initial={false}
                             animate={{
                                 scale: hoveredCard === 'points' ? 1.5 : 1,
-                                opacity: hoveredCard === 'points' ? 0.3 : 0.1,
+                                opacity: hoveredCard === 'points' ? 0.4 : 0.2,
                             }}
-                            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-500 blur-3xl"
+                            transition={{ duration: 0.5 }}
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-3">
+                        <div className="relative flex items-center gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.2 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg shadow-amber-500/50"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
                             >
-                                <Star className="h-6 w-6" />
+                                <img src={RataRataIcon} alt="Rata-rata Poin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">Rata-rata Poin</p>
-                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.avg_points}</p>
+                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Poin</p>
+                                <div className="mt-1">
+                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_points}</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>

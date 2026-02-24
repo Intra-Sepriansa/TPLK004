@@ -15,6 +15,10 @@ import { Icon } from '@iconify/react';
 import { useState, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import SedangVotingIcon from '@/assets/admin/voting-kas/icon-coting.png';
+import DisetujuiVotingIcon from '@/assets/admin/voting-kas/disetujui.png';
+import DitolakVotingIcon from '@/assets/admin/voting-kas/ditolak.png';
+
 interface Props {
     votings: Array<{
         id: number;
@@ -132,113 +136,93 @@ export default function KasVoting({ votings, stats, filters }: Props) {
         <StudentLayout>
             <Head title="Voting Pengeluaran Kas" />
             <div className="p-6 space-y-6">
-                {/* Header dengan animasi */}
+                {/* Animated Header with Dashboard Ultra Advanced Style */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated background particles */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 90, 0],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, -90, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.1, 1],
-                                x: [0, 50, 0],
-                            }}
-                            transition={{
-                                duration: 10,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute top-1/2 right-1/4 h-40 w-40 rounded-full bg-white/5 blur-2xl"
-                        />
+                    {/* Ultra Advanced Animated Background Orbs */}
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
+                        }}
+                        transition={{
+                            duration: 20,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-white/30 to-cyan-200/30 blur-3xl"
+                    />
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
+                        }}
+                        transition={{
+                            duration: 25,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-300/30 to-blue-400/30 blur-3xl"
+                    />
 
-                        {/* Floating Icons */}
-                        {[Vote, ThumbsUp, ThumbsDown, CheckCircle, XCircle].map((Icon, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{
-                                    opacity: [0.1, 0.3, 0.1],
-                                    y: [0, -20, 0],
-                                    x: [0, Math.sin(i) * 10, 0]
-                                }}
-                                transition={{
-                                    duration: 3 + i,
-                                    repeat: Infinity,
-                                    delay: i * 0.2,
-                                }}
-                                className="absolute text-white/20"
-                                style={{
-                                    left: `${15 + i * 18}%`,
-                                    top: `${20 + (i % 2) * 40}%`,
-                                }}
-                            >
-                                <Icon className="h-8 w-8" />
-                            </motion.div>
-                        ))}
-
-                        {/* Large Floating Icons in Background */}
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
+                            key={i}
                             animate={{
-                                y: [0, -15, 0],
-                                rotateY: [0, 180, 360],
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
                             }}
                             transition={{
-                                duration: 8,
+                                duration: 4,
                                 repeat: Infinity,
-                                ease: "easeInOut"
+                                delay: i * 1.3,
+                                ease: "easeOut"
                             }}
-                            className="absolute right-12 top-1/2 -translate-y-1/2 opacity-20"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
                             style={{
-                                filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
+                                width: '100px',
+                                height: '100px',
+                            }}
+                        />
+                    ))}
+
+                    {/* Floating Icons */}
+                    {[Vote, ThumbsUp, ThumbsDown, CheckCircle, XCircle].map((Icon, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute"
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{
+                                opacity: [0, 0.4, 0],
+                                scale: [0, 1, 0],
+                                y: [0, -40, -80]
+                            }}
+                            transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                delay: i * 0.8,
+                                ease: "easeOut"
+                            }}
+                            style={{
+                                left: `${15 + i * 18}%`,
+                                top: `${20 + (i % 2) * 40}%`,
                             }}
                         >
-                            <img src="/build/assets/voting.png" alt="Voting" className="h-40 w-40 object-contain" />
+                            <Icon className="h-6 w-6 text-white" />
                         </motion.div>
-                        <motion.div
-                            animate={{
-                                y: [0, 15, 0],
-                                rotateY: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 10,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute left-12 top-1/2 -translate-y-1/2 opacity-20"
-                            style={{
-                                filter: 'drop-shadow(0 0 30px rgba(255,255,255,0.3))',
-                            }}
-                        >
-                            <img src="/build/assets/disetujui.png" alt="Disetujui" className="h-32 w-32 object-contain" />
-                        </motion.div>
-                    </div>
+                    ))}
 
                     <div className="relative">
                         <div className="flex items-center justify-between flex-wrap gap-4">
@@ -315,74 +299,69 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                     </div>
                 </motion.div>
 
-                {/* Stats Cards dengan animasi dock-style */}
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+                {/* Stats Cards - Animated */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="grid gap-4 grid-cols-2 md:grid-cols-4"
+                >
                     {[
-                        { icon: Clock, label: 'Sedang Voting', value: stats.open, color: 'from-blue-500 to-cyan-600', progress: totalVotings > 0 ? (stats.open / totalVotings) * 100 : 0, delay: 0.1 },
-                        { icon: CheckCircle, label: 'Disetujui', value: stats.approved, color: 'from-emerald-500 to-green-600', progress: totalVotings > 0 ? (stats.approved / totalVotings) * 100 : 0, delay: 0.15 },
-                        { icon: XCircle, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', progress: totalVotings > 0 ? (stats.rejected / totalVotings) * 100 : 0, delay: 0.2 },
-                        { icon: Target, label: 'Approval Rate', value: `${approvalRate}%`, color: 'from-purple-500 to-violet-600', progress: approvalRate, delay: 0.25 },
-                    ].map((stat) => (
+                        { isCustom: true, image: SedangVotingIcon, label: 'Sedang Voting', value: stats.open, progress: totalVotings > 0 ? (stats.open / totalVotings) * 100 : 0, shadowColor: 'hover:shadow-violet-500/10', glow: 'bg-violet-500', innerGrad: 'from-violet-500/5 to-fuchsia-500/5 dark:from-violet-500/10 dark:to-fuchsia-500/10', delay: 0.1 },
+                        { isCustom: true, image: DisetujuiVotingIcon, label: 'Disetujui', value: stats.approved, progress: totalVotings > 0 ? (stats.approved / totalVotings) * 100 : 0, shadowColor: 'hover:shadow-emerald-500/10', glow: 'bg-emerald-500', innerGrad: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', delay: 0.15 },
+                        { isCustom: true, image: DitolakVotingIcon, label: 'Ditolak', value: stats.rejected, progress: totalVotings > 0 ? (stats.rejected / totalVotings) * 100 : 0, shadowColor: 'hover:shadow-red-500/10', glow: 'bg-red-500', innerGrad: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', delay: 0.2 },
+                        { isCustom: false, icon: Target, label: 'Approval Rate', value: `${approvalRate}%`, progress: approvalRate, iconColor: 'text-purple-500', shadowColor: 'hover:shadow-purple-500/10', glow: 'bg-purple-500', innerGrad: 'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10', delay: 0.25 },
+                    ].map((stat, index) => (
                         <motion.div
-                            key={stat.label}
+                            key={index}
                             initial={{ opacity: 0, y: 20, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
-                            whileHover={{
-                                scale: 1.05,
-                                y: -5,
-                                transition: { type: "spring", stiffness: 400, damping: 10 }
-                            }}
-                            className="group relative overflow-hidden rounded-xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 cursor-pointer"
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-5 shadow-xl backdrop-blur-xl transition-all ${stat.shadowColor} dark:border-white/5 cursor-pointer`}
                         >
-                            {/* Glow effect on hover */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.innerGrad}`} />
                             <motion.div
-                                className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-                                whileHover={{ scale: 1.1 }}
+                                className={`absolute -right-6 -top-6 h-24 w-24 rounded-full ${stat.glow} blur-2xl opacity-20 group-hover:opacity-40 transform scale-100 group-hover:scale-150 transition-all duration-500`}
                             />
 
-                            {/* Animated border glow */}
-                            <motion.div
-                                className={`absolute inset-0 rounded-xl bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-20 blur-xl`}
-                                initial={{ scale: 0.8 }}
-                                whileHover={{ scale: 1.2 }}
-                                transition={{ duration: 0.3 }}
-                            />
-
-                            <div className="relative flex items-center gap-3">
-                                <motion.div
-                                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
-                                    whileHover={{ rotate: 360, scale: 1.1 }}
-                                    transition={{ duration: 0.5 }}
-                                >
-                                    <stat.icon className="h-6 w-6" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-xs text-slate-500 font-medium">{stat.label}</p>
-                                    <motion.p
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ delay: stat.delay + 0.1, type: "spring" }}
-                                        className="text-2xl font-bold text-slate-900 dark:text-white"
+                            <div className="relative flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="relative flex h-10 w-10 shrink-0 items-center justify-center p-1"
                                     >
-                                        {stat.value}
-                                    </motion.p>
+                                        {stat.isCustom ? (
+                                            <img
+                                                src={stat.image}
+                                                alt={stat.label}
+                                                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
+                                            />
+                                        ) : (
+                                            stat.icon && <stat.icon className={`h-full w-full object-contain ${stat.iconColor} drop-shadow-md`} />
+                                        )}
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400 leading-tight">{stat.label}</p>
+                                        <div className="mt-0.5">
+                                            <motion.span
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{ delay: 0.5 + index * 0.1, type: 'spring' }}
+                                                className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-white"
+                                            >
+                                                {stat.value}
+                                            </motion.span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-1">
+                                    <Progress value={stat.progress} className="h-1.5" />
                                 </div>
                             </div>
-                            <div className="mt-3">
-                                <Progress value={stat.progress} className="h-1.5" />
-                            </div>
-
-                            {/* Animated border */}
-                            <motion.div
-                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-slate-900 dark:via-white to-transparent"
-                                initial={{ width: "0%", opacity: 0 }}
-                                whileHover={{ width: "100%", opacity: 0.5 }}
-                                transition={{ duration: 0.3 }}
-                            />
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
                 {/* Voting List */}
                 <motion.div

@@ -67,7 +67,7 @@ interface PageProps {
     kasAmount: number;
 }
 
-// Animation variants
+// Animation variants matching Dashboard
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -75,43 +75,33 @@ const containerVariants = {
         transition: {
             staggerChildren: 0.08,
             delayChildren: 0.1,
-        },
-    },
+        }
+    }
 } as const;
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            type: 'spring',
-            stiffness: 300,
-            damping: 24,
-        },
-    },
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
+    }
 } as const;
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
+        y: 0,
         scale: 1,
-        transition: {
-            type: 'spring',
-            stiffness: 300,
-            damping: 20,
-        },
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
     },
     hover: {
-        scale: 1.03,
-        y: -8,
-        transition: {
-            type: 'spring',
-            stiffness: 400,
-            damping: 10,
-        },
-    },
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring', stiffness: 400, damping: 15 }
+    }
 } as const;
 
 export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDates, filters, kasAmount }: PageProps) {
@@ -365,12 +355,14 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                     />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="relative flex h-16 w-16 items-center justify-center"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center p-1"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
                                     <img
                                         src={KasIcon}
@@ -378,28 +370,47 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                         className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
                                     />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Keuangan</p>
-                                    <h1 className="text-3xl font-bold text-white">Uang Kas Kelas</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Manajemen Keuangan
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Uang Kas Kelas
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
                                         Kas mingguan: {formatCurrency(kasAmount)} / mahasiswa
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            {/* Payment Rate Badge - Moved to right side like Perangkat layout if applicable, or kept distinct */}
+                            {/* Payment Rate Badge - Responsive */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.6, type: 'spring' }}
-                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
+                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 sm:px-6 py-3 shadow-lg border border-white/10 w-full sm:w-auto"
                             >
-                                <div className="p-2 bg-indigo-500/20 rounded-lg">
+                                <div className="p-2 bg-indigo-500/20 rounded-lg shrink-0">
                                     <Award className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
                                     <p className="text-xs text-indigo-100">Tingkat Pembayaran</p>
-                                    <p className="text-2xl font-bold text-white">{paymentRate.toFixed(0)}%</p>
+                                    <p className="text-xl sm:text-2xl font-bold text-white">{paymentRate.toFixed(0)}%</p>
                                 </div>
                             </motion.div>
                         </div>
@@ -409,36 +420,36 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.7 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
+                            className="flex flex-wrap sm:flex-nowrap gap-3 mt-8 pt-6 border-t border-white/10"
                         >
                             <motion.button
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowPertemuanModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
                             >
-                                <Calendar className="h-4 w-4" />
-                                Buat Pertemuan
+                                <Calendar className="h-4 w-4 shrink-0" />
+                                <span className="truncate">Buat Pertemuan</span>
                             </motion.button>
 
                             <motion.button
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowExpenseModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
                             >
-                                <TrendingDown className="h-4 w-4" />
-                                Catat Pengeluaran
+                                <TrendingDown className="h-4 w-4 shrink-0" />
+                                <span className="truncate">Catat Pengeluaran</span>
                             </motion.button>
 
                             <motion.button
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setShowExportModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex-[1_1_100%] sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
                             >
-                                <Download className="h-4 w-4" />
-                                Export Laporan
+                                <Download className="h-4 w-4 shrink-0" />
+                                <span className="truncate">Export Laporan</span>
                             </motion.button>
                         </motion.div>
                     </div>
@@ -447,7 +458,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Summary Cards - Advanced Glassmorphism */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid gap-6 md:grid-cols-4"
+                    className="grid grid-cols-2 gap-4 md:gap-6 md:grid-cols-4"
                 >
                     {/* Balance Card */}
                     <motion.div

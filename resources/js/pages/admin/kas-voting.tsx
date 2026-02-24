@@ -216,133 +216,142 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 variants={containerVariants}
                 className="p-6 space-y-6"
             >
-                {/* Animated Header with Particles */}
+                {/* Animated Header with Dashboard Ultra Advanced Style */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
                 >
-                    {/* Animated Gradient Background - Violet/Indigo Theme */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-violet-600 via-indigo-600 to-fuchsia-600"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
-                    />
-
-                    <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-10" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-
-                    {/* Animated Background Circles */}
+                    {/* Ultra Advanced Animated Background Orbs */}
                     <motion.div
                         animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3],
+                            scale: [1, 1.4, 1],
+                            rotate: [0, 180, 360],
+                            opacity: [0.1, 0.2, 0.1],
+                            x: [0, 50, 0],
+                            y: [0, -30, 0],
                         }}
                         transition={{
-                            duration: 8,
+                            duration: 20,
                             repeat: Infinity,
-                            ease: 'linear',
+                            ease: "easeInOut"
                         }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-white/30 to-indigo-200/30 blur-3xl"
                     />
                     <motion.div
                         animate={{
-                            scale: [1, 1.3, 1],
-                            opacity: [0.2, 0.4, 0.2],
+                            scale: [1, 1.5, 1],
+                            rotate: [360, 180, 0],
+                            opacity: [0.1, 0.15, 0.1],
+                            x: [0, -40, 0],
+                            y: [0, 40, 0],
                         }}
                         transition={{
-                            duration: 10,
+                            duration: 25,
                             repeat: Infinity,
-                            ease: 'linear',
+                            ease: "easeInOut"
                         }}
-                        className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl"
+                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-purple-300/30 to-pink-400/30 blur-3xl"
                     />
 
-                    {/* Floating Sparkles */}
-                    {[...Array(5)].map((_, i) => (
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
                             key={i}
                             animate={{
-                                y: [0, -30, 0],
-                                x: [0, Math.random() * 20 - 10, 0],
-                                opacity: [0, 1, 0],
+                                scale: [1, 2, 3],
+                                opacity: [0.3, 0.15, 0],
                             }}
                             transition={{
-                                duration: 3 + Math.random() * 2,
+                                duration: 4,
                                 repeat: Infinity,
-                                delay: i * 0.5,
+                                delay: i * 1.3,
+                                ease: "easeOut"
                             }}
-                            className="absolute"
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
                             style={{
-                                left: `${20 + i * 15}%`,
-                                top: `${30 + Math.random() * 40}%`,
+                                width: '100px',
+                                height: '100px',
                             }}
-                        >
-                            <Sparkles className="h-4 w-4 text-white/60" />
-                        </motion.div>
+                        />
                     ))}
 
                     <div className="relative">
-                        <div className="flex items-center gap-4 mb-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                transition={{ duration: 0.3 }}
-                                className="flex h-16 w-16 items-center justify-center"
-                            >
-                                <img
-                                    src={VotingKasIcon}
-                                    alt="Voting Kas"
-                                    className="h-full w-full object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,0.45)]"
-                                />
-                            </motion.div>
-                            <div>
-                                <motion.p
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-sm text-violet-100 font-medium tracking-wide uppercase"
+                        <div className="flex flex-wrap items-center justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                                <motion.div
+                                    className="relative flex shrink-0 h-24 w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    Manajemen Keuangan
-                                </motion.p>
-                                <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-3xl font-bold"
-                                >
-                                    Voting Pengeluaran Kas
-                                </motion.h1>
+                                    <img
+                                        src={VotingKasIcon}
+                                        alt="Voting Kas"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2"
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        Manajemen Keuangan
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-3xl font-bold mt-1"
+                                    >
+                                        Voting Pengeluaran Kas
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm leading-relaxed"
+                                    >
+                                        Kelola dan pantau voting pengeluaran kas mahasiswa secara transparan dan real-time
+                                    </motion.p>
+                                </div>
                             </div>
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0, y: 10 }}
+
+                        {/* Action Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="text-violet-100 text-lg font-light max-w-2xl leading-relaxed"
+                            transition={{ delay: 0.7 }}
+                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
                         >
-                            Kelola dan pantau voting pengeluaran kas mahasiswa secara transparan dan real-time.
-                        </motion.p>
+                            <motion.button
+                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => router.visit('/admin/kas')}
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                            >
+                                <BarChart3 className="h-4 w-4" />
+                                Lihat Kas Kelas
+                            </motion.button>
+                        </motion.div>
                     </div>
                 </motion.div>
 
                 {/* Stats Cards - Animated */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid gap-4 grid-cols-2 md:grid-cols-4"
+                    className="grid gap-6 md:grid-cols-4"
                 >
                     {[
-                        { image: TotalVotingIcon, label: 'Total', value: stats.total, color: 'from-violet-400 to-fuchsia-600' },
-                        { image: SedangVotingIcon, label: 'Voting', value: stats.open, color: 'from-blue-400 to-cyan-600' },
-                        { image: DisetujuiVotingIcon, label: 'Disetujui', value: stats.approved, color: 'from-emerald-400 to-teal-600' },
-                        { image: DitolakVotingIcon, label: 'Ditolak', value: stats.rejected, color: 'from-red-400 to-rose-600' },
+                        { image: TotalVotingIcon, label: 'Total', value: stats.total, shadowColor: 'hover:shadow-blue-500/10', glow: 'bg-blue-500', innerGrad: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10' },
+                        { image: SedangVotingIcon, label: 'Voting', value: stats.open, shadowColor: 'hover:shadow-violet-500/10', glow: 'bg-violet-500', innerGrad: 'from-violet-500/5 to-fuchsia-500/5 dark:from-violet-500/10 dark:to-fuchsia-500/10' },
+                        { image: DisetujuiVotingIcon, label: 'Disetujui', value: stats.approved, shadowColor: 'hover:shadow-emerald-500/10', glow: 'bg-emerald-500', innerGrad: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+                        { image: DitolakVotingIcon, label: 'Ditolak', value: stats.rejected, shadowColor: 'hover:shadow-red-500/10', glow: 'bg-red-500', innerGrad: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
                     ].map((stat, index) => (
                         <motion.div
                             key={index}
@@ -350,37 +359,39 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             whileHover="hover"
                             onHoverStart={() => setHoveredCard(`stat-${index}`)}
                             onHoverEnd={() => setHoveredCard(null)}
-                            className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl p-5 shadow-xl shadow-slate-200/50 border border-white/50 dark:bg-neutral-900/90 dark:border-neutral-800 dark:shadow-black/50"
+                            className={`group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all ${stat.shadowColor} dark:border-white/5`}
                         >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.innerGrad}`} />
                             <motion.div
                                 animate={{
                                     scale: hoveredCard === `stat-${index}` ? 1.5 : 1,
-                                    opacity: hoveredCard === `stat-${index}` ? 0.3 : 0.1,
+                                    opacity: hoveredCard === `stat-${index}` ? 0.4 : 0.2,
                                 }}
-                                className={`absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${stat.color} blur-3xl`}
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glow} blur-3xl transition-all duration-500`}
                             />
-                            <div className="relative flex items-center gap-3">
+                            <div className="relative flex items-center gap-4">
                                 <motion.div
-                                    whileHover={{ scale: 1.2 }}
-                                    transition={{ duration: 0.6 }}
-                                    className="flex h-12 w-12 items-center justify-center"
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="relative flex h-14 w-14 items-center justify-center"
                                 >
                                     <img
                                         src={stat.image}
                                         alt={stat.label}
-                                        className="h-11 w-11 object-contain drop-shadow-[0_10px_18px_rgba(15,23,42,0.25)]"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
                                     />
                                 </motion.div>
                                 <div>
-                                    <p className="text-xs text-slate-500 font-medium">{stat.label}</p>
-                                    <motion.p
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ delay: 0.5 + index * 0.1, type: 'spring' }}
-                                        className="text-2xl font-bold text-slate-900 dark:text-white"
-                                    >
-                                        {stat.value}
-                                    </motion.p>
+                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <div className="mt-1">
+                                        <motion.span
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{ delay: 0.5 + index * 0.1, type: 'spring' }}
+                                            className="text-2xl font-bold text-neutral-900 dark:text-white"
+                                        >
+                                            {stat.value}
+                                        </motion.span>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>

@@ -9,6 +9,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import InputError from '@/components/input-error';
 import { useAppearance } from '@/hooks/use-appearance';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { ThemeToggle } from '@/components/settings/ThemeToggle';
+import { AnimatedToggle } from '@/components/settings/AnimatedToggle';
+import { SaveButton } from '@/components/settings/SaveButton';
+import PengaturanIcon from '@/assets/admin/pengaturan/pengaturan.png';
 
 interface Settings { token_ttl_seconds: number; late_minutes: number; selfie_required: boolean; notify_rejected: boolean; notify_selfie_blur: boolean; email_notifications: boolean; push_notifications: boolean; daily_report: boolean; weekly_report: boolean; max_login_attempts: number; lockout_duration: number; session_lifetime: number; ai_verification_enabled: boolean; face_match_threshold: number; blur_detection_enabled: boolean; auto_approve_verified: boolean; maintenance_mode: boolean; }
 interface SystemInfo { php_version: string; laravel_version: string; server_time: string; timezone: string; environment: string; debug_mode: boolean; db_connection: string; cache_driver: string; }
@@ -157,13 +161,15 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                     />
 
                     <div className="relative z-10">
-                        <div className="flex items-center gap-5">
+                        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                             <motion.div
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                transition={{ type: "spring", stiffness: 300 }}
+                                className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                             >
-                                <Settings className="h-8 w-8 text-white" />
+                                <img src={PengaturanIcon} alt="Pengaturan" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                             </motion.div>
                             <div>
                                 <p className="text-sm text-indigo-100 font-medium tracking-wide uppercase">System Configuration</p>
@@ -216,49 +222,42 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         <div className="p-3 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors"><Shield className="h-6 w-6" /></div>
                                         <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Keamanan Sesi</h2><p className="text-xs text-slate-500 dark:text-slate-400">Konfigurasi validasi dan sesi absen</p></div>
                                     </div>
-                                    <form onSubmit={submitSecurity} className="space-y-5">
-                                        <div>
+                                    <form onSubmit={submitSecurity} className="space-y-5 flex flex-col items-center">
+                                        <div className="w-full text-left">
                                             <Label className="text-slate-700 dark:text-slate-300 font-medium">Token TTL (detik)</Label>
                                             <Input type="number" value={securityForm.data.token_ttl_seconds} onChange={e => securityForm.setData('token_ttl_seconds', parseInt(e.target.value))} className="mt-2 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-indigo-500 transition-all" />
                                             <p className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1"><History className="h-3 w-3" /> Durasi validitas QR code (30-600 detik)</p>
                                         </div>
-                                        <div>
+                                        <div className="w-full text-left">
                                             <Label className="text-slate-700 dark:text-slate-300 font-medium">Toleransi Terlambat (menit)</Label>
                                             <Input type="number" value={securityForm.data.late_minutes} onChange={e => securityForm.setData('late_minutes', parseInt(e.target.value))} className="mt-2 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-indigo-500 transition-all" />
                                         </div>
-                                        <div className="space-y-3 p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800">
-                                            {[
-                                                { label: 'Wajib selfie saat absen', checked: securityForm.data.selfie_required, setter: 'selfie_required' },
-                                                { label: 'Notifikasi absen ditolak', checked: securityForm.data.notify_rejected, setter: 'notify_rejected' },
-                                                { label: 'Notifikasi selfie blur', checked: securityForm.data.notify_selfie_blur, setter: 'notify_selfie_blur' }
-                                            ].map((item, idx) => (
-                                                <label key={idx} className="flex items-center gap-3 cursor-pointer group/item">
-                                                    <Checkbox checked={item.checked} onCheckedChange={(c) => securityForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600" />
-                                                    <span className="text-sm text-slate-600 dark:text-slate-300 group-hover/item:text-indigo-600 dark:group-hover/item:text-indigo-400 transition-colors">{item.label}</span>
-                                                </label>
-                                            ))}
+                                        <div className="w-full space-y-4 p-5 rounded-3xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800">
+                                            <AnimatedToggle checked={securityForm.data.selfie_required} onChange={() => securityForm.setData('selfie_required', !securityForm.data.selfie_required)} label="Wajib selfie saat absen" description="Memerlukan pengguna untuk melakukan swafoto sebelum absen disetujui." />
+                                            <div className="h-px bg-slate-200/50 dark:bg-slate-800/50" />
+                                            <AnimatedToggle checked={securityForm.data.notify_rejected} onChange={() => securityForm.setData('notify_rejected', !securityForm.data.notify_rejected)} label="Notifikasi absen ditolak" description="Kirim peringatan ketika sistem menolak sesi absen." />
+                                            <div className="h-px bg-slate-200/50 dark:bg-slate-800/50" />
+                                            <AnimatedToggle checked={securityForm.data.notify_selfie_blur} onChange={() => securityForm.setData('notify_selfie_blur', !securityForm.data.notify_selfie_blur)} label="Notifikasi selfie blur" description="Kirim peringatan jika foto yang diambil kurang jelas." />
                                         </div>
-                                        <Button type="submit" disabled={securityForm.processing} className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
-                                            <Save className="h-4 w-4 mr-2" />{securityForm.processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
-                                        </Button>
+                                        <div className="w-full flex justify-end pt-2">
+                                            <div className="inline-block shadow-xl shadow-indigo-500/20 rounded-2xl">
+                                                <SaveButton onClick={() => submitSecurity({ preventDefault: () => { } } as React.FormEvent)} isSaving={securityForm.processing} hasChanges={securityForm.isDirty} disabled={!securityForm.isDirty} />
+                                            </div>
+                                        </div>
                                     </form>
                                 </motion.div>
 
-                                <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-purple-500/10 transition-all">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-colors"><Palette className="h-6 w-6" /></div>
-                                        <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Tema Tampilan</h2><p className="text-xs text-slate-500 dark:text-slate-400">Sesuaikan tampilan antarmuka</p></div>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {[{ mode: 'light' as const, icon: Sun, label: 'Terang', desc: 'Tampilan cerah untuk siang hari' }, { mode: 'dark' as const, icon: Moon, label: 'Gelap', desc: 'Tampilan gelap untuk malam hari' }, { mode: 'system' as const, icon: Monitor, label: 'Sistem', desc: 'Ikuti pengaturan sistem' }].map(({ mode, icon: Icon, label, desc }) => (
-                                            <button key={mode} onClick={() => updateAppearance(mode)} className={`relative w-full flex items-center gap-4 p-4 rounded-2xl border transition-all overflow-hidden ${appearance === mode ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20 shadow-md ring-1 ring-purple-500/20' : 'border-slate-200 hover:border-slate-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-white/50 dark:bg-black/20 hover:bg-slate-50 dark:hover:bg-white/5'}`}>
-                                                <div className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${appearance === mode ? 'bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300' : 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400'}`}><Icon className="h-6 w-6" /></div>
-                                                <div className="text-left z-10"><p className={`font-bold ${appearance === mode ? 'text-purple-900 dark:text-purple-100' : 'text-slate-700 dark:text-slate-300'}`}>{label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{desc}</p></div>
-                                                {appearance === mode && <motion.div layoutId="checkTheme" className="absolute right-4"><CheckCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" /></motion.div>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </motion.div>
+                                <div className="space-y-6">
+                                    <motion.div variants={cardVariants} whileHover="hover" className="group rounded-3xl border border-slate-200/60 bg-white/60 p-6 shadow-xl backdrop-blur-xl dark:border-neutral-800/60 dark:bg-neutral-900/60 hover:shadow-purple-500/10 transition-all">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-colors"><Palette className="h-6 w-6" /></div>
+                                            <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Tema Tampilan</h2><p className="text-xs text-slate-500 dark:text-slate-400">Sesuaikan tampilan antarmuka</p></div>
+                                        </div>
+
+                                        {/* Inject animated theme toggle */}
+                                        <ThemeToggle />
+                                    </motion.div>
+                                </div>
                             </>
                         )}
 
@@ -269,24 +268,28 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-colors"><KeyRound className="h-6 w-6" /></div>
                                         <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Ganti Password</h2><p className="text-xs text-slate-500 dark:text-slate-400">Perbarui kata sandi akun Anda</p></div>
                                     </div>
-                                    <form onSubmit={submitPassword} className="space-y-4">
-                                        {[
-                                            { label: 'Password Saat Ini', state: showCurrentPassword, setter: setShowCurrentPassword, field: 'current_password' },
-                                            { label: 'Password Baru', state: showNewPassword, setter: setShowNewPassword, field: 'password' },
-                                            { label: 'Konfirmasi Password', state: showConfirmPassword, setter: setShowConfirmPassword, field: 'password_confirmation' }
-                                        ].map((item, idx) => (
-                                            <div key={idx}>
-                                                <Label className="text-slate-700 dark:text-slate-300 font-medium">{item.label}</Label>
-                                                <div className="relative mt-2">
-                                                    <Input type={item.state ? 'text' : 'password'} value={passwordForm.data[item.field as keyof typeof passwordForm.data]} onChange={e => passwordForm.setData(item.field as any, e.target.value)} className="pr-10 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-amber-500 transition-all" />
-                                                    <button type="button" onClick={() => item.setter(!item.state)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">{item.state ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                                    <form onSubmit={submitPassword} className="space-y-4 flex flex-col items-center">
+                                        <div className="w-full">
+                                            {[
+                                                { label: 'Password Saat Ini', state: showCurrentPassword, setter: setShowCurrentPassword, field: 'current_password' },
+                                                { label: 'Password Baru', state: showNewPassword, setter: setShowNewPassword, field: 'password' },
+                                                { label: 'Konfirmasi Password', state: showConfirmPassword, setter: setShowConfirmPassword, field: 'password_confirmation' }
+                                            ].map((item, idx) => (
+                                                <div key={idx} className="mb-4">
+                                                    <Label className="text-slate-700 dark:text-slate-300 font-medium">{item.label}</Label>
+                                                    <div className="relative mt-2">
+                                                        <Input type={item.state ? 'text' : 'password'} value={passwordForm.data[item.field as keyof typeof passwordForm.data]} onChange={e => passwordForm.setData(item.field as any, e.target.value)} className="pr-10 rounded-xl border-slate-200 bg-slate-50/50 dark:border-neutral-700 dark:bg-black/40 focus:ring-2 focus:ring-amber-500 transition-all" />
+                                                        <button type="button" onClick={() => item.setter(!item.state)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">{item.state ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                                                    </div>
+                                                    <InputError message={passwordForm.errors[item.field as keyof typeof passwordForm.errors]} />
                                                 </div>
-                                                <InputError message={passwordForm.errors[item.field as keyof typeof passwordForm.errors]} />
+                                            ))}
+                                        </div>
+                                        <div className="w-full flex justify-end pt-2">
+                                            <div className="inline-block shadow-xl shadow-amber-500/20 rounded-2xl">
+                                                <SaveButton onClick={() => submitPassword({ preventDefault: () => { } } as React.FormEvent)} isSaving={passwordForm.processing} hasChanges={passwordForm.isDirty} disabled={!passwordForm.isDirty} />
                                             </div>
-                                        ))}
-                                        <Button type="submit" disabled={passwordForm.processing} className="w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]">
-                                            <Lock className="h-4 w-4 mr-2" />{passwordForm.processing ? 'Menyimpan...' : 'Ubah Password'}
-                                        </Button>
+                                        </div>
                                     </form>
                                 </motion.div>
 
@@ -330,22 +333,26 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         <div className="p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:bg-cyan-100 dark:group-hover:bg-cyan-500/20 transition-colors"><Bell className="h-6 w-6" /></div>
                                         <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Notifikasi</h2><p className="text-xs text-slate-500 dark:text-slate-400">Pusat pemberitahuan</p></div>
                                     </div>
-                                    <form onSubmit={submitNotifications} className="space-y-4">
-                                        {[
-                                            { label: 'Notifikasi Email', desc: 'Terima update penting via email', icon: Mail, checked: notificationForm.data.email_notifications, setter: 'email_notifications' },
-                                            { label: 'Push Notification', desc: 'Alert real-time di browser', icon: Smartphone, checked: notificationForm.data.push_notifications, setter: 'push_notifications' }
-                                        ].map((item, idx) => (
-                                            <label key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-800/50 transition-colors group/check">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="bg-white dark:bg-neutral-800 p-2 rounded-xl text-slate-400 group-hover/check:text-cyan-500 transition-colors shadow-sm"><item.icon className="h-5 w-5" /></div>
-                                                    <div><p className="font-bold text-slate-800 dark:text-white text-sm">{item.label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p></div>
-                                                </div>
-                                                <Checkbox checked={item.checked} onCheckedChange={(c) => notificationForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-cyan-600 data-[state=checked]:border-cyan-600 h-5 w-5 rounded-md transition-all" />
-                                            </label>
-                                        ))}
-                                        <Button type="submit" disabled={notificationForm.processing} className="w-full rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white shadow-lg shadow-cyan-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02]">
-                                            <Save className="h-4 w-4 mr-2" />{notificationForm.processing ? 'Menyimpan...' : 'Simpan Notifikasi'}
-                                        </Button>
+                                    <form onSubmit={submitNotifications} className="space-y-4 flex flex-col items-center">
+                                        <div className="w-full space-y-4">
+                                            {[
+                                                { label: 'Notifikasi Email', desc: 'Terima update penting via email', icon: Mail, checked: notificationForm.data.email_notifications, setter: 'email_notifications' },
+                                                { label: 'Push Notification', desc: 'Alert real-time di browser', icon: Smartphone, checked: notificationForm.data.push_notifications, setter: 'push_notifications' }
+                                            ].map((item, idx) => (
+                                                <label key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-800/50 transition-colors group/check">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="bg-white dark:bg-neutral-800 p-2 rounded-xl text-slate-400 group-hover/check:text-cyan-500 transition-colors shadow-sm"><item.icon className="h-5 w-5" /></div>
+                                                        <div><p className="font-bold text-slate-800 dark:text-white text-sm">{item.label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p></div>
+                                                    </div>
+                                                    <Checkbox checked={item.checked} onCheckedChange={(c) => notificationForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-cyan-600 data-[state=checked]:border-cyan-600 h-5 w-5 rounded-md transition-all" />
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <div className="w-full flex justify-end pt-2">
+                                            <div className="inline-block shadow-xl shadow-cyan-500/20 rounded-2xl">
+                                                <SaveButton onClick={() => submitNotifications({ preventDefault: () => { } } as React.FormEvent)} isSaving={notificationForm.processing} hasChanges={notificationForm.isDirty} disabled={!notificationForm.isDirty} />
+                                            </div>
+                                        </div>
                                     </form>
                                 </motion.div>
 
@@ -355,18 +362,28 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Laporan Otomatis</h2><p className="text-xs text-slate-500 dark:text-slate-400">Jadwal pengiriman laporan</p></div>
                                     </div>
                                     <div className="space-y-4">
-                                        {[
-                                            { label: 'Laporan Harian', desc: 'Ringkasan aktivitas hari ini', icon: Calendar, checked: notificationForm.data.daily_report, setter: 'daily_report' },
-                                            { label: 'Laporan Mingguan', desc: 'Analisis mingguan detail', icon: BarChart3, checked: notificationForm.data.weekly_report, setter: 'weekly_report' }
-                                        ].map((item, idx) => (
-                                            <label key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-neutral-800 cursor-pointer hover:bg-slate-100 dark:hover:bg-neutral-800/50 transition-colors group/check">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="bg-white dark:bg-neutral-800 p-2 rounded-xl text-slate-400 group-hover/check:text-teal-500 transition-colors shadow-sm"><item.icon className="h-5 w-5" /></div>
-                                                    <div><p className="font-bold text-slate-800 dark:text-white text-sm">{item.label}</p><p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p></div>
-                                                </div>
-                                                <Checkbox checked={item.checked} onCheckedChange={(c) => notificationForm.setData(item.setter as any, !!c)} className="border-slate-300 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600 h-5 w-5 rounded-md transition-all" />
-                                            </label>
-                                        ))}
+                                        <div className="p-6 rounded-3xl bg-teal-50/50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-800/30">
+                                            <div className="space-y-6">
+                                                <AnimatedToggle
+                                                    checked={notificationForm.data.daily_report}
+                                                    onChange={() => notificationForm.setData('daily_report', !notificationForm.data.daily_report)}
+                                                    label="Laporan Harian"
+                                                    description="Ringkasan aktivitas dan rekapan absensi masuk ke email Anda setiap hari."
+                                                />
+                                                <div className="h-px bg-teal-200/50 dark:bg-teal-800/50" />
+                                                <AnimatedToggle
+                                                    checked={notificationForm.data.weekly_report}
+                                                    onChange={() => notificationForm.setData('weekly_report', !notificationForm.data.weekly_report)}
+                                                    label="Laporan Mingguan"
+                                                    description="Analisis performa, grafik tren mingguan, dan kehadiran dalam minggu."
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="w-full flex justify-end pt-2">
+                                            <div className="inline-block shadow-xl shadow-teal-500/20 rounded-2xl">
+                                                <SaveButton onClick={() => submitNotifications({ preventDefault: () => { } } as React.FormEvent)} isSaving={notificationForm.processing} hasChanges={notificationForm.isDirty} disabled={!notificationForm.isDirty} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </motion.div>
                             </>
@@ -379,11 +396,13 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-colors"><Lock className="h-6 w-6" /></div>
                                         <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Keamanan Login</h2><p className="text-xs text-slate-500 dark:text-slate-400">Proteksi brute-force</p></div>
                                     </div>
-                                    <form onSubmit={submitAdvanced} className="space-y-4">
-                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Max Login Attempts</Label><Input type="number" value={advancedForm.data.max_login_attempts} onChange={e => advancedForm.setData('max_login_attempts', parseInt(e.target.value))} className="mt-2 rounded-xl" /><p className="text-[10px] text-slate-400 mt-1">Batas gagal login sebelum dikunci</p></div>
-                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Lockout Duration (menits)</Label><Input type="number" value={advancedForm.data.lockout_duration} onChange={e => advancedForm.setData('lockout_duration', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
-                                        <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Session Lifetime (menits)</Label><Input type="number" value={advancedForm.data.session_lifetime} onChange={e => advancedForm.setData('session_lifetime', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
-                                        <Button type="submit" disabled={advancedForm.processing} className="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20 py-6 text-sm font-semibold transition-all hover:scale-[1.02]"><Save className="h-4 w-4 mr-2" />Simpan Keamanan</Button>
+                                    <form onSubmit={submitAdvanced} className="space-y-4 flex flex-col items-center">
+                                        <div className="w-full text-left"><Label className="text-slate-700 dark:text-slate-300 font-medium">Max Login Attempts</Label><Input type="number" value={advancedForm.data.max_login_attempts} onChange={e => advancedForm.setData('max_login_attempts', parseInt(e.target.value))} className="mt-2 rounded-xl" /><p className="text-[10px] text-slate-400 mt-1">Batas gagal login sebelum dikunci</p></div>
+                                        <div className="w-full text-left"><Label className="text-slate-700 dark:text-slate-300 font-medium">Lockout Duration (menits)</Label><Input type="number" value={advancedForm.data.lockout_duration} onChange={e => advancedForm.setData('lockout_duration', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
+                                        <div className="w-full text-left mb-4"><Label className="text-slate-700 dark:text-slate-300 font-medium">Session Lifetime (menits)</Label><Input type="number" value={advancedForm.data.session_lifetime} onChange={e => advancedForm.setData('session_lifetime', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
+                                        <div className="w-full pt-4">
+                                            <SaveButton onClick={() => submitAdvanced({ preventDefault: () => { } } as React.FormEvent)} isSaving={advancedForm.processing} hasChanges={advancedForm.isDirty} disabled={!advancedForm.isDirty} />
+                                        </div>
                                     </form>
                                 </motion.div>
 
@@ -394,22 +413,17 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                             <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Verifikasi AI</h2><p className="text-xs text-slate-500 dark:text-slate-400">Konfigurasi scan wajah pintar</p></div>
                                         </div>
                                         <div className="space-y-4">
-                                            <div className="p-4 rounded-2xl bg-violet-50/50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/30">
-                                                <div className="flex justify-between items-center mb-4">
+                                            <div className="p-6 rounded-3xl bg-violet-50/50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-800/30">
+                                                <div className="flex justify-between items-center mb-6">
                                                     <span className="text-sm font-bold text-violet-900 dark:text-violet-100">AI Engine Status</span>
-                                                    <span className="px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-[10px] font-bold">READY</span>
+                                                    <span className="px-3 py-1 rounded-md bg-green-100 text-green-700 text-xs font-bold shadow-sm">READY</span>
                                                 </div>
-                                                <div className="space-y-3">
-                                                    {[
-                                                        { label: 'Aktifkan Verifikasi AI', checked: advancedForm.data.ai_verification_enabled, setter: 'ai_verification_enabled' },
-                                                        { label: 'Deteksi Foto Blur', checked: advancedForm.data.blur_detection_enabled, setter: 'blur_detection_enabled' },
-                                                        { label: 'Auto Approve Verified', checked: advancedForm.data.auto_approve_verified, setter: 'auto_approve_verified' }
-                                                    ].map((item, idx) => (
-                                                        <label key={idx} className="flex items-center justify-between cursor-pointer">
-                                                            <span className="text-sm text-slate-600 dark:text-slate-300">{item.label}</span>
-                                                            <Checkbox checked={item.checked} onCheckedChange={(c) => advancedForm.setData(item.setter as any, !!c)} className="data-[state=checked]:bg-violet-600 data-[state=checked]:border-violet-600" />
-                                                        </label>
-                                                    ))}
+                                                <div className="space-y-6">
+                                                    <AnimatedToggle checked={advancedForm.data.ai_verification_enabled} onChange={() => advancedForm.setData('ai_verification_enabled', !advancedForm.data.ai_verification_enabled)} label="Aktifkan Verifikasi AI" description="Sistem keamanan wajah pintar berjalan otomatis di latar belakang." />
+                                                    <div className="h-px bg-violet-200/50 dark:bg-violet-800/50" />
+                                                    <AnimatedToggle checked={advancedForm.data.blur_detection_enabled} onChange={() => advancedForm.setData('blur_detection_enabled', !advancedForm.data.blur_detection_enabled)} label="Deteksi Foto Blur" description="Otomatis menolak gambar dengan fokus rendah." />
+                                                    <div className="h-px bg-violet-200/50 dark:bg-violet-800/50" />
+                                                    <AnimatedToggle checked={advancedForm.data.auto_approve_verified} onChange={() => advancedForm.setData('auto_approve_verified', !advancedForm.data.auto_approve_verified)} label="Auto Approve Verified" description="Verifikasi otomatis bagi user tanpa riwayat pelanggaran." />
                                                 </div>
                                             </div>
                                             <div><Label className="text-slate-700 dark:text-slate-300 font-medium">Sensitivity Threshold (%)</Label><Input type="number" value={advancedForm.data.face_match_threshold} onChange={e => advancedForm.setData('face_match_threshold', parseInt(e.target.value))} className="mt-2 rounded-xl" /></div>
@@ -417,15 +431,22 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                     </motion.div>
 
                                     <motion.div variants={cardVariants} whileHover="hover" className={`group rounded-3xl border p-6 shadow-xl backdrop-blur-xl transition-all ${advancedForm.data.maintenance_mode ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800' : 'bg-white/60 border-slate-200/60 dark:bg-neutral-900/60 dark:border-neutral-800/60'}`}>
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex flex-col gap-4">
                                             <div className="flex items-center gap-4">
                                                 <div className={`p-3 rounded-2xl ${advancedForm.data.maintenance_mode ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-neutral-400'}`}><AlertTriangle className="h-6 w-6" /></div>
                                                 <div><h2 className="text-lg font-bold text-slate-800 dark:text-white">Maintenance Mode</h2><p className="text-xs text-slate-500 dark:text-slate-400">Darurat & Pemeliharaan</p></div>
                                             </div>
-                                            <Checkbox checked={advancedForm.data.maintenance_mode} onCheckedChange={(c) => advancedForm.setData('maintenance_mode', !!c)} className="h-6 w-6 rounded-md data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500" />
+                                            <div className="mt-2">
+                                                <AnimatedToggle checked={advancedForm.data.maintenance_mode} onChange={() => advancedForm.setData('maintenance_mode', !advancedForm.data.maintenance_mode)} label="Aktifkan Maintenance Mode" description="Aplikasi tidak dapat diakses oleh user biasa saat mode ini aktif." />
+                                            </div>
                                         </div>
-                                        {advancedForm.data.maintenance_mode && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 p-3 rounded-lg bg-amber-100/50 text-amber-800 text-xs font-semibold">⚠️ Aplikasi tidak dapat diakses oleh user biasa saat mode ini aktif.</motion.div>}
                                     </motion.div>
+
+                                    <div className="w-full flex justify-end mt-4">
+                                        <div className="inline-block shadow-xl shadow-purple-500/20 rounded-2xl">
+                                            <SaveButton onClick={() => submitAdvanced({ preventDefault: () => { } } as React.FormEvent)} isSaving={advancedForm.processing} hasChanges={advancedForm.isDirty} disabled={!advancedForm.isDirty} />
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}

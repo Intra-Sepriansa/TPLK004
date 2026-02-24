@@ -1,9 +1,9 @@
 import { Head } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Wallet, TrendingUp, TrendingDown, CheckCircle, XCircle, Receipt, 
-    DollarSign, Calendar, Sparkles, ArrowUpRight, ArrowDownRight, 
+import {
+    Wallet, TrendingUp, TrendingDown, CheckCircle, XCircle, Receipt,
+    DollarSign, Calendar, Sparkles, ArrowUpRight, ArrowDownRight,
     Clock, Award, Target, Zap, TrendingUp as TrendUp
 } from 'lucide-react';
 import { useState } from 'react';
@@ -36,7 +36,7 @@ interface PageProps {
     recentExpenses: Expense[];
 }
 
-// Animation variants
+// Animation variants matching Dashboard
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -44,44 +44,34 @@ const containerVariants = {
         transition: {
             staggerChildren: 0.08,
             delayChildren: 0.1,
-        },
-    },
-};
+        }
+    }
+} as const;
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 300,
-            damping: 24,
-        },
-    },
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
+    }
 } as const;
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
+        y: 0,
         scale: 1,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 300,
-            damping: 20,
-        },
+        transition: { type: 'spring', stiffness: 300, damping: 20 }
     },
     hover: {
-        scale: 1.03,
-        y: -8,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 400,
-            damping: 10,
-        },
-    },
-};
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring', stiffness: 400, damping: 15 }
+    }
+} as const;
 
 export default function UserKas({ mahasiswa, kasRecords, personalStats, classSummary, recentExpenses }: PageProps) {
     const [selectedTab, setSelectedTab] = useState<'riwayat' | 'pengeluaran'>('riwayat');
@@ -91,177 +81,130 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
     };
 
-    const paymentRate = personalStats.paid_count + personalStats.unpaid_count > 0 
-        ? (personalStats.paid_count / (personalStats.paid_count + personalStats.unpaid_count)) * 100 
+    const paymentRate = personalStats.paid_count + personalStats.unpaid_count > 0
+        ? (personalStats.paid_count / (personalStats.paid_count + personalStats.unpaid_count)) * 100
         : 0;
 
     return (
         <StudentLayout>
             <Head title="Uang Kas" />
-            
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
                 className="p-6 space-y-6"
             >
-                {/* Premium Header with Advanced Animations */}
+                {/* Premium Header with Advanced Animations matching Admin Kas */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Orbs */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-white/10 blur-2xl"
-                        />
-                        
-                        {/* Large Floating Icons */}
-                        <motion.div
-                            animate={{
-                                y: [0, -20, 0],
-                                rotate: [0, 5, 0],
-                            }}
-                            transition={{
-                                duration: 6,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute right-8 top-8 opacity-10"
-                        >
-                            <Wallet className="h-32 w-32" />
-                        </motion.div>
-                        <motion.div
-                            animate={{
-                                y: [0, 15, 0],
-                                rotate: [0, -5, 0],
-                            }}
-                            transition={{
-                                duration: 7,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute left-8 bottom-8 opacity-10"
-                        >
-                            <DollarSign className="h-28 w-28" />
-                        </motion.div>
-                    </div>
-                    
-                    {/* Floating Money Icons */}
-                    {[Wallet, DollarSign, Receipt, TrendingUp, Sparkles].map((Icon, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute"
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ 
-                                opacity: [0, 0.4, 0],
-                                scale: [0, 1, 0],
-                                y: [0, -40, -80]
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 0.8,
-                                ease: "easeOut"
-                            }}
-                            style={{
-                                left: `${15 + i * 18}%`,
-                                top: `${20 + (i % 2) * 40}%`,
-                            }}
-                        >
-                            <Icon className="h-6 w-6 text-white" />
-                        </motion.div>
-                    ))}
-                    
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: "linear"
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Floating Animations (Pulses) */}
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
+                    />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
+                    />
+                    <motion.div
+                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
+                    />
+
                     <div className="relative">
-                        <div className="flex items-center justify-between flex-wrap gap-4">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg shadow-yellow-500/50"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center p-1"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Wallet className="h-8 w-8" />
+                                    <img
+                                        src="/build/assets/kas.png"
+                                        alt="Kas"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
+                                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-sm text-gray-300 font-medium"
                                     >
                                         Keuangan Kelas
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent"
                                     >
                                         Uang Kas Saya
                                     </motion.h1>
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
                                         transition={{ delay: 0.5 }}
-                                        className="text-sm text-gray-300 mt-1"
                                     >
                                         {mahasiswa.nama} • {mahasiswa.nim}
                                     </motion.p>
                                 </div>
                             </div>
 
-                            {/* Payment Rate Badge with Premium Design */}
+                            {/* Payment Rate Badge */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.6, type: 'spring' }}
-                                whileHover={{ scale: 1.05, y: -3 }}
-                                className="relative group"
+                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 sm:px-6 py-3 shadow-lg border border-white/10 w-full sm:w-auto mt-2 sm:mt-0"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity" />
-                                <div className="relative flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/30">
-                                    <motion.div
-                                        animate={{ rotate: [0, 360] }}
-                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                    >
-                                        <Award className="h-6 w-6" />
-                                    </motion.div>
-                                    <div>
-                                        <p className="text-xs text-gray-200 font-medium">Tingkat Pembayaran</p>
-                                        <p className="text-2xl font-black">{paymentRate.toFixed(0)}%</p>
-                                    </div>
+                                <div className="p-2 bg-indigo-500/20 rounded-lg shrink-0">
+                                    <Award className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-indigo-100">Tingkat Pembayaran</p>
+                                    <p className="text-xl sm:text-2xl font-bold text-white">{paymentRate.toFixed(0)}%</p>
                                 </div>
                             </motion.div>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Personal Stats - Animated Cards */}
+                {/* Personal Stats - Animated Cards matching Admin Kas */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid gap-4 md:grid-cols-2"
+                    className="grid grid-cols-2 gap-4 md:gap-6 md:grid-cols-2"
                 >
                     {/* Paid Card */}
                     <motion.div
@@ -269,20 +212,32 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('paid')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="relative overflow-hidden rounded-2xl border border-emerald-200/70 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-lg backdrop-blur dark:border-emerald-800/70 dark:from-emerald-950/50 dark:to-teal-950/50"
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
+                        <motion.div
+                            animate={{
+                                scale: hoveredCard === 'paid' ? 1.5 : 1,
+                                opacity: hoveredCard === 'paid' ? 0.4 : 0.2,
+                            }}
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
+                        />
                         <div className="relative flex items-start gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.2, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex h-14 w-14 items-center justify-center p-1"
                             >
-                                <CheckCircle className="h-7 w-7" />
+                                <img
+                                    src="/build/assets/saldo-aktif.png"
+                                    alt="Total Sudah Bayar"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
                             </motion.div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Sudah Bayar</p>
+                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Sudah Bayar</p>
                                 <div className="mt-1">
-                                    <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
+                                    <p className="text-3xl font-bold text-neutral-900 dark:text-white">
                                         {formatCurrency(personalStats.total_paid)}
                                     </p>
                                 </div>
@@ -302,20 +257,32 @@ export default function UserKas({ mahasiswa, kasRecords, personalStats, classSum
                         whileHover="hover"
                         onHoverStart={() => setHoveredCard('unpaid')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="relative overflow-hidden rounded-2xl border border-red-200/70 bg-gradient-to-br from-red-50 to-orange-50 p-6 shadow-lg backdrop-blur dark:border-red-800/70 dark:from-red-950/50 dark:to-orange-950/50"
+                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-red-500/10 dark:border-white/5"
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10" />
+                        <motion.div
+                            animate={{
+                                scale: hoveredCard === 'unpaid' ? 1.5 : 1,
+                                opacity: hoveredCard === 'unpaid' ? 0.4 : 0.2,
+                            }}
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500"
+                        />
                         <div className="relative flex items-start gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.2, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500 text-white shadow-lg shadow-red-500/50"
+                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                className="relative flex h-14 w-14 items-center justify-center p-1"
                             >
-                                <XCircle className="h-7 w-7" />
+                                <img
+                                    src="/build/assets/pengeluaran.png"
+                                    alt="Total Belum Bayar"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
                             </motion.div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-red-700 dark:text-red-300">Total Belum Bayar</p>
+                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Belum Bayar</p>
                                 <div className="mt-1">
-                                    <p className="text-3xl font-bold bg-gradient-to-r from-red-600 via-orange-500 to-rose-600 bg-clip-text text-transparent">
+                                    <p className="text-3xl font-bold text-neutral-900 dark:text-white">
                                         {formatCurrency(personalStats.total_unpaid)}
                                     </p>
                                 </div>

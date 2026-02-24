@@ -1,317 +1,128 @@
-/**
- * Settings API Client Functions
- * Requirements: 1.1, 1.2, 1.8
- */
+import axios from 'axios';
 
-import { apiGet, apiPost, apiPut } from './api';
-import type {
-    UserSettings,
-    SettingsCategory,
-    SettingsExport,
-    ActiveSession,
-    LoginHistoryEntry,
-    StorageUsage,
-} from '@/types/settings';
+const API_BASE = '/api/settings';
 
-const BASE_URL = '/api/settings';
-
-// Response Types
-interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
-    errors?: Record<string, string[]>;
-}
-
-/**
- * Get all user settings
- */
-export async function getSettings(): Promise<UserSettings> {
-    const response = await apiGet(BASE_URL);
-    const data: ApiResponse<UserSettings> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to fetch settings');
+// Get CSRF token
+function getCsrfToken(): string {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (!token) {
+        throw new Error('CSRF token not found');
     }
-    
-    return data.data!;
+    return token;
 }
 
-/**
- * Get settings for a specific category
- */
-export async function getCategorySettings<K extends SettingsCategory>(
-    category: K
-): Promise<UserSettings[K]> {
-    const response = await apiGet(`${BASE_URL}/${category}`);
-    const data: ApiResponse<UserSettings[K]> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to fetch category settings');
-    }
-    
-    return data.data!;
-}
+// Axios instance with CSRF token
+const api = axios.create({
+    baseURL: API_BASE,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    },
+});
+
+// Add CSRF token to every request
+api.interceptors.request.use((config) => {
+    config.headers['X-CSRF-TOKEN'] = getCsrfToken();
+    return config;
+});
 
 /**
- * Update all settings
+ * Get all settings
  */
-export async function updateSettings(settings: Partial<UserSettings>): Promise<UserSettings> {
-    const response = await apiPut(BASE_URL, { settings });
-    const data: ApiResponse<UserSettings> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update settings');
-    }
-    
-    return data.data!;
-}
-
-/**
- * Update settings for a specific category
- */
-export async function updateCategorySettings<K extends SettingsCategory>(
-    category: K,
-    settings: Partial<UserSettings[K]>
-): Promise<UserSettings[K]> {
-    const response = await apiPut(`${BASE_URL}/${category}`, { settings });
-    const data: ApiResponse<UserSettings[K]> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to update category settings');
-    }
-    
-    return data.data!;
-}
-
-/**
- * Reset settings to defaults
- */
-export async function resetSettings(category?: SettingsCategory): Promise<UserSettings> {
-    const url = category ? `${BASE_URL}/reset/${category}` : `${BASE_URL}/reset`;
-    const response = await apiPost(url);
-    const data: ApiResponse<UserSettings> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to reset settings');
-    }
-    
-    return data.data!;
-}
-
-/**
- * Export settings
- */
-export async function exportSettings(): Promise<SettingsExport> {
-    const response = await apiGet(`${BASE_URL}/export`);
-    const data: ApiResponse<SettingsExport> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to export settings');
-    }
-    
-    return data.data!;
-}
-
-/**
- * Import settings
- */
-export async function importSettings(settingsExport: SettingsExport): Promise<UserSettings> {
-    const response = await apiPost(`${BASE_URL}/import`, { data: settingsExport });
-    const data: ApiResponse<UserSettings> = await response.json();
-    
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to import settings');
-    }
-    
-    return data.data!;
-}
-
-/**
- * Get active sessions
- */
-export async function getActiveSessions(): Promise<ActiveSession[]> {
+export async function getSettings() {
     try {
-        const response = await apiGet(`${BASE_URL}/sessions`);
-        const data: ApiResponse<ActiveSession[]> = await response.json();
-        
-        if (!response.ok || !data.success) {
-            // Return mock data if API fails
-            return [
-                {
-                    id: '1',
-                    device: 'MacBook Pro',
-                    browser: 'Chrome 120',
-                    ip: '192.168.1.1',
-                    location: 'Jakarta, Indonesia',
-                    lastActive: new Date().toISOString(),
-                    isCurrent: true,
-                },
-            ];
-        }
-        
-        return data.data!;
+        const response = await api.get('/');
+        return response.data;
     } catch (error) {
-        // Return mock data if API fails
-        return [
-            {
-                id: '1',
-                device: 'MacBook Pro',
-                browser: 'Chrome 120',
-                ip: '192.168.1.1',
-                location: 'Jakarta, Indonesia',
-                lastActive: new Date().toISOString(),
-                isCurrent: true,
-            },
-        ];
+        console.error('Failed to get settings:', error);
+        throw error;
     }
 }
 
 /**
- * Terminate a session
+ * Update category settings
  */
-export async function terminateSession(sessionId: string): Promise<void> {
+export async function updateCategorySettings(category: string, data: any) {
     try {
-        const response = await apiPost(`${BASE_URL}/sessions/${sessionId}/terminate`);
-        const data: ApiResponse<void> = await response.json();
-        
-        if (!response.ok || !data.success) {
-            // Simulate success for now
-            return Promise.resolve();
-        }
+        const response = await api.post(`/${category}`, data);
+        return response.data;
     } catch (error) {
-        // Simulate success for now
-        return Promise.resolve();
+        console.error(`Failed to update ${category} settings:`, error);
+        throw error;
     }
 }
 
 /**
- * Get login history
+ * Reset all settings to default
  */
-export async function getLoginHistory(limit = 10): Promise<LoginHistoryEntry[]> {
+export async function resetSettings() {
     try {
-        const response = await apiGet(`${BASE_URL}/login-history?limit=${limit}`);
-        const data: ApiResponse<LoginHistoryEntry[]> = await response.json();
-        
-        if (!response.ok || !data.success) {
-            // Return mock data if API fails
-            return [
-                {
-                    id: '1',
-                    device: 'MacBook Pro',
-                    browser: 'Chrome 120',
-                    ip: '192.168.1.1',
-                    location: 'Jakarta, Indonesia',
-                    loginAt: new Date().toISOString(),
-                    success: true,
-                },
-            ];
-        }
-        
-        return data.data!;
+        const response = await api.post('/reset');
+        return response.data;
     } catch (error) {
-        // Return mock data if API fails
-        return [
-            {
-                id: '1',
-                device: 'MacBook Pro',
-                browser: 'Chrome 120',
-                ip: '192.168.1.1',
-                location: 'Jakarta, Indonesia',
-                loginAt: new Date().toISOString(),
-                success: true,
-            },
-        ];
-    }
-}
-
-/**
- * Get storage usage
- */
-export async function getStorageUsage(): Promise<StorageUsage> {
-    try {
-        const response = await apiGet(`${BASE_URL}/storage`);
-        const data: ApiResponse<StorageUsage> = await response.json();
-        
-        if (!response.ok || !data.success) {
-            // Return mock data if API fails
-            return {
-                used: 45678901,
-                total: 107374182400,
-                breakdown: {
-                    documents: 23456789,
-                    cache: 12345678,
-                    other: 9876434,
-                },
-            };
-        }
-        
-        return data.data!;
-    } catch (error) {
-        // Return mock data if API fails
-        return {
-            used: 45678901,
-            total: 107374182400,
-            breakdown: {
-                documents: 23456789,
-                cache: 12345678,
-                other: 9876434,
-            },
-        };
+        console.error('Failed to reset settings:', error);
+        throw error;
     }
 }
 
 /**
  * Clear cache
  */
-export async function clearCache(): Promise<void> {
+export async function clearCache() {
     try {
-        const response = await apiPost(`${BASE_URL}/clear-cache`);
-        const data: ApiResponse<void> = await response.json();
-        
-        if (!response.ok || !data.success) {
-            // Simulate success for now
-            return Promise.resolve();
-        }
+        const response = await api.post('/clear-cache');
+        return response.data;
     } catch (error) {
-        // Simulate success for now
-        return Promise.resolve();
+        console.error('Failed to clear cache:', error);
+        throw error;
     }
 }
 
 /**
- * Download settings as JSON file
+ * Download settings as JSON
  */
-export async function downloadSettings(): Promise<void> {
-    const settings = await exportSettings();
-    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `settings-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+export async function downloadSettings() {
+    try {
+        // Fetch current settings directly from DB via api to ensure we get latest if localStorage is desync or not comprehensive enough
+        const settings = await getSettings();
+        if (!settings) {
+            throw new Error('No settings found');
+        }
+
+        // Create blob and download
+        const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `settings-${new Date().toISOString()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Failed to download settings:', error);
+        throw error;
+    }
 }
 
 /**
- * Upload and import settings from file
+ * Upload settings from JSON file
  */
-export async function uploadSettings(file: File): Promise<UserSettings> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const content = e.target?.result as string;
-                const settingsExport: SettingsExport = JSON.parse(content);
-                const settings = await importSettings(settingsExport);
-                resolve(settings);
-            } catch (error) {
-                reject(new Error('Invalid settings file'));
-            }
-        };
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsText(file);
-    });
+export async function uploadSettings(file: File) {
+    try {
+        const text = await file.text();
+        const settings = JSON.parse(text);
+
+        // Validate settings structure
+        if (!settings || typeof settings !== 'object') {
+            throw new Error('Invalid settings file');
+        }
+
+        // Upload to server
+        const response = await api.post('/import', settings);
+        return response.data;
+    } catch (error) {
+        console.error('Failed to upload settings:', error);
+        throw error;
+    }
 }
