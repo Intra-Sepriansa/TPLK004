@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
-import JadwalIcon from '@/assets/admin/jadwal/jadwal.png';
+import PersetujuanIzinIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */
@@ -168,7 +168,7 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={JadwalIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                <img src={PersetujuanIzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </motion.div>
                             <div className="space-y-1.5">
                                 <p className="text-xs md:text-sm text-indigo-200 font-semibold tracking-widest uppercase">Manajemen Perizinan</p>
