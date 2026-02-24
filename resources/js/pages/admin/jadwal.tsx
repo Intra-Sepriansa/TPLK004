@@ -301,10 +301,10 @@ export default function AdminJadwal({
                     />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
@@ -315,22 +315,24 @@ export default function AdminJadwal({
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Analisis Sistem</p>
                                     <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1">Jadwal Sesi Absen</h1>
-                                    <p className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed">
+                                    <p className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0">
                                         Kelola jadwal sesi absensi, aktifkan sesi, dan pantau kehadiran mahasiswa secara real-time.
                                     </p>
                                 </div>
                             </div>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setShowAddForm(true)}
-                                className="group relative overflow-hidden rounded-xl bg-white px-6 py-3 text-indigo-600 shadow-xl transition-all hover:bg-indigo-50"
-                            >
-                                <span className="relative z-10 flex items-center gap-2 font-bold">
-                                    <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
-                                    Tambah Jadwal
-                                </span>
-                            </motion.button>
+                            <div className="flex justify-center w-full sm:w-auto">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setShowAddForm(true)}
+                                    className="group relative overflow-hidden rounded-xl bg-white px-6 py-3 text-indigo-600 shadow-xl transition-all hover:bg-indigo-50"
+                                >
+                                    <span className="relative z-10 flex items-center justify-center gap-2 font-bold">
+                                        <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
+                                        Tambah Jadwal
+                                    </span>
+                                </motion.button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
