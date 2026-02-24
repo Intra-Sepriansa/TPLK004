@@ -5,6 +5,10 @@ import { BookOpen, Users, Award, TrendingUp, AlertTriangle, Search, Download, Fi
 import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import TotalMhsIcon from '@/assets/admin/dashboard/total-icon.png';
+import CourseIcon from '@/assets/admin/sesi-absen/course-icon.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import RisikoIcon from '@/assets/dosen/sesi-absen/terlambat.png';
 
 interface StudentGrade {
   mahasiswa_id: number; nama: string; nim: string; total_sessions: number; attended_sessions: number;
@@ -52,10 +56,10 @@ export default function Grading({ dosen, course, sessions, grades }: Props) {
   if (!course) { return (<DosenLayout dosen={dosen}><Head title="Grading" /><div className="flex items-center justify-center min-h-[60vh]"><div className="text-center"><BookOpen className="h-16 w-16 mx-auto mb-4 text-neutral-300" /><h2 className="text-xl font-bold text-neutral-900 dark:text-white">Belum Ada Mata Kuliah</h2><p className="text-neutral-500 mt-2">Anda belum ditugaskan ke mata kuliah manapun.</p></div></div></DosenLayout>); }
 
   const cards = [
-    { k: 'mhs', l: 'Total Mahasiswa', v: sm?.total_students || 0, s: 'Terdaftar di kelas', I: Users, f: 'from-blue-400', t: 'to-cyan-600', sh: 'shadow-blue-500/30', glow: 'bg-blue-500' },
-    { k: 'sesi', l: 'Total Sesi', v: sm?.total_sessions || 0, s: 'Pertemuan terlaksana', I: BookOpen, f: 'from-violet-400', t: 'to-purple-600', sh: 'shadow-violet-500/30', glow: 'bg-violet-500' },
-    { k: 'avg', l: 'Rata-rata Kehadiran', v: (sm?.average_attendance_rate || 0) + '%', s: 'Seluruh mahasiswa', I: TrendingUp, f: 'from-emerald-400', t: 'to-teal-600', sh: 'shadow-emerald-500/30', glow: 'bg-emerald-500' },
-    { k: 'risk', l: 'Mahasiswa Berisiko', v: sm?.students_at_risk || 0, s: 'Tidak eligible UAS', I: AlertTriangle, f: 'from-red-400', t: 'to-rose-600', sh: 'shadow-red-500/30', glow: 'bg-red-500' },
+    { k: 'mhs', l: 'Total Mahasiswa', v: sm?.total_students || 0, s: 'Terdaftar di kelas', imgSrc: TotalMhsIcon, f: 'from-blue-400', t: 'to-cyan-600', sh: 'shadow-blue-500/30', glow: 'bg-blue-500' },
+    { k: 'sesi', l: 'Total Sesi', v: sm?.total_sessions || 0, s: 'Pertemuan terlaksana', imgSrc: CourseIcon, f: 'from-violet-400', t: 'to-purple-600', sh: 'shadow-violet-500/30', glow: 'bg-violet-500' },
+    { k: 'avg', l: 'Rata-rata Kehadiran', v: (sm?.average_attendance_rate || 0) + '%', s: 'Seluruh mahasiswa', imgSrc: HadirIcon, f: 'from-emerald-400', t: 'to-teal-600', sh: 'shadow-emerald-500/30', glow: 'bg-emerald-500' },
+    { k: 'risk', l: 'Mahasiswa Berisiko', v: sm?.students_at_risk || 0, s: 'Tidak eligible UAS', imgSrc: RisikoIcon, f: 'from-red-400', t: 'to-rose-600', sh: 'shadow-red-500/30', glow: 'bg-red-500' },
   ];
 
   return (
@@ -73,7 +77,7 @@ export default function Grading({ dosen, course, sessions, grades }: Props) {
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center gap-5">
                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" /></motion.div>
+                  <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" /></motion.div>
                 <div>
                   <p className="text-sm text-indigo-100 font-medium tracking-wide">Penilaian Kehadiran</p>
                   <h1 className="text-3xl font-bold text-white">{course.nama}</h1>
@@ -97,7 +101,7 @@ export default function Grading({ dosen, course, sessions, grades }: Props) {
           {cards.map(c => <motion.div key={c.k} variants={cardV} whileHover="hover" onHoverStart={() => setHCard(c.k)} onHoverEnd={() => setHCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5">
             <motion.div animate={{ scale: hCard === c.k ? 1.5 : 1, opacity: hCard === c.k ? 0.4 : 0.2 }} className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${c.glow} blur-3xl transition-all duration-500`} />
             <div className="relative flex items-center gap-3">
-              <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${c.f} ${c.t} text-white shadow-lg ${c.sh}`}><c.I className="h-6 w-6" /></motion.div>
+              <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-12 w-12 items-center justify-center"><img src={c.imgSrc} alt={c.l} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" /></motion.div>
               <div><p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.l}</p><p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">{c.v}</p><p className="text-[10px] text-neutral-400 dark:text-neutral-500">{c.s}</p></div>
             </div>
           </motion.div>)}
