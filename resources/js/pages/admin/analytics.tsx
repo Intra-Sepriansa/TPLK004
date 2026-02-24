@@ -539,9 +539,9 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         className="lg:col-span-2 rounded-3xl bg-[#18181b] border border-white/10 shadow-2xl p-8 overflow-hidden relative"
                     >
                         {/* Header */}
-                        <div className="flex items-center justify-between mb-8 z-10 relative">
-                            <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-full border border-emerald-500/30 flex items-center justify-center bg-emerald-500/10">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8 z-10 relative">
+                            <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-3">
+                                <div className="h-8 w-8 rounded-full border border-emerald-500/30 flex items-center justify-center bg-emerald-500/10 shrink-0">
                                     <div className="h-4 w-4 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                 </div>
                                 Top Attendance
@@ -549,81 +549,85 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                             <button
                                 // @ts-ignore
                                 onClick={() => router.visit(route('admin.mahasiswa'))}
-                                className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                                className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors shrink-0"
                             >
                                 View All Students
                             </button>
                         </div>
 
-                        {/* List Headers */}
-                        <div className="grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-4 overflow-x-auto sm:overflow-visible min-w-[600px] sm:min-w-full">
-                            <div className="col-span-5">Mahasiswa</div>
-                            <div className="col-span-3">Jurusan</div>
-                            <div className="col-span-2 text-center">Kehadiran</div>
-                            <div className="col-span-2 text-right">Status</div>
-                        </div>
+                        <div className="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 custom-scrollbar">
+                            <div className="min-w-[600px]">
+                                {/* List Headers */}
+                                <div className="grid grid-cols-12 gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-4">
+                                    <div className="col-span-5">Mahasiswa</div>
+                                    <div className="col-span-3">Jurusan</div>
+                                    <div className="col-span-2 text-center">Kehadiran</div>
+                                    <div className="col-span-2 text-right">Status</div>
+                                </div>
 
-                        {/* Divider */}
-                        <div className="h-px w-full bg-white/10 mb-4" />
+                                {/* Divider */}
+                                <div className="h-px w-full bg-white/10 mb-4" />
 
-                        {/* Scrollable List */}
-                        <div className="space-y-3">
-                            <AnimatePresence>
-                                {topPerformers.length > 0 ? (
-                                    topPerformers.map((student, i) => (
-                                        <motion.div
-                                            key={student.id}
-                                            onClick={() => handleStudentClick(student.id)}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 * i, type: 'spring', stiffness: 200, damping: 20 }}
-                                            whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.03)' }}
-                                            whileTap={{ scale: 0.99 }}
-                                            className="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl cursor-pointer group transition-colors bg-white/5 border border-white/5 hover:border-indigo-500/30 min-w-[600px] sm:min-w-full"
-                                        >
-                                            {/* Mahasiswa Column */}
-                                            <div className="col-span-5 flex items-center gap-4">
-                                                <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${i === 0 ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/30' :
-                                                    i === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-blue-500/30' :
-                                                        'bg-gradient-to-br from-slate-700 to-slate-600'
-                                                    }`}>
-                                                    {student.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-white text-sm group-hover:text-indigo-400 transition-colors line-clamp-1">{student.name}</div>
-                                                    <div className="text-xs text-slate-500 font-medium">{student.nim}</div>
-                                                </div>
+                                {/* Scrollable List */}
+                                <div className="space-y-3">
+                                    <AnimatePresence>
+                                        {topPerformers.length > 0 ? (
+                                            topPerformers.map((student, i) => (
+                                                <motion.div
+                                                    key={student.id}
+                                                    onClick={() => handleStudentClick(student.id)}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.1 * i, type: 'spring', stiffness: 200, damping: 20 }}
+                                                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.03)' }}
+                                                    whileTap={{ scale: 0.99 }}
+                                                    className="grid grid-cols-12 gap-4 items-center p-4 rounded-2xl cursor-pointer group transition-colors bg-white/5 border border-white/5 hover:border-indigo-500/30 w-full"
+                                                >
+                                                    {/* Mahasiswa Column */}
+                                                    <div className="col-span-5 flex items-center gap-4">
+                                                        <div className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${i === 0 ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-indigo-500/30' :
+                                                            i === 1 ? 'bg-gradient-to-br from-blue-500 to-cyan-500 shadow-blue-500/30' :
+                                                                'bg-gradient-to-br from-slate-700 to-slate-600'
+                                                            }`}>
+                                                            {student.name.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-bold text-white text-sm group-hover:text-indigo-400 transition-colors line-clamp-1">{student.name}</div>
+                                                            <div className="text-xs text-slate-500 font-medium">{student.nim}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Jurusan Column */}
+                                                    <div className="col-span-3 text-sm font-medium text-slate-400">
+                                                        {student.department === 'Teknik Informatika' ? 'Umum' : student.department}
+                                                    </div>
+
+                                                    {/* Kehadiran Column */}
+                                                    <div className="col-span-2 flex justify-center">
+                                                        <div className="px-3 py-1.5 rounded-lg bg-[#27272a] border border-white/10 text-white font-bold text-xs min-w-[3rem] text-center shadow-inner">
+                                                            {student.attendance.replace(' Sesi', '')} Sesi
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Status Column */}
+                                                    <div className="col-span-2 flex justify-end">
+                                                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-lg border ${student.status === 'Excellent' || student.status === 'Good'
+                                                            ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10'
+                                                            : 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10'
+                                                            }`}>
+                                                            {student.status === 'Excellent' ? 'Good' : student.status}
+                                                        </span>
+                                                    </div>
+                                                </motion.div>
+                                            ))
+                                        ) : (
+                                            <div className="py-12 text-center text-slate-600 font-medium italic">
+                                                No data available yet
                                             </div>
-
-                                            {/* Jurusan Column */}
-                                            <div className="col-span-3 text-sm font-medium text-slate-400">
-                                                {student.department === 'Teknik Informatika' ? 'Umum' : student.department}
-                                            </div>
-
-                                            {/* Kehadiran Column */}
-                                            <div className="col-span-2 flex justify-center">
-                                                <div className="px-3 py-1.5 rounded-lg bg-[#27272a] border border-white/10 text-white font-bold text-xs min-w-[3rem] text-center shadow-inner">
-                                                    {student.attendance.replace(' Sesi', '')} Sesi
-                                                </div>
-                                            </div>
-
-                                            {/* Status Column */}
-                                            <div className="col-span-2 flex justify-end">
-                                                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-lg border ${student.status === 'Excellent' || student.status === 'Good'
-                                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10'
-                                                    : 'bg-amber-500/10 text-amber-500 border-amber-500/20 shadow-amber-500/10'
-                                                    }`}>
-                                                    {student.status === 'Excellent' ? 'Good' : student.status}
-                                                </span>
-                                            </div>
-                                        </motion.div>
-                                    ))
-                                ) : (
-                                    <div className="py-12 text-center text-slate-600 font-medium italic">
-                                        No data available yet
-                                    </div>
-                                )}
-                            </AnimatePresence>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Subtle Background Glows */}
