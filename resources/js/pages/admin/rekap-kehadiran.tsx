@@ -288,10 +288,10 @@ export default function AdminRekapKehadiran({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
@@ -301,7 +301,7 @@ export default function AdminRekapKehadiran({
                                 </motion.div>
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
-                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        className="text-sm text-indigo-100 font-medium tracking-wide flex items-center justify-center sm:justify-start gap-2"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
@@ -317,7 +317,7 @@ export default function AdminRekapKehadiran({
                                         Rekap Kehadiran
                                     </motion.h1>
                                     <motion.p
-                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.5 }}
@@ -331,7 +331,7 @@ export default function AdminRekapKehadiran({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleExportPdf}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg w-full sm:w-auto mt-4 sm:mt-0"
                             >
                                 <Download className="h-5 w-5" />
                                 Export Laporan
@@ -344,7 +344,7 @@ export default function AdminRekapKehadiran({
                 {/* Summary Cards - Advanced Glassmorphism */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+                    className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 lg:grid-cols-4"
                 >
                     {/* Total Visitors Card */}
                     <motion.div
@@ -364,10 +364,10 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={totalScanIcon} alt="Total Scan" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
@@ -400,10 +400,10 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={hadirIcon} alt="Hadir" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
@@ -436,10 +436,10 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={terlambatIcon} alt="Terlambat" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
@@ -472,10 +472,10 @@ export default function AdminRekapKehadiran({
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-rose-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={ditolakIcon} alt="Ditolak" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>

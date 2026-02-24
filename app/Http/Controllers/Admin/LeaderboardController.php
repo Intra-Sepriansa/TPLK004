@@ -98,7 +98,7 @@ class LeaderboardController extends Controller
                 'nama' => $mhs->nama,
                 'nim' => $mhs->nim,
                 'kelas' => $mhs->kelas,
-                'avatar_url' => $mhs->avatar_url,
+                'avatar_url' => $mhs->avatar_url ? asset('storage/' . ltrim($mhs->avatar_url, '/')) : null,
                 'total_sessions' => $totalSessions,
                 'total_attendance' => $totalAttendance,
                 'present_count' => $presentCount,
