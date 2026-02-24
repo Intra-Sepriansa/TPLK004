@@ -212,7 +212,7 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                 </motion.div>
 
                 {/* ═══════ STAT CARDS — Glassmorphism ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <motion.div variants={containerVariants} className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {[
                         { imgSrc: totalAlertIcon, label: 'Total Alert', value: stats.total, color: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', hoverShadow: 'hover:shadow-blue-500/10', gradientBg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10', blurColor: 'bg-blue-500' },
                         { imgSrc: pendingIcon, label: 'Pending', value: stats.pending, color: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', blurColor: 'bg-amber-500' },
@@ -235,10 +235,10 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                                 }}
                                 className={cn('absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500', stat.blurColor)}
                             />
-                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                                 >
                                     <img src={stat.imgSrc} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
