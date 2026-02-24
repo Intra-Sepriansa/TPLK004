@@ -211,13 +211,13 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center p-3 sm:p-4 rounded-3xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-[0_15px_25px_rgba(0,0,0,0.4)]"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <img src={analyticsIcon} alt="Analitik" className="absolute inset-0 h-full w-full object-contain p-2 drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img src={analyticsIcon} alt="Analitik" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
@@ -279,63 +279,94 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
 
                 {/* KPI Stats Grid */}
                 <motion.div
-                    variants={containerVariants}
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+                    }}
                 >
                     {[
                         { title: 'Total Kehadiran', value: stats.total_attendance.toLocaleString(), change: `${stats.rate_change > 0 ? '+' : ''}${stats.rate_change}%`, isUp: stats.rate_change >= 0, imgSrc: totalMahasiswaIcon, color: 'indigo' },
                         { title: 'Tingkat Kehadiran', value: `${stats.attendance_rate}%`, change: 'vs prev period', isUp: stats.rate_change >= 0, imgSrc: kehadiranIcon, color: 'emerald' },
                         { title: 'Terlambat', value: stats.late_count.toString(), change: 'Check Logs', isUp: false, imgSrc: terlambatIcon, color: 'amber' },
                         { title: 'Fraud Attempts', value: stats.fraud_attempts.toString(), change: 'Stable', isUp: true, imgSrc: fraudIcon, color: 'rose' },
-                    ].map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            variants={itemVariants}
-                            whileHover="hover"
-                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-${stat.color}-500/10 dark:border-white/5`}
-                        >
-                            <div className={`absolute inset-0 bg-gradient-to-br from-${stat.color}-500/5 to-${stat.color}-600/5 dark:from-${stat.color}-500/10 dark:to-${stat.color}-600/10`} />
+                    ].map((stat, i) => {
+                        const colorConfigs: Record<string, any> = {
+                            indigo: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
+                            emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+                            amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+                            rose: { from: 'from-rose-400', to: 'to-pink-600', shadow: 'shadow-rose-500/30', bg: 'bg-rose-500', hoverShadow: 'hover:shadow-rose-500/10', gradientBg: 'from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10' },
+                        };
+                        const colorConfig = colorConfigs[stat.color] || colorConfigs['indigo'];
+
+                        return (
                             <motion.div
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-${stat.color}-500 blur-3xl transition-all opacity-20 group-hover:opacity-40`}
-                                variants={cardHover}
-                            />
+                                key={i}
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                    visible: {
+                                        opacity: 1,
+                                        y: 0,
+                                        scale: 1,
+                                        transition: { type: 'spring', stiffness: 100, damping: 15 }
+                                    }
+                                }}
+                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                                className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${colorConfig.gradientBg} opacity-50 dark:opacity-100`} />
 
-                            <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4 mb-4">
                                 <motion.div
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
-                                >
-                                    <img src={stat.imgSrc} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
-                                </motion.div>
-                                <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border ${stat.isUp
-                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
-                                    : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
-                                    }`}>
-                                    {stat.isUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                                    {stat.change}
-                                </div>
-                            </div>
-
-                            <div className="relative z-10">
-                                <h3 className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{stat.title}</h3>
-                                <div className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">{stat.value}</div>
-                            </div>
-
-                            {/* Decorative Progress Bar - Dynamic Width */}
-                            <div className="relative z-10 mt-3 sm:mt-5 h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                <motion.div
-                                    className={`h-full bg-gradient-to-r from-${stat.color}-400 to-${stat.color}-600 rounded-full`}
-                                    initial={{ width: 0 }}
-                                    animate={{
-                                        width: stat.value.includes('%')
-                                            ? stat.value
-                                            : stat.value === '0' || stat.value === '0.0' ? '0%' : '70%'
-                                    }}
-                                    transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
+                                    className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorConfig.bg} blur-3xl transition-all opacity-20 group-hover:opacity-40`}
                                 />
-                            </div>
-                        </motion.div>
-                    ))}
+
+                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-4 sm:gap-5 h-full justify-between">
+                                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                        <motion.div
+                                            whileHover={{ scale: 1.1, rotate: 10 }}
+                                            className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
+                                        >
+                                            <img src={stat.imgSrc} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                        </motion.div>
+                                        <div className="flex flex-col">
+                                            <h3 className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{stat.title}</h3>
+                                            <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                                                <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                                                    {stat.value}
+                                                </span>
+                                            </div>
+                                            <div className="mt-1 flex items-center gap-1 justify-center sm:justify-start">
+                                                <div className={`flex items-center gap-0.5 text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-sm border ${stat.isUp
+                                                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
+                                                    : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
+                                                    }`}>
+                                                    {stat.isUp ? <ArrowUpRight className="h-2 w-2" /> : <ArrowDownRight className="h-2 w-2" />}
+                                                    {stat.change}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Decorative Progress Bar */}
+                                    <div className="mt-auto w-full pt-2 sm:pt-4">
+                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                                            <motion.div
+                                                className={`h-full bg-gradient-to-r ${colorConfig.from} ${colorConfig.to} rounded-full`}
+                                                initial={{ width: 0 }}
+                                                animate={{
+                                                    width: stat.value.includes('%')
+                                                        ? stat.value
+                                                        : stat.value === '0' || stat.value === '0.0' ? '0%' : '70%'
+                                                }}
+                                                transition={{ duration: 1.5, delay: 0.5 + (i * 0.1), ease: "easeOut" }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* Main Content Grid */}
