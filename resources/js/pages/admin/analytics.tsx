@@ -197,7 +197,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    
+
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -259,7 +259,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleExport}
                                     disabled={isExporting}
-                                    className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-50"
+                                    className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-50"
                                 >
                                     {isExporting ? <Activity className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
                                     {isExporting ? 'Exporting...' : 'Export Laporan'}
