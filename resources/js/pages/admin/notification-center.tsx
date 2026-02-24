@@ -15,6 +15,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { cn } from '@/lib/utils';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+
+// Custom Icons
+import notifikasiIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
+import totalIcon from '@/assets/admin/notification-center/total.png';
+import unreadIcon from '@/assets/admin/notification-center/unread.png';
+import scheduledIcon from '@/assets/admin/notification-center/scheduled.png';
+import recipientsIcon from '@/assets/admin/notification-center/recipients.png';
 
 interface Notification {
   id: number;
@@ -193,11 +201,13 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             <div className="flex items-center justify-between flex-wrap gap-6">
               <div className="flex items-center gap-5">
                 <motion.div
-                  className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                  whileHover={{ scale: 1.1, rotate: 10 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
+                  className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                  initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                  whileHover={{ scale: 1.05, rotate: 5 }}
                 >
-                  <Bell className="h-8 w-8 text-white" />
+                  <img src={notifikasiIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                 </motion.div>
                 <div>
                   <p className="text-sm text-indigo-100 font-medium tracking-wide">Pusat Komunikasi</p>
@@ -387,48 +397,81 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           </div>
         </motion.div>
 
-        {/* ═══════ STAT CARDS — Glassmorphism ═══════ */}
-        <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* ═══════ STAT CARDS — Dashboard Style ═══════ */}
+        <motion.div
+          className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+          }}
+        >
           {[
-            { icon: Bell, label: 'Total', value: stats.total, color: 'from-purple-400 to-violet-600', shadow: 'shadow-purple-500/30', gradientBg: 'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10', blurColor: 'bg-purple-500' },
-            { icon: Mail, label: 'Unread', value: stats.unread, color: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', gradientBg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10', blurColor: 'bg-blue-500' },
-            { icon: Clock, label: 'Scheduled', value: stats.scheduled, color: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', blurColor: 'bg-amber-500' },
-            { icon: Users, label: 'Recipients', value: mahasiswaCount + dosenCount, color: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', blurColor: 'bg-emerald-500' },
-          ].map((stat) => (
-            <motion.div
-              key={stat.label}
-              variants={cardVariants}
-              whileHover="hover"
-              onHoverStart={() => setHoveredCard(stat.label)}
-              onHoverEnd={() => setHoveredCard(null)}
-              className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 cursor-pointer"
-            >
-              <div className={cn('absolute inset-0 bg-gradient-to-br', stat.gradientBg)} />
+            { title: 'Total', value: stats.total.toString(), change: 'All time', isUp: true, imgSrc: totalIcon, color: 'indigo' },
+            { title: 'Unread', value: stats.unread.toString(), change: 'Action needed', isUp: false, imgSrc: unreadIcon, color: 'emerald' },
+            { title: 'Scheduled', value: stats.scheduled.toString(), change: 'Upcoming', isUp: true, imgSrc: scheduledIcon, color: 'amber' },
+            { title: 'Recipients', value: (mahasiswaCount + dosenCount).toString(), change: 'Users', isUp: true, imgSrc: recipientsIcon, color: 'rose' },
+          ].map((stat, i) => {
+            const colorConfigs: Record<string, any> = {
+              indigo: { from: 'from-sky-400', to: 'to-indigo-600', shadow: 'shadow-sky-500/30', bg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10' },
+              emerald: { from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', bg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+              amber: { from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', bg: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+              rose: { from: 'from-rose-400', to: 'to-pink-600', shadow: 'shadow-rose-500/30', bg: 'bg-rose-500', hoverShadow: 'hover:shadow-rose-500/10', gradientBg: 'from-rose-500/5 to-pink-500/5 dark:from-rose-500/10 dark:to-pink-500/10' },
+            };
+            const colorConfig = colorConfigs[stat.color] || colorConfigs['indigo'];
+
+            return (
               <motion.div
-                animate={{
-                  scale: hoveredCard === stat.label ? 1.5 : 1,
-                  opacity: hoveredCard === stat.label ? 0.4 : 0.2,
+                key={i}
+                variants={{
+                  hidden: { opacity: 0, y: 30, scale: 0.95 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    transition: { type: 'spring', stiffness: 100, damping: 15 }
+                  }
                 }}
-                className={cn('absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500', stat.blurColor)}
-              />
-              <div className="relative flex items-center gap-4">
+                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${colorConfig.hoverShadow} dark:border-white/5`}
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${colorConfig.gradientBg} opacity-50 dark:opacity-100`} />
+
                 <motion.div
-                  whileHover={{ scale: 1.1, rotate: 10 }}
-                  className={cn('flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg', stat.color, stat.shadow)}
-                >
-                  <stat.icon className="h-7 w-7" />
-                </motion.div>
-                <div>
-                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{stat.label}</p>
-                  <div className="mt-1">
-                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                      <AnimatedCounter value={stat.value} duration={1200} />
-                    </span>
+                  className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${colorConfig.bg} blur-3xl transition-all opacity-20 group-hover:opacity-40`}
+                />
+
+                <div className="relative z-10 flex flex-col items-center sm:items-start gap-4 sm:gap-5 h-full justify-between">
+                  <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 10 }}
+                      className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
+                    >
+                      <img src={stat.imgSrc} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                    </motion.div>
+                    <div className="flex flex-col">
+                      <h3 className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{stat.title}</h3>
+                      <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                        <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                          {stat.value}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center gap-1 justify-center sm:justify-start">
+                        <div className={`flex items-center gap-0.5 text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-sm border ${stat.isUp
+                          ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
+                          : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
+                          }`}>
+                          {stat.isUp ? <ArrowUpRight className="h-2 w-2" /> : <ArrowDownRight className="h-2 w-2" />}
+                          {stat.change}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </motion.div>
 
         {/* ═══════ FILTER SECTION ═══════ */}
