@@ -206,7 +206,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[
                                 { icon: FileText, label: 'Total', value: stats.total, iconBg: 'bg-blue-500' },
-                                { imgSrc: TerlambatIcon, label: 'Menunggu', value: stats.pending, iconBg: 'bg-amber-500' },
+                                { icon: Clock, label: 'Menunggu', value: stats.pending, iconBg: 'bg-amber-500' },
                                 { icon: CheckCircle, label: 'Disetujui', value: stats.approved, iconBg: 'bg-emerald-500' },
                                 { icon: XCircle, label: 'Ditolak', value: stats.rejected, iconBg: 'bg-red-500' },
                             ].map((stat, i) => (

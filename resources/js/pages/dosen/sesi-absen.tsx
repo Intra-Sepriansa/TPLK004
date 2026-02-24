@@ -11,6 +11,7 @@ import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
 import TerlambatIcon from '@/assets/dosen/sesi-absen/terlambat.png';
 import CourseIcon from '@/assets/admin/sesi-absen/course-icon.png';
+import RataRataIcon from '@/assets/dosen/sesi-absen/rata-rata.png';
 
 interface Session {
     id: number;
@@ -139,8 +140,8 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
     const summaryCards = [
         { key: 'total', imgSrc: CourseIcon, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} sesi aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
         { key: 'present', imgSrc: HadirIcon, label: 'Hadir', value: totalPresent, sub: 'tepat waktu', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'late', imgSrc: TerlambatIcon, label: 'Terlambat', value: stats.totalLate, sub: 'total mahasiswa', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
-        { key: 'rate', icon: TrendingUp, label: 'Rata-rata', value: stats.avgAttendanceRate, suffix: '%', sub: 'tingkat kehadiran', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'late', imgSrc: TerlambatIcon, label: 'Terlambat', value: stats.totalLate, sub: 'total mahasiswa', gradient: 'from-rose-400 to-red-600', glow: 'bg-rose-500', shadow: 'hover:shadow-rose-500/10' },
+        { key: 'rate', imgSrc: RataRataIcon, label: 'Rata-rata', value: stats.avgAttendanceRate, suffix: '%', sub: 'tingkat kehadiran', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
     ];
 
     const tabs = [
