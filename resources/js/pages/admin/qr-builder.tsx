@@ -188,7 +188,8 @@ const pulseVariants: Variants = {
             '0 0 0 20px rgba(251, 191, 36, 0.3)',
             '0 0 0 0 rgba(251, 191, 36, 0)',
         ],
-        transition: { duration: 0.5.5,
+        transition: {
+            duration: 0.75,
             repeat: Infinity,
             ease: 'easeInOut',
         },

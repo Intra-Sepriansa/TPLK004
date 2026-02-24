@@ -128,7 +128,7 @@ const aiPulseVariants: Variants = {
     animate: {
         scale: [1, 1.2, 1],
         opacity: [1, 0.7, 1],
-        transition: { duration: 0.5.5, repeat: Infinity, ease: "easeInOut" },
+        transition: { duration: 0.75, repeat: Infinity, ease: "easeInOut" },
     },
 };
 

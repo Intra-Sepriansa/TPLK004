@@ -261,7 +261,8 @@ const slideInVariants = {
 const bounceVariants = {
     bounce: {
         y: [0, -15, 0],
-        transition: { duration: 0.5.5,
+        transition: {
+            duration: 0.75,
             repeat: Infinity,
             ease: "easeInOut",
         },
