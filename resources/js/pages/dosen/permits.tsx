@@ -13,7 +13,7 @@ import {
     Users, Calendar, AlertTriangle, Shield, FileCheck, UserCheck, UserX,
     ChevronRight, Image, Stethoscope, CalendarOff, ClipboardCheck
 } from 'lucide-react';
-import IzinIcon from '@/assets/dosen/izin-sakit/izin.png';
+import IzinIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
 import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
 import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
 import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
