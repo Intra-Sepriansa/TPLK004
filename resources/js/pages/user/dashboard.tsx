@@ -912,7 +912,7 @@ export default function UserDashboard() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
+                        transition={{ delay: 0.2 }}
                         className="mt-6 flex gap-2 sm:hidden"
                     >
                         <Link href="/user/absen" className="flex-1">
@@ -1158,7 +1158,7 @@ export default function UserDashboard() {
                                         className="text-center"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 + i * 0.05, type: "spring", stiffness: 200 }}
+                                        transition={{ delay: 0.2 }}
                                     >
                                         <p className="text-[10px] text-gray-400 mb-1">{day}</p>
                                         <motion.div
@@ -1550,7 +1550,7 @@ export default function UserDashboard() {
                                 ]).slice(0, 6).map((achievement, i) => (
                                     <motion.div
                                         key={i}
-                                        initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
+                                        initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                         transition={{
                                             delay: i * 0.05,

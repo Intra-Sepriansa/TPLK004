@@ -332,7 +332,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                        transition={{ delay: 0.2 }}
                         className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                     >
                         {/* Animated Gradient Background */}
@@ -454,7 +454,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
+                            transition={{ delay: 0.2 }}
                             className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl overflow-hidden hover:border-white/20 transition-all duration-300"
                         >
                             <div className="p-6 border-b border-white/5 bg-white/5 backdrop-blur-md">
@@ -573,7 +573,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
+                            transition={{ delay: 0.2 }}
                             className="rounded-3xl border border-white/20 bg-white/40 backdrop-blur-xl shadow-xl overflow-hidden hover:border-white/30 transition-all duration-300 dark:bg-neutral-900/40 dark:border-white/5"
                         >
                             <div className="p-6 border-b border-white/10 bg-white/5 backdrop-blur-md">
@@ -639,7 +639,7 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
+                        transition={{ delay: 0.2 }}
                         className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl overflow-hidden hover:border-white/20 transition-all duration-300"
                     >
                         <div className="p-6 border-b border-white/5 bg-white/5 backdrop-blur-md">

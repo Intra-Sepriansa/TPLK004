@@ -62,7 +62,7 @@ export function LeaderboardCard({ entry, index, isCurrentUser = false }: Leaderb
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
+            transition={{ delay: 0.2 }}
             whileHover={{ scale: 1.02, y: -2 }}
             className={cn(
                 'relative overflow-hidden rounded-2xl border p-4 backdrop-blur-sm transition-all',

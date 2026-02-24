@@ -166,7 +166,7 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Orbs */}
@@ -314,7 +314,7 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black p-6 shadow-xl border border-slate-200 dark:border-slate-800/50"
                 >
                     <div className="flex items-center gap-3 mb-4">
@@ -481,7 +481,7 @@ export default function Notifications({ notifications, unreadCount, stats }: Pro
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.35 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-black shadow-xl border border-slate-200 dark:border-slate-800/50 overflow-hidden"
                 >
                     <div className="p-6 border-b border-slate-200 dark:border-slate-800">

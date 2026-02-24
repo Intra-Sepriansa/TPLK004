@@ -174,7 +174,7 @@ export default function Achievements() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-6 md:p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
@@ -348,7 +348,7 @@ export default function Achievements() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     whileHover={{ scale: 1.01, y: -5 }}
                     className="rounded-2xl bg-gradient-to-br from-black via-slate-800 to-black p-6 text-white shadow-xl overflow-hidden"
                 >
@@ -497,7 +497,7 @@ export default function Achievements() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/90 overflow-hidden"
                 >
                     {/* Header with Filter */}
@@ -772,7 +772,7 @@ export default function Achievements() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-gray-800/70 dark:bg-black/90"
                 >
                     <div className="flex items-center gap-3 mb-5">

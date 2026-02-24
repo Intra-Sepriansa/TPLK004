@@ -419,7 +419,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.7 }}
+                            transition={{ delay: 0.2 }}
                             className="flex flex-wrap sm:flex-nowrap gap-3 mt-8 pt-6 border-t border-white/10"
                         >
                             <motion.button
@@ -957,7 +957,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                                     key={item.date}
                                                     initial={{ opacity: 0, y: 20 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: index * 0.05 }}
+                                                    transition={{ delay: 0.2 }}
                                                     whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
                                                     className="cursor-pointer hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-colors"
                                                     onClick={() => toggleExpand(item.date)}

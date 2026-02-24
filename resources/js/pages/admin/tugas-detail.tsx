@@ -122,7 +122,7 @@ export default function AdminTugasDetail({ tugas, diskusi }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/10"
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 opacity-90" />

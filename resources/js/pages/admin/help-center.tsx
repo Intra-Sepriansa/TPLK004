@@ -148,7 +148,7 @@ export default function AdminHelpCenter() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl p-10 shadow-2xl group"
                 >
                     {/* Animated Gradient Background */}
@@ -217,7 +217,7 @@ export default function AdminHelpCenter() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
+                    transition={{ delay: 0.2 }}
                     className="grid md:grid-cols-4 gap-4"
                 >
                     {quickLinks.map((link, i) => (
@@ -248,7 +248,7 @@ export default function AdminHelpCenter() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                             className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden"
                         >
                             <div className="p-6 border-b border-white/10 bg-white/5 backdrop-blur-md sticky top-0 z-10">
@@ -357,7 +357,7 @@ export default function AdminHelpCenter() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.7 }}
+                            transition={{ delay: 0.2 }}
                             className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl overflow-hidden"
                         >
                             <div className="p-6 border-b border-white/10 bg-white/5 backdrop-blur-md">

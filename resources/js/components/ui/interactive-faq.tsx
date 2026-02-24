@@ -93,7 +93,7 @@ const InteractiveFAQ: React.FC<InteractiveFAQProps> = ({
                         key={category}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: categoryIndex * 0.1 }}
+                        transition={{ delay: 0.2 }}
                     >
                         {/* Category Title */}
                         {groupByCategory && (
@@ -176,7 +176,7 @@ const FAQItemComponent: React.FC<FAQItemComponentProps> = ({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
+            transition={{ delay: 0.2 }}
             className={cn(
                 'rounded-xl overflow-hidden',
                 'glass border transition-all duration-300',

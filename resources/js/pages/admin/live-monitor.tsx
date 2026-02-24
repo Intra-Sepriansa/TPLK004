@@ -337,7 +337,7 @@ export default function LiveMonitor({
                                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-3 mb-2">
                                         <motion.div
                                             className="flex h-16 w-16 sm:h-20 sm:w-20 shrink-0 relative items-center justify-center"
-                                            initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                                            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                             animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                             transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.2 }}
                                             whileHover={{ scale: 1.1, rotate: 10 }}

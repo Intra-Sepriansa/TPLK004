@@ -297,7 +297,7 @@ export function EvaluationDashboard({
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
+                        transition={{ delay: 0.2 }}
                         className="p-1 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600"
                     >
                         <div className="bg-black/40 backdrop-blur-sm rounded-xl p-4 flex items-center justify-between">

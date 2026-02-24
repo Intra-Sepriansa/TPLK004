@@ -149,7 +149,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 shadow-2xl mb-6"
                     style={{ perspective: '1500px' }}
                 >
@@ -782,7 +782,7 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                             key={d.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05 }}
+                                            transition={{ delay: 0.2 }}
                                             whileHover={{ scale: 1.01 }}
                                             className={`relative transition-all duration-300 rounded-xl ${d.is_pinned ? 'bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 border-2 border-amber-500/30' : 'hover:bg-slate-100 dark:hover:bg-gray-800/50'}`}
                                         >

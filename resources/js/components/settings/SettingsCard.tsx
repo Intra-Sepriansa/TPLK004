@@ -13,13 +13,7 @@ export function SettingsCard({ title, icon: Icon, children, delay = 0 }: Setting
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-                delay,
-                duration: 0.5,
-                type: 'spring',
-                stiffness: 100,
-                damping: 15
-            }}
+            transition={{ delay: 0.2 }}
             whileHover={{
                 y: -4,
                 boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',

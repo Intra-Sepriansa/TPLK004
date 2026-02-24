@@ -689,7 +689,7 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.3 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="flex items-center justify-end gap-4"
                                             >
                                                 <Button

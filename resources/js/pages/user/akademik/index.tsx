@@ -221,7 +221,7 @@ export default function AcademicDashboard({
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
                         >
                             {[
@@ -648,7 +648,7 @@ export default function AcademicDashboard({
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                                            transition={{ delay: 0.2 }}
                                             whileHover={{ scale: 1.02, y: -2 }}
                                             className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group"
                                         >

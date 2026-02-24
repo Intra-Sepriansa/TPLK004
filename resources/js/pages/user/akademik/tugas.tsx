@@ -502,7 +502,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                     whileHover={{ scale: 1.05, y: -2 }}
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: idx * 0.1 }}
+                                    transition={{ delay: idx * 0.05 }}
                                 >
                                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-xs font-semibold">
                                         <Tag className="h-3 w-3" />
@@ -705,7 +705,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                     key={`${currentMonth}-${currentYear}-${calendarView}`}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-lg"
                 >
                     {/* Day Headers */}
@@ -899,7 +899,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="flex flex-wrap items-center justify-center gap-4 text-xs"
                 >
                     <div className="flex items-center gap-2">
@@ -967,7 +967,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             key={task.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
+                                            transition={{ delay: idx * 0.05 }}
                                             className="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors cursor-pointer"
                                             onClick={() => handleViewTask(task)}
                                         >
@@ -1041,7 +1041,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             key={task.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
+                            transition={{ delay: 0.2 }}
                             whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                         >
                             <TaskCard task={task} onToggle={onToggle} onDelete={onDelete} />
@@ -1323,7 +1323,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                         >
@@ -1333,7 +1333,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, duration: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                         >
@@ -1343,7 +1343,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4, duration: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                         >
@@ -1353,7 +1353,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5, duration: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             whileHover={{ scale: 1.05, y: -5 }}
                             className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                         >
@@ -1556,7 +1556,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: -20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.1 }}
+                                                transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                                 className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-2 border-blue-200/50 dark:border-blue-800/50"
                                             >
                                                 <motion.div
@@ -1658,7 +1658,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.4 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="space-y-3"
                                             >
                                                 <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
@@ -1707,7 +1707,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: -20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.1 }}
+                                                transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                                 className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200/50 dark:border-purple-800/50"
                                             >
                                                 <motion.div
@@ -1755,7 +1755,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.3 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="space-y-3"
                                             >
                                                 <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
@@ -1778,7 +1778,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.4 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="space-y-3"
                                             >
                                                 <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
@@ -1917,7 +1917,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: -20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.1 }}
+                                                transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                                 className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border-2 border-indigo-200/50 dark:border-indigo-800/50"
                                             >
                                                 <motion.div
@@ -2000,7 +2000,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div 
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.3 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="space-y-3"
                                             >
                                                 <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
@@ -2094,7 +2094,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                                 key={idx}
                                                                 initial={{ opacity: 0, x: -20 }}
                                                                 animate={{ opacity: 1, x: 0 }}
-                                                                transition={{ delay: idx * 0.1 }}
+                                                                transition={{ delay: idx * 0.05 }}
                                                                 className="flex items-center gap-3 p-4 bg-violet-50 dark:bg-violet-950/20 rounded-xl border border-violet-200 dark:border-violet-800"
                                                             >
                                                                 <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-xl">
@@ -2572,7 +2572,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                 <motion.div 
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.4 }}
+                                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                     className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-gray-900 to-slate-900 dark:from-gray-950 dark:via-black dark:to-gray-950 p-8 text-white border-b border-gray-800"
                                 >
                                     {/* Subtle Background Pattern */}
@@ -2639,7 +2639,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.1 }}
+                                                transition={{ delay: 0.2 }}
                                                 className={`p-5 rounded-xl border-2 ${
                                                     selectedTask.is_overdue 
                                                         ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50' 
@@ -2727,7 +2727,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
                                         >
                                             <div className="flex items-center gap-3 mb-4">
@@ -2749,7 +2749,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.4 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
                                         >
                                             <div className="flex items-center gap-3 mb-4">
@@ -2779,7 +2779,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
                                         >
                                             <div className="flex items-center gap-3 mb-4">

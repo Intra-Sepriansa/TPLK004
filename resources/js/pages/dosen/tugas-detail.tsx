@@ -92,7 +92,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ delay: 0.2 }}
                     className="relative overflow-hidden rounded-3xl p-8 shadow-2xl"
                 >
                     {/* Animated gradient bg */}
@@ -152,7 +152,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                         </motion.div>
 
                         {/* Action buttons */}
-                        <motion.div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-white/10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+                        <motion.div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-white/10" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                             <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => router.visit(`/dosen/tugas/${tugas.id}/grading`)} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg">
                                 <Award className="h-4 w-4" /> Penilaian Submission
                             </motion.button>
@@ -223,7 +223,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-2xl backdrop-blur-xl overflow-hidden dark:border-white/5"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                 >
                     {/* Diskusi Header (gradient like kas.tsx section headers) */}
                     <div className="relative overflow-hidden p-6 border-b border-white/10">

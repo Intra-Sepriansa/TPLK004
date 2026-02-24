@@ -193,7 +193,7 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
                         >
                             {[

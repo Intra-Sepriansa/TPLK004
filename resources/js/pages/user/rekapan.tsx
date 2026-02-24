@@ -541,11 +541,7 @@ export default function UserRekapan() {
                                     key={i}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        delay: item.delay,
-                                        type: "spring",
-                                        stiffness: 200
-                                    }}
+                                    transition={{ delay: 0.2 }}
                                     whileHover={{
                                         scale: 1.08,
                                         y: -4,

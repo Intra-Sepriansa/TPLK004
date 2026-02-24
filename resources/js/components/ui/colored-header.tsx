@@ -142,7 +142,7 @@ const ColoredHeader = React.forwardRef<HTMLDivElement, ColoredHeaderProps>(
                                 <motion.h1
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.4, delay: 0.1 }}
+                                    transition={{ delay: 0.2 }}
                                     className={cn(
                                         'text-white font-bold font-display',
                                         isScrolled && sticky ? 'text-2xl' : 'text-4xl',
@@ -157,7 +157,7 @@ const ColoredHeader = React.forwardRef<HTMLDivElement, ColoredHeaderProps>(
                                     <motion.p
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.2 }}
+                                        transition={{ delay: 0.2 }}
                                         className="mt-2 text-white/80 text-lg"
                                     >
                                         {subtitle}

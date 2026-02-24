@@ -168,7 +168,7 @@ export default function Challenges({ challenges }: ChallengesProps) {
                       key={item.challenge.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 + index * 0.1 }}
+                      transition={{ delay: 0.2 }}
                     >
                       <Card className="overflow-hidden hover:shadow-lg transition-shadow">
                         <div className={`h-2 bg-gradient-to-r ${gradientClass}`} />

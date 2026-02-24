@@ -66,7 +66,7 @@ const SettingsCard = ({ title, icon: Icon, children, delay }: { title: string, i
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay, duration: 0.5, type: 'spring' }}
+        transition={{ delay: 0.2 }}
         className="rounded-[2.5rem] border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 md:p-8 shadow-xl backdrop-blur-xl dark:border-white/5"
     >
         <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200/50 dark:border-gray-800/50">
@@ -214,7 +214,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }} 
                     animate={{ opacity: 1, y: 0 }} 
-                    transition={{ duration: 0.5 }} 
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }} 
                     className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600 p-8 md:p-12 text-white shadow-2xl"
                 >
                     {/* Animated Grain Noise Background */}

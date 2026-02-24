@@ -276,7 +276,7 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                         </div>
 
                         {/* Action Buttons */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                             className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
                         >
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleRefresh}

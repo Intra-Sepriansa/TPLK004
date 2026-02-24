@@ -163,7 +163,7 @@ export function FraudScanOverlay({ isOpen, onComplete }: FraudScanOverlayProps) 
                                             key={step.id}
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: isDone || isActive ? 1 : 0.3, x: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
+                                            transition={{ delay: idx * 0.05 }}
                                             className={cn(
                                                 "relative flex items-start gap-4 p-3 rounded-lg border transition-all duration-500",
                                                 isActive ? "bg-red-500/10 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]" :

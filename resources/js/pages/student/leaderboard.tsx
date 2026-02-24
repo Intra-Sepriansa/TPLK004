@@ -262,7 +262,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                     <div className="flex gap-2">
@@ -306,7 +306,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
+                    transition={{ delay: 0.2 }}
                     className="grid gap-4 sm:grid-cols-3"
                 >
                     {topThree.map((entry, index) => (
@@ -343,7 +343,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                 <motion.div
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.9 + index * 0.1 }}
+                                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                     className="absolute -top-16 left-1/2 w-full -translate-x-1/2 px-2"
                                 >
                                     <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-center backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 shadow-xl">
@@ -401,7 +401,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.2 }}
+                        transition={{ delay: 0.2 }}
                     >
                         <h3 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
                             Your Position
@@ -414,7 +414,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.3 }}
+                    transition={{ delay: 0.2 }}
                 >
                     <h3 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
                         All Rankings

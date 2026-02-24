@@ -82,7 +82,7 @@ export default function AttendanceHistory() {
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 shadow-2xl"
                 >
                     {/* 3 Large Animated Orbs */}
@@ -302,7 +302,7 @@ export default function AttendanceHistory() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                             className="relative z-10 mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-xl px-4 py-2 border border-white/20"
                         >
                             <motion.div
@@ -351,7 +351,7 @@ export default function AttendanceHistory() {
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
+                        transition={{ delay: 0.2 }}
                         whileHover={{ y: -4 }}
                         className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 hover:shadow-xl transition-shadow"
                     >
@@ -472,7 +472,7 @@ export default function AttendanceHistory() {
                                         key={record.id}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.05 }}
+                                        transition={{ delay: 0.2 }}
                                         whileHover={{ scale: 1.02, x: 4 }}
                                         className="flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-black/50 transition-colors cursor-pointer"
                                     >

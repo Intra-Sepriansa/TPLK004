@@ -825,7 +825,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
+                                transition={{ delay: 0.2 }}
                                 whileHover={{ scale: 1.01 }}
                                 className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/30 space-y-3 border border-slate-200/70 dark:border-gray-800/70"
                             >
@@ -861,7 +861,7 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 }}
+                                transition={{ delay: 0.2 }}
                             >
                                 <Button
                                     onClick={() => setIsDetailOpen(false)}

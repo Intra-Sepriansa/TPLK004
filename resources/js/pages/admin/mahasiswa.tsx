@@ -1044,7 +1044,7 @@ export default function AdminMahasiswa({
                                         className="flex gap-3"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
+                                        transition={{ delay: 0.2 }}
                                     >
                                         {warningSent ? (
                                             <motion.div

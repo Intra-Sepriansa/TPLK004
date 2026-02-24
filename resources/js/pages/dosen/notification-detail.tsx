@@ -204,7 +204,7 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                 </div>
                             </motion.div>
                         </div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
                             <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={handleSaveDraft} disabled={isSaving} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg disabled:opacity-50">
                                 <Save className="h-4 w-4" /> Simpan Draft
                             </motion.button>

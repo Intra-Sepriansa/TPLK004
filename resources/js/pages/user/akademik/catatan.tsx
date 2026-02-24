@@ -820,7 +820,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-3 gap-4"
                         >
                             {[
@@ -964,7 +964,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 key={courseName}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: courseIndex * 0.1, type: "spring", stiffness: 200 }}
+                                transition={{ delay: 0.2 }}
                                 whileHover={{ scale: 1.01, y: -2 }}
                                 className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
                             >
@@ -1116,7 +1116,7 @@ function AdvancedNoteCard({
             ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: noteIndex * 0.05, type: "spring", stiffness: 200 }}
+            transition={{ delay: 0.2 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             onMouseEnter={() => setShowActions(true)}

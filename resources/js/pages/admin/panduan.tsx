@@ -1324,7 +1324,7 @@ export default function AdminPanduan() {
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                         className="relative overflow-hidden rounded-3xl p-8 shrink-0 shadow-2xl"
                     >
                         {/* Animated Gradient Background */}
@@ -1396,7 +1396,7 @@ export default function AdminPanduan() {
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1, duration: 0.4 }}
+                                transition={{ delay: 0.2 }}
                                 className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h4:text-lg prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-li:text-slate-600 dark:prose-li:text-slate-300 marker:text-indigo-500"
                             >
                                 {currentContent?.content}

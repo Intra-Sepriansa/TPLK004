@@ -579,7 +579,7 @@ export function NotificationComposerEnhanced({ isOpen, course, mahasiswa, onClos
                                                         key={mhs.id}
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: idx * 0.03 }}
+                                                        transition={{ delay: idx * 0.05 }}
                                                         whileHover={{ x: 8, scale: 1.02 }}
                                                         className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
                                                             selectedMahasiswa.includes(mhs.id)

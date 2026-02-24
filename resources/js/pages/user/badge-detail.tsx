@@ -531,7 +531,7 @@ export default function BadgeDetail({
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className={cn(
                         'relative overflow-hidden rounded-3xl p-6 md:p-8 text-white shadow-2xl',
                         `bg-gradient-to-br ${gradient}`
@@ -683,7 +683,7 @@ export default function BadgeDetail({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90"
                 >
                     <motion.h2
@@ -757,7 +757,7 @@ export default function BadgeDetail({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90"
                 >
                     <motion.h2
@@ -838,7 +838,7 @@ export default function BadgeDetail({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90"
                 >
                     <motion.h2
@@ -908,7 +908,7 @@ export default function BadgeDetail({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90"
                 >
                     <motion.h2
@@ -954,7 +954,7 @@ export default function BadgeDetail({
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+                        transition={{ delay: 0.2 }}
                         className="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-lg backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/90"
                     >
                         <motion.h2

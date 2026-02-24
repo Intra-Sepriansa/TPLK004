@@ -429,7 +429,7 @@ export default function AcademicCourses({ courses }: Props) {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
                         >
                             {[
@@ -587,7 +587,7 @@ function MagneticCourseCard({ course, index, dayNames, handleEdit, openDeleteDia
             ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+            transition={{ delay: 0.2 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{

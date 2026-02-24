@@ -51,7 +51,7 @@ export default function ProfileEditEnhanced({
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ delay: 0.2 }}
                 className="relative overflow-hidden rounded-3xl border border-indigo-200/50 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-indigo-900/50 dark:from-gray-900 dark:via-indigo-950/30 dark:to-purple-950/30"
             >
                 {/* Animated Background Orbs */}
@@ -293,7 +293,7 @@ export default function ProfileEditEnhanced({
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                         >
                             <Button
                                 type="submit"
@@ -326,7 +326,7 @@ export default function ProfileEditEnhanced({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
+                    transition={{ delay: 0.2 }}
                     className="relative overflow-hidden rounded-3xl border border-sky-200/50 bg-gradient-to-br from-white via-sky-50/30 to-cyan-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-sky-900/50 dark:from-gray-900 dark:via-sky-950/30 dark:to-cyan-950/30"
                 >
                     {/* Animated Background */}

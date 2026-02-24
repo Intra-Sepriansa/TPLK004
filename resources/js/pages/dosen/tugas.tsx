@@ -189,7 +189,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             </motion.div>
                         </div>
 
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                             className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
                             <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowCreate(true)}
                                 className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:bg-white/30">
@@ -342,7 +342,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             /* ── GRID VIEW ── */
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredList.map((t, i) => (
-                                    <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} whileHover={{ scale: 1.02, y: -4 }} onClick={() => navigateDetail(t)} className="relative rounded-2xl border border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all">
+                                    <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} whileHover={{ scale: 1.02, y: -4 }} onClick={() => navigateDetail(t)} className="relative rounded-2xl border border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all">
                                         <div className={cn('h-1.5 bg-gradient-to-r', t.is_overdue ? 'from-red-500 to-rose-500' : t.prioritas === 'tinggi' ? 'from-orange-500 to-red-500' : t.completion_rate >= 80 ? 'from-emerald-500 to-green-500' : 'from-indigo-500 to-purple-500')} />
                                         <div className="p-4">
                                             <div className="flex items-center gap-2 mb-3 flex-wrap">{getJenisBadge(t.jenis)}{getPriorityBadge(t.prioritas)}{getStatusBadge(t.status)}{t.is_overdue && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"><AlertTriangle className="h-3 w-3" />Overdue</span>}</div>

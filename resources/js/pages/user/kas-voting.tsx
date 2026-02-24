@@ -287,7 +287,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                     key={stat.label}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: stat.delay }}
+                                    transition={{ delay: 0.2 }}
                                     whileHover={{ scale: 1.05, y: -5 }}
                                     className="bg-white/10 backdrop-blur rounded-xl p-3 cursor-pointer"
                                 >
@@ -303,7 +303,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="grid gap-4 grid-cols-2 md:grid-cols-4"
                 >
                     {[
@@ -367,7 +367,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                 >
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800">
@@ -762,7 +762,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
+                                    transition={{ delay: 0.2 }}
                                     className="space-y-2"
                                 >
                                     <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
@@ -796,7 +796,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
+                                    transition={{ delay: 0.2 }}
                                     className="space-y-2"
                                 >
                                     <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
@@ -904,7 +904,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6 }}
+                                    transition={{ delay: 0.2 }}
                                     className="relative overflow-hidden rounded-xl bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 p-4 border border-teal-200 dark:border-teal-800"
                                 >
                                     <div className="flex items-start gap-3">
@@ -934,7 +934,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.7 }}
+                                    transition={{ delay: 0.2 }}
                                     className="flex gap-3 pt-4"
                                 >
                                     <motion.div
@@ -1107,7 +1107,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl mb-6"
                                         >
                                             <div className="flex items-center justify-between mb-3">
@@ -1145,7 +1145,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: 0.6 }}
+                                                transition={{ delay: 0.2 }}
                                                 className="flex gap-3"
                                             >
                                                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">

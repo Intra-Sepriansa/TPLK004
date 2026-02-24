@@ -25,7 +25,7 @@ function fmtTime(m: number) { return String(Math.floor(m / 60)).padStart(2, '0')
 function secLvl(f: FD) { let s = 20; if (f.require_selfie) s += 25; if (f.selfie_verification_level === 'strict') s += 10; if (f.selfie_verification_level === 'ai') s += 15; if (f.require_location) s += 20; if (f.anti_spoofing) s += 15; if (f.max_attempts <= 2) s += 5; return Math.min(s, 100); }
 
 function Card({ icon: Icon, gradient, title, desc, children }: { icon: any; gradient: string; title: string; desc: string; children: React.ReactNode }) {
-    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24 }} className="rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
         <div className="flex items-center gap-3 mb-6">
             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-lg`}><Icon className="h-6 w-6" /></motion.div>
             <div><h3 className="font-bold text-neutral-900 dark:text-white">{title}</h3><p className="text-sm text-neutral-500">{desc}</p></div>
@@ -35,7 +35,7 @@ function Card({ icon: Icon, gradient, title, desc, children }: { icon: any; grad
 }
 
 function NavBar({ step, total, onPrev, onNext, onDraft, onSubmit, submitting, canNext }: { step: number; total: number; onPrev: () => void; onNext: () => void; onDraft: () => void; onSubmit: () => void; submitting: boolean; canNext: boolean }) {
-    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24 }} className="flex items-center justify-between rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center justify-between rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
         <motion.button whileHover={{ scale: 1.05, x: -5 }} whileTap={{ scale: 0.95 }} onClick={onPrev} disabled={step === 1} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold disabled:opacity-50"><ArrowLeft className="h-5 w-5" />Sebelumnya</motion.button>
         <div className="flex gap-3">
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onDraft} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold"><Save className="h-4 w-4" />Draft</motion.button>
@@ -105,7 +105,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                 <div><p className="text-xs text-indigo-100">Progress</p><p className="text-2xl font-bold text-white">{step}/{T}</p></div>
                             </motion.div>
                         </div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={draft} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"><Save className="h-4 w-4" />Simpan Draft</motion.button>
                         </motion.div>
                     </div>
@@ -149,7 +149,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                 </div>
                             </Card>
                         </div>
-                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
                             <div className="flex items-center gap-2 mb-4"><Eye className="h-5 w-5 text-indigo-600" /><h4 className="font-bold text-neutral-900 dark:text-white">Preview</h4></div>
                             <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50">
                                 <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${catGrad} text-white shadow-lg mb-3`}><FileText className="h-7 w-7" /></div>
@@ -179,7 +179,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Grace Period (menit)</label><Input type="number" min="0" max="30" value={f.grace_period_minutes} onChange={e => up('grace_period_minutes', parseInt(e.target.value) || 0)} className="border-2 w-32" /><p className="text-xs text-neutral-500 mt-1">Waktu tambahan setelah sesi berakhir</p></div>
                             </Card>
                         </div>
-                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
                             <h4 className="font-bold text-neutral-900 dark:text-white mb-4">Timeline Preview</h4>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white"><Play className="h-5 w-5" /></div><div><p className="text-xs text-neutral-500">Mulai</p><p className="font-bold text-neutral-900 dark:text-white">00:00</p></div></div>
@@ -209,7 +209,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Maks. Percobaan</label><div className="grid grid-cols-5 gap-2">{[1, 2, 3, 5, 10].map(n => (<motion.button key={n} type="button" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => up('max_attempts', n)} className={`py-3 rounded-xl text-center font-bold ${f.max_attempts === n ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'}`}>{n}x</motion.button>))}</div></div>
                             </Card>
                         </div>
-                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
                             <h4 className="font-bold text-neutral-900 dark:text-white mb-4">Security Level</h4>
                             <div className={`p-4 rounded-xl ${sl >= 70 ? 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white' : sl >= 40 ? 'bg-gradient-to-br from-amber-500 to-orange-600 text-white' : 'bg-gradient-to-br from-red-500 to-pink-600 text-white'}`}>
                                 <div className="flex items-center justify-between mb-2"><span className="text-sm font-medium">Level Keamanan</span><Shield className="h-5 w-5" /></div>
@@ -245,7 +245,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                 </div>
                             </Card>
                         </div>
-                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                        <div className="lg:col-span-1"><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="sticky top-6 rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
                             <h4 className="font-bold text-neutral-900 dark:text-white mb-4">Jadwal Preview</h4>
                             <div className="space-y-3">
                                 {f.auto_activate && f.default_days.length > 0 ? (<>{f.default_days.sort().map(d => (<div key={d} className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500 text-white text-sm font-bold">{DAYS[d]}</div><div><p className="text-sm font-medium text-neutral-900 dark:text-white">{DAYS[d]}</p><p className="text-xs text-neutral-500">{f.auto_activate_time}{f.auto_deactivate ? ` - ${f.auto_deactivate_time}` : ''}</p></div></div>))}</>) : (<div className="text-center py-8 text-neutral-400"><Bell className="h-8 w-8 mx-auto mb-2 opacity-50" /><p className="text-sm">Belum ada jadwal</p></div>)}

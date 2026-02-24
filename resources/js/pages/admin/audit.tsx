@@ -174,7 +174,7 @@ export default function AdminAudit({
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
@@ -252,7 +252,7 @@ export default function AdminAudit({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
                 >
                     <div className="flex items-center gap-3 mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
@@ -480,7 +480,7 @@ export default function AdminAudit({
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.16, duration: 0.2, ease: "easeOut" }}
+                        transition={{ delay: 0.2 }}
                         className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                     >
                         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
@@ -527,7 +527,7 @@ export default function AdminAudit({
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.18, duration: 0.2, ease: "easeOut" }}
+                        transition={{ delay: 0.2 }}
                         className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                     >
                         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
@@ -580,7 +580,7 @@ export default function AdminAudit({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.22, duration: 0.2, ease: "easeOut" }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 shadow-xl backdrop-blur-xl dark:border-white/5 overflow-hidden"
                 >
                     <div className="p-6 border-b border-gray-100 dark:border-gray-800">

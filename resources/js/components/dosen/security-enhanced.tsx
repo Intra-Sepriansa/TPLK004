@@ -73,7 +73,7 @@ export default function SecurityEnhanced({
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ delay: 0.2 }}
                 className="relative overflow-hidden rounded-3xl border border-violet-200/50 bg-gradient-to-br from-white via-violet-50/30 to-purple-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-violet-900/50 dark:from-gray-900 dark:via-violet-950/30 dark:to-purple-950/30"
             >
                 {/* Animated Background Orbs */}
@@ -257,7 +257,7 @@ export default function SecurityEnhanced({
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
+                            transition={{ delay: 0.2 }}
                         >
                             <Button
                                 type="submit"
@@ -291,7 +291,7 @@ export default function SecurityEnhanced({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
+                    transition={{ delay: 0.2 }}
                     className="relative overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/30 p-8 shadow-2xl backdrop-blur-xl dark:border-amber-900/50 dark:from-gray-900 dark:via-amber-950/30 dark:to-orange-950/30"
                 >
                     {/* Animated Background */}
@@ -343,7 +343,7 @@ export default function SecurityEnhanced({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
+                    transition={{ delay: 0.2 }}
                     className="relative overflow-hidden rounded-3xl border border-emerald-200/50 bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Orbs */}

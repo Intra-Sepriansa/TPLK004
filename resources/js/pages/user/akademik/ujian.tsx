@@ -392,7 +392,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.6 }}
+                                transition={{ delay: 0.2 }}
                                 className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4"
                             >
                                 {[
@@ -493,7 +493,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                     key={monthData.month}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: monthIndex * 0.1 }}
+                                    transition={{ delay: 0.2 }}
                                 >
                                     <Card className="overflow-hidden">
                                         <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -1011,7 +1011,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             className="flex gap-3 pt-4"
                         >
                             <Button
@@ -1205,7 +1205,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
+                                transition={{ delay: 0.2 }}
                                 className="space-y-3"
                             >
                                 <h4 className="font-semibold flex items-center gap-2">
@@ -1257,7 +1257,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 }}
+                                transition={{ delay: 0.2 }}
                             >
                                 <Button
                                     onClick={() => setIsProgressDetailOpen(false)}
@@ -1458,7 +1458,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
+                            transition={{ delay: 0.2 }}
                             className="flex gap-3 pt-4"
                         >
                             <Button
@@ -1531,7 +1531,7 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
             ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
+            transition={{ delay: 0.2 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{

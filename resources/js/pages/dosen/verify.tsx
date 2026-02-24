@@ -206,7 +206,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                         </div>
 
                         {/* Action Buttons */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                             className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
                             {[
                                 { icon: Zap, label: 'Quick Verify' },
@@ -298,7 +298,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                             {filtered.map((v, idx) => (
                                 <motion.div key={v.id} variants={cardVariants}
                                     initial="hidden" animate="visible" whileHover="hover"
-                                    transition={{ delay: idx * 0.03 }}
+                                    transition={{ delay: idx * 0.05 }}
                                     className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl">
 
                                     {/* Status / Risk accent bar */}

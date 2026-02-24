@@ -283,7 +283,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.6 }}
+                            transition={{ delay: 0.2 }}
                             className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
                         >
                             {[
@@ -434,7 +434,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                             key={permit.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
+                                            transition={{ delay: 0.2 }}
                                             whileHover={{ scale: 1.02, y: -2 }}
                                             className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all ${
                                                 permit.status === 'pending' ? 'border-yellow-200 dark:border-yellow-800' :
@@ -752,7 +752,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: -20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 }}
+                                            transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                             className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border-2 border-teal-200/50 dark:border-teal-800/50"
                                         >
                                             <motion.div
@@ -828,7 +828,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
+                                            transition={{ delay: 0.2 }}
                                             className="space-y-3"
                                         >
                                             <Label className="flex items-center gap-2 text-base font-semibold text-slate-700 dark:text-slate-300">
@@ -965,7 +965,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: -20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 }}
+                                            transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                             className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200/50 dark:border-purple-800/50"
                                         >
                                             <motion.div
@@ -1055,7 +1055,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-5 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 rounded-2xl border-2 border-teal-200/50 dark:border-teal-800/50"
                                         >
                                             <div className="flex items-start gap-3">
@@ -1108,7 +1108,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: -20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 }}
+                                            transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                                             className="text-center mb-6 p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200/50 dark:border-blue-800/50"
                                         >
                                             <motion.div
@@ -1323,7 +1323,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                         <motion.div 
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
+                                            transition={{ delay: 0.2 }}
                                             className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-2xl border-2 border-amber-200/50 dark:border-amber-800/50"
                                         >
                                             <div className="flex items-start gap-3">

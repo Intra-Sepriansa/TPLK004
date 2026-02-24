@@ -292,7 +292,7 @@ export default function FraudDetection({ alerts, stats, filters, lastScan }: Pro
                                         return (
                                             <motion.div key={type}
                                                 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: idx * 0.1 }}
+                                                transition={{ delay: idx * 0.05 }}
                                                 whileHover={{ x: 4 }}
                                                 className="flex items-center gap-4"
                                             >

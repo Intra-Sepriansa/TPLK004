@@ -274,7 +274,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                        transition={{ delay: 0.2 }}
                         className="relative group"
                     >
                         {/* Animated Background Gradient */}
@@ -420,7 +420,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                        transition={{ delay: 0.2 }}
                         className="relative overflow-hidden rounded-3xl"
                     >
                         {/* Animated Background */}
@@ -817,7 +817,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.65, type: "spring", stiffness: 200 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70 overflow-hidden"
                 >
                     <div className="p-4 border-b border-slate-200 dark:border-slate-800">
@@ -1031,7 +1031,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                                                 <motion.div
                                                                     initial={{ opacity: 0, y: 20 }}
                                                                     animate={{ opacity: 1, y: 0 }}
-                                                                    transition={{ delay: 0.4 }}
+                                                                    transition={{ delay: 0.2 }}
                                                                     className="relative group"
                                                                 >
                                                                     <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-amber-500/30 to-orange-500/30 rounded-2xl blur-xl" />

@@ -224,7 +224,7 @@ export default function StudentProfile() {
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 text-white shadow-2xl"
                 >
                     {/* Animated background particles */}
@@ -321,7 +321,7 @@ export default function StudentProfile() {
                                     key={stat.label}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: stat.delay }}
+                                    transition={{ delay: 0.2 }}
                                     whileHover={{ scale: 1.05, y: -5 }}
                                     className="rounded-xl bg-white/10 p-3 backdrop-blur cursor-pointer"
                                 >
@@ -414,7 +414,7 @@ export default function StudentProfile() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={{ delay: 0.2 }}
                     className="rounded-2xl border border-slate-200/70 bg-white/80 p-2 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-slate-950/70"
                 >
                     <div className="flex gap-2">

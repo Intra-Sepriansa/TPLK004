@@ -743,7 +743,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
+                                        transition={{ delay: 0.2 }}
                                         className="text-center space-y-2"
                                     >
                                         <p className="text-xs uppercase tracking-wider text-neutral-400">Token Aktif</p>

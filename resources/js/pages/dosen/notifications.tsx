@@ -239,7 +239,7 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.7 }}
+                            transition={{ delay: 0.2 }}
                             className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
                         >
                             <motion.button

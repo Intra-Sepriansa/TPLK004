@@ -251,7 +251,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
                                 <motion.div
                                     className="relative flex shrink-0 h-16 w-16 sm:h-20 sm:w-20 items-center justify-center"
-                                    initial={{ opacity: 0, scale: 0.5, rotate: -15 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 250, delay: 0.2 }}
                                     whileHover={{ scale: 1.1, rotate: 10 }}
@@ -877,7 +877,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                 </div>
                                 <div className="space-y-3">
                                     {verification.anomalies.map((anom, idx) => (
-                                        <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} className="flex items-start gap-3 p-4 rounded-xl bg-white/50 dark:bg-neutral-800/50 border border-red-200 dark:border-red-800/50">
+                                        <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.05 }} className="flex items-start gap-3 p-4 rounded-xl bg-white/50 dark:bg-neutral-800/50 border border-red-200 dark:border-red-800/50">
                                             <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
                                             <div className="flex-1">
                                                 <h4 className="font-semibold text-neutral-900 dark:text-white mb-1">{anom.type}</h4>
