@@ -121,42 +121,44 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     ))}
 
                     <div className="relative">
-                        <div className="flex items-center gap-6 mb-4">
-                            <motion.div
-                                className="relative flex shrink-0 h-24 w-24"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                                whileHover={{ scale: 1.05, rotate: 5 }}
-                            >
-                                <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
-                            </motion.div>
-                            <div>
-                                <motion.p
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2"
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6 mb-4">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
+                                <motion.div
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Zap className="w-4 h-4" />
-                                    Gamifikasi & Kompetisi
-                                </motion.p>
-                                <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-3xl font-bold mt-1"
-                                >
-                                    Leaderboard Mahasiswa
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="mt-2 text-indigo-100 max-w-lg text-sm leading-relaxed"
-                                >
-                                    Ranking mahasiswa berdasarkan kehadiran dan pencapaian
-                                </motion.p>
+                                    <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                </motion.div>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-sm text-indigo-100 font-medium tracking-wide flex items-center justify-center sm:justify-start gap-2"
+                                    >
+                                        <Zap className="w-4 h-4" />
+                                        Gamifikasi & Kompetisi
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-2xl sm:text-3xl font-bold mt-1"
+                                    >
+                                        Leaderboard Mahasiswa
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0"
+                                    >
+                                        Ranking mahasiswa berdasarkan kehadiran dan pencapaian
+                                    </motion.p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -210,7 +212,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="grid gap-4 md:grid-cols-3"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3"
                 >
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}

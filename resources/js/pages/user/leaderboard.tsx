@@ -125,10 +125,10 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                     ))}
 
                     <div className="relative">
-                        <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-                            <div className="flex items-center gap-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6 mb-4">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-24 w-24"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
@@ -136,12 +136,12 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                 >
                                     <img src={LeaderboardIcon} alt="Leaderboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-cyan-100 font-medium tracking-wide flex items-center gap-2"
+                                        className="text-sm text-cyan-100 font-medium tracking-wide flex items-center justify-center sm:justify-start gap-2"
                                     >
                                         <Zap className="w-4 h-4" />
                                         Kompetisi Kelas
@@ -150,7 +150,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-3xl font-bold mt-1"
+                                        className="text-2xl sm:text-3xl font-bold mt-1"
                                     >
                                         Leaderboard
                                     </motion.h1>
@@ -158,7 +158,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="mt-2 text-cyan-100 max-w-lg text-sm leading-relaxed"
+                                        className="mt-2 text-cyan-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0"
                                     >
                                         Bersaing dan raih peringkat tertinggi!
                                     </motion.p>
@@ -197,7 +197,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                             </motion.div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
                             {[
                                 { isCustom: true, src: TotalMahasiswaIcon, label: 'Total Peserta', value: stats.total_students, bgGradient: 'from-sky-500/10 to-indigo-500/10', glowBg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/20', delay: 0.1 },
                                 { isCustom: true, src: KehadiranIcon, label: 'Rata-rata', value: stats.avg_attendance_rate, suffix: '%', bgGradient: 'from-emerald-500/10 to-teal-500/10', glowBg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/20', delay: 0.15 },
@@ -732,7 +732,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
 
 
                 {/* Stats Cards with Dock-Style Animations */}
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3">
                     {[
                         { isCustom: true, src: TotalMahasiswaIcon, label: 'Total Peserta', value: stats.total_students, color: 'from-blue-500 to-cyan-600', delay: 0.5 },
                         { isCustom: true, src: KehadiranIcon, label: 'Rata-rata Kehadiran', value: stats.avg_attendance_rate, suffix: '%', color: 'from-emerald-500 to-green-600', delay: 0.55 },
