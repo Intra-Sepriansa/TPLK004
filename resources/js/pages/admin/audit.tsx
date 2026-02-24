@@ -248,6 +248,49 @@ export default function AdminAudit({
                     </div>
                 </motion.div>
 
+                {/* Security Stats - Advanced Glassmorphism & Glowing Orbs */}
+                <div className="grid gap-6 md:grid-cols-4">
+                    {[
+                        { id: 'events', icon: Activity, label: 'Total Event', value: securityStats.total_events, color: 'from-blue-500 to-cyan-500', glow: 'bg-blue-500' },
+                        { id: 'duplicate', icon: AlertTriangle, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'from-red-500 to-rose-500', glow: 'bg-red-500' },
+                        { id: 'geofence', icon: MapPin, label: 'Pelanggaran Zona', value: securityStats.geofence_violation, color: 'from-rose-500 to-pink-500', glow: 'bg-rose-500' },
+                        { id: 'expired', icon: Clock, label: 'Token Expired', value: securityStats.token_expired, color: 'from-amber-500 to-yellow-500', glow: 'bg-amber-500' },
+                    ].map((stat, index) => (
+                        <motion.div
+                            key={stat.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.1 + index * 0.1 }}
+                            whileHover="hover"
+                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:border-white/5"
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 dark:opacity-10`} />
+
+                            {/* Glowing Orb */}
+                            <motion.div
+                                variants={{
+                                    hover: { scale: 1.5, opacity: 0.5 },
+                                    initial: { scale: 1, opacity: 0.2 }
+                                }}
+                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glow} blur-3xl transition-all duration-500`}
+                            />
+
+                            <div className="relative flex items-center gap-4">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
+                                >
+                                    <stat.icon className="h-7 w-7" />
+                                </motion.div>
+                                <div>
+                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{stat.value}</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
                 {/* Filter Section - Glassmorphism */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -323,49 +366,6 @@ export default function AdminAudit({
                         </div>
                     </div>
                 </motion.div>
-
-                {/* Security Stats - Advanced Glassmorphism & Glowing Orbs */}
-                <div className="grid gap-6 md:grid-cols-4">
-                    {[
-                        { id: 'events', icon: Activity, label: 'Total Event', value: securityStats.total_events, color: 'from-blue-500 to-cyan-500', glow: 'bg-blue-500' },
-                        { id: 'duplicate', icon: AlertTriangle, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'from-red-500 to-rose-500', glow: 'bg-red-500' },
-                        { id: 'geofence', icon: MapPin, label: 'Pelanggaran Zona', value: securityStats.geofence_violation, color: 'from-rose-500 to-pink-500', glow: 'bg-rose-500' },
-                        { id: 'expired', icon: Clock, label: 'Token Expired', value: securityStats.token_expired, color: 'from-amber-500 to-yellow-500', glow: 'bg-amber-500' },
-                    ].map((stat, index) => (
-                        <motion.div
-                            key={stat.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.1 + index * 0.1 }}
-                            whileHover="hover"
-                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:border-white/5"
-                        >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 dark:opacity-10`} />
-
-                            {/* Glowing Orb */}
-                            <motion.div
-                                variants={{
-                                    hover: { scale: 1.5, opacity: 0.5 },
-                                    initial: { scale: 1, opacity: 0.2 }
-                                }}
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glow} blur-3xl transition-all duration-500`}
-                            />
-
-                            <div className="relative flex items-center gap-4">
-                                <motion.div
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
-                                >
-                                    <stat.icon className="h-7 w-7" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{stat.value}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
 
                 {/* Charts Row - Glassmorphism */}
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -675,215 +675,215 @@ export default function AdminAudit({
                     console.log('Modal state:', { showDetailModal, selectedLog });
                     return showDetailModal && selectedLog;
                 })() && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowDetailModal(false)}
-                            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-                        />
-
-                        {/* Modal Container */}
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                        <>
+                            {/* Backdrop */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto border border-white/20 dark:border-neutral-800"
-                            >
-                                {/* Modal Header with Gradient */}
-                                <div className="relative h-32 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 flex items-start justify-between overflow-hidden">
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowDetailModal(false)}
+                                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+                            />
 
-                                    {/* Floating Particles */}
-                                    {[...Array(8)].map((_, i) => (
-                                        <motion.div
-                                            key={i}
-                                            className="absolute w-2 h-2 bg-white/30 rounded-full"
-                                            style={{
-                                                left: `${Math.random() * 100}%`,
-                                                top: `${Math.random() * 100}%`,
-                                            }}
-                                            animate={{
-                                                y: [0, -20, 0],
-                                                opacity: [0.3, 0.6, 0.3],
-                                            }}
-                                            transition={{
-                                                duration: 3 + Math.random() * 2,
-                                                repeat: Infinity,
-                                                delay: Math.random() * 2,
-                                            }}
-                                        />
-                                    ))}
+                            {/* Modal Container */}
+                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                                    className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto border border-white/20 dark:border-neutral-800"
+                                >
+                                    {/* Modal Header with Gradient */}
+                                    <div className="relative h-32 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 flex items-start justify-between overflow-hidden">
+                                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
 
-                                    <div className="relative z-10 flex items-center gap-4">
-                                        <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl font-bold text-white shadow-xl">
-                                            {selectedLog.mahasiswa?.nama.charAt(0) || 'S'}
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white">
-                                                {selectedLog.mahasiswa?.nama || 'System Event'}
-                                            </h3>
-                                            <p className="text-blue-100">
-                                                {selectedLog.mahasiswa?.nim || 'Automated Process'}
-                                            </p>
-                                        </div>
-                                    </div>
+                                        {/* Floating Particles */}
+                                        {[...Array(8)].map((_, i) => (
+                                            <motion.div
+                                                key={i}
+                                                className="absolute w-2 h-2 bg-white/30 rounded-full"
+                                                style={{
+                                                    left: `${Math.random() * 100}%`,
+                                                    top: `${Math.random() * 100}%`,
+                                                }}
+                                                animate={{
+                                                    y: [0, -20, 0],
+                                                    opacity: [0.3, 0.6, 0.3],
+                                                }}
+                                                transition={{
+                                                    duration: 3 + Math.random() * 2,
+                                                    repeat: Infinity,
+                                                    delay: Math.random() * 2,
+                                                }}
+                                            />
+                                        ))}
 
-                                    <button
-                                        onClick={() => setShowDetailModal(false)}
-                                        className="relative z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-md"
-                                    >
-                                        <XCircle className="h-6 w-6" />
-                                    </button>
-                                </div>
-
-                                {/* Modal Body */}
-                                <div className="p-6 space-y-6">
-                                    {/* Status Badge & Time */}
-                                    <div className="flex items-center justify-between flex-wrap gap-3">
-                                        <div className="flex items-center gap-3">
-                                            {getEventBadge(selectedLog.event_type)}
-                                            <span className="text-sm text-neutral-500 font-medium flex items-center gap-2">
-                                                <Clock className="h-4 w-4" />
-                                                {selectedLog.created_at}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Event Message */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                        className="rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900 p-6 border border-neutral-200 dark:border-neutral-700"
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                                                <AlertCircle className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                                        <div className="relative z-10 flex items-center gap-4">
+                                            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl font-bold text-white shadow-xl">
+                                                {selectedLog.mahasiswa?.nama.charAt(0) || 'S'}
                                             </div>
-                                            <div className="flex-1">
-                                                <p className="font-bold text-neutral-900 dark:text-white text-lg mb-2">
-                                                    Event Message
-                                                </p>
-                                                <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
-                                                    {selectedLog.message}
+                                            <div>
+                                                <h3 className="text-2xl font-bold text-white">
+                                                    {selectedLog.mahasiswa?.nama || 'System Event'}
+                                                </h3>
+                                                <p className="text-blue-100">
+                                                    {selectedLog.mahasiswa?.nim || 'Automated Process'}
                                                 </p>
                                             </div>
                                         </div>
-                                    </motion.div>
 
-                                    {/* Course Info (if available) */}
-                                    {selectedLog.session?.course?.nama && (
+                                        <button
+                                            onClick={() => setShowDetailModal(false)}
+                                            className="relative z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-md"
+                                        >
+                                            <XCircle className="h-6 w-6" />
+                                        </button>
+                                    </div>
+
+                                    {/* Modal Body */}
+                                    <div className="p-6 space-y-6">
+                                        {/* Status Badge & Time */}
+                                        <div className="flex items-center justify-between flex-wrap gap-3">
+                                            <div className="flex items-center gap-3">
+                                                {getEventBadge(selectedLog.event_type)}
+                                                <span className="text-sm text-neutral-500 font-medium flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    {selectedLog.created_at}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Event Message */}
                                         <motion.div
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.2 }}
-                                            className="rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 border border-blue-200 dark:border-blue-800"
+                                            transition={{ delay: 0.1 }}
+                                            className="rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900 p-6 border border-neutral-200 dark:border-neutral-700"
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div className="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                                                    <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                                <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                                                    <AlertCircle className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="font-bold text-neutral-900 dark:text-white text-lg mb-1">
-                                                        {selectedLog.session.course.nama}
+                                                    <p className="font-bold text-neutral-900 dark:text-white text-lg mb-2">
+                                                        Event Message
                                                     </p>
-                                                    <p className="text-sm text-neutral-500">
-                                                        Related Course
+                                                    <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+                                                        {selectedLog.message}
                                                     </p>
                                                 </div>
                                             </div>
                                         </motion.div>
-                                    )}
 
-                                    {/* Event Details Grid */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="grid grid-cols-2 gap-4"
-                                    >
-                                        {/* Event Type Card */}
-                                        <div className="rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 border border-purple-200 dark:border-purple-800">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                                                    <Activity className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                        {/* Course Info (if available) */}
+                                        {selectedLog.session?.course?.nama && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 border border-blue-200 dark:border-blue-800"
+                                            >
+                                                <div className="flex items-start gap-4">
+                                                    <div className="h-12 w-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                                        <BookOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-neutral-900 dark:text-white text-lg mb-1">
+                                                            {selectedLog.session.course.nama}
+                                                        </p>
+                                                        <p className="text-sm text-neutral-500">
+                                                            Related Course
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                                    Event Type
-                                                </p>
-                                            </div>
-                                            <p className="text-sm font-bold text-neutral-900 dark:text-white">
-                                                {eventTypeConfig[selectedLog.event_type]?.label || selectedLog.event_type}
-                                            </p>
-                                        </div>
+                                            </motion.div>
+                                        )}
 
-                                        {/* Event ID Card */}
-                                        <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 border border-amber-200 dark:border-amber-800">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                                                    <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                        {/* Event Details Grid */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="grid grid-cols-2 gap-4"
+                                        >
+                                            {/* Event Type Card */}
+                                            <div className="rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-4 border border-purple-200 dark:border-purple-800">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                                                        <Activity className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                                    </div>
+                                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                                        Event Type
+                                                    </p>
                                                 </div>
-                                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-                                                    Event ID
+                                                <p className="text-sm font-bold text-neutral-900 dark:text-white">
+                                                    {eventTypeConfig[selectedLog.event_type]?.label || selectedLog.event_type}
                                                 </p>
                                             </div>
-                                            <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono">
-                                                #{selectedLog.id}
-                                            </p>
-                                        </div>
-                                    </motion.div>
 
-                                    {/* Security Notice */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        className="rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 p-4 border border-red-200 dark:border-red-800"
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            <ShieldCheck className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                                            <div>
-                                                <p className="text-sm font-bold text-red-900 dark:text-red-100 mb-1">
-                                                    Security Log Entry
-                                                </p>
-                                                <p className="text-xs text-red-700 dark:text-red-300">
-                                                    This event has been recorded in the security audit trail for monitoring and compliance purposes.
+                                            {/* Event ID Card */}
+                                            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 border border-amber-200 dark:border-amber-800">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                                                        <Shield className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                    </div>
+                                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                                        Event ID
+                                                    </p>
+                                                </div>
+                                                <p className="text-sm font-bold text-neutral-900 dark:text-white font-mono">
+                                                    #{selectedLog.id}
                                                 </p>
                                             </div>
-                                        </div>
-                                    </motion.div>
+                                        </motion.div>
 
-                                    {/* Action Buttons */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="flex gap-3 pt-4"
-                                    >
-                                        <button
-                                            onClick={() => setShowDetailModal(false)}
-                                            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                                        {/* Security Notice */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.4 }}
+                                            className="rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 p-4 border border-red-200 dark:border-red-800"
                                         >
-                                            Close
-                                        </button>
-                                        <Link
-                                            href={`/admin/audit/${selectedLog.id}`}
-                                            className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                            <div className="flex items-start gap-3">
+                                                <ShieldCheck className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                                                <div>
+                                                    <p className="text-sm font-bold text-red-900 dark:text-red-100 mb-1">
+                                                        Security Log Entry
+                                                    </p>
+                                                    <p className="text-xs text-red-700 dark:text-red-300">
+                                                        This event has been recorded in the security audit trail for monitoring and compliance purposes.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+
+                                        {/* Action Buttons */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="flex gap-3 pt-4"
                                         >
-                                            <Eye className="h-4 w-4" />
-                                            View Full Details
-                                        </Link>
-                                    </motion.div>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </>
-                )}
+                                            <button
+                                                onClick={() => setShowDetailModal(false)}
+                                                className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-700 text-neutral-700 dark:text-neutral-200 font-bold hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+                                            >
+                                                Close
+                                            </button>
+                                            <Link
+                                                href={`/admin/audit/${selectedLog.id}`}
+                                                className="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold hover:shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                            >
+                                                <Eye className="h-4 w-4" />
+                                                View Full Details
+                                            </Link>
+                                        </motion.div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        </>
+                    )}
             </AnimatePresence>
         </AppLayout>
     );
