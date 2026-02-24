@@ -9,7 +9,11 @@ import {
     TrendingUp, Send, Search, ChevronDown, Eye, Fingerprint, Zap,
     Smartphone, Globe, BrainCircuit, Activity, Target, Award
 } from 'lucide-react';
-import SesiAbsenIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
+import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
+import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import TerlambatDetailIcon from '@/assets/dosen/sesi-absen/terlambat.png';
+import DitolakIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 interface Log {
@@ -187,10 +191,10 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
     };
 
     const cards = [
-        { key: 'total', label: 'Total', value: stats.total, sub: 'mahasiswa', icon: Users, from: 'from-blue-400', to: 'to-indigo-600', shadow: 'shadow-blue-500/30', glow: 'bg-blue-500', hoverShadow: 'hover:shadow-blue-500/10', gradient: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
-        { key: 'present', label: 'Hadir', value: stats.present, sub: `${stats.present_pct}%`, icon: CheckCircle, from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', glow: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradient: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        { key: 'late', label: 'Terlambat', value: stats.late, sub: `${stats.late_pct}%`, icon: Clock, from: 'from-amber-400', to: 'to-orange-600', shadow: 'shadow-amber-500/30', glow: 'bg-amber-500', hoverShadow: 'hover:shadow-amber-500/10', gradient: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
-        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'fraud detected', icon: XCircle, from: 'from-red-400', to: 'to-rose-600', shadow: 'shadow-red-500/30', glow: 'bg-red-500', hoverShadow: 'hover:shadow-red-500/10', gradient: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
+        { key: 'total', label: 'Total', value: stats.total, sub: 'mahasiswa', imgSrc: TotalIcon, from: 'from-blue-400', to: 'to-indigo-600', shadow: 'shadow-blue-500/30', glow: 'bg-blue-500', hoverShadow: 'hover:shadow-blue-500/10', gradient: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
+        { key: 'present', label: 'Hadir', value: stats.present, sub: `${stats.present_pct}%`, imgSrc: HadirIcon, from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', glow: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/10', gradient: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        { key: 'late', label: 'Terlambat', value: stats.late, sub: `${stats.late_pct}%`, imgSrc: TerlambatDetailIcon, from: 'from-rose-400', to: 'to-red-600', shadow: 'shadow-rose-500/30', glow: 'bg-rose-500', hoverShadow: 'hover:shadow-rose-500/10', gradient: 'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10' },
+        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'fraud detected', imgSrc: DitolakIcon, from: 'from-red-400', to: 'to-rose-600', shadow: 'shadow-red-500/30', glow: 'bg-red-500', hoverShadow: 'hover:shadow-red-500/10', gradient: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
     ];
 
     return (
@@ -316,9 +320,9 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                             />
                             <div className="relative flex items-center gap-4">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${c.from} ${c.to} text-white shadow-lg ${c.shadow}`}
+                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center"
                                 >
-                                    <c.icon className="h-6 w-6" />
+                                    <img src={c.imgSrc} alt={c.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.label}</p>
