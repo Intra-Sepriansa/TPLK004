@@ -20,6 +20,10 @@ import {
 import { cn } from '@/lib/utils';
 import moment from 'moment';
 import PersetujuanIzinIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
+import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import PendingIcon from '@/assets/admin/fraud-detection/pending.png';
+import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import DitolakIcon from '@/assets/admin/voting-kas/ditolak.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */
@@ -132,10 +136,10 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
 
     /* ── Summary Cards (4 Essential) ── */
     const cards = [
-        { key: 'total', label: 'Total Perizinan', val: stats.total, sub: `${stats.total} bulan ini`, Icon: FileText, grad: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500', overlay: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
-        { key: 'pending', label: 'Menunggu Review', val: stats.pending, sub: 'perlu review segera', Icon: Clock, grad: 'from-amber-500 to-orange-600', glow: 'bg-amber-500', overlay: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', pulse: stats.pending > 0 },
-        { key: 'approved', label: 'Disetujui Hari Ini', val: stats.approved_today, sub: `dari ${stats.total} request`, Icon: CheckCircle, grad: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500', overlay: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        { key: 'rejected', label: 'Ditolak', val: stats.rejected, sub: 'dengan alasan', Icon: XCircle, grad: 'from-red-500 to-rose-600', glow: 'bg-red-500', overlay: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
+        { key: 'total', label: 'Total Perizinan', val: stats.total, sub: `${stats.total} bulan ini`, imgSrc: TotalTugasIcon, grad: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500', overlay: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10' },
+        { key: 'pending', label: 'Menunggu Review', val: stats.pending, sub: 'perlu review segera', imgSrc: PendingIcon, grad: 'from-amber-500 to-orange-600', glow: 'bg-amber-500', overlay: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', pulse: stats.pending > 0 },
+        { key: 'approved', label: 'Disetujui Hari Ini', val: stats.approved_today, sub: `dari ${stats.total} request`, imgSrc: DisetujuiIcon, grad: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500', overlay: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        { key: 'rejected', label: 'Ditolak', val: stats.rejected, sub: 'dengan alasan', imgSrc: DitolakIcon, grad: 'from-red-500 to-rose-600', glow: 'bg-red-500', overlay: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
     ];
 
     /* ── Calendar ── */
@@ -203,8 +207,8 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                             <div className={`absolute inset-0 bg-gradient-to-br ${c.overlay}`} />
                             <motion.div animate={{ scale: hoveredCard === c.key ? 1.5 : 1, opacity: hoveredCard === c.key ? 0.4 : 0.15 }} className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${c.glow} blur-3xl transition-all duration-500`} />
                             <div className="relative flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.grad} text-white shadow-lg`}>
-                                    <c.Icon className="h-6 w-6" />
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                                    <img src={c.imgSrc} alt={c.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div className="min-w-0">
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.label}</p>
