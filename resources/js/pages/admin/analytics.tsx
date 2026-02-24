@@ -13,6 +13,13 @@ import {
     BarChart, Bar, PieChart as RePieChart, Pie, Cell, Legend
 } from 'recharts';
 
+// Custom Icons
+import analyticsIcon from '@/assets/admin/analytics/analytics.png';
+import totalMahasiswaIcon from '@/assets/admin/analytics/total-mahasiswa.png';
+import kehadiranIcon from '@/assets/admin/analytics/kehadiran.png';
+import terlambatIcon from '@/assets/admin/analytics/terlambat.png';
+import fraudIcon from '@/assets/admin/analytics/fraud.png';
+
 // --- Interface Definitions ---
 
 interface Stats {
@@ -204,13 +211,13 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-[0_15px_25px_rgba(0,0,0,0.4)]"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center p-3 sm:p-4 rounded-3xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-[0_15px_25px_rgba(0,0,0,0.4)]"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                     whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <BarChart3 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                                    <img src={analyticsIcon} alt="Analitik" className="absolute inset-0 h-full w-full object-contain p-2 drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
@@ -276,10 +283,10 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                 >
                     {[
-                        { title: 'Total Kehadiran', value: stats.total_attendance.toLocaleString(), change: `${stats.rate_change > 0 ? '+' : ''}${stats.rate_change}%`, isUp: stats.rate_change >= 0, icon: Users, color: 'indigo' },
-                        { title: 'Tingkat Kehadiran', value: `${stats.attendance_rate}%`, change: 'vs prev period', isUp: stats.rate_change >= 0, icon: Clock, color: 'emerald' },
-                        { title: 'Terlambat', value: stats.late_count.toString(), change: 'Check Logs', isUp: false, icon: AlertTriangle, color: 'amber' },
-                        { title: 'Fraud Attempts', value: stats.fraud_attempts.toString(), change: 'Stable', isUp: true, icon: Shield, color: 'rose' },
+                        { title: 'Total Kehadiran', value: stats.total_attendance.toLocaleString(), change: `${stats.rate_change > 0 ? '+' : ''}${stats.rate_change}%`, isUp: stats.rate_change >= 0, imgSrc: totalMahasiswaIcon, color: 'indigo' },
+                        { title: 'Tingkat Kehadiran', value: `${stats.attendance_rate}%`, change: 'vs prev period', isUp: stats.rate_change >= 0, imgSrc: kehadiranIcon, color: 'emerald' },
+                        { title: 'Terlambat', value: stats.late_count.toString(), change: 'Check Logs', isUp: false, imgSrc: terlambatIcon, color: 'amber' },
+                        { title: 'Fraud Attempts', value: stats.fraud_attempts.toString(), change: 'Stable', isUp: true, imgSrc: fraudIcon, color: 'rose' },
                     ].map((stat, i) => (
                         <motion.div
                             key={i}
@@ -294,9 +301,12 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                             />
 
                             <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4 mb-4">
-                                <div className={`flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-${stat.color}-400 to-${stat.color}-600 text-white shadow-lg shadow-${stat.color}-500/30 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
-                                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6" />
-                                </div>
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center transition-transform duration-300"
+                                >
+                                    <img src={stat.imgSrc} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                </motion.div>
                                 <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full border ${stat.isUp
                                     ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400'
                                     : 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400'
