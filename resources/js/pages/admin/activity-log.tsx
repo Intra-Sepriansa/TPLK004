@@ -176,9 +176,9 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     }}
                 >
                     {[
-                        { imageIcon: totalActivityIcon, label: 'Total Aktivitas', value: stats.total, color: 'blue' },
-                        { imageIcon: hariIcon, label: 'Hari Ini', value: stats.today, color: 'emerald' },
-                        { imageIcon: mingguIcon, label: 'Minggu Ini', value: stats.this_week, color: 'purple' },
+                        { imageIcon: totalActivityIcon, label: 'Total Aktivitas', value: stats.total, color: 'purple' },
+                        { imageIcon: hariIcon, label: 'Hari Ini', value: stats.today, color: 'amber' },
+                        { imageIcon: mingguIcon, label: 'Minggu Ini', value: stats.this_week, color: 'amber' },
                     ].map((card, i) => (
                         <motion.div
                             key={i}
