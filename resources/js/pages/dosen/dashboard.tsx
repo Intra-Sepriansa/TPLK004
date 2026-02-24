@@ -323,7 +323,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
                             {todaySchedule.map((s, i) => (
                                 <motion.div key={s.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1, type: "spring", stiffness: 200 }}
+                                    transition={{ delay: i * 0.05, type: "spring", stiffness: 200 }}
                                     whileHover={{ scale: 1.03, x: 5, boxShadow: "0 10px 20px -5px rgba(99,102,241,0.3)" }}
                                     className="p-4 rounded-xl bg-white/80 dark:bg-neutral-800/80 border border-indigo-200/50 dark:border-indigo-800/50 cursor-pointer">
                                     <div className="flex items-start justify-between mb-2">
@@ -381,7 +381,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             <div className="space-y-3 relative z-10">
                                 {activeSessions.map((session, i) => (
                                     <motion.div key={session.id} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.08, type: "spring", stiffness: 200 }}
+                                        transition={{ delay: i * 0.04, type: "spring", stiffness: 200 }}
                                         whileHover={{ x: 8, scale: 1.03, boxShadow: "0 10px 25px -5px rgba(16,185,129,0.3)" }}
                                         onClick={() => { setSelectedSession(session); setShowSessionModal(true); }}
                                         className="flex items-center gap-4 p-4 rounded-xl bg-white/80 hover:bg-white border border-emerald-200/50 dark:bg-neutral-800/60 dark:border-emerald-800/50 cursor-pointer relative overflow-hidden group">
@@ -447,7 +447,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             <div className="space-y-3 relative z-10">
                                 {pendingVerifications.map((v, i) => (
                                     <motion.div key={v.id} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: i * 0.08, type: "spring", stiffness: 200 }}
+                                        transition={{ delay: i * 0.04, type: "spring", stiffness: 200 }}
                                         whileHover={{ x: 8, scale: 1.03, boxShadow: "0 10px 25px -5px rgba(245,158,11,0.3)" }}
                                         onClick={() => { setSelectedVerification(v); setShowVerifyModal(true); }}
                                         className="flex items-center gap-3 p-4 rounded-xl bg-white/80 hover:bg-white border border-amber-200/50 dark:bg-neutral-800/60 dark:border-amber-800/50 cursor-pointer relative overflow-hidden group">

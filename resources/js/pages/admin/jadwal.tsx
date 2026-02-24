@@ -185,7 +185,7 @@ export default function AdminJadwal({
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.08,
+                staggerChildren: 0.04,
                 delayChildren: 0.15
             }
         }
@@ -241,7 +241,7 @@ export default function AdminJadwal({
                 type: 'spring' as const,
                 stiffness: 300,
                 damping: 25,
-                staggerChildren: 0.1,
+                staggerChildren: 0.05,
                 delayChildren: 0.2
             }
         },

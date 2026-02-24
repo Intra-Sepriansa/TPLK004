@@ -64,7 +64,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
+                staggerChildren: 0.05,
                 delayChildren: 0.2,
             },
         },
@@ -434,7 +434,7 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                             key={permit.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
                                             whileHover={{ scale: 1.02, y: -2 }}
                                             className={`rounded-2xl border-2 p-5 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all ${
                                                 permit.status === 'pending' ? 'border-yellow-200 dark:border-yellow-800' :

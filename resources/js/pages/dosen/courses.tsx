@@ -39,7 +39,7 @@ interface PageProps {
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
 } as const;
 
 const itemVariants = {
@@ -291,7 +291,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                                 </div>
                                                 <div className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
                                                     <motion.div initial={{ width: 0 }} animate={{ width: `${course.attendanceRate}%` }}
-                                                        transition={{ duration: 1, delay: i * 0.1 }}
+                                                        transition={{ duration: 1, delay: i * 0.05 }}
                                                         className={cn("h-full rounded-full",
                                                             course.attendanceRate >= 80 ? "bg-gradient-to-r from-emerald-500 to-teal-500" :
                                                                 course.attendanceRate >= 60 ? "bg-gradient-to-r from-amber-500 to-orange-500" :

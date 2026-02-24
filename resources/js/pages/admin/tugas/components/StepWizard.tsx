@@ -31,7 +31,7 @@ export const StepWizard: React.FC<{ steps: Step[]; currentStep: number }> = ({
                                 className="flex flex-col items-center gap-3 flex-1"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
+                                transition={{ delay: index * 0.05 }}
                             >
                                 <motion.div
                                     className={`

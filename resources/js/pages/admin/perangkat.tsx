@@ -161,7 +161,7 @@ export default function AdminPerangkat({
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.08,
+                staggerChildren: 0.04,
                 delayChildren: 0.15
             }
         }
@@ -309,7 +309,7 @@ export default function AdminPerangkat({
                                         className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white mt-0.5 sm:mt-1"
                                         initial={{ scale: 0.5, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.1 }}
+                                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.05 }}
                                     >
                                         {stat.value}
                                     </motion.p>

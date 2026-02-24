@@ -41,7 +41,7 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.04, delayChildren: 0.1 },
     },
 } as const;
 
@@ -371,7 +371,7 @@ export default function AktivitasTerbaru({
                         animate="visible"
                         variants={{
                             hidden: { opacity: 0 },
-                            visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.6 } }
+                            visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
                         }}
                     >
                         <StatCard imageIcon={SesiAktifIcon} label="Sesi Aktif" value={stats.activeSessions} color="purple" />

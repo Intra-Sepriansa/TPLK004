@@ -91,7 +91,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         }
     }
@@ -274,7 +274,7 @@ export default function DashboardOverview({
                         animate="visible"
                         variants={{
                             hidden: { opacity: 0 },
-                            visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.6 } }
+                            visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.2 } }
                         }}
                         className="flex flex-nowrap w-full overflow-x-auto gap-2 sm:gap-3 mt-6 sm:mt-8 pt-6 pb-2 border-t border-white/10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                     >
@@ -334,7 +334,7 @@ export default function DashboardOverview({
                 animate="visible"
                 variants={{
                     hidden: { opacity: 0 },
-                    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+                    visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
                 }}
             >
                 {stats.map((stat, index) => {
@@ -401,7 +401,7 @@ export default function DashboardOverview({
                 animate="visible"
                 variants={{
                     hidden: { opacity: 0 },
-                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.3 } }
                 }}
             >
                 {/* Weekly Attendance Chart */}
@@ -501,7 +501,7 @@ export default function DashboardOverview({
                 animate="visible"
                 variants={{
                     hidden: { opacity: 0 },
-                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.3 } }
                 }}
             >
                 {/* Recent Activity */}
@@ -590,7 +590,7 @@ export default function DashboardOverview({
                                     className="flex items-center gap-3 p-2 rounded-xl bg-neutral-50/50 dark:bg-neutral-800/50 hover:bg-neutral-100/60 dark:hover:bg-neutral-700/50 transition-colors backdrop-blur"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.1 }}
+                                    transition={{ delay: index * 0.05 }}
                                     whileHover={{ scale: 1.03, x: 4 }}
                                 >
                                     <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
@@ -626,7 +626,7 @@ export default function DashboardOverview({
                 animate="visible"
                 variants={{
                     hidden: { opacity: 0 },
-                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.3 } }
                 }}
             >
                 {/* Course Stats */}
@@ -673,7 +673,7 @@ export default function DashboardOverview({
                     animate="visible"
                     variants={{
                         hidden: { opacity: 0 },
-                        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                        visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.3 } }
                     }}
                 >
                     {/* Device Distribution */}
@@ -758,7 +758,7 @@ export default function DashboardOverview({
                 animate="visible"
                 variants={{
                     hidden: { opacity: 0 },
-                    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 1.0 } }
+                    visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.3 } }
                 }}
             >
                 {/* Active Session */}

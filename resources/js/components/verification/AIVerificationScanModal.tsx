@@ -89,7 +89,7 @@ function ScanningAnimation({ steps, currentStep }: { steps: any[]; currentStep: 
                             key={step.step}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.05 }}
                             className={cn(
                                 'relative flex items-center gap-4 p-4 rounded-xl border-2 transition-all overflow-hidden',
                                 isActive && 'border-violet-500 bg-violet-500/10 shadow-lg shadow-violet-500/20',

@@ -49,7 +49,7 @@ type Props = { permits: Permit[]; sessions: Session[]; stats: Stats; filters: an
 /* ═══════════════════════════════════════════════════ */
 /*              ANIMATION VARIANTS                    */
 /* ═══════════════════════════════════════════════════ */
-const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } } } as const;
+const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } } } as const;
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } };
 const cardHover = { scale: 1.03, y: -6, transition: { type: 'spring' as const, stiffness: 400, damping: 15 } };
 const viewTransition = { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -12 }, transition: { duration: 0.25 } };

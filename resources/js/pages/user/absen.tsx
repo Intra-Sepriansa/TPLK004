@@ -47,7 +47,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -119,7 +119,7 @@ function StepIndicator({ steps, currentStep }: { steps: { key: string; label: st
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: index * 0.1 + 0.2 }}
+                            transition={{ delay: index * 0.05 + 0.2 }}
                             className={cn(
                                 'mt-2 text-xs font-semibold',
                                 step.done ? 'text-emerald-600 dark:text-emerald-400' :
@@ -134,7 +134,7 @@ function StepIndicator({ steps, currentStep }: { steps: { key: string; label: st
                         <motion.div
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: 1 }}
-                            transition={{ delay: index * 0.1, duration: 0.3 }}
+                            transition={{ delay: index * 0.05, duration: 0.3 }}
                             className="flex-1 mx-2 origin-left"
                         >
                             <div className={cn(

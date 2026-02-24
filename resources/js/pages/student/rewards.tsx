@@ -125,7 +125,7 @@ export default function Rewards({ rewards, myRedemptions, myPoints }: RewardsPro
                     key={reward.id}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.05 }}
                   >
                     <Card className={`overflow-hidden hover:shadow-xl transition-all ${
                       !affordable ? 'opacity-50' : ''

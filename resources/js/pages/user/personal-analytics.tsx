@@ -30,7 +30,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -584,7 +584,7 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                         key={i}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: i * 0.1 }}
+                                        transition={{ delay: i * 0.05 }}
                                         whileHover={{ scale: 1.1, y: -5 }}
                                         className="text-center"
                                     >

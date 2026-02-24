@@ -128,7 +128,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -879,7 +879,7 @@ export default function UserRekapan() {
                                             key={warning.id}
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.1 }}
+                                            transition={{ delay: index * 0.05 }}
                                             onClick={() => setSelectedWarning(warning)}
                                             className="group relative p-3 rounded-xl bg-white/40 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-all cursor-pointer border border-transparent hover:border-amber-200 dark:hover:border-amber-700/50 hover:shadow-md"
                                         >

@@ -464,7 +464,7 @@ export default function AIGradingPanel({ selectedSubmission, maxGrade, onApplySc
                                                             <p className="text-xs font-bold flex items-center gap-1.5 mb-2"><CheckCircle className="h-3.5 w-3.5 text-green-500" /> Strengths Detected</p>
                                                             <div className="space-y-1.5">
                                                                 {analysis.strengths.map((s, i) => (
-                                                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                                                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                                                                         className="flex items-start gap-2 text-xs">
                                                                         <div className="mt-1 h-1.5 w-1.5 rounded-full bg-green-500 flex-shrink-0" />
                                                                         <span className="text-neutral-700 dark:text-neutral-300">{s}</span>
@@ -478,7 +478,7 @@ export default function AIGradingPanel({ selectedSubmission, maxGrade, onApplySc
                                                             <p className="text-xs font-bold flex items-center gap-1.5 mb-2"><AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Areas for Improvement</p>
                                                             <div className="space-y-1.5">
                                                                 {analysis.weaknesses.map((w, i) => (
-                                                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                                                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                                                                         className="flex items-start gap-2 text-xs">
                                                                         <div className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-500 flex-shrink-0" />
                                                                         <span className="text-neutral-700 dark:text-neutral-300">{w}</span>
@@ -542,7 +542,7 @@ export default function AIGradingPanel({ selectedSubmission, maxGrade, onApplySc
                                                                 <p className="text-xs font-bold mb-3">Matched Sources ({analysis.matched_sources.length})</p>
                                                                 <div className="space-y-2.5">
                                                                     {analysis.matched_sources.map((src, i) => (
-                                                                        <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                                                                        <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                                                                             className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200/50 dark:border-neutral-700/50">
                                                                             <div className="flex items-start justify-between gap-2 mb-1.5">
                                                                                 <p className="text-xs font-semibold text-neutral-900 dark:text-white line-clamp-1">{src.title}</p>

@@ -98,7 +98,7 @@ export default function SelfieVerification({ requests, stats }: PageProps) {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.08,
+                staggerChildren: 0.04,
                 delayChildren: 0.1
             }
         }

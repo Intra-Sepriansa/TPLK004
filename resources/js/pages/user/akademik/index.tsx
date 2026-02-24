@@ -81,7 +81,7 @@ export default function AcademicDashboard({
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
+                staggerChildren: 0.05,
                 delayChildren: 0.2,
             },
         },
@@ -385,7 +385,7 @@ export default function AcademicDashboard({
                                             key={item.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
                                             whileHover={{ x: 5, scale: 1.02 }}
                                             className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                                         >
@@ -648,7 +648,7 @@ export default function AcademicDashboard({
                                         <motion.div
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                                            transition={{ delay: index * 0.05, type: "spring", stiffness: 200 }}
                                             whileHover={{ scale: 1.02, y: -2 }}
                                             className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 transition-all cursor-pointer group"
                                         >

@@ -54,7 +54,7 @@ interface PageProps {
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
 } as const;
 
 const itemVariants = {

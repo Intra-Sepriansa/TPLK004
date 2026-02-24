@@ -87,7 +87,7 @@ export const QRCodeAnimated: React.FC<QRCodeAnimatedProps> = ({
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+            transition: { staggerChildren: 0.05, delayChildren: 0.2 },
         },
     };
 

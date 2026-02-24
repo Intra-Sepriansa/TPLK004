@@ -68,7 +68,7 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.04, delayChildren: 0.1 },
     },
 } as const;
 
@@ -630,7 +630,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                                     <div className="flex items-center gap-2 mb-3"><Trophy className="h-4 w-4 text-amber-500" /><h4 className="font-bold text-sm">Top 3 Performers</h4></div>
                                     <div className="space-y-2">
                                         {selectedCourse.top_performers.slice(0, 3).map((s, i) => (
-                                            <motion.div key={s.mahasiswa_id} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+                                            <motion.div key={s.mahasiswa_id} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.05 }} className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
                                                 <div className="flex items-center gap-3"><div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500 text-white text-xs font-bold">{i + 1}</div><div><p className="text-sm font-bold">{s.nama}</p><p className="text-xs text-neutral-500">{s.nim}</p></div></div><span className="text-sm font-bold text-emerald-600">{s.attendance_rate}%</span>
                                             </motion.div>
                                         ))}
@@ -640,7 +640,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                                     <div className="flex items-center gap-2 mb-3"><AlertTriangle className="h-4 w-4 text-red-500" /><h4 className="font-bold text-sm">Needs Attention</h4></div>
                                     <div className="space-y-2">
                                         {selectedCourse.bottom_performers.slice(0, 3).map((s, i) => (
-                                            <motion.div key={s.mahasiswa_id} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.1 }} className="flex items-center justify-between p-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                                            <motion.div key={s.mahasiswa_id} initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.05 }} className="flex items-center justify-between p-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                                                 <div className="flex items-center gap-3"><div className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-500 text-white text-xs font-bold">{i + 1}</div><div><p className="text-sm font-bold">{s.nama}</p><p className="text-xs text-neutral-500">{s.nim}</p></div></div><span className="text-sm font-bold text-red-600">{s.attendance_rate}%</span>
                                             </motion.div>
                                         ))}

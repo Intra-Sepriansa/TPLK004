@@ -173,7 +173,7 @@ export default function AIProcessAnimation({
                                 key={step.key}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.08, duration: 0.3 }}
+                                transition={{ delay: i * 0.04, duration: 0.3 }}
                                 className={`flex items-center gap-4 p-3 rounded-xl border ${statusColors[status]} transition-all duration-500`}
                             >
                                 {/* Status icon */}

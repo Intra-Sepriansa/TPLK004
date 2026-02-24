@@ -60,7 +60,7 @@ interface NotificationCenterProps {
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
 };
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -427,7 +427,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
-            visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+            visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
           }}
         >
           {[

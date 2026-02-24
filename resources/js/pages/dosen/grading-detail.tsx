@@ -20,7 +20,7 @@ interface Props {
   dosenNotes: DNote[];
 }
 
-const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } } as const;
+const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } } } as const;
 const iV = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } } as const;
 const cardV = { hidden: { opacity: 0, scale: 0.9 }, visible: { opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 20 } }, hover: { scale: 1.03, y: -8, transition: { type: 'spring' as const, stiffness: 400, damping: 10 } } } as const;
 const sC = (s: string): string => ({ present: 'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400', late: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400', permit: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400', sick: 'text-cyan-600 bg-cyan-100 dark:bg-cyan-900/30 dark:text-cyan-400', absent: 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400', rejected: 'text-rose-600 bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400' } as Record<string, string>)[s] || 'text-neutral-600 bg-neutral-100';

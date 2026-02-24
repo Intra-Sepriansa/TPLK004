@@ -72,7 +72,7 @@ const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.05, delayChildren: 0.1 },
     },
 };
 
@@ -728,7 +728,7 @@ export default function PerangkatDetail({
                                                     key={index}
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.1 }}
+                                                    transition={{ delay: index * 0.05 }}
                                                     className={`p-4 rounded-xl border transition-all cursor-pointer ${anomaly.severity === 'high' ? 'bg-gradient-to-r from-red-500/10 to-transparent border-red-500/30 hover:border-red-500/50' : anomaly.severity === 'medium' ? 'bg-gradient-to-r from-amber-500/10 to-transparent border-amber-500/30 hover:border-amber-500/50' : 'bg-gradient-to-r from-blue-500/10 to-transparent border-blue-500/30 hover:border-blue-500/50'}`}
                                                 >
                                                     <div className="flex items-start justify-between mb-2">

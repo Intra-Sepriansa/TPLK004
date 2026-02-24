@@ -253,7 +253,7 @@ const slideInVariants = {
             type: 'spring' as const,
             stiffness: 120,
             damping: 18,
-            delay: i * 0.08,
+            delay: i * 0.04,
         },
     }),
 };
@@ -261,8 +261,7 @@ const slideInVariants = {
 const bounceVariants = {
     bounce: {
         y: [0, -15, 0],
-        transition: {
-            duration: 1.5,
+        transition: { duration: 0.5.5,
             repeat: Infinity,
             ease: "easeInOut",
         },
@@ -1381,7 +1380,7 @@ export default function UserDashboard() {
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{
-                                                    delay: index * 0.1,
+                                                    delay: index * 0.05,
                                                     type: "spring",
                                                     stiffness: 200,
                                                 }}
@@ -1553,7 +1552,7 @@ export default function UserDashboard() {
                                         initial={{ opacity: 0, scale: 0.5, rotate: -180 }}
                                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                         transition={{
-                                            delay: i * 0.1,
+                                            delay: i * 0.05,
                                             type: "spring",
                                             stiffness: 200,
                                         }}
@@ -1633,7 +1632,7 @@ export default function UserDashboard() {
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{
-                                                delay: index * 0.1,
+                                                delay: index * 0.05,
                                                 type: "spring",
                                                 stiffness: 200,
                                             }}

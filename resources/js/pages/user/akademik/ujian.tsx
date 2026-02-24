@@ -88,7 +88,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
+                staggerChildren: 0.05,
                 delayChildren: 0.2,
             },
         },
@@ -697,7 +697,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                             key={course.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.1 }}
+                                            transition={{ delay: index * 0.05 }}
                                             whileHover={{ 
                                                 scale: 1.02,
                                                 boxShadow: "0 10px 30px rgba(16, 185, 129, 0.1)"
@@ -716,7 +716,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                 <motion.div
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${(course.current_meeting / course.total_meetings) * 100}%` }}
-                                                    transition={{ duration: 1, delay: index * 0.1 }}
+                                                    transition={{ duration: 1, delay: index * 0.05 }}
                                                 >
                                                     <Progress 
                                                         value={(course.current_meeting / course.total_meetings) * 100} 
@@ -824,7 +824,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                 key={item.id}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: index * 0.1 }}
+                                                transition={{ delay: index * 0.05 }}
                                                 whileHover={{ x: 5 }}
                                                 className="flex items-center gap-2"
                                             >
@@ -1531,7 +1531,7 @@ function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, tog
             ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.05 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{

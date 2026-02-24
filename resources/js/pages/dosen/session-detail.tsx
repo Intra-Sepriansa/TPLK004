@@ -13,7 +13,7 @@ interface Template { id: number; name: string; description: string | null; categ
 interface Props { dosen: { id: number; nama: string }; template?: Template; courses: Array<{ id: number; nama: string; sks: number }>; mode: 'create' | 'edit'; }
 interface FD { name: string; description: string; category: string; course_id: number | null; tags: string[]; duration_minutes: number; qr_refresh_interval: number; allow_late_minutes: number; grace_period_minutes: number; default_days: number[]; require_selfie: boolean; selfie_verification_level: string; require_location: boolean; location_radius_meters: number; anti_spoofing: boolean; max_attempts: number; auto_activate: boolean; auto_activate_time: string; auto_deactivate: boolean; auto_deactivate_time: string; send_reminder: boolean; reminder_minutes_before: number; is_active: boolean; is_draft: boolean; }
 
-const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } } as const;
+const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } } } as const;
 const iV = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } } as const;
 const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const CATS = [{ v: 'regular', l: 'Regular', d: 'Kuliah biasa', c: 'from-blue-400 to-cyan-600' }, { v: 'exam', l: 'Ujian', d: 'UTS/UAS', c: 'from-red-400 to-pink-600' }, { v: 'lab', l: 'Lab', d: 'Praktikum', c: 'from-purple-400 to-violet-600' }, { v: 'seminar', l: 'Seminar', d: 'Presentasi', c: 'from-emerald-400 to-teal-600' }, { v: 'custom', l: 'Custom', d: 'Lainnya', c: 'from-amber-400 to-orange-600' }];

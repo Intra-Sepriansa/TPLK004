@@ -516,7 +516,7 @@ export default function DosenDocs() {
                                                     <motion.div
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${guide.progress}%` }}
-                                                        transition={{ duration: 1, delay: index * 0.1 }}
+                                                        transition={{ duration: 1, delay: index * 0.05 }}
                                                         className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-sm"
                                                     />
                                                 </div>

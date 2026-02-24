@@ -40,7 +40,7 @@ interface VerificationDetail {
 interface Props { verification: VerificationDetail; }
 
 /* ═══════ VARIANTS ═══════ */
-const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } } as const;
+const cV = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.1 } } } as const;
 const iV = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } } } as const;
 
 const statusCfg: Record<string, { label: string; gradient: string; icon: typeof CheckCircle }> = {
@@ -596,7 +596,7 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                                 const Icon = t.type === 'success' ? CheckCircle : t.type === 'warning' ? AlertTriangle : t.type === 'danger' ? XCircle : Eye;
                                 const dotColor = t.type === 'success' ? 'bg-emerald-500' : t.type === 'warning' ? 'bg-amber-500' : t.type === 'danger' ? 'bg-red-500' : 'bg-indigo-500';
                                 return (
-                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className="relative flex items-start gap-3">
+                                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="relative flex items-start gap-3">
                                         <div className={cn("absolute left-[-18px] top-1 h-3.5 w-3.5 rounded-full border-2 border-white dark:border-neutral-900 shadow", dotColor)} />
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2"><p className="text-sm font-semibold">{t.label}</p><span className="text-[10px] text-neutral-400">{t.time}</span></div>

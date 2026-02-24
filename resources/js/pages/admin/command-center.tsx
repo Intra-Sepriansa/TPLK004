@@ -110,7 +110,7 @@ export default function CommandCenter({ stats, alerts, recentActivity }: Command
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.05,
         delayChildren: 0.2
       }
     }
@@ -313,7 +313,7 @@ export default function CommandCenter({ stats, alerts, recentActivity }: Command
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
+                        transition={{ delay: index * 0.05 }}
                         className={`p-4 rounded-lg border ${getAlertColor(alert.type)}`}
                       >
                         <div className="flex items-start justify-between">

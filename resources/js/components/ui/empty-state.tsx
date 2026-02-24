@@ -292,7 +292,7 @@ export const NoResultsState: React.FC<NoResultsStateProps> = ({
                                 key={index}
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: index * 0.1 }}
+                                transition={{ delay: index * 0.05 }}
                                 onClick={() => onSuggestionClick?.(suggestion)}
                                 className={cn(
                                     'px-4 py-2 rounded-lg',

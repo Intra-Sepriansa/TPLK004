@@ -134,7 +134,7 @@ const containerVariants: Variants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.05,
             delayChildren: 0.2,
         },
     },

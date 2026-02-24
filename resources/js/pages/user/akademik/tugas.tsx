@@ -1041,7 +1041,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                             key={task.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.05 }}
                             whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                         >
                             <TaskCard task={task} onToggle={onToggle} onDelete={onDelete} />

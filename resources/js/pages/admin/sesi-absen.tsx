@@ -393,7 +393,7 @@ export default function SesiAbsen({ sessions, courses, stats, activeSessionDetai
                     animate="visible"
                     variants={{
                         hidden: { opacity: 0 },
-                        visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
                     }}
                 >
                     {[

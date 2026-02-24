@@ -78,7 +78,7 @@ const containerVariants: Variants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1,
+            staggerChildren: 0.05,
             delayChildren: 0.2
         }
     }
@@ -284,7 +284,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                     animate="visible"
                     variants={{
                         hidden: { opacity: 0 },
-                        visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.8 } }
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
                     }}
                 >
                     {[
@@ -458,7 +458,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                             key={index}
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.1 }}
+                                            transition={{ delay: index * 0.05 }}
                                             className="p-5 rounded-2xl bg-white/70 dark:bg-black/30 border border-indigo-100 dark:border-indigo-800/30 shadow-sm hover:bg-white/90 transition-colors cursor-default"
                                         >
                                             <h4 className={`font-bold text-sm mb-2 flex items-center gap-2 ${insight.type === 'warning' ? 'text-rose-700 dark:text-rose-300' :

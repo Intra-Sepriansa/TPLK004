@@ -45,7 +45,7 @@ interface Props {
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -251,7 +251,7 @@ export default function FraudDetectionDetail({ alert, relatedAlerts }: Props) {
                                         </div>
                                     ) : (
                                         relatedAlerts.map((h, i) => (
-                                            <motion.div key={h.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                                            <motion.div key={h.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                                                 className="group flex flex-col md:flex-row md:items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700 transition-all"
                                             >
                                                 <div className="flex items-center gap-4">

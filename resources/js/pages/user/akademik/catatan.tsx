@@ -71,7 +71,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1,
+                staggerChildren: 0.05,
                 delayChildren: 0.2,
             },
         },

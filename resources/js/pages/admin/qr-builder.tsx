@@ -88,7 +88,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -188,8 +188,7 @@ const pulseVariants: Variants = {
             '0 0 0 20px rgba(251, 191, 36, 0.3)',
             '0 0 0 0 rgba(251, 191, 36, 0)',
         ],
-        transition: {
-            duration: 1.5,
+        transition: { duration: 0.5.5,
             repeat: Infinity,
             ease: 'easeInOut',
         },
@@ -523,7 +522,7 @@ export default function QrBuilder({ activeSession, tokenTtlSeconds = 180, recent
                     animate="visible"
                     variants={{
                         hidden: { opacity: 0 },
-                        visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.6 } }
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
                     }}
                 >
                     <StatCard imageIcon={TokenIcon} label="Total Token" value={tokenStats.total_generated} color="purple" />

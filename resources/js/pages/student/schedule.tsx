@@ -74,7 +74,7 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -913,7 +913,7 @@ export default function Schedule({ schedules, todaySchedule, nextClass, stats, c
                                             key={schedule.id}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.1 }}
+                                            transition={{ delay: index * 0.05 }}
                                             whileHover={{ 
                                                 scale: 1.04, 
                                                 y: -3,

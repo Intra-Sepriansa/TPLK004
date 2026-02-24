@@ -101,7 +101,7 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.04, delayChildren: 0.1 },
     },
 } as const;
 
@@ -128,7 +128,7 @@ const aiPulseVariants: Variants = {
     animate: {
         scale: [1, 1.2, 1],
         opacity: [1, 0.7, 1],
-        transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
+        transition: { duration: 0.5.5, repeat: Infinity, ease: "easeInOut" },
     },
 };
 
@@ -927,9 +927,9 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                             <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-4 flex items-center gap-2"><History className="h-5 w-5 text-purple-500" /> Verification History</h2>
                             <div className="space-y-4">
                                 {verification.history.map((item, index) => (
-                                    <motion.div key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }} className="flex gap-4">
+                                    <motion.div key={index} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex gap-4">
                                         <div className="flex flex-col items-center">
-                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: index * 0.1 + 0.2 }} className={cn("flex h-10 w-10 items-center justify-center rounded-full shadow-inner", item.status === 'approved' ? "bg-green-500" : item.status === 'rejected' ? "bg-red-500" : "bg-yellow-500")}>
+                                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: index * 0.05 + 0.2 }} className={cn("flex h-10 w-10 items-center justify-center rounded-full shadow-inner", item.status === 'approved' ? "bg-green-500" : item.status === 'rejected' ? "bg-red-500" : "bg-yellow-500")}>
                                                 {item.status === 'approved' && <CheckCircle className="h-5 w-5 text-white" />}
                                                 {item.status === 'rejected' && <XCircle className="h-5 w-5 text-white" />}
                                                 {item.status === 'pending' && <Clock className="h-5 w-5 text-white" />}
@@ -958,7 +958,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                         <h2 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 flex items-center gap-2"><Users className="h-5 w-5 text-cyan-500" /> Related Verifications</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {relatedVerifications.map((related, index) => (
-                                <motion.div key={related.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.1 }} whileHover={{ scale: 1.05, y: -5 }} className="p-4 rounded-xl bg-white/50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 cursor-pointer shadow-md" onClick={() => router.visit(`/admin/verifikasi-selfie/${related.id}`)}>
+                                <motion.div key={related.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.05 }} whileHover={{ scale: 1.05, y: -5 }} className="p-4 rounded-xl bg-white/50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 cursor-pointer shadow-md" onClick={() => router.visit(`/admin/verifikasi-selfie/${related.id}`)}>
                                     <div className="flex items-center gap-3 mb-3">
                                         <Avatar className="h-10 w-10 border border-neutral-200 dark:border-neutral-700"><AvatarImage src={related.student.photo} /><AvatarFallback>{related.student.initials}</AvatarFallback></Avatar>
                                         <div className="flex-1 min-w-0">

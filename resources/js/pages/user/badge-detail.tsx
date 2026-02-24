@@ -109,7 +109,7 @@ const ThemedParticles = ({ type, isUnlocked }: { type: string; isUnlocked: boole
                         transition={{
                             duration: 2.5 + Math.random() * 0.5,
                             repeat: Infinity,
-                            delay: i * 0.1,
+                            delay: i * 0.05,
                             ease: "easeOut"
                         }}
                         className="absolute rounded-full"
@@ -241,7 +241,7 @@ const ThemedParticles = ({ type, isUnlocked }: { type: string; isUnlocked: boole
                         transition={{
                             duration: 2.5,
                             repeat: Infinity,
-                            delay: i * 0.1,
+                            delay: i * 0.05,
                             ease: "easeInOut"
                         }}
                         className="absolute"

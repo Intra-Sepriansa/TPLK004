@@ -270,7 +270,7 @@ export default function AdminMahasiswa({
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.06, delayChildren: 0.1 }
+            transition: { staggerChildren: 0.04, delayChildren: 0.1 }
         }
     };
 
@@ -493,7 +493,7 @@ export default function AdminMahasiswa({
                                         className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white mt-0.5 sm:mt-1"
                                         initial={{ scale: 0.5, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.1 }}
+                                        transition={{ type: 'spring', stiffness: 200, damping: 15, delay: i * 0.05 }}
                                     >
                                         {stat.value}
                                     </motion.p>
@@ -1279,7 +1279,7 @@ export default function AdminMahasiswa({
                                             className="flex items-center gap-3 p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all cursor-pointer border border-white/10 hover:border-white/30 group"
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.08, type: 'spring', stiffness: 100 }}
+                                            transition={{ delay: i * 0.04, type: 'spring', stiffness: 100 }}
                                         >
                                             <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg ${i === 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-900 border border-yellow-200' :
                                                 i === 1 ? 'bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800 border border-slate-200' :
@@ -1349,7 +1349,7 @@ export default function AdminMahasiswa({
                                             className="p-3 flex items-center gap-3 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors"
                                             initial={{ opacity: 0, x: 20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.08, type: 'spring', stiffness: 100 }}
+                                            transition={{ delay: i * 0.04, type: 'spring', stiffness: 100 }}
                                         >
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">{s.nama}</p>

@@ -85,7 +85,7 @@ const containerVariants: Variants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.08,
+            staggerChildren: 0.04,
             delayChildren: 0.1,
         },
     },
@@ -477,7 +477,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                                 key={voting.id}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: index * 0.1 }}
+                                                transition={{ delay: index * 0.05 }}
                                                 whileHover={{ scale: 1.01, y: -2 }}
                                                 className={`rounded-2xl border p-5 bg-white dark:bg-neutral-900/50 shadow-sm transition-all hover:shadow-lg ${voting.status === 'open' ? 'border-blue-200 dark:border-blue-900/30' :
                                                     voting.status === 'approved' ? 'border-emerald-200 dark:border-emerald-900/30' :

@@ -66,7 +66,7 @@ const containerVariants = {
         y: 0,
         transition: {
             duration: 0.4,
-            staggerChildren: 0.1
+            staggerChildren: 0.05
         }
     }
 };
