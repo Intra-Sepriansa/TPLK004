@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import panduanIcon from '@/assets/admin/panduan/panduan.png';
 import { useState } from 'react';
 import {
     BookOpen, ChevronRight, Search, CheckCircle, AlertTriangle, Info,
@@ -191,7 +192,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                     ].map((section, i) => (
                         <div key={i} className="p-4 rounded-xl border bg-card">
                             <h5 className="font-semibold mb-3 flex items-center gap-2">
-                                <div className={`h-3 w-3 rounded-full ${section.color}`}></div>
+                                <div className={`h - 3 w - 3 rounded - full ${section.color} `}></div>
                                 {section.title}
                             </h5>
                             <ul className="text-sm text-muted-foreground space-y-1 ml-5">
@@ -436,7 +437,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         { icon: CheckCircle, title: 'Approval', desc: 'Admin memverifikasi jika diperlukan', color: 'from-emerald-500 to-teal-500' },
                     ].map((item, i) => (
                         <div key={i} className="text-center p-4 rounded-xl border bg-card">
-                            <div className={`flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-gradient-to-br ${item.color} text-white mb-3`}>
+                            <div className={`flex h - 12 w - 12 mx - auto items - center justify - center rounded - xl bg - gradient - to - br ${item.color} text - white mb - 3`}>
                                 <item.icon className="h-6 w-6" />
                             </div>
                             <h5 className="font-medium">{item.title}</h5>
@@ -847,7 +848,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         { icon: Clock, title: 'Waktu Anomali', desc: 'Absensi di luar jam yang wajar', color: 'text-purple-500' },
                     ].map((item, i) => (
                         <div key={i} className="flex gap-3 p-4 rounded-xl border bg-card">
-                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 ${item.color} flex-shrink-0`}>
+                            <div className={`flex h - 10 w - 10 items - center justify - center rounded - lg bg - slate - 100 dark: bg - slate - 800 ${item.color} flex - shrink - 0`}>
                                 <item.icon className="h-5 w-5" />
                             </div>
                             <div>
@@ -888,7 +889,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         { icon: Trash2, title: 'Delete', desc: 'Penghapusan data', color: 'bg-red-100 text-red-600' },
                     ].map((item, i) => (
                         <div key={i} className="text-center p-4 rounded-xl border bg-card">
-                            <div className={`flex h-12 w-12 mx-auto items-center justify-center rounded-xl ${item.color} mb-3`}>
+                            <div className={`flex h - 12 w - 12 mx - auto items - center justify - center rounded - xl ${item.color} mb - 3`}>
                                 <item.icon className="h-6 w-6" />
                             </div>
                             <h5 className="font-medium">{item.title}</h5>
@@ -1128,7 +1129,7 @@ const contentData: Record<string, { title: string; content: React.ReactNode }> =
                         { method: 'GET', endpoint: '/reports/attendance', desc: 'Laporan kehadiran' },
                     ].map((item, i) => (
                         <div key={i} className="flex items-center gap-3 p-3 rounded-lg border bg-card font-mono text-sm">
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${item.method === 'GET' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                            <span className={`px - 2 py - 1 rounded text - xs font - bold ${item.method === 'GET' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'} `}>
                                 {item.method}
                             </span>
                             <code className="flex-1">{item.endpoint}</code>
@@ -1190,7 +1191,7 @@ export default function AdminPanduan() {
     const currentContent = contentData[activeSection];
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(window.location.href + `#${activeSection}`);
+        navigator.clipboard.writeText(window.location.href + `#${activeSection} `);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -1224,14 +1225,23 @@ export default function AdminPanduan() {
                     transition={{ duration: 0.5, ease: "easeOut" }}
                     className="w-80 flex-shrink-0 flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-2xl overflow-hidden h-[calc(100vh-6rem)]"
                 >
-                    <div className="p-6 border-b border-white/10 bg-white/10 backdrop-blur-md">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                                <BookOpen className="h-6 w-6 text-white" />
-                            </div>
+                    <div className="p-6 border-b border-white/10 bg-white/10 backdrop-blur-md relative overflow-hidden">
+                        {/* Interactive Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 animate-pulse" />
+
+                        <div className="relative z-10 flex items-center gap-4 mb-5">
+                            <motion.div
+                                className="relative flex shrink-0 h-16 w-16"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
+                            >
+                                <img src={panduanIcon} alt="Panduan Admin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" />
+                            </motion.div>
                             <div>
-                                <h1 className="text-lg font-bold text-slate-800 dark:text-white">Panduan Admin</h1>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Dokumentasi & Bantuan</p>
+                                <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Panduan Admin</h1>
+                                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5">Dokumentasi</p>
                             </div>
                         </div>
                         <div className="relative">
@@ -1256,8 +1266,8 @@ export default function AdminPanduan() {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 + index * 0.05 }}
-                                    className={`rounded-2xl transition-all duration-300 overflow-hidden ${isActive ? 'bg-white/60 dark:bg-white/5 shadow-lg border border-white/20' : 'hover:bg-white/30 dark:hover:bg-white/5'
-                                        }`}
+                                    className={`rounded - 2xl transition - all duration - 300 overflow - hidden ${isActive ? 'bg-white/60 dark:bg-white/5 shadow-lg border border-white/20' : 'hover:bg-white/30 dark:hover:bg-white/5'
+                                        } `}
                                 >
                                     <button
                                         onClick={() => {
@@ -1266,18 +1276,18 @@ export default function AdminPanduan() {
                                                 setActiveSection(chapter.sections[0].id);
                                             }
                                         }}
-                                        className={`w-full flex items-center gap-3 p-3 transition-all ${isActive
-                                                ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10'
-                                                : ''
-                                            }`}
+                                        className={`w - full flex items - center gap - 3 p - 3 transition - all ${isActive
+                                            ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10'
+                                            : ''
+                                            } `}
                                     >
-                                        <div className={`p-2 rounded-lg ${isActive ? `bg-gradient-to-br ${chapter.color} text-white shadow-md` : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'}`}>
+                                        <div className={`p - 2 rounded - lg ${isActive ? `bg-gradient-to-br ${chapter.color} text-white shadow-md` : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'} `}>
                                             <Icon className="h-5 w-5" />
                                         </div>
-                                        <span className={`font-semibold text-sm ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                                        <span className={`font - semibold text - sm ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'} `}>
                                             {chapter.title}
                                         </span>
-                                        <ChevronRight className={`h-4 w-4 ml-auto text-slate-400 transition-transform duration-300 ${isActive ? 'rotate-90 text-indigo-500' : ''}`} />
+                                        <ChevronRight className={`h - 4 w - 4 ml - auto text - slate - 400 transition - transform duration - 300 ${isActive ? 'rotate-90 text-indigo-500' : ''} `} />
                                     </button>
 
                                     <AnimatePresence>
@@ -1294,10 +1304,10 @@ export default function AdminPanduan() {
                                                             key={section.id}
                                                             whileHover={{ x: 4 }}
                                                             onClick={() => setActiveSection(section.id)}
-                                                            className={`w-full text-left px-4 py-2 rounded-xl text-sm transition-colors relative ${activeSection === section.id
-                                                                    ? 'text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20'
-                                                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                                                                }`}
+                                                            className={`w - full text - left px - 4 py - 2 rounded - xl text - sm transition - colors relative ${activeSection === section.id
+                                                                ? 'text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20'
+                                                                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                                                                } `}
                                                         >
                                                             {activeSection === section.id && (
                                                                 <motion.div
