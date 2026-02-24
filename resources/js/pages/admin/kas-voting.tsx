@@ -277,10 +277,10 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                     ))}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-24 w-24"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
@@ -292,12 +292,12 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                         className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
                                     />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2"
+                                        className="text-sm text-indigo-100 font-medium tracking-wide flex items-center justify-center sm:justify-start gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         Manajemen Keuangan
@@ -306,7 +306,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-3xl font-bold mt-1"
+                                        className="text-2xl sm:text-3xl font-bold mt-1"
                                     >
                                         Voting Pengeluaran Kas
                                     </motion.h1>
@@ -314,7 +314,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="mt-2 text-indigo-100 max-w-lg text-sm leading-relaxed"
+                                        className="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base leading-relaxed mx-auto sm:mx-0"
                                     >
                                         Kelola dan pantau voting pengeluaran kas mahasiswa secara transparan dan real-time
                                     </motion.p>
@@ -322,12 +322,11 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
+                            className="flex flex-wrap justify-center sm:justify-start gap-3 mt-8 pt-6 border-t border-white/10"
                         >
                             <motion.button
                                 whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
@@ -345,7 +344,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                 {/* Stats Cards - Animated */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid gap-6 md:grid-cols-4"
+                    className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
                 >
                     {[
                         { image: TotalVotingIcon, label: 'Total', value: stats.total, shadowColor: 'hover:shadow-blue-500/10', glow: 'bg-blue-500', innerGrad: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10' },
@@ -372,7 +371,7 @@ export default function AdminKasVoting({ votings, stats, filters }: Props) {
                             <div className="relative flex items-center gap-4">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex h-14 w-14 items-center justify-center"
+                                    className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center shrink-0"
                                 >
                                     <img
                                         src={stat.image}
