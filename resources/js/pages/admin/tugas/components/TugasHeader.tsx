@@ -57,16 +57,6 @@ export const TugasHeader: React.FC<HeaderBarProps> = ({
             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl pointer-events-none" />
 
-            {/* Pulsating Rings */}
-            {[0, 1, 2].map((i) => (
-                <motion.div
-                    key={i}
-                    className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10 pointer-events-none"
-                    animate={{ scale: [1, 3], opacity: [0.3, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
-                />
-            ))}
-
             <div className="relative z-10">
                 <Button
                     type="button"

@@ -176,28 +176,6 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                         className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-300/30 to-blue-400/30 blur-3xl"
                     />
 
-                    {/* Pulsating Rings */}
-                    {[0, 1, 2].map((i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                scale: [1, 2, 3],
-                                opacity: [0.3, 0.15, 0],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 1.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
-                            style={{
-                                width: '100px',
-                                height: '100px',
-                            }}
-                        />
-                    ))}
-
                     {/* Floating Icons */}
                     {[Vote, ThumbsUp, ThumbsDown, CheckCircle, XCircle].map((Icon, i) => (
                         <motion.div

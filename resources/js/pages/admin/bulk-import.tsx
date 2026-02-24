@@ -354,16 +354,6 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                         <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-                        {/* Pulsating Rings */}
-                        {[0, 1, 2].map((i) => (
-                            <motion.div
-                                key={i}
-                                className="absolute right-12 top-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10"
-                                animate={{ scale: [1, 3], opacity: [0.3, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
-                            />
-                        ))}
-
                         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
                                 <motion.div
