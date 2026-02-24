@@ -13,7 +13,7 @@ import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
 import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
 import TerlambatDetailIcon from '@/assets/dosen/sesi-absen/terlambat.png';
-import DitolakIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
+import DitolakIcon from '@/assets/admin/voting-kas/ditolak.png';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 interface Log {
