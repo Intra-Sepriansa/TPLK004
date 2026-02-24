@@ -331,7 +331,7 @@ export default function AdminRekapKehadiran({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={handleExportPdf}
-                                className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg w-full sm:w-auto mt-4 sm:mt-0"
+                                className="flex items-center justify-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg w-fit mt-2 sm:mt-0"
                             >
                                 <Download className="h-5 w-5" />
                                 Export Laporan
