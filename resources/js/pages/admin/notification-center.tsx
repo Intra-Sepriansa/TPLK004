@@ -160,7 +160,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
 
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-8">
 
-        {/* ═══════ HEADER — Matching Rekap Kehadiran Style ═══════ */}
+        {/* ═══════ HEADER — Matching Sesi Absen Style ═══════ */}
         <motion.div
           variants={itemVariants}
           className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
@@ -181,51 +181,65 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             }}
           />
 
+          {/* Overlay & Glow Orbs */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
           {/* Pulsating Rings */}
-          <motion.div
-            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-          />
-          <motion.div
-            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-          />
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="absolute right-12 top-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10"
+              animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+            />
+          ))}
 
-          <div className="relative">
-            <div className="flex items-center justify-between flex-wrap gap-6">
-              <div className="flex items-center gap-5">
-                <motion.div
-                  className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
-                  initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                  whileHover={{ scale: 1.05, rotate: 5 }}
+          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
+              <motion.div
+                className="relative flex shrink-0 h-24 w-24 sm:h-20 sm:w-20"
+                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                whileHover={{ scale: 1.05, rotate: 5 }}
+              >
+                <img src={notifikasiIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+              </motion.div>
+              <div className="flex-1 mt-1 sm:mt-0">
+                <motion.p
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-sm text-blue-100 font-medium tracking-wide"
                 >
-                  <img src={notifikasiIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
-                </motion.div>
-                <div>
-                  <p className="text-sm text-indigo-100 font-medium tracking-wide">Pusat Komunikasi</p>
-                  <h1 className="text-3xl font-bold text-white">Notification Center</h1>
-                  <p className="mt-1 text-indigo-100 max-w-lg">
-                    Kelola dan kirim notifikasi ke mahasiswa dan dosen
-                  </p>
-                </div>
+                  Pusat Komunikasi
+                </motion.p>
+                <motion.h1
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-2xl sm:text-3xl font-bold"
+                >
+                  Notification Center
+                </motion.h1>
               </div>
-
+            </div>
+            <motion.div
+              className="w-full md:w-auto flex justify-center md:justify-end shrink-0"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
+            >
               <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                    className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
                   >
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4" />
                     Buat Notifikasi
                   </motion.button>
                 </DialogTrigger>
@@ -393,8 +407,17 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   </form>
                 </DialogContent>
               </Dialog>
-            </div>
+            </motion.div>
           </div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="relative mt-4 text-blue-100/80 text-center sm:text-left"
+          >
+            Kelola dan kirim notifikasi ke mahasiswa dan dosen
+          </motion.p>
         </motion.div>
 
         {/* ═══════ STAT CARDS — Dashboard Style ═══════ */}
@@ -775,6 +798,6 @@ export default function NotificationCenter({ notifications, stats, filters, maha
           </div>
         )}
       </motion.div>
-    </AppLayout>
+    </AppLayout >
   );
 }
