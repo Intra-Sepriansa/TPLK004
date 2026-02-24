@@ -111,7 +111,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
 
     const getStatusBadge = (status: string) => {
         const styles: Record<string, { bg: string; icon: any; label: string }> = {
-            pending: { bg: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white', imgSrc: TerlambatIcon, label: 'Menunggu' },
+            pending: { bg: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white', icon: Clock, label: 'Menunggu' },
             approved: { bg: 'bg-gradient-to-r from-emerald-500 to-green-500 text-white', icon: CheckCircle, label: 'Disetujui' },
             rejected: { bg: 'bg-gradient-to-r from-red-500 to-rose-500 text-white', icon: XCircle, label: 'Ditolak' },
         };
@@ -240,11 +240,8 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             style={{ transitionDelay: `${i * 100}ms` }}
                         >
                             <div className="flex items-center gap-4">
-                                <div className={cn(
-                                    'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg transition-transform duration-300 group-hover:scale-110',
-                                    stat.color, stat.shadow
-                                )}>
-                                    <stat.icon className="h-6 w-6" />
+                                <div className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                                    <img src={stat.imgSrc} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </div>
                                 <div>
                                     <p className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
