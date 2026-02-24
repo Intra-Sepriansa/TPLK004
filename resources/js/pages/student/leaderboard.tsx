@@ -207,7 +207,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
                             whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                            className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5 cursor-pointer`}
+                            className={`group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} dark:border-white/5 cursor-pointer`}
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient}`} />
                             <motion.div
@@ -217,7 +217,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                             <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                                 >
                                     {stat.isCustom ? (
                                         <img src={stat.src} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
@@ -228,7 +228,7 @@ export default function LeaderboardPage({ leaderboard, currentUser, stats }: Lea
                                 <div>
                                     <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">{stat.label}</p>
                                     <div className="mt-0.5 sm:mt-1">
-                                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                        <span className="text-sm sm:text-2xl font-bold text-neutral-900 dark:text-white">
                                             <AnimatedCounter value={stat.value} suffix={stat.suffix || ''} />
                                         </span>
                                     </div>

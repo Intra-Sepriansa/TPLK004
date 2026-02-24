@@ -197,7 +197,7 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                             </motion.div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+                        <div className="mt-6 grid grid-cols-4 gap-2 sm:gap-4 sm:grid-cols-2 md:grid-cols-4">
                             {[
                                 { isCustom: true, src: TotalMahasiswaIcon, label: 'Total Peserta', value: stats.total_students, bgGradient: 'from-sky-500/10 to-indigo-500/10', glowBg: 'bg-sky-500', hoverShadow: 'hover:shadow-sky-500/20', delay: 0.1 },
                                 { isCustom: true, src: KehadiranIcon, label: 'Rata-rata', value: stats.avg_attendance_rate, suffix: '%', bgGradient: 'from-emerald-500/10 to-teal-500/10', glowBg: 'bg-emerald-500', hoverShadow: 'hover:shadow-emerald-500/20', delay: 0.15 },
@@ -210,16 +210,16 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ delay: stat.delay, type: "spring", stiffness: 200 }}
                                     whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                                    className={`group relative overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} cursor-pointer`}
+                                    className={`group relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/20 bg-white/10 p-2 sm:p-4 shadow-xl backdrop-blur-xl transition-all ${stat.hoverShadow} cursor-pointer`}
                                 >
                                     <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                                     <motion.div
                                         className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glowBg} blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`}
                                     />
-                                    <div className="relative flex items-center gap-3">
+                                    <div className="relative flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left">
                                         <motion.div
                                             whileHover={{ scale: 1.1, rotate: 10 }}
-                                            className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center"
+                                            className="relative flex shrink-0 h-6 w-6 sm:h-10 sm:w-10 items-center justify-center mx-auto sm:mx-0"
                                         >
                                             {stat.isCustom ? (
                                                 <img src={stat.src} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
@@ -228,9 +228,9 @@ export default function Leaderboard({ mahasiswa, leaderboard, podium, myRank, my
                                             )}
                                         </motion.div>
                                         <div>
-                                            <p className="text-xs sm:text-sm font-medium leading-tight text-white/80">{stat.label}</p>
+                                            <p className="text-[9px] sm:text-xs font-medium leading-tight text-white/80 line-clamp-1">{stat.label}</p>
                                             <div className="mt-0.5 sm:mt-1">
-                                                <span className="text-lg font-bold text-white">
+                                                <span className="text-xs sm:text-lg font-bold text-white">
                                                     <AnimatedCounter
                                                         value={stat.value}
                                                         prefix={stat.prefix || ''}

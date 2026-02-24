@@ -212,13 +212,13 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-3"
+                    className="grid grid-cols-3 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-3"
                 >
                     <motion.div
                         whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('students')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-sky-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-sky-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10" />
                         <motion.div
@@ -230,17 +230,17 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-4">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={TotalMahasiswaIcon} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
-                                <div className="mt-1">
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.total_students}</span>
+                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
+                                <div className="mt-0.5 sm:mt-1">
+                                    <span className="text-sm sm:text-2xl font-bold text-neutral-900 dark:text-white">{stats.total_students}</span>
                                 </div>
                             </div>
                         </div>
@@ -250,7 +250,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                         whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('attendance')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div
@@ -262,17 +262,17 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-4">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={KehadiranIcon} alt="Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Kehadiran</p>
-                                <div className="mt-1">
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_attendance_rate}%</span>
+                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Kehadiran</p>
+                                <div className="mt-0.5 sm:mt-1">
+                                    <span className="text-sm sm:text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_attendance_rate}%</span>
                                 </div>
                             </div>
                         </div>
@@ -282,7 +282,7 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                         whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         onHoverStart={() => setHoveredCard('points')}
                         onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-amber-500/10 dark:border-white/5"
+                        className="group relative overflow-hidden rounded-xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-amber-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10" />
                         <motion.div
@@ -294,17 +294,17 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                             transition={{ duration: 0.5 }}
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500"
                         />
-                        <div className="relative flex items-center gap-4">
+                        <div className="relative flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
                             <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex shrink-0 h-14 w-14 items-center justify-center"
+                                className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center mx-auto sm:mx-0"
                             >
                                 <img src={RataRataIcon} alt="Rata-rata Poin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                             </motion.div>
                             <div>
-                                <p className="text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Poin</p>
-                                <div className="mt-1">
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_points}</span>
+                                <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">Rata-rata Poin</p>
+                                <div className="mt-0.5 sm:mt-1">
+                                    <span className="text-sm sm:text-2xl font-bold text-neutral-900 dark:text-white">{stats.avg_points}</span>
                                 </div>
                             </div>
                         </div>
