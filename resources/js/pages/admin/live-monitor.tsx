@@ -16,7 +16,7 @@ import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar, Responsive
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import Pusher from 'pusher-js';
+import Echo from '@/echo';
 
 import LiveMonitorIcon from '@/assets/admin/live-monitor/live-monitor-icon.png';
 import SesiAktifIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
@@ -247,18 +247,11 @@ export default function LiveMonitor({
 
     useEffect(() => {
         try {
-            const pusherKey = import.meta.env.VITE_PUSHER_APP_KEY;
-            const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER;
+            if (typeof window === 'undefined' || !Echo) return;
 
-            if (!pusherKey) return;
+            const channel = Echo.channel('live-monitor');
 
-            const pusher = new Pusher(pusherKey, {
-                cluster: pusherCluster,
-            });
-
-            const channel = pusher.subscribe('live-monitor');
-
-            channel.bind('new-activity', (data: Activity) => {
+            channel.listen('.new-activity', (data: Activity) => {
                 setRecentActivities(prev => [{ ...data, isNew: true }, ...prev].slice(0, 10));
                 updateStats();
 
@@ -275,7 +268,7 @@ export default function LiveMonitor({
                 }, 5000);
             });
 
-            channel.bind('anomaly-detected', (data: Anomaly) => {
+            channel.listen('.anomaly-detected', (data: Anomaly) => {
                 setAnomalies(prev => [data, ...prev]);
                 if (soundEnabled) {
                     playAlertSound();
@@ -283,19 +276,17 @@ export default function LiveMonitor({
                 toast.error(`Anomali terdeteksi: ${data.type}`);
             });
 
-            channel.bind('session-updated', (data: Session) => {
+            channel.listen('.session-updated', (data: Session) => {
                 setActiveSessions(prev =>
                     prev.map(s => s.id === data.id ? data : s)
                 );
             });
 
             return () => {
-                channel.unbind_all();
-                channel.unsubscribe();
-                pusher.disconnect();
+                Echo.leave('live-monitor');
             };
         } catch (e) {
-            console.error('Pusher setup failed', e);
+            console.error('Echo setup failed', e);
         }
     }, [soundEnabled]);
 

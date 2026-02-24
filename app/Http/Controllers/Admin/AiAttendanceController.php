@@ -142,6 +142,8 @@ class AiAttendanceController extends Controller
             'note' => sprintf('absen_ai:%.2f', $confidence),
         ]);
 
+        event(new \App\Events\LiveMonitorActivityEvent($log));
+
         return response()->json([
             'status' => 'recorded',
             'message' => 'Absensi tercatat.',

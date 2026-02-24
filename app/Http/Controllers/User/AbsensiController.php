@@ -1032,7 +1032,7 @@ class AbsensiController extends Controller
         );
 
         if ($distance > $radius) {
-            AttendanceLog::create([
+            $log = AttendanceLog::create([
                 'attendance_session_id' => $session->id,
                 'mahasiswa_id' => $mahasiswa->id,
                 'attendance_token_id' => $token->id,
@@ -1043,6 +1043,8 @@ class AbsensiController extends Controller
                 'longitude' => $longitude,
                 'note' => 'Di luar radius geofence.',
             ]);
+
+            event(new \App\Events\LiveMonitorActivityEvent($log));
 
             $this->logAudit('outside_radius', 'Scan di luar radius geofence.', $mahasiswa->id, $session->id);
 
@@ -1163,6 +1165,8 @@ class AbsensiController extends Controller
             'accuracy' => $accuracy,
             'address' => $address ? Str::limit($address, 500, '') : null,
         ]);
+
+        event(new \App\Events\LiveMonitorActivityEvent($log));
 
         if ($path) {
             SelfieVerification::create([
