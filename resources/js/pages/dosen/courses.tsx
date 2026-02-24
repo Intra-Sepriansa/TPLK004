@@ -9,6 +9,7 @@ import CourseImg from '@/assets/dosen/matakuliah/mata-kuliah.png';
 import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
 import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
 import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
+import TotalHadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
 
 interface Course {
     id: number;
@@ -83,7 +84,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
     }, [courses, searchQuery, sortBy, activeTab]);
 
     const summaryCards = [
-        { key: 'total', icon: CheckCircle, label: 'Total Hadir', value: stats.totalHadir, sub: 'Semua sesi rute ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'total', imgSrc: TotalHadirIcon, label: 'Total Hadir', value: stats.totalHadir, sub: 'Semua sesi rute ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
         { key: 'students', imgSrc: StatTotalStudents, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Semua Status', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
         { key: 'sessions', imgSrc: StatTotalSessions, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10', pulse: false },
         { key: 'rate', imgSrc: StatAttendanceRate, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
