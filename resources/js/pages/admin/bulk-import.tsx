@@ -8,6 +8,12 @@ import {
 } from 'lucide-react';
 import { useState, useRef } from 'react';
 
+import bulkImportIcon from '@/assets/admin/bulk-import/bulk-import.png';
+import berhasilIcon from '@/assets/admin/bulk-import/berhasil.png';
+import gagalIcon from '@/assets/admin/bulk-import/gagal.png';
+import totalRecordIcon from '@/assets/admin/bulk-import/total-record.png';
+import totalImportIcon from '@/assets/admin/bulk-import/total-import.png';
+
 interface ImportLog {
     id: number;
     type: string;
@@ -328,126 +334,105 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                 )}
 
                 <div className="space-y-8 print:hidden">
-                    {/* Header - Matches Uang Kas Header Style */}
+                    {/* Header - Advanced Animated Gradient */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                         className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                     >
                         {/* Animated Gradient Background */}
                         <motion.div
                             className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                            animate={{
-                                backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            style={{
-                                backgroundSize: '200% 200%',
-                            }}
+                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                            style={{ backgroundSize: '200% 200%' }}
                         />
 
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                        {/* Overlay & Glow Orbs */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-                        {/* Floating Animations (Pulses) */}
-                        <motion.div
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                        />
-                        <motion.div
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                        />
+                        {/* Pulsating Rings */}
+                        {[0, 1, 2].map((i) => (
+                            <motion.div
+                                key={i}
+                                className="absolute right-12 top-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10"
+                                animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i * 1 }}
+                            />
+                        ))}
 
-                        <div className="relative flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-24 w-24 sm:h-20 sm:w-20"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Upload className="h-8 w-8 text-white" />
+                                    <img src={bulkImportIcon} alt="Bulk Import" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide border-b border-indigo-400/30 pb-1 mb-1 w-fit">Data Management</p>
-                                    <h1 className="text-3xl font-bold text-white">Bulk Import</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
-                                        Import data mahasiswa, mata kuliah, dan jadwal via CSV/PDF
-                                    </p>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="text-sm text-blue-100 font-medium"
+                                    >
+                                        Data Management
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                        className="text-2xl sm:text-3xl font-bold"
+                                    >
+                                        Bulk Import
+                                    </motion.h1>
                                 </div>
                             </div>
                         </div>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                            className="relative mt-4 text-blue-100/80"
+                        >
+                            Import data mahasiswa, mata kuliah, dan jadwal via CSV/PDF secara massal
+                        </motion.p>
                     </motion.div>
 
-                    {/* Stats Cards - Matches Uang Kas Style (Glowing Orbs) */}
-                    <div className="grid gap-6 md:grid-cols-4">
+                    {/* Stats Grid - Staggered Spring Animations */}
+                    <motion.div
+                        className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+                        }}
+                    >
                         {[
-                            {
-                                id: 'total', icon: FileSpreadsheet, label: 'Total Import', value: stats.total_imports,
-                                gradient: 'from-indigo-500 to-blue-500', orbColor: 'bg-indigo-500',
-                                iconBg: 'from-indigo-400 to-blue-600', shadow: 'shadow-indigo-500/30'
-                            },
-                            {
-                                id: 'success', icon: CheckCircle, label: 'Berhasil', value: stats.successful,
-                                gradient: 'from-emerald-500 to-teal-500', orbColor: 'bg-emerald-500',
-                                iconBg: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30'
-                            },
-                            {
-                                id: 'failed', icon: XCircle, label: 'Gagal', value: stats.failed,
-                                gradient: 'from-red-500 to-rose-500', orbColor: 'bg-red-500',
-                                iconBg: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30'
-                            },
-                            {
-                                id: 'records', icon: Users, label: 'Total Record', value: stats.total_records,
-                                gradient: 'from-purple-500 to-violet-500', orbColor: 'bg-purple-500',
-                                iconBg: 'from-purple-400 to-violet-600', shadow: 'shadow-purple-500/30'
-                            },
-                        ].map((stat) => (
+                            { imageIcon: totalImportIcon, label: 'Total Import', value: stats.total_imports, color: 'purple' },
+                            { imageIcon: berhasilIcon, label: 'Berhasil', value: stats.successful, color: 'emerald' },
+                            { imageIcon: gagalIcon, label: 'Gagal', value: stats.failed, color: 'red' },
+                            { imageIcon: totalRecordIcon, label: 'Total Record', value: stats.total_records, color: 'blue' },
+                        ].map((card, i) => (
                             <motion.div
-                                key={stat.id}
-                                variants={cardVariants}
-                                initial="hidden"
-                                animate="visible"
-                                whileHover="hover"
-                                onHoverStart={() => setHoveredCard(stat.id)}
-                                onHoverEnd={() => setHoveredCard(null)}
-                                className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:border-white/5"
+                                key={i}
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.9 },
+                                    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } }
+                                }}
+                                whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                             >
-                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5 dark:opacity-10`} />
-                                <motion.div
-                                    animate={{
-                                        scale: hoveredCard === stat.id ? 1.5 : 1,
-                                        opacity: hoveredCard === stat.id ? 0.4 : 0.2,
-                                    }}
-                                    className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.orbColor} blur-3xl transition-all duration-500`}
-                                />
-                                <div className="relative flex items-center gap-4">
-                                    <motion.div
-                                        whileHover={{ scale: 1.1, rotate: 10 }}
-                                        className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.iconBg} text-white shadow-lg ${stat.shadow}`}
-                                    >
-                                        <stat.icon className="h-7 w-7" />
-                                    </motion.div>
-                                    <div>
-                                        <p className="text-sm font-medium text-neutral-500 dark:text-gray-400 uppercase tracking-wider">{stat.label}</p>
-                                        <div className="mt-1">
-                                            <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                                {stat.value}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <StatCard imageIcon={card.imageIcon} label={card.label} value={card.value} color={card.color} />
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
 
                     <div className="grid gap-8 lg:grid-cols-2">
                         {/* Upload Section */}
@@ -725,5 +710,69 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                 </div>
             </div>
         </AppLayout>
+    );
+}
+
+function StatCard({ icon: Icon, imageIcon, label, value, sub, color }: { icon?: any; imageIcon?: string; label: string; value: number | string; sub?: string; color: string }) {
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Map colors to matching dashboard configurations
+    const colorConfigs: Record<string, any> = {
+        emerald: { bg: 'bg-emerald-500', hoverShadow: 'group-hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', iconBg: 'from-emerald-400 to-teal-600 shadow-emerald-500/30' },
+        orange: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-orange-400 to-orange-600 shadow-orange-500/30' },
+        amber: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-amber-400 to-orange-600 shadow-amber-500/30' },
+        purple: { bg: 'bg-violet-500', hoverShadow: 'group-hover:shadow-violet-500/10', gradientBg: 'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10', iconBg: 'from-violet-400 to-purple-600 shadow-violet-500/30' },
+        blue: { bg: 'bg-sky-500', hoverShadow: 'group-hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', iconBg: 'from-sky-400 to-indigo-600 shadow-sky-500/30' },
+        red: { bg: 'bg-red-500', hoverShadow: 'group-hover:shadow-red-500/10', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', iconBg: 'from-red-400 to-rose-600 shadow-red-500/30' },
+    };
+    const c = colorConfigs[color] ?? colorConfigs.blue;
+
+    return (
+        <div
+            className={`group h-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradientBg}`} />
+
+            <motion.div
+                initial={false}
+                animate={{
+                    scale: isHovered ? 1.5 : 1,
+                    opacity: isHovered ? 0.4 : 0.2,
+                }}
+                transition={{ duration: 0.5 }}
+                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.bg} blur-3xl transition-all duration-500`}
+            />
+
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+                {imageIcon ? (
+                    <motion.div
+                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        <img src={imageIcon} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" alt={label} />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        className={`relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${c.iconBg} text-white shadow-lg`}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
+                    </motion.div>
+                )}
+                <div>
+                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-gray-400 uppercase tracking-wider">{label}</p>
+                    <div className="mt-0.5 sm:mt-1">
+                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                            {value}
+                        </span>
+                    </div>
+                    {sub && <p className="text-[8px] sm:text-xs leading-tight text-neutral-400 mt-0.5">{sub}</p>}
+                </div>
+            </div>
+        </div>
     );
 }
