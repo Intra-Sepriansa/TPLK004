@@ -66,6 +66,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
+import HelpIcon from '@/assets/admin/help-center/help.png';
 
 interface FAQ {
     id: string;

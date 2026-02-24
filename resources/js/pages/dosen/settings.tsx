@@ -6,10 +6,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Head } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
     RefreshCw, CheckCircle, AlertCircle, Settings as SettingsIcon,
     Bell, Palette, Shield, Lock, Database, GraduationCap, Users as UsersIcon,
-    Globe, Moon, Sun, Download, Upload, Trash2, Layout, BookOpen, Clock, 
+    Globe, Moon, Sun, Download, Upload, Trash2, Layout, BookOpen, Clock,
     Calendar, QrCode, Mail, Volume2, Minimize2, Eye, Phone, Save
 } from 'lucide-react';
 import DosenLayout from '@/layouts/dosen-layout';
@@ -17,6 +17,7 @@ import { SkeletonGrid } from '@/components/ui/skeleton-loader';
 import { useTranslation, type Language } from '@/i18n';
 import { useTheme, type Theme } from '@/hooks/useTheme';
 import axios from 'axios';
+import PengaturanIcon from '@/assets/admin/pengaturan/pengaturan.png';
 
 type ToastType = { type: 'success' | 'error'; message: string } | null;
 
@@ -209,28 +210,28 @@ export default function DosenSettings({ dosen }: DosenProps) {
         <DosenLayout dosen={dosen}>
             <Head title="Pengaturan" />
             <div className="space-y-6 md:space-y-10 p-4 md:p-8 pb-32 max-w-7xl mx-auto">
-                
+
                 {/* 1. HEADER SECTION */}
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }} 
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
                     className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600 p-8 md:p-12 text-white shadow-2xl"
                 >
                     {/* Animated Grain Noise Background */}
                     <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
-                    
+
                     {/* Pulsating Rings & Floating Orbs */}
                     <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-white/20 blur-3xl pointer-events-none" />
                     <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
-                    
+
                     <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-                        <motion.div 
-                            whileHover={{ scale: 1.1, rotate: 15 }} 
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }} 
-                            className="flex h-24 w-24 items-center justify-center rounded-[1.5rem] bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl ring-4 ring-white/10"
+                        <motion.div
+                            whileHover={{ scale: 1.1, rotate: 15 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                            className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
                         >
-                            <SettingsIcon className="h-12 w-12 text-white drop-shadow-md" />
+                            <img src={PengaturanIcon} alt="Pengaturan" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                         </motion.div>
                         <div>
                             <p className="font-semibold tracking-wider text-fuchsia-100 uppercase text-xs md:text-sm mb-1 drop-shadow-sm">Preferensi Sistem</p>
@@ -242,7 +243,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
 
                 {/* 2. SETTINGS SECTIONS (GRID LAYOUT) */}
                 <div className="grid gap-6 md:gap-8 lg:grid-cols-2 lg:items-start">
-                    
+
                     {/* A. PENGATURAN UMUM */}
                     <SettingsCard title="Pengaturan Umum" icon={Globe} delay={0.1}>
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-colors border border-transparent hover:border-fuchsia-500/20">
@@ -356,7 +357,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200/50 dark:border-gray-800/50 p-2">
                             <span className="font-bold text-gray-900 dark:text-white flex items-center gap-2"><Volume2 className="h-4 w-4 text-indigo-500" /> Notification Sound</span>
                             <ToggleSwitch checked={settings.notifSound} onChange={() => updateSetting('notifSound', !settings.notifSound)} />
@@ -450,7 +451,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
                                 <Download className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                             </div>
                         </motion.button>
-                        
+
                         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="w-full flex items-center justify-between p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-black/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-left transition-all shadow-sm mb-4">
                             <div>
                                 <p className="font-bold text-gray-900 dark:text-white flex items-center gap-2 text-lg">Import Data</p>
@@ -490,19 +491,19 @@ export default function DosenSettings({ dosen }: DosenProps) {
                                     <p className="text-xs text-fuchsia-600 dark:text-fuchsia-400 font-medium tracking-wide">PENGATURAN BELUM TERSIMPAN</p>
                                 </div>
                                 <div className="flex items-center gap-3 w-full sm:w-auto flex-1 sm:flex-none justify-end">
-                                    <motion.button 
+                                    <motion.button
                                         onClick={() => { setSettings(initialSettings); setHasChanges(false); }}
-                                        whileHover={{ scale: 1.05 }} 
-                                        whileTap={{ scale: 0.95 }} 
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         className="px-5 py-3 rounded-2xl font-bold text-gray-600 dark:text-gray-300 bg-gray-100/80 hover:bg-gray-200 dark:bg-gray-800/80 dark:hover:bg-gray-700 transition-colors shadow-sm"
                                     >
                                         Batal
                                     </motion.button>
-                                    <motion.button 
+                                    <motion.button
                                         disabled={isSaving}
-                                        onClick={handleSave} 
-                                        whileHover={{ scale: 1.05 }} 
-                                        whileTap={{ scale: 0.95 }} 
+                                        onClick={handleSave}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
                                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-2xl font-bold text-white bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 shadow-xl shadow-fuchsia-500/20 hover:shadow-fuchsia-500/40 transition-all border border-white/20 ${isSaving ? 'opacity-70 cursor-wait' : ''}`}
                                     >
                                         {isSaving ? (

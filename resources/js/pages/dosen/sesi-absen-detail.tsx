@@ -9,6 +9,7 @@ import {
     TrendingUp, Send, Search, ChevronDown, Eye, Fingerprint, Zap,
     Smartphone, Globe, BrainCircuit, Activity, Target, Award
 } from 'lucide-react';
+import SesiAbsenIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 interface Log {
@@ -228,11 +229,8 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
-                                >
-                                    <Calendar className="h-8 w-8 text-white" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={SesiAbsenIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <div className="flex items-center gap-3">

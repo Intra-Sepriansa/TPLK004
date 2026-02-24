@@ -34,6 +34,7 @@ import EmptyState from '@/components/ui/empty-state';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 import type { GuideSummary } from '@/types/documentation';
 import { getGuides, getProgressStats } from '@/lib/documentation-api';
+import PanduanIcon from '@/assets/admin/panduan/panduan.png';
 
 interface DocumentationStats {
     totalGuides: number;
@@ -225,11 +226,8 @@ export default function DosenDocs() {
                         <div className="flex items-center justify-between flex-wrap gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
-                                >
-                                    <BookOpen className="h-8 w-8 text-white" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={PanduanIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-white/90 font-medium tracking-wide flex items-center gap-2">

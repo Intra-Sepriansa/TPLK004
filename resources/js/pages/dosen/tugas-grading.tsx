@@ -17,6 +17,7 @@ import {
     AlertTriangle, TrendingUp, TrendingDown, Search, Filter, ArrowUpDown, FileSpreadsheet, BarChart3,
     CheckSquare, X, LayoutGrid, List, Zap, ChevronLeft, ChevronRight, ShieldAlert, Hourglass,
 } from 'lucide-react';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 type Submission = {
     id: number;
@@ -150,8 +151,8 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                         </motion.button>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg">
-                                    <Award className="h-8 w-8 text-white" />
+                                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-white/70">Penilaian Tugas</p>

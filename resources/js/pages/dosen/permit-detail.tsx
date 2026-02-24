@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
+import JadwalIcon from '@/assets/admin/jadwal/jadwal.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */

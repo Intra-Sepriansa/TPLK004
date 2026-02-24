@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import React from 'react';
+import SesiAbsenIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
 
 interface Template { id: number; name: string; description: string | null; category: string; course_id: number | null; tags: string[] | null; duration_minutes: number; qr_refresh_interval: number; allow_late_minutes: number; grace_period_minutes: number; default_days: number[] | null; require_selfie: boolean; selfie_verification_level: string; require_location: boolean; location_radius_meters: number; anti_spoofing: boolean; max_attempts: number; auto_activate: boolean; auto_activate_time: string | null; auto_deactivate: boolean; auto_deactivate_time: string | null; send_reminder: boolean; reminder_minutes_before: number; is_active: boolean; is_draft: boolean; is_favorite: boolean; course?: { id: number; nama: string; sks?: number }; }
 interface Props { dosen: { id: number; nama: string }; template?: Template; courses: Array<{ id: number; nama: string; sks: number }>; mode: 'create' | 'edit'; }
@@ -93,7 +94,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/session-templates')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30"><ArrowLeft className="h-6 w-6" /></motion.button>
-                                <motion.div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>{mode === 'create' ? <Plus className="h-8 w-8" /> : <Edit className="h-8 w-8" />}</motion.div>
+                                <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}><img src={SesiAbsenIcon} alt="Sesi" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" /></motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">{mode === 'create' ? 'Buat Template Baru' : 'Edit Template'}</p>
                                     <h1 className="text-3xl font-bold text-white">{f.name || 'Template Sesi Absensi'}</h1>

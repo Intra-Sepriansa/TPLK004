@@ -5,7 +5,10 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useMemo } from 'react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import CourseImg from '@/assets/dosen/dashboard/course-icon.png';
+import CourseImg from '@/assets/dosen/matakuliah/mata-kuliah.png';
+import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
+import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
+import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
 
 interface Course {
     id: number;
@@ -81,9 +84,9 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
 
     const summaryCards = [
         { key: 'total', icon: CheckCircle, label: 'Total Hadir', value: stats.totalHadir, sub: 'Semua sesi rute ini', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Semua Status', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'sessions', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10', pulse: false },
-        { key: 'rate', icon: TrendingUp, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'students', imgSrc: StatTotalStudents, label: 'Total Mahasiswa', value: stats.totalStudents, sub: 'Semua Status', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'sessions', imgSrc: StatTotalSessions, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10', pulse: false },
+        { key: 'rate', imgSrc: StatAttendanceRate, label: 'Rata-rata Kehadiran', value: stats.avgAttendanceRate, suffix: '%', sub: 'Tingkat kehadiran', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
     ];
 
     const tabs = [
@@ -157,8 +160,8 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                 className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-3">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-6 w-6" />
+                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                     {/* Pulse animation removed */}
                                 </motion.div>
                                 <div>

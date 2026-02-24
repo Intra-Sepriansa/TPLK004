@@ -5,7 +5,8 @@ import {
     BarChart3, TrendingUp, Users, Clock, AlertTriangle, Filter,
     Calendar, Download, ChevronDown, ArrowUpRight, ArrowDownRight,
     Zap, Brain, Shield, Search, MoreHorizontal, PieChart,
-    Activity, Target, Smartphone, Moon, Sun, Cloud, Edit, X
+    Activity, Target, Smartphone, Moon, Sun, Cloud, Edit, X,
+    Sparkles, Scan, Eye, Fingerprint, MapPin, BrainCircuit, FileText, CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
@@ -105,6 +106,12 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
     const [activeTab, setActiveTab] = useState('overview'); // overview, history, calendar
 
+    // AI Report State
+    const [showAIReportModal, setShowAIReportModal] = useState(false);
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [aiGenerationStep, setAiGenerationStep] = useState(0);
+    const [aiReportReady, setAiReportReady] = useState(false);
+
     // Sync local state with props if filters change externally
     useEffect(() => {
         setTimeRange(filters.period);
@@ -147,6 +154,26 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
     const closeModal = () => {
         setSelectedStudentId(null);
         setStudentDetail(null);
+    };
+
+    const handleGenerateReport = () => {
+        setShowAIReportModal(true);
+        setIsGeneratingAI(true);
+        setAiGenerationStep(0);
+        setAiReportReady(false);
+
+        const steps = [0, 1, 2, 3, 4, 5, 6];
+        steps.forEach((step, i) => {
+            setTimeout(() => {
+                setAiGenerationStep(step + 1);
+                if (step === 6) {
+                    setTimeout(() => {
+                        setIsGeneratingAI(false);
+                        setAiReportReady(true);
+                    }, 600);
+                }
+            }, i * 600);
+        });
     };
 
     // Helper to map icon string to component
@@ -477,7 +504,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                             </AnimatePresence>
                         </div>
 
-                        <button className="mt-6 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group">
+                        <button onClick={handleGenerateReport} className="mt-6 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 group">
                             <Zap className="h-4 w-4 group-hover:fill-current transition-all" />
                             Generate Full Report
                         </button>
@@ -904,6 +931,121 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                 )
                 }
             </AnimatePresence >
+
+            {/* AI Report Modal */}
+            <AnimatePresence>
+                {showAIReportModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setShowAIReportModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-full max-w-4xl rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl overflow-hidden flex flex-col relative"
+                        >
+                            {/* Header Gradient */}
+                            <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-8 text-white shrink-0 border-b border-indigo-500/30">
+                                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                                <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
+                                <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl" />
+
+                                <div className="relative z-10 flex items-center justify-between">
+                                    <div className="flex items-center gap-5">
+                                        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/30 to-purple-500/30 backdrop-blur-xl border border-indigo-400/30 ${isGeneratingAI ? 'animate-pulse' : ''}`}>
+                                            <BrainCircuit className={`h-8 w-8 text-indigo-300 ${isGeneratingAI ? 'animate-spin' : ''}`} />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3">
+                                                <h2 className="text-2xl font-bold text-white">AI Neural Engine</h2>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${aiReportReady ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' : 'bg-amber-500/20 border-amber-400/30 text-amber-300 animate-pulse'}`}>
+                                                    ● {aiReportReady ? 'COMPLETE' : 'ANALYZING...'}
+                                                </span>
+                                            </div>
+                                            <p className="text-indigo-300/80 text-sm mt-1">
+                                                {isGeneratingAI ? `Processing global dataset... Step ${aiGenerationStep}/7` : 'Global Analytics Report Generated'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setShowAIReportModal(false)} className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md">
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="p-8 bg-slate-50 dark:bg-neutral-900 min-h-[300px]">
+                                {isGeneratingAI ? (
+                                    <div className="space-y-8">
+                                        <div className="flex justify-between text-sm font-bold text-indigo-900 dark:text-indigo-300">
+                                            <span>Processing Pipeline</span>
+                                            <span className="font-mono">{Math.min(Math.round((aiGenerationStep / 7) * 100), 100)}%</span>
+                                        </div>
+                                        <div className="h-4 bg-indigo-100 dark:bg-indigo-900/50 rounded-full overflow-hidden shadow-inner flex">
+                                            <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500 ease-out" style={{ width: `${Math.min((aiGenerationStep / 7) * 100, 100)}%` }} />
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mt-8">
+                                            {[
+                                                { n: 'Data Load', I: Activity }, { n: 'Pattern Match', I: Scan }, { n: 'Behavioral', I: Users },
+                                                { n: 'Risk Assess', I: AlertTriangle }, { n: 'Geo-Spatial', I: MapPin }, { n: 'Forecasting', I: TrendingUp }, { n: 'Compile', I: FileText },
+                                            ].map((p, i) => (
+                                                <div key={p.n} className={`rounded-2xl p-4 text-center border transition-all duration-300 shadow-sm ${i < aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-emerald-500/30 shadow-emerald-500/10' : i === aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-amber-500/50 shadow-amber-500/20 animate-pulse' : 'bg-slate-100 dark:bg-neutral-900/50 border-transparent opacity-50'}`}>
+                                                    <p.I className={`h-6 w-6 mx-auto mb-2 ${i < aiGenerationStep ? 'text-emerald-500' : i === aiGenerationStep ? 'text-amber-500' : 'text-slate-400'}`} />
+                                                    <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{p.n}</p>
+                                                    <p className={`text-[9px] font-bold mt-1 ${i < aiGenerationStep ? 'text-emerald-500' : i === aiGenerationStep ? 'text-amber-500' : 'text-slate-400'}`}>
+                                                        {i < aiGenerationStep ? '✓ DONE' : i === aiGenerationStep ? '⏳ RUNNING' : 'PENDING'}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-center gap-4 mb-8">
+                                            <div className="h-16 w-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                                                <CheckCircle className="h-8 w-8 text-emerald-500" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Analysis Complete</h3>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400">The AI has finished processing the global attendance dataset.</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div className="p-5 rounded-2xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 shadow-sm text-center">
+                                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Data Points</p>
+                                                <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">12,450</p>
+                                            </div>
+                                            <div className="p-5 rounded-2xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 shadow-sm text-center">
+                                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Anomalies</p>
+                                                <p className="text-2xl font-black text-amber-500 dark:text-amber-400">{stats?.fraud_attempts || 0}</p>
+                                            </div>
+                                            <div className="p-5 rounded-2xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 shadow-sm text-center">
+                                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Confidence</p>
+                                                <p className="text-2xl font-black text-emerald-500 dark:text-emerald-400">98.5%</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-end gap-3 pt-6 border-t border-slate-200 dark:border-neutral-800">
+                                            <button onClick={() => setShowAIReportModal(false)} className="px-6 py-2.5 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-800 transition-colors">
+                                                Tutup
+                                            </button>
+                                            <button onClick={() => { handleExport(); setShowAIReportModal(false); }} className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-500/30 transition-colors flex items-center gap-2">
+                                                <Download className="h-4 w-4" />
+                                                Download Report PDF
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </AppLayout >
     );
 }

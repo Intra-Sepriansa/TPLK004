@@ -28,6 +28,11 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RekapIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
+import TotalScanIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
+import DitolakIcon from '@/assets/admin/rekap-kehadiran/ditolak.png';
 
 // ─── Types ───────────────────────────────────────────────
 interface DosenInfo {
@@ -282,10 +287,10 @@ export default function DosenRekapan({
 
     // ─── Stat cards config ───────────────────────────────
     const statCards = [
-        { key: 'total', label: 'Total Mahasiswa', value: stats.total, icon: Users, gradient: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', bgGlow: 'bg-blue-500', bgOverlay: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10' },
-        { key: 'hadir', label: 'Hadir', value: stats.hadir, icon: CheckCircle, gradient: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30', bgGlow: 'bg-emerald-500', bgOverlay: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
-        { key: 'terlambat', label: 'Terlambat', value: stats.terlambat, icon: Clock, gradient: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', bgGlow: 'bg-amber-500', bgOverlay: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
-        { key: 'tidak_hadir', label: 'Tidak Hadir', value: stats.tidak_hadir, icon: XCircle, gradient: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30', bgGlow: 'bg-red-500', bgOverlay: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
+        { key: 'total', label: 'Total Mahasiswa', value: stats.total, imgSrc: TotalScanIcon, gradient: 'from-blue-400 to-cyan-600', shadow: 'shadow-blue-500/30', bgGlow: 'bg-blue-500', bgOverlay: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10' },
+        { key: 'hadir', label: 'Hadir', value: stats.hadir, imgSrc: HadirIcon, gradient: 'from-emerald-400 to-teal-600', shadow: 'shadow-emerald-500/30', bgGlow: 'bg-emerald-500', bgOverlay: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10' },
+        { key: 'terlambat', label: 'Terlambat', value: stats.terlambat, imgSrc: TerlambatIcon, gradient: 'from-amber-400 to-orange-600', shadow: 'shadow-amber-500/30', bgGlow: 'bg-amber-500', bgOverlay: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10' },
+        { key: 'tidak_hadir', label: 'Tidak Hadir', value: stats.tidak_hadir, imgSrc: DitolakIcon, gradient: 'from-red-400 to-rose-600', shadow: 'shadow-red-500/30', bgGlow: 'bg-red-500', bgOverlay: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10' },
     ];
 
     // ═════════════════════════════════════════════════════
@@ -444,8 +449,8 @@ export default function DosenRekapan({
                                 <div className={`absolute inset-0 bg-gradient-to-br ${card.bgOverlay}`} />
                                 <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }} className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${card.bgGlow} blur-3xl transition-all duration-500`} />
                                 <div className="relative flex items-center gap-4">
-                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${card.gradient} text-white shadow-lg ${card.shadow}`}>
-                                        <card.icon className="h-7 w-7" />
+                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                        <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                     </motion.div>
                                     <div>
                                         <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
@@ -503,8 +508,8 @@ export default function DosenRekapan({
                         <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
                         <div className="relative flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-lg">
-                                    <FileText className="h-6 w-6 text-white" />
+                                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={RekapIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <h2 className="text-2xl font-bold tracking-tight">Daftar Kehadiran</h2>

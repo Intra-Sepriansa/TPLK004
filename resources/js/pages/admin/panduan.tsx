@@ -1186,6 +1186,7 @@ export default function AdminPanduan() {
     const [activeSection, setActiveSection] = useState('overview');
     const [searchQuery, setSearchQuery] = useState('');
     const [copied, setCopied] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const currentChapter = chapters.find(c => c.id === activeChapter);
     const currentContent = contentData[activeSection];
@@ -1217,125 +1218,16 @@ export default function AdminPanduan() {
                 <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] rounded-full bg-pink-500/10 blur-[80px]" />
             </div>
 
-            <div className="relative z-10 flex h-full gap-6 p-6">
-                {/* Modern Glass Sidebar */}
-                <motion.div
-                    initial={{ x: -50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="w-80 flex-shrink-0 flex flex-col rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-2xl overflow-hidden h-[calc(100vh-6rem)]"
-                >
-                    <div className="p-6 border-b border-white/10 bg-white/10 backdrop-blur-md relative overflow-hidden">
-                        {/* Interactive Background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/10 animate-pulse" />
+            <div className="relative z-10 flex flex-col h-full gap-4 lg:gap-6 p-4 lg:p-6">
 
-                        <div className="relative z-10 flex items-center gap-4 mb-5">
-                            <motion.div
-                                className="relative flex shrink-0 h-16 w-16"
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
-                                whileHover={{ scale: 1.05, rotate: 5 }}
-                            >
-                                <img src={panduanIcon} alt="Panduan Admin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" />
-                            </motion.div>
-                            <div>
-                                <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Panduan Admin</h1>
-                                <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5">Dokumentasi</p>
-                            </div>
-                        </div>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                placeholder="Cari topik..."
-                                className="w-full rounded-xl border border-white/20 bg-white/50 pl-10 pr-4 py-2.5 text-sm text-slate-800 transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white dark:bg-black/20 dark:text-white dark:border-white/10 dark:focus:border-indigo-500"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
-                        {filteredChapters.map((chapter, index) => {
-                            const Icon = chapter.icon;
-                            const isActive = chapter.id === activeChapter;
-                            return (
-                                <motion.div
-                                    key={chapter.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 + index * 0.05 }}
-                                    className={`rounded - 2xl transition - all duration - 300 overflow - hidden ${isActive ? 'bg-white/60 dark:bg-white/5 shadow-lg border border-white/20' : 'hover:bg-white/30 dark:hover:bg-white/5'
-                                        } `}
-                                >
-                                    <button
-                                        onClick={() => {
-                                            setActiveChapter(chapter.id);
-                                            if (chapter.sections.length > 0) {
-                                                setActiveSection(chapter.sections[0].id);
-                                            }
-                                        }}
-                                        className={`w - full flex items - center gap - 3 p - 3 transition - all ${isActive
-                                            ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10'
-                                            : ''
-                                            } `}
-                                    >
-                                        <div className={`p - 2 rounded - lg ${isActive ? `bg-gradient-to-br ${chapter.color} text-white shadow-md` : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'} `}>
-                                            <Icon className="h-5 w-5" />
-                                        </div>
-                                        <span className={`font - semibold text - sm ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-400'} `}>
-                                            {chapter.title}
-                                        </span>
-                                        <ChevronRight className={`h - 4 w - 4 ml - auto text - slate - 400 transition - transform duration - 300 ${isActive ? 'rotate-90 text-indigo-500' : ''} `} />
-                                    </button>
-
-                                    <AnimatePresence>
-                                        {isActive && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                                            >
-                                                <div className="pb-2 px-2 space-y-1">
-                                                    {chapter.sections.map(section => (
-                                                        <motion.button
-                                                            key={section.id}
-                                                            whileHover={{ x: 4 }}
-                                                            onClick={() => setActiveSection(section.id)}
-                                                            className={`w - full text - left px - 4 py - 2 rounded - xl text - sm transition - colors relative ${activeSection === section.id
-                                                                ? 'text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-900/20'
-                                                                : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                                                                } `}
-                                                        >
-                                                            {activeSection === section.id && (
-                                                                <motion.div
-                                                                    layoutId="activeSectionIndicator"
-                                                                    className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-1 bg-indigo-500 rounded-r-full"
-                                                                />
-                                                            )}
-                                                            <span className="relative z-10 pl-2">{section.title}</span>
-                                                        </motion.button>
-                                                    ))}
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </motion.div>
-
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col gap-6 overflow-hidden h-[calc(100vh-6rem)]">
+                {/* Main Content Area - Full Width */}
+                <div className="flex-1 flex flex-col gap-4 lg:gap-6 overflow-hidden min-h-0">
                     {/* Header Card */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
-                        className="relative overflow-hidden rounded-3xl p-8 shrink-0 shadow-2xl"
+                        className="relative overflow-hidden rounded-2xl lg:rounded-3xl p-5 sm:p-8 shrink-0 shadow-2xl"
                     >
                         {/* Animated Gradient Background */}
                         <motion.div
@@ -1350,36 +1242,60 @@ export default function AdminPanduan() {
                         <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse" />
                         <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse delay-1000" />
 
-                        <div className="relative z-10 flex items-center justify-between">
-                            <div>
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="flex items-center gap-2 text-indigo-100 mb-2"
+                        <div className="relative z-10">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <motion.div
+                                        className="relative flex shrink-0 h-14 w-14 sm:h-16 sm:w-16"
+                                        initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                        transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                        whileHover={{ scale: 1.05, rotate: 5 }}
+                                    >
+                                        <img src={panduanIcon} alt="Panduan Admin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    </motion.div>
+                                    <div>
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="flex items-center gap-2 text-indigo-100 mb-1"
+                                        >
+                                            <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur text-xs font-semibold border border-white/20">Panduan v1.0</span>
+                                            <span className="h-1 w-1 rounded-full bg-white/50" />
+                                            <span className="text-sm font-medium">{currentChapter?.title}</span>
+                                        </motion.div>
+                                        <motion.h1
+                                            className="text-xl sm:text-2xl font-bold text-white tracking-tight drop-shadow-md"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            {currentContent?.title}
+                                        </motion.h1>
+                                    </div>
+                                </div>
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={handleCopyLink}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur border border-white/30 text-white hover:bg-white/30 transition-all shadow-lg text-sm font-medium w-fit"
                                 >
-                                    <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur text-xs font-semibold border border-white/20">Panduan v1.0</span>
-                                    <span className="h-1 w-1 rounded-full bg-white/50" />
-                                    <span className="text-sm font-medium">{currentChapter?.title}</span>
-                                </motion.div>
-                                <motion.h1
-                                    className="text-3xl font-bold text-white tracking-tight drop-shadow-md"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                >
-                                    {currentContent?.title}
-                                </motion.h1>
+                                    {copied ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
+                                    {copied ? 'Link Tersalin!' : 'Salin Link'}
+                                </motion.button>
                             </div>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleCopyLink}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 backdrop-blur border border-white/30 text-white hover:bg-white/30 transition-all shadow-lg text-sm font-medium"
-                            >
-                                {copied ? <Check className="h-4 w-4 text-emerald-300" /> : <Copy className="h-4 w-4" />}
-                                {copied ? 'Link Tersalin!' : 'Salin Link'}
-                            </motion.button>
+                            {/* Search Bar in Header */}
+                            <div className="relative mt-4">
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Cari topik panduan..."
+                                    className="w-full rounded-xl border border-white/20 bg-white/10 pl-10 pr-4 py-2.5 text-sm text-white placeholder-white/40 transition-all focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:bg-white/20 backdrop-blur-md"
+                                />
+                            </div>
                         </div>
                     </motion.div>
 
@@ -1389,11 +1305,11 @@ export default function AdminPanduan() {
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className="flex-1 overflow-y-auto rounded-3xl border border-white/20 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl shadow-2xl p-8 scrollbar-hide relative"
+                        className="flex-1 overflow-y-auto rounded-2xl lg:rounded-3xl border border-white/20 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl shadow-2xl p-4 sm:p-8 scrollbar-hide relative"
                     >
                         <div className="max-w-4xl mx-auto pb-10">
                             {/* Breadcrumbs inside content */}
-                            <div className="flex items-center gap-2 text-sm text-slate-500 mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-500 mb-6 sm:mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
                                 <Home className="h-4 w-4" />
                                 <ChevronRight className="h-4 w-4 text-slate-300" />
                                 <span>Panduan</span>
@@ -1462,6 +1378,6 @@ export default function AdminPanduan() {
                     </motion.div>
                 </div>
             </div>
-        </AppLayout>
+        </AppLayout >
     );
 }

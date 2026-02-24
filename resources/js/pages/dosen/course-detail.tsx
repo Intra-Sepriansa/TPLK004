@@ -26,6 +26,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CourseIcon from '@/assets/dosen/dashboard/course-icon.png';
+import TotalScanIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
+import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import OverdueIcon from '@/assets/admin/informasi-tugas/overdue.png';
 
 // --- Types & Interfaces ---
 
@@ -429,8 +434,8 @@ export default function CourseDetail({
                         <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-indigo-500/30 blur-3xl transition-all duration-500 group-hover:bg-indigo-500/50" />
 
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-indigo-500/30">
-                                <Users className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={TotalScanIcon} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
@@ -450,9 +455,8 @@ export default function CourseDetail({
                         <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-amber-500/30 blur-3xl transition-all duration-500 group-hover:bg-amber-500/50" />
 
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30">
-                                <div className="absolute inset-0 rounded-2xl border-2 border-white/30 opacity-20" />
-                                <Clock className="h-7 w-7 relative z-10" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={TerlambatIcon} alt="Sesi Berlangsung" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sesi Berlangsung</p>
@@ -472,8 +476,8 @@ export default function CourseDetail({
                         <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-emerald-500/30 blur-3xl transition-all duration-500 group-hover:bg-emerald-500/50" />
 
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
-                                <TrendingUp className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={HadirIcon} alt="Tingkat Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Tingkat Kehadiran</p>
@@ -495,8 +499,8 @@ export default function CourseDetail({
                         <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-rose-500/30 blur-3xl transition-all duration-500 group-hover:bg-rose-500/50" />
 
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/30">
-                                <AlertTriangle className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={OverdueIcon} alt="Tingkat < 70%" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Tingkat &lt; 70%</p>

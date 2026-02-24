@@ -13,6 +13,11 @@ import {
     Users, Calendar, AlertTriangle, Shield, FileCheck, UserCheck, UserX,
     ChevronRight, Image, Stethoscope, CalendarOff, ClipboardCheck
 } from 'lucide-react';
+import IzinIcon from '@/assets/dosen/izin-sakit/izin.png';
+import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
+import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import DitolakIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
 
 interface Props {
     permits: Array<{
@@ -106,7 +111,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
 
     const getStatusBadge = (status: string) => {
         const styles: Record<string, { bg: string; icon: any; label: string }> = {
-            pending: { bg: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white', icon: Clock, label: 'Menunggu' },
+            pending: { bg: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white', imgSrc: TerlambatIcon, label: 'Menunggu' },
             approved: { bg: 'bg-gradient-to-r from-emerald-500 to-green-500 text-white', icon: CheckCircle, label: 'Disetujui' },
             rejected: { bg: 'bg-gradient-to-r from-red-500 to-rose-500 text-white', icon: XCircle, label: 'Ditolak' },
         };
@@ -146,11 +151,11 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-3xl animate-pulse" />
                     <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
                     <div className="absolute top-1/2 left-1/2 h-48 w-48 rounded-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-                    
+
                     {/* Floating Icons */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         {[Shield, FileCheck, ClipboardCheck].map((Icon, i) => (
-                            <Icon 
+                            <Icon
                                 key={i}
                                 className="absolute text-white/10 animate-pulse"
                                 style={{
@@ -163,12 +168,12 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             />
                         ))}
                     </div>
-                    
+
                     <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50">
-                                    <Shield className="h-8 w-8" />
+                                <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={IzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-400 font-medium">Persetujuan</p>
@@ -196,12 +201,12 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             </Select>
                         </div>
                         <p className="mt-4 text-gray-400">Kelola pengajuan izin dan sakit mahasiswa</p>
-                        
+
                         {/* Quick Stats in Header */}
                         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[
                                 { icon: FileText, label: 'Total', value: stats.total, iconBg: 'bg-blue-500' },
-                                { icon: Clock, label: 'Menunggu', value: stats.pending, iconBg: 'bg-amber-500' },
+                                { imgSrc: TerlambatIcon, label: 'Menunggu', value: stats.pending, iconBg: 'bg-amber-500' },
                                 { icon: CheckCircle, label: 'Disetujui', value: stats.approved, iconBg: 'bg-emerald-500' },
                                 { icon: XCircle, label: 'Ditolak', value: stats.rejected, iconBg: 'bg-red-500' },
                             ].map((stat, i) => (
@@ -224,13 +229,13 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 {/* Stats Cards */}
                 <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
                     {[
-                        { icon: FileText, label: 'Total Pengajuan', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-black/25' },
-                        { icon: Clock, label: 'Menunggu', value: stats.pending, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
-                        { icon: UserCheck, label: 'Disetujui', value: stats.approved, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
-                        { icon: UserX, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },
+                        { imgSrc: TotalTugasIcon, label: 'Total Pengajuan', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-black/25' },
+                        { imgSrc: TerlambatIcon, label: 'Menunggu', value: stats.pending, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
+                        { imgSrc: DisetujuiIcon, label: 'Disetujui', value: stats.approved, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
+                        { imgSrc: DitolakIcon, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },
                     ].map((stat, i) => (
-                        <div 
-                            key={i} 
+                        <div
+                            key={i}
                             className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
                             style={{ transitionDelay: `${i * 100}ms` }}
                         >
@@ -260,9 +265,9 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             <span className="font-medium text-blue-700 dark:text-blue-300">{selectedPermits.length} pengajuan dipilih</span>
                         </div>
                         <div className="flex gap-2 ml-auto">
-                            <Button 
-                                size="sm" 
-                                onClick={handleBulkApprove} 
+                            <Button
+                                size="sm"
+                                onClick={handleBulkApprove}
                                 className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/25"
                             >
                                 <Check className="h-4 w-4 mr-1" /> Setujui Semua
@@ -285,7 +290,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                     <p className="text-xs text-slate-500">{filteredPermits.length} pengajuan</p>
                                 </div>
                             </div>
-                            
+
                             {/* Custom Tabs */}
                             <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
                                 {[
@@ -319,7 +324,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="p-4">
                         {/* Select All for Pending */}
                         {activeTab === 'pending' && pendingPermits.length > 0 && (
@@ -331,7 +336,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 <span className="text-sm text-slate-600 dark:text-slate-400">Pilih Semua ({pendingPermits.length})</span>
                             </div>
                         )}
-                        
+
                         {filteredPermits.length === 0 ? (
                             <div className="text-center py-16">
                                 <div className="relative mx-auto w-24 h-24 mb-6">
@@ -348,7 +353,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 {filteredPermits.map((permit, index) => {
                                     const isHovered = hoveredCard === permit.id;
                                     return (
-                                        <div 
+                                        <div
                                             key={permit.id}
                                             onMouseEnter={() => setHoveredCard(permit.id)}
                                             onMouseLeave={() => setHoveredCard(null)}
@@ -359,7 +364,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                                 permit.status === 'rejected' && 'border-red-200 bg-gradient-to-br from-red-50/50 to-rose-50/50 dark:border-red-800 dark:from-red-950/20 dark:to-rose-950/20',
                                                 isHovered && 'scale-[1.01] shadow-xl'
                                             )}
-                                            style={{ 
+                                            style={{
                                                 animationDelay: `${index * 50}ms`,
                                                 animation: isLoaded ? 'fadeInUp 0.5s ease-out forwards' : 'none'
                                             }}
@@ -368,7 +373,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                             {isHovered && (
                                                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 pointer-events-none" />
                                             )}
-                                            
+
                                             <div className="flex flex-col md:flex-row md:items-start gap-4 relative">
                                                 {permit.status === 'pending' && (
                                                     <div className="flex items-center">
@@ -378,14 +383,14 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                                         />
                                                     </div>
                                                 )}
-                                                
+
                                                 <div className="flex-1">
                                                     {/* Badges */}
                                                     <div className="flex flex-wrap items-center gap-2 mb-3">
                                                         {getTypeBadge(permit.type)}
                                                         {getStatusBadge(permit.status)}
                                                     </div>
-                                                    
+
                                                     {/* Student Info */}
                                                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                                                         <div className="flex items-center gap-3">
@@ -407,12 +412,12 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     {/* Reason */}
                                                     <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 mb-3">
                                                         <p className="text-sm text-slate-700 dark:text-slate-300">{permit.reason}</p>
                                                     </div>
-                                                    
+
                                                     {/* Rejection Reason */}
                                                     {permit.status === 'rejected' && permit.rejection_reason && (
                                                         <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 mb-3">
@@ -423,16 +428,16 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                                             <p className="text-sm text-red-600 dark:text-red-400">{permit.rejection_reason}</p>
                                                         </div>
                                                     )}
-                                                    
+
                                                     <p className="text-xs text-slate-400">Diajukan: {permit.created_at}</p>
                                                 </div>
-                                                
+
                                                 {/* Actions */}
                                                 <div className="flex flex-wrap gap-2 md:flex-col">
                                                     {permit.attachment && (
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="sm" 
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
                                                             onClick={() => setPreviewImage(permit.attachment)}
                                                             className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400"
                                                         >
@@ -441,16 +446,16 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                                     )}
                                                     {permit.status === 'pending' && (
                                                         <>
-                                                            <Button 
-                                                                size="sm" 
+                                                            <Button
+                                                                size="sm"
                                                                 onClick={() => handleApprove(permit.id)}
                                                                 className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/25"
                                                             >
                                                                 <Check className="h-4 w-4 mr-1" /> Setujui
                                                             </Button>
-                                                            <Button 
-                                                                size="sm" 
-                                                                variant="destructive" 
+                                                            <Button
+                                                                size="sm"
+                                                                variant="destructive"
                                                                 onClick={() => setRejectDialog({ open: true, permitId: permit.id })}
                                                                 className="bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700"
                                                             >
@@ -481,10 +486,10 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                         </div>
                                         <h2 className="text-xl font-bold text-white">Tolak Pengajuan</h2>
                                     </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => setRejectDialog({ open: false, permitId: null })} 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setRejectDialog({ open: false, permitId: null })}
                                         className="text-white hover:bg-white/20"
                                     >
                                         <X className="h-5 w-5" />
@@ -512,16 +517,16 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                 </div>
                                 <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                     <div className="flex gap-3">
-                                        <Button 
-                                            type="button" 
-                                            variant="outline" 
-                                            onClick={() => setRejectDialog({ open: false, permitId: null })} 
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setRejectDialog({ open: false, permitId: null })}
                                             className="flex-1"
                                         >
                                             Batal
                                         </Button>
-                                        <Button 
-                                            type="submit" 
+                                        <Button
+                                            type="submit"
                                             disabled={rejectForm.processing}
                                             className="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700"
                                         >
@@ -547,10 +552,10 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                                         </div>
                                         <h2 className="text-xl font-bold text-white">Surat Keterangan</h2>
                                     </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => setPreviewImage(null)} 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setPreviewImage(null)}
                                         className="text-white hover:bg-white/20"
                                     >
                                         <X className="h-5 w-5" />
@@ -568,7 +573,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                     </div>
                 )}
             </div>
-            
+
             <style>{`
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }

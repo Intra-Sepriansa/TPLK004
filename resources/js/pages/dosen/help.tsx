@@ -20,6 +20,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import HelpIcon from '@/assets/admin/help-center/help.png';
 
 // --- TYPES ---
 type Category = { id: string; name: string; icon: any; description: string; articleCount: number; rating: number; badge?: string; color: string; };
@@ -122,8 +123,8 @@ export default function DosenHelp({ auth }: any) {
           <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto space-y-6">
-            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: "spring", stiffness: 300, damping: 15 }} className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl ring-4 ring-white/10">
-              <HelpCircle className="h-10 w-10 text-white drop-shadow-md" />
+            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: "spring", stiffness: 300, damping: 15 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={HelpIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
             </motion.div>
             <div>
               <p className="font-semibold tracking-wider text-fuchsia-100 uppercase text-xs md:text-sm mb-1 drop-shadow-sm">Panduan Sistem</p>

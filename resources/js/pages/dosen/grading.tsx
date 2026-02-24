@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Users, Award, TrendingUp, AlertTriangle, Search, Download, FileText, ChevronRight, CheckCircle, XCircle, BarChart3, Trophy } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 interface StudentGrade {
   mahasiswa_id: number; nama: string; nim: string; total_sessions: number; attended_sessions: number;
@@ -71,7 +72,8 @@ export default function Grading({ dosen, course, sessions, grades }: Props) {
           <div className="relative">
             <div className="flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center gap-5">
-                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }} className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><Award className="h-8 w-8 text-white" /></motion.div>
+                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" /></motion.div>
                 <div>
                   <p className="text-sm text-indigo-100 font-medium tracking-wide">Penilaian Kehadiran</p>
                   <h1 className="text-3xl font-bold text-white">{course.nama}</h1>

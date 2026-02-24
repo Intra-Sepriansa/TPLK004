@@ -31,6 +31,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import RekapIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
 
 // ─── Types ───────────────────────────────────────────────
 interface PageProps {
@@ -199,7 +200,7 @@ export default function RekapanDetail({ log, mahasiswa, course, session, selfieV
                                 {mahasiswa.avatar_url ? (
                                     <img src={mahasiswa.avatar_url} alt={mahasiswa.nama} className="h-20 w-20 rounded-2xl object-cover border-2 border-white/30 shadow-xl" />
                                 ) : (
-                                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl">
+                                    <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
                                         <span className="text-3xl font-bold text-white">{mahasiswa.nama.charAt(0)}</span>
                                     </div>
                                 )}

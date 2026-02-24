@@ -10,6 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ArrowLeft, Award, BookOpen, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap, Clock, User, Edit3, CheckCircle, AlertTriangle, FileText, Users, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
@@ -114,8 +115,8 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-6">
                             <div className="flex items-center gap-5">
-                                <motion.div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                    <FileText className="h-8 w-8 text-white" />
+                                <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <h1 className="text-3xl font-bold text-white leading-tight">{tugas.judul}</h1>

@@ -217,7 +217,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               </div>
             </div>
             <motion.div
-              className="w-full md:w-auto flex justify-center md:justify-end shrink-0"
+              className="w-fit mx-auto md:mx-0 flex justify-center md:justify-end shrink-0"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}
@@ -225,7 +225,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogTrigger asChild>
                   <motion.button
-                    className="flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
+                    className="flex w-fit justify-center items-center gap-2 rounded-xl bg-white/20 px-6 py-3.5 text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-xl border border-white/20 shadow-lg"
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.97 }}
                   >
@@ -498,9 +498,10 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             </div>
             <h2 className="font-bold text-neutral-900 dark:text-white text-lg">Filter Notifikasi</h2>
           </div>
-          <div className="flex flex-wrap gap-3 items-center">
+          {/* Filter Controls Row */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[200px] bg-white/60 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white">
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/60 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white">
                 <SelectValue placeholder="Semua Tipe" />
               </SelectTrigger>
               <SelectContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
@@ -515,7 +516,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[200px] bg-white/60 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white">
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/60 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-white">
                 <SelectValue placeholder="Semua Status" />
               </SelectTrigger>
               <SelectContent className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800">
@@ -529,7 +530,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleFilter}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all"
+              className="w-full sm:w-auto flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all sm:ml-auto md:ml-0"
             >
               <Filter className="h-4 w-4" />
               Filter
@@ -544,7 +545,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleBulkDelete}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all ml-auto"
+                  className="w-full sm:w-auto flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all sm:ml-auto"
                 >
                   <Trash2 className="h-4 w-4" />
                   Hapus ({selectedIds.length})

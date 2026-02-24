@@ -18,6 +18,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import moment from 'moment';
+import SelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
+import TotalSelfieIcon from '@/assets/admin/verifikasi-selfie/total-selfie.png';
+import PendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
+import DisetujuiIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import DitolakSelfieIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
 
 /* ═══════════════════════════ TYPES ═══════════════════════════ */
 interface Mahasiswa {
@@ -134,10 +139,10 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
     /* ═══ Card data for summary row ═══ */
     /* ═══ Card data for summary row ═══ */
     const summaryCards = [
-        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'Total data masuk', icon: Camera, gradient: 'from-blue-400 to-indigo-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'Perlu tinjauan', icon: Clock, gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
-        { key: 'approved', label: 'Disetujui', value: stats.approved_today, sub: 'Hari ini', icon: CheckCircle, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'Ditolak sistem/dosen', icon: XCircle, gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
+        { key: 'total', label: 'Total Verifikasi', value: stats.total, sub: 'Total data masuk', imgSrc: TotalSelfieIcon, gradient: 'from-blue-400 to-indigo-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'pending', label: 'Pending Review', value: stats.pending, sub: 'Perlu tinjauan', imgSrc: PendingIcon, gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'approved', label: 'Disetujui', value: stats.approved_today, sub: 'Hari ini', imgSrc: DisetujuiIcon, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'rejected', label: 'Ditolak', value: stats.rejected, sub: 'Ditolak sistem/dosen', imgSrc: DitolakSelfieIcon, gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     return (
@@ -157,8 +162,8 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
-                                    <Camera className="h-8 w-8 text-white" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={SelfieIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Verifikasi Kehadiran</p>
@@ -212,8 +217,8 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                                 className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-3">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-6 w-6" />
+                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>

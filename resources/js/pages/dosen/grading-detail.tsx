@@ -7,6 +7,7 @@ import { ArrowLeft, Download, FileText, Printer, X, Check, TrendingUp, Award, Ch
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, LabelList } from 'recharts';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 interface AttRec { id: number; meeting_number: number; session_title: string; session_date: string; session_time: string; status: 'present' | 'late' | 'permit' | 'sick' | 'absent' | 'rejected'; points: number; check_in_time?: string | null; check_in_location?: { latitude: number; longitude: number; address?: string | null } | null; selfie_photo?: string | null; notes?: string | null; device_info?: string | null; edited_by?: string | null; edit_reason?: string | null; }
 interface DNote { id: number; content: string; title: string; created_by: string; created_at: string; is_important: boolean; is_visible_to_student: boolean; }

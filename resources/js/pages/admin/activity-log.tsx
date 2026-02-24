@@ -114,7 +114,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                     <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-                    
+
 
                     <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
                         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
@@ -159,7 +159,7 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
 
                 {/* Stats - Staggered Spring Animations */}
                 <motion.div
-                    className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3"
+                    className="grid grid-cols-3 gap-2 sm:gap-4"
                     initial="hidden"
                     animate="visible"
                     variants={{
@@ -574,7 +574,7 @@ function StatCard({ icon: Icon, imageIcon, label, value, sub, color }: { icon?: 
 
     return (
         <div
-            className={`group h-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer`}
+            className={`group h-full relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-2 sm:p-5 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer flex flex-col justify-center`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -590,10 +590,10 @@ function StatCard({ icon: Icon, imageIcon, label, value, sub, color }: { icon?: 
                 className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.bg} blur-3xl transition-all duration-500`}
             />
 
-            <div className="relative flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+            <div className="relative flex flex-col xl:flex-row items-center xl:items-start text-center xl:text-left gap-1.5 sm:gap-3">
                 {imageIcon ? (
                     <motion.div
-                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                        className="relative flex shrink-0 h-7 w-7 sm:h-12 sm:w-12 items-center justify-center"
                         whileHover={{ scale: 1.1, rotate: 10 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
@@ -601,21 +601,21 @@ function StatCard({ icon: Icon, imageIcon, label, value, sub, color }: { icon?: 
                     </motion.div>
                 ) : (
                     <motion.div
-                        className={`relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${c.iconBg} text-white shadow-lg`}
+                        className={`relative flex shrink-0 h-7 w-7 sm:h-12 sm:w-12 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br ${c.iconBg} text-white shadow-lg`}
                         whileHover={{ scale: 1.1, rotate: 10 }}
                         transition={{ type: 'spring', stiffness: 300 }}
                     >
-                        {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
+                        {Icon && <Icon className="h-3 w-3 sm:h-5 sm:w-5" />}
                     </motion.div>
                 )}
                 <div>
-                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-gray-400 uppercase tracking-wider">{label}</p>
+                    <p className="text-[8px] sm:text-[11px] md:text-xs font-medium leading-tight text-neutral-500 dark:text-gray-400 uppercase tracking-wider">{label}</p>
                     <div className="mt-0.5 sm:mt-1">
-                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                        <span className="text-sm sm:text-lg md:text-xl font-bold text-neutral-900 dark:text-white">
                             {value}
                         </span>
                     </div>
-                    {sub && <p className="text-[8px] sm:text-xs leading-tight text-neutral-400 mt-0.5">{sub}</p>}
+                    {sub && <p className="text-[7px] sm:text-[10px] leading-tight text-neutral-400 mt-0.5">{sub}</p>}
                 </div>
             </div>
         </div>

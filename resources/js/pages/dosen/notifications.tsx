@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
 
 interface Notification {
     id: number;
@@ -191,12 +192,11 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
                                     whileHover={{ scale: 1.1, rotate: 10 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
-                                    animate={{ rotate: stats.unread > 0 ? [0, -10, 10, -10, 0] : 0 }}
                                 >
-                                    <Bell className="h-8 w-8 text-white" />
+                                    <img src={NotifIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Pemberitahuan</p>

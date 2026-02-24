@@ -9,6 +9,11 @@ import { Button } from '@/components/ui/button';
 import { cn, formatShortName } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import DashboardIcon from '@/assets/dosen/dashboard/dashboard-icon.png';
+import StatTotalCourse from '@/assets/dosen/dashboard/stat-total-course.png';
+import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
+import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
+import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
 
 interface DosenInfo { id: number; nama: string; nidn: string; email: string; avatar_url?: string; initials: string; }
 interface TodaySchedule { id: number; course_name: string; meeting_number: number; time: string; room: string; student_count: number; }
@@ -94,10 +99,10 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
     ];
 
     const summaryCards = [
-        { key: 'courses', icon: BookOpen, label: 'Total Mata Kuliah', value: stats.totalCourses, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'students', icon: Users, label: 'Total Mahasiswa', value: stats.totalStudents, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'sessions', icon: LayoutDashboard, label: 'Total Sesi', value: stats.totalSessions, gradient: 'from-purple-400 to-violet-600', glow: 'bg-purple-500', shadow: 'hover:shadow-purple-500/10' },
-        { key: 'attendance', icon: TrendingUp, label: 'Tingkat Kehadiran', value: stats.attendanceRate, suffix: '%', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'courses', imgSrc: StatTotalCourse, label: 'Total Mata Kuliah', value: stats.totalCourses, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'students', imgSrc: StatTotalStudents, label: 'Total Mahasiswa', value: stats.totalStudents, gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'sessions', imgSrc: StatTotalSessions, label: 'Total Sesi', value: stats.totalSessions, gradient: 'from-purple-400 to-violet-600', glow: 'bg-purple-500', shadow: 'hover:shadow-purple-500/10' },
+        { key: 'attendance', imgSrc: StatAttendanceRate, label: 'Tingkat Kehadiran', value: stats.attendanceRate, suffix: '%', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
     ];
 
     return (
@@ -127,12 +132,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-2xl font-bold overflow-hidden shadow-lg">
-                                    {dosen.avatar_url ? (
-                                        <img src={dosen.avatar_url} alt="Profile" className="h-full w-full object-cover" />
-                                    ) : (
-                                        dosen.initials
-                                    )}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={DashboardIcon} alt="Dashboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Selamat Datang,</p>
@@ -197,8 +198,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                 className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-4">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10, y: -2 }}
-                                    className={cn("flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg text-white", card.gradient)}>
-                                    <card.icon className="h-8 w-8" />
+                                    className="relative flex shrink-0 h-16 w-16 items-center justify-center">
+                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>

@@ -17,6 +17,11 @@ import { toast } from 'sonner';
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import AnalyticsIcon from '@/assets/admin/analytics/analytics.png';
+import StatTotalCourse from '@/assets/dosen/dashboard/stat-total-course.png';
+import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
+import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
+import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
 
 // ═══ TYPES & INTERFACES ═══
 
@@ -256,11 +261,8 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
-                                >
-                                    <BarChart3 className="h-8 w-8 text-white" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={AnalyticsIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Analitik Kehadiran</p>
@@ -341,7 +343,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                 </motion.div>
 
                 {/* ═══ SUMMARY CARDS ═══ */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-4">
                     {/* Card 1: Total Mata Kuliah */}
                     <motion.div
                         variants={cardVariants}
@@ -356,8 +358,8 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
-                                <Users className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={StatTotalCourse} alt="Total MK" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total MK</p>
@@ -381,8 +383,8 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
-                                <Users className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={StatTotalStudents} alt="Total Mhs" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Mhs</p>
@@ -406,8 +408,8 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 text-white shadow-lg shadow-purple-500/30">
-                                <TrendingUp className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={StatAttendanceRate} alt="Rata-rata" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Rata-rata</p>
@@ -431,63 +433,13 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                             className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30">
-                                <Calendar className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={StatTotalSessions} alt="Total Sesi" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Sesi</p>
                                 <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.total_sessions} /></span></div>
                                 <p className="text-xs text-neutral-400 mt-1">pertemuan</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Card 5: Above Target */}
-                    <motion.div
-                        variants={cardVariants}
-                        whileHover="hover"
-                        onHoverStart={() => setHoveredCard('above')}
-                        onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-green-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 dark:from-green-500/10 dark:to-emerald-500/10" />
-                        <motion.div
-                            animate={{ scale: hoveredCard === 'above' ? 1.5 : 1, opacity: hoveredCard === 'above' ? 0.4 : 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-green-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-green-400 to-emerald-600 text-white shadow-lg shadow-green-500/30">
-                                <CheckCircle className="h-7 w-7" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Above Target</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.courses_above_target} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">&gt;75% kehadiran</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Card 6: Below Target */}
-                    <motion.div
-                        variants={cardVariants}
-                        whileHover="hover"
-                        onHoverStart={() => setHoveredCard('below')}
-                        onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-red-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10" />
-                        <motion.div
-                            animate={{ scale: hoveredCard === 'below' ? 1.5 : 1, opacity: hoveredCard === 'below' ? 0.4 : 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-red-400 to-rose-600 text-white shadow-lg shadow-red-500/30">
-                                <AlertTriangle className="h-7 w-7" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Below Target</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.courses_below_target} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">&lt;75% kehadiran</p>
                             </div>
                         </div>
                     </motion.div>

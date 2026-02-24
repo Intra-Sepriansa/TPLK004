@@ -19,6 +19,7 @@ import {
 import DosenLayout from '@/layouts/dosen-layout';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import PanduanIcon from '@/assets/admin/panduan/panduan.png';
 
 interface GuideSection {
     id: string;
@@ -469,8 +470,8 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                         </button>
 
                         <div className="flex items-center gap-4 mb-4">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                <BookOpen className="h-8 w-8" />
+                            <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={PanduanIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </div>
                             <div>
                                 <p className="text-sm text-white/90 font-medium">Dokumentasi Dosen</p>

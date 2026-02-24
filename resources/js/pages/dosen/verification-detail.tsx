@@ -14,6 +14,7 @@ import {
     Check, X, Mail, Phone, Fingerprint, Globe, Cpu, Zap, Lock, Bot, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import SelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
 
 /* ═══════ TYPES ═══════ */
 interface Mahasiswa { id: number; nama: string; nim: string; avatar_url: string | null; email: string; phone: string; kelas: string; prodi: string; fakultas: string; semester: string; }

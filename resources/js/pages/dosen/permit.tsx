@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
+import JadwalIcon from '@/assets/admin/jadwal/jadwal.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */
@@ -166,8 +167,8 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                     <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-16 w-16 md:h-[72px] md:w-[72px] items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl">
-                                <Shield className="h-8 w-8 md:h-9 md:w-9" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={JadwalIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </motion.div>
                             <div className="space-y-1.5">
                                 <p className="text-xs md:text-sm text-indigo-200 font-semibold tracking-widest uppercase">Manajemen Perizinan</p>

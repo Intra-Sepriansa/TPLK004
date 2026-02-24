@@ -18,6 +18,11 @@ import {
     Download, Copy, Archive, BarChart3, Grid3x3, List, ArrowUpDown, UserCheck, Send,
     TrendingUp, Columns, ShieldAlert
 } from 'lucide-react';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import TotalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
+import PublisedIcon from '@/assets/admin/informasi-tugas/publised.png';
+import OverdueIcon from '@/assets/admin/informasi-tugas/overdue.png';
 
 type Course = { id: number; nama: string };
 type Tugas = {
@@ -142,10 +147,10 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
     };
 
     const summaryCards = [
-        { key: 'total', icon: FileText, label: 'Total Tugas', value: stats.total, sub: `${stats.published} aktif, ${stats.draft} draft`, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
-        { key: 'pending', icon: Clock, label: 'Perlu Penilaian', value: stats.pending_review, sub: 'Menunggu direview', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
-        { key: 'completion', icon: CheckCircle, label: 'Tingkat Penyelesaian', value: stats.avg_completion_rate, suffix: '%', sub: 'Rata-rata kelas', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'overdue', icon: AlertTriangle, label: 'Perlu Perhatian', value: stats.overdue, sub: 'Tugas overdue', gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
+        { key: 'total', imgSrc: TotalTugasIcon, label: 'Total Tugas', value: stats.total, sub: `${stats.published} aktif, ${stats.draft} draft`, gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
+        { key: 'pending', imgSrc: TerlambatIcon, label: 'Perlu Penilaian', value: stats.pending_review, sub: 'Menunggu direview', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'completion', imgSrc: PublisedIcon, label: 'Tingkat Penyelesaian', value: stats.avg_completion_rate, suffix: '%', sub: 'Rata-rata kelas', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'overdue', imgSrc: OverdueIcon, label: 'Perlu Perhatian', value: stats.overdue, sub: 'Tugas overdue', gradient: 'from-red-400 to-rose-600', glow: 'bg-red-500', shadow: 'hover:shadow-red-500/10' },
     ];
 
     const tabs = [
@@ -170,8 +175,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
-                                    <ClipboardList className="h-8 w-8" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Tugas</p>
@@ -217,8 +222,8 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-3">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-6 w-6" />
+                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>

@@ -7,6 +7,7 @@ import {
     Loader2, AlertCircle, X, FileText, Zap, Mail
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
 
 interface NotificationTemplate {
     id: number; name: string; type: string; title: string; message: string; usage_count: number;
@@ -187,8 +188,8 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                 <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/notifications')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30">
                                     <ArrowLeft className="h-6 w-6 text-white" />
                                 </motion.button>
-                                <motion.div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                    <Send className="h-8 w-8 text-white" />
+                                <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={NotifIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Buat Notifikasi Baru</p>

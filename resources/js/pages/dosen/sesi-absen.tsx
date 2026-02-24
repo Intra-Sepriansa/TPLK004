@@ -7,6 +7,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { cn } from '@/lib/utils';
 import SesiBaruIcon from '@/assets/admin/sesi-absen/sesi-baru-icon.png';
+import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import TerlambatIcon from '@/assets/dosen/sesi-absen/terlambat.png';
+import CourseIcon from '@/assets/admin/sesi-absen/course-icon.png';
 
 interface Session {
     id: number;
@@ -133,9 +137,9 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
     const totalPresent = stats.totalAttendance - stats.totalLate;
 
     const summaryCards = [
-        { key: 'total', icon: Calendar, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} sesi aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
-        { key: 'present', icon: CheckCircle, label: 'Hadir', value: totalPresent, sub: 'tepat waktu', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
-        { key: 'late', icon: Clock, label: 'Terlambat', value: stats.totalLate, sub: 'total mahasiswa', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
+        { key: 'total', imgSrc: CourseIcon, label: 'Total Sesi', value: stats.totalSessions, sub: `${stats.activeSessions} sesi aktif`, gradient: 'from-violet-400 to-purple-600', glow: 'bg-violet-500', shadow: 'hover:shadow-violet-500/10' },
+        { key: 'present', imgSrc: HadirIcon, label: 'Hadir', value: totalPresent, sub: 'tepat waktu', gradient: 'from-emerald-400 to-teal-600', glow: 'bg-emerald-500', shadow: 'hover:shadow-emerald-500/10' },
+        { key: 'late', imgSrc: TerlambatIcon, label: 'Terlambat', value: stats.totalLate, sub: 'total mahasiswa', gradient: 'from-amber-400 to-orange-600', glow: 'bg-amber-500', shadow: 'hover:shadow-amber-500/10' },
         { key: 'rate', icon: TrendingUp, label: 'Rata-rata', value: stats.avgAttendanceRate, suffix: '%', sub: 'tingkat kehadiran', gradient: 'from-blue-400 to-cyan-600', glow: 'bg-blue-500', shadow: 'hover:shadow-blue-500/10' },
     ];
 
@@ -218,8 +222,8 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
-                                    <Calendar className="h-8 w-8" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                                    <img src={SesiAbsenIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Sesi</p>
@@ -276,8 +280,8 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                 className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
                             <div className="relative flex items-center gap-4">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg", card.gradient)}>
-                                    <card.icon className="h-7 w-7" />
+                                    className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
