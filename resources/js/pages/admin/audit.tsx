@@ -1,27 +1,33 @@
 import { Head, router, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import {
-    ShieldCheck,
     Calendar,
     Search,
     Download,
-    AlertTriangle,
-    Clock,
-    MapPin,
-    UserX,
     Filter,
     TrendingUp,
     Eye,
     RefreshCw,
     Shield,
-    AlertCircle,
-    CheckCircle,
-    XCircle,
     Activity,
     BookOpen,
+    ShieldCheck,
+    AlertTriangle,
+    AlertCircle,
+    XCircle,
+    CheckCircle,
+    UserX,
+    MapPin,
+    Clock,
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+import auditIcon from '@/assets/admin/audit/audit-icon.png';
+import totalEventIcon from '@/assets/admin/audit/total-event.png';
+import tokenDuplikatIcon from '@/assets/admin/audit/token-duplikat.png';
+import pelanggaranZonaIcon from '@/assets/admin/audit/pelanggaran-zona.png';
+import expiredIcon from '@/assets/admin/audit/expired.png';
 import {
     AreaChart,
     Area,
@@ -170,7 +176,7 @@ export default function AdminAudit({
             <Head title="Audit Keamanan" />
 
             <div className="p-6 space-y-6">
-                {/* ═══════ HEADER — Matching Uang Kas Style ═══════ */}
+                {/* ═══════ HEADER — Advanced Animated Gradient ═══════ */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -180,116 +186,95 @@ export default function AdminAudit({
                     {/* Animated Gradient Background */}
                     <motion.div
                         className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
-                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    {/* Overlay & Glow Orbs */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Animations (Pulses) */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-
-                    <div className="relative flex items-center gap-6">
+                    {/* Pulsating Rings */}
+                    {[0, 1, 2].map((i) => (
                         <motion.div
-                            className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl"
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ delay: 0.15, duration: 0.5, type: "spring", stiffness: 200 }}
-                            whileHover={{ scale: 1.1, rotate: 10 }}
-                        >
-                            <ShieldCheck className="h-10 w-10 text-white" />
-                        </motion.div>
-                        <div>
-                            <motion.p
-                                className="text-indigo-100 font-medium tracking-wide mb-1"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2, duration: 0.2 }}
+                            key={i}
+                            className="absolute right-12 top-1/2 -translate-y-1/2 h-24 w-24 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 3], opacity: [0.3, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i * 1 }}
+                        />
+                    ))}
+
+                    <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-4">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left w-full">
+                            <motion.div
+                                className="relative flex shrink-0 h-24 w-24 sm:h-20 sm:w-20"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                             >
-                                Keamanan Sistem
-                            </motion.p>
-                            <motion.h1
-                                className="text-4xl font-bold text-white tracking-tight"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.25, duration: 0.2 }}
-                            >
-                                Audit Keamanan
-                            </motion.h1>
-                            <motion.p
-                                className="mt-2 text-indigo-50 border-l-2 border-indigo-300/50 pl-3 italic text-sm max-w-xl"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.3, duration: 0.2 }}
-                            >
-                                Monitor aktivitas keamanan realtime, deteksi anomali, dan riwayat akses sistem untuk memastikan integritas data.
-                            </motion.p>
+                                <img src={auditIcon} alt="Audit Keamanan" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                            </motion.div>
+                            <div className="flex-1 mt-1 sm:mt-0">
+                                <motion.p
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="text-sm text-indigo-100 font-medium tracking-wide mb-1"
+                                >
+                                    Keamanan Sistem
+                                </motion.p>
+                                <motion.h1
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                    className="text-2xl sm:text-3xl font-bold tracking-tight"
+                                >
+                                    Audit Keamanan
+                                </motion.h1>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="mt-2 text-indigo-50 border-l-2 border-indigo-300/50 pl-3 italic text-sm max-w-xl"
+                                >
+                                    Monitor aktivitas keamanan realtime, deteksi anomali, dan riwayat akses sistem untuk memastikan integritas data.
+                                </motion.p>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Security Stats - Advanced Glassmorphism & Glowing Orbs */}
-                <div className="grid gap-6 md:grid-cols-4">
+                {/* Security Stats - Staggered Spring Animations */}
+                <motion.div
+                    className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+                    }}
+                >
                     {[
-                        { id: 'events', icon: Activity, label: 'Total Event', value: securityStats.total_events, color: 'from-blue-500 to-cyan-500', glow: 'bg-blue-500' },
-                        { id: 'duplicate', icon: AlertTriangle, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'from-red-500 to-rose-500', glow: 'bg-red-500' },
-                        { id: 'geofence', icon: MapPin, label: 'Pelanggaran Zona', value: securityStats.geofence_violation, color: 'from-rose-500 to-pink-500', glow: 'bg-rose-500' },
-                        { id: 'expired', icon: Clock, label: 'Token Expired', value: securityStats.token_expired, color: 'from-amber-500 to-yellow-500', glow: 'bg-amber-500' },
-                    ].map((stat, index) => (
+                        { imageIcon: totalEventIcon, label: 'Total Event', value: securityStats.total_events, color: 'blue' },
+                        { imageIcon: tokenDuplikatIcon, label: 'Token Duplikat', value: securityStats.token_duplicate, color: 'red' },
+                        { imageIcon: pelanggaranZonaIcon, label: 'Pelanggaran Zona', value: securityStats.geofence_violation, color: 'purple' },
+                        { imageIcon: expiredIcon, label: 'Token Expired', value: securityStats.token_expired, color: 'amber' },
+                    ].map((card, i) => (
                         <motion.div
-                            key={stat.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.1 + index * 0.1 }}
-                            whileHover="hover"
-                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-2xl dark:border-white/5"
+                            key={i}
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.9 },
+                                visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } }
+                            }}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                         >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 dark:opacity-10`} />
-
-                            {/* Glowing Orb */}
-                            <motion.div
-                                variants={{
-                                    hover: { scale: 1.5, opacity: 0.5 },
-                                    initial: { scale: 1, opacity: 0.2 }
-                                }}
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.glow} blur-3xl transition-all duration-500`}
-                            />
-
-                            <div className="relative flex items-center gap-4">
-                                <motion.div
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-lg`}
-                                >
-                                    <stat.icon className="h-7 w-7" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white mt-1">{stat.value}</p>
-                                </div>
-                            </div>
+                            <StatCard imageIcon={card.imageIcon} label={card.label} value={card.value} color={card.color} />
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
                 {/* Filter Section - Glassmorphism */}
                 <motion.div
@@ -883,5 +868,69 @@ export default function AdminAudit({
                 )}
             </AnimatePresence>
         </AppLayout>
+    );
+}
+
+function StatCard({ icon: Icon, imageIcon, label, value, sub, color }: { icon?: any; imageIcon?: string; label: string; value: number | string; sub?: string; color: string }) {
+    const [isHovered, setIsHovered] = useState(false);
+
+    // Map colors to matching dashboard configurations
+    const colorConfigs: Record<string, any> = {
+        emerald: { bg: 'bg-emerald-500', hoverShadow: 'group-hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', iconBg: 'from-emerald-400 to-teal-600 shadow-emerald-500/30' },
+        orange: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-orange-400 to-orange-600 shadow-orange-500/30' },
+        amber: { bg: 'bg-amber-500', hoverShadow: 'group-hover:shadow-amber-500/10', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', iconBg: 'from-amber-400 to-orange-600 shadow-amber-500/30' },
+        purple: { bg: 'bg-violet-500', hoverShadow: 'group-hover:shadow-violet-500/10', gradientBg: 'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10', iconBg: 'from-violet-400 to-purple-600 shadow-violet-500/30' },
+        blue: { bg: 'bg-sky-500', hoverShadow: 'group-hover:shadow-sky-500/10', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', iconBg: 'from-sky-400 to-indigo-600 shadow-sky-500/30' },
+        red: { bg: 'bg-red-500', hoverShadow: 'group-hover:shadow-red-500/10', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', iconBg: 'from-red-400 to-rose-600 shadow-red-500/30' },
+    };
+    const c = colorConfigs[color] ?? colorConfigs.blue;
+
+    return (
+        <div
+            className={`group h-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5 cursor-pointer`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradientBg}`} />
+
+            <motion.div
+                initial={false}
+                animate={{
+                    scale: isHovered ? 1.5 : 1,
+                    opacity: isHovered ? 0.4 : 0.2,
+                }}
+                transition={{ duration: 0.5 }}
+                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.bg} blur-3xl transition-all duration-500`}
+            />
+
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
+                {imageIcon ? (
+                    <motion.div
+                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        <img src={imageIcon} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" alt={label} />
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        className={`relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br ${c.iconBg} text-white shadow-lg`}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                    >
+                        {Icon && <Icon className="h-4 w-4 sm:h-6 sm:w-6" />}
+                    </motion.div>
+                )}
+                <div>
+                    <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-gray-400 uppercase tracking-wider">{label}</p>
+                    <div className="mt-0.5 sm:mt-1">
+                        <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                            {value}
+                        </span>
+                    </div>
+                    {sub && <p className="text-[8px] sm:text-xs leading-tight text-neutral-400 mt-0.5">{sub}</p>}
+                </div>
+            </div>
+        </div>
     );
 }
