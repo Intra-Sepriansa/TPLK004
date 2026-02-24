@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-TARGET_DIR = '/Users/intrasepriansa/Herd/TPLK004/resources/js/assets/admin/bulk-import'
+TARGET_DIR = '/Users/intrasepriansa/Herd/TPLK004/resources/js/assets/admin/perangkat'
 
 def crop_transparent_borders(image_path):
     print(f"Processing: {image_path}")
