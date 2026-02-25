@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import TemplateHeaderIcon from '@/assets/dosen/template/template.png';
 import TotalTemplateIcon from '@/assets/dosen/template/total-template.png';
 import TemplateAktifIcon from '@/assets/dosen/template/template-aktif.png';
-import AutoActivateIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
+import AutoActivateIcon from '@/assets/dosen/template/Auto-Activate.png';
 import DurasiIcon from '@/assets/admin/fraud-detection/pending.png';
 
 // ═══ INTERFACES ═══
