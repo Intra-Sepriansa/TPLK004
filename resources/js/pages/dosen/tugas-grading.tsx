@@ -18,6 +18,11 @@ import {
     CheckSquare, X, LayoutGrid, List, Zap, ChevronLeft, ChevronRight, ShieldAlert, Hourglass,
 } from 'lucide-react';
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import BasisDataIcon from '@/assets/matkul/basis-data.png';
+import StatTotalSubmissions from '@/assets/admin/informasi-tugas/total-tugas.png';
+import StatGraded from '@/assets/admin/bulk-import/berhasil.png';
+import StatPending from '@/assets/admin/notification-center/scheduled.png';
+import StatAvgGrade from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 type Submission = {
     id: number;
@@ -123,14 +128,10 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
     const getGradeColor = (g: number | null) => g === null ? 'text-neutral-400' : g >= 80 ? 'text-emerald-600' : g >= 60 ? 'text-blue-600' : 'text-red-600';
 
     const summaryCards = [
-        { key: 'total', icon: FileText, label: 'Total Submissions', value: stats.total, subtitle: `${stats.total} dari ${stats.total_students || '?'} mahasiswa`, gradient: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500' },
-        { key: 'graded', icon: CheckCircle, label: 'Sudah Dinilai', value: stats.graded, subtitle: `${stats.total > 0 ? Math.round((stats.graded / stats.total) * 100) : 0}% selesai`, gradient: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500' },
-        { key: 'pending', icon: Clock, label: 'Menunggu Nilai', value: stats.pending, subtitle: 'perlu penilaian segera', gradient: 'from-amber-500 to-orange-600', glow: 'bg-amber-500' },
-        { key: 'avg', icon: Award, label: 'Rata-rata Nilai', value: Number(stats.avg_grade).toFixed(1), subtitle: `dari max ${tugas.max_grade}`, gradient: 'from-purple-500 to-violet-600', glow: 'bg-purple-500' },
-        { key: 'highest', icon: TrendingUp, label: 'Nilai Tertinggi', value: stats.highest_score, subtitle: stats.highest_scorer, gradient: 'from-green-500 to-emerald-600', glow: 'bg-green-500' },
-        { key: 'lowest', icon: TrendingDown, label: 'Nilai Terendah', value: stats.lowest_score, subtitle: stats.lowest_score < 60 ? 'perlu perhatian' : 'cukup baik', gradient: 'from-red-500 to-rose-600', glow: 'bg-red-500' },
-        { key: 'late', icon: AlertTriangle, label: 'Terlambat', value: stats.late_count, subtitle: `penalty -${stats.late_penalty_percent}%`, gradient: 'from-orange-500 to-red-600', glow: 'bg-orange-500' },
-        { key: 'dist', icon: BarChart3, label: 'Distribusi Nilai', value: `${stats.distribution?.A || 0}A`, subtitle: `B:${stats.distribution?.B || 0} C:${stats.distribution?.C || 0} D:${stats.distribution?.D || 0}`, gradient: 'from-pink-500 to-rose-600', glow: 'bg-pink-500' },
+        { key: 'total', icon: StatTotalSubmissions, label: 'Total Submissions', value: stats.total, subtitle: `${stats.total} dari ${stats.total_students || '?'} mahasiswa`, gradient: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500' },
+        { key: 'graded', icon: StatGraded, label: 'Sudah Dinilai', value: stats.graded, subtitle: `${stats.total > 0 ? Math.round((stats.graded / stats.total) * 100) : 0}% selesai`, gradient: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500' },
+        { key: 'pending', icon: StatPending, label: 'Menunggu Nilai', value: stats.pending, subtitle: 'perlu penilaian segera', gradient: 'from-amber-500 to-orange-600', glow: 'bg-amber-500' },
+        { key: 'avg', icon: StatAvgGrade, label: 'Rata-rata Nilai', value: Number(stats.avg_grade).toFixed(1), subtitle: `dari max ${tugas.max_grade}`, gradient: 'from-purple-500 to-violet-600', glow: 'bg-purple-500' },
     ];
 
     return (
@@ -151,8 +152,11 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                         </motion.button>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={TugasIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    className="relative flex shrink-0 items-center justify-center"
+                                >
+                                    <img src={tugas.judul?.toLowerCase().includes('basis data') ? BasisDataIcon : TugasIcon} alt="Header Icon" className="h-20 w-20 sm:h-24 sm:w-24 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-white/70">Penilaian Tugas</p>
@@ -183,9 +187,9 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                             <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.15 }} className={`absolute -right-8 -top-8 h-28 w-28 rounded-full ${card.glow} blur-3xl transition-all duration-500`} />
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-3">
-                                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} shadow-lg`}>
-                                        <card.icon className="h-5 w-5 text-white" />
-                                    </div>
+                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                                        <img src={card.icon} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
+                                    </motion.div>
                                     {card.key === 'pending' && stats.pending > 10 && <Badge className="bg-red-500 text-white text-[10px] border-0">Urgent</Badge>}
                                     {card.key === 'lowest' && stats.lowest_score < 60 && stats.graded > 0 && <Badge className="bg-red-500 text-white text-[10px] border-0">!</Badge>}
                                 </div>
