@@ -351,11 +351,10 @@ export default function CourseDetail({
                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                             <div className="flex items-start gap-6">
                                 <motion.div
-                                    whileHover={{ scale: 1.05, rotate: 5 }}
-                                    className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden group"
+                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                    className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-visible"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                    <img src={getCourseIcon(course.nama)} alt="Course Icon" className="h-16 w-16 object-contain drop-shadow-[0_8px_15px_rgba(0,0,0,0.4)]" />
+                                    <img src={getCourseIcon(course.nama)} alt="Course Icon" className="h-20 w-20 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]" />
                                 </motion.div>
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
