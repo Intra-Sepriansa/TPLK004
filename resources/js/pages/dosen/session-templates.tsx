@@ -14,7 +14,11 @@ import {
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
 import { toast } from 'sonner';
-import SesiAbsenIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
+import TemplateHeaderIcon from '@/assets/dosen/template/template.png';
+import TotalTemplateIcon from '@/assets/dosen/template/total-template.png';
+import TemplateAktifIcon from '@/assets/dosen/template/template-aktif.png';
+import AutoActivateIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
+import DurasiIcon from '@/assets/admin/fraud-detection/pending.png';
 
 // ═══ INTERFACES ═══
 
@@ -296,7 +300,7 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                             <div className="flex items-center gap-5">
                                 <motion.div
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={SesiAbsenIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    <img src={TemplateHeaderIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-indigo-100 font-medium tracking-wide">Manajemen Template</p>
@@ -348,8 +352,8 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'total' ? 1.5 : 1, opacity: hoveredCard === 'total' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-400 to-purple-600 text-white shadow-lg shadow-violet-500/30">
-                                <LayoutTemplate className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={TotalTemplateIcon} alt="Total Templates" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Templates</p>
@@ -364,8 +368,8 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'active' ? 1.5 : 1, opacity: hoveredCard === 'active' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
-                                <CheckCircle className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={TemplateAktifIcon} alt="Template Aktif" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Template Aktif</p>
@@ -380,8 +384,8 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'auto' ? 1.5 : 1, opacity: hoveredCard === 'auto' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-600 text-white shadow-lg shadow-blue-500/30">
-                                <Zap className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={AutoActivateIcon} alt="Auto Activate" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Auto-Activate</p>
@@ -396,8 +400,8 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                         <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'duration' ? 1.5 : 1, opacity: hoveredCard === 'duration' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-amber-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30">
-                                <Clock className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                                <img src={DurasiIcon} alt="Durasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Rata-rata Durasi</p>
