@@ -81,6 +81,15 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
     const [selectedCourse, setSelectedCourse] = useState<CourseStat | null>(null);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour >= 4 && hour < 12) return { text: 'Selamat Pagi', emoji: '🌅' };
+        if (hour >= 12 && hour < 15) return { text: 'Selamat Siang', emoji: '☀️' };
+        if (hour >= 15 && hour < 19) return { text: 'Selamat Sore', emoji: '🌇' };
+        return { text: 'Selamat Malam', emoji: '🌙' };
+    };
+    const greeting = getGreeting();
+
     // Auto-refresh active sessions every 30 seconds
     useEffect(() => {
         const interval = setInterval(() => {
@@ -136,7 +145,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     <img src={DashboardIcon} alt="Dashboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Selamat Datang,</p>
+                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">{greeting.emoji} {greeting.text},</p>
                                     <h1 className="text-3xl font-bold text-white">{formatShortName(dosen.nama)}</h1>
                                     <p className="mt-1 text-indigo-100">NIDN: {dosen.nidn} • {dosen.email}</p>
                                 </div>
