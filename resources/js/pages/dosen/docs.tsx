@@ -7,10 +7,10 @@
 import { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { 
-    Book, 
-    Clock, 
-    CheckCircle, 
+import {
+    Book,
+    Clock,
+    CheckCircle,
     TrendingUp,
     Home,
     Users,
@@ -34,7 +34,10 @@ import EmptyState from '@/components/ui/empty-state';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
 import type { GuideSummary } from '@/types/documentation';
 import { getGuides, getProgressStats } from '@/lib/documentation-api';
-import PanduanIcon from '@/assets/admin/panduan/panduan.png';
+import TotalGuidesIcon from '@/assets/admin/panduan/panduan.png';
+import CompletedIcon from '@/assets/admin/notification-center/scheduled.png';
+import InProgressIcon from '@/assets/admin/bulk-import/berhasil.png';
+import OverallProgressIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
 
 interface DocumentationStats {
     totalGuides: number;
@@ -227,7 +230,7 @@ export default function DosenDocs() {
                             <div className="flex items-center gap-5">
                                 <motion.div
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={PanduanIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    <img src={TotalGuidesIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
                                 <div>
                                     <p className="text-sm text-white/90 font-medium tracking-wide flex items-center gap-2">
@@ -252,22 +255,22 @@ export default function DosenDocs() {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
                 >
                     {/* Total Guides Card */}
-                    <motion.div 
+                    <motion.div
                         variants={staggerItemVariants}
                         whileHover={{ scale: 1.02, y: -4 }}
                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-purple-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 dark:from-purple-500/10 dark:to-indigo-500/10" />
-                        <motion.div 
+                        <motion.div
                             animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500 blur-3xl transition-all duration-500" 
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-600 text-white shadow-lg shadow-purple-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
                             >
-                                <Book className="h-7 w-7" />
+                                <img src={TotalGuidesIcon} alt="Total" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Total Guides</p>
@@ -278,22 +281,22 @@ export default function DosenDocs() {
                     </motion.div>
 
                     {/* Completed Card */}
-                    <motion.div 
+                    <motion.div
                         variants={staggerItemVariants}
                         whileHover={{ scale: 1.02, y: -4 }}
                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-orange-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10" />
-                        <motion.div 
+                        <motion.div
                             animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500 blur-3xl transition-all duration-500" 
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-red-600 text-white shadow-lg shadow-orange-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
                             >
-                                <CheckCircle className="h-7 w-7" />
+                                <img src={CompletedIcon} alt="Completed" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Completed</p>
@@ -304,22 +307,22 @@ export default function DosenDocs() {
                     </motion.div>
 
                     {/* In Progress Card */}
-                    <motion.div 
+                    <motion.div
                         variants={staggerItemVariants}
                         whileHover={{ scale: 1.02, y: -4 }}
                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
-                        <motion.div 
+                        <motion.div
                             animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500" 
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
                             >
-                                <Clock className="h-7 w-7" />
+                                <img src={InProgressIcon} alt="In Progress" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">In Progress</p>
@@ -330,22 +333,22 @@ export default function DosenDocs() {
                     </motion.div>
 
                     {/* Overall Progress Card */}
-                    <motion.div 
+                    <motion.div
                         variants={staggerItemVariants}
                         whileHover={{ scale: 1.02, y: -4 }}
                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-blue-500/10 dark:border-white/5"
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10" />
-                        <motion.div 
+                        <motion.div
                             animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500" 
+                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500"
                         />
                         <div className="relative flex items-center gap-4">
-                            <motion.div 
+                            <motion.div
                                 whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-600 text-white shadow-lg shadow-blue-500/30"
+                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
                             >
-                                <TrendingUp className="h-7 w-7" />
+                                <img src={OverallProgressIcon} alt="Overall Progress" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Overall Progress</p>
@@ -363,11 +366,10 @@ export default function DosenDocs() {
                     transition={{ delay: 0.2 }}
                     className="mb-8"
                 >
-                    <div className={`rounded-3xl p-6 transition-all duration-300 border backdrop-blur-xl ${
-                        stats.overallProgress === 100 
-                            ? 'bg-white/40 dark:bg-neutral-900/40 border-emerald-500/50 shadow-xl shadow-emerald-500/20' 
+                    <div className={`rounded-3xl p-6 transition-all duration-300 border backdrop-blur-xl ${stats.overallProgress === 100
+                            ? 'bg-white/40 dark:bg-neutral-900/40 border-emerald-500/50 shadow-xl shadow-emerald-500/20'
                             : 'bg-white/40 dark:bg-neutral-900/40 border-white/20 dark:border-white/5 shadow-xl'
-                    }`}>
+                        }`}>
                         <div className="flex items-center gap-6">
                             <ProgressIndicator
                                 value={stats.overallProgress}
@@ -393,7 +395,7 @@ export default function DosenDocs() {
                                     )}
                                 </div>
                                 <p className={`mb-4 flex items-center gap-2 ${stats.overallProgress === 100 ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {stats.overallProgress === 100 
+                                    {stats.overallProgress === 100
                                         ? (
                                             <>
                                                 <Award className="h-5 w-5" />
@@ -435,11 +437,10 @@ export default function DosenDocs() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 0.4 + index * 0.05 }}
                                 onClick={() => setSelectedCategory(category)}
-                                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
-                                    selectedCategory === category
+                                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${selectedCategory === category
                                         ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
                                         : 'bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-md'
-                                }`}
+                                    }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
@@ -459,95 +460,95 @@ export default function DosenDocs() {
                     >
                         {filteredGuides.map((guide, index) => {
                             // Get the icon component from the map
-                            const IconComponent = guide.icon && typeof guide.icon === 'string' 
-                                ? iconMap[guide.icon] || Book 
+                            const IconComponent = guide.icon && typeof guide.icon === 'string'
+                                ? iconMap[guide.icon] || Book
                                 : Book;
-                            
+
                             return (
-                            <motion.div
-                                key={guide.id}
-                                variants={staggerItemVariants}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => handleGuideClick(guide.id)}
-                                className="cursor-pointer"
-                            >
-                                <div className="h-full bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl p-6 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-xl dark:hover:shadow-emerald-500/20 transition-all duration-300 relative overflow-hidden group">
-                                    {/* Background Glow Effect */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    
-                                    {/* Content */}
-                                    <div className="relative z-10">
-                                        {/* Header */}
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                                                    <IconComponent className="w-6 h-6 text-white" />
+                                <motion.div
+                                    key={guide.id}
+                                    variants={staggerItemVariants}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleGuideClick(guide.id)}
+                                    className="cursor-pointer"
+                                >
+                                    <div className="h-full bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl p-6 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-xl dark:hover:shadow-emerald-500/20 transition-all duration-300 relative overflow-hidden group">
+                                        {/* Background Glow Effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                                        {/* Content */}
+                                        <div className="relative z-10">
+                                            {/* Header */}
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                                                        <IconComponent className="w-6 h-6 text-white" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">
+                                                            {guide.title}
+                                                        </h3>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
+                                                            {guide.category}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                        {guide.title}
-                                                    </h3>
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
-                                                        {guide.category}
-                                                    </span>
-                                                </div>
+                                                {guide.progress >= 100 && (
+                                                    <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                                                )}
                                             </div>
-                                            {guide.progress >= 100 && (
-                                                <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+
+                                            {/* Description */}
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
+                                                {guide.description}
+                                            </p>
+
+                                            {/* Progress Bar */}
+                                            {guide.progress > 0 && (
+                                                <div className="mb-4">
+                                                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
+                                                        <span>Progress</span>
+                                                        <span>{guide.progress}%</span>
+                                                    </div>
+                                                    <div className="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden shadow-inner">
+                                                        <motion.div
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${guide.progress}%` }}
+                                                            transition={{ duration: 1, delay: index * 0.05 }}
+                                                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-sm"
+                                                        />
+                                                    </div>
+                                                </div>
                                             )}
-                                        </div>
 
-                                        {/* Description */}
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
-                                            {guide.description}
-                                        </p>
-
-                                        {/* Progress Bar */}
-                                        {guide.progress > 0 && (
-                                            <div className="mb-4">
-                                                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
-                                                    <span>Progress</span>
-                                                    <span>{guide.progress}%</span>
+                                            {/* Footer */}
+                                            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
+                                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                                    <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <span>{guide.estimatedReadTime || 10} min</span>
                                                 </div>
-                                                <div className="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden shadow-inner">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${guide.progress}%` }}
-                                                        transition={{ duration: 1, delay: index * 0.05 }}
-                                                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-sm"
-                                                    />
+                                                <div className={`text-xs font-semibold transition-colors flex items-center gap-1 ${guide.progress >= 100
+                                                        ? 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
+                                                        : 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
+                                                    }`}>
+                                                    {guide.progress >= 100 ? (
+                                                        <>
+                                                            <CheckCircle className="h-3.5 w-3.5" />
+                                                            Completed
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            Start Learning
+                                                        </>
+                                                    )} →
                                                 </div>
-                                            </div>
-                                        )}
-
-                                        {/* Footer */}
-                                        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
-                                            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                                <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                                                <span>{guide.estimatedReadTime || 10} min</span>
-                                            </div>
-                                            <div className={`text-xs font-semibold transition-colors flex items-center gap-1 ${
-                                                guide.progress >= 100 
-                                                    ? 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300' 
-                                                    : 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
-                                            }`}>
-                                                {guide.progress >= 100 ? (
-                                                    <>
-                                                        <CheckCircle className="h-3.5 w-3.5" />
-                                                        Completed
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Start Learning
-                                                    </>
-                                                )} →
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        )})}
+                                </motion.div>
+                            )
+                        })}
                     </motion.div>
                 ) : (
                     <EmptyState
