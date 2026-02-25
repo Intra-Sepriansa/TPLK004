@@ -12,6 +12,10 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
+import TotalNotifIcon from '@/assets/admin/notification-center/total.png';
+import UnreadNotifIcon from '@/assets/admin/notification-center/scheduled.png';
+import ReadNotifIcon from '@/assets/admin/bulk-import/berhasil.png';
+import SentNotifIcon from '@/assets/admin/notification-center/unread.png';
 
 interface Notification {
     id: number;
@@ -283,8 +287,8 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'total' ? 1.5 : 1, opacity: hoveredCard === 'total' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
-                                <Bell className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
+                                <img src={TotalNotifIcon} alt="Total" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Notifikasi</p>
@@ -298,8 +302,8 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'unread' ? 1.5 : 1, opacity: hoveredCard === 'unread' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} animate={{ scale: stats.unread > 0 ? [1, 1.1, 1] : 1 }} transition={{ duration: 1, repeat: stats.unread > 0 ? Infinity : 0, repeatDelay: 2 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-red-600 text-white shadow-lg shadow-orange-500/30">
-                                <AlertTriangle className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} animate={{ scale: stats.unread > 0 ? [1, 1.1, 1] : 1 }} transition={{ duration: 1, repeat: stats.unread > 0 ? Infinity : 0, repeatDelay: 2 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
+                                <img src={UnreadNotifIcon} alt="Unread" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Belum Dibaca</p>
@@ -313,8 +317,8 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'read' ? 1.5 : 1, opacity: hoveredCard === 'read' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
-                                <CheckCircle className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
+                                <img src={ReadNotifIcon} alt="Read" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Sudah Dibaca</p>
@@ -328,8 +332,8 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10" />
                         <motion.div animate={{ scale: hoveredCard === 'sent' ? 1.5 : 1, opacity: hoveredCard === 'sent' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500" />
                         <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-600 text-white shadow-lg shadow-blue-500/30">
-                                <Send className="h-7 w-7" />
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
+                                <img src={SentNotifIcon} alt="Sent" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Terkirim Hari Ini</p>
@@ -491,8 +495,8 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                                 whileTap={{ scale: 0.9 }}
                                 onClick={() => router.get('/dosen/notifications', { [activeTab === 'inbox' ? 'page' : 'sent_page']: page })}
                                 className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shadow-sm transition-all ${activeNotifications.current_page === page
-                                        ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30 border border-transparent'
-                                        : 'bg-white/50 text-neutral-600 hover:bg-white dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800 border border-white/20 dark:border-neutral-700 backdrop-blur-md'
+                                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30 border border-transparent'
+                                    : 'bg-white/50 text-neutral-600 hover:bg-white dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800 border border-white/20 dark:border-neutral-700 backdrop-blur-md'
                                     }`}
                             >
                                 {page}
