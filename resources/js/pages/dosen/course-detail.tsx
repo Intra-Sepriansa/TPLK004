@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CourseIcon from '@/assets/dosen/dashboard/course-icon.png';
+import BasisDataIcon from '@/assets/matkul/basis-data.png';
 import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
 import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
 import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
@@ -268,6 +269,13 @@ export default function CourseDetail({
         alert("Opening announcement modal...");
     };
 
+    // Dynamic Icon Mapping
+    const getCourseIcon = (courseName: string) => {
+        const name = courseName.toLowerCase();
+        if (name.includes('basis data')) return BasisDataIcon;
+        return CourseIcon;
+    };
+
 
     return (
         <DosenLayout>
@@ -347,7 +355,7 @@ export default function CourseDetail({
                                     className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden group"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                    <img src={CourseIcon} alt="Course Icon" className="h-16 w-16 object-contain drop-shadow-[0_8px_15px_rgba(0,0,0,0.4)]" />
+                                    <img src={getCourseIcon(course.nama)} alt="Course Icon" className="h-16 w-16 object-contain drop-shadow-[0_8px_15px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
