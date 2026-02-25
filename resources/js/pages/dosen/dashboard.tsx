@@ -285,7 +285,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         </motion.div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+                    <div className="grid grid-cols-3 gap-3 relative z-10">
                         {quickActions.map((action, i) => (
                             <Link key={action.href} href={action.href}>
                                 <motion.div
@@ -295,7 +295,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     whileHover={{ scale: 1.04, y: -6, boxShadow: '0 20px 40px -10px rgba(0,0,0,0.15)' }}
                                     whileTap={{ scale: 0.97 }}
                                     className={cn(
-                                        "group relative rounded-2xl border border-white/30 dark:border-white/10 bg-white/70 dark:bg-neutral-800/70 p-5 cursor-pointer backdrop-blur-lg transition-all duration-300 overflow-hidden",
+                                        "group relative rounded-2xl border border-white/30 dark:border-white/10 bg-white/70 dark:bg-neutral-800/70 p-3 sm:p-5 cursor-pointer backdrop-blur-lg transition-all duration-300 overflow-hidden",
                                         `hover:${action.shadow}`
                                     )}>
                                     {/* Animated shimmer sweep */}
@@ -311,13 +311,13 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         ))}
                                     </div>
 
-                                    <div className="relative z-10 flex items-start gap-4">
+                                    <div className="relative z-10 flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                                         {/* Icon container with gradient ring */}
                                         <div className="relative flex-shrink-0">
                                             <motion.div whileHover={{ rotate: [0, -8, 8, 0], scale: 1.15 }}
                                                 transition={{ type: 'spring', stiffness: 300 }}
-                                                className={cn("flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg ring-4", action.gradient, action.ring)}>
-                                                <action.icon className="h-6 w-6" />
+                                                className={cn("flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br text-white shadow-lg ring-2 sm:ring-4", action.gradient, action.ring)}>
+                                                <action.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                                             </motion.div>
                                             {/* Badge */}
                                             {action.badge && action.badge > 0 && (
@@ -330,16 +330,16 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
 
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-white truncate">{action.label}</h3>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">{action.desc}</p>
-                                            <div className="flex items-center gap-1.5 mt-2">
+                                            <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-white truncate">{action.label}</h3>
+                                            <p className="hidden sm:block text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">{action.desc}</p>
+                                            <div className="hidden sm:flex items-center gap-1.5 mt-2">
                                                 <Sparkles className="h-3 w-3 text-neutral-400 group-hover:text-amber-500 transition-colors" />
                                                 <span className={cn("text-xs font-semibold", action.statColor)}>{action.stat}</span>
                                             </div>
                                         </div>
 
                                         {/* Arrow indicator */}
-                                        <motion.div className="flex-shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                        <motion.div className="hidden sm:flex flex-shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-all duration-200"
                                             initial={false} animate={{ x: 0 }}>
                                             <ChevronRight className="h-4 w-4 text-neutral-400" />
                                         </motion.div>
