@@ -119,7 +119,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
             <Head title="Dashboard Dosen" />
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
 
-                {/* ═══════ HEADER — Matching Kas Admin Style ═══════ */}
+                {/* ═══════ HEADER ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
                     {/* Animated Gradient Background */}
                     <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
@@ -138,89 +138,125 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     ))}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={DashboardIcon} alt="Dashboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                >
+                                    <img src={DashboardIcon} alt="Dashboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">{greeting},</p>
-                                    <h1 className="text-3xl font-bold text-white">{formatShortName(dosen.nama)}</h1>
-                                    <p className="mt-1 text-indigo-100">NIDN: {dosen.nidn} • {dosen.email}</p>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        {greeting},
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+                                        {formatShortName(dosen.nama)}
+                                    </motion.h1>
+                                    <motion.p className="mt-2 text-indigo-100 text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                                        NIDN: {dosen.nidn} • {dosen.email}
+                                    </motion.p>
                                 </div>
                             </div>
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
-                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                <div className="p-2 bg-indigo-500/20 rounded-lg"><Award className="h-6 w-6 text-white" /></div>
-                                <div>
-                                    <p className="text-xs text-indigo-100">Tingkat Kehadiran</p>
-                                    <p className="text-2xl font-bold text-white">{stats.attendanceRate}%</p>
-                                </div>
-                            </motion.div>
-                        </div>
 
-                        {/* Action Buttons */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            {[
-                                { icon: QrCode, label: 'Buat Sesi Baru', href: '/dosen/sessions/create' },
-                                { icon: Eye, label: `Verifikasi Selfie (${stats.pendingCount})`, href: '/dosen/verify' },
-                                { icon: FileText, label: 'Lihat Laporan', href: '/dosen/reports' },
-                                { icon: ClipboardList, label: 'Kelola Tugas', href: '/dosen/tugas' },
-                            ].map(btn => (
-                                <Link key={btn.href} href={btn.href}>
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
-                                        className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg">
-                                        <btn.icon className="h-4 w-4" /> {btn.label}
-                                    </motion.button>
-                                </Link>
-                            ))}
-                        </motion.div>
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg"><Award className="h-6 w-6 text-white" /></div>
+                                    <div>
+                                        <p className="text-xs text-indigo-100">Tingkat Kehadiran</p>
+                                        <p className="text-2xl font-bold text-white">{stats.attendanceRate}%</p>
+                                    </div>
+                                </motion.div>
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                                    className="flex flex-wrap justify-center gap-2">
+                                    {[
+                                        { icon: QrCode, label: 'Buat Sesi', href: '/dosen/sessions/create' },
+                                        { icon: Eye, label: `Verifikasi (${stats.pendingCount})`, href: '/dosen/verify' },
+                                        { icon: ClipboardList, label: 'Tugas', href: '/dosen/tugas' },
+                                    ].map(btn => (
+                                        <Link key={btn.href} href={btn.href}>
+                                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
+                                                className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg">
+                                                <btn.icon className="h-4 w-4" /> {btn.label}
+                                            </motion.button>
+                                        </Link>
+                                    ))}
+                                </motion.div>
+                            </div>
+                        </div>
                     </div>
                 </motion.div>
 
-                {/* ═══════ SUMMARY CARDS — Glassmorphism with Glow ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-4">
-                    {summaryCards.map(card => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover"
-                            onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
-                            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient.replace('from-', 'from-').replace('to-', 'to-'))} />
-
-                            {/* Advanced Animated Inner Glow Orb */}
+                {/* ═══════ SUMMARY CARDS ═══════ */}
+                <motion.div
+                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } }
+                    }}
+                >
+                    {summaryCards.map((card, i) => {
+                        const colorMap: Record<string, any> = {
+                            'bg-blue-500': { from: 'from-sky-400', to: 'to-indigo-600', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', hoverShadow: 'hover:shadow-sky-500/10' },
+                            'bg-emerald-500': { from: 'from-emerald-400', to: 'to-teal-600', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', hoverShadow: 'hover:shadow-emerald-500/10' },
+                            'bg-purple-500': { from: 'from-purple-400', to: 'to-violet-600', gradientBg: 'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10', hoverShadow: 'hover:shadow-purple-500/10' },
+                            'bg-amber-500': { from: 'from-amber-400', to: 'to-orange-600', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', hoverShadow: 'hover:shadow-amber-500/10' },
+                        };
+                        const cc = colorMap[card.glow] || colorMap['bg-blue-500'];
+                        return (
                             <motion.div
-                                className={cn("absolute -left-10 -top-10 h-32 w-32 rounded-full blur-3xl opacity-40 mix-blend-screen pointer-events-none", card.glow)}
-                                animate={{
-                                    x: [0, 30, 0],
-                                    y: [0, 20, 0],
-                                    scale: [1, 1.3, 1],
+                                key={card.key}
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } }
                                 }}
-                                transition={{
-                                    duration: 8 + Math.random() * 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                }}
-                            />
-
-                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
-                                className={cn("absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl transition-all duration-500", card.glow)} />
-                            <div className="relative flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10, y: -2 }}
-                                    className="relative flex shrink-0 h-16 w-16 items-center justify-center">
-                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
-                                    <div className="mt-1">
-                                        <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                            <AnimatedCounter value={card.value} suffix={card.suffix} duration={1500} />
-                                        </span>
+                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                                onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                                className={cn(`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5`, cc.hoverShadow)}
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${cc.gradientBg} opacity-50 dark:opacity-100`} />
+                                <motion.div
+                                    className={cn(`absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all`, card.glow)}
+                                    animate={{ opacity: hoveredCard === card.key ? 0.4 : 0.15 }}
+                                />
+                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-3 sm:gap-4 h-full justify-between">
+                                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                        <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
+                                            className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                        >
+                                            <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                        </motion.div>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{card.label}</p>
+                                            <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                                                <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                                                    <AnimatedCounter value={card.value} suffix={card.suffix} duration={1500} />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Progress bar */}
+                                    <div className="mt-auto w-full pt-2 sm:pt-4">
+                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                                            <motion.div
+                                                className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: card.suffix === '%' ? `${card.value}%` : '70%' }}
+                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: "easeOut" }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* ═══════ QUICK ACTIONS — Premium Glassmorphism ═══════ */}
