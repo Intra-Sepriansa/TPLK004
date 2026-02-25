@@ -27,9 +27,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CourseIcon from '@/assets/dosen/dashboard/course-icon.png';
-import TotalScanIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
-import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
-import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
+import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
+import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
 import OverdueIcon from '@/assets/admin/informasi-tugas/overdue.png';
 
 // --- Types & Interfaces ---
@@ -347,7 +347,7 @@ export default function CourseDetail({
                                     className="relative flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden group"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                    <BookOpen className="h-10 w-10 text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]" />
+                                    <img src={CourseIcon} alt="Course Icon" className="h-16 w-16 object-contain drop-shadow-[0_8px_15px_rgba(0,0,0,0.4)]" />
                                 </motion.div>
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center gap-2">
@@ -435,7 +435,7 @@ export default function CourseDetail({
 
                         <div className="relative flex items-center gap-4">
                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
-                                <img src={TotalScanIcon} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
+                                <img src={StatTotalStudents} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
@@ -456,7 +456,7 @@ export default function CourseDetail({
 
                         <div className="relative flex items-center gap-4">
                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
-                                <img src={TerlambatIcon} alt="Sesi Berlangsung" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
+                                <img src={StatTotalSessions} alt="Sesi Berlangsung" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sesi Berlangsung</p>
@@ -477,7 +477,7 @@ export default function CourseDetail({
 
                         <div className="relative flex items-center gap-4">
                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
-                                <img src={HadirIcon} alt="Tingkat Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
+                                <img src={StatAttendanceRate} alt="Tingkat Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
                             <div>
                                 <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Tingkat Kehadiran</p>
