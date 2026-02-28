@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import {
     ArrowLeft,
@@ -31,6 +32,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import RekapIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
 
 // ─── Types ───────────────────────────────────────────────
@@ -155,6 +157,8 @@ function BoolBadge({ value, trueLabel, falseLabel }: { value: boolean | null; tr
 //  COMPONENT
 // ═════════════════════════════════════════════════════════
 export default function RekapanDetail({ log, mahasiswa, course, session, selfieVerification, fraudAlerts, history, studentStats }: PageProps) {
+    const [imgError, setImgError] = useState(false);
+
     const sc = statusConfig[log.status] ?? statusConfig.present;
     const StatusIcon = sc.icon;
 
@@ -168,14 +172,15 @@ export default function RekapanDetail({ log, mahasiswa, course, session, selfieV
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6 max-w-7xl mx-auto">
                 {/* ═══ BACK + BREADCRUMB ═══ */}
                 <motion.div variants={itemVariants} className="flex items-center gap-3">
-                    <motion.button
-                        whileHover={{ scale: 1.05, x: -3 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => router.visit('/dosen/rekapan', { data: { course_id: course.id, session_id: session.id } })}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700 text-sm font-semibold text-neutral-700 dark:text-neutral-300 backdrop-blur-xl hover:bg-white dark:hover:bg-neutral-800 transition-all shadow-sm"
-                    >
-                        <ArrowLeft className="h-4 w-4" /> Kembali
-                    </motion.button>
+                    {/* ═══ BACK BUTTON ═══ */}
+                    <div className="mb-2">
+                        <Button variant="ghost" onClick={() => router.visit('/dosen/rekapan', { data: { course_id: course.id, session_id: session.id } })} className="group hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60 transition-all duration-300">
+                            <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                            </motion.div>
+                            Kembali
+                        </Button>
+                    </div>
                     <div className="flex items-center gap-1.5 text-xs text-neutral-500">
                         <span>Rekapan</span> <ChevronRight className="h-3 w-3" />
                         <span>{course.nama}</span> <ChevronRight className="h-3 w-3" />
@@ -193,36 +198,51 @@ export default function RekapanDetail({ log, mahasiswa, course, session, selfieV
 
                     <motion.div className="absolute right-20 top-1/2 -translate-y-1/2 h-28 w-28 rounded-full border-2 border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} />
 
-                    <div className="relative flex flex-wrap items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
+                    <div className="relative flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                        <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                             {/* Avatar */}
-                            <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                {mahasiswa.avatar_url ? (
-                                    <img src={mahasiswa.avatar_url} alt={mahasiswa.nama} className="h-20 w-20 rounded-2xl object-cover border-2 border-white/30 shadow-xl" />
+                            <motion.div whileHover={{ scale: 1.05, rotate: 5 }}
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                className="shrink-0"
+                            >
+                                {mahasiswa.avatar_url && !imgError ? (
+                                    <img
+                                        src={mahasiswa.avatar_url}
+                                        alt={mahasiswa.nama}
+                                        className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-cover border-2 border-white/30 shadow-xl"
+                                        onError={() => setImgError(true)}
+                                    />
                                 ) : (
-                                    <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                        <span className="text-3xl font-bold text-white">{mahasiswa.nama.charAt(0)}</span>
+                                    <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl bg-white/20 border-2 border-white/30 shadow-xl backdrop-blur-md">
+                                        <span className="text-3xl font-bold text-white uppercase">{mahasiswa.nama.charAt(0)}</span>
                                     </div>
                                 )}
                             </motion.div>
-                            <div>
-                                <p className="text-sm text-indigo-100 font-medium flex items-center gap-2">
+                            <div className="flex-1 mt-1 sm:mt-0">
+                                <motion.p className="text-sm text-indigo-100 font-medium flex items-center gap-2 justify-center sm:justify-start"
+                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                                     <User className="h-4 w-4" /> Detail Kehadiran Mahasiswa
-                                </p>
-                                <h1 className="text-2xl md:text-3xl font-bold">{mahasiswa.nama}</h1>
-                                <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-indigo-100">
+                                </motion.p>
+                                <motion.h1 className="text-2xl sm:text-3xl font-bold mt-1"
+                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>{mahasiswa.nama}</motion.h1>
+                                <motion.div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-indigo-100"
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                                     <span className="flex items-center gap-1"><Hash className="h-3.5 w-3.5" /> {mahasiswa.nim}</span>
                                     <span className="flex items-center gap-1"><BookOpen className="h-3.5 w-3.5" /> {mahasiswa.prodi}</span>
                                     <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> Semester {mahasiswa.semester}</span>
-                                </div>
+                                </motion.div>
                             </div>
                         </div>
 
                         {/* Status Badge */}
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.3 }} className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm text-white ${sc.bg} ${sc.glow} ring-2 ring-white/20`}>
-                            <StatusIcon className="h-5 w-5" />
-                            {sc.label}
-                        </motion.div>
+                        <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.3 }} className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm text-white ${sc.bg} ${sc.glow} ring-2 ring-white/20`}>
+                                <StatusIcon className="h-5 w-5" />
+                                {sc.label}
+                            </motion.div>
+                        </div>
                     </div>
                 </motion.div>
 

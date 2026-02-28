@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
+import { ExportModal } from '@/components/modals/export-modal';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
     Camera, CheckCircle, XCircle, Clock, AlertTriangle, Sparkles,
     User, MapPin, Smartphone, Timer, Eye, Zap, Bot, Download,
-    Search, List, Shield, TrendingUp, Target, Award,
+    Search, List, Shield, TrendingUp, Target, Award, Loader2,
     RefreshCw, ChevronRight, Check, X, Grid3x3, Brain,
     Activity, Fingerprint, Signal, Cpu, Heart, Globe,
 } from 'lucide-react';
@@ -120,6 +122,14 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
     const [rejectReason, setRejectReason] = useState('');
     const [processingId, setProcessingId] = useState<number | null>(null);
 
+    // Advanced Action States
+    const [selectedItems, setSelectedItems] = useState<number[]>([]);
+    const [isQuickVerifying, setIsQuickVerifying] = useState(false);
+    const [isAIVerifying, setIsAIVerifying] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+
     const filtered = useMemo(() => {
         return verifications.filter(v => {
             const matchSearch = v.mahasiswa.nama.toLowerCase().includes(searchQuery.toLowerCase()) || v.mahasiswa.nim.includes(searchQuery) || v.course.toLowerCase().includes(searchQuery.toLowerCase());
@@ -145,6 +155,79 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
             onSuccess: () => { setShowRejectDialog(false); setRejectTarget(null); },
             onFinish: () => setProcessingId(null),
         });
+    };
+
+    // ⚡ QUICK VERIFY
+    const handleQuickVerify = async () => {
+        if (selectedItems.length === 0) {
+            alert('Pilih minimal 1 selfie untuk verifikasi cepat');
+            return;
+        }
+        try {
+            setIsQuickVerifying(true);
+            const response = await axios.post('/dosen/verify/quick-verify', {
+                verification_ids: selectedItems,
+            });
+            alert(`⚡ Quick Verify Berhasil: ${response.data.approved} disetujui, ${response.data.rejected} ditolak`);
+            router.reload({ only: ['verifications', 'stats'] });
+            setSelectedItems([]);
+        } catch (error) {
+            alert('Gagal melakukan quick verify');
+        } finally {
+            setIsQuickVerifying(false);
+        }
+    };
+
+    // 🤖 AI AUTO-VERIFY
+    const handleAIAutoVerify = async () => {
+        try {
+            setIsAIVerifying(true);
+            const response = await axios.post('/dosen/verify/ai-auto-verify');
+            alert(`🤖 AI Auto-Verify Selesai: ${response.data.processed} diproses, ${response.data.approved} disetujui otomatis`);
+            router.reload({ only: ['verifications', 'stats'] });
+        } catch (error) {
+            alert('Gagal melakukan AI auto-verify');
+        } finally {
+            setIsAIVerifying(false);
+        }
+    };
+
+    // 📥 EXPORT
+    const handleExport = async (format: 'pdf' | 'excel') => {
+        try {
+            setIsExporting(true);
+            const response = await axios.post(
+                `/dosen/verify/export`,
+                { format },
+                { responseType: 'blob' }
+            );
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `verifikasi-selfie-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'pdf' : 'xlsx'}`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            alert('Gagal export data');
+        } finally {
+            setIsExporting(false);
+            setShowExportModal(false);
+        }
+    };
+
+    // 🔄 REFRESH
+    const handleRefresh = async () => {
+        try {
+            setIsRefreshing(true);
+            router.reload({ only: ['verifications', 'stats'], onFinish: () => setIsRefreshing(false) });
+        } catch (error) {
+            setIsRefreshing(false);
+        }
+    };
+
+    const toggleSelection = (id: number) => {
+        setSelectedItems(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
     };
 
     const statusBadge = (status: string) => {
@@ -182,75 +265,133 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={SelfieIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
+                                <motion.div
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={SelfieIcon} alt="Selfie" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Verifikasi Kehadiran</p>
-                                    <h1 className="text-3xl font-bold text-white">Selfie Mahasiswa</h1>
-                                    <p className="mt-1 text-indigo-100/80 text-sm max-w-lg">AI-Powered Multi-Layer Verification • Face Recognition • Liveness Detection • Fraud Analysis</p>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        Verifikasi Kehadiran
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+                                        Selfie Mahasiswa
+                                    </motion.h1>
+                                    <motion.p className="mt-2 text-indigo-100/80 text-sm leading-relaxed max-w-lg"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                                        AI-Powered • Face Recognition • Liveness Detection
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            {/* AI Engine Status Badges (Simplified) */}
-                            <div className="flex items-center gap-3">
-                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                    <div className="p-2 bg-amber-500/20 rounded-lg"><Clock className="h-6 w-6 text-white" /></div>
-                                    <div><p className="text-xs text-indigo-100">Pending</p><p className="text-2xl font-bold text-white">{stats.pending}</p></div>
-                                </motion.div>
-                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                    <div className="p-2 bg-emerald-500/20 rounded-lg"><CheckCircle className="h-6 w-6 text-white" /></div>
-                                    <div><p className="text-xs text-indigo-100">Hari Ini</p><p className="text-2xl font-bold text-white">{stats.today}</p></div>
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                <div className="flex flex-wrap justify-center gap-3">
+                                    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
+                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10">
+                                        <div className="p-2 bg-amber-500/20 rounded-lg"><Clock className="h-5 w-5 text-white" /></div>
+                                        <div><p className="text-xs text-indigo-100">Pending</p><p className="text-xl font-bold text-white">{stats.pending}</p></div>
+                                    </motion.div>
+                                    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }}
+                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10">
+                                        <div className="p-2 bg-emerald-500/20 rounded-lg"><CheckCircle className="h-5 w-5 text-white" /></div>
+                                        <div><p className="text-xs text-indigo-100">Hari Ini</p><p className="text-xl font-bold text-white">{stats.today}</p></div>
+                                    </motion.div>
+                                </div>
+                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                    {/* Quick Verify */}
+                                    <motion.button onClick={handleQuickVerify} disabled={isQuickVerifying || selectedItems.length === 0} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                                        className={cn("relative overflow-hidden flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/20 backdrop-blur-xl transition-all disabled:opacity-50",
+                                            "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-lg shadow-purple-500/50")}>
+                                        {isQuickVerifying ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Zap className="w-5 h-5 text-white" />}
+                                        <span className="text-sm font-semibold text-white whitespace-nowrap">Quick Verify </span>
+                                        {selectedItems.length > 0 && (
+                                            <Badge className="absolute -top-1 -right-1 scale-75 bg-white text-purple-600 font-bold border-0 px-1.5">{selectedItems.length}</Badge>
+                                        )}
+                                    </motion.button>
+
+                                    {/* AI Auto-Verify */}
+                                    <motion.button onClick={handleAIAutoVerify} disabled={isAIVerifying} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                                        className={cn("relative overflow-hidden flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/20 backdrop-blur-xl transition-all disabled:opacity-50",
+                                            "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-pink-500/50")}>
+                                        <div className="absolute -top-6 -right-6 w-16 h-16 bg-white/20 rounded-full blur-xl" />
+                                        {isAIVerifying ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Bot className="w-5 h-5 text-white" />}
+                                        <span className="text-sm font-semibold text-white whitespace-nowrap">AI Auto-Verify</span>
+                                    </motion.button>
+
+                                    {/* Export */}
+                                    <motion.button onClick={() => setShowExportModal(true)} disabled={isExporting} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                                        className={cn("flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/20 backdrop-blur-xl transition-all disabled:opacity-50",
+                                            "bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-indigo-500/50")}>
+                                        {isExporting ? <Loader2 className="w-5 h-5 animate-spin text-white" /> : <Download className="w-5 h-5 text-white" />}
+                                        <span className="text-sm font-semibold text-white whitespace-nowrap">Export</span>
+                                    </motion.button>
+
+                                    {/* Refresh */}
+                                    <motion.button onClick={handleRefresh} disabled={isRefreshing} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                                        className={cn("flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/20 backdrop-blur-xl transition-all disabled:opacity-50",
+                                            "bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 shadow-lg shadow-purple-500/50")}>
+                                        <RefreshCw className={cn("w-5 h-5 text-white", isRefreshing && "animate-spin")} />
+                                        <span className="text-sm font-semibold text-white whitespace-nowrap">Refresh</span>
+                                    </motion.button>
                                 </motion.div>
                             </div>
                         </div>
-
-                        {/* Action Buttons */}
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            {[
-                                { icon: Zap, label: 'Quick Verify' },
-                                { icon: Bot, label: 'AI Auto-Verify All' },
-                                { icon: Download, label: 'Export Report' },
-                                { icon: RefreshCw, label: 'Refresh', onClick: () => router.reload() },
-                            ].map((btn, i) => (
-                                <motion.button key={i} whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }}
-                                    onClick={btn.onClick}
-                                    className="flex items-center gap-2 rounded-xl bg-white/15 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/25 border border-white/20 shadow-lg">
-                                    <btn.icon className="h-4 w-4" /> {btn.label}
-                                </motion.button>
-                            ))}
-                        </motion.div>
                     </div>
                 </motion.div>
 
                 {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
-                {/* ═══════════════════ SUMMARY CARDS ═══════════════════ */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    {summaryCards.map((card) => (
-                        <motion.div key={card.key} variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5", card.shadow)}>
-                            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 dark:opacity-10", card.gradient)} />
-                            <motion.div animate={{ scale: hoveredCard === card.key ? 1.5 : 1, opacity: hoveredCard === card.key ? 0.4 : 0.2 }}
-                                className={cn("absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all duration-500", card.glow)} />
-                            <div className="relative flex items-center gap-3">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center">
-                                    <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
-                                    <span className="text-xl font-bold text-neutral-900 dark:text-white">{card.value}</span>
-                                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{card.sub}</p>
+                <motion.div
+                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden" animate="visible"
+                    variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } } }}
+                >
+                    {summaryCards.map((card, i) => {
+                        const colorMap: Record<string, any> = {
+                            'bg-blue-500': { from: 'from-blue-400', to: 'to-indigo-600', gradientBg: 'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10', hoverShadow: 'hover:shadow-blue-500/10' },
+                            'bg-amber-500': { from: 'from-amber-400', to: 'to-orange-600', gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10', hoverShadow: 'hover:shadow-amber-500/10' },
+                            'bg-emerald-500': { from: 'from-emerald-400', to: 'to-teal-600', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', hoverShadow: 'hover:shadow-emerald-500/10' },
+                            'bg-red-500': { from: 'from-red-400', to: 'to-rose-600', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', hoverShadow: 'hover:shadow-red-500/10' },
+                        };
+                        const cc = colorMap[card.glow] || colorMap['bg-blue-500'];
+                        return (
+                            <motion.div key={card.key}
+                                variants={{ hidden: { opacity: 0, y: 30, scale: 0.95 }, visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } } }}
+                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                                onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                                className={cn(`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5`, cc.hoverShadow)}
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${cc.gradientBg} opacity-50 dark:opacity-100`} />
+                                <motion.div className={cn(`absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all`, card.glow)} animate={{ opacity: hoveredCard === card.key ? 0.4 : 0.15 }} />
+                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-3 h-full justify-between">
+                                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-3 text-center sm:text-left">
+                                        <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
+                                            <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                        </motion.div>
+                                        <div>
+                                            <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400">{card.label}</p>
+                                            <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight">{card.value}</span>
+                                            <p className="hidden sm:block text-[10px] text-neutral-400 mt-0.5">{card.sub}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-auto w-full pt-2">
+                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                                            <motion.div className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
+                                                initial={{ width: 0 }} animate={{ width: '70%' }}
+                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* ═══════════════════ FILTERS ═══════════════════ */}
@@ -304,7 +445,21 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                 <motion.div key={v.id} variants={cardVariants}
                                     initial="hidden" animate="visible" whileHover="hover"
                                     transition={{ delay: idx * 0.05 }}
-                                    className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl">
+                                    className={cn("group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl transition-all",
+                                        selectedItems.includes(v.id) && "ring-2 ring-purple-500 bg-purple-50/50 dark:bg-purple-900/10"
+                                    )}>
+
+                                    {/* Selection Option */}
+                                    {v.status === 'pending' && (
+                                        <button onClick={(e) => { e.stopPropagation(); toggleSelection(v.id); }}
+                                            className="absolute top-4 left-4 z-20"
+                                        >
+                                            <div className={cn("w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shadow-md",
+                                                selectedItems.includes(v.id) ? "bg-purple-600 border-purple-600 text-white" : "bg-white/80 border-neutral-300 dark:bg-neutral-800/80 dark:border-neutral-600 hover:border-purple-500 backdrop-blur-sm")}>
+                                                {selectedItems.includes(v.id) && <Check className="w-4 h-4" />}
+                                            </div>
+                                        </button>
+                                    )}
 
                                     {/* Status / Risk accent bar */}
                                     <div className={cn("h-1.5",
@@ -446,6 +601,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-950/50">
+                                            <th className="px-4 py-3 w-10 text-center"></th>
                                             <th className="px-4 py-3 text-left text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Mahasiswa</th>
                                             <th className="px-4 py-3 text-left text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Mata Kuliah</th>
                                             <th className="px-3 py-3 text-center text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Face</th>
@@ -462,8 +618,18 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                         {filtered.map((v, i) => (
                                             <motion.tr key={v.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.02 }}
                                                 className={cn("hover:bg-white/60 dark:hover:bg-neutral-800/40 transition-colors cursor-pointer",
-                                                    v.is_suspicious && "bg-orange-50/30 dark:bg-orange-900/5")}
+                                                    v.is_suspicious && "bg-orange-50/30 dark:bg-orange-900/5",
+                                                    selectedItems.includes(v.id) && "bg-purple-50/50 dark:bg-purple-900/10")}
                                                 onClick={() => router.visit(`/dosen/verify/${v.id}`)}>
+                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                    {v.status === 'pending' && (
+                                                        <button onClick={() => toggleSelection(v.id)}
+                                                            className={cn("w-5 h-5 rounded border flex items-center justify-center transition-all",
+                                                                selectedItems.includes(v.id) ? "bg-purple-600 border-purple-600 text-white" : "bg-white border-neutral-300 dark:bg-neutral-800 dark:border-neutral-600 hover:border-purple-500")}>
+                                                            {selectedItems.includes(v.id) && <Check className="w-3.5 h-3.5" />}
+                                                        </button>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
                                                         <Avatar className="h-8 w-8"><AvatarImage src={v.mahasiswa.avatar_url || undefined} /><AvatarFallback className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white text-[10px]">{v.mahasiswa.nama[0]}</AvatarFallback></Avatar>
@@ -549,6 +715,12 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                         </div>
                     )}
                 </DialogContent>
+                <ExportModal
+                    isOpen={showExportModal}
+                    onClose={() => setShowExportModal(false)}
+                    onExport={handleExport}
+                    isExporting={isExporting}
+                />
             </Dialog>
         </DosenLayout>
     );

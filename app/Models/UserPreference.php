@@ -38,12 +38,15 @@ class UserPreference extends Model
             'language' => 'id',
             'timezone' => 'Asia/Jakarta',
             'dateFormat' => 'DD/MM/YYYY',
+            'timeFormat' => '24h',
             'startOfWeek' => 'monday',
         ],
         'notifications' => [
             'email' => [
                 'enabled' => true,
+                'digest' => 'daily',
                 'attendance' => true,
+                'assignments' => true,
                 'tasks' => true,
                 'announcements' => true,
                 'reminders' => true,
@@ -51,12 +54,15 @@ class UserPreference extends Model
             'push' => [
                 'enabled' => true,
                 'attendance' => true,
+                'assignments' => true,
                 'tasks' => true,
+                'reminders' => true,
                 'chat' => true,
             ],
             'inApp' => [
                 'enabled' => true,
                 'sound' => true,
+                'desktop' => false,
                 'vibration' => true,
             ],
         ],
@@ -65,13 +71,16 @@ class UserPreference extends Model
             'fontSize' => 'medium',
             'compactMode' => false,
             'animations' => true,
+            'sidebarCollapsed' => false,
             'highContrast' => false,
         ],
         'privacy' => [
             'profileVisibility' => 'contacts',
             'showOnlineStatus' => true,
+            'showActivityStatus' => true,
             'showLastSeen' => true,
             'shareActivity' => true,
+            'allowDataCollection' => true,
             'allowSearchByNim' => true,
         ],
         'security' => [
@@ -80,8 +89,10 @@ class UserPreference extends Model
             'sessionTimeout' => 60, // minutes
         ],
         'data' => [
-            'autoBackup' => false,
+            'autoBackup' => true,
             'backupFrequency' => 'weekly',
+            'cacheEnabled' => true,
+            'offlineMode' => false,
             'dataRetention' => 365, // days
         ],
     ];

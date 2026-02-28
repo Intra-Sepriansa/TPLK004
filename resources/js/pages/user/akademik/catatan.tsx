@@ -10,14 +10,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
-import { 
+import {
     NotebookPen, Plus, ArrowLeft, Search, BookOpen, Monitor, Building2,
     Trash2, Edit, ExternalLink, Calendar, CheckCircle, XCircle, Sparkles,
     FileText, Clock, TrendingUp, LayoutGrid, List, Columns3, Star, Copy,
-    Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked, ArrowRight
+    Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked, ArrowRight,
+    BrainCircuit, Zap, Users, AlignLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import TipTapEditor from '@/components/editor/TipTapEditor';
+import MindMapView from '@/components/MindMapView';
 import { useState, FormEvent, useEffect, useRef, useMemo } from 'react';
+
+// Add new AI Response interface
+interface AIResponse {
+    summary?: string;
+    keywords?: string[];
+    flashcards?: Array<{ question: string, answer: string }>;
+}
 
 interface Note {
     id: number;
@@ -51,19 +61,14 @@ interface Props {
 export default function AcademicNotes({ notes, courses, filters }: Props) {
     const { props } = usePage<{ flash?: { success?: string; error?: string } }>();
     const flash = props.flash;
-    
-    const [showForm, setShowForm] = useState(false);
-    const [editingNote, setEditingNote] = useState<Note | null>(null);
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
-    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'masonry'>('grid');
+    const [viewMode, setViewMode] = useState<'grid' | 'list' | 'masonry' | 'mindmap'>('grid');
     const [sortBy, setSortBy] = useState<'date' | 'title' | 'course'>('date');
     const [pinnedNotes, setPinnedNotes] = useState<number[]>([]);
     const [favoriteNotes, setFavoriteNotes] = useState<number[]>([]);
-    const [formStep, setFormStep] = useState(1);
-    const [showPreview, setShowPreview] = useState(false);
 
     // Animation variants
     const containerVariants = {
@@ -92,14 +97,14 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
 
     // Toggle pin note
     const togglePin = (noteId: number) => {
-        setPinnedNotes(prev => 
+        setPinnedNotes(prev =>
             prev.includes(noteId) ? prev.filter(id => id !== noteId) : [...prev, noteId]
         );
     };
 
     // Toggle favorite note
     const toggleFavorite = (noteId: number) => {
-        setFavoriteNotes(prev => 
+        setFavoriteNotes(prev =>
             prev.includes(noteId) ? prev.filter(id => id !== noteId) : [...prev, noteId]
         );
     };
@@ -113,22 +118,14 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
 
     // Duplicate note
     const handleDuplicate = (note: Note) => {
-        const course = courses.find(c => c.id === note.course_id);
-        setSelectedCourse(course || null);
-        setData({
-            mahasiswa_course_id: String(note.course_id),
-            meeting_number: String(note.meeting_number),
-            title: `${note.title} (Copy)`,
-            content: note.content,
-            links: note.links?.join('\n') || '',
-        });
-        setShowForm(true);
+        setToast({ type: 'error', message: 'Fitur deaktifkan untuk catatan ini.' });
+        setTimeout(() => setToast(null), 3000);
     };
 
     // Sort and filter notes
     const sortedAndFilteredNotes = useMemo(() => {
         let filtered = [...notes];
-        
+
         // Sort
         filtered.sort((a, b) => {
             if (sortBy === 'date') {
@@ -139,11 +136,11 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                 return a.course_name.localeCompare(b.course_name);
             }
         });
-        
+
         // Separate pinned notes
         const pinned = filtered.filter(n => pinnedNotes.includes(n.id));
         const unpinned = filtered.filter(n => !pinnedNotes.includes(n.id));
-        
+
         return [...pinned, ...unpinned];
     }, [notes, sortBy, pinnedNotes]);
 
@@ -185,60 +182,12 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         }
     }, [flash?.success, flash?.error]);
 
-    const { data, setData, post, patch, processing, errors, reset } = useForm({
-        mahasiswa_course_id: '',
-        meeting_number: '',
-        title: '',
-        content: '',
-        links: '',
-    });
-
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (editingNote) {
-            patch(`/user/akademik/catatan/${editingNote.id}`, {
-                onSuccess: () => {
-                    reset();
-                    setShowForm(false);
-                    setEditingNote(null);
-                    setSelectedCourse(null);
-                },
-                onError: () => {
-                    setToast({ type: 'error', message: 'Gagal memperbarui catatan' });
-                    setTimeout(() => setToast(null), 3000);
-                },
-            });
-        } else {
-            post('/user/akademik/catatan', {
-                onSuccess: () => {
-                    reset();
-                    setShowForm(false);
-                    setSelectedCourse(null);
-                },
-                onError: () => {
-                    setToast({ type: 'error', message: 'Gagal menambahkan catatan' });
-                    setTimeout(() => setToast(null), 3000);
-                },
-            });
-        }
-    };
-
     const handleEdit = (note: Note) => {
-        setEditingNote(note);
-        const course = courses.find(c => c.id === note.course_id);
-        setSelectedCourse(course || null);
-        setData({
-            mahasiswa_course_id: String(note.course_id),
-            meeting_number: String(note.meeting_number),
-            title: note.title,
-            content: note.content,
-            links: note.links?.join('\n') || '',
-        });
-        setShowForm(true);
+        router.visit(`/user/akademik/catatan/${note.id}/edit`);
     };
 
     const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
-    
+
     const handleDelete = () => {
         if (deleteDialog.id) {
             router.delete(`/user/akademik/catatan/${deleteDialog.id}`, {
@@ -250,33 +199,20 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
 
     const handleSearch = (e: FormEvent) => {
         e.preventDefault();
-        router.get('/user/akademik/catatan', { 
-            ...filters, 
-            search: searchQuery 
+        router.get('/user/akademik/catatan', {
+            ...filters,
+            search: searchQuery
         }, { preserveState: true });
     };
 
     const handleFilter = (key: string, value: string) => {
-        router.get('/user/akademik/catatan', { 
-            ...filters, 
-            [key]: value === 'all' ? '' : value 
+        router.get('/user/akademik/catatan', {
+            ...filters,
+            [key]: value === 'all' ? '' : value
         }, { preserveState: true });
     };
 
-    const handleCourseSelect = (courseId: string) => {
-        setData('mahasiswa_course_id', courseId);
-        const course = courses.find(c => c.id === parseInt(courseId));
-        setSelectedCourse(course || null);
-    };
-
-    const closeForm = () => {
-        setShowForm(false);
-        setEditingNote(null);
-        setSelectedCourse(null);
-        setFormStep(1);
-        setShowPreview(false);
-        reset();
-    };
+    // Removed old modal handler functions
 
     return (
         <StudentLayout>
@@ -294,11 +230,10 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                             initial={{ opacity: 0, y: -50, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${
-                                toast.type === 'success' 
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' 
-                                    : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                            }`}
+                            className={`fixed right-6 top-6 z-50 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg ${toast.type === 'success'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800'
+                                : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                                }`}
                         >
                             {toast.type === 'success' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
                             <span className="text-sm font-medium">{toast.message}</span>
@@ -309,7 +244,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                 {/* Advanced Header with Particles */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
                     <div className="absolute inset-0 overflow-hidden">
@@ -337,7 +272,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                             }}
                             className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
                         />
-                        
+
                         {/* Floating Academic Icons */}
                         {[...Array(15)].map((_, i) => (
                             <motion.div
@@ -375,7 +310,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                             </motion.div>
                         ))}
                     </div>
-                    
+
                     {/* Floating Large Icons */}
                     <motion.div
                         animate={{
@@ -406,7 +341,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                     >
                         <BookOpen className="h-28 w-28" />
                     </motion.div>
-                    
+
                     <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
@@ -447,365 +382,24 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     </motion.h1>
                                 </div>
                             </div>
-                            <Dialog open={showForm} onOpenChange={(open) => !open && closeForm()}>
-                                <DialogTrigger asChild>
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+
+                            {/* New Add Note Button */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Link href="/user/akademik/catatan/create">
+                                    <Button
+                                        className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl px-6 py-6 shadow-lg shadow-teal-500/30 flex items-center gap-2 group transition-all"
                                     >
-                                    </motion.div>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden">
-                                    <DialogHeader>
-                                        <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                                            {editingNote ? 'Edit Catatan' : 'Tambah Catatan Baru'}
-                                        </DialogTitle>
-                                        <DialogDescription>Catat materi pembelajaran untuk referensi</DialogDescription>
-                                    </DialogHeader>
-                                    
-                                    {/* Step Indicator */}
-                                    <div className="flex items-center justify-center gap-2 mb-6">
-                                        {[1, 2, 3].map((step) => (
-                                            <motion.div
-                                                key={step}
-                                                className="flex items-center"
-                                            >
-                                                <motion.div
-                                                    animate={{
-                                                        scale: formStep === step ? 1.2 : 1,
-                                                        backgroundColor: formStep >= step ? 'rgb(20 184 166)' : 'rgb(226 232 240)',
-                                                    }}
-                                                    className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm ${
-                                                        formStep >= step ? 'text-white' : 'text-slate-400'
-                                                    }`}
-                                                >
-                                                    {formStep > step ? <CheckCircle className="h-5 w-5" /> : step}
-                                                </motion.div>
-                                                {step < 3 && (
-                                                    <motion.div
-                                                        animate={{
-                                                            width: formStep > step ? '60px' : '40px',
-                                                            backgroundColor: formStep > step ? 'rgb(20 184 166)' : 'rgb(226 232 240)',
-                                                        }}
-                                                        className="h-1 mx-2"
-                                                    />
-                                                )}
-                                            </motion.div>
-                                        ))}
-                                    </div>
-
-                                    <form onSubmit={handleSubmit} className="space-y-6">
-                                        <div className="overflow-y-auto max-h-[50vh] px-1">
-                                            <AnimatePresence mode="wait">
-                                                {/* Step 1: Course & Meeting */}
-                                                {formStep === 1 && (
-                                                    <motion.div
-                                                        key="step1"
-                                                        initial={{ opacity: 0, x: 50 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        exit={{ opacity: 0, x: -50 }}
-                                                        className="space-y-4"
-                                                    >
-                                                        <div className="text-center mb-6">
-                                                            <motion.div
-                                                                animate={{ rotate: [0, 10, -10, 0] }}
-                                                                transition={{ duration: 2, repeat: Infinity }}
-                                                                className="inline-block"
-                                                            >
-                                                                <BookOpen className="h-16 w-16 mx-auto text-teal-500 mb-3" />
-                                                            </motion.div>
-                                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pilih Mata Kuliah</h3>
-                                                            <p className="text-sm text-slate-500">Tentukan mata kuliah dan pertemuan</p>
-                                                        </div>
-                                                        
-                                                        <div className="space-y-2">
-                                                            <Label className="text-base font-semibold">Mata Kuliah</Label>
-                                                            <Select value={data.mahasiswa_course_id} onValueChange={handleCourseSelect}>
-                                                                <SelectTrigger className="h-12 border-2 hover:border-teal-400 transition-colors">
-                                                                    <SelectValue placeholder="Pilih mata kuliah" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {courses.map((c) => (
-                                                                        <SelectItem key={c.id} value={String(c.id)}>
-                                                                            <div className="flex items-center gap-2">
-                                                                                {c.mode === 'offline' ? <Building2 className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
-                                                                                {c.name}
-                                                                            </div>
-                                                                        </SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
-                                                            {errors.mahasiswa_course_id && <p className="text-sm text-red-500">{errors.mahasiswa_course_id}</p>}
-                                                        </div>
-                                                        
-                                                        {selectedCourse && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0, y: 20 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                className="space-y-2"
-                                                            >
-                                                                <Label className="text-base font-semibold">Pertemuan</Label>
-                                                                <Select value={data.meeting_number} onValueChange={(v) => setData('meeting_number', v)}>
-                                                                    <SelectTrigger className="h-12 border-2 hover:border-teal-400 transition-colors">
-                                                                        <SelectValue placeholder="Pilih pertemuan" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {Array.from({ length: selectedCourse.total_meetings }, (_, i) => (
-                                                                            <SelectItem key={i + 1} value={String(i + 1)}>
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <Calendar className="h-4 w-4" />
-                                                                                    Pertemuan {i + 1}
-                                                                                </div>
-                                                                            </SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                                {errors.meeting_number && <p className="text-sm text-red-500">{errors.meeting_number}</p>}
-                                                            </motion.div>
-                                                        )}
-                                                    </motion.div>
-                                                )}
-
-                                                {/* Step 2: Title & Content */}
-                                                {formStep === 2 && (
-                                                    <motion.div
-                                                        key="step2"
-                                                        initial={{ opacity: 0, x: 50 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        exit={{ opacity: 0, x: -50 }}
-                                                        className="space-y-4"
-                                                    >
-                                                        <div className="text-center mb-6">
-                                                            <motion.div
-                                                                animate={{ scale: [1, 1.1, 1] }}
-                                                                transition={{ duration: 2, repeat: Infinity }}
-                                                                className="inline-block"
-                                                            >
-                                                                <NotebookPen className="h-16 w-16 mx-auto text-cyan-500 mb-3" />
-                                                            </motion.div>
-                                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tulis Catatan</h3>
-                                                            <p className="text-sm text-slate-500">Catat materi pembelajaran dengan detail</p>
-                                                        </div>
-                                                        
-                                                        <div className="space-y-2">
-                                                            <Label className="text-base font-semibold">Judul Catatan</Label>
-                                                            <Input
-                                                                value={data.title}
-                                                                onChange={(e) => setData('title', e.target.value)}
-                                                                placeholder="Contoh: Pengenalan Machine Learning"
-                                                                className="h-12 border-2 hover:border-cyan-400 focus:border-cyan-500 transition-colors"
-                                                            />
-                                                            {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
-                                                            {data.title && (
-                                                                <motion.p
-                                                                    initial={{ opacity: 0 }}
-                                                                    animate={{ opacity: 1 }}
-                                                                    className="text-xs text-teal-600 dark:text-teal-400"
-                                                                >
-                                                                    ✓ Judul terlihat bagus!
-                                                                </motion.p>
-                                                            )}
-                                                        </div>
-                                                        
-                                                        <div className="space-y-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <Label className="text-base font-semibold">Isi Catatan</Label>
-                                                                <span className="text-xs text-slate-500">
-                                                                    {data.content.length} karakter
-                                                                </span>
-                                                            </div>
-                                                            <Textarea
-                                                                value={data.content}
-                                                                onChange={(e) => setData('content', e.target.value)}
-                                                                placeholder="Tulis catatan pembelajaran dengan detail..."
-                                                                rows={8}
-                                                                className="border-2 hover:border-cyan-400 focus:border-cyan-500 transition-colors resize-none"
-                                                            />
-                                                            {errors.content && <p className="text-sm text-red-500">{errors.content}</p>}
-                                                            {data.content && (
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, y: 10 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-400"
-                                                                >
-                                                                    <div className="flex items-center gap-1">
-                                                                        <FileText className="h-3 w-3" />
-                                                                        {data.content.trim().split(/\s+/).length} kata
-                                                                    </div>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <Clock className="h-3 w-3" />
-                                                                        ~{Math.ceil(data.content.trim().split(/\s+/).length / 200)} menit baca
-                                                                    </div>
-                                                                </motion.div>
-                                                            )}
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-
-                                                {/* Step 3: Links & Preview */}
-                                                {formStep === 3 && (
-                                                    <motion.div
-                                                        key="step3"
-                                                        initial={{ opacity: 0, x: 50 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        exit={{ opacity: 0, x: -50 }}
-                                                        className="space-y-4"
-                                                    >
-                                                        <div className="text-center mb-6">
-                                                            <motion.div
-                                                                animate={{ rotate: [0, 360] }}
-                                                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                                                className="inline-block"
-                                                            >
-                                                                <Sparkles className="h-16 w-16 mx-auto text-blue-500 mb-3" />
-                                                            </motion.div>
-                                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Tambah Referensi</h3>
-                                                            <p className="text-sm text-slate-500">Link tambahan dan preview catatan</p>
-                                                        </div>
-                                                        
-                                                        <div className="space-y-2">
-                                                            <Label className="text-base font-semibold">Link Referensi (Opsional)</Label>
-                                                            <Textarea
-                                                                value={data.links}
-                                                                onChange={(e) => setData('links', e.target.value)}
-                                                                placeholder="https://example.com&#10;https://another-link.com"
-                                                                rows={3}
-                                                                className="border-2 hover:border-blue-400 focus:border-blue-500 transition-colors resize-none font-mono text-sm"
-                                                            />
-                                                            <p className="text-xs text-slate-500 flex items-center gap-1">
-                                                                <ExternalLink className="h-3 w-3" />
-                                                                Masukkan satu link per baris
-                                                            </p>
-                                                            {data.links && (
-                                                                <motion.p
-                                                                    initial={{ opacity: 0 }}
-                                                                    animate={{ opacity: 1 }}
-                                                                    className="text-xs text-blue-600 dark:text-blue-400"
-                                                                >
-                                                                    ✓ {data.links.split('\n').filter(l => l.trim()).length} link ditambahkan
-                                                                </motion.p>
-                                                            )}
-                                                        </div>
-                                                        
-                                                        {/* Preview Toggle */}
-                                                        <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                            <Button
-                                                                type="button"
-                                                                variant="outline"
-                                                                onClick={() => setShowPreview(!showPreview)}
-                                                                className="w-full"
-                                                            >
-                                                                {showPreview ? 'Sembunyikan' : 'Lihat'} Preview
-                                                            </Button>
-                                                        </div>
-                                                        
-                                                        {/* Preview */}
-                                                        <AnimatePresence>
-                                                            {showPreview && (
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, height: 0 }}
-                                                                    animate={{ opacity: 1, height: 'auto' }}
-                                                                    exit={{ opacity: 0, height: 0 }}
-                                                                    className="p-4 rounded-xl border-2 border-teal-200 bg-teal-50 dark:border-teal-800 dark:bg-teal-950/30"
-                                                                >
-                                                                    <h4 className="font-bold text-lg text-slate-900 dark:text-white mb-2">{data.title || 'Judul Catatan'}</h4>
-                                                                    <div className="flex items-center gap-2 mb-3">
-                                                                        <Badge variant="outline" className="text-xs">
-                                                                            {selectedCourse?.name || 'Mata Kuliah'}
-                                                                        </Badge>
-                                                                        {data.meeting_number && (
-                                                                            <Badge variant="outline" className="text-xs">
-                                                                                Pertemuan {data.meeting_number}
-                                                                            </Badge>
-                                                                        )}
-                                                                    </div>
-                                                                    <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap mb-3">
-                                                                        {data.content || 'Isi catatan akan muncul di sini...'}
-                                                                    </p>
-                                                                    {data.links && data.links.trim() && (
-                                                                        <div className="pt-3 border-t border-teal-300 dark:border-teal-700">
-                                                                            <p className="text-xs font-semibold text-teal-600 dark:text-teal-400 mb-2">Link Referensi:</p>
-                                                                            <div className="space-y-1">
-                                                                                {data.links.split('\n').filter(l => l.trim()).map((link, i) => (
-                                                                                    <div key={i} className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400">
-                                                                                        <ExternalLink className="h-3 w-3" />
-                                                                                        <span className="truncate">{link}</span>
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-                                                                </motion.div>
-                                                            )}
-                                                        </AnimatePresence>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-
-                                        {/* Navigation Buttons */}
-                                        <DialogFooter className="flex items-center justify-between gap-2">
-                                            <div className="flex gap-2">
-                                                {formStep > 1 && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        onClick={() => setFormStep(formStep - 1)}
-                                                        className="gap-2"
-                                                    >
-                                                        <ArrowLeft className="h-4 w-4" />
-                                                        Kembali
-                                                    </Button>
-                                                )}
-                                                <Button type="button" variant="ghost" onClick={closeForm}>
-                                                    Batal
-                                                </Button>
-                                            </div>
-                                            
-                                            {formStep < 3 ? (
-                                                <Button
-                                                    type="button"
-                                                    onClick={() => setFormStep(formStep + 1)}
-                                                    disabled={
-                                                        (formStep === 1 && (!data.mahasiswa_course_id || !data.meeting_number)) ||
-                                                        (formStep === 2 && (!data.title || !data.content))
-                                                    }
-                                                    className="gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700"
-                                                >
-                                                    Lanjut
-                                                    <ArrowRight className="h-4 w-4" />
-                                                </Button>
-                                            ) : (
-                                                <Button
-                                                    type="submit"
-                                                    disabled={processing}
-                                                    className="gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700"
-                                                >
-                                                    {processing ? (
-                                                        <>
-                                                            <motion.div
-                                                                animate={{ rotate: 360 }}
-                                                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                                            >
-                                                                <Sparkles className="h-4 w-4" />
-                                                            </motion.div>
-                                                            Menyimpan...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <CheckCircle className="h-4 w-4" />
-                                                            {editingNote ? 'Perbarui Catatan' : 'Simpan Catatan'}
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            )}
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
+                                        <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform" />
+                                        <span className="font-semibold text-lg">Catatan Baru</span>
+                                    </Button>
+                                </Link>
+                            </motion.div>
                         </div>
                         <motion.p
                             initial={{ opacity: 0, y: 10 }}
@@ -815,7 +409,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                         >
                             Catat materi setiap pertemuan untuk referensi belajar
                         </motion.p>
-                        
+
                         {/* Quick Stats with Dock-Style Animations */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -833,8 +427,8 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
-                                    whileHover={{ 
-                                        scale: 1.05, 
+                                    whileHover={{
+                                        scale: 1.05,
                                         y: -5,
                                         boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
                                     }}
@@ -895,7 +489,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 </SelectContent>
                             </Select>
                         </div>
-                        
+
                         {/* View Mode & Sort Options */}
                         <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                             <div className="flex items-center gap-2">
@@ -905,17 +499,17 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                         { value: 'grid' as const, icon: LayoutGrid, label: 'Grid' },
                                         { value: 'list' as const, icon: List, label: 'List' },
                                         { value: 'masonry' as const, icon: Columns3, label: 'Masonry' },
+                                        { value: 'mindmap' as const, icon: BrainCircuit, label: 'Mind Map' },
                                     ].map((mode) => (
                                         <motion.button
                                             key={mode.value}
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => setViewMode(mode.value)}
-                                            className={`p-2 rounded-md transition-colors ${
-                                                viewMode === mode.value
-                                                    ? 'bg-white dark:bg-slate-700 text-purple-600 shadow-sm'
-                                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                                            }`}
+                                            className={`p-2 rounded-md transition-colors ${viewMode === mode.value
+                                                ? 'bg-white dark:bg-slate-700 text-purple-600 shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                                }`}
                                             title={mode.label}
                                         >
                                             <mode.icon className="h-4 w-4" />
@@ -923,7 +517,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Urutkan:</span>
                                 <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
@@ -957,7 +551,15 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                 </motion.div>
 
                 {/* Notes List */}
-                {Object.keys(notesByCourse).length > 0 ? (
+                {viewMode === 'mindmap' ? (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="w-full bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"
+                    >
+                        <MindMapView notes={notes} courses={courses} />
+                    </motion.div>
+                ) : Object.keys(notesByCourse).length > 0 ? (
                     <div className="space-y-6">
                         {Object.entries(notesByCourse).map(([courseName, { mode, notes: courseNotes }], courseIndex) => (
                             <motion.div
@@ -991,11 +593,10 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     </div>
                                 </div>
                                 <div className="p-4">
-                                    <div className={`grid gap-4 ${
-                                        viewMode === 'grid' ? 'md:grid-cols-2' :
+                                    <div className={`grid gap-4 ${viewMode === 'grid' ? 'md:grid-cols-2' :
                                         viewMode === 'list' ? 'grid-cols-1' :
-                                        'md:grid-cols-3'
-                                    }`}>
+                                            'md:grid-cols-3'
+                                        }`}>
                                         {courseNotes.map((note, noteIndex) => (
                                             <AdvancedNoteCard
                                                 key={note.id}
@@ -1041,9 +642,11 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 <p className="text-muted-foreground font-medium mb-2">Belum ada catatan</p>
                                 <p className="text-sm text-muted-foreground mb-4">Mulai catat materi pembelajaran kamu</p>
                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                    <Button variant="outline" onClick={() => setShowForm(true)} className="rounded-xl">
-                                        <Plus className="h-4 w-4 mr-2" /> Tambah Catatan Pertama
-                                    </Button>
+                                    <Link href="/user/akademik/catatan/create">
+                                        <Button variant="outline" className="rounded-xl">
+                                            <Plus className="h-4 w-4 mr-2" /> Tambah Catatan Pertama
+                                        </Button>
+                                    </Link>
                                 </motion.div>
                             </div>
                         </div>
@@ -1061,15 +664,14 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                     confirmText="Ya, Hapus"
                     cancelText="Batal"
                 />
-            </motion.div>
-        </StudentLayout>
+            </motion.div >
+        </StudentLayout >
     );
 }
 
-// Advanced Note Card Component with Multiple Features
-function AdvancedNoteCard({ 
-    note, 
-    noteIndex, 
+function AdvancedNoteCard({
+    note,
+    noteIndex,
     viewMode,
     isPinned,
     isFavorite,
@@ -1078,11 +680,11 @@ function AdvancedNoteCard({
     onEdit,
     onDuplicate,
     onDelete,
-    stats
+    stats,
 }: {
     note: Note;
     noteIndex: number;
-    viewMode: 'grid' | 'list' | 'masonry';
+    viewMode: 'grid' | 'list' | 'masonry' | 'mindmap';
     isPinned: boolean;
     isFavorite: boolean;
     onTogglePin: () => void;
@@ -1096,6 +698,12 @@ function AdvancedNoteCard({
     const [showActions, setShowActions] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
+    // AI States
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
+    const [showAIDialog, setShowAIDialog] = useState(false);
+    const [aiMode, setAiMode] = useState<'summary' | 'flashcards'>('summary');
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current || viewMode === 'list') return;
         const rect = cardRef.current.getBoundingClientRect();
@@ -1107,6 +715,37 @@ function AdvancedNoteCard({
     const handleMouseLeave = () => {
         setMousePosition({ x: 0, y: 0 });
         setShowActions(false);
+    };
+
+    const handleGenerateAI = async (mode: 'summary' | 'flashcards') => {
+        setAiMode(mode);
+        setShowAIDialog(true);
+        setIsGeneratingAI(true);
+        setAiResponse(null);
+
+        try {
+            const endpoint = mode === 'summary'
+                ? `/user/akademik/catatan/${note.id}/generate-summary`
+                : `/user/akademik/catatan/${note.id}/generate-flashcards`;
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to generate AI content');
+
+            const data = await response.json();
+            setAiResponse(data);
+        } catch (error) {
+            console.error('AI error:', error);
+            // Show error state in dialog
+        } finally {
+            setIsGeneratingAI(false);
+        }
     };
 
     const isListView = viewMode === 'list';
@@ -1125,9 +764,8 @@ function AdvancedNoteCard({
                 transition: 'transform 0.1s ease-out',
             } : {}}
             whileHover={{ scale: isListView ? 1.01 : 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-            className={`relative rounded-2xl border-2 bg-white dark:bg-slate-900/50 overflow-hidden group ${
-                isPinned ? 'border-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-800'
-            } ${isListView ? 'flex items-start gap-4 p-4' : 'p-5'}`}
+            className={`relative rounded-2xl border-2 bg-white dark:bg-slate-900/50 overflow-hidden group ${isPinned ? 'border-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-800'
+                } ${isListView ? 'flex items-start gap-4 p-4' : 'p-5'}`}
         >
             {/* Pin Indicator */}
             {isPinned && (
@@ -1139,14 +777,13 @@ function AdvancedNoteCard({
                     <Pin className="absolute -top-8 right-1 h-4 w-4 text-white rotate-45" />
                 </motion.div>
             )}
-            
+
             {/* Glow Effect */}
             <motion.div
-                className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                    isPinned ? 'from-amber-500/10 via-yellow-500/10 to-orange-500/10' :
+                className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isPinned ? 'from-amber-500/10 via-yellow-500/10 to-orange-500/10' :
                     isFavorite ? 'from-rose-500/10 via-pink-500/10 to-purple-500/10' :
-                    'from-purple-500/10 via-pink-500/10 to-rose-500/10'
-                }`}
+                        'from-purple-500/10 via-pink-500/10 to-rose-500/10'
+                    }`}
                 animate={{
                     scale: [1, 1.2, 1],
                 }}
@@ -1156,7 +793,7 @@ function AdvancedNoteCard({
                     ease: "easeInOut"
                 }}
             />
-            
+
             <div className={`relative z-10 ${isListView ? 'flex-1' : ''}`}>
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2 mb-3">
@@ -1179,7 +816,7 @@ function AdvancedNoteCard({
                             </motion.div>
                         )}
                     </div>
-                    
+
                     {/* Quick Actions */}
                     <AnimatePresence>
                         {showActions && (
@@ -1190,9 +827,9 @@ function AdvancedNoteCard({
                                 className="flex items-center gap-1"
                             >
                                 <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className={`h-8 w-8 ${isPinned ? 'text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                                         onClick={onTogglePin}
                                         title={isPinned ? 'Unpin' : 'Pin'}
@@ -1201,9 +838,31 @@ function AdvancedNoteCard({
                                     </Button>
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-indigo-600 hover:bg-indigo-100 dark:text-indigo-400 dark:hover:bg-indigo-900/30"
+                                        onClick={() => handleGenerateAI('summary')}
+                                        title="AI Summary"
+                                    >
+                                        <BrainCircuit className="h-4 w-4" />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-yellow-500 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
+                                        onClick={() => handleGenerateAI('flashcards')}
+                                        title="AI Flashcards"
+                                    >
+                                        <Zap className="h-4 w-4" />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         className={`h-8 w-8 ${isFavorite ? 'text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                                         onClick={onToggleFavorite}
                                         title={isFavorite ? 'Unfavorite' : 'Favorite'}
@@ -1212,10 +871,10 @@ function AdvancedNoteCard({
                                     </Button>
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.2, rotate: 15 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-purple-100 dark:hover:bg-purple-900/30"
                                         onClick={onEdit}
                                         title="Edit"
                                     >
@@ -1223,10 +882,10 @@ function AdvancedNoteCard({
                                     </Button>
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-900/30" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                                         onClick={onDuplicate}
                                         title="Duplicate"
                                     >
@@ -1234,10 +893,10 @@ function AdvancedNoteCard({
                                     </Button>
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.2, rotate: -15 }} whileTap={{ scale: 0.9 }}>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30" 
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
                                         onClick={onDelete}
                                         title="Delete"
                                     >
@@ -1248,7 +907,7 @@ function AdvancedNoteCard({
                         )}
                     </AnimatePresence>
                 </div>
-                
+
                 {/* Title */}
                 <motion.h4
                     whileHover={{ x: 3 }}
@@ -1256,12 +915,13 @@ function AdvancedNoteCard({
                 >
                     {note.title}
                 </motion.h4>
-                
+
                 {/* Content Preview */}
-                <p className={`text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap mb-3 ${isListView ? 'line-clamp-2' : 'line-clamp-3'}`}>
-                    {note.content}
-                </p>
-                
+                <div
+                    className={`text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert max-w-none ${isListView ? 'line-clamp-2' : 'line-clamp-3'}`}
+                    dangerouslySetInnerHTML={{ __html: note.content }}
+                />
+
                 {/* Stats */}
                 <div className="flex items-center gap-3 mb-3 text-xs text-slate-500">
                     <div className="flex items-center gap-1">
@@ -1273,7 +933,7 @@ function AdvancedNoteCard({
                         <span>{stats.readingTime} menit baca</span>
                     </div>
                 </div>
-                
+
                 {/* Links */}
                 {note.links && note.links.length > 0 && (
                     <motion.div
@@ -1305,20 +965,148 @@ function AdvancedNoteCard({
                         </div>
                     </motion.div>
                 )}
-                
+
                 {/* Footer */}
                 <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2">
                         <Clock className="h-3 w-3 text-slate-400" />
                         <p className="text-xs text-slate-400">{note.created_at}</p>
                     </div>
-                    {note.updated_at !== note.created_at && (
-                        <Badge variant="outline" className="text-xs">
-                            Diperbarui
-                        </Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2 mr-2">
+                            <motion.div whileHover={{ scale: 1.1, zIndex: 10 }} className="relative z-0">
+                                <div className="h-6 w-6 rounded-full border-2 border-white dark:border-slate-800 bg-teal-100 flex items-center justify-center text-[10px] font-bold text-teal-700">
+                                    ME
+                                </div>
+                            </motion.div>
+                        </div>
+                        {note.updated_at !== note.created_at && (
+                            <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                                Diperbarui
+                            </Badge>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* AI Result Dialog */}
+            <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+                <DialogContent className="sm:max-w-xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            {aiMode === 'summary' ? <BrainCircuit className="h-6 w-6 text-indigo-500" /> : <Zap className="h-6 w-6 text-yellow-500" />}
+                            AI {aiMode === 'summary' ? 'Summary & Keywords' : 'Smart Flashcards'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Dihasilkan secara otomatis menggunakan kecerdasan buatan.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4 min-h-[200px] flex flex-col justify-center">
+                        <AnimatePresence mode="wait">
+                            {isGeneratingAI ? (
+                                <motion.div
+                                    key="loading"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="flex flex-col items-center justify-center gap-4 py-8"
+                                >
+                                    <motion.div
+                                        animate={{
+                                            rotate: 360,
+                                            scale: [1, 1.2, 1]
+                                        }}
+                                        transition={{
+                                            rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                                            scale: { duration: 1, repeat: Infinity }
+                                        }}
+                                        className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600"
+                                    />
+                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 animate-pulse">
+                                        Memproses catatan dengan AI...
+                                    </p>
+                                </motion.div>
+                            ) : aiResponse ? (
+                                <motion.div
+                                    key="result"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="space-y-6"
+                                >
+                                    {aiMode === 'summary' && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <AlignLeft className="h-4 w-4 text-indigo-500" />
+                                                    Ringkasan Topik
+                                                </h4>
+                                                <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                    {aiResponse.summary || 'Summary not returning.'}
+                                                </div>
+                                            </div>
+
+                                            {aiResponse.keywords && aiResponse.keywords.length > 0 && (
+                                                <div className="space-y-2">
+                                                    <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-purple-500" />
+                                                        Keywords
+                                                    </h4>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {aiResponse.keywords.map((kw, idx) => (
+                                                            <Badge key={idx} variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-300">
+                                                                {kw}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {aiMode === 'flashcards' && aiResponse.flashcards && (
+                                        <div className="space-y-4">
+                                            {aiResponse.flashcards.map((card, idx) => (
+                                                <motion.div
+                                                    key={idx}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: idx * 0.1 }}
+                                                    className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-800 space-y-2 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50"
+                                                >
+                                                    <div className="flex gap-2">
+                                                        <span className="font-bold text-yellow-600 dark:text-yellow-500">Q:</span>
+                                                        <p className="font-medium text-slate-900 dark:text-white">{card.question}</p>
+                                                    </div>
+                                                    <div className="flex gap-2 pt-2 mt-2 border-t border-slate-100 dark:border-slate-800/50">
+                                                        <span className="font-bold text-emerald-600 dark:text-emerald-500">A:</span>
+                                                        <p className="text-slate-600 dark:text-slate-400">{card.answer}</p>
+                                                    </div>
+                                                </motion.div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </motion.div>
+                            ) : (
+                                <div className="text-center text-red-500 py-8">
+                                    <XCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                    <p>Gagal memproses AI. Pastikan layanan aktif.</p>
+                                </div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowAIDialog(false)}>Tutup</Button>
+                        {aiResponse && (
+                            <Button className="gap-2">
+                                <Copy className="h-4 w-4" />
+                                Copy Hasil
+                            </Button>
+                        )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 }

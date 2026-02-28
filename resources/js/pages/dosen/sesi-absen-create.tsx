@@ -169,20 +169,25 @@ export default function CreateSession({ dosen, courses, request_course_id }: Pag
                             <ArrowLeft className="h-4 w-4" /> Kembali
                         </motion.button>
 
-                        <div className="flex flex-col md:flex-row items-center gap-6">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
                             <motion.div
                                 whileHover={{ scale: 1.05, rotate: 5 }}
-                                className="relative shrink-0"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                className="relative shrink-0 h-20 w-20"
                             >
-                                <img src={SesiBaruIcon} alt="Sesi Baru" className="h-20 w-20 object-contain drop-shadow-2xl pointer-events-none" />
+                                <img src={SesiBaruIcon} alt="Sesi Baru" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] pointer-events-none" />
                             </motion.div>
-                            <div>
-                                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm mb-2">
+                            <div className="text-center lg:text-left">
+                                <motion.h1 className="text-3xl md:text-5xl font-black tracking-tight text-white drop-shadow-sm mb-2"
+                                    initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                                     Mulai Sesi Baru
-                                </h1>
-                                <p className="text-indigo-100 text-lg font-medium max-w-xl">
+                                </motion.h1>
+                                <motion.p className="text-indigo-100 text-lg font-medium max-w-xl"
+                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
                                     Konfigurasi presensi cerdas Anda. Sistem AI akan otomatis memvalidasi kehadiran mahasiswa secara real-time.
-                                </p>
+                                </motion.p>
                             </div>
                         </div>
                     </div>

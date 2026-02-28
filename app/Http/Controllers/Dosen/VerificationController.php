@@ -66,7 +66,7 @@ class VerificationController extends Controller
                     'id' => $m?->id ?? 0,
                     'nama' => $m?->nama ?? '-',
                     'nim' => $m?->nim ?? '-',
-                    'avatar_url' => $m?->avatar_path ? asset('storage/' . $m->avatar_path) : null,
+                'avatar_url' => $m?->avatar_url,
                     'email' => $m?->email ?? '-',
                     'phone' => $m?->phone ?? '-',
                 ],
@@ -155,7 +155,7 @@ class VerificationController extends Controller
                 'id' => $m?->id ?? 0,
                 'nama' => $m?->nama ?? '-',
                 'nim' => $m?->nim ?? '-',
-                'avatar_url' => $m?->avatar_path ? asset('storage/' . $m->avatar_path) : null,
+                'avatar_url' => $m?->avatar_url,
                 'email' => $m?->email ?? '-',
                 'phone' => $m?->phone ?? '-',
                 'kelas' => $m?->kelas ?? '-',
@@ -313,5 +313,144 @@ class VerificationController extends Controller
         $verification->attendanceLog->update(['status' => 'rejected']);
 
         return back()->with('success', 'Selfie berhasil ditolak.');
+    }
+
+    /**
+     * Quick Verify selected items (Approve if AI >= 90%, else Reject)
+     */
+    public function quickVerify(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $dosen = Auth::guard('dosen')->user();
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
+        $ids = $request->input('verification_ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['error' => 'No IDs provided'], 400);
+        }
+
+        $verifications = SelfieVerification::whereIn('id', $ids)
+            ->where('status', 'pending')
+            ->whereHas('attendanceLog.session', fn($q) => $q->whereIn('course_id', $courseIds))
+            ->get();
+
+        $approved = 0;
+        $rejected = 0;
+
+        foreach ($verifications as $v) {
+            $aiConf = $v->attendanceLog->ai_confidence ?? 0;
+            if ($aiConf >= 90) {
+                $v->update([
+                    'status' => 'approved',
+                    'verified_by' => $dosen->id,
+                    'verified_by_type' => 'dosen',
+                    'verified_by_name' => $dosen->nama,
+                    'verified_at' => now(),
+                ]);
+                $v->attendanceLog->update(['status' => 'present']);
+                $approved++;
+            } else {
+                $v->update([
+                    'status' => 'rejected',
+                    'verified_by' => $dosen->id,
+                    'verified_by_type' => 'dosen',
+                    'verified_by_name' => $dosen->nama,
+                    'verified_at' => now(),
+                    'rejection_reason' => 'AI Confidence terlalu rendah untuk Quick Verify (< 90%)',
+                ]);
+                $v->attendanceLog->update(['status' => 'rejected']);
+                $rejected++;
+            }
+        }
+
+        return response()->json(['approved' => $approved, 'rejected' => $rejected]);
+    }
+
+    /**
+     * AI Auto-Verify pending items
+     */
+    public function aiAutoVerify(): \Illuminate\Http\JsonResponse
+    {
+        $dosen = Auth::guard('dosen')->user();
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
+
+        $pending = SelfieVerification::where('status', 'pending')
+            ->whereHas('attendanceLog.session', fn($q) => $q->whereIn('course_id', $courseIds))
+            ->get();
+
+        $processed = 0;
+        $approved = 0;
+
+        foreach ($pending as $v) {
+            $log = $v->attendanceLog;
+            if (!$log->ai_processed_at) {
+                // Ensure the AI actually scans the log
+                $ai = $this->aiService->verifyAttendance($log);
+                $log->update([
+                    'face_detected' => $ai['face_recognition']['face_detected'] ?? null,
+                    'face_match_score' => $ai['face_recognition']['face_match_score'] ?? null,
+                    'is_live_photo' => $ai['liveness_detection']['is_live'] ?? null,
+                    'spoofing_detected' => $ai['liveness_detection']['moire_pattern_detected'] ?? false,
+                    'image_quality_score' => $ai['image_quality']['overall_score'] ?? null,
+                    'ai_confidence' => $ai['confidence_score'] ?? null,
+                    'ai_recommendation' => $ai['overall_decision'] ?? null,
+                    'risk_score' => $ai['fraud_detection']['risk_score'] ?? null,
+                    'fraud_flags' => $ai['fraud_detection']['flags'] ?? [],
+                    'is_suspicious' => ($ai['fraud_detection']['risk_level'] ?? 'low') === 'high' || ($ai['fraud_detection']['risk_level'] ?? 'low') === 'critical',
+                    'ai_analysis_json' => $ai,
+                    'ai_processed_at' => now(),
+                    'ai_processing_step' => 'completed',
+                ]);
+            }
+            
+            $log->refresh();
+
+            if ($log->ai_recommendation === 'approve' && $log->ai_confidence >= 80) {
+                $v->update([
+                    'status' => 'approved',
+                    'verified_by' => $dosen->id,
+                    'verified_by_type' => 'dosen',
+                    'verified_by_name' => $dosen->nama,
+                    'verified_at' => now(),
+                ]);
+                $v->attendanceLog->update(['status' => 'present']);
+                $approved++;
+            }
+            $processed++;
+        }
+
+        return response()->json([
+            'processed' => $processed,
+            'approved' => $approved
+        ]);
+    }
+
+    /**
+     * Export to PDF or Excel
+     */
+    public function export(Request $request)
+    {
+        $dosen = Auth::guard('dosen')->user();
+        $format = $request->input('format', 'pdf');
+        $courseIds = \App\Models\MataKuliah::where('dosen_id', $dosen->id)->pluck('id');
+
+        if ($format === 'excel') {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\SelfieVerificationExport($courseIds),
+                'verifikasi-selfie-' . date('Y-m-d') . '.xlsx'
+            );
+        }
+
+        $verifications = SelfieVerification::with(['attendanceLog.mahasiswa', 'attendanceLog.session.course'])
+            ->whereHas('attendanceLog.session', fn($q) => $q->whereIn('course_id', $courseIds))
+            ->latest()
+            ->get();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.selfie-verifications', [
+            'dosen' => $dosen,
+            'verifications' => $verifications,
+            'date' => now()->format('d M Y H:i')
+        ]);
+
+        return $pdf->download('verifikasi-selfie-' . date('Y-m-d') . '.pdf');
     }
 }

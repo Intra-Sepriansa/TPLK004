@@ -22,8 +22,13 @@ class RekapanController extends Controller
             ->withCount(['sessions as session_count'])
             ->get();
         
-        // Get selected course
+        // Get selected course & auto-select latest if empty
         $selectedCourseId = $request->get('course_id');
+        
+        if (!$selectedCourseId && $courses->count() > 0) {
+            $selectedCourseId = $courses->first()->id;
+        }
+
         $selectedSessionId = $request->get('session_id');
         $searchQuery = $request->get('search', '');
         $statusFilter = $request->get('status', 'all');
@@ -39,6 +44,16 @@ class RekapanController extends Controller
                 ->withCount('logs as attendance_count')
                 ->orderBy('meeting_number')
                 ->get();
+                
+            // Auto-select latest session if empty
+            if (!$selectedSessionId && $sessions->count() > 0) {
+                // Get the most recent session based on start_at or meeting_number
+                $selectedSessionId = AttendanceSession::where('course_id', $selectedCourseId)
+                    ->orderBy('start_at', 'desc')
+                    ->orderBy('meeting_number', 'desc')
+                    ->first()
+                    ->id;
+            }
         }
         
         if ($selectedSessionId) {

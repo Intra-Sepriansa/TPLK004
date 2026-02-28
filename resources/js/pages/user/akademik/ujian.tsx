@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,12 +10,17 @@ import {
     CheckCircle2, BookOpen, Target, CheckCheck, Plus, Edit, Trash2, Save, X
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import examIcon from '@/assets/dosen/dashboard/course-icon.png';
+import completedStatIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import utsStatIcon from '@/assets/mahasiswa/akademik/uts.png';
+import uasStatIcon from '@/assets/mahasiswa/akademik/uas.png';
+import mataKuliahStatIcon from '@/assets/dosen/matakuliah/mata-kuliah.png';
 
 interface Exam {
     id: number;
@@ -64,13 +69,14 @@ interface Props {
 }
 
 export default function AcademicExams({ upcomingExams, examsByMonth, courses, preparationChecklist }: Props) {
+    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
     const [completedExams, setCompletedExams] = useState<Record<number, boolean>>({});
     const [customExams, setCustomExams] = useState<Exam[]>([]);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingExam, setEditingExam] = useState<Exam | null>(null);
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+    const [selectedCourse] = useState<Course | null>(null);
     const [isProgressDetailOpen, setIsProgressDetailOpen] = useState(false);
     const [formData, setFormData] = useState({
         course_name: '',
@@ -107,13 +113,6 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
         },
     };
 
-    // Mouse tracking for parallax
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-    };
-
     // Toggle exam completion
     const toggleExamCompletion = (examId: number) => {
         setCompletedExams(prev => ({ ...prev, [examId]: !prev[examId] }));
@@ -121,8 +120,12 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
 
     // Add custom exam
     const handleAddExam = () => {
+        const nextCustomId = customExams.length > 0
+            ? Math.max(...customExams.map((exam) => exam.id)) + 1
+            : allExams.length + 1;
+
         const newExam: Exam = {
-            id: Date.now(),
+            id: nextCustomId,
             course_id: 0,
             course_name: formData.course_name,
             type: formData.type,
@@ -206,17 +209,13 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
 
     // Open edit dialog
     const openEditDialog = (exam: Exam) => {
-        setEditingExam(exam);
-        setFormData({
-            course_name: exam.course_name,
-            type: exam.type,
-            date: exam.date,
-            time: exam.time || '',
-            location: exam.location || '',
-            duration: exam.duration || 120,
-            notes: exam.notes || '',
-        });
-        setIsEditDialogOpen(true);
+        const query = new URLSearchParams();
+        query.set('exam_id', String(exam.id));
+        if (exam.course_id) {
+            query.set('course_id', String(exam.course_id));
+        }
+
+        router.visit(`/user/akademik/ujian/detail?${query.toString()}`);
     };
 
     // Merge backend exams with custom modifications
@@ -275,162 +274,183 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="flex flex-col gap-6 p-4 md:p-6"
+                className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8"
             >
-                {/* Advanced Header with Particles */}
+                {/* Header - Matching Admin Dashboard */}
                 <motion.div
-                    variants={itemVariants}
-                    onMouseMove={handleMouseMove}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500 via-rose-500 to-pink-600 p-8 text-white shadow-2xl"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Particles */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
-                        />
-                        
-                        {/* Floating Graduation Cap Icons */}
-                        {[...Array(20)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{
-                                    opacity: [0, 1, 0],
-                                    scale: [0, 1.5, 0],
-                                    y: [0, -40, -80],
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    delay: i * 0.15,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                }}
-                            >
-                                <GraduationCap className="h-4 w-4 text-white/40" />
-                            </motion.div>
-                        ))}
-                    </div>
-                    
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
                     <div className="relative z-10">
-                        <div className="flex items-center justify-between flex-wrap gap-4">
-                            <div className="flex items-center gap-4">
-                                <Link href="/user/akademik">
-                                    <motion.div
-                                        whileHover={{ scale: 1.1, x: -5 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        className="p-2 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm"
-                                    >
-                                        <ArrowLeft className="h-5 w-5" />
-                                    </motion.div>
-                                </Link>
+                        <motion.button
+                            whileHover={{ scale: 1.02, x: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.visit('/user/akademik')}
+                            className="inline-flex items-center gap-2 text-white/90 hover:text-white transition-colors text-sm font-medium mb-4"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali
+                        </motion.button>
+
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
                                 <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mx-auto sm:mx-0"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <GraduationCap className="h-8 w-8" />
+                                    <img
+                                        src={examIcon}
+                                        alt="Kalender Ujian"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
                                 </motion.div>
-                                <div>
+                                <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="text-sm text-white/90 font-medium"
+                                        transition={{ delay: 0.3 }}
                                     >
                                         Manajemen Ujian
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="text-3xl font-bold"
+                                        transition={{ delay: 0.4 }}
                                     >
                                         Kalender Ujian
                                     </motion.h1>
+                                    <motion.p
+                                        className="mt-2 text-indigo-100 max-w-lg text-sm sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Countdown UTS dan UAS dengan persiapan lengkap
+                                    </motion.p>
                                 </div>
                             </div>
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 }}
-                            className="mt-4 text-white/90 text-lg"
-                        >
-                            Countdown UTS & UAS
-                        </motion.p>
-                        
-                        {/* Quick Stats with Dock-Style Animations */}
-                        {upcomingExams.length > 0 && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4"
-                            >
-                                {[
-                                    { icon: Calendar, label: 'Total Ujian', value: stats.total, color: 'white' },
-                                    { icon: CheckCheck, label: 'Selesai', value: stats.completed, color: 'emerald' },
-                                    { icon: AlertTriangle, label: 'Segera', value: stats.critical, color: 'red' },
-                                    { icon: Target, label: 'UTS', value: stats.uts, color: 'amber' },
-                                    { icon: GraduationCap, label: 'UAS', value: stats.uas, color: 'rose' },
-                                ].map((stat, index) => (
-                                    <motion.div
-                                        key={stat.label}
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
-                                        whileHover={{ 
-                                            scale: 1.05, 
-                                            y: -5,
-                                            boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
-                                        }}
-                                        className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <motion.div
-                                                whileHover={{ scale: 1.2, y: -2 }}
-                                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                            >
-                                                <stat.icon className="h-5 w-5 text-white/80" />
-                                            </motion.div>
-                                            <p className="text-white/80 text-xs font-medium">{stat.label}</p>
-                                        </div>
-                                        <p className="text-3xl font-bold">
-                                            <AnimatedCounter value={stat.value} duration={1500} />
-                                        </p>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        )}
                     </div>
+                </motion.div>
+
+                {/* Stats Cards - Glassmorphism */}
+                <motion.div
+                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } },
+                    }}
+                >
+                    {[
+                        {
+                            key: 'total',
+                            title: 'Total Ujian',
+                            value: stats.total,
+                            icon: mataKuliahStatIcon,
+                            colorConfig: {
+                                bg: 'bg-purple-500',
+                                gradientBg: 'from-purple-500/5 to-purple-500/5 dark:from-purple-500/10 dark:to-purple-500/10',
+                            },
+                        },
+                        {
+                            key: 'completed',
+                            title: 'Selesai',
+                            value: stats.completed,
+                            icon: completedStatIcon,
+                            colorConfig: {
+                                bg: 'bg-emerald-500',
+                                gradientBg: 'from-emerald-500/5 to-emerald-500/5 dark:from-emerald-500/10 dark:to-emerald-500/10',
+                            },
+                        },
+                        {
+                            key: 'uts',
+                            title: 'UTS',
+                            value: stats.uts,
+                            icon: utsStatIcon,
+                            colorConfig: {
+                                bg: 'bg-amber-500',
+                                gradientBg: 'from-amber-500/5 to-amber-500/5 dark:from-amber-500/10 dark:to-amber-500/10',
+                            },
+                        },
+                        {
+                            key: 'uas',
+                            title: 'UAS',
+                            value: stats.uas,
+                            icon: uasStatIcon,
+                            colorConfig: {
+                                bg: 'bg-blue-500',
+                                gradientBg: 'from-blue-500/5 to-blue-500/5 dark:from-blue-500/10 dark:to-blue-500/10',
+                            },
+                        },
+                    ].map((stat, index) => {
+                        const cardKey = `stat-${index}`;
+
+                        return (
+                            <motion.div
+                                key={stat.key}
+                                className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.9 },
+                                    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 20 } },
+                                }}
+                                whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                onHoverStart={() => setHoveredCard(cardKey)}
+                                onHoverEnd={() => setHoveredCard(null)}
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.colorConfig.gradientBg}`} />
+                                <motion.div
+                                    initial={false}
+                                    animate={{
+                                        scale: hoveredCard === cardKey ? 1.5 : 1,
+                                        opacity: hoveredCard === cardKey ? 0.4 : 0.2,
+                                    }}
+                                    transition={{ duration: 0.5 }}
+                                    className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.colorConfig.bg} blur-3xl`}
+                                />
+                                <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center"
+                                    >
+                                        <img
+                                            src={stat.icon}
+                                            alt={stat.title}
+                                            className={`h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.28)] ${stat.key === 'total' ? 'scale-[1.18]' : 'scale-100'}`}
+                                        />
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400">
+                                            {stat.title}
+                                        </p>
+                                        <div className="mt-0.5 sm:mt-1">
+                                            <span className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white">
+                                                <AnimatedCounter value={stat.value} />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* Upcoming Exams */}
@@ -488,16 +508,16 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                 </motion.div>
                                 Jadwal Ujian
                             </motion.h2>
-                            {examsByMonth.map((monthData, monthIndex) => (
+                            {examsByMonth.map((monthData) => (
                                 <motion.div
                                     key={monthData.month}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
                                 >
-                                    <Card className="overflow-hidden">
-                                        <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-                                            <CardTitle className="text-base">{monthData.month}</CardTitle>
+                                    <Card className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                                        <CardHeader className="pb-2 border-b border-white/20 dark:border-white/5">
+                                            <CardTitle className="text-base text-neutral-900 dark:text-white">{monthData.month}</CardTitle>
                                         </CardHeader>
                                         <CardContent className="pt-4">
                                             <div className="space-y-3">
@@ -511,7 +531,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                             scale: 1.02,
                                                             boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
                                                         }}
-                                                        className={`relative flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                                                        className={`relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                                                             completedExams[exam.id]
                                                                 ? 'border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20'
                                                                 : exam.is_critical 
@@ -530,7 +550,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                             />
                                                         )}
                                                         
-                                                        <div className="flex items-center gap-3 relative z-10">
+                                                        <div className="flex items-start gap-3 relative z-10">
                                                             <motion.div 
                                                                 whileHover={{ scale: 1.15, y: -2 }}
                                                                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -548,7 +568,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                     <Target className={`h-5 w-5 ${exam.type === 'UTS' ? 'text-blue-600' : 'text-purple-600'}`} />
                                                                 )}
                                                             </motion.div>
-                                                            <div>
+                                                            <div className="min-w-0">
                                                                 <div className="flex items-center gap-2">
                                                                     <Badge variant={exam.type === 'UTS' ? 'secondary' : 'default'} className="text-xs">
                                                                         {exam.type}
@@ -564,7 +584,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                             </Badge>
                                                                         </motion.div>
                                                                     )}
-                                                                    <span className={`font-medium ${completedExams[exam.id] ? 'line-through text-muted-foreground' : ''}`}>
+                                                                    <span className={`font-medium truncate ${completedExams[exam.id] ? 'line-through text-muted-foreground' : ''}`}>
                                                                         {exam.course_name}
                                                                     </span>
                                                                 </div>
@@ -574,7 +594,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-3 relative z-10">
+                                                        <div className="flex items-center justify-between sm:justify-end gap-3 relative z-10 w-full sm:w-auto">
                                                             <motion.div 
                                                                 whileHover={{ scale: 1.1 }}
                                                                 className={`text-right ${
@@ -592,7 +612,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                                 </p>
                                                                 <p className="text-xs text-muted-foreground">hari</p>
                                                             </motion.div>
-                                                            <div className="flex gap-2">
+                                                            <div className="flex gap-2 shrink-0">
                                                                 {/* Toggle Completion Button */}
                                                                 <motion.button
                                                                     whileHover={{ scale: 1.1 }}
@@ -628,19 +648,12 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                     </>
                 ) : (
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden">
+                        <Card className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                             <CardContent className="py-12">
                                 <div className="text-center">
                                     <motion.div
-                                        animate={{
-                                            y: [0, -10, 0],
-                                            rotate: [0, 5, -5, 0],
-                                        }}
-                                        transition={{
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
                                     >
                                         <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground mb-3 opacity-50" />
                                     </motion.div>
@@ -678,8 +691,8 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                 {/* Course Progress Overview */}
                 {courses.length > 0 && (
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden">
-                            <CardHeader className="pb-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                        <Card className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                            <CardHeader className="pb-3 border-b border-white/20 dark:border-white/5">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <motion.div
                                         whileHover={{ scale: 1.2, y: -2 }}
@@ -702,10 +715,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                                                 scale: 1.02,
                                                 boxShadow: "0 10px 30px rgba(16, 185, 129, 0.1)"
                                             }}
-                                            onClick={() => {
-                                                setSelectedCourse(course);
-                                                setIsProgressDetailOpen(true);
-                                            }}
+                                            onClick={() => router.visit(`/user/akademik/ujian/detail?course_id=${course.id}`)}
                                             className="p-3 rounded-lg border hover:border-emerald-300 dark:hover:border-emerald-700 transition-all cursor-pointer"
                                         >
                                             <div className="flex items-center justify-between mb-2">
@@ -787,7 +797,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
 
                 {/* Preparation Tips */}
                 <motion.div variants={itemVariants}>
-                    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800 overflow-hidden relative">
+                    <Card className="overflow-hidden relative rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
                         {/* Animated Background */}
                         <motion.div
                             animate={{
@@ -853,7 +863,7 @@ export default function AcademicExams({ upcomingExams, examsByMonth, courses, pr
                 whileHover={{ scale: 1.1, y: -5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsAddDialogOpen(true)}
-                className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-full shadow-2xl hover:shadow-red-500/50 transition-all"
+                className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-purple-500/50 transition-all"
             >
                 <Plus className="h-6 w-6" />
             </motion.button>
@@ -1504,264 +1514,190 @@ interface MagneticExamCardProps {
 }
 
 function MagneticExamCard({ exam, index, checkedItems, preparationChecklist, toggleCheck, getCheckedCount, isCompleted, toggleCompletion, isCustom, onEdit, onDelete }: MagneticExamCardProps) {
-    const [rotateX, setRotateX] = useState(0);
-    const [rotateY, setRotateY] = useState(0);
-    const cardRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateXValue = ((y - centerY) / centerY) * -10;
-        const rotateYValue = ((x - centerX) / centerX) * 10;
-        setRotateX(rotateXValue);
-        setRotateY(rotateYValue);
-    };
-
-    const handleMouseLeave = () => {
-        setRotateX(0);
-        setRotateY(0);
-    };
-
     return (
         <motion.div
-            ref={cardRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-                transformStyle: 'preserve-3d',
-                perspective: '1000px',
-            }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ scale: 1.02, y: -2 }}
+            className={`relative rounded-2xl border-2 p-5 bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl hover:shadow-lg transition-all ${
+                isCompleted
+                    ? 'border-emerald-200 dark:border-emerald-800'
+                    : exam.is_critical
+                        ? 'border-red-200 dark:border-red-800'
+                        : exam.is_warning
+                            ? 'border-amber-200 dark:border-amber-800'
+                            : 'border-neutral-200 dark:border-neutral-700'
+            }`}
         >
-            <motion.div
-                animate={{
-                    rotateX,
-                    rotateY,
-                }}
-                transition={{
-                    type: 'spring' as const,
-                    stiffness: 300,
-                    damping: 20,
-                }}
-                style={{
-                    transformStyle: 'preserve-3d',
-                }}
-            >
-                <Card 
-                    className={`overflow-hidden relative ${
-                        isCompleted
-                            ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/40'
-                            : exam.is_critical 
-                                ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/40' 
-                                : 'border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/40'
-                    }`}
-                >
-                    {/* Glow Effect */}
+            {isCompleted && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="absolute inset-0 bg-emerald-500/5 rounded-2xl"
+                />
+            )}
+
+            <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
                     <motion.div
-                        animate={{
-                            opacity: [0.3, 0.6, 0.3],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className={`absolute inset-0 ${
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                        className={`flex shrink-0 h-12 w-12 items-center justify-center rounded-xl ${
                             isCompleted
-                                ? 'bg-emerald-500/10'
-                                : exam.is_critical 
-                                    ? 'bg-red-500/10' 
-                                    : 'bg-amber-500/10'
-                        } blur-xl`}
-                    />
-                    
-                    <div className={`h-1 ${
-                        isCompleted
-                            ? 'bg-emerald-500'
-                            : exam.is_critical 
-                                ? 'bg-red-500' 
-                                : 'bg-amber-500'
-                    }`} />
-                    <CardContent className="p-4 relative z-10">
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                    <Badge variant={exam.type === 'UTS' ? 'secondary' : 'default'}>
-                                        {exam.type}
-                                    </Badge>
-                                    {isCompleted && (
-                                        <motion.div
-                                            initial={{ scale: 0, rotate: -180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
-                                            transition={{ type: "spring", stiffness: 200 }}
-                                        >
-                                            <Badge className="text-xs bg-emerald-500 hover:bg-emerald-600">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
-                                            </Badge>
-                                        </motion.div>
-                                    )}
-                                    {!isCompleted && exam.is_critical && (
-                                        <motion.div
-                                            animate={{ scale: [1, 1.1, 1] }}
-                                            transition={{ duration: 1, repeat: Infinity }}
-                                        >
-                                            <Badge variant="destructive" className="text-xs">
-                                                <AlertTriangle className="h-3 w-3 mr-1" /> Segera!
-                                            </Badge>
-                                        </motion.div>
-                                    )}
-                                </div>
-                                <h3 className={`font-semibold ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
-                                    {exam.course_name}
-                                </h3>
-                                <div className="space-y-1 mt-1">
-                                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                        <Calendar className="h-4 w-4" />
-                                        <span>{exam.date_formatted}</span>
-                                    </div>
-                                    {exam.time && (
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="flex items-center gap-1 text-sm text-muted-foreground"
-                                        >
-                                            <Clock className="h-4 w-4" />
-                                            <span>{exam.time}</span>
-                                            {exam.duration && <span className="text-xs">({exam.duration} menit)</span>}
-                                        </motion.div>
-                                    )}
-                                    {exam.location && (
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.1 }}
-                                            className="flex items-center gap-1 text-sm text-muted-foreground"
-                                        >
-                                            <Target className="h-4 w-4" />
-                                            <span>{exam.location}</span>
-                                        </motion.div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                                <motion.div 
-                                    whileHover={{ scale: 1.1 }}
-                                    className={`text-right ${
-                                        isCompleted
-                                            ? 'text-emerald-600'
-                                            : exam.is_critical 
-                                                ? 'text-red-600' 
-                                                : 'text-amber-600'
-                                    }`}
-                                >
-                                    <p className="text-3xl font-bold">
-                                        <AnimatedCounter value={exam.days_remaining} duration={1000} />
-                                    </p>
-                                    <p className="text-xs">hari lagi</p>
-                                </motion.div>
-                                <div className="flex gap-2">
-                                    {/* Toggle Completion Button */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => toggleCompletion(exam.id)}
-                                        className={`p-2 rounded-lg transition-colors ${
-                                            isCompleted
-                                                ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600'
-                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30'
-                                        }`}
-                                        title={isCompleted ? 'Tandai belum selesai' : 'Tandai sudah selesai'}
-                                    >
-                                        <CheckCircle2 className="h-5 w-5" />
-                                    </motion.button>
-                                    {/* Edit button for all exams */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => onEdit?.(exam)}
-                                        className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
-                                        title="Edit ujian"
-                                    >
-                                        <Edit className="h-5 w-5" />
-                                    </motion.button>
-                                    {/* Delete only for custom exams */}
-                                    {isCustom && (
-                                        <motion.button
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            onClick={() => onDelete?.(exam.id)}
-                                            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors"
-                                            title="Hapus ujian"
-                                        >
-                                            <Trash2 className="h-5 w-5" />
-                                        </motion.button>
-                                    )}
-                                </div>
-                            </div>
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                                : exam.type === 'UTS'
+                                    ? 'bg-blue-100 dark:bg-blue-900/30'
+                                    : 'bg-purple-100 dark:bg-purple-900/30'
+                        }`}
+                    >
+                        {isCompleted ? (
+                            <CheckCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                            <Target className={`h-6 w-6 ${exam.type === 'UTS' ? 'text-blue-600 dark:text-blue-400' : 'text-purple-600 dark:text-purple-400'}`} />
+                        )}
+                    </motion.div>
+
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <Badge variant={exam.type === 'UTS' ? 'secondary' : 'default'} className="text-xs">
+                                {exam.type}
+                            </Badge>
+                            {isCompleted && (
+                                <Badge className="text-xs bg-emerald-500 hover:bg-emerald-600">
+                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    Selesai
+                                </Badge>
+                            )}
+                            {exam.is_critical && !isCompleted && (
+                                <Badge className="text-xs bg-red-500 hover:bg-red-600">
+                                    <AlertTriangle className="h-3 w-3 mr-1" />
+                                    Segera
+                                </Badge>
+                            )}
                         </div>
 
-                        {/* Preparation Checklist */}
-                        <div className="mt-4 pt-4 border-t border-dashed">
-                            {exam.notes && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800"
-                                >
-                                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Catatan:</p>
-                                    <p className="text-sm text-blue-700 dark:text-blue-300">{exam.notes}</p>
-                                </motion.div>
+                        <h3 className={`font-semibold text-neutral-900 dark:text-white break-words ${isCompleted ? 'line-through opacity-60' : ''}`}>
+                            {exam.course_name}
+                        </h3>
+                        <div className="space-y-1 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                            <div className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                <span>{exam.date_formatted}</span>
+                            </div>
+                            {exam.time && (
+                                <div className="flex items-center gap-1">
+                                    <Clock className="h-4 w-4" />
+                                    <span>{exam.time}</span>
+                                    {exam.duration && <span className="text-xs">({exam.duration} menit)</span>}
+                                </div>
                             )}
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium">Persiapan</p>
-                                <span className="text-xs text-muted-foreground">
-                                    {getCheckedCount(exam.id)}/{preparationChecklist.length}
-                                </span>
-                            </div>
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: '100%' }}
-                                transition={{ duration: 1, delay: 0.5 }}
-                            >
-                                <Progress 
-                                    value={(getCheckedCount(exam.id) / preparationChecklist.length) * 100} 
-                                    className="h-1.5 mb-3" 
-                                />
-                            </motion.div>
-                            <div className="space-y-2">
-                                {preparationChecklist.slice(0, 3).map((item, itemIndex) => (
-                                    <motion.div
-                                        key={item.id}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: itemIndex * 0.1 }}
-                                        whileHover={{ x: 5 }}
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Checkbox
-                                            id={`${exam.id}-${item.id}`}
-                                            checked={checkedItems[`${exam.id}-${item.id}`] || false}
-                                            onCheckedChange={() => toggleCheck(exam.id, item.id)}
-                                        />
-                                        <label 
-                                            htmlFor={`${exam.id}-${item.id}`}
-                                            className={`text-sm cursor-pointer ${checkedItems[`${exam.id}-${item.id}`] ? 'line-through text-muted-foreground' : ''}`}
-                                        >
-                                            {item.text}
-                                        </label>
-                                    </motion.div>
-                                ))}
-                            </div>
+                            {exam.location && (
+                                <div className="flex items-center gap-1">
+                                    <Target className="h-4 w-4" />
+                                    <span>{exam.location}</span>
+                                </div>
+                            )}
                         </div>
-                    </CardContent>
-                </Card>
-            </motion.div>
+                    </div>
+                </div>
+
+                <div className="w-full sm:w-auto flex items-center justify-between sm:block sm:text-right">
+                    <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className={`inline-flex flex-col items-center justify-center rounded-xl p-3 ${
+                            isCompleted
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                                : exam.is_critical
+                                    ? 'bg-red-100 dark:bg-red-900/30'
+                                    : exam.is_warning
+                                        ? 'bg-amber-100 dark:bg-amber-900/30'
+                                        : 'bg-blue-100 dark:bg-blue-900/30'
+                        }`}
+                    >
+                        <span className={`text-2xl font-bold ${
+                            isCompleted
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : exam.is_critical
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : exam.is_warning
+                                        ? 'text-amber-600 dark:text-amber-400'
+                                        : 'text-blue-600 dark:text-blue-400'
+                        }`}>
+                            {isCompleted ? '✓' : exam.days_remaining}
+                        </span>
+                        <span className="text-xs text-neutral-600 dark:text-neutral-400">
+                            {isCompleted ? 'Selesai' : 'hari lagi'}
+                        </span>
+                    </motion.div>
+
+                    <div className="mt-0 sm:mt-2 flex items-center justify-end gap-2">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => toggleCompletion(exam.id)}
+                            className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                        >
+                            {isCompleted ? 'Batalkan' : 'Tandai Selesai'}
+                        </motion.button>
+                        <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => onEdit?.(exam)}
+                            className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-colors"
+                            title="Edit ujian"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </motion.button>
+                        {isCustom && (
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => onDelete?.(exam.id)}
+                                className="p-2 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 hover:bg-red-200 dark:hover:bg-red-900/70 transition-colors"
+                                title="Hapus ujian"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </motion.button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/20 dark:border-white/5">
+                {exam.notes && (
+                    <div className="mb-4 p-3 rounded-xl bg-neutral-100/70 dark:bg-neutral-800/60 border border-white/20 dark:border-white/5">
+                        <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-1">Catatan:</p>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400">{exam.notes}</p>
+                    </div>
+                )}
+                <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Persiapan</p>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                        {getCheckedCount(exam.id)}/{preparationChecklist.length}
+                    </span>
+                </div>
+                <Progress
+                    value={(getCheckedCount(exam.id) / preparationChecklist.length) * 100}
+                    className="h-1.5 mb-3"
+                />
+                <div className="space-y-2">
+                    {preparationChecklist.slice(0, 3).map((item) => (
+                        <div key={item.id} className="flex items-center gap-2">
+                            <Checkbox
+                                id={`${exam.id}-${item.id}`}
+                                checked={checkedItems[`${exam.id}-${item.id}`] || false}
+                                onCheckedChange={() => toggleCheck(exam.id, item.id)}
+                            />
+                            <label
+                                htmlFor={`${exam.id}-${item.id}`}
+                                className={`text-sm cursor-pointer ${checkedItems[`${exam.id}-${item.id}`] ? 'line-through text-neutral-500 dark:text-neutral-400' : 'text-neutral-700 dark:text-neutral-300'}`}
+                            >
+                                {item.text}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </motion.div>
     );
 }

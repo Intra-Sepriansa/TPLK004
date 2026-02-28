@@ -10,6 +10,7 @@ use App\Models\TugasRead;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,8 +23,28 @@ class TugasController extends Controller
         $courseId = $request->get('course_id', 'all');
         $status = $request->get('status', 'all'); // upcoming, overdue, all
 
-        $query = Tugas::with(['course.dosen'])
+        $courseScope = MataKuliah::query()
+            ->with('dosen')
+            ->orderBy('nama');
+
+        if (!empty($mahasiswa->kelas) && Schema::hasColumn('mata_kuliah', 'kelas')) {
+            $courseScope->where('kelas', $mahasiswa->kelas);
+        }
+
+        $coursesCollection = $courseScope->get();
+        $allowedCourseIds = $coursesCollection->pluck('id');
+
+        $query = Tugas::query()
+            ->with(['course.dosen'])
+            ->withCount([
+                'diskusi as diskusi_count' => fn ($q) => $q->where('visibility', 'public'),
+            ])
             ->where('status', 'published')
+            ->when(
+                $allowedCourseIds->isNotEmpty(),
+                fn ($q) => $q->whereIn('course_id', $allowedCourseIds),
+                fn ($q) => $q->whereRaw('1 = 0')
+            )
             ->orderBy('deadline', 'asc');
 
         if ($search) {
@@ -34,7 +55,13 @@ class TugasController extends Controller
         }
 
         if ($courseId !== 'all') {
-            $query->where('course_id', $courseId);
+            $selectedCourseId = (int) $courseId;
+
+            if ($allowedCourseIds->contains($selectedCourseId)) {
+                $query->where('course_id', $selectedCourseId);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
         if ($status === 'upcoming') {
@@ -43,10 +70,15 @@ class TugasController extends Controller
             $query->where('deadline', '<', now());
         }
 
-        $tugasList = $query->get()->map(function ($tugas) use ($mahasiswa) {
-            $isRead = TugasRead::where('tugas_id', $tugas->id)
-                ->where('mahasiswa_id', $mahasiswa->id)
-                ->exists();
+        $tugasCollection = $query->get();
+        $readTaskIds = TugasRead::query()
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->whereIn('tugas_id', $tugasCollection->pluck('id'))
+            ->pluck('tugas_id')
+            ->flip();
+
+        $tugasList = $tugasCollection->map(function ($tugas) use ($readTaskIds) {
+            $isRead = $readTaskIds->has($tugas->id);
 
             return [
                 'id' => $tugas->id,
@@ -65,18 +97,24 @@ class TugasController extends Controller
                 'is_overdue' => $tugas->isOverdue(),
                 'days_until_deadline' => $tugas->days_until_deadline,
                 'is_read' => $isRead,
-                'diskusi_count' => $tugas->diskusi()->where('visibility', 'public')->count(),
+                'diskusi_count' => $tugas->diskusi_count,
             ];
         });
 
-        $courses = MataKuliah::with('dosen')->orderBy('nama')->get()->map(fn($c) => [
+        $courses = $coursesCollection->map(fn($c) => [
             'id' => $c->id,
             'nama' => $c->nama,
             'dosen' => $c->dosen?->nama,
         ]);
 
         // Stats
-        $allTugas = Tugas::where('status', 'published');
+        $allTugas = Tugas::query()
+            ->where('status', 'published')
+            ->when(
+                $allowedCourseIds->isNotEmpty(),
+                fn ($q) => $q->whereIn('course_id', $allowedCourseIds),
+                fn ($q) => $q->whereRaw('1 = 0')
+            );
         $stats = [
             'total' => (clone $allTugas)->count(),
             'upcoming' => (clone $allTugas)->where('deadline', '>=', now())->count(),

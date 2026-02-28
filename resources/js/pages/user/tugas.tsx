@@ -3,28 +3,117 @@ import { useState } from 'react';
 import StudentLayout from '@/layouts/student-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    AlertTriangle, Bell, BookOpen, Calendar, Clock, Eye, FileText, MessageSquare, Search, Sparkles,
-    CheckCircle, Filter, TrendingUp, Target, Zap, ArrowRight, ListTodo, BarChart3, Star
+    Activity,
+    AlertTriangle,
+    ArrowRight,
+    BookOpen,
+    Calendar,
+    CheckCircle,
+    FileText,
+    Filter,
+    ListTodo,
+    MessageSquare,
+    Search,
+    Sparkles,
+    Target,
+    Zap,
+    type LucideIcon,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
+import TimelineView from '@/components/tugas/timeline-view';
+import CalendarView from '@/components/tugas/calendar-view';
+import tugasHeaderIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import totalTugasIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import draftIcon from '@/assets/admin/informasi-tugas/draft.png';
+import overdueIcon from '@/assets/admin/informasi-tugas/overdue.png';
+import publishedIcon from '@/assets/admin/informasi-tugas/publised.png';
 
 type Course = { id: number; nama: string; dosen: string | null };
 type Tugas = {
-    id: number; judul: string; deskripsi: string; jenis: string;
-    deadline: string; deadline_display: string; prioritas: string;
-    course: { id: number; nama: string; dosen: string | null }; created_by: string;
-    is_overdue: boolean; days_until_deadline: number; is_read: boolean; diskusi_count: number;
+    id: number;
+    judul: string;
+    deskripsi: string;
+    jenis: string;
+    deadline: string;
+    deadline_display: string;
+    prioritas: string;
+    course: { id: number; nama: string; dosen: string | null };
+    created_by: string;
+    is_overdue: boolean;
+    days_until_deadline: number;
+    is_read: boolean;
+    diskusi_count: number;
 };
 type Props = {
     mahasiswa: { id: number; nama: string; nim: string };
-    tugasList: Tugas[]; courses: Course[];
+    tugasList: Tugas[];
+    courses: Course[];
     stats: { total: number; upcoming: number; overdue: number; unread: number };
     filters: { search: string; course_id: string; status: string };
+};
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.04,
+            delayChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+    },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
+    },
+    hover: {
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring' as const, stiffness: 400, damping: 15 },
+    },
+};
+
+const getPriorityConfig = (priority: string): { bg: string; text: string; icon: LucideIcon; label: string } => {
+    const configs: Record<string, { bg: string; text: string; icon: LucideIcon; label: string }> = {
+        tinggi: {
+            bg: 'bg-gradient-to-r from-red-500 to-rose-600',
+            text: 'text-white',
+            icon: Zap,
+            label: 'Tinggi',
+        },
+        sedang: {
+            bg: 'bg-gradient-to-r from-amber-500 to-orange-500',
+            text: 'text-white',
+            icon: Target,
+            label: 'Sedang',
+        },
+        rendah: {
+            bg: 'bg-gradient-to-r from-emerald-500 to-green-500',
+            text: 'text-white',
+            icon: CheckCircle,
+            label: 'Rendah',
+        },
+    };
+
+    return configs[priority] || configs.rendah;
 };
 
 export default function UserTugas({ mahasiswa, tugasList, courses, stats, filters }: Props) {
@@ -32,241 +121,125 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
     const [courseId, setCourseId] = useState(filters.course_id);
     const [status, setStatus] = useState(filters.status);
 
-    // Animation variants
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.04,
-                delayChildren: 0.1,
-            },
+    const statsCards = [
+        {
+            label: 'Total Tugas',
+            value: stats.total,
+            iconSrc: totalTugasIcon,
+            gradient: 'from-indigo-500/15 to-blue-500/5',
+            glow: 'bg-indigo-500/30',
         },
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 30, scale: 0.9 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
-        }
-    };
-
-    const cardVariants = {
-        hidden: { opacity: 0, y: 30, scale: 0.9 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            transition: { type: 'spring' as const, stiffness: 300, damping: 20 }
+        {
+            label: 'Mendatang',
+            value: stats.upcoming,
+            iconSrc: publishedIcon,
+            gradient: 'from-emerald-500/15 to-teal-500/5',
+            glow: 'bg-emerald-500/30',
         },
-        hover: {
-            scale: 1.04,
-            y: -4,
-            transition: { type: 'spring' as const, stiffness: 400, damping: 15 }
-        }
-    };
-
-    const getPriorityConfig = (p: string) => {
-        const configs: Record<string, { bg: string; text: string; icon: any; label: string }> = {
-            tinggi: { bg: 'bg-gradient-to-r from-red-500 to-rose-600', text: 'text-white', icon: Zap, label: 'Tinggi' },
-            sedang: { bg: 'bg-gradient-to-r from-amber-500 to-orange-500', text: 'text-white', icon: Target, label: 'Sedang' },
-            rendah: { bg: 'bg-gradient-to-r from-emerald-500 to-green-500', text: 'text-white', icon: CheckCircle, label: 'Rendah' },
-        };
-        return configs[p] || configs.rendah;
-    };
-
-    const completionRate = stats.total > 0 ? Math.round(((stats.total - stats.upcoming - stats.overdue) / stats.total) * 100) : 0;
+        {
+            label: 'Terlewat',
+            value: stats.overdue,
+            iconSrc: overdueIcon,
+            gradient: 'from-rose-500/15 to-red-500/5',
+            glow: 'bg-rose-500/30',
+        },
+        {
+            label: 'Belum Dibaca',
+            value: stats.unread,
+            iconSrc: draftIcon,
+            gradient: 'from-amber-500/15 to-orange-500/5',
+            glow: 'bg-amber-500/30',
+        },
+    ];
 
     return (
         <StudentLayout>
             <Head title="Informasi Tugas" />
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="space-y-6 p-6"
+                className="space-y-6 p-4 sm:p-6"
             >
-                {/* Header with Advanced Animations */}
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-8 text-white shadow-2xl"
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-7 lg:p-8"
                 >
-                    {/* Animated Background Particles */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
-                        />
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                        {/* Floating Task Icons */}
-                        {[...Array(15)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{
-                                    opacity: [0, 1, 0],
-                                    scale: [0, 1.5, 0],
-                                    y: [0, -40, -80],
-                                }}
-                                transition={{
-                                    duration: 3,
-                                    repeat: Infinity,
-                                    delay: i * 0.2,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                }}
-                            >
-                                <FileText className="h-4 w-4 text-white/40" />
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                                whileHover={{ scale: 1.15, rotate: 5 }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
-                            >
-                                <ListTodo className="h-8 w-8" />
-                            </motion.div>
-                            <div>
-                                <motion.p
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-sm text-white/90 font-medium"
-                                >
-                                    Akademik
-                                </motion.p>
-                                <motion.h1
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4 }}
-                                    className="text-3xl font-bold flex items-center gap-2"
-                                >
+                    <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                            <motion.img
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
+                                src={tugasHeaderIcon}
+                                alt="Informasi Tugas"
+                                className="h-16 w-16 shrink-0 object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)] sm:h-20 sm:w-20"
+                            />
+                            <div className="min-w-0">
+                                <p className="text-sm font-medium tracking-wide text-white/85">Akademik</p>
+                                <h1 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
                                     Informasi Tugas
-                                </motion.h1>
+                                </h1>
+                                <p className="mt-2 max-w-2xl text-sm text-white/90 sm:text-base">
+                                    Kelola tugas per mata kuliah dengan data real untuk {mahasiswa.nama}.
+                                </p>
                             </div>
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="mt-4 text-white/90 text-lg"
-                        >
-                            Lihat dan kelola tugas dari dosen dengan mudah dan terorganisir
-                        </motion.p>
 
-                        {/* Quick Stats with Dock-Style Animations */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4"
-                        >
-                            {[
-                                { icon: FileText, label: 'Total Tugas', value: stats.total },
-                                { icon: Clock, label: 'Mendatang', value: stats.upcoming },
-                                { icon: AlertTriangle, label: 'Terlewat', value: stats.overdue },
-                                { icon: Bell, label: 'Belum Dibaca', value: stats.unread },
-                            ].map((stat, index) => (
-                                <motion.div
-                                    key={stat.label}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.6 + index * 0.1, type: "spring", stiffness: 200 }}
-                                    whileHover={{
-                                        scale: 1.05,
-                                        y: -5,
-                                        boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
-                                    }}
-                                    className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <motion.div
-                                            whileHover={{ scale: 1.2, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        >
-                                            <stat.icon className="h-5 w-5 text-white/80" />
-                                        </motion.div>
-                                        <p className="text-white/80 text-xs font-medium">{stat.label}</p>
-                                    </div>
-                                    <p className="text-3xl font-bold">
-                                        <AnimatedCounter value={stat.value} duration={1500} />
-                                    </p>
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                        <div className="grid w-full grid-cols-2 gap-2 sm:w-auto">
+                            <div className="rounded-xl border border-white/20 bg-white/15 px-3 py-2 text-center backdrop-blur-md">
+                                <p className="text-[11px] font-medium text-white/75">NIM</p>
+                                <p className="text-sm font-semibold text-white">{mahasiswa.nim}</p>
+                            </div>
+                            <div className="rounded-xl border border-white/20 bg-white/15 px-3 py-2 text-center backdrop-blur-md">
+                                <p className="text-[11px] font-medium text-white/75">Mata Kuliah</p>
+                                <p className="text-sm font-semibold text-white">{courses.length}</p>
+                            </div>
+                        </div>
                     </div>
                 </motion.div>
 
-                {/* Stats Cards with Dock-Style Animations */}
-                <motion.div
-                    variants={containerVariants}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
-                >
-                    {[
-                        { icon: FileText, label: 'Total', value: stats.total, gradient: 'from-blue-400 to-blue-600', shadow: 'shadow-blue-500/50' },
-                        { icon: Clock, label: 'Mendatang', value: stats.upcoming, gradient: 'from-emerald-400 to-emerald-600', shadow: 'shadow-emerald-500/50' },
-                        { icon: AlertTriangle, label: 'Terlewat', value: stats.overdue, gradient: 'from-red-400 to-red-600', shadow: 'shadow-red-500/50' },
-                        { icon: Bell, label: 'Belum Dibaca', value: stats.unread, gradient: 'from-orange-400 to-orange-600', shadow: 'shadow-orange-500/50' },
-                    ].map((stat, index) => (
+                <motion.div variants={containerVariants} className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+                    {statsCards.map((stat) => (
                         <motion.div
                             key={stat.label}
                             variants={itemVariants}
                             whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                            whileTap={{ scale: 0.95 }}
-                            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5 cursor-pointer"
+                            className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40 sm:rounded-3xl sm:p-6"
                         >
-                            <div className={`absolute inset-0 bg-gradient-to-br from-slate-500/5 to-slate-500/10 dark:from-slate-500/10 dark:to-slate-500/20`} />
-                            <motion.div
-                                initial={false}
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full bg-slate-500 blur-3xl transition-all duration-500 opacity-20 group-hover:opacity-40 group-hover:scale-150`}
-                            />
-                            <div className="relative flex items-center gap-3">
-                                <motion.div
-                                    whileHover={{ scale: 1.2, y: -2 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow}`}
-                                >
-                                    <stat.icon className="h-6 w-6" />
-                                </motion.div>
+                            <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${stat.gradient}`} />
+                            <div className={`pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl ${stat.glow}`} />
+
+                            <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
+                                <motion.img
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    src={stat.iconSrc}
+                                    alt={stat.label}
+                                    className="h-10 w-10 shrink-0 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] sm:h-14 sm:w-14"
+                                />
                                 <div>
-                                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                        <AnimatedCounter value={stat.value} duration={1500} />
+                                    <p className="text-[10px] font-medium leading-tight text-neutral-600 dark:text-neutral-400 sm:text-sm">{stat.label}</p>
+                                    <p className="mt-0.5 text-lg font-bold text-neutral-900 dark:text-white sm:mt-1 sm:text-2xl">
+                                        <AnimatedCounter value={stat.value} duration={1200} />
                                     </p>
                                 </div>
                             </div>
@@ -274,40 +247,58 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                     ))}
                 </motion.div>
 
-                {/* Filters */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70"
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-5"
                 >
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-400 to-indigo-600 text-white">
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 p-2 text-white">
                             <Filter className="h-4 w-4" />
                         </div>
-                        <h2 className="font-semibold text-slate-900 dark:text-white">Filter Tugas</h2>
+                        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white sm:text-base">Filter Informasi Tugas</h2>
                     </div>
-                    <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex flex-col gap-3 md:flex-row">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                             <Input
-                                placeholder="Cari tugas..."
+                                placeholder="Cari judul atau deskripsi tugas..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && router.get('/user/tugas', { search, course_id: courseId, status }, { preserveState: true })}
-                                className="pl-10 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                onKeyDown={(e) =>
+                                    e.key === 'Enter' &&
+                                    router.get('/user/tugas', { search, course_id: courseId, status }, { preserveState: true })
+                                }
+                                className="h-11 rounded-xl border-white/20 pl-10 focus:border-indigo-500 focus:ring-indigo-500 dark:border-white/5"
                             />
                         </div>
-                        <Select value={courseId} onValueChange={(v) => { setCourseId(v); router.get('/user/tugas', { search, course_id: v, status }, { preserveState: true }); }}>
-                            <SelectTrigger className="w-full md:w-48 rounded-xl">
+                        <Select
+                            value={courseId}
+                            onValueChange={(v) => {
+                                setCourseId(v);
+                                router.get('/user/tugas', { search, course_id: v, status }, { preserveState: true });
+                            }}
+                        >
+                            <SelectTrigger className="h-11 w-full rounded-xl md:w-56">
                                 <SelectValue placeholder="Semua Mata Kuliah" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Semua Mata Kuliah</SelectItem>
-                                {courses.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.nama}</SelectItem>)}
+                                {courses.map((c) => (
+                                    <SelectItem key={c.id} value={String(c.id)}>
+                                        {c.nama}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
-                        <Select value={status} onValueChange={(v) => { setStatus(v); router.get('/user/tugas', { search, course_id: courseId, status: v }, { preserveState: true }); }}>
-                            <SelectTrigger className="w-full md:w-40 rounded-xl">
-                                <SelectValue placeholder="Semua" />
+                        <Select
+                            value={status}
+                            onValueChange={(v) => {
+                                setStatus(v);
+                                router.get('/user/tugas', { search, course_id: courseId, status: v }, { preserveState: true });
+                            }}
+                        >
+                            <SelectTrigger className="h-11 w-full rounded-xl md:w-44">
+                                <SelectValue placeholder="Semua Status" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Semua Status</SelectItem>
@@ -318,39 +309,32 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                     </div>
                 </motion.div>
 
-                {/* Tugas List */}
                 <motion.div
                     variants={itemVariants}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                    className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white">
-                                    <ListTodo className="h-4 w-4" />
-                                </div>
-                                <div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Daftar Tugas</h2>
-                                    <p className="text-xs text-slate-500">{tugasList.length} tugas ditemukan</p>
-                                </div>
-                            </div>
+                    <div className="flex items-center gap-3 border-b border-white/20 p-4 dark:border-white/5 sm:p-6">
+                        <div className="rounded-xl bg-blue-500 p-2 text-white">
+                            <ListTodo className="h-5 w-5" />
                         </div>
+                        <h2 className="text-lg font-bold text-neutral-900 dark:text-white sm:text-xl">Daftar Tugas</h2>
                     </div>
-                    <div className="p-4">
+
+                    <div className="p-4 sm:p-5">
                         {tugasList.length === 0 ? (
-                            <div className="text-center py-16">
-                                <div className="relative mx-auto w-24 h-24 mb-6">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full opacity-20 animate-ping" />
-                                    <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full shadow-lg shadow-blue-500/30">
+                            <div className="py-14 text-center sm:py-16">
+                                <div className="relative mx-auto mb-6 h-24 w-24">
+                                    <div className="absolute inset-0 animate-ping rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 opacity-20" />
+                                    <div className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/30">
                                         <FileText className="h-12 w-12 text-white" />
                                     </div>
                                 </div>
-                                <p className="text-xl font-semibold text-slate-700 dark:text-gray-300">Belum ada tugas</p>
-                                <p className="text-sm text-slate-500 mt-2">Tugas dari dosen akan muncul di sini</p>
+                                <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 sm:text-xl">Belum ada tugas</p>
+                                <p className="mt-2 text-sm text-neutral-500">Tugas dari dosen akan tampil otomatis di halaman ini.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {tugasList.map((tugas, index) => {
+                                {tugasList.map((tugas) => {
                                     const priorityConfig = getPriorityConfig(tugas.prioritas);
                                     const PriorityIcon = priorityConfig.icon;
 
@@ -360,76 +344,63 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                                             variants={cardVariants}
                                             whileHover="hover"
                                             onClick={() => router.visit(`/user/tugas/${tugas.id}`)}
-                                            className={`rounded-2xl sm:rounded-3xl border-2 p-5 transition-all duration-300 hover:shadow-xl cursor-pointer group ${tugas.is_overdue
-                                                ? 'border-red-200 bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 dark:border-red-800'
-                                                : !tugas.is_read
-                                                    ? 'border-l-4 border-l-blue-500 border-slate-200 dark:border-slate-700'
-                                                    : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'
-                                                }`}
+                                            className={`group cursor-pointer rounded-3xl border p-4 transition-all duration-300 hover:shadow-xl sm:p-5 ${
+                                                tugas.is_overdue
+                                                    ? 'border-red-200 bg-gradient-to-r from-red-50 to-rose-50 dark:border-red-800 dark:from-red-900/20 dark:to-rose-900/20'
+                                                    : !tugas.is_read
+                                                      ? 'border-l-4 border-l-blue-500 border-white/20 bg-white/60 dark:border-white/5 dark:bg-neutral-800/60'
+                                                      : 'border-white/20 bg-white/60 hover:border-indigo-300 dark:border-white/5 dark:bg-neutral-800/60'
+                                            } backdrop-blur-xl`}
                                         >
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="flex-1">
-                                                    {/* Badges */}
-                                                    <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-black/25">
+                                                    <div className="mb-3 flex flex-wrap items-center gap-2">
+                                                        <span className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-black/25">
                                                             {tugas.jenis}
                                                         </span>
-                                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${priorityConfig.bg} ${priorityConfig.text} shadow-lg`}>
+                                                        <span className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold shadow-lg ${priorityConfig.bg} ${priorityConfig.text}`}>
                                                             <PriorityIcon className="h-3 w-3" />
                                                             {priorityConfig.label}
                                                         </span>
                                                         {tugas.is_overdue && (
-                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-red-600 to-rose-600 text-white animate-pulse shadow-lg shadow-red-500/25">
+                                                            <span className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-red-500/25">
                                                                 <AlertTriangle className="h-3 w-3" />
                                                                 Terlewat
                                                             </span>
                                                         )}
                                                         {!tugas.is_read && (
-                                                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25">
-                                                                <Sparkles className="h-3 w-3 animate-pulse" />
+                                                            <span className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-emerald-500/25">
+                                                                <Sparkles className="h-3 w-3" />
                                                                 Baru
                                                             </span>
                                                         )}
                                                     </div>
 
-                                                    {/* Title */}
-                                                    <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                    <h3 className="text-lg font-bold text-neutral-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
                                                         {tugas.judul}
                                                     </h3>
-                                                    <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-2 mt-2">{tugas.deskripsi}</p>
+                                                    <p className="mt-2 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{tugas.deskripsi}</p>
 
-                                                    {/* Meta Info */}
-                                                    <div className="flex items-center gap-3 mt-4 flex-wrap">
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                                                    <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
+                                                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-100 px-3 py-1.5 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                                                             <BookOpen className="h-4 w-4 text-blue-500" />
                                                             {tugas.course.nama}
                                                         </span>
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                                                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-100 px-3 py-1.5 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                                                             <Calendar className="h-4 w-4 text-purple-500" />
                                                             {tugas.deadline_display}
                                                         </span>
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-gray-800 text-sm text-slate-600 dark:text-gray-400">
+                                                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-100 px-3 py-1.5 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                                                             <MessageSquare className="h-4 w-4 text-emerald-500" />
                                                             {tugas.diskusi_count} diskusi
                                                         </span>
                                                     </div>
-
-                                                    {/* Deadline Warning */}
-                                                    {!tugas.is_overdue && tugas.days_until_deadline <= 3 && tugas.days_until_deadline >= 0 && (
-                                                        <div className="mt-4 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
-                                                            <p className="text-sm text-amber-700 dark:text-amber-400 flex items-center gap-2 font-medium">
-                                                                <AlertTriangle className="h-4 w-4 animate-bounce" />
-                                                                Deadline dalam {tugas.days_until_deadline} hari!
-                                                            </p>
-                                                        </div>
-                                                    )}
                                                 </div>
 
-                                                {/* Action Button */}
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="opacity-0 group-hover:opacity-100 transition-all bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-xl"
+                                                    className="rounded-xl bg-blue-100 text-blue-600 transition-all hover:bg-blue-200 md:opacity-0 md:group-hover:opacity-100"
                                                 >
                                                     <ArrowRight className="h-5 w-5" />
                                                 </Button>
@@ -441,6 +412,28 @@ export default function UserTugas({ mahasiswa, tugasList, courses, stats, filter
                         )}
                     </div>
                 </motion.div>
+
+                <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                    <motion.div variants={itemVariants} className="space-y-4">
+                        <div className="flex items-center gap-3 px-1">
+                            <div className="rounded-xl bg-pink-500 p-2 text-white">
+                                <Activity className="h-5 w-5" />
+                            </div>
+                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white sm:text-xl">Timeline Tugas</h2>
+                        </div>
+                        <TimelineView tugasList={tugasList} />
+                    </motion.div>
+
+                    <motion.div variants={itemVariants} className="space-y-4">
+                        <div className="flex items-center gap-3 px-1">
+                            <div className="rounded-xl bg-indigo-500 p-2 text-white">
+                                <Calendar className="h-5 w-5" />
+                            </div>
+                            <h2 className="text-lg font-bold text-neutral-900 dark:text-white sm:text-xl">Kalender Tugas</h2>
+                        </div>
+                        <CalendarView tugasList={tugasList} />
+                    </motion.div>
+                </div>
             </motion.div>
         </StudentLayout>
     );

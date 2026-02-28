@@ -1,0 +1,288 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\CourseMaterial;
+use App\Models\CourseNote;
+use App\Models\MahasiswaCourse;
+use App\Models\ScheduleReminder;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class ScheduleDetailController extends Controller
+{
+    public function show(Request $request, $courseId)
+    {
+        $mahasiswa = $request->user('mahasiswa');
+
+        $course = MahasiswaCourse::where('id', $courseId)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->firstOrFail();
+
+        $startTime = Carbon::parse($course->schedule_time);
+        $endTime   = $startTime->copy()->addMinutes($course->sks * 50);
+
+        $courseDetail = [
+            'id'           => $course->id,
+            'course_name'  => $course->name,
+            'course_code'  => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
+            'sks'          => $course->sks,
+            'semester'     => 1,
+            'mode'         => $course->mode,
+            'ruangan'      => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
+            'meeting_link' => $course->mode === 'online' ? 'https://meet.google.com' : null,
+            'schedule_day' => $course->schedule_day_name,
+            'time_range'   => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
+            'jam_mulai'    => $startTime->format('H:i'),
+            'jam_selesai'  => $endTime->format('H:i'),
+            'duration'     => ($course->sks * 50) . ' menit',
+            'color'        => $this->getColorForCourse($course->id),
+            'description'  => null,
+            'syllabus_url' => null,
+        ];
+
+        // Meetings as attendance records (use CourseMeeting if exists)
+        $attendanceRecords = [];
+        if ($course->meetings()->exists()) {
+            $attendanceRecords = $course->meetings()
+                ->orderBy('meeting_number', 'desc')
+                ->get()
+                ->map(function ($meeting) use ($course) {
+                    $status = $meeting->is_completed ? 'present' : 'absent';
+                    return [
+                        'id'             => $meeting->id,
+                        'meeting_number' => $meeting->meeting_number,
+                        'date'           => $meeting->date ? Carbon::parse($meeting->date)->format('d M Y') : '-',
+                        'status'         => $status,
+                        'time_in'        => $meeting->is_completed ? Carbon::parse($course->schedule_time)->format('H:i') : null,
+                        'notes'          => $meeting->notes ?? null,
+                    ];
+                })
+                ->toArray();
+        }
+
+        // Materials
+        $materials = CourseMaterial::where('course_id', $courseId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($material) {
+                return [
+                    'id'          => $material->id,
+                    'title'       => $material->title,
+                    'type'        => $material->type,
+                    'url'         => $material->url,
+                    'size'        => $material->size ? $this->formatFileSize($material->size) : null,
+                    'uploaded_at' => Carbon::parse($material->created_at)->format('d M Y'),
+                ];
+            });
+
+        // Notes
+        $notes = CourseNote::where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $courseId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($note) {
+                return [
+                    'id'         => $note->id,
+                    'content'    => $note->content,
+                    'created_at' => Carbon::parse($note->created_at)->format('d M Y H:i'),
+                    'updated_at' => Carbon::parse($note->updated_at)->format('d M Y H:i'),
+                ];
+            });
+
+        // Stats
+        $totalMeetings  = $course->total_meetings ?? 14;
+        $attended        = collect($attendanceRecords)->where('status', 'present')->count();
+        $late            = collect($attendanceRecords)->where('status', 'late')->count();
+        $absent          = collect($attendanceRecords)->where('status', 'absent')->count();
+        $attendanceRate  = $totalMeetings > 0 ? round((($attended + $late) / $totalMeetings) * 100, 1) : 0;
+        $minAttendance   = 75;
+
+        $stats = [
+            'total_meetings'  => $totalMeetings,
+            'attended'        => $attended,
+            'late'            => $late,
+            'absent'          => $absent,
+            'attendance_rate' => $attendanceRate,
+            'can_take_uas'    => $attendanceRate >= $minAttendance,
+            'min_attendance'  => $minAttendance,
+        ];
+
+        // Reminder
+        $hasReminder = ScheduleReminder::where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $courseId)
+            ->where('is_active', true)
+            ->exists();
+
+        // Next meeting
+        $nextMeeting = $this->getNextMeeting($course, count($attendanceRecords));
+
+        return Inertia::render('user/akademik/jadwal-detail', [
+            'course'            => $courseDetail,
+            'dosen'             => [
+                'id'        => 0,
+                'name'      => 'Dosen Pengampu',
+                'nidn'      => '-',
+                'email'     => null,
+                'phone'     => null,
+                'photo_url' => null,
+                'expertise' => [],
+            ],
+            'attendanceRecords' => $attendanceRecords,
+            'materials'         => $materials,
+            'notes'             => $notes,
+            'stats'             => $stats,
+            'hasReminder'       => $hasReminder,
+            'nextMeeting'       => $nextMeeting,
+        ]);
+    }
+
+    public function toggleReminder(Request $request, $courseId)
+    {
+        $mahasiswa = $request->user('mahasiswa');
+
+        $reminder = ScheduleReminder::where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $courseId)
+            ->first();
+
+        if ($reminder) {
+            $reminder->update(['is_active' => !$reminder->is_active]);
+        } else {
+            ScheduleReminder::create([
+                'mahasiswa_id'     => $mahasiswa->id,
+                'course_id'        => $courseId,
+                'reminder_minutes' => 15,
+                'is_active'        => true,
+            ]);
+        }
+
+        return back();
+    }
+
+    public function storeNote(Request $request, $courseId)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        CourseNote::create([
+            'mahasiswa_id' => $request->user('mahasiswa')->id,
+            'course_id'    => $courseId,
+            'content'      => $validated['content'],
+        ]);
+
+        return back();
+    }
+
+    public function updateNote(Request $request, $courseId, $noteId)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        CourseNote::where('id', $noteId)
+            ->where('mahasiswa_id', $request->user('mahasiswa')->id)
+            ->where('course_id', $courseId)
+            ->firstOrFail()
+            ->update(['content' => $validated['content']]);
+
+        return back();
+    }
+
+    public function deleteNote(Request $request, $courseId, $noteId)
+    {
+        CourseNote::where('id', $noteId)
+            ->where('mahasiswa_id', $request->user('mahasiswa')->id)
+            ->where('course_id', $courseId)
+            ->delete();
+
+        return back();
+    }
+
+    public function exportIcal(Request $request, $courseId)
+    {
+        $course = MahasiswaCourse::findOrFail($courseId);
+
+        $startTime = Carbon::parse($course->schedule_time);
+        $endTime   = $startTime->copy()->addMinutes($course->sks * 50);
+
+        $ical  = "BEGIN:VCALENDAR\r\n";
+        $ical .= "VERSION:2.0\r\n";
+        $ical .= "PRODID:-//Attendance System//Schedule//EN\r\n";
+        $ical .= "BEGIN:VEVENT\r\n";
+        $ical .= "UID:" . $course->id . "@attendance-system\r\n";
+        $ical .= "DTSTAMP:" . Carbon::now()->format('Ymd\THis\Z') . "\r\n";
+        $ical .= "DTSTART:" . $startTime->format('Ymd\THis\Z') . "\r\n";
+        $ical .= "DTEND:" . $endTime->format('Ymd\THis\Z') . "\r\n";
+        $ical .= "SUMMARY:" . $course->name . "\r\n";
+        $ical .= "LOCATION:" . ($course->mode === 'online' ? 'Online' : 'Ruang Kelas') . "\r\n";
+        $ical .= "RRULE:FREQ=WEEKLY;BYDAY=" . $this->getDayAbbr($course->schedule_day) . "\r\n";
+        $ical .= "END:VEVENT\r\n";
+        $ical .= "END:VCALENDAR\r\n";
+
+        return response($ical)
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $course->name . '.ics"');
+    }
+
+    /* ─── Helpers ──────────────────────────────────── */
+
+    private function getDayAbbr(string $day): string
+    {
+        return match ($day) {
+            'monday'    => 'MO',
+            'tuesday'   => 'TU',
+            'wednesday' => 'WE',
+            'thursday'  => 'TH',
+            'friday'    => 'FR',
+            'saturday'  => 'SA',
+            'sunday'    => 'SU',
+            default     => 'MO',
+        };
+    }
+
+    private function getColorForCourse(int $id): string
+    {
+        $colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+        return $colors[$id % count($colors)];
+    }
+
+    private function formatFileSize(int $bytes): string
+    {
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 1) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 1) . ' KB';
+        }
+        return $bytes . ' B';
+    }
+
+    private function getNextMeeting(MahasiswaCourse $course, int $currentMeeting): ?array
+    {
+        $totalMeetings = $course->total_meetings ?? 14;
+
+        if ($currentMeeting >= $totalMeetings) {
+            return null;
+        }
+
+        $dayMapping = [
+            'monday'    => Carbon::MONDAY,
+            'tuesday'   => Carbon::TUESDAY,
+            'wednesday' => Carbon::WEDNESDAY,
+            'thursday'  => Carbon::THURSDAY,
+            'friday'    => Carbon::FRIDAY,
+        ];
+
+        $dayOfWeek = $dayMapping[$course->schedule_day] ?? Carbon::MONDAY;
+        $nextDate  = Carbon::now()->next($dayOfWeek);
+        $time      = Carbon::parse($course->schedule_time)->format('H:i');
+
+        return [
+            'number' => $currentMeeting + 1,
+            'date'   => $nextDate->translatedFormat('d M Y'),
+            'time'   => $time,
+        ];
+    }
+}

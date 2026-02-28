@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\DocumentationController;
 use App\Http\Controllers\Api\HelpCenterController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TutorialController;
+use App\Http\Controllers\User\KasController as UserKasController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +49,16 @@ Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->prefix('docs')->group(fu
     Route::post('/progress/{guideId}/complete', [DocumentationController::class, 'markComplete'])->name('api.docs.progress.complete');
     Route::post('/progress/{guideId}/reset', [DocumentationController::class, 'resetProgress'])->name('api.docs.progress.reset');
     Route::get('/stats', [DocumentationController::class, 'stats'])->name('api.docs.stats');
+
+    Route::get('/bookmarks', [DocumentationController::class, 'bookmarks'])->name('api.docs.bookmarks.index');
+    Route::post('/bookmarks/{guideId}', [DocumentationController::class, 'toggleBookmark'])->name('api.docs.bookmarks.toggle');
+
+    Route::get('/feedback/{guideId}', [DocumentationController::class, 'feedback'])->name('api.docs.feedback.show');
+    Route::post('/feedback/{guideId}', [DocumentationController::class, 'upsertFeedback'])->name('api.docs.feedback.upsert');
+
+    Route::get('/offline-downloads', [DocumentationController::class, 'offlineDownloads'])->name('api.docs.offline.index');
+    Route::post('/offline-downloads/{guideId}', [DocumentationController::class, 'upsertOfflineDownload'])->name('api.docs.offline.upsert');
+    Route::delete('/offline-downloads/{guideId}', [DocumentationController::class, 'removeOfflineDownload'])->name('api.docs.offline.remove');
 });
 
 // Tutorial API - accessible by all authenticated users
@@ -67,9 +78,15 @@ Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->prefix('tutorials')->gro
 // Help Center API - accessible by all authenticated users
 Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->prefix('help')->group(function () {
     Route::get('/faqs', [HelpCenterController::class, 'faqs'])->name('api.help.faqs');
+    Route::post('/faqs/{faqId}/rate', [HelpCenterController::class, 'rateFaq'])->name('api.help.faqs.rate');
     Route::get('/faqs/{category}', [HelpCenterController::class, 'faqsByCategory'])->name('api.help.faqs.category');
     Route::get('/search', [HelpCenterController::class, 'search'])->name('api.help.search');
     Route::get('/troubleshooting', [HelpCenterController::class, 'troubleshooting'])->name('api.help.troubleshooting');
+    Route::get('/videos', [HelpCenterController::class, 'videos'])->name('api.help.videos');
+    Route::post('/analytics/page-view', [HelpCenterController::class, 'trackPageView'])->name('api.help.analytics.page-view');
+    Route::post('/analytics/search', [HelpCenterController::class, 'trackSearch'])->name('api.help.analytics.search');
+    Route::post('/analytics/view', [HelpCenterController::class, 'trackView'])->name('api.help.analytics.view');
+    Route::get('/analytics/summary', [HelpCenterController::class, 'analyticsSummary'])->name('api.help.analytics.summary');
     Route::get('/contact', [HelpCenterController::class, 'contact'])->name('api.help.contact');
     Route::post('/feedback', [HelpCenterController::class, 'submitFeedback'])->name('api.help.feedback');
 });
@@ -92,4 +109,23 @@ Route::middleware(['web', 'auth:dosen'])->prefix('dosen/api/settings')->group(fu
 Route::middleware(['web', 'auth:mahasiswa,dosen,web'])->group(function () {
     Route::get('/attendance/{id}/ai-status', [\App\Http\Controllers\Api\AttendanceAIStatusController::class, 'show'])
         ->name('api.attendance.ai-status');
+});
+
+// Kas Innovation API (Mahasiswa)
+Route::middleware(['web', 'auth:mahasiswa'])->prefix('kas')->group(function () {
+    Route::get('/analytics/health-score', [UserKasController::class, 'getHealthScore'])->name('api.kas.analytics.health-score');
+    Route::get('/analytics/predictions', [UserKasController::class, 'getPredictions'])->name('api.kas.analytics.predictions');
+    Route::get('/analytics/insights', [UserKasController::class, 'getInsights'])->name('api.kas.analytics.insights');
+
+    Route::post('/reminders/preferences', [UserKasController::class, 'updateReminderPreferences'])->name('api.kas.reminders.preferences');
+    Route::post('/reminders/{id}/snooze', [UserKasController::class, 'snoozeReminder'])->name('api.kas.reminders.snooze');
+
+    Route::get('/achievements', [UserKasController::class, 'getAchievements'])->name('api.kas.achievements');
+    Route::get('/leaderboard', [UserKasController::class, 'getLeaderboard'])->name('api.kas.leaderboard');
+    Route::get('/challenges', [UserKasController::class, 'getChallenges'])->name('api.kas.challenges');
+
+    Route::post('/receipts/upload', [UserKasController::class, 'uploadReceipt'])->name('api.kas.receipts.upload');
+
+    Route::post('/export', [UserKasController::class, 'exportData'])->name('api.kas.export');
+    Route::post('/reports/generate', [UserKasController::class, 'generateReport'])->name('api.kas.reports.generate');
 });

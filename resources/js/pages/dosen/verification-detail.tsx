@@ -339,15 +339,19 @@ export default function VerificationDetailPage({ verification: v }: Props) {
             <motion.div initial="hidden" animate="visible" variants={cV} className="p-4 md:p-6 space-y-6">
 
                 {/* ═══ Back ═══ */}
-                <motion.div variants={iV}>
-                    <Button variant="ghost" onClick={() => router.visit('/dosen/verify')} className="gap-2 text-neutral-500 hover:text-neutral-900">
-                        <ArrowLeft className="h-4 w-4" /> Kembali ke Daftar Verifikasi
+                {/* ═══ Back ═══ */}
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="mb-2">
+                    <Button variant="ghost" onClick={() => router.visit('/dosen/verify')} className="group hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60 transition-all duration-300 text-neutral-500 hover:text-neutral-900">
+                        <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                        </motion.div>
+                        Kembali ke Daftar Verifikasi
                     </Button>
                 </motion.div>
 
                 {/* ═══ HEADER CARD ═══ */}
                 <motion.div variants={iV} className="relative overflow-hidden rounded-3xl shadow-2xl">
-                    <motion.div className={`absolute inset-0 bg-gradient-to-br ${sc.gradient}`}
+                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
                         transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
@@ -380,23 +384,29 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                                     <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {v.date_display} {v.time_display}</span>
                                 </div>
                             </div>
-                            {/* AI Confidence + Scan Button */}
-                            <div className="flex items-center gap-4">
-                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
-                                    className="flex flex-col items-center p-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/10">
-                                    <p className="text-[10px] font-bold text-white/60 uppercase tracking-wider mb-1">AI Confidence</p>
-                                    <span className="text-4xl font-extrabold text-white">{scanned ? `${v.ai_confidence ?? 0}%` : '-'}</span>
-                                    <p className="text-xs text-white/60 mt-1 flex items-center gap-1">
-                                        <Sparkles className="h-3 w-3" />
-                                        {!scanned ? 'Belum Di-scan' : v.ai_recommendation === 'approve' ? 'Recommend Approve' : v.ai_recommendation === 'reject' ? 'Recommend Reject' : 'Needs Review'}
-                                    </p>
+                            {/* AI Confidence + Scan Button (Compact Dashboard Style) */}
+                            <div className="flex flex-wrap items-center gap-3 mt-4 w-full justify-start">
+                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-4 py-2.5 shadow-lg border border-white/10 w-auto">
+                                    <div className={cn("p-2 rounded-lg shrink-0", scanned ? "bg-white/20" : "bg-white/10")}>
+                                        <Sparkles className={cn("h-5 w-5", scanned ? "text-white" : "text-white/50")} />
+                                    </div>
+                                    <div className="flex flex-col whitespace-nowrap">
+                                        <p className="text-[10px] text-white/70 uppercase tracking-widest font-semibold">AI Confidence</p>
+                                        <div className="flex items-baseline gap-2">
+                                            <p className="text-xl font-bold text-white">{scanned ? `${v.ai_confidence ?? 0}%` : '-'}</p>
+                                            <span className="text-[10px] text-white/80 border border-white/20 bg-white/10 px-1.5 py-0.5 rounded-md">
+                                                {!scanned ? 'Pending' : v.ai_recommendation === 'approve' ? 'Approve' : v.ai_recommendation === 'reject' ? 'Reject' : 'Review'}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </motion.div>
-                                <motion.button whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(139,92,246,0.6)" }} whileTap={{ scale: 0.95 }}
+
+                                <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(139,92,246,0.9)' }} whileTap={{ scale: 0.98 }}
                                     onClick={doScanAI} disabled={scanning}
-                                    className="flex flex-col items-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 text-white font-bold shadow-lg shadow-violet-500/50 border border-violet-400/30 disabled:opacity-50">
-                                    {scanning ? <Loader2 className="h-6 w-6 animate-spin" /> : <Bot className="h-6 w-6" />}
-                                    <span className="text-xs">{scanning ? 'Scanning...' : scanned ? 'Re-scan AI' : 'Scan AI'}</span>
-                                    {!scanning && <Sparkles className="h-3 w-3 animate-pulse" />}
+                                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-violet-600 text-white font-semibold shadow-lg shadow-violet-500/30 border border-violet-400/30 disabled:opacity-50 transition-all w-auto h-[60px] whitespace-nowrap shrink-0">
+                                    {scanning ? <Loader2 className="h-5 w-5 animate-spin" /> : <Bot className="h-5 w-5" />}
+                                    <span className="text-sm">{scanning ? 'Scanning...' : scanned ? 'Re-scan AI' : 'Scan AI'}</span>
                                 </motion.button>
                             </div>
                         </div>

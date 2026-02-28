@@ -1,0 +1,82 @@
+[
+  {
+    "id": "video-onboarding-mahasiswa",
+    "title": "Onboarding Sistem untuk Mahasiswa Baru",
+    "description": "Pengenalan alur navigasi, menu inti, dan strategi penggunaan aplikasi untuk minggu pertama.",
+    "duration": "09:40",
+    "category": "Onboarding",
+    "url": "https://www.youtube.com/embed/aqz-KE-bpKQ",
+    "thumbnail": "https://img.youtube.com/vi/aqz-KE-bpKQ/hqdefault.jpg",
+    "views": 1820
+  },
+  {
+    "id": "video-absensi-qr",
+    "title": "Cara Melakukan Absensi dengan QR Code",
+    "description": "Panduan lengkap scan QR, verifikasi lokasi, dan konfirmasi kehadiran yang valid.",
+    "duration": "07:20",
+    "category": "Absensi",
+    "url": "https://www.youtube.com/embed/M7lc1UVf-VE",
+    "thumbnail": "https://img.youtube.com/vi/M7lc1UVf-VE/hqdefault.jpg",
+    "views": 2540
+  },
+  {
+    "id": "video-tugas-nilai",
+    "title": "Cara Mengumpulkan Tugas dan Melihat Nilai",
+    "description": "Upload tugas, cek status penilaian, dan baca umpan balik dosen secara efektif.",
+    "duration": "08:55",
+    "category": "Tugas",
+    "url": "https://www.youtube.com/embed/ScMzIvxBSi4",
+    "thumbnail": "https://img.youtube.com/vi/ScMzIvxBSi4/hqdefault.jpg",
+    "views": 1610
+  },
+  {
+    "id": "video-catatan-akademik",
+    "title": "Cara Menggunakan Fitur Catatan Akademik",
+    "description": "Membuat, mengelola, dan mengorganisasi catatan belajar agar progres tetap konsisten.",
+    "duration": "06:35",
+    "category": "Akademik",
+    "url": "https://www.youtube.com/embed/jNQXAC9IVRw",
+    "thumbnail": "https://img.youtube.com/vi/jNQXAC9IVRw/hqdefault.jpg",
+    "views": 980
+  },
+  {
+    "id": "video-izin-sakit",
+    "title": "Cara Mengajukan Izin/Sakit",
+    "description": "Langkah pengajuan izin, upload lampiran, dan tracking status persetujuan.",
+    "duration": "06:10",
+    "category": "Perizinan",
+    "url": "https://www.youtube.com/embed/ysz5S6PUM-U",
+    "thumbnail": "https://img.youtube.com/vi/ysz5S6PUM-U/hqdefault.jpg",
+    "views": 1270
+  },
+  {
+    "id": "video-gamifikasi",
+    "title": "Cara Menggunakan Fitur Gamifikasi",
+    "description": "Pahami poin, badge, streak, dan cara meningkatkan konsistensi aktivitas belajar.",
+    "duration": "05:50",
+    "category": "Gamifikasi",
+    "url": "https://www.youtube.com/embed/tgbNymZ7vqY",
+    "thumbnail": "https://img.youtube.com/vi/tgbNymZ7vqY/hqdefault.jpg",
+    "views": 740
+  },
+  {
+    "id": "video-profil-keamanan",
+    "title": "Cara Mengatur Profil dan Keamanan Akun",
+    "description": "Perbarui data profil, ganti password, dan amankan akun dengan praktik terbaik.",
+    "duration": "07:05",
+    "category": "Keamanan",
+    "url": "https://www.youtube.com/embed/5NV6Rdv1a3I",
+    "thumbnail": "https://img.youtube.com/vi/5NV6Rdv1a3I/hqdefault.jpg",
+    "views": 1135
+  },
+  {
+    "id": "video-tips-aplikasi",
+    "title": "Tips Memaksimalkan Fitur Aplikasi",
+    "description": "Shortcut penggunaan harian, alur kerja cepat, dan tips produktivitas mahasiswa.",
+    "duration": "05:30",
+    "category": "Tips",
+    "url": "https://www.youtube.com/embed/kJQP7kiw5Fk",
+    "thumbnail": "https://img.youtube.com/vi/kJQP7kiw5Fk/hqdefault.jpg",
+    "views": 890
+  }
+]

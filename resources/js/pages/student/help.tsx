@@ -1,449 +1,1108 @@
-/**
- * Student Help Center Page - Advanced UI/UX
- * Requirements: 6.1, 6.2, 6.3, 6.4, 6.5
- */
-
-import { useState, useEffect } from 'react';
-import { Head, usePage } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    RefreshCw, 
-    CheckCircle, 
-    AlertCircle, 
-    HelpCircle,
-    MessageCircle,
-    BookOpen,
-    Lightbulb,
-    Sparkles,
-    Zap
-} from 'lucide-react';
-import StudentLayout from '@/layouts/student-layout';
-import { HelpCenter } from '@/components/help';
-import type { FAQCategory, TroubleshootingGuide, HelpFeedback } from '@/types/documentation';
+import HelpIcon from '@/assets/admin/help-center/help.png';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
-    getFAQCategories,
-    getTroubleshootingGuides,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import StudentLayout from '@/layouts/student-layout';
+import {
+    getHelpAnalyticsSummary,
+    getHelpVideos,
     getContactInfo,
+    getFAQCategories,
+    trackHelpContentView,
+    trackHelpPageView,
+    trackHelpSearch,
+    rateFAQ,
+    getTroubleshootingGuides,
     submitFeedback,
+    type HelpAnalyticsSummary,
 } from '@/lib/help-api';
+import { cn } from '@/lib/utils';
+import type { HelpFeedback } from '@/types/documentation';
+import { Head, usePage } from '@inertiajs/react';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import {
+    AlertCircle,
+    BarChart3,
+    BookOpen,
+    Clock3,
+    Eye,
+    GraduationCap,
+    Headphones,
+    Lightbulb,
+    Mail,
+    MessageCircle,
+    MessageSquare,
+    MousePointerClick,
+    Phone,
+    PlayCircle,
+    RefreshCw,
+    Search,
+    Send,
+    Shield,
+    Star,
+    ThumbsDown,
+    ThumbsUp,
+    TrendingUp,
+    Wrench,
+    X,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 
-type ToastType = { type: 'success' | 'error'; message: string } | null;
+type PageProps = {
+    auth?: {
+        user?: {
+            email?: string;
+        };
+    };
+};
 
-// Mock data untuk FAQ yang lebih detail
-const mockFAQCategories: FAQCategory[] = [
-    {
-        id: 'absensi',
-        name: 'Absensi',
-        description: 'Pertanyaan seputar sistem absensi',
-        icon: 'CheckCircle',
-        faqs: [
-            {
-                id: 'faq-1',
-                question: 'Bagaimana cara melakukan absensi?',
-                answer: '## Panduan Lengkap Melakukan Absensi\n\nSistem absensi menggunakan teknologi QR Code dan verifikasi lokasi GPS untuk memastikan kehadiran Anda tercatat dengan akurat.\n\n### Langkah-Langkah Absensi:\n\n**1. Persiapan Sebelum Absensi**\n   • Pastikan smartphone Anda memiliki koneksi internet yang stabil (WiFi atau data seluler)\n   • Aktifkan GPS/Lokasi di pengaturan device Anda\n   • Berikan izin akses kamera dan lokasi untuk aplikasi\n   • Pastikan baterai device minimal 20% untuk menghindari mati mendadak\n\n**2. Membuka Menu Absensi**\n   • Login ke aplikasi menggunakan NIM dan password Anda\n   • Klik menu "Absen" di sidebar navigasi sebelah kiri\n   • Atau gunakan shortcut dengan menekan tombol "Absen Cepat" di dashboard\n\n**3. Verifikasi Lokasi**\n   • Sistem akan otomatis mendeteksi lokasi Anda\n   • Pastikan Anda berada dalam radius yang ditentukan (biasanya 50-100 meter dari ruang kelas)\n   • Jika lokasi tidak terdeteksi, coba refresh halaman atau pindah ke area dengan sinyal GPS lebih baik\n   • Indikator hijau menandakan Anda berada di lokasi yang benar\n\n**4. Scan QR Code**\n   • Dosen akan menampilkan QR Code di layar proyektor atau device\n   • Klik tombol "Scan QR Code" di aplikasi\n   • Arahkan kamera ke QR Code dengan jarak optimal 15-30 cm\n   • Pastikan pencahayaan cukup dan QR Code tidak buram\n   • Tahan device dengan stabil hingga QR Code terdeteksi (biasanya 1-2 detik)\n\n**5. Verifikasi Selfie (Jika Diaktifkan)**\n   • Beberapa sesi mungkin memerlukan verifikasi wajah\n   • Ambil foto selfie dengan posisi wajah menghadap kamera\n   • Pastikan wajah terlihat jelas, tidak tertutup masker atau topi\n   • Pencahayaan harus cukup terang\n   • Sistem akan membandingkan dengan foto profil Anda\n\n**6. Konfirmasi Kehadiran**\n   • Klik tombol "Konfirmasi" setelah semua verifikasi selesai\n   • Tunggu proses validasi (biasanya 2-5 detik)\n   • Anda akan melihat notifikasi "Absensi Berhasil" dengan detail:\n     - Waktu absensi\n     - Status kehadiran (Hadir/Terlambat)\n     - Nama mata kuliah\n     - Nama dosen\n\n**7. Verifikasi Keberhasilan**\n   • Cek email untuk konfirmasi absensi\n   • Lihat riwayat absensi di menu "Rekapan"\n   • Status akan berubah dari "Belum Absen" menjadi "Hadir"\n\n### Tips & Trik:\n\n✅ **DO (Lakukan):**\n• Datang 5-10 menit lebih awal untuk menghindari antrian scan\n• Pastikan aplikasi sudah diupdate ke versi terbaru\n• Gunakan WiFi kampus untuk koneksi lebih stabil\n• Simpan screenshot konfirmasi sebagai bukti cadangan\n• Laporkan segera jika ada masalah teknis\n\n❌ **DON\'T (Jangan):**\n• Jangan mencoba scan QR Code dari luar area kampus\n• Jangan menggunakan screenshot QR Code orang lain\n• Jangan menitipkan absensi ke teman\n• Jangan force close aplikasi saat proses absensi berlangsung\n• Jangan lupa logout setelah selesai menggunakan device bersama\n\n### Troubleshooting Cepat:\n\n**Masalah:** Kamera tidak bisa membuka\n**Solusi:** Cek izin kamera di Settings > Apps > Permissions\n\n**Masalah:** Lokasi tidak terdeteksi\n**Solusi:** Aktifkan "High Accuracy" mode di pengaturan GPS\n\n**Masalah:** QR Code tidak terbaca\n**Solusi:** Bersihkan lensa kamera dan pastikan fokus\n\n**Masalah:** Koneksi timeout\n**Solusi:** Pindah ke area dengan sinyal lebih kuat\n\n### Informasi Penting:\n\n⚠️ **Perhatian:**\n• Setiap mahasiswa hanya bisa absen 1 kali per sesi\n• Absensi yang terlambat akan dicatat dengan status "Terlambat"\n• Manipulasi data absensi adalah pelanggaran serius\n• Sistem mencatat IP address dan lokasi GPS untuk audit\n\n📱 **Dukungan Device:**\n• Android 8.0 ke atas\n• iOS 12.0 ke atas\n• Browser: Chrome, Safari, Firefox (versi terbaru)\n\n⏰ **Waktu Operasional:**\n• QR Code aktif sesuai jadwal yang ditentukan dosen\n• Biasanya 5-15 menit dari waktu mulai kuliah\n• Setelah expired, QR Code tidak dapat digunakan\n\n### Bantuan Lebih Lanjut:\n\nJika masih mengalami kesulitan, hubungi:\n• Help Desk: ext. 123\n• Email: support@kampus.ac.id\n• WhatsApp: 0812-3456-7890\n• Atau datang langsung ke Pusat IT Kampus',
-                category: 'absensi',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-            {
-                id: 'faq-2',
-                question: 'QR Code tidak bisa di-scan, apa yang harus dilakukan?',
-                answer: '## Panduan Mengatasi Masalah QR Code\n\nJika Anda mengalami kesulitan saat scan QR Code, ikuti panduan troubleshooting lengkap berikut:\n\n### Penyebab Umum & Solusi:\n\n#### 1. Masalah Izin Aplikasi\n\n**Gejala:**\n• Kamera tidak terbuka sama sekali\n• Muncul pesan "Camera permission denied"\n• Layar hitam saat membuka scanner\n\n**Solusi Lengkap:**\n\n**Untuk Android:**\n```\n1. Buka Settings/Pengaturan\n2. Pilih Apps/Aplikasi\n3. Cari dan pilih aplikasi absensi\n4. Tap "Permissions" atau "Izin"\n5. Aktifkan izin untuk:\n   • Camera/Kamera\n   • Location/Lokasi\n   • Storage/Penyimpanan\n6. Pilih "Allow all the time" untuk lokasi\n7. Restart aplikasi\n```\n\n**Untuk iOS:**\n```\n1. Buka Settings\n2. Scroll ke bawah, cari aplikasi absensi\n3. Tap aplikasi tersebut\n4. Aktifkan toggle untuk:\n   • Camera\n   • Location (pilih "Always")\n   • Photos (jika diperlukan)\n5. Tutup Settings dan buka ulang aplikasi\n```\n\n#### 2. Masalah Kualitas Kamera\n\n**Gejala:**\n• Gambar buram atau tidak fokus\n• QR Code terdeteksi tapi tidak valid\n• Scanner lambat mengenali kode\n\n**Solusi:**\n\n**Pembersihan Lensa:**\n• Gunakan kain microfiber bersih\n• Lap lensa dengan gerakan memutar lembut\n• Hindari menggunakan tissue kasar\n• Pastikan tidak ada sidik jari atau debu\n\n**Pengaturan Fokus:**\n• Tap layar pada area QR Code untuk fokus manual\n• Jaga jarak optimal 15-30 cm dari QR Code\n• Tahan device dengan stabil, jangan bergerak\n• Tunggu 2-3 detik untuk auto-focus bekerja\n\n**Pencahayaan:**\n• Pastikan ruangan cukup terang\n• Hindari backlight (cahaya dari belakang QR Code)\n• Jangan gunakan flash jika QR Code di layar\n• Posisikan device agar tidak ada bayangan\n\n#### 3. Masalah Koneksi Internet\n\n**Gejala:**\n• QR Code terbaca tapi proses stuck\n• Muncul pesan "Connection timeout"\n• Loading terus menerus tanpa hasil\n\n**Solusi:**\n\n**Cek Koneksi:**\n```\n1. Buka browser, coba akses google.com\n2. Jika lambat, pindah ke WiFi atau sebaliknya\n3. Restart router WiFi jika perlu\n4. Toggle Airplane Mode on/off untuk reset koneksi\n5. Coba gunakan data seluler sebagai backup\n```\n\n**Optimasi Koneksi:**\n• Gunakan WiFi kampus untuk kecepatan maksimal\n• Pastikan sinyal minimal 3 bar\n• Tutup aplikasi lain yang menggunakan internet\n• Clear cache browser jika menggunakan web app\n• Hindari jam sibuk (saat banyak mahasiswa online)\n\n#### 4. Masalah Cache & Data Aplikasi\n\n**Gejala:**\n• Aplikasi sering crash\n• Fitur tidak berfungsi normal\n• Error message yang tidak jelas\n\n**Solusi:**\n\n**Clear Cache (Android):**\n```\n1. Settings > Apps > Aplikasi Absensi\n2. Tap "Storage" atau "Penyimpanan"\n3. Tap "Clear Cache" (BUKAN Clear Data)\n4. Restart aplikasi\n5. Login kembali jika diperlukan\n```\n\n**Clear Cache (iOS):**\n```\n1. Uninstall aplikasi\n2. Restart device\n3. Install ulang dari App Store\n4. Login dengan kredensial Anda\n```\n\n**Clear Browser Cache (Web App):**\n```\nChrome/Edge:\n• Tekan Ctrl+Shift+Delete (Windows)\n• Tekan Cmd+Shift+Delete (Mac)\n• Pilih "Cached images and files"\n• Klik "Clear data"\n\nSafari:\n• Safari > Preferences > Privacy\n• Klik "Manage Website Data"\n• Klik "Remove All"\n```\n\n#### 5. Masalah QR Code Expired\n\n**Gejala:**\n• Muncul pesan "QR Code sudah tidak valid"\n• "Session expired"\n• "QR Code kadaluarsa"\n\n**Penjelasan:**\n• QR Code memiliki masa aktif terbatas (5-15 menit)\n• Setelah waktu habis, kode tidak dapat digunakan\n• Ini untuk keamanan dan mencegah penyalahgunaan\n\n**Solusi:**\n• Minta dosen untuk generate QR Code baru\n• Pastikan datang tepat waktu\n• Jangan tunda-tunda proses absensi\n• Siapkan aplikasi sebelum QR Code ditampilkan\n\n#### 6. Masalah Kompatibilitas Device\n\n**Gejala:**\n• Fitur tidak tersedia di device Anda\n• Aplikasi tidak bisa diinstall\n• Performa sangat lambat\n\n**Minimum Requirements:**\n\n**Android:**\n• OS: Android 8.0 (Oreo) atau lebih baru\n• RAM: Minimal 2GB\n• Storage: 100MB ruang kosong\n• Kamera: Minimal 5MP dengan autofocus\n• GPS: Built-in GPS/A-GPS\n\n**iOS:**\n• OS: iOS 12.0 atau lebih baru\n• Device: iPhone 6 atau lebih baru\n• Storage: 100MB ruang kosong\n• Kamera: Kamera belakang dengan autofocus\n\n**Browser (Web App):**\n• Chrome 90+\n• Safari 14+\n• Firefox 88+\n• Edge 90+\n\n**Solusi:**\n• Update OS ke versi terbaru\n• Upgrade device jika terlalu lama\n• Gunakan device alternatif (pinjam teman)\n• Hubungi IT support untuk solusi khusus\n\n### Langkah Troubleshooting Sistematis:\n\n**Level 1 - Quick Fix (1-2 menit):**\n1. ✓ Bersihkan lensa kamera\n2. ✓ Cek koneksi internet\n3. ✓ Restart aplikasi\n4. ✓ Atur jarak dan pencahayaan\n5. ✓ Coba scan ulang\n\n**Level 2 - Medium Fix (5-10 menit):**\n1. ✓ Cek dan aktifkan semua izin aplikasi\n2. ✓ Clear cache aplikasi\n3. ✓ Toggle WiFi/Data on/off\n4. ✓ Restart device\n5. ✓ Update aplikasi ke versi terbaru\n\n**Level 3 - Advanced Fix (15-30 menit):**\n1. ✓ Uninstall dan install ulang aplikasi\n2. ✓ Reset network settings\n3. ✓ Coba gunakan device lain\n4. ✓ Hubungi IT support\n5. ✓ Gunakan metode absensi alternatif\n\n### Tips Pencegahan:\n\n**Sebelum Kuliah:**\n• ✅ Charge device minimal 50%\n• ✅ Update aplikasi jika ada versi baru\n• ✅ Test kamera dengan membuka aplikasi kamera bawaan\n• ✅ Cek koneksi internet\n• ✅ Login ke aplikasi untuk memastikan akun aktif\n\n**Saat Kuliah:**\n• ✅ Siapkan aplikasi sebelum QR Code ditampilkan\n• ✅ Posisikan diri di area dengan sinyal bagus\n• ✅ Jangan panik jika gagal, coba lagi dengan tenang\n• ✅ Minta bantuan teman jika perlu\n\n**Setelah Kuliah:**\n• ✅ Verifikasi absensi tercatat di sistem\n• ✅ Screenshot konfirmasi sebagai bukti\n• ✅ Laporkan masalah teknis ke IT support\n\n### Metode Alternatif:\n\nJika semua cara di atas gagal:\n\n**1. Manual Attendance:**\n• Lapor ke dosen secara langsung\n• Isi form absensi manual\n• Berikan alasan teknis yang jelas\n• Minta dosen untuk input manual ke sistem\n\n**2. Absensi via Web:**\n• Buka browser di laptop/PC\n• Akses portal.kampus.ac.id/absensi\n• Login dengan kredensial Anda\n• Gunakan webcam untuk scan QR Code\n\n**3. Bantuan Teman:**\n• Minta teman untuk screenshot QR Code (jika diizinkan)\n• Scan dari screenshot di device lain\n• HANYA jika dosen mengizinkan metode ini\n\n### Kontak Darurat:\n\n**IT Support:**\n• 📞 Telepon: (021) 1234-5678 ext. 123\n• 📧 Email: itsupport@kampus.ac.id\n• 💬 WhatsApp: 0812-3456-7890\n• 🏢 Lokasi: Gedung IT Lt. 1\n• ⏰ Jam Kerja: Senin-Jumat 08:00-16:00\n\n**Emergency Hotline (24/7):**\n• 📱 0811-9999-8888\n\n### Catatan Penting:\n\n⚠️ **Peringatan:**\n• Jangan mencoba manipulasi QR Code\n• Jangan gunakan aplikasi pihak ketiga untuk scan\n• Jangan share QR Code ke orang lain\n• Pelanggaran akan dikenakan sanksi akademik\n\n📝 **Dokumentasi:**\n• Simpan screenshot error message\n• Catat waktu dan lokasi kejadian\n• Foto kondisi QR Code jika buram\n• Berguna untuk laporan ke IT support\n\n🔄 **Update Berkala:**\n• Sistem akan diupdate setiap semester\n• Baca announcement untuk fitur baru\n• Ikuti training jika ada perubahan major',
-                category: 'absensi',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-            {
-                id: 'faq-3',
-                question: 'Berapa lama waktu yang tersedia untuk melakukan absensi?',
-                answer: '## Panduan Lengkap Waktu Absensi\n\n### Durasi Waktu Absensi\n\nWaktu absensi bervariasi tergantung kebijakan dosen dan jenis perkuliahan. Berikut penjelasan lengkapnya:\n\n#### Waktu Standar:\n\n**QR Code Aktif:**\n• **Minimum:** 5 menit dari waktu mulai kuliah\n• **Standar:** 10-15 menit dari waktu mulai kuliah\n• **Maximum:** 20 menit (untuk kelas besar)\n• **Khusus:** Dosen dapat menyesuaikan sesuai kebutuhan\n\n**Contoh Skenario:**\n```\nJadwal Kuliah: 08:00 - 10:00\nQR Code Aktif: 08:00 - 08:15 (15 menit)\nSetelah 08:15: QR Code expired/tidak valid\n```\n\n### Status Kehadiran Berdasarkan Waktu:\n\n#### 1. Status "HADIR" ✅\n\n**Kriteria:**\n• Absen dalam 10 menit pertama dari waktu mulai\n• Contoh: Kuliah jam 08:00, absen sebelum 08:10\n\n**Keuntungan:**\n• Nilai kehadiran penuh (100%)\n• Tidak ada pengurangan poin\n• Tercatat sebagai mahasiswa disiplin\n• Memenuhi syarat minimal kehadiran\n\n**Tips:**\n• Datang 5-10 menit lebih awal\n• Siapkan aplikasi sebelum masuk kelas\n• Langsung scan begitu QR Code ditampilkan\n• Jangan menunda-nunda\n\n#### 2. Status "TERLAMBAT" ⚠️\n\n**Kriteria:**\n• Absen setelah 10 menit dari waktu mulai\n• Tapi masih dalam waktu QR Code aktif\n• Contoh: Kuliah jam 08:00, absen jam 08:12\n\n**Konsekuensi:**\n• Nilai kehadiran dikurangi (biasanya 50-75%)\n• Tercatat dalam sistem sebagai terlambat\n• Akumulasi keterlambatan dapat mempengaruhi nilai akhir\n• Beberapa dosen menerapkan aturan khusus:\n  - 3x terlambat = 1x tidak hadir\n  - Terlambat >30 menit = tidak hadir\n\n**Kebijakan Khusus:**\n• Terlambat 1-10 menit: Nilai 75%\n• Terlambat 11-20 menit: Nilai 50%\n• Terlambat >20 menit: Nilai 25% atau tidak hadir\n\n#### 3. Status "TIDAK HADIR" ❌\n\n**Kriteria:**\n• Tidak absen sama sekali\n• Absen setelah QR Code expired\n• Tidak ada di lokasi yang ditentukan\n\n**Konsekuensi:**\n• Nilai kehadiran 0%\n• Mengurangi persentase kehadiran total\n• Jika kehadiran <75%, tidak bisa ikut UAS\n• Dapat mempengaruhi nilai akhir mata kuliah\n\n### Timeline Absensi Detail:\n\n```\n┌─────────────────────────────────────────────────────┐\n│ TIMELINE ABSENSI                                    │\n├─────────────────────────────────────────────────────┤\n│                                                     │\n│ 07:50 ─────────────────────────────────────────    │\n│   ↓   Mahasiswa mulai datang                       │\n│   ↓   Siapkan aplikasi                             │\n│                                                     │\n│ 08:00 ═════════════════════════════════════════    │\n│   ↓   KULIAH DIMULAI                               │\n│   ↓   QR Code ditampilkan                          │\n│   ↓   [STATUS: HADIR] ✅                           │\n│                                                     │\n│ 08:10 ─────────────────────────────────────────    │\n│   ↓   Batas waktu "Hadir"                          │\n│   ↓   [STATUS: TERLAMBAT] ⚠️                       │\n│                                                     │\n│ 08:15 ─────────────────────────────────────────    │\n│   ↓   QR Code EXPIRED                              │\n│   ↓   [STATUS: TIDAK HADIR] ❌                     │\n│                                                     │\n│ 08:20 ─────────────────────────────────────────    │\n│       Tidak bisa absen lagi                        │\n│                                                     │\n└─────────────────────────────────────────────────────┘\n```\n\n### Faktor yang Mempengaruhi Durasi:\n\n#### 1. Jenis Perkuliahan:\n\n**Kelas Teori (Reguler):**\n• Durasi QR: 10-15 menit\n• Toleransi: Standar\n• Alasan: Jumlah mahasiswa sedang (30-50 orang)\n\n**Kelas Praktikum:**\n• Durasi QR: 5-10 menit\n• Toleransi: Ketat\n• Alasan: Perlu persiapan alat, tidak boleh terlambat\n\n**Kelas Besar (>100 mahasiswa):**\n• Durasi QR: 15-20 menit\n• Toleransi: Lebih longgar\n• Alasan: Antrian scan lebih panjang\n\n**Kelas Online/Hybrid:**\n• Durasi QR: 10-15 menit\n• Toleransi: Standar\n• Alasan: Tergantung koneksi internet\n\n#### 2. Kebijakan Dosen:\n\n**Dosen Strict:**\n• QR Code hanya 5 menit\n• Tidak ada toleransi keterlambatan\n• Terlambat = tidak hadir\n\n**Dosen Moderate:**\n• QR Code 10-15 menit\n• Toleransi keterlambatan 5-10 menit\n• Terlambat dicatat tapi masih dihitung hadir\n\n**Dosen Flexible:**\n• QR Code 15-20 menit\n• Toleransi keterlambatan hingga 15 menit\n• Fokus pada partisipasi kelas\n\n#### 3. Kondisi Khusus:\n\n**Ujian/Quiz:**\n• Durasi QR: 5 menit\n• Toleransi: Sangat ketat\n• Terlambat tidak diizinkan masuk\n\n**Presentasi Kelompok:**\n• Durasi QR: 10 menit\n• Toleransi: Sedang\n• Harus hadir sebelum giliran presentasi\n\n**Guest Lecture:**\n• Durasi QR: 15 menit\n• Toleransi: Standar\n• Menghormati pembicara tamu\n\n### Cara Cek Sisa Waktu Absensi:\n\n**Di Aplikasi:**\n```\n1. Buka menu "Absen"\n2. Lihat countdown timer di atas QR scanner\n3. Contoh tampilan:\n   ┌─────────────────────────────┐\n   │  Sisa Waktu: 08:45          │\n   │  ⏰ 8 menit 45 detik         │\n   │  Status: Masih bisa absen   │\n   └─────────────────────────────┘\n```\n\n**Indikator Warna:**\n• 🟢 Hijau (>5 menit): Aman, masih banyak waktu\n• 🟡 Kuning (2-5 menit): Hati-hati, segera scan\n• 🔴 Merah (<2 menit): Urgent, scan sekarang!\n• ⚫ Abu-abu (0 menit): Expired, tidak bisa scan\n\n### Strategi Manajemen Waktu:\n\n#### Untuk Mahasiswa:\n\n**Persiapan Pagi:**\n```\n07:00 - Bangun, siap-siap\n07:30 - Berangkat ke kampus\n07:50 - Tiba di kampus, menuju kelas\n07:55 - Duduk, buka aplikasi\n08:00 - Kuliah mulai, langsung scan\n08:02 - Absensi selesai, fokus kuliah\n```\n\n**Jika Terlambat:**\n```\n1. Tetap tenang, jangan panik\n2. Langsung menuju kelas\n3. Buka aplikasi sambil berjalan\n4. Masuk kelas dengan sopan\n5. Scan QR Code segera\n6. Duduk tanpa mengganggu\n```\n\n**Jika Sangat Terlambat (>15 menit):**\n```\n1. Cek apakah QR Code masih aktif\n2. Jika tidak, lapor ke dosen\n3. Jelaskan alasan keterlambatan\n4. Minta izin untuk tetap mengikuti kuliah\n5. Minta dosen input absensi manual (jika diizinkan)\n6. Kirim email follow-up dengan bukti\n```\n\n### FAQ Terkait Waktu:\n\n**Q: Apakah waktu absensi sama untuk semua mata kuliah?**\nA: Tidak, setiap dosen dapat mengatur durasi sendiri. Cek di silabus atau tanya langsung ke dosen.\n\n**Q: Bagaimana jika terlambat karena macet/hujan?**\nA: Lapor ke dosen dengan bukti (foto/screenshot). Beberapa dosen memberikan toleransi untuk force majeure.\n\n**Q: Apakah bisa absen lebih awal sebelum kuliah dimulai?**\nA: Tidak bisa. QR Code baru aktif saat kuliah dimulai sesuai jadwal.\n\n**Q: Bagaimana jika QR Code expired tapi saya sudah di kelas?**\nA: Lapor ke dosen segera. Dosen dapat membuka QR Code baru atau input manual.\n\n**Q: Apakah ada notifikasi sebelum QR Code expired?**\nA: Ya, aplikasi akan mengirim notifikasi 2 menit sebelum expired.\n\n### Aturan Kehadiran Minimum:\n\n**Standar Universitas:**\n• Minimum kehadiran: 75% dari total pertemuan\n• Jika <75%: Tidak boleh ikut UAS\n• Jika <50%: Nilai E otomatis\n\n**Perhitungan:**\n```\nTotal pertemuan: 14 kali\nMinimum hadir: 14 × 75% = 10.5 ≈ 11 kali\nMaksimum tidak hadir: 3 kali\n\nJika tidak hadir 4 kali = Tidak bisa UAS\n```\n\n**Kompensasi:**\n• Beberapa dosen memberikan tugas pengganti\n• Harus ada alasan yang sah (sakit, keluarga)\n• Perlu surat keterangan resmi\n• Tidak semua dosen menerima kompensasi\n\n### Tips Agar Tidak Terlambat:\n\n**Malam Sebelumnya:**\n• ✅ Cek jadwal kuliah besok\n• ✅ Siapkan pakaian dan tas\n• ✅ Charge smartphone dan laptop\n• ✅ Set alarm 2-3 buah\n• ✅ Tidur cukup (minimal 6 jam)\n\n**Pagi Hari:**\n• ✅ Bangun 2 jam sebelum kuliah\n• ✅ Cek kondisi lalu lintas (Google Maps)\n• ✅ Berangkat lebih awal jika macet\n• ✅ Bawa power bank untuk jaga-jaga\n\n**Di Kampus:**\n• ✅ Datang 10 menit lebih awal\n• ✅ Langsung ke kelas, jangan nongkrong dulu\n• ✅ Siapkan aplikasi sebelum masuk\n• ✅ Duduk di depan untuk akses cepat ke QR Code\n\n### Sanksi Keterlambatan:\n\n**Peringatan Lisan:**\n• Terlambat 1-2 kali: Teguran ringan\n\n**Peringatan Tertulis:**\n• Terlambat 3-5 kali: Surat peringatan\n\n**Sanksi Akademik:**\n• Terlambat >5 kali: Pengurangan nilai\n• Tidak hadir >3 kali: Tidak bisa UAS\n• Kehadiran <75%: Nilai E\n\n### Kontak untuk Pertanyaan Lebih Lanjut:\n\n**Bagian Akademik:**\n• 📞 (021) 1234-5678 ext. 200\n• 📧 akademik@kampus.ac.id\n• 🏢 Gedung Rektorat Lt. 2\n\n**Dosen Pengampu:**\n• Cek email dosen di silabus\n• Konsultasi saat jam office hours\n• Kirim email dengan subject jelas',
-                category: 'absensi',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-        ],
-    },
-    {
-        id: 'tugas',
-        name: 'Tugas & Ujian',
-        description: 'Informasi tentang pengumpulan tugas dan ujian',
-        icon: 'FileText',
-        faqs: [
-            {
-                id: 'faq-4',
-                question: 'Bagaimana cara mengumpulkan tugas?',
-                answer: 'Untuk mengumpulkan tugas, ikuti panduan berikut:\n\n1. Buka menu "Akademik" > "Tugas"\n2. Pilih tugas yang ingin dikumpulkan\n3. Klik tombol "Kumpulkan Tugas"\n4. Upload file tugas Anda (format yang didukung: PDF, DOC, DOCX, ZIP)\n5. Maksimal ukuran file: 10 MB\n6. Tambahkan catatan jika diperlukan\n7. Klik "Submit" untuk mengirim\n8. Anda akan menerima konfirmasi email setelah tugas berhasil dikumpulkan\n\nPerhatian: Pastikan mengumpulkan sebelum deadline untuk menghindari pengurangan nilai.',
-                category: 'tugas',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-            {
-                id: 'faq-5',
-                question: 'Apakah bisa mengumpulkan tugas setelah deadline?',
-                answer: 'Kebijakan pengumpulan tugas terlambat:\n\n• Sistem masih menerima pengumpulan setelah deadline\n• Namun akan ada penalti pengurangan nilai sesuai kebijakan dosen\n• Biasanya pengurangan 10-20% per hari keterlambatan\n• Beberapa dosen mungkin tidak menerima tugas terlambat sama sekali\n• Status "Terlambat" akan tercatat di sistem\n\nSaran: Selalu kumpulkan tugas sebelum deadline. Jika ada kendala, hubungi dosen untuk meminta perpanjangan waktu.',
-                category: 'tugas',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-            {
-                id: 'faq-6',
-                question: 'Bagaimana cara melihat nilai tugas yang sudah dikumpulkan?',
-                answer: 'Untuk melihat nilai tugas:\n\n1. Buka menu "Akademik" > "Tugas"\n2. Pilih tab "Riwayat" atau "Sudah Dikumpulkan"\n3. Klik pada tugas yang ingin dilihat nilainya\n4. Nilai akan ditampilkan jika dosen sudah melakukan penilaian\n5. Anda juga bisa melihat feedback dari dosen\n6. Notifikasi akan dikirim ketika nilai sudah tersedia\n\nCatatan: Waktu penilaian tergantung pada dosen, biasanya 3-7 hari setelah deadline.',
-                category: 'tugas',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-        ],
-    },
-    {
-        id: 'akun',
-        name: 'Akun & Profil',
-        description: 'Pengaturan akun dan profil mahasiswa',
-        icon: 'User',
-        faqs: [
-            {
-                id: 'faq-7',
-                question: 'Bagaimana cara mengubah password?',
-                answer: 'Untuk mengubah password akun Anda:\n\n1. Klik foto profil di pojok kanan atas\n2. Pilih "Profil" dari dropdown menu\n3. Scroll ke bagian "Keamanan"\n4. Klik tombol "Ubah Password"\n5. Masukkan password lama Anda\n6. Masukkan password baru (minimal 8 karakter, kombinasi huruf dan angka)\n7. Konfirmasi password baru\n8. Klik "Simpan Perubahan"\n\nTips Keamanan:\n• Gunakan password yang kuat dan unik\n• Jangan gunakan password yang sama dengan akun lain\n• Ubah password secara berkala (setiap 3-6 bulan)\n• Jangan bagikan password kepada siapapun',
-                category: 'akun',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-            {
-                id: 'faq-8',
-                question: 'Bagaimana jika lupa password?',
-                answer: 'Jika lupa password, ikuti langkah recovery berikut:\n\n1. Di halaman login, klik "Lupa Password?"\n2. Masukkan email atau NIM yang terdaftar\n3. Klik "Kirim Link Reset"\n4. Cek email Anda (termasuk folder spam)\n5. Klik link reset password dalam email\n6. Masukkan password baru Anda\n7. Konfirmasi password baru\n8. Klik "Reset Password"\n9. Login dengan password baru\n\nCatatan:\n• Link reset berlaku selama 1 jam\n• Jika tidak menerima email, cek folder spam atau hubungi admin\n• Pastikan email yang terdaftar masih aktif',
-                category: 'akun',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-        ],
-    },
-    {
-        id: 'notifikasi',
-        name: 'Notifikasi',
-        description: 'Pengaturan dan informasi notifikasi',
-        icon: 'Bell',
-        faqs: [
-            {
-                id: 'faq-9',
-                question: 'Bagaimana cara mengatur notifikasi?',
-                answer: 'Untuk mengatur preferensi notifikasi:\n\n1. Buka menu "Pengaturan"\n2. Pilih tab "Notifikasi"\n3. Atur jenis notifikasi yang ingin diterima:\n   • Notifikasi Tugas Baru\n   • Reminder Deadline\n   • Pengumuman Kelas\n   • Perubahan Jadwal\n   • Nilai Tugas\n4. Pilih metode notifikasi:\n   • Push Notification (di aplikasi)\n   • Email\n   • Keduanya\n5. Atur waktu pengiriman reminder\n6. Klik "Simpan Pengaturan"\n\nTips: Aktifkan notifikasi penting seperti deadline tugas dan perubahan jadwal.',
-                category: 'notifikasi',
-                helpful: 0,
-                notHelpful: 0,
-                views: 0,
-                lastUpdated: new Date().toISOString(),
-            },
-        ],
-    },
-];
+type ToastType = {
+    type: 'success' | 'error';
+    message: string;
+} | null;
 
-// Mock data untuk Troubleshooting yang lebih detail
-const mockTroubleshootingGuides: TroubleshootingGuide[] = [
+type ContactInfo = {
+    email: string;
+    phone?: string;
+    whatsapp?: string;
+    hours?: string;
+    responseTime?: string;
+    activeTickets?: number;
+};
+
+type NormalizedFAQ = {
+    id: string;
+    question: string;
+    answer: string;
+    categoryId: string;
+    categoryName: string;
+    helpful: number;
+    notHelpful: number;
+    views: number;
+    userVote: 'helpful' | 'notHelpful' | null;
+};
+
+type NormalizedFAQCategory = {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    faqs: NormalizedFAQ[];
+};
+
+type NormalizedTroubleshooting = {
+    id: string;
+    title: string;
+    problem: string;
+    steps: string[];
+    category: string;
+    severity: 'low' | 'medium' | 'high';
+    estimatedTime: string;
+    views: number;
+};
+
+type HelpArticle = {
+    id: string;
+    source: 'faq' | 'troubleshooting';
+    title: string;
+    description: string;
+    content: string;
+    category: string;
+    difficulty: 'Pemula' | 'Menengah' | 'Pro';
+    views: number;
+    helpful: number;
+    notHelpful: number;
+    readTime: string;
+};
+
+type VideoTutorial = {
+    id: string;
+    title: string;
+    description: string;
+    duration: string;
+    category: string;
+    views: number;
+    url: string;
+    thumbnail?: string;
+    accent: string;
+};
+
+type TicketForm = {
+    category: 'question' | 'bug' | 'suggestion' | 'other';
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    subject: string;
+    message: string;
+};
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.04,
+            delayChildren: 0.1,
+        },
+    },
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring', stiffness: 300, damping: 24 },
+    },
+};
+
+const cardVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+        opacity: 1,
+        scale: 1,
+        transition: { type: 'spring', stiffness: 300, damping: 20 },
+    },
+    hover: {
+        scale: 1.04,
+        y: -4,
+        transition: { type: 'spring', stiffness: 400, damping: 15 },
+    },
+};
+
+const sectionCards = [
     {
-        id: 'ts-1',
-        title: 'QR Code Tidak Bisa Di-Scan',
-        problem: 'Kamera tidak dapat membaca QR Code untuk absensi',
-        symptoms: [
-            'Kamera tidak fokus pada QR Code',
-            'Muncul pesan error "QR Code tidak valid"',
-            'Aplikasi freeze saat membuka kamera',
-            'QR Code terdeteksi tapi tidak ada respon',
-        ],
-        solutions: [
-            {
-                step: 1,
-                title: 'Periksa Izin Kamera',
-                description: 'Pastikan aplikasi memiliki izin untuk mengakses kamera. Buka Pengaturan > Aplikasi > Izin > Kamera, dan aktifkan izin untuk aplikasi ini.',
-                action: 'Buka Pengaturan Device',
-            },
-            {
-                step: 2,
-                title: 'Bersihkan Cache Aplikasi',
-                description: 'Cache yang menumpuk dapat menyebabkan masalah. Buka Pengaturan > Aplikasi > Penyimpanan > Hapus Cache. Setelah itu, restart aplikasi.',
-                action: 'Hapus Cache',
-            },
-            {
-                step: 3,
-                title: 'Periksa Koneksi Internet',
-                description: 'Pastikan device terhubung ke internet yang stabil. QR Code memerlukan koneksi untuk verifikasi ke server. Coba gunakan WiFi jika sinyal mobile lemah.',
-                action: 'Cek Koneksi',
-            },
-            {
-                step: 4,
-                title: 'Update Aplikasi',
-                description: 'Pastikan Anda menggunakan versi aplikasi terbaru. Buka Play Store/App Store, cari aplikasi, dan klik Update jika tersedia.',
-                action: 'Update Aplikasi',
-            },
-            {
-                step: 5,
-                title: 'Restart Device',
-                description: 'Jika masalah masih berlanjut, coba restart device Anda. Ini akan me-refresh semua sistem dan mungkin menyelesaikan masalah.',
-                action: 'Restart Device',
-            },
-        ],
-        category: 'absensi',
-        severity: 'medium',
-        estimatedTime: '5-10 menit',
-        lastUpdated: new Date().toISOString(),
+        id: 'panduan',
+        title: 'Panduan Lengkap',
+        badge: 'Populer',
+        color: 'from-blue-500 to-indigo-500',
+        icon: BookOpen,
+        description:
+            'Blueprint operasional end-to-end untuk alur presensi, tugas, validasi, dan tata kelola penggunaan fitur inti mahasiswa secara terstruktur.',
+        highlights: ['Checklist harian per fitur', 'Alur validasi dan SLA layanan'],
     },
     {
-        id: 'ts-2',
-        title: 'Gagal Upload File Tugas',
-        problem: 'File tugas tidak bisa di-upload atau upload gagal di tengah jalan',
-        symptoms: [
-            'Progress upload berhenti di tengah jalan',
-            'Muncul pesan "Upload Failed"',
-            'File terlalu besar untuk di-upload',
-            'Format file tidak didukung',
-        ],
-        solutions: [
-            {
-                step: 1,
-                title: 'Periksa Ukuran File',
-                description: 'Maksimal ukuran file adalah 10 MB. Jika file Anda lebih besar, kompres file terlebih dahulu menggunakan aplikasi kompresi atau kurangi kualitas gambar/video.',
-                action: 'Kompres File',
-            },
-            {
-                step: 2,
-                title: 'Periksa Format File',
-                description: 'Format yang didukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, RAR, JPG, PNG. Pastikan file Anda dalam format yang benar.',
-                action: 'Konversi Format',
-            },
-            {
-                step: 3,
-                title: 'Gunakan Koneksi Stabil',
-                description: 'Upload memerlukan koneksi internet yang stabil. Gunakan WiFi jika memungkinkan. Hindari upload saat sinyal lemah atau tidak stabil.',
-                action: 'Cek Koneksi',
-            },
-            {
-                step: 4,
-                title: 'Clear Browser Cache',
-                description: 'Jika menggunakan web browser, clear cache dan cookies. Tekan Ctrl+Shift+Delete (Windows) atau Cmd+Shift+Delete (Mac), pilih cache dan cookies, lalu hapus.',
-                action: 'Clear Cache',
-            },
-            {
-                step: 5,
-                title: 'Coba Browser Lain',
-                description: 'Jika masalah berlanjut, coba gunakan browser lain (Chrome, Firefox, Edge, Safari). Beberapa browser mungkin memiliki kompatibilitas yang lebih baik.',
-                action: 'Ganti Browser',
-            },
-        ],
-        category: 'tugas',
-        severity: 'high',
-        estimatedTime: '10-15 menit',
-        lastUpdated: new Date().toISOString(),
+        id: 'tips',
+        title: 'Tips & Trik',
+        badge: 'Trending',
+        color: 'from-yellow-500 to-orange-500',
+        icon: Lightbulb,
+        description:
+            'Strategi produktivitas advanced berisi optimasi workflow, shortcut yang relevan, dan pola penggunaan cerdas agar proses akademik lebih cepat.',
+        highlights: ['Pola kerja anti-ribet', 'Shortcut efisiensi tinggi'],
     },
     {
-        id: 'ts-3',
-        title: 'Tidak Bisa Login ke Akun',
-        problem: 'Gagal masuk ke akun meskipun password sudah benar',
-        symptoms: [
-            'Muncul pesan "Email atau password salah"',
-            'Akun terkunci setelah beberapa kali percobaan',
-            'Halaman login tidak merespon',
-            'Redirect ke halaman error setelah login',
-        ],
-        solutions: [
-            {
-                step: 1,
-                title: 'Periksa Caps Lock',
-                description: 'Pastikan Caps Lock tidak aktif. Password bersifat case-sensitive, jadi "Password" berbeda dengan "password".',
-                action: 'Cek Caps Lock',
-            },
-            {
-                step: 2,
-                title: 'Reset Password',
-                description: 'Jika yakin password benar tapi tetap tidak bisa login, gunakan fitur "Lupa Password" untuk reset. Link reset akan dikirim ke email terdaftar.',
-                action: 'Reset Password',
-            },
-            {
-                step: 3,
-                title: 'Tunggu Jika Akun Terkunci',
-                description: 'Setelah 5 kali percobaan login gagal, akun akan terkunci selama 15 menit untuk keamanan. Tunggu hingga waktu lock berakhir.',
-                action: 'Tunggu 15 Menit',
-            },
-            {
-                step: 4,
-                title: 'Clear Browser Data',
-                description: 'Hapus cookies dan cache browser. Kadang data lama dapat menyebabkan konflik. Setelah clear, coba login kembali.',
-                action: 'Clear Data',
-            },
-            {
-                step: 5,
-                title: 'Hubungi Admin',
-                description: 'Jika semua cara di atas tidak berhasil, hubungi admin sistem melalui email atau WhatsApp untuk bantuan lebih lanjut.',
-                action: 'Hubungi Admin',
-            },
-        ],
-        category: 'akun',
-        severity: 'high',
-        estimatedTime: '5-20 menit',
-        lastUpdated: new Date().toISOString(),
+        id: 'keamanan',
+        title: 'Keamanan',
+        badge: 'Penting',
+        color: 'from-green-500 to-emerald-500',
+        icon: Shield,
+        description:
+            'Standar perlindungan akun dan data pribadi mencakup kebijakan akses, verifikasi identitas, mitigasi risiko, serta best practice keamanan modern.',
+        highlights: ['Proteksi akun berlapis', 'Panduan respon insiden'],
     },
     {
-        id: 'ts-4',
-        title: 'Notifikasi Tidak Muncul',
-        problem: 'Tidak menerima notifikasi penting seperti deadline tugas atau pengumuman',
-        symptoms: [
-            'Tidak ada notifikasi push di device',
-            'Email notifikasi tidak masuk',
-            'Notifikasi terlambat diterima',
-            'Badge notifikasi tidak update',
-        ],
-        solutions: [
-            {
-                step: 1,
-                title: 'Periksa Pengaturan Notifikasi',
-                description: 'Buka menu Pengaturan > Notifikasi. Pastikan semua jenis notifikasi yang penting sudah diaktifkan.',
-                action: 'Buka Pengaturan',
-            },
-            {
-                step: 2,
-                title: 'Periksa Izin Notifikasi Device',
-                description: 'Buka Pengaturan Device > Aplikasi > Notifikasi. Pastikan izin notifikasi untuk aplikasi ini sudah diaktifkan.',
-                action: 'Cek Izin Device',
-            },
-            {
-                step: 3,
-                title: 'Periksa Email Spam',
-                description: 'Notifikasi email mungkin masuk ke folder spam. Cek folder spam dan tandai email dari sistem sebagai "Not Spam".',
-                action: 'Cek Spam',
-            },
-            {
-                step: 4,
-                title: 'Update Alamat Email',
-                description: 'Pastikan alamat email di profil Anda masih aktif dan benar. Update jika perlu di menu Profil > Edit Profil.',
-                action: 'Update Email',
-            },
-            {
-                step: 5,
-                title: 'Reinstall Aplikasi',
-                description: 'Jika masalah berlanjut, coba uninstall dan install ulang aplikasi. Ini akan me-refresh semua pengaturan notifikasi.',
-                action: 'Reinstall App',
-            },
-        ],
-        category: 'notifikasi',
-        severity: 'medium',
-        estimatedTime: '10-15 menit',
-        lastUpdated: new Date().toISOString(),
+        id: 'video',
+        title: 'Video Tutorial',
+        badge: 'Baru',
+        color: 'from-purple-500 to-pink-500',
+        icon: PlayCircle,
+        description:
+            'Rangkaian tutorial visual step-by-step berbasis kasus nyata agar pengguna memahami konteks penggunaan fitur, bukan sekadar menghafal langkah.',
+        highlights: ['Simulasi studi kasus', 'Pembelajaran visual terarah'],
     },
-];
+    {
+        id: 'troubleshooting',
+        title: 'Troubleshooting',
+        badge: 'Pemula',
+        color: 'from-red-500 to-orange-500',
+        icon: Wrench,
+        description:
+            'Panduan diagnosis masalah secara sistematis dengan akar penyebab, langkah perbaikan bertahap, dan indikator keberhasilan yang bisa diverifikasi.',
+        highlights: ['Root-cause based', 'Recovery plan terstruktur'],
+    },
+    {
+        id: 'akademik',
+        title: 'Panduan Akademik',
+        badge: 'Mahasiswa',
+        color: 'from-cyan-500 to-blue-500',
+        icon: GraduationCap,
+        description:
+            'Dokumentasi proses akademik mencakup manajemen tugas, ujian, evaluasi capaian, serta praktik terbaik agar progres belajar tetap konsisten.',
+        highlights: ['Roadmap capaian belajar', 'Kontrol kualitas pengumpulan'],
+    },
+] as const;
+
+const toLower = (value: string): string => value.toLowerCase();
+
+const wordCount = (text: string): number =>
+    text
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length;
+
+const excerpt = (text: string, max = 180): string => {
+    const trimmed = text.replace(/\s+/g, ' ').trim();
+    if (trimmed.length <= max) return trimmed;
+    return `${trimmed.slice(0, max).trimEnd()}...`;
+};
+
+const parseDifficulty = (content: string): 'Pemula' | 'Menengah' | 'Pro' => {
+    const totalWords = wordCount(content);
+    if (totalWords < 70) return 'Pemula';
+    if (totalWords < 160) return 'Menengah';
+    return 'Pro';
+};
+
+const parseCategoryDescription = (id: string, name: string): string => {
+    const key = `${id} ${name}`.toLowerCase();
+
+    if (key.includes('absensi')) {
+        return 'Panduan operasional absensi dari persiapan perangkat, scan QR, validasi lokasi, hingga penanganan gagal verifikasi.';
+    }
+
+    if (key.includes('tugas')) {
+        return 'Workflow pengumpulan tugas yang rapi meliputi format file, aturan deadline, revisi, serta evaluasi progres penilaian.';
+    }
+
+    if (key.includes('akun') || key.includes('profil')) {
+        return 'Standar pengelolaan akun mahasiswa meliputi keamanan password, perlindungan privasi, dan kontrol akses autentikasi.';
+    }
+
+    if (key.includes('teknis')) {
+        return 'Metode troubleshooting teknis berbasis akar masalah untuk koneksi, sinkronisasi data, error aplikasi, dan pemulihan cepat.';
+    }
+
+    if (key.includes('izin')) {
+        return 'Panduan formal pengajuan izin/sakit dengan validasi dokumen, SLA persetujuan, dan mekanisme pemantauan status.';
+    }
+
+    return 'Dokumentasi bantuan menyeluruh untuk memahami fitur, menyelesaikan kendala, dan meningkatkan efektivitas penggunaan sistem.';
+};
+
+const normalizeFaqCategories = (payload: unknown): NormalizedFAQCategory[] => {
+    if (!Array.isArray(payload)) return [];
+
+    return payload
+        .map((rawCategory): NormalizedFAQCategory | null => {
+            if (typeof rawCategory !== 'object' || rawCategory === null) return null;
+
+            const category = rawCategory as Record<string, unknown>;
+            const categoryId = String(category.id ?? '').trim();
+            const categoryName = String(category.name ?? '').trim();
+            const categoryIcon = String(category.icon ?? 'HelpCircle').trim();
+
+            if (!categoryId || !categoryName) return null;
+
+            const faqsPayload = Array.isArray(category.faqs) ? category.faqs : [];
+            const faqs = faqsPayload
+                .map((rawFaq): NormalizedFAQ | null => {
+                    if (typeof rawFaq !== 'object' || rawFaq === null) return null;
+
+                    const faq = rawFaq as Record<string, unknown>;
+                    const faqId = String(faq.id ?? '').trim();
+                    const question = String(faq.question ?? '').trim();
+                    const answer = String(faq.answer ?? '').trim();
+
+                    if (!faqId || !question || !answer) return null;
+
+                    return {
+                        id: faqId,
+                        question,
+                        answer,
+                        categoryId,
+                        categoryName,
+                        helpful: Number(faq.helpful ?? 0),
+                        notHelpful: Number(faq.notHelpful ?? 0),
+                        views: Number(faq.views ?? 0),
+                        userVote:
+                            faq.userVote === 'helpful' || faq.userVote === 'notHelpful'
+                                ? faq.userVote
+                                : null,
+                    };
+                })
+                .filter((faq): faq is NormalizedFAQ => faq !== null);
+
+            return {
+                id: categoryId,
+                name: categoryName,
+                description: parseCategoryDescription(categoryId, categoryName),
+                icon: categoryIcon,
+                faqs,
+            };
+        })
+        .filter((category): category is NormalizedFAQCategory => category !== null);
+};
+
+const normalizeTroubleshooting = (payload: unknown): NormalizedTroubleshooting[] => {
+    if (!Array.isArray(payload)) return [];
+
+    return payload
+        .map((rawGuide): NormalizedTroubleshooting | null => {
+            if (typeof rawGuide !== 'object' || rawGuide === null) return null;
+
+            const guide = rawGuide as Record<string, unknown>;
+            const id = String(guide.id ?? '').trim();
+            const title = String(guide.title ?? '').trim();
+            const problem = String(guide.problem ?? '').trim();
+
+            if (!id || !title || !problem) return null;
+
+            let steps: string[] = [];
+            if (Array.isArray(guide.solution)) {
+                steps = guide.solution
+                    .map((item) => String(item ?? '').trim())
+                    .filter(Boolean);
+            } else if (Array.isArray(guide.solutions)) {
+                steps = guide.solutions
+                    .map((item) => {
+                        if (typeof item === 'string') return item.trim();
+                        if (typeof item === 'object' && item !== null) {
+                            const mapped = item as Record<string, unknown>;
+                            const titlePart = String(mapped.title ?? '').trim();
+                            const descriptionPart = String(mapped.description ?? '').trim();
+                            return [titlePart, descriptionPart].filter(Boolean).join(' - ').trim();
+                        }
+                        return '';
+                    })
+                    .filter(Boolean);
+            }
+
+            return {
+                id,
+                title,
+                problem,
+                steps,
+                category: String(guide.category ?? 'teknis'),
+                severity:
+                    guide.severity === 'low' ||
+                    guide.severity === 'medium' ||
+                    guide.severity === 'high'
+                        ? guide.severity
+                        : 'medium',
+                estimatedTime: String(guide.estimatedTime ?? guide.estimated_time ?? '5-10 menit'),
+                views: Number(guide.views ?? 0),
+            };
+        })
+        .filter((guide): guide is NormalizedTroubleshooting => guide !== null);
+};
+
+const normalizeContact = (payload: unknown): ContactInfo | undefined => {
+    if (typeof payload !== 'object' || payload === null) return undefined;
+
+    const mapped = payload as Record<string, unknown>;
+    const email = String(mapped.email ?? '').trim();
+
+    if (!email) return undefined;
+
+    return {
+        email,
+        phone: String(mapped.phone ?? '').trim() || undefined,
+        whatsapp: String(mapped.whatsapp ?? mapped.phone ?? '').trim() || undefined,
+        hours:
+            String(mapped.hours ?? mapped.support_hours ?? '').trim() || undefined,
+        responseTime:
+            String(mapped.responseTime ?? mapped.response_time ?? '').trim() || undefined,
+        activeTickets: Number(mapped.activeTickets ?? mapped.active_tickets ?? 0),
+    };
+};
+
+const getVideoAccent = (category: string): string => {
+    const key = category.toLowerCase();
+
+    if (key.includes('onboard')) return 'from-indigo-500 to-purple-600';
+    if (key.includes('absensi')) return 'from-emerald-500 to-teal-600';
+    if (key.includes('tugas')) return 'from-orange-500 to-amber-600';
+    if (key.includes('akademik')) return 'from-sky-500 to-indigo-600';
+    if (key.includes('izin')) return 'from-rose-500 to-pink-600';
+    if (key.includes('gamifikasi')) return 'from-fuchsia-500 to-purple-600';
+    if (key.includes('keamanan')) return 'from-cyan-500 to-blue-600';
+    return 'from-violet-500 to-indigo-600';
+};
+
+const normalizeVideos = (payload: unknown): VideoTutorial[] => {
+    if (!Array.isArray(payload)) return [];
+
+    return payload
+        .map((rawVideo): VideoTutorial | null => {
+            if (typeof rawVideo !== 'object' || rawVideo === null) return null;
+            const video = rawVideo as Record<string, unknown>;
+
+            const id = String(video.id ?? '').trim();
+            const title = String(video.title ?? '').trim();
+            const url = String(video.url ?? '').trim();
+            const duration = String(video.duration ?? '0:00').trim();
+            const category = String(video.category ?? 'Tutorial').trim();
+
+            if (!id || !title || !url) return null;
+
+            return {
+                id,
+                title,
+                description: String(video.description ?? '').trim(),
+                duration,
+                category,
+                views: Number(video.views ?? 0),
+                url,
+                thumbnail: String(video.thumbnail ?? '').trim() || undefined,
+                accent: getVideoAccent(category),
+            };
+        })
+        .filter((video): video is VideoTutorial => video !== null);
+};
+
+const parsePhoneNumber = (value: string): string => value.replace(/[^\d]/g, '');
+
+const trackHelpEvent = (
+    eventName: string,
+    params: Record<string, string | number | boolean | undefined> = {},
+) => {
+    if (typeof window === 'undefined') return;
+
+    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+    if (typeof gtag !== 'function') return;
+
+    gtag('event', eventName, params);
+};
 
 export default function StudentHelp() {
-    const { auth } = usePage<{ auth: { user: { email: string } } }>().props;
-    const [faqCategories, setFaqCategories] = useState<FAQCategory[]>([]);
-    const [troubleshootingGuides, setTroubleshootingGuides] = useState<TroubleshootingGuide[]>([]);
-    const [contactInfo, setContactInfo] = useState<{
-        email: string;
-        phone?: string;
-        hours?: string;
-        responseTime?: string;
-    } | undefined>();
+    const { auth } = usePage<PageProps>().props;
+    const userEmail = auth?.user?.email;
+
+    const searchInputRef = useRef<HTMLInputElement>(null);
+
+    const [faqCategories, setFaqCategories] = useState<NormalizedFAQCategory[]>([]);
+    const [troubleshootingGuides, setTroubleshootingGuides] = useState<NormalizedTroubleshooting[]>([]);
+    const [helpVideos, setHelpVideos] = useState<VideoTutorial[]>([]);
+    const [contactInfo, setContactInfo] = useState<ContactInfo>();
+
     const [isLoading, setIsLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [toast, setToast] = useState<ToastType>(null);
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [faqFilter, setFaqFilter] = useState('Semua');
+
+    const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null);
+    const [selectedVideo, setSelectedVideo] = useState<VideoTutorial | null>(null);
+    const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+    const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
+
+    const [ticketCount, setTicketCount] = useState(0);
+
+    const [ticketForm, setTicketForm] = useState<TicketForm>({
+        category: 'question',
+        priority: 'medium',
+        subject: '',
+        message: '',
+    });
+
+    const [faqVotes, setFaqVotes] = useState<
+        Record<string, { helpful: number; notHelpful: number }>
+    >({});
+    const [faqUserVotes, setFaqUserVotes] = useState<
+        Record<string, 'helpful' | 'notHelpful' | null>
+    >({});
+    const [analyticsSummary, setAnalyticsSummary] = useState<HelpAnalyticsSummary | null>(null);
+    const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
 
     const showToast = (type: 'success' | 'error', message: string) => {
         setToast({ type, message });
-        setTimeout(() => setToast(null), 3000);
+        window.setTimeout(() => setToast(null), 3200);
     };
 
-    useEffect(() => {
-        loadHelpData();
+    const loadAnalyticsSummary = useCallback(async (withLoading = false) => {
+        if (withLoading) {
+            setIsAnalyticsLoading(true);
+        }
+
+        try {
+            const summary = await getHelpAnalyticsSummary();
+            setAnalyticsSummary(summary);
+        } catch {
+            if (withLoading) {
+                setAnalyticsSummary(null);
+            }
+        } finally {
+            if (withLoading) {
+                setIsAnalyticsLoading(false);
+            }
+        }
     }, []);
 
-    const loadHelpData = async () => {
+    const loadHelpData = useCallback(async () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+
         try {
-            setIsLoading(true);
-            const [faqs, troubleshooting, contact] = await Promise.all([
-                getFAQCategories().catch(() => []),
-                getTroubleshootingGuides().catch(() => []),
-                getContactInfo().catch(() => undefined),
+            const [faqsPayload, troubleshootingPayload, videosPayload, contactPayload] = await Promise.all([
+                getFAQCategories(),
+                getTroubleshootingGuides(),
+                getHelpVideos(),
+                getContactInfo(),
             ]);
-            
-            // Use mock data as fallback if API returns empty or invalid data
-            const validFaqs = Array.isArray(faqs) && faqs.length > 0 ? faqs : mockFAQCategories;
-            const validTroubleshooting = Array.isArray(troubleshooting) && troubleshooting.length > 0 
-                ? troubleshooting 
-                : mockTroubleshootingGuides;
-            
-            setFaqCategories(validFaqs);
-            setTroubleshootingGuides(validTroubleshooting);
-            setContactInfo(contact || {
-                email: 'support@example.com',
-                phone: '+62 812-3456-7890',
-                hours: 'Senin - Jumat, 08:00 - 17:00 WIB',
-                responseTime: '1-2 hari kerja',
+
+            const normalizedCategories = normalizeFaqCategories(faqsPayload as unknown);
+            const normalizedTroubleshooting = normalizeTroubleshooting(
+                troubleshootingPayload as unknown,
+            );
+            const normalizedVideos = normalizeVideos(videosPayload as unknown);
+            const normalizedContact = normalizeContact(contactPayload as unknown);
+
+            setFaqCategories(normalizedCategories);
+            setTroubleshootingGuides(normalizedTroubleshooting);
+            setHelpVideos(normalizedVideos);
+            setContactInfo(normalizedContact);
+            setTicketCount(normalizedContact?.activeTickets ?? 0);
+
+            setFaqVotes((prev) => {
+                const next = { ...prev };
+                normalizedCategories.forEach((category) => {
+                    category.faqs.forEach((faq) => {
+                        if (!next[faq.id]) {
+                            next[faq.id] = {
+                                helpful: faq.helpful,
+                                notHelpful: faq.notHelpful,
+                            };
+                        }
+                    });
+                });
+                return next;
             });
-        } catch (error) {
-            console.error('Error loading help data:', error);
-            showToast('error', 'Gagal memuat data bantuan, menggunakan data default');
-            // Use mock data as fallback on error
-            setFaqCategories(mockFAQCategories);
-            setTroubleshootingGuides(mockTroubleshootingGuides);
-            setContactInfo({
-                email: 'support@example.com',
-                phone: '+62 812-3456-7890',
-                hours: 'Senin - Jumat, 08:00 - 17:00 WIB',
-                responseTime: '1-2 hari kerja',
+            setFaqUserVotes((prev) => {
+                const next = { ...prev };
+                normalizedCategories.forEach((category) => {
+                    category.faqs.forEach((faq) => {
+                        next[faq.id] = faq.userVote ?? null;
+                    });
+                });
+                return next;
             });
+
+            await loadAnalyticsSummary(true);
+        } catch {
+            setFaqCategories([]);
+            setTroubleshootingGuides([]);
+            setHelpVideos([]);
+            setContactInfo(undefined);
+            setAnalyticsSummary(null);
+            setIsAnalyticsLoading(false);
+            setErrorMessage('Gagal memuat data bantuan. Coba muat ulang halaman.');
         } finally {
             setIsLoading(false);
         }
+    }, [loadAnalyticsSummary]);
+
+    useEffect(() => {
+        void loadHelpData();
+        trackHelpEvent('help_page_view', {
+            page: 'student_help',
+        });
+        void trackHelpPageView({ page: 'student_help' }).catch(() => undefined);
+    }, [loadHelpData]);
+
+    useEffect(() => {
+        const handleKeyboardShortcuts = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+                event.preventDefault();
+                searchInputRef.current?.focus();
+            }
+
+            if (event.key === 'Escape') {
+                setSelectedArticle(null);
+                setSelectedVideo(null);
+                setIsTicketModalOpen(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyboardShortcuts);
+        return () => window.removeEventListener('keydown', handleKeyboardShortcuts);
+    }, []);
+
+    const allFaqs = useMemo(
+        () => faqCategories.flatMap((category) => category.faqs),
+        [faqCategories],
+    );
+
+    const query = searchQuery.trim().toLowerCase();
+
+    const totalVotes = useMemo(() => {
+        return Object.values(faqVotes).reduce(
+            (acc, item) => {
+                acc.helpful += item.helpful;
+                acc.notHelpful += item.notHelpful;
+                return acc;
+            },
+            { helpful: 0, notHelpful: 0 },
+        );
+    }, [faqVotes]);
+
+    const globalRating = useMemo(() => {
+        const denominator = totalVotes.helpful + totalVotes.notHelpful;
+        if (denominator === 0) return null;
+        return Number(((totalVotes.helpful / denominator) * 5).toFixed(1));
+    }, [totalVotes]);
+
+    const popularArticles = useMemo<HelpArticle[]>(() => {
+        const faqArticles: HelpArticle[] = allFaqs.map((faq) => {
+            const votes = faqVotes[faq.id] ?? {
+                helpful: faq.helpful,
+                notHelpful: faq.notHelpful,
+            };
+
+            return {
+                id: faq.id,
+                source: 'faq',
+                title: faq.question,
+                description: excerpt(faq.answer, 130),
+                content: faq.answer,
+                category: faq.categoryName,
+                difficulty: parseDifficulty(faq.answer),
+                views: faq.views,
+                helpful: votes.helpful,
+                notHelpful: votes.notHelpful,
+                readTime: `${Math.max(1, Math.ceil(wordCount(faq.answer) / 180))} min`,
+            };
+        });
+
+        const troubleshootingArticles: HelpArticle[] = troubleshootingGuides.map((guide) => {
+            const troubleshootingContent = [guide.problem, ...guide.steps].join('\n\n');
+            return {
+                id: guide.id,
+                source: 'troubleshooting',
+                title: guide.title,
+                description: excerpt(guide.problem, 130),
+                content: troubleshootingContent,
+                category: 'Troubleshooting',
+                difficulty: guide.severity === 'high' ? 'Pro' : 'Menengah',
+                views: guide.views,
+                helpful: 0,
+                notHelpful: 0,
+                readTime: `${Math.max(1, Math.ceil(wordCount(troubleshootingContent) / 180))} min`,
+            };
+        });
+
+        return [...faqArticles, ...troubleshootingArticles]
+            .filter((article) => {
+                if (!query) return true;
+                const searchable = `${article.title} ${article.description} ${article.content} ${article.category}`.toLowerCase();
+                return searchable.includes(query);
+            })
+            .sort((left, right) => {
+                const leftScore = left.views + left.helpful * 4 - left.notHelpful;
+                const rightScore = right.views + right.helpful * 4 - right.notHelpful;
+                return rightScore - leftScore;
+            })
+            .slice(0, 5);
+    }, [allFaqs, troubleshootingGuides, faqVotes, query]);
+
+    const displayedVideos = useMemo(() => {
+        return helpVideos
+            .filter((video) => {
+                if (!query) return true;
+                const searchable = `${video.title} ${video.description} ${video.category}`.toLowerCase();
+                return searchable.includes(query);
+            })
+            .slice(0, 3);
+    }, [helpVideos, query]);
+
+    const filterOptions = useMemo(() => {
+        const dynamic = faqCategories.map((category) => category.name);
+        const base = ['Semua', 'Umum', 'Absensi', 'Tugas', 'Teknis'];
+        return Array.from(new Set([...base, ...dynamic]));
+    }, [faqCategories]);
+
+    const filteredFaqItems = useMemo(() => {
+        return allFaqs.filter((faq) => {
+            const searchable = `${faq.question} ${faq.answer} ${faq.categoryName}`.toLowerCase();
+            const matchesQuery = !query || searchable.includes(query);
+
+            const matchesFilter =
+                faqFilter === 'Semua' ||
+                faqFilter === 'Umum' ||
+                toLower(faq.categoryName).includes(toLower(faqFilter)) ||
+                toLower(faq.categoryId).includes(toLower(faqFilter));
+
+            return matchesQuery && matchesFilter;
+        });
+    }, [allFaqs, faqFilter, query]);
+
+    const totalArticles = allFaqs.length + troubleshootingGuides.length;
+
+    const categoryCardMetrics = useMemo(() => {
+        const securityFaqs = allFaqs.filter((faq) => {
+            const key = `${faq.categoryId} ${faq.categoryName}`.toLowerCase();
+            return key.includes('akun') || key.includes('teknis') || key.includes('keamanan');
+        });
+
+        const academicFaqs = allFaqs.filter((faq) => {
+            const key = `${faq.categoryId} ${faq.categoryName}`.toLowerCase();
+            return (
+                key.includes('absensi') ||
+                key.includes('tugas') ||
+                key.includes('izin') ||
+                key.includes('akademik')
+            );
+        });
+
+        const tipsCount = troubleshootingGuides.filter((guide) => {
+            const key = `${guide.title} ${guide.problem}`.toLowerCase();
+            return key.includes('tips') || key.includes('cara') || key.includes('solusi');
+        }).length;
+
+        return {
+            panduan: totalArticles,
+            tips: tipsCount > 0 ? tipsCount : troubleshootingGuides.length,
+            keamanan: securityFaqs.length,
+            video: helpVideos.length,
+            troubleshooting: troubleshootingGuides.length,
+            akademik: academicFaqs.length,
+        };
+    }, [allFaqs, totalArticles, troubleshootingGuides, helpVideos.length]);
+
+    const categoryCards = useMemo(() => {
+        return sectionCards.map((card) => {
+            const value = categoryCardMetrics[card.id] ?? 0;
+            return {
+                ...card,
+                articleCount: value,
+                rating: globalRating,
+            };
+        });
+    }, [categoryCardMetrics, globalRating]);
+
+    const handleSearchClick = () => {
+        const normalizedQuery = searchQuery.trim();
+        const section = document.getElementById('help-faq-section');
+        section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        trackHelpEvent('help_search', {
+            query: normalizedQuery,
+            result_count: filteredFaqItems.length,
+        });
+
+        if (normalizedQuery.length >= 2) {
+            void trackHelpSearch(normalizedQuery, filteredFaqItems.length)
+                .then(() => loadAnalyticsSummary())
+                .catch(() => undefined);
+        }
     };
 
-    const handleSubmitFeedback = async (feedback: HelpFeedback) => {
+    const updateFaqViewCount = (faqId: string, viewCount: number) => {
+        setFaqCategories((prev) =>
+            prev.map((category) => ({
+                ...category,
+                faqs: category.faqs.map((faq) =>
+                    faq.id === faqId ? { ...faq, views: viewCount } : faq,
+                ),
+            })),
+        );
+        setSelectedArticle((prev) =>
+            prev && prev.id === faqId ? { ...prev, views: viewCount } : prev,
+        );
+    };
+
+    const updateTroubleshootingViewCount = (guideId: string, viewCount: number) => {
+        setTroubleshootingGuides((prev) =>
+            prev.map((guide) =>
+                guide.id === guideId ? { ...guide, views: viewCount } : guide,
+            ),
+        );
+        setSelectedArticle((prev) =>
+            prev && prev.id === guideId ? { ...prev, views: viewCount } : prev,
+        );
+    };
+
+    const updateVideoViewCount = (videoId: string, viewCount: number) => {
+        setHelpVideos((prev) =>
+            prev.map((video) =>
+                video.id === videoId ? { ...video, views: viewCount } : video,
+            ),
+        );
+        setSelectedVideo((prev) =>
+            prev && prev.id === videoId ? { ...prev, views: viewCount } : prev,
+        );
+    };
+
+    const handleTrackArticleView = async (article: HelpArticle) => {
+        const contentType = article.source === 'faq' ? 'faq' : 'troubleshooting';
+
         try {
-            const result = await submitFeedback(feedback);
-            showToast('success', 'Feedback berhasil dikirim');
-            return result;
+            const tracked = await trackHelpContentView(contentType, article.id);
+
+            if (tracked.contentType === 'faq') {
+                updateFaqViewCount(tracked.contentId, tracked.viewCount);
+            } else if (tracked.contentType === 'troubleshooting') {
+                updateTroubleshootingViewCount(tracked.contentId, tracked.viewCount);
+            }
+
+            await loadAnalyticsSummary();
         } catch {
-            showToast('error', 'Gagal mengirim feedback');
-            throw new Error('Failed to submit feedback');
+            // Keep UI responsive even if analytics persistence fails.
+        }
+    };
+
+    const handleTrackVideoView = async (video: VideoTutorial) => {
+        try {
+            const tracked = await trackHelpContentView('video', video.id);
+            updateVideoViewCount(tracked.contentId, tracked.viewCount);
+            await loadAnalyticsSummary();
+        } catch {
+            // Keep UI responsive even if analytics persistence fails.
+        }
+    };
+
+    const handleFaqAccordionChange = (faqId: string) => {
+        if (!faqId) {
+            return;
+        }
+
+        void trackHelpContentView('faq', faqId)
+            .then((tracked) => {
+                updateFaqViewCount(tracked.contentId, tracked.viewCount);
+                return loadAnalyticsSummary();
+            })
+            .catch(() => undefined);
+    };
+
+    const handleFaqVote = async (faqId: string, helpful: boolean) => {
+        const normalizedFaqId = faqId.startsWith('faq-') ? faqId : `faq-${faqId}`;
+        const previousCounts = faqVotes[normalizedFaqId] ?? { helpful: 0, notHelpful: 0 };
+        const previousUserVote = faqUserVotes[normalizedFaqId] ?? null;
+
+        if (previousUserVote) {
+            showToast('error', 'Anda sudah memberikan vote untuk pertanyaan ini.');
+            return;
+        }
+
+        setFaqVotes((prev) => {
+            const current = prev[normalizedFaqId] ?? { helpful: 0, notHelpful: 0 };
+            return {
+                ...prev,
+                [normalizedFaqId]: {
+                    helpful: helpful ? current.helpful + 1 : current.helpful,
+                    notHelpful: helpful ? current.notHelpful : current.notHelpful + 1,
+                },
+            };
+        });
+        setFaqUserVotes((prev) => ({
+            ...prev,
+            [normalizedFaqId]: helpful ? 'helpful' : 'notHelpful',
+        }));
+
+        try {
+            const voteResult = await rateFAQ(normalizedFaqId, helpful);
+            setFaqVotes((prev) => ({
+                ...prev,
+                [voteResult.faqId]: {
+                    helpful: voteResult.helpful,
+                    notHelpful: voteResult.notHelpful,
+                },
+            }));
+            setFaqUserVotes((prev) => ({
+                ...prev,
+                [voteResult.faqId]: voteResult.userVote ?? (helpful ? 'helpful' : 'notHelpful'),
+            }));
+
+            trackHelpEvent('help_faq_vote', {
+                faq_id: normalizedFaqId,
+                helpful,
+            });
+            await loadAnalyticsSummary();
+            showToast(
+                voteResult.alreadyVoted
+                    ? 'error'
+                    : 'success',
+                voteResult.alreadyVoted
+                    ? 'Anda sudah memberikan vote untuk pertanyaan ini.'
+                    : helpful
+                      ? 'Terima kasih, feedback diterima.'
+                      : 'Masukan Anda tersimpan.',
+            );
+        } catch {
+            setFaqVotes((prev) => ({
+                ...prev,
+                [normalizedFaqId]: previousCounts,
+            }));
+            setFaqUserVotes((prev) => ({
+                ...prev,
+                [normalizedFaqId]: previousUserVote,
+            }));
+            showToast('error', 'Gagal menyimpan feedback FAQ. Silakan coba lagi.');
+        }
+    };
+
+    const handleSubmitTicket = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (ticketForm.subject.trim().length < 5) {
+            showToast('error', 'Subjek minimal 5 karakter.');
+            return;
+        }
+
+        if (ticketForm.message.trim().length < 20) {
+            showToast('error', 'Deskripsi minimal 20 karakter agar tim support mudah membantu.');
+            return;
+        }
+
+        setIsSubmittingTicket(true);
+
+        try {
+            const feedbackPayload = {
+                category: ticketForm.category,
+                subject: `[${ticketForm.priority.toUpperCase()}] ${ticketForm.subject.trim()}`,
+                message: ticketForm.message.trim(),
+                email: userEmail,
+            } as HelpFeedback;
+
+            const ticketResult = (await submitFeedback(feedbackPayload)) as {
+                ticketId?: string;
+                ticket_id?: string;
+            };
+
+            const nextCount = ticketCount + 1;
+            setTicketCount(nextCount);
+
+            setTicketForm({
+                category: 'question',
+                priority: 'medium',
+                subject: '',
+                message: '',
+            });
+            setIsTicketModalOpen(false);
+
+            const ticketId = ticketResult.ticketId ?? ticketResult.ticket_id;
+            trackHelpEvent('help_ticket_submit', {
+                category: ticketForm.category,
+                priority: ticketForm.priority,
+                ticket_id: ticketId,
+            });
+            showToast(
+                'success',
+                ticketId
+                    ? `Tiket ${ticketId} berhasil dibuat.`
+                    : 'Tiket dukungan berhasil dibuat.',
+            );
+        } catch {
+            trackHelpEvent('help_ticket_submit_failed', {
+                category: ticketForm.category,
+                priority: ticketForm.priority,
+            });
+            showToast('error', 'Gagal mengirim tiket dukungan. Silakan coba lagi.');
+        } finally {
+            setIsSubmittingTicket(false);
+        }
+    };
+
+    const handleShareArticle = async (article: HelpArticle) => {
+        try {
+            await navigator.clipboard.writeText(article.title);
+            trackHelpEvent('help_article_share', {
+                article_id: article.id,
+                article_title: article.title,
+            });
+            showToast('success', 'Judul artikel disalin ke clipboard.');
+        } catch {
+            showToast('error', 'Tidak bisa menyalin artikel saat ini.');
         }
     };
 
     if (isLoading) {
         return (
             <StudentLayout>
-                <Head title="Bantuan" />
-                <div className="space-y-6 p-6">
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl">
-                        <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
-                        <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-white/10 blur-3xl" />
-                        <div className="relative">
-                            <div className="flex items-center gap-4">
-                                <motion.div 
-                                    className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30"
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                >
-                                    <HelpCircle className="h-10 w-10" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-sm text-teal-100 font-medium">Bantuan</p>
-                                    <h1 className="text-3xl font-bold">Memuat...</h1>
-                                    <p className="text-sm text-teal-100 mt-1">Mohon tunggu sebentar</p>
-                                </div>
+                <Head title="Bantuan Mahasiswa" />
+                <div className="space-y-6 p-4 md:p-6 lg:p-8">
+                    <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shadow-2xl">
+                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                        <div className="relative flex items-center gap-4">
+                            <div className="relative flex h-16 w-16 shrink-0">
+                                <img
+                                    src={HelpIcon}
+                                    alt="Bantuan"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-indigo-100">Pusat Informasi Mahasiswa</p>
+                                <p className="text-2xl font-bold">Memuat Bantuan...</p>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                        {Array.from({ length: 4 }).map((_, index) => (
+                            <div
+                                key={`loading-stat-${index}`}
+                                className="h-28 animate-pulse rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                        {Array.from({ length: 3 }).map((_, index) => (
+                            <div
+                                key={`loading-analytics-${index}`}
+                                className="h-44 animate-pulse rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                            <div
+                                key={`loading-category-${index}`}
+                                className="h-56 animate-pulse rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            />
+                        ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                        <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                                <div
+                                    key={`loading-article-${index}`}
+                                    className="h-24 animate-pulse rounded-2xl bg-white/60 dark:bg-neutral-800/60"
+                                />
+                            ))}
+                        </div>
+                        <div className="space-y-4 rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
+                            {Array.from({ length: 3 }).map((_, index) => (
+                                <div
+                                    key={`loading-video-${index}`}
+                                    className="h-48 animate-pulse rounded-2xl bg-white/60 dark:bg-neutral-800/60"
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="h-96 animate-pulse rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40" />
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        {Array.from({ length: 3 }).map((_, index) => (
+                            <div
+                                key={`loading-contact-${index}`}
+                                className="h-60 animate-pulse rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                            />
+                        ))}
                     </div>
                 </div>
             </StudentLayout>
@@ -452,271 +1111,1059 @@ export default function StudentHelp() {
 
     return (
         <StudentLayout>
-            <Head title="Bantuan" />
+            <Head title="Bantuan Mahasiswa" />
 
-            <div className="space-y-6 p-6">
-                {/* Header Card with advanced animations */}
+            <motion.div
+                className="mx-auto max-w-7xl space-y-6 p-4 pb-10 md:space-y-8 md:p-6 lg:p-8"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                {errorMessage ? (
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-200"
+                    >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-start gap-2">
+                                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                <span>{errorMessage}</span>
+                            </div>
+                            <Button
+                                variant="outline"
+                                onClick={() => void loadHelpData()}
+                                className="border-rose-300 bg-white/70 text-rose-700 hover:bg-white"
+                            >
+                                <RefreshCw className="mr-2 h-4 w-4" /> Muat Ulang
+                            </Button>
+                        </div>
+                    </motion.div>
+                ) : null}
+
                 <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl border border-white/20 p-6 text-white shadow-2xl sm:p-8"
                 >
-                    {/* Animated background orbs */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 25,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-32 -top-32 h-80 w-80 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-white/10 blur-3xl"
-                        />
-                    </div>
-
-                    {/* Floating icons */}
-                    {[HelpCircle, MessageCircle, BookOpen, Lightbulb, Sparkles].map((Icon, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute text-white/20"
-                            initial={{ y: 0 }}
-                            animate={{
-                                y: [0, -20, 0],
-                                x: [0, Math.sin(i) * 10, 0],
-                                rotate: [0, 360],
-                            }}
-                            transition={{
-                                duration: 4 + i,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: i * 0.2,
-                            }}
-                            style={{
-                                left: `${15 + i * 18}%`,
-                                top: `${20 + (i % 2) * 40}%`,
-                            }}
-                        >
-                            <Icon className="w-8 h-8" />
-                        </motion.div>
-                    ))}
-
-                    {/* Large floating icons in background */}
                     <motion.div
-                        className="absolute right-8 top-1/2 -translate-y-1/2 text-white/10"
-                        animate={{
-                            rotateY: [0, 360],
-                            scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                            duration: 8,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    >
-                        <HelpCircle className="w-32 h-32" strokeWidth={1} />
-                    </motion.div>
-                    
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <motion.div
-                        className="absolute left-8 bottom-8 text-white/10"
-                        animate={{
-                            rotateY: [360, 0],
-                            scale: [1, 1.15, 1],
-                        }}
-                        transition={{
-                            duration: 10,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    >
-                        <BookOpen className="w-24 h-24" strokeWidth={1} />
-                    </motion.div>
-                    
+                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                        animate={{ scale: [1, 1.18, 1], opacity: [0.22, 0.4, 0.22] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.div
+                        className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"
+                        animate={{ scale: [1.08, 1, 1.08], opacity: [0.35, 0.2, 0.35] }}
+                        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+
                     <div className="relative">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ 
-                                        scale: 1.1, 
-                                        rotate: 360,
-                                        boxShadow: "0 0 30px rgba(255,255,255,0.5)"
-                                    }}
-                                    className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30 shadow-xl"
+                                    className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <HelpCircle className="h-10 w-10" />
+                                    <img
+                                        src={HelpIcon}
+                                        alt="Bantuan Mahasiswa"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
                                 </motion.div>
-                                <div>
+
+                                <div className="flex-1">
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="text-sm text-teal-100 font-medium flex items-center gap-2"
-                                    >
-                                        <Zap className="w-4 h-4" />
-                                        Bantuan
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-sm font-medium tracking-wide text-indigo-100"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="text-3xl font-bold"
                                     >
-                                        Help Center
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
+                                        Pusat Informasi Mahasiswa
+                                    </motion.p>
+                                    <motion.h1
+                                        className="mt-1 text-2xl font-bold text-white sm:text-3xl"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
-                                        className="text-sm text-teal-100 mt-1"
                                     >
-                                        Temukan jawaban dan dapatkan dukungan yang Anda butuhkan
+                                        Bantuan Mahasiswa
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-2 max-w-2xl text-sm leading-relaxed text-indigo-100 sm:text-base"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Temukan panduan, video tutorial, FAQ interaktif, dan jalur dukungan
+                                        teknis dalam satu pusat bantuan yang rapi dan mudah dipakai.
                                     </motion.p>
                                 </div>
+                            </div>
+
+                            <div className="w-full lg:max-w-xl">
+                                <motion.div
+                                    className="relative overflow-hidden rounded-2xl border border-white/30 bg-white/95 shadow-2xl backdrop-blur"
+                                    whileHover={{ scale: 1.01 }}
+                                >
+                                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-purple-500/70" />
+                                    <Input
+                                        ref={searchInputRef}
+                                        value={searchQuery}
+                                        onChange={(event) => setSearchQuery(event.target.value)}
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter') {
+                                                event.preventDefault();
+                                                handleSearchClick();
+                                            }
+                                        }}
+                                        placeholder="Cari bantuan, panduan, atau ketik pertanyaan Anda..."
+                                        className="h-14 border-0 bg-transparent pl-14 pr-28 text-sm font-medium text-neutral-900 placeholder:text-neutral-500 focus-visible:ring-2 focus-visible:ring-purple-300"
+                                    />
+                                    <div className="absolute right-2 top-2 bottom-2 flex items-center gap-2">
+                                        {searchQuery ? (
+                                            <button
+                                                onClick={() => setSearchQuery('')}
+                                                className="rounded-lg p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-700"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        ) : null}
+                                        <Button
+                                            onClick={handleSearchClick}
+                                            className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 px-4 text-xs font-semibold text-white shadow-lg hover:from-purple-600 hover:to-fuchsia-600"
+                                        >
+                                            Cari
+                                        </Button>
+                                    </div>
+                                </motion.div>
+                                <p className="mt-2 text-xs text-indigo-100/90 sm:text-sm">
+                                    {query
+                                        ? `${filteredFaqItems.length} hasil ditemukan untuk "${searchQuery.trim()}"`
+                                        : 'Shortcut: Cmd/Ctrl + K untuk fokus ke pencarian'}
+                                </p>
                             </div>
                         </div>
                     </div>
                 </motion.div>
 
-                <motion.div 
-                    className="px-4 py-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                <motion.div
+                    variants={itemVariants}
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-6"
                 >
-                    <HelpCenter
-                        faqCategories={faqCategories}
-                        troubleshootingGuides={troubleshootingGuides}
-                        contactInfo={contactInfo}
-                        userEmail={auth?.user?.email}
-                        onSubmitFeedback={handleSubmitFeedback}
-                    />
+                    <div className="mb-5 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                            <BarChart3 className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                                Mini Analytics Bantuan
+                            </h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Top query, FAQ paling membantu, dan CTR video real-time dari backend
+                            </p>
+                        </div>
+                    </div>
+
+                    {isAnalyticsLoading ? (
+                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                            {Array.from({ length: 3 }).map((_, index) => (
+                                <div
+                                    key={`analytics-skeleton-${index}`}
+                                    className="h-44 animate-pulse rounded-2xl border border-white/20 bg-white/50 dark:border-white/10 dark:bg-neutral-900/50"
+                                />
+                            ))}
+                        </div>
+                    ) : analyticsSummary ? (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Page Views</p>
+                                    <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={analyticsSummary.totals.pageViews} />
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Top Query Count</p>
+                                    <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={analyticsSummary.topQueries[0]?.count ?? 0} />
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">Pencarian</p>
+                                    <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={analyticsSummary.totals.searches} />
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-3 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <p className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">CTR Video</p>
+                                    <p className="mt-1 text-xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={analyticsSummary.videoCtr.ctrPercent} decimals={2} suffix="%" />
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-4 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                        <Search className="h-4 w-4 text-indigo-500" />
+                                        Top Query
+                                    </div>
+                                    <div className="space-y-2">
+                                        {analyticsSummary.topQueries.length === 0 ? (
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Belum ada data query.</p>
+                                        ) : (
+                                            analyticsSummary.topQueries.slice(0, 5).map((item, index) => (
+                                                <div
+                                                    key={`${item.query}-${index}`}
+                                                    className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                                >
+                                                    <p className="line-clamp-1 max-w-[70%] font-medium text-neutral-700 dark:text-neutral-200">
+                                                        {item.query}
+                                                    </p>
+                                                    <p className="font-semibold text-indigo-600 dark:text-indigo-300">
+                                                        {item.count}x
+                                                    </p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-4 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                        <ThumbsUp className="h-4 w-4 text-emerald-500" />
+                                        FAQ Paling Membantu
+                                    </div>
+                                    <div className="space-y-2">
+                                        {analyticsSummary.topFaqs.length === 0 ? (
+                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Belum ada metrik FAQ.</p>
+                                        ) : (
+                                            analyticsSummary.topFaqs.slice(0, 3).map((faq) => (
+                                                <div
+                                                    key={faq.id}
+                                                    className="rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                                >
+                                                    <p className="line-clamp-2 font-medium text-neutral-700 dark:text-neutral-200">
+                                                        {faq.question}
+                                                    </p>
+                                                    <p className="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-300">
+                                                        Helpful {faq.helpful} • Score {faq.score}
+                                                    </p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-white/20 bg-white/55 p-4 dark:border-white/10 dark:bg-neutral-900/55">
+                                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                        <MousePointerClick className="h-4 w-4 text-purple-500" />
+                                        CTR Video & Top Click
+                                    </div>
+                                    <div className="rounded-xl bg-white/70 p-3 text-xs dark:bg-neutral-800/70">
+                                        <p className="text-neutral-500 dark:text-neutral-400">
+                                            {analyticsSummary.videoCtr.clicks} klik dari {analyticsSummary.videoCtr.pageViews} page view.
+                                        </p>
+                                        <p className="mt-1 text-sm font-semibold text-purple-600 dark:text-purple-300">
+                                            CTR {analyticsSummary.videoCtr.ctrPercent.toFixed(2)}%
+                                        </p>
+                                    </div>
+                                    <div className="mt-2 space-y-2">
+                                        {analyticsSummary.topVideos.slice(0, 3).map((video) => (
+                                            <div
+                                                key={video.id}
+                                                className="flex items-center justify-between rounded-xl bg-white/70 px-3 py-2 text-xs dark:bg-neutral-800/70"
+                                            >
+                                                <p className="line-clamp-1 max-w-[72%] font-medium text-neutral-700 dark:text-neutral-200">
+                                                    {video.title}
+                                                </p>
+                                                <p className="font-semibold text-purple-600 dark:text-purple-300">
+                                                    {video.views}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
+                            Metrik analytics belum tersedia. Jalankan migrasi analytics lalu muat ulang halaman.
+                        </div>
+                    )}
                 </motion.div>
 
-                {/* Toast Notification with enhanced animation */}
-                <AnimatePresence>
-                    {toast && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 50, scale: 0.8, rotate: -5 }}
-                            animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-                            exit={{ opacity: 0, y: 50, scale: 0.8, rotate: 5 }}
-                            transition={{ 
-                                type: "spring",
-                                stiffness: 300,
-                                damping: 20
-                            }}
-                            className="fixed bottom-8 right-8 z-50"
-                        >
-                            <motion.div 
-                                className="relative overflow-hidden flex items-center gap-3 px-6 py-4 rounded-xl bg-white dark:bg-black border-2 shadow-2xl min-w-[300px]"
-                                style={{
-                                    borderColor: toast.type === 'success' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
-                                }}
-                                whileHover={{ scale: 1.05 }}
+                <motion.div variants={itemVariants} className="space-y-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                            <BookOpen className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                                Kategori Bantuan
+                            </h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Jelajahi topik bantuan sesuai kebutuhan Anda
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {categoryCards.map((card) => (
+                            <motion.div
+                                key={card.id}
+                                variants={cardVariants}
+                                whileHover="hover"
+                                className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
                             >
-                                {/* Animated background gradient */}
+                                <div className={cn('absolute inset-0 bg-gradient-to-br opacity-[0.06]', card.color)} />
                                 <motion.div
-                                    className={`absolute inset-0 ${
-                                        toast.type === 'success' 
-                                            ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10' 
-                                            : 'bg-gradient-to-r from-red-500/10 to-rose-500/10'
-                                    }`}
-                                    animate={{
-                                        x: ['-100%', '200%'],
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "linear",
-                                    }}
+                                    className={cn(
+                                        'absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br blur-3xl',
+                                        card.color,
+                                    )}
+                                    animate={{ opacity: [0.12, 0.3, 0.12], scale: [1, 1.25, 1] }}
+                                    transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
                                 />
-                                
-                                {/* Icon with animation */}
-                                <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ 
-                                        type: "spring",
-                                        stiffness: 300,
-                                        damping: 15,
-                                        delay: 0.1
-                                    }}
-                                >
-                                    {toast.type === 'success' ? (
-                                        <div className="relative">
-                                            <CheckCircle className="h-6 w-6 text-green-500 relative z-10" />
-                                            <motion.div
-                                                className="absolute inset-0 bg-green-500 rounded-full blur-md"
-                                                animate={{
-                                                    scale: [1, 1.5, 1],
-                                                    opacity: [0.5, 0.2, 0.5],
-                                                }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                    ease: "easeInOut",
-                                                }}
-                                            />
+
+                                <div className="relative z-10">
+                                    <div className="mb-5 flex items-start justify-between gap-3">
+                                        <div
+                                            className={cn(
+                                                'flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg',
+                                                card.color,
+                                            )}
+                                        >
+                                            <card.icon className="h-8 w-8" />
                                         </div>
+                                        <Badge className="border-0 bg-white/70 text-[11px] font-semibold text-neutral-700 shadow-sm dark:bg-neutral-800/70 dark:text-neutral-200">
+                                            {card.badge}
+                                        </Badge>
+                                    </div>
+
+                                    <h3 className="text-lg font-bold text-neutral-900 transition-colors dark:text-white sm:text-xl">
+                                        {card.title}
+                                    </h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                                        {card.description}
+                                    </p>
+                                    <div className="mt-3 space-y-1.5">
+                                        {card.highlights.map((highlight) => (
+                                            <p
+                                                key={highlight}
+                                                className="flex items-start gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-300"
+                                            >
+                                                <span
+                                                    className={cn(
+                                                        'mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-gradient-to-br',
+                                                        card.color,
+                                                    )}
+                                                />
+                                                <span>{highlight}</span>
+                                            </p>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 dark:border-white/10">
+                                        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                                            <AnimatedCounter value={card.articleCount} /> artikel
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-500">
+                                            <Star className="h-4 w-4 fill-amber-500" />
+                                            {card.rating ? card.rating.toFixed(1) : 'N/A'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    variants={itemVariants}
+                    className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12"
+                >
+                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8">
+                        <div className="mb-5 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30">
+                                    <TrendingUp className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                        Artikel Terpopuler
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Rekomendasi panduan paling sering diakses
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            {popularArticles.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
+                                    Data artikel belum tersedia untuk ditampilkan.
+                                </div>
+                            ) : (
+                                popularArticles.map((article, index) => {
+                                    const ratingDenominator = article.helpful + article.notHelpful;
+                                    const rating =
+                                        ratingDenominator > 0
+                                            ? (article.helpful / ratingDenominator) * 5
+                                            : null;
+
+                                    return (
+                                        <motion.button
+                                            key={article.id}
+                                            whileHover={{ x: 8, scale: 1.01 }}
+                                            onClick={() => {
+                                                trackHelpEvent('help_article_open', {
+                                                    article_id: article.id,
+                                                    article_title: article.title,
+                                                    article_source: article.source,
+                                                });
+                                                void handleTrackArticleView(article);
+                                                setSelectedArticle(article);
+                                            }}
+                                            className="group flex w-full items-start gap-4 rounded-2xl border border-white/20 bg-white/50 p-4 text-left shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-neutral-900/50"
+                                        >
+                                            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
+                                                <BookOpen className="h-6 w-6" />
+                                                <span className="absolute -left-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-white dark:bg-white dark:text-neutral-900">
+                                                    #{index + 1}
+                                                </span>
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="line-clamp-1 text-sm font-semibold text-neutral-900 transition-colors group-hover:text-emerald-600 dark:text-white sm:text-base">
+                                                    {article.title}
+                                                </h3>
+                                                <p className="mt-1 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                    {article.description}
+                                                </p>
+                                                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <Eye className="h-3.5 w-3.5" /> {article.views}
+                                                    </span>
+                                                    <span className="inline-flex items-center gap-1 text-amber-500">
+                                                        <Star className="h-3.5 w-3.5 fill-amber-500" />
+                                                        {rating ? rating.toFixed(1) : 'N/A'}
+                                                    </span>
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <Clock3 className="h-3.5 w-3.5" /> {article.readTime}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <Badge className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                {article.difficulty}
+                                            </Badge>
+                                        </motion.button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8">
+                        <div className="mb-5 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-600 text-white shadow-lg shadow-purple-500/30">
+                                    <PlayCircle className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                        Video Tutorial
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Panduan visual langkah demi langkah
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {displayedVideos.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
+                                    Tidak ada video yang sesuai kata kunci pencarian.
+                                </div>
+                            ) : (
+                                displayedVideos.map((video) => (
+                                    <motion.button
+                                        key={video.id}
+                                        whileHover={{ y: -5, scale: 1.02 }}
+                                        onClick={() => {
+                                            trackHelpEvent('help_video_open', {
+                                                video_id: video.id,
+                                                video_title: video.title,
+                                                video_category: video.category,
+                                            });
+                                            void handleTrackVideoView(video);
+                                            setSelectedVideo(video);
+                                        }}
+                                        className="group w-full rounded-2xl border border-white/20 bg-white/50 p-4 text-left shadow-sm transition-all hover:shadow-lg dark:border-white/10 dark:bg-neutral-900/50"
+                                    >
+                                        <div className={cn('relative mb-3 h-36 overflow-hidden rounded-xl bg-gradient-to-br', video.accent)}>
+                                            {video.thumbnail ? (
+                                                <img
+                                                    src={video.thumbnail}
+                                                    alt={video.title}
+                                                    className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                                    loading="lazy"
+                                                />
+                                            ) : null}
+                                            <div className="absolute inset-0 bg-black/30" />
+                                            <div className="absolute left-3 top-3 rounded-lg bg-black/25 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+                                                {video.category}
+                                            </div>
+                                            <div className="absolute bottom-3 right-3 rounded-lg bg-black/35 px-2 py-1 text-[10px] font-semibold text-white">
+                                                {video.duration}
+                                            </div>
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm transition group-hover:scale-110">
+                                                    <PlayCircle className="h-8 w-8 text-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h3 className="line-clamp-2 text-sm font-semibold text-neutral-900 dark:text-white sm:text-base">
+                                            {video.title}
+                                        </h3>
+                                        <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                            {video.description}
+                                        </p>
+                                        <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                            <Eye className="h-3.5 w-3.5" />
+                                            {video.views} views
+                                        </div>
+                                    </motion.button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    id="help-faq-section"
+                    variants={itemVariants}
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-8"
+                >
+                    <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-amber-600 text-white shadow-lg shadow-orange-500/30">
+                                <MessageSquare className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                                    Pertanyaan Umum (FAQ)
+                                </h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    Jawaban cepat untuk masalah yang sering ditemui
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                            {filterOptions.map((label) => (
+                                <button
+                                    key={label}
+                                    onClick={() => setFaqFilter(label)}
+                                    className={cn(
+                                        'rounded-full border px-3 py-1.5 text-xs font-semibold transition-all',
+                                        faqFilter === label
+                                            ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                                            : 'border-white/20 bg-white/50 text-neutral-600 hover:border-indigo-300 hover:text-indigo-600 dark:border-white/10 dark:bg-neutral-900/50 dark:text-neutral-300 dark:hover:border-indigo-500/40 dark:hover:text-indigo-300',
+                                    )}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {filteredFaqItems.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed border-white/20 bg-white/30 px-4 py-10 text-center text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-900/20 dark:text-neutral-400">
+                            Tidak ada FAQ yang cocok dengan pencarian atau filter saat ini.
+                        </div>
+                    ) : (
+                        <Accordion
+                            type="single"
+                            collapsible
+                            onValueChange={handleFaqAccordionChange}
+                            className="space-y-3"
+                        >
+                            {filteredFaqItems.map((faq) => {
+                                const votes = faqVotes[faq.id] ?? {
+                                    helpful: faq.helpful,
+                                    notHelpful: faq.notHelpful,
+                                };
+                                const userVote = faqUserVotes[faq.id] ?? faq.userVote ?? null;
+                                const hasVoted = Boolean(userVote);
+
+                                return (
+                                    <AccordionItem
+                                        key={faq.id}
+                                        value={faq.id}
+                                        className="overflow-hidden rounded-2xl border border-white/20 bg-white/50 px-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-neutral-900/50"
+                                    >
+                                        <AccordionTrigger className="py-4 text-left text-sm font-semibold text-neutral-900 hover:no-underline dark:text-white sm:text-base">
+                                            <span>
+                                                <span className="mr-1 text-emerald-600">Q.</span>
+                                                {faq.question}
+                                            </span>
+                                        </AccordionTrigger>
+
+                                        <AccordionContent>
+                                            <div className="space-y-3 pb-4">
+                                                <div className="rounded-xl border-l-2 border-emerald-500/70 bg-emerald-50/50 p-3 text-sm leading-relaxed text-neutral-700 dark:bg-emerald-900/20 dark:text-neutral-200">
+                                                    <span className="mr-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                                                        A.
+                                                    </span>
+                                                    <span className="whitespace-pre-line">{faq.answer}</span>
+                                                </div>
+
+                                                <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500 dark:text-neutral-400">
+                                                    <span>
+                                                        Kategori: <span className="font-medium">{faq.categoryName}</span>
+                                                    </span>
+                                                    <span>
+                                                        Dilihat <span className="font-medium">{faq.views}</span> kali
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 dark:border-white/10">
+                                                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                                                        Apakah jawaban ini membantu?
+                                                    </span>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => void handleFaqVote(faq.id, true)}
+                                                        disabled={hasVoted}
+                                                        className={cn(
+                                                            'h-8 rounded-full px-3 text-xs',
+                                                            userVote === 'helpful'
+                                                                ? 'border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-500'
+                                                                : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300',
+                                                        )}
+                                                    >
+                                                        <ThumbsUp className="mr-1 h-3.5 w-3.5" />
+                                                        Ya ({votes.helpful})
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => void handleFaqVote(faq.id, false)}
+                                                        disabled={hasVoted}
+                                                        className={cn(
+                                                            'h-8 rounded-full px-3 text-xs',
+                                                            userVote === 'notHelpful'
+                                                                ? 'border-rose-500 bg-rose-500 text-white hover:bg-rose-500'
+                                                                : 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300',
+                                                        )}
+                                                    >
+                                                        <ThumbsDown className="mr-1 h-3.5 w-3.5" />
+                                                        Tidak ({votes.notHelpful})
+                                                    </Button>
+                                                    {hasVoted ? (
+                                                        <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                            Vote Anda: {userVote === 'helpful' ? 'Ya' : 'Tidak'}
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                );
+                            })}
+                        </Accordion>
+                    )}
+
+                    <div className="mt-6 rounded-2xl border border-white/20 bg-gradient-to-r from-neutral-900 to-neutral-700 p-4 text-white shadow-lg sm:p-5">
+                        <p className="text-sm font-medium sm:text-base">
+                            Masih belum menemukan jawaban yang dicari?
+                        </p>
+                        <p className="mt-1 text-xs text-neutral-200 sm:text-sm">
+                            Tim support siap membantu via tiket dukungan dengan penanganan terstruktur.
+                        </p>
+                        <Button
+                            onClick={() => setIsTicketModalOpen(true)}
+                            className="mt-4 rounded-xl bg-white text-neutral-900 hover:bg-white/90"
+                        >
+                            <Headphones className="mr-2 h-4 w-4" /> Buat Tiket Dukungan
+                        </Button>
+                    </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                            <Headphones className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white sm:text-xl">
+                                Contact Support
+                            </h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                Pilih kanal bantuan yang paling nyaman untuk Anda
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <motion.div
+                            variants={cardVariants}
+                            whileHover={{ y: -8 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-8 text-center shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                                <Mail className="h-7 w-7" />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Email Support</h3>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                Tanya detail teknis via email
+                            </p>
+                            <a
+                                href={`mailto:${contactInfo?.email ?? ''}`}
+                                className="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline dark:text-blue-300"
+                            >
+                                {contactInfo?.email ?? 'Belum tersedia'}
+                            </a>
+                        </motion.div>
+
+                        <motion.div
+                            variants={cardVariants}
+                            whileHover={{ y: -8 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-8 text-center shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-300">
+                                <MessageCircle className="h-7 w-7" />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">WhatsApp CS</h3>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                Respon cepat ({contactInfo?.hours ?? 'Jam layanan belum tersedia'})
+                            </p>
+                            <a
+                                href={
+                                    contactInfo?.whatsapp
+                                        ? `https://wa.me/${parsePhoneNumber(contactInfo.whatsapp)}`
+                                        : '#'
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                                className={cn(
+                                    'mt-4 inline-flex items-center rounded-xl border px-4 py-2 text-sm font-semibold transition',
+                                    contactInfo?.whatsapp
+                                        ? 'border-green-500 text-green-600 hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-900/20'
+                                        : 'cursor-not-allowed border-neutral-300 text-neutral-400 dark:border-neutral-700',
+                                )}
+                            >
+                                Chat Sekarang
+                            </a>
+                        </motion.div>
+
+                        <motion.div
+                            variants={cardVariants}
+                            whileHover={{ y: -8 }}
+                            className="relative rounded-3xl border border-white/20 bg-white/40 p-8 text-center shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <span className="absolute right-4 top-4 rounded-full bg-rose-500 px-2 py-1 text-[10px] font-bold tracking-wide text-white">
+                                HOTLINE
+                            </span>
+                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-300">
+                                <Phone className="h-7 w-7" />
+                            </div>
+                            <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Telepon Darurat</h3>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                24/7 untuk masalah kritikal
+                            </p>
+                            <a
+                                href={`tel:${contactInfo?.phone ?? contactInfo?.whatsapp ?? ''}`}
+                                className="mt-4 inline-block text-2xl font-black tracking-tight text-rose-600 hover:underline dark:text-rose-300"
+                            >
+                                {contactInfo?.phone ?? contactInfo?.whatsapp ?? 'Belum tersedia'}
+                            </a>
+                        </motion.div>
+                    </div>
+                </motion.div>
+            </motion.div>
+
+            <Dialog open={Boolean(selectedArticle)} onOpenChange={(open) => !open && setSelectedArticle(null)}>
+                <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto rounded-3xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
+                    {selectedArticle ? (
+                        <>
+                            <DialogHeader className="border-b border-white/10 px-6 pt-6 pb-4">
+                                <DialogTitle className="text-xl text-neutral-900 dark:text-white">
+                                    {selectedArticle.title}
+                                </DialogTitle>
+                                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
+                                    <span className="inline-flex items-center gap-1">
+                                        <Eye className="h-3.5 w-3.5" /> {selectedArticle.views}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1">
+                                        <Clock3 className="h-3.5 w-3.5" /> {selectedArticle.readTime}
+                                    </span>
+                                    <Badge className="rounded-full border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                        {selectedArticle.difficulty}
+                                    </Badge>
+                                </div>
+                            </DialogHeader>
+
+                            <div className="space-y-4 px-6 py-5">
+                                <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                    {selectedArticle.description}
+                                </p>
+                                <div className="rounded-2xl bg-white/70 p-4 text-sm leading-relaxed text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200">
+                                    <p className="whitespace-pre-line">{selectedArticle.content}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 border-t border-white/10 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                                {selectedArticle.source === 'faq' ? (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => void handleFaqVote(selectedArticle.id, true)}
+                                            disabled={Boolean(faqUserVotes[selectedArticle.id])}
+                                        >
+                                            <ThumbsUp className="mr-2 h-4 w-4" /> Helpful
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => void handleFaqVote(selectedArticle.id, false)}
+                                            disabled={Boolean(faqUserVotes[selectedArticle.id])}
+                                        >
+                                            <ThumbsDown className="mr-2 h-4 w-4" /> Not Helpful
+                                        </Button>
+                                        {faqUserVotes[selectedArticle.id] ? (
+                                            <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                Vote Anda: {faqUserVotes[selectedArticle.id] === 'helpful' ? 'Ya' : 'Tidak'}
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                                        Feedback vote tersedia untuk artikel FAQ.
+                                    </p>
+                                )}
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleShareArticle(selectedArticle)}
+                                    >
+                                        <Send className="mr-2 h-4 w-4" /> Share
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    ) : null}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={Boolean(selectedVideo)} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+                <DialogContent className="max-w-5xl rounded-3xl border border-white/20 bg-white/95 p-0 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
+                    {selectedVideo ? (
+                        <>
+                            <DialogHeader className="border-b border-white/10 px-6 pt-6 pb-4">
+                                <DialogTitle className="text-xl text-neutral-900 dark:text-white">
+                                    {selectedVideo.title}
+                                </DialogTitle>
+                                <Badge className="mt-2 w-fit rounded-full border border-white/20 bg-white/60 text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200">
+                                    {selectedVideo.category}
+                                </Badge>
+                            </DialogHeader>
+
+                            <div className="px-6 py-5">
+                                <div className={cn('aspect-video overflow-hidden rounded-2xl bg-gradient-to-br', selectedVideo.accent)}>
+                                    {selectedVideo.url ? (
+                                        <iframe
+                                            title={selectedVideo.title}
+                                            src={selectedVideo.url}
+                                            className="h-full w-full"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                        />
                                     ) : (
-                                        <div className="relative">
-                                            <AlertCircle className="h-6 w-6 text-red-500 relative z-10" />
-                                            <motion.div
-                                                className="absolute inset-0 bg-red-500 rounded-full blur-md"
-                                                animate={{
-                                                    scale: [1, 1.5, 1],
-                                                    opacity: [0.5, 0.2, 0.5],
-                                                }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                    ease: "easeInOut",
-                                                }}
-                                            />
+                                        <div className="flex h-full items-center justify-center text-center text-white">
+                                            <div>
+                                                <PlayCircle className="mx-auto h-16 w-16" />
+                                                <p className="mt-2 text-sm font-semibold">{selectedVideo.duration}</p>
+                                            </div>
                                         </div>
                                     )}
-                                </motion.div>
-                                
-                                <motion.span 
-                                    className="text-gray-900 dark:text-white font-semibold relative z-10"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                >
-                                    {toast.message}
-                                </motion.span>
+                                </div>
 
-                                {/* Progress bar */}
-                                <motion.div
-                                    className={`absolute bottom-0 left-0 h-1 ${
-                                        toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                                    }`}
-                                    initial={{ width: '100%' }}
-                                    animate={{ width: '0%' }}
-                                    transition={{ duration: 3, ease: "linear" }}
-                                />
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+                                <div className="mt-4 space-y-2">
+                                    <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+                                        {selectedVideo.description}
+                                    </p>
+                                    <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+                                        <span className="inline-flex items-center gap-1">
+                                            <Eye className="h-3.5 w-3.5" /> {selectedVideo.views} views
+                                        </span>
+                                        <span className="inline-flex items-center gap-1">
+                                            <Clock3 className="h-3.5 w-3.5" /> {selectedVideo.duration}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : null}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isTicketModalOpen} onOpenChange={setIsTicketModalOpen}>
+                <DialogContent className="max-w-2xl rounded-3xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/95">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl text-neutral-900 dark:text-white">
+                            Buat Tiket Dukungan
+                        </DialogTitle>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                            Isi detail kendala Anda, tim support akan membantu secepatnya.
+                        </p>
+                    </DialogHeader>
+
+                    <form className="space-y-4" onSubmit={handleSubmitTicket}>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                                    Kategori
+                                </label>
+                                <Select
+                                    value={ticketForm.category}
+                                    onValueChange={(value: TicketForm['category']) =>
+                                        setTicketForm((prev) => ({ ...prev, category: value }))
+                                    }
+                                >
+                                    <SelectTrigger className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
+                                        <SelectValue placeholder="Pilih kategori" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="question">Pertanyaan</SelectItem>
+                                        <SelectItem value="bug">Masalah Teknis</SelectItem>
+                                        <SelectItem value="suggestion">Saran Pengembangan</SelectItem>
+                                        <SelectItem value="other">Lainnya</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                                    Prioritas
+                                </label>
+                                <Select
+                                    value={ticketForm.priority}
+                                    onValueChange={(value: TicketForm['priority']) =>
+                                        setTicketForm((prev) => ({ ...prev, priority: value }))
+                                    }
+                                >
+                                    <SelectTrigger className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
+                                        <SelectValue placeholder="Pilih prioritas" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="low">Rendah</SelectItem>
+                                        <SelectItem value="medium">Sedang</SelectItem>
+                                        <SelectItem value="high">Tinggi</SelectItem>
+                                        <SelectItem value="urgent">Mendesak</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                                Subjek
+                            </label>
+                            <Input
+                                value={ticketForm.subject}
+                                onChange={(event) =>
+                                    setTicketForm((prev) => ({ ...prev, subject: event.target.value }))
+                                }
+                                placeholder="Ringkas masalah utama Anda"
+                                className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                                Deskripsi Detail
+                            </label>
+                            <Textarea
+                                value={ticketForm.message}
+                                onChange={(event) =>
+                                    setTicketForm((prev) => ({ ...prev, message: event.target.value }))
+                                }
+                                placeholder="Jelaskan kronologi masalah, langkah yang sudah dicoba, dan hasil yang diharapkan"
+                                rows={6}
+                                className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+                            <Button
+                                type="submit"
+                                disabled={isSubmittingTicket}
+                                className="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700"
+                            >
+                                {isSubmittingTicket ? (
+                                    <>
+                                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Mengirim...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="mr-2 h-4 w-4" /> Kirim Tiket
+                                    </>
+                                )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="rounded-xl"
+                                onClick={() => setIsTicketModalOpen(false)}
+                            >
+                                Batal
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <AnimatePresence>
+                {toast ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.96 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+                        className="fixed bottom-6 right-6 z-50"
+                    >
+                        <div
+                            className={cn(
+                                'rounded-xl border px-4 py-3 text-sm font-medium shadow-2xl backdrop-blur-xl',
+                                toast.type === 'success'
+                                    ? 'border-emerald-200 bg-emerald-50/95 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                    : 'border-rose-200 bg-rose-50/95 text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/30 dark:text-rose-300',
+                            )}
+                        >
+                            {toast.message}
+                        </div>
+                    </motion.div>
+                ) : null}
+            </AnimatePresence>
         </StudentLayout>
     );
 }

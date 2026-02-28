@@ -150,31 +150,39 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
                         <motion.button whileHover={{ scale: 1.05, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit(`/dosen/tugas/${tugas.id}`)} className="mb-6 flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-white backdrop-blur hover:bg-white/20 transition-colors">
                             <ArrowLeft className="h-4 w-4" /> Kembali
                         </motion.button>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    whileHover={{ scale: 1.1, rotate: 5 }}
-                                    className="relative flex shrink-0 items-center justify-center"
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 >
-                                    <img src={tugas.judul?.toLowerCase().includes('basis data') ? BasisDataIcon : TugasIcon} alt="Header Icon" className="h-20 w-20 sm:h-24 sm:w-24 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
+                                    <img src={tugas.judul?.toLowerCase().includes('basis data') ? BasisDataIcon : TugasIcon} alt="Penilaian Tugas" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-white/70">Penilaian Tugas</p>
-                                    <h1 className="text-3xl font-bold text-white">{tugas.judul}</h1>
-                                    <p className="text-sm text-white/60 mt-1">{tugas.course_nama} • Deadline: {tugas.deadline_display || tugas.deadline}</p>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-white/70 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>Penilaian Tugas</motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>{tugas.judul}</motion.h1>
+                                    <motion.p className="mt-2 text-white/60 text-sm leading-relaxed"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>{tugas.course_nama} • Deadline: {tugas.deadline_display || tugas.deadline}</motion.p>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                {selectedIds.length > 0 && (
-                                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                                        <Button onClick={() => setShowBulkGradeDialog(true)} className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur">
-                                            <CheckSquare className="h-4 w-4 mr-2" /> Nilai {selectedIds.length}
-                                        </Button>
-                                    </motion.div>
-                                )}
-                                <Button className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur">
-                                    <FileSpreadsheet className="h-4 w-4 mr-2" /> Export
-                                </Button>
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap justify-center gap-2">
+                                    {selectedIds.length > 0 && (
+                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                                            <Button onClick={() => setShowBulkGradeDialog(true)} className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur">
+                                                <CheckSquare className="h-4 w-4 mr-2" /> Nilai {selectedIds.length}
+                                            </Button>
+                                        </motion.div>
+                                    )}
+                                    <Button className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur">
+                                        <FileSpreadsheet className="h-4 w-4 mr-2" /> Export
+                                    </Button>
+                                </motion.div>
                             </div>
                         </div>
                     </div>

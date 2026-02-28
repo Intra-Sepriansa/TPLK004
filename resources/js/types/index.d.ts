@@ -19,6 +19,7 @@ export interface NavItem {
     title: string;
     href: NonNullable<InertiaLinkProps['href']>;
     icon?: LucideIcon | null;
+    iconSrc?: string;
     isActive?: boolean;
     badge?: number;
 }

@@ -15,10 +15,12 @@ class HelpTroubleshooting extends Model
         'steps',
         'order',
         'is_active',
+        'view_count',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'order' => 'integer',
+        'view_count' => 'integer',
     ];
 }

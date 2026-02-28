@@ -91,24 +91,39 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     {[0, 1, 2].map(i => (<motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />))}
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
-                                <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/session-templates')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30"><ArrowLeft className="h-6 w-6" /></motion.button>
-                                <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center" whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}><img src={SesiAbsenIcon} alt="Sesi" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" /></motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">{mode === 'create' ? 'Buat Template Baru' : 'Edit Template'}</p>
-                                    <h1 className="text-3xl font-bold text-white">{f.name || 'Template Sesi Absensi'}</h1>
-                                    <p className="mt-1 text-indigo-100">Konfigurasi template untuk sesi absensi</p>
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
+                                <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/session-templates')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 shrink-0">
+                                    <ArrowLeft className="h-6 w-6" />
+                                </motion.button>
+                                <motion.div
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={SesiAbsenIcon} alt="Sesi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                </motion.div>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>{mode === 'create' ? 'Buat Template Baru' : 'Edit Template'}</motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>{f.name || 'Template Sesi Absensi'}</motion.h1>
+                                    <motion.p className="mt-2 text-indigo-100 text-sm leading-relaxed"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>Konfigurasi template untuk sesi absensi</motion.p>
                                 </div>
                             </div>
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                <div className="p-2 bg-indigo-500/20 rounded-lg"><Target className="h-6 w-6 text-white" /></div>
-                                <div><p className="text-xs text-indigo-100">Progress</p><p className="text-2xl font-bold text-white">{step}/{T}</p></div>
-                            </motion.div>
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg"><Target className="h-6 w-6 text-white" /></div>
+                                    <div><p className="text-xs text-indigo-100">Progress</p><p className="text-2xl font-bold text-white">{step}/{T}</p></div>
+                                </motion.div>
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap justify-center gap-2">
+                                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={draft} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"><Save className="h-4 w-4" />Simpan Draft</motion.button>
+                                </motion.div>
+                            </div>
                         </div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={draft} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"><Save className="h-4 w-4" />Simpan Draft</motion.button>
-                        </motion.div>
                     </div>
                 </motion.div>
 

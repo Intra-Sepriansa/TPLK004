@@ -124,7 +124,7 @@ export default function DosenHelp({ auth }: any) {
 
           <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto space-y-6">
             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: "spring", stiffness: 300, damping: 15 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={HelpIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+              <img src={HelpIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
             </motion.div>
             <div>
               <p className="font-semibold tracking-wider text-fuchsia-100 uppercase text-xs md:text-sm mb-1 drop-shadow-sm">Panduan Sistem</p>
@@ -145,7 +145,7 @@ export default function DosenHelp({ auth }: any) {
         </motion.div>
 
         {/* 2. QUICK STATS (4 Cards) */}
-        <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div variants={containerVariants} className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
           {stats.map(stat => (
             <motion.div key={stat.id} variants={cardVariants} whileHover="hover"
               onHoverStart={() => setHoveredCard(stat.id)} onHoverEnd={() => setHoveredCard(null)}

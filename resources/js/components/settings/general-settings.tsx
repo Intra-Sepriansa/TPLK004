@@ -3,6 +3,13 @@
  * Requirements: 1.1
  */
 
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -11,8 +18,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { GeneralSettings as GeneralSettingsType } from '@/types/settings';
+import { Globe2 } from 'lucide-react';
 
 interface GeneralSettingsProps {
     settings: GeneralSettingsType;
@@ -33,21 +40,36 @@ const dateFormats = [
 
 export function GeneralSettings({ settings, onUpdate }: GeneralSettingsProps) {
     return (
-        <Card>
+        <Card className="rounded-3xl border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/40">
             <CardHeader>
-                <CardTitle>Pengaturan Umum</CardTitle>
-                <CardDescription>
-                    Atur preferensi bahasa, zona waktu, dan format tampilan
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 text-white shadow-lg shadow-indigo-500/30">
+                        <Globe2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <CardTitle className="text-neutral-900 dark:text-white">
+                            Pengaturan Umum
+                        </CardTitle>
+                        <CardDescription className="text-neutral-500 dark:text-neutral-400">
+                            Atur preferensi bahasa, zona waktu, dan format
+                            tampilan
+                        </CardDescription>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="language">Bahasa</Label>
                     <Select
                         value={settings.language}
-                        onValueChange={(value) => onUpdate({ language: value as 'id' | 'en' })}
+                        onValueChange={(value) =>
+                            onUpdate({ language: value as 'id' | 'en' })
+                        }
                     >
-                        <SelectTrigger id="language">
+                        <SelectTrigger
+                            id="language"
+                            className="border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -63,7 +85,10 @@ export function GeneralSettings({ settings, onUpdate }: GeneralSettingsProps) {
                         value={settings.timezone}
                         onValueChange={(value) => onUpdate({ timezone: value })}
                     >
-                        <SelectTrigger id="timezone">
+                        <SelectTrigger
+                            id="timezone"
+                            className="border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -81,10 +106,16 @@ export function GeneralSettings({ settings, onUpdate }: GeneralSettingsProps) {
                     <Select
                         value={settings.dateFormat}
                         onValueChange={(value) =>
-                            onUpdate({ dateFormat: value as GeneralSettingsType['dateFormat'] })
+                            onUpdate({
+                                dateFormat:
+                                    value as GeneralSettingsType['dateFormat'],
+                            })
                         }
                     >
-                        <SelectTrigger id="dateFormat">
+                        <SelectTrigger
+                            id="dateFormat"
+                            className="border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -105,12 +136,17 @@ export function GeneralSettings({ settings, onUpdate }: GeneralSettingsProps) {
                             onUpdate({ timeFormat: value as '12h' | '24h' })
                         }
                     >
-                        <SelectTrigger id="timeFormat">
+                        <SelectTrigger
+                            id="timeFormat"
+                            className="border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="24h">24 Jam (14:30)</SelectItem>
-                            <SelectItem value="12h">12 Jam (2:30 PM)</SelectItem>
+                            <SelectItem value="12h">
+                                12 Jam (2:30 PM)
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -120,10 +156,15 @@ export function GeneralSettings({ settings, onUpdate }: GeneralSettingsProps) {
                     <Select
                         value={settings.startOfWeek}
                         onValueChange={(value) =>
-                            onUpdate({ startOfWeek: value as 'sunday' | 'monday' })
+                            onUpdate({
+                                startOfWeek: value as 'sunday' | 'monday',
+                            })
                         }
                     >
-                        <SelectTrigger id="startOfWeek">
+                        <SelectTrigger
+                            id="startOfWeek"
+                            className="border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

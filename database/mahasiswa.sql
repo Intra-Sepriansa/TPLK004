@@ -326,15 +326,140 @@ CREATE TABLE `mata_kuliah` (
 -- Dumping data untuk tabel `mata_kuliah`
 --
 
-INSERT INTO `mata_kuliah` (`id`, `nama`, `sks`, `dosen_id`) VALUES
-(1, 'KECERDASAN BUATAN', 3, 1),
-(2, 'SISTEM INFORMASI MANAJEMEN', 2, 2),
-(3, 'PENGOLAHAN CITRA DIGITAL', 2, 3),
-(4, 'TEKNIK RISET OPERASIONAL', 2, 4),
-(5, 'PEMROGRAMAN WEB I', 3, 5),
-(6, 'METODE PENELITIAN', 3, 6),
-(7, 'DIGITAL ENTREPRENEURSHIP', 2, 7),
-(8, 'MACHINE LEARNING', 3, 8);
+-- ============================================
+-- MATA KULIAH REAL UNPAM - KELAS 06TPLK004
+-- ============================================
+
+-- Hapus mata kuliah lama
+DELETE FROM mata_kuliah WHERE kelas = '06TPLK004';
+DELETE FROM dosen_mata_kuliah WHERE kelas = '06TPLK004';
+DELETE FROM mahasiswa_mata_kuliah WHERE kelas = '06TPLK004';
+
+-- Insert 8 Mata Kuliah REAL UNPAM
+INSERT INTO mata_kuliah (kode, nama, sks, semester, kelas, dosen_id, created_at, updated_at) VALUES
+-- 1. Rekayasa Perangkat Lunak
+(
+    '22TIF0323',
+    'REKAYASA PERANGKAT LUNAK',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0401028605'),
+    NOW(),
+    NOW()
+),
+
+-- 2. Pemrograman II
+(
+    '22TIF0353',
+    'PEMROGRAMAN II',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0410038801'),
+    NOW(),
+    NOW()
+),
+
+-- 3. Sistem Pendukung Keputusan
+(
+    '22TIF2012',
+    'SISTEM PENDUKUNG KEPUTUSAN',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0421049102'),
+    NOW(),
+    NOW()
+),
+
+-- 4. Teknik Kompilasi
+(
+    '22TIF3012',
+    'TEKNIK KOMPILASI',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '8804410016'),
+    NOW(),
+    NOW()
+),
+
+-- 5. Mobile Programming
+(
+    '22TIF0443',
+    'MOBILE PROGRAMMING',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0409078802'),
+    NOW(),
+    NOW()
+),
+
+-- 6. Basis Data II
+(
+    '22TIF0363',
+    'BASIS DATA II',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0429069401'),
+    NOW(),
+    NOW()
+),
+
+-- 7. Teknologi Internet of Things
+(
+    '22TIF0342',
+    'TEKNOLOGI INTERNET OF THINGS',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0404059206'),
+    NOW(),
+    NOW()
+),
+
+-- 8. Kerja Praktek
+(
+    '22TIF0332',
+    'KERJA PRAKTEK',
+    3,
+    5,
+    '06TPLK004',
+    (SELECT id FROM dosen WHERE nidn = '0416038709'),
+    NOW(),
+    NOW()
+);
+
+-- ============================================
+-- ASSIGN MATA KULIAH KE SEMUA MAHASISWA 06TPLK004
+-- ============================================
+
+INSERT INTO mahasiswa_mata_kuliah (mahasiswa_id, mata_kuliah_id, created_at, updated_at)
+SELECT 
+    m.id,
+    mk.id,
+    NOW(),
+    NOW()
+FROM mahasiswa m
+CROSS JOIN mata_kuliah mk
+WHERE m.kelas = '06TPLK004'
+AND mk.kelas = '06TPLK004';
+
+-- ============================================
+-- ASSIGN MATA KULIAH KE DOSEN
+-- ============================================
+
+INSERT INTO dosen_mata_kuliah (dosen_id, mata_kuliah_id, created_at, updated_at)
+SELECT 
+    mk.dosen_id,
+    mk.id,
+    NOW(),
+    NOW()
+FROM mata_kuliah mk
+WHERE mk.kelas = '06TPLK004';
 
 -- --------------------------------------------------------
 

@@ -24,7 +24,6 @@ import {
     Calendar,
     CheckCircle,
     Clock,
-    Download,
     FileText,
     TrendingUp,
     Users,
@@ -46,6 +45,11 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EvaluationDashboard } from '@/components/student/evaluation-dashboard';
 import { WhatIfSimulator } from '@/components/student/what-if-simulator';
+import rekapanIcon from '@/assets/mahasiswa/rekapan/rekapan&evaluasi.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import TerlambatIcon from '@/assets/admin/rekap-kehadiran/terlambat.png';
+import DitolakIcon from '@/assets/admin/rekap-kehadiran/ditolak.png';
+import TargetIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
 
 interface MahasiswaInfo {
     id: number;
@@ -137,20 +141,17 @@ const containerVariants = {
 const itemVariants = {
     hidden: {
         opacity: 0,
-        y: 40,
+        y: 30,
         scale: 0.9,
-        rotateX: -10,
     },
     visible: {
         opacity: 1,
         y: 0,
         scale: 1,
-        rotateX: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 100,
-            damping: 15,
-            mass: 0.8,
+            stiffness: 300,
+            damping: 20,
         },
     },
 };
@@ -173,14 +174,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-black"
+            className="rounded-xl border border-white/20 bg-white/95 p-3 shadow-xl backdrop-blur-xl dark:border-neutral-700 dark:bg-neutral-900/95"
         >
-            <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
+            <p className="mb-2 font-semibold text-neutral-900 dark:text-white">
+                {label}
+            </p>
             {payload.map((entry: any, index: number) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
-                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                    <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
-                    <span className="font-medium text-slate-900 dark:text-white">{entry.value}</span>
+                    <div
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                        {entry.name}:
+                    </span>
+                    <span className="font-semibold text-neutral-900 dark:text-white">
+                        {entry.value}
+                    </span>
                 </div>
             ))}
         </motion.div>
@@ -188,14 +198,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 function StatCard({
-    icon: Icon,
+    iconSrc,
     label,
     value,
     suffix,
     subtext,
     color,
 }: {
-    icon: React.ElementType;
+    iconSrc: string;
     label: string;
     value: number;
     suffix?: string;
@@ -204,29 +214,39 @@ function StatCard({
 }) {
     const colorStyles = {
         emerald: {
-            bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-            text: 'text-emerald-600 dark:text-emerald-400',
-            border: 'border-emerald-200 dark:border-emerald-800'
+            gradientBg: 'from-emerald-400/20 to-teal-600/10',
+            iconBg: 'bg-emerald-500/15',
+            iconText: 'text-emerald-500',
+            glow: 'bg-emerald-500/50',
+            hoverShadow: 'hover:shadow-emerald-500/20',
         },
         amber: {
-            bg: 'bg-amber-100 dark:bg-amber-900/30',
-            text: 'text-amber-600 dark:text-amber-400',
-            border: 'border-amber-200 dark:border-amber-800'
+            gradientBg: 'from-amber-400/20 to-orange-600/10',
+            iconBg: 'bg-amber-500/15',
+            iconText: 'text-amber-500',
+            glow: 'bg-amber-500/50',
+            hoverShadow: 'hover:shadow-amber-500/20',
         },
         sky: {
-            bg: 'bg-sky-100 dark:bg-sky-900/30',
-            text: 'text-sky-600 dark:text-sky-400',
-            border: 'border-sky-200 dark:border-sky-800'
+            gradientBg: 'from-sky-400/20 to-indigo-600/10',
+            iconBg: 'bg-sky-500/15',
+            iconText: 'text-sky-500',
+            glow: 'bg-sky-500/50',
+            hoverShadow: 'hover:shadow-sky-500/20',
         },
         violet: {
-            bg: 'bg-violet-100 dark:bg-violet-900/30',
-            text: 'text-violet-600 dark:text-violet-400',
-            border: 'border-violet-200 dark:border-violet-800'
+            gradientBg: 'from-violet-400/20 to-purple-600/10',
+            iconBg: 'bg-violet-500/15',
+            iconText: 'text-violet-500',
+            glow: 'bg-violet-500/50',
+            hoverShadow: 'hover:shadow-violet-500/20',
         },
         rose: {
-            bg: 'bg-rose-100 dark:bg-rose-900/30',
-            text: 'text-rose-600 dark:text-rose-400',
-            border: 'border-rose-200 dark:border-rose-800'
+            gradientBg: 'from-rose-400/20 to-pink-600/10',
+            iconBg: 'bg-rose-500/15',
+            iconText: 'text-rose-500',
+            glow: 'bg-rose-500/50',
+            hoverShadow: 'hover:shadow-rose-500/20',
         },
     };
 
@@ -235,41 +255,52 @@ function StatCard({
     return (
         <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.02, y: -4 }}
+            whileHover={{
+                scale: 1.04,
+                y: -4,
+                transition: { type: 'spring', stiffness: 400, damping: 15 },
+            }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-                "group relative rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur transition-all duration-300 dark:border-gray-800 dark:bg-black/80 hover:shadow-lg",
-                style.border
+                'group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40',
+                style.hoverShadow,
             )}
         >
+            <div
+                className={cn(
+                    'pointer-events-none absolute inset-0 bg-gradient-to-br',
+                    style.gradientBg,
+                )}
+            />
+            <div
+                className={cn(
+                    'pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full blur-3xl',
+                    style.glow,
+                )}
+            />
 
-
-            <div className="flex items-start justify-between">
-
+            <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
+                <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center sm:h-16 sm:w-16"
+                >
+                    <img src={iconSrc} alt={label} className="h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                </div>
                 <div>
-                    <h4 className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</h4>
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+                    <p className="text-[10px] font-medium leading-tight text-neutral-500 sm:text-sm dark:text-neutral-400">
+                        {label}
+                    </p>
+                    <div className="mt-0.5 sm:mt-1">
+                        <span className="text-lg font-bold text-neutral-900 sm:text-2xl dark:text-white">
                             <AnimatedCounter value={value} suffix={suffix} />
                         </span>
                     </div>
-                    {subtext && <p className="text-xs text-slate-500 mt-1">{subtext}</p>}
-                </div>
-
-                <div className={cn("rounded-xl p-3 ring-1 ring-inset transition-colors", style.bg, style.text, style.border)}>
-                    <Icon className="h-6 w-6" />
+                    {subtext && (
+                        <p className="mt-0.5 text-[8px] leading-tight text-neutral-400 sm:text-xs">
+                            {subtext}
+                        </p>
+                    )}
                 </div>
             </div>
-
-            {/* Hover Effect */}
-            <div className={cn(
-                "absolute inset-0 -z-10 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-10 dark:opacity-0",
-                color === 'emerald' && "bg-emerald-500",
-                color === 'amber' && "bg-amber-500",
-                color === 'sky' && "bg-sky-500",
-                color === 'violet' && "bg-violet-500",
-                color === 'rose' && "bg-rose-500",
-            )} />
         </motion.div>
     );
 }
@@ -329,243 +360,75 @@ export default function UserRekapan() {
                 {/* Header Card - ULTRA ADVANCED */}
                 <motion.div
                     variants={itemVariants}
-                    whileHover={{
-                        scale: 1.01,
-                        rotateY: 1,
-                    }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8"
                 >
-                    {/* Ultra Advanced Animated Background Orbs */}
+                    {/* Animated Gradient Background */}
                     <motion.div
-                        animate={{
-                            scale: [1, 1.4, 1],
-                            rotate: [0, 180, 360],
-                            opacity: [0.1, 0.2, 0.1],
-                            x: [0, 50, 0],
-                            y: [0, -30, 0],
-                        }}
-                        transition={{
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        style={{ backgroundSize: '200% 200%' }}
                     />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.5, 1],
-                            rotate: [360, 180, 0],
-                            opacity: [0.1, 0.15, 0.1],
-                            x: [0, -40, 0],
-                            y: [0, 40, 0],
-                        }}
-                        transition={{
-                            duration: 25,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0],
-                            opacity: [0.08, 0.12, 0.08],
-                        }}
-                        transition={{
-                            duration: 18,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 2,
-                        }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* 25 Floating Particles */}
-                    {[...Array(25)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{
-                                opacity: [0, 0.8, 1, 0.6, 0],
-                                scale: [0, 1.8, 1.2, 0.8, 0],
-                                y: [0, -50, -100, -150, -200],
-                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
-                                rotate: [0, 180, 360, 540, 720],
-                            }}
-                            transition={{
-                                duration: 5 + Math.random() * 3,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                                ease: "easeOut"
-                            }}
-                            className="absolute rounded-full shadow-lg"
-                            style={{
-                                width: `${3 + Math.random() * 10}px`,
-                                height: `${3 + Math.random() * 10}px`,
-                                left: `${10 + (i * 3.5) % 80}%`,
-                                top: `${20 + (i % 4) * 20}%`,
-                                background: i % 3 === 0
-                                    ? 'rgba(255, 255, 255, 0.6)'
-                                    : i % 3 === 1
-                                        ? 'rgba(6, 182, 212, 0.5)'
-                                        : 'rgba(59, 130, 246, 0.5)',
-                                filter: 'blur(1px)',
-                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
-                            }}
-                        />
-                    ))}
-
-                    {/* Floating Icons */}
-                    <motion.div
-                        animate={{
-                            y: [0, -15, 0],
-                            x: [0, 10, 0],
-                            rotate: [0, 5, -5, 0],
-                            opacity: [0.3, 0.5, 0.3],
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute top-10 right-20 text-white/20"
-                    >
-                        <FileText className="h-16 w-16" />
-                    </motion.div>
-                    <motion.div
-                        animate={{
-                            y: [0, 20, 0],
-                            x: [0, -15, 0],
-                            rotate: [0, -10, 10, 0],
-                            opacity: [0.2, 0.4, 0.2],
-                        }}
-                        transition={{
-                            duration: 7,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 1,
-                        }}
-                        className="absolute bottom-10 left-20 text-white/20"
-                    >
-                        <Award className="h-20 w-20" />
-                    </motion.div>
-
-                    {/* Animated Rings */}
-                    {[...Array(3)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                scale: [1, 2, 3],
-                                opacity: [0.3, 0.15, 0],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 1.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
-                            style={{
-                                width: '100px',
-                                height: '100px',
-                            }}
-                        />
-                    ))}
-
-                    <div className="relative z-10">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                                <motion.p
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
-                                >
-                                    Rekapan Kehadiran
-                                </motion.p>
-                                <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                                    className="text-3xl font-extrabold tracking-tight"
-                                >
-                                    {mahasiswa.nama}
-                                </motion.h1>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.5 }}
-                                    className="text-sm text-cyan-100 font-mono"
-                                >
-                                    NIM: {mahasiswa.nim}
-                                </motion.p>
-                            </div>
-                            <motion.div
-                                whileHover={{
-                                    scale: 1.2,
-                                    rotate: [0, -8, 8, 0],
-                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
-                                }}
-                                whileTap={{ scale: 0.92 }}
-                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
-                            >
-                                {/* Glow effect */}
+                    <div className="relative">
+                        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row sm:gap-6">
+                            <div className="flex w-full flex-col items-center gap-5 text-center sm:w-auto sm:flex-row sm:gap-6 sm:text-left">
                                 <motion.div
-                                    animate={{
-                                        scale: [1, 1.2, 1],
-                                        opacity: [0.5, 0.8, 0.5],
-                                    }}
-                                    transition={{
-                                        duration: 3,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
-                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
-                                />
-                                <FileText className="h-10 w-10 relative z-10" />
-                            </motion.div>
-                        </div>
-
-                        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            {[
-                                { label: "Total Sesi", value: stats.totalSessions, delay: 0.2 },
-                                { label: "Kehadiran", value: stats.attendanceRate, suffix: "%", delay: 0.3 },
-                                { label: "Tepat Waktu", value: stats.onTimeRate, suffix: "%", delay: 0.4 },
-                                { label: "Bulan Ini", value: stats.thisMonthPresent, extra: `/${stats.thisMonthTotal}`, delay: 0.5 },
-                            ].map((item, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    whileHover={{
-                                        scale: 1.08,
-                                        y: -4,
-                                        boxShadow: "0 10px 25px -5px rgba(6, 182, 212, 0.3)",
-                                    }}
-                                    className="rounded-xl bg-white/15 p-4 backdrop-blur-xl cursor-pointer relative overflow-hidden group shadow-lg ring-1 ring-white/20"
+                                    className="relative mx-auto flex h-20 w-20 shrink-0 items-center justify-center sm:mx-0 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    {/* Shimmer effect on hover */}
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100"
-                                        animate={{ x: ['-100%', '100%'] }}
-                                        transition={{
-                                            duration: 1.5,
-                                            repeat: Infinity,
-                                            ease: "linear",
-                                        }}
+                                    <img
+                                        src={rekapanIcon}
+                                        alt="Rekapan & Evaluasi"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
                                     />
-                                    <p className="text-xs text-cyan-100 font-semibold relative z-10">{item.label}</p>
-                                    <p className="text-2xl font-bold relative z-10">
-                                        <AnimatedCounter value={item.value} suffix={item.suffix || ""} duration={1500} />
-                                        {item.extra || ""}
-                                    </p>
                                 </motion.div>
-                            ))}
+                                <div className="mt-1 flex-1 sm:mt-0">
+                                    <motion.p
+                                        className="flex items-center justify-center gap-2 text-sm font-medium tracking-wide text-indigo-100 sm:justify-start"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        <BookOpen className="h-4 w-4" /> Rekapan & Evaluasi
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        {mahasiswa.nama}
+                                    </motion.h1>
+                                    <motion.div
+                                        className="mt-1 flex flex-wrap items-center justify-center gap-3 text-sm text-indigo-100 sm:justify-start"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        <span className="flex items-center gap-1">NIM: {mahasiswa.nim}</span>
+                                    </motion.div>
+                                </div>
+                            </div>
+
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.6, type: 'spring', stiffness: 300, damping: 20 }}
+                                className="w-full rounded-2xl border border-white/20 bg-white/20 px-4 py-3 backdrop-blur-xl shadow-lg sm:w-auto sm:min-w-[220px]"
+                            >
+                                <p className="text-xs font-semibold tracking-wide text-indigo-100">Evaluasi Kehadiran</p>
+                                <p className="mt-1 text-2xl font-bold text-white">{stats.attendanceRate}%</p>
+                                <p className="mt-1 text-xs text-indigo-100">
+                                    Bulan ini: {stats.thisMonthPresent}/{stats.thisMonthTotal || 0} hadir
+                                </p>
+                            </motion.div>
                         </div>
                     </div>
                 </motion.div>
@@ -575,10 +438,10 @@ export default function UserRekapan() {
                     variants={containerVariants}
                     className="grid grid-cols-2 gap-3 sm:grid-cols-4"
                 >
-                    <StatCard icon={CheckCircle} label="Hadir" value={stats.presentCount} subtext="tepat waktu" color="emerald" />
-                    <StatCard icon={Clock} label="Terlambat" value={stats.lateCount} subtext="sesi" color="amber" />
-                    <StatCard icon={XCircle} label="Ditolak" value={stats.rejectedCount} subtext="sesi" color="rose" />
-                    <StatCard icon={Target} label="Target" value={75} suffix="%" subtext="min. kehadiran" color="violet" />
+                    <StatCard iconSrc={HadirIcon} label="Hadir" value={stats.presentCount} subtext="tepat waktu" color="emerald" />
+                    <StatCard iconSrc={TerlambatIcon} label="Terlambat" value={stats.lateCount} subtext="sesi" color="amber" />
+                    <StatCard iconSrc={DitolakIcon} label="Ditolak" value={stats.rejectedCount} subtext="sesi" color="rose" />
+                    <StatCard iconSrc={TargetIcon} label="Target" value={75} suffix="%" subtext="min. kehadiran" color="violet" />
                 </motion.div>
 
                 {/* Advanced Evaluation Section */}
@@ -587,30 +450,52 @@ export default function UserRekapan() {
                     className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start"
                 >
                     <div className="lg:col-span-2 space-y-6">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                                <Zap className="h-5 w-5 text-amber-500" />
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.005 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mb-6 flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2"
+                                >
+                                    <Zap className="h-5 w-5 text-amber-500" />
+                                </motion.div>
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    AI Insights & Health
+                                </h2>
                             </div>
-                            <h2 className="font-bold text-lg text-slate-900 dark:text-white">AI Insights & Health</h2>
-                        </div>
-                        <EvaluationDashboard
-                            attendanceRate={stats.attendanceRate}
-                            totalSessions={stats.totalSessions}
-                            missedSessions={stats.totalSessions - stats.presentCount}
-                        />
+                            <EvaluationDashboard
+                                attendanceRate={stats.attendanceRate}
+                                totalSessions={stats.totalSessions}
+                                missedSessions={stats.totalSessions - stats.presentCount}
+                            />
+                        </motion.div>
                     </div>
-                    <div className="space-y-6 flex flex-col">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                                <Target className="h-5 w-5 text-emerald-500" />
+                    <div className="space-y-6">
+                        <motion.div
+                            variants={itemVariants}
+                            whileHover={{ scale: 1.005 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className="mb-6 flex items-center gap-3">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2"
+                                >
+                                    <Target className="h-5 w-5 text-emerald-500" />
+                                </motion.div>
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Simulator Kelulusan
+                                </h2>
                             </div>
-                            <h2 className="font-bold text-lg text-slate-900 dark:text-white">Simulator Kelulusan</h2>
-                        </div>
-                        <WhatIfSimulator
-                            totalSessions={stats.totalSessions}
-                            presentSessions={stats.presentCount}
-                            remainingSessions={remainingSessions}
-                        />
+                            <WhatIfSimulator
+                                totalSessions={stats.totalSessions}
+                                presentSessions={stats.presentCount}
+                                remainingSessions={remainingSessions}
+                            />
+                        </motion.div>
                     </div>
                 </motion.div>
 
@@ -620,9 +505,10 @@ export default function UserRekapan() {
                     <div className="space-y-6 lg:col-span-2">
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            whileHover={{ scale: 1.005 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                         >
-                            <div className="flex items-center justify-between p-6 border-b dark:border-gray-800">
+                            <div className="flex items-center justify-between p-6 border-b border-white/20 dark:border-white/5">
                                 <div className="flex items-center gap-3">
                                     <motion.div
                                         whileHover={{ scale: 1.2, rotate: 10 }}
@@ -631,7 +517,7 @@ export default function UserRekapan() {
                                     >
                                         <BookOpen className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-bold text-lg text-white">
+                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">
                                         Ringkasan per Mata Kuliah
                                     </h2>
                                 </div>
@@ -645,15 +531,15 @@ export default function UserRekapan() {
                                 </motion.span>
                             </div>
 
-                            <div className="divide-y divide-slate-100 dark:divide-gray-800 relative z-10">
+                            <div className="divide-y divide-white/10 dark:divide-white/5 relative z-10">
                                 {courseSummary.length === 0 ? (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="p-8 text-center"
                                     >
-                                        <BookOpen className="h-12 w-12 mx-auto text-slate-300" />
-                                        <p className="mt-3 text-slate-500">Belum ada data mata kuliah</p>
+                                        <BookOpen className="h-12 w-12 mx-auto text-neutral-300" />
+                                        <p className="mt-3 text-neutral-500">Belum ada data mata kuliah</p>
                                     </motion.div>
                                 ) : (
                                     courseSummary.map((course, index) => (
@@ -664,16 +550,19 @@ export default function UserRekapan() {
                                             transition={{
                                                 delay: index * 0.05,
                                                 type: "spring",
-                                                stiffness: 200
+                                                stiffness: 300,
+                                                damping: 20
                                             }}
                                             whileHover={{
-                                                x: 3,
-                                                scale: 1.005,
+                                                x: 5,
+                                                scale: 1.01,
+                                                backgroundColor: 'rgba(139, 92, 246, 0.05)',
+                                                transition: { type: 'spring', stiffness: 400, damping: 15 }
                                             }}
-                                            className="p-4 cursor-pointer border-l-2 border-transparent hover:border-violet-500 transition-colors"
+                                            className="p-4 cursor-pointer border-l-4 border-transparent hover:border-violet-500 transition-all rounded-r-xl"
                                         >
                                             <div className="flex items-center justify-between mb-2">
-                                                <h3 className="font-medium text-slate-900 dark:text-white truncate max-w-[200px]">
+                                                <h3 className="font-medium text-neutral-900 dark:text-white truncate max-w-[200px]">
                                                     {course.courseName}
                                                 </h3>
                                                 <span className={cn(
@@ -686,7 +575,7 @@ export default function UserRekapan() {
                                                 </span>
                                             </div>
                                             <Progress value={course.rate} className="h-2 mb-2" />
-                                            <div className="flex gap-4 text-xs text-slate-500">
+                                            <div className="flex gap-4 text-xs text-neutral-500">
                                                 <span className="flex items-center gap-1">
                                                     <span className="h-2 w-2 rounded-full bg-emerald-500" />
                                                     Hadir: {course.present}
@@ -710,24 +599,25 @@ export default function UserRekapan() {
                         {courseChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                                whileHover={{ scale: 1.005 }}
+                                className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                             >
-                                <div className="flex items-center gap-3 mb-6 p-6 border-b dark:border-gray-800">
+                                <div className="flex items-center gap-3 mb-6 p-6 border-b border-white/20 dark:border-white/5">
                                     <motion.div
                                         whileHover={{ scale: 1.2, rotate: -10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400"
+                                        className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20"
                                     >
                                         <TrendingUp className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-bold text-lg text-white">
+                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">
                                         Grafik per Mata Kuliah
                                     </h2>
                                 </div>
                                 <div className="relative z-10">
                                     <ResponsiveContainer width="100%" height={250}>
                                         <BarChart data={courseChartData}>
-                                            <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                            <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-800" />
                                             <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} />
                                             <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
                                             <Tooltip content={<CustomTooltip />} />
@@ -745,26 +635,24 @@ export default function UserRekapan() {
                         {trendChartData.length > 0 && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.01, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-
-                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                                whileHover={{ scale: 1.005 }}
+                                className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                             >
-                                <div className="flex items-center gap-3 mb-6 p-6 border-b dark:border-gray-800">
+                                <div className="flex items-center gap-3 mb-6 p-6 border-b border-white/20 dark:border-white/5">
                                     <motion.div
                                         whileHover={{ scale: 1.2, rotate: 10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="p-2 rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                                        className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20"
                                     >
                                         <Calendar className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">
                                         Tren Kehadiran 6 Bulan Terakhir
                                     </h2>
                                 </div>
                                 <ResponsiveContainer width="100%" height={200}>
                                     <LineChart data={trendChartData}>
-                                        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
+                                        <CartesianGrid strokeDasharray="3 3" className="stroke-neutral-200 dark:stroke-neutral-800" />
                                         <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
                                         <YAxis tick={{ fill: '#64748b', fontSize: 12 }} domain={[0, 100]} />
                                         <Tooltip content={<CustomTooltip />} />
@@ -776,31 +664,32 @@ export default function UserRekapan() {
                         {/* Recent Activity - Moved to Main Column */}
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            whileHover={{ scale: 1.005 }}
+                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                         >
-                            <div className="flex items-center justify-between p-6 border-b dark:border-gray-800">
+                            <div className="flex items-center justify-between p-6 border-b border-white/20 dark:border-white/5">
                                 <div className="flex items-center gap-3">
                                     <motion.div
                                         whileHover={{ scale: 1.2, rotate: -10 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="p-2 rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400"
+                                        className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20"
                                     >
                                         <Clock className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">
                                         Aktivitas Terakhir
                                     </h2>
                                 </div>
                             </div>
-                            <div className="divide-y dark:divide-gray-800">
+                            <div className="divide-y divide-white/10 dark:divide-white/5">
                                 {recentLogs.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-12 px-6 text-center space-y-4">
-                                        <div className="p-4 rounded-full bg-slate-50 dark:bg-white/5">
-                                            <Clock className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                                        <div className="p-4 rounded-full bg-neutral-50 dark:bg-white/5">
+                                            <Clock className="h-8 w-8 text-neutral-300 dark:text-neutral-600" />
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="font-medium text-slate-900 dark:text-white">Belum ada aktivitas</p>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                                            <p className="font-medium text-neutral-900 dark:text-white">Belum ada aktivitas</p>
+                                            <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto">
                                                 Aktivitas absensi dan perkuliahan kamu akan muncul di sini.
                                             </p>
                                         </div>
@@ -814,18 +703,22 @@ export default function UserRekapan() {
                                                 key={log.id}
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: index * 0.05 }}
-                                                whileHover={{ x: 5, backgroundColor: 'rgba(0,0,0,0.02)' }}
-                                                className="p-4 flex items-center gap-4 transition-colors hover:bg-slate-50 dark:hover:bg-white/5"
+                                                transition={{ delay: index * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
+                                                whileHover={{
+                                                    x: 5,
+                                                    backgroundColor: 'rgba(99, 102, 241, 0.05)',
+                                                    transition: { type: 'spring', stiffness: 400, damping: 15 }
+                                                }}
+                                                className="p-4 flex items-center gap-4 cursor-pointer"
                                             >
                                                 <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl shadow-sm', config.color)}>
                                                     <Icon className="h-5 w-5" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                                                    <p className="text-sm font-medium text-neutral-900 dark:text-white truncate">
                                                         {log.courseName}
                                                     </p>
-                                                    <p className="text-xs text-slate-500 mt-0.5">
+                                                    <p className="text-xs text-neutral-500 mt-0.5">
                                                         {log.scannedAtFormatted}
                                                     </p>
                                                 </div>
@@ -835,7 +728,7 @@ export default function UserRekapan() {
                                 )}
                             </div>
                             {recentLogs.length > 0 && (
-                                <div className="p-4 border-t dark:border-gray-800 bg-slate-50 dark:bg-white/5">
+                                <div className="p-4 border-t border-white/20 dark:border-white/5 bg-white/30 dark:bg-white/5">
                                     <Link href="/user/history">
                                         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                                             <Button variant="ghost" className="w-full text-sm text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-900/20">
@@ -918,19 +811,18 @@ export default function UserRekapan() {
                         {distribution.some(d => d.value > 0) && (
                             <motion.div
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.01, y: -2 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                                whileHover={{ scale: 1.005 }}
+                                className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                             >
-                                <div className="flex items-center gap-3 p-6 border-b dark:border-gray-800">
+                                <div className="flex items-center gap-3 p-6 border-b border-white/20 dark:border-white/5">
                                     <motion.div
                                         whileHover={{ scale: 1.2, y: -2 }}
                                         transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/30"
+                                        className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"
                                     >
                                         <Award className="h-5 w-5" />
                                     </motion.div>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">
+                                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">
                                         Distribusi Status
                                     </h2>
                                 </div>
@@ -958,7 +850,7 @@ export default function UserRekapan() {
                                         {distribution.filter(d => d.value > 0).map((entry, index) => (
                                             <div key={index} className="flex items-center gap-2 text-xs font-medium">
                                                 <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: entry.color }} />
-                                                <span className="text-slate-600 dark:text-slate-400">
+                                                <span className="text-neutral-600 dark:text-neutral-400">
                                                     {entry.name}: {entry.value}
                                                 </span>
                                             </div>
@@ -973,9 +865,9 @@ export default function UserRekapan() {
                             variants={itemVariants}
                             whileHover={{ scale: 1.02, y: -3 }}
                             transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="rounded-2xl border border-slate-200/70 bg-gradient-to-br from-black to-slate-800 p-6 text-white shadow-xl shadow-slate-200/50 dark:from-gray-900 dark:to-black dark:shadow-black/50 dark:border-gray-800"
+                            className="rounded-3xl border border-white/20 bg-gradient-to-br from-neutral-900 to-neutral-800 p-6 text-white shadow-xl dark:from-neutral-900 dark:to-black dark:border-white/5"
                         >
-                            <p className="text-sm text-slate-400">Tingkat Kehadiran</p>
+                            <p className="text-sm text-neutral-400">Tingkat Kehadiran</p>
                             <div className="flex items-end gap-2 mt-2">
                                 <span className="text-4xl font-bold tracking-tight">
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
@@ -990,7 +882,7 @@ export default function UserRekapan() {
                             </div>
                             <Progress
                                 value={stats.attendanceRate}
-                                className="mt-4 h-2 bg-slate-700/50"
+                                className="mt-4 h-2 bg-neutral-700/50"
                             />
                         </motion.div>
 
@@ -998,17 +890,17 @@ export default function UserRekapan() {
                         <motion.div
                             variants={itemVariants}
                             whileHover={{ scale: 1.02 }}
-                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                         >
                             <div className="p-6">
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <p className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Weekly Streak</p>
                                         <div className="mt-1 flex items-baseline gap-1.5">
-                                            <span className="text-3xl font-black text-slate-900 dark:text-white">
+                                            <span className="text-3xl font-black text-neutral-900 dark:text-white">
                                                 {recentLogs.length > 0 ? '3' : '0'}
                                             </span>
-                                            <span className="text-xs font-medium text-slate-500">hari</span>
+                                            <span className="text-xs font-medium text-neutral-500">hari</span>
                                         </div>
                                     </div>
                                     <div className="p-2.5 bg-orange-100 rounded-xl dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
@@ -1023,7 +915,7 @@ export default function UserRekapan() {
                                         )} />
                                     ))}
                                 </div>
-                                <p className="mt-3 text-[10px] text-slate-400 text-center">
+                                <p className="mt-3 text-[10px] text-neutral-400 text-center">
                                     Pertahankan performa untuk badge "Rajin"!
                                 </p>
                             </div>
@@ -1033,7 +925,7 @@ export default function UserRekapan() {
                         <motion.div
                             variants={itemVariants}
                             whileHover={{ scale: 1.02 }}
-                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                         >
                             <div className="p-6">
                                 <div className="flex items-center gap-3 mb-4">
@@ -1041,14 +933,14 @@ export default function UserRekapan() {
                                         <Trophy className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">Top 10% Attendance</h3>
-                                        <p className="text-[10px] text-slate-500">Unlock level selanjutnya</p>
+                                        <h3 className="font-bold text-neutral-900 dark:text-white text-sm">Top 10% Attendance</h3>
+                                        <p className="text-[10px] text-neutral-500">Unlock level selanjutnya</p>
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
                                     <div className="flex justify-between text-[10px] font-medium uppercase tracking-wider">
                                         <span className="text-indigo-600 dark:text-indigo-400">Progres</span>
-                                        <span className="text-slate-900 dark:text-white">85%</span>
+                                        <span className="text-neutral-900 dark:text-white">85%</span>
                                     </div>
                                     <Progress value={85} className="h-2 bg-indigo-50 dark:bg-white/5 text-indigo-600" />
                                 </div>
@@ -1058,10 +950,10 @@ export default function UserRekapan() {
                         {/* Quick Links */}
                         <motion.div
                             variants={itemVariants}
-                            className="rounded-2xl border bg-white shadow-sm dark:border-gray-800 dark:bg-black/50 overflow-hidden"
+                            className="rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 overflow-hidden"
                         >
-                            <div className="p-6 border-b dark:border-gray-800">
-                                <h2 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                            <div className="p-6 border-b border-white/20 dark:border-white/5">
+                                <h2 className="font-bold text-lg text-neutral-900 dark:text-white flex items-center gap-2">
                                     <Zap className="h-5 w-5 text-yellow-500" />
                                     Aksi Cepat
                                 </h2>

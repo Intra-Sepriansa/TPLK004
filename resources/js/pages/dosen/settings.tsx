@@ -225,18 +225,23 @@ export default function DosenSettings({ dosen }: DosenProps) {
                     <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-white/20 blur-3xl pointer-events-none" />
                     <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
 
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                    <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-6 text-center lg:text-left">
                         <motion.div
                             whileHover={{ scale: 1.1, rotate: 15 }}
-                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+                            className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
                         >
-                            <img src={PengaturanIcon} alt="Pengaturan" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                            <img src={PengaturanIcon} alt="Pengaturan" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                         </motion.div>
                         <div>
-                            <p className="font-semibold tracking-wider text-fuchsia-100 uppercase text-xs md:text-sm mb-1 drop-shadow-sm">Preferensi Sistem</p>
-                            <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg mb-2">Kelola Pengaturan</h1>
-                            <p className="md:text-lg text-fuchsia-50 max-w-2xl drop-shadow-sm font-medium">Sesuaikan pengalaman mengajar Anda agar lebih nyaman dan terorganisir.</p>
+                            <motion.p className="font-semibold tracking-wider text-fuchsia-100 uppercase text-xs md:text-sm mb-1 drop-shadow-sm"
+                                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>Preferensi Sistem</motion.p>
+                            <motion.h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg mb-2"
+                                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>Kelola Pengaturan</motion.h1>
+                            <motion.p className="md:text-lg text-fuchsia-50 max-w-2xl drop-shadow-sm font-medium"
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>Sesuaikan pengalaman mengajar Anda agar lebih nyaman dan terorganisir.</motion.p>
                         </div>
                     </div>
                 </motion.div>

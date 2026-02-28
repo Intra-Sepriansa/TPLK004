@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendancePermit;
+use App\Models\AttendancePermitComment;
 use App\Models\AttendanceSession;
 use App\Models\StudentActivityScore;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +36,12 @@ class PermitController extends Controller
         $sessionIds = $mySessions->pluck('id');
 
         // Get permits for my sessions
-        $query = AttendancePermit::with(['mahasiswa', 'session.course'])
+        $query = AttendancePermit::with([
+            'mahasiswa',
+            'session.course',
+            'comments' => fn($q) => $q->orderBy('created_at', 'desc'),
+        ])
+            ->withCount('comments')
             ->whereIn('attendance_session_id', $sessionIds)
             ->orderBy('created_at', 'desc');
 
@@ -89,6 +95,16 @@ class PermitController extends Controller
                 'ai_confidence' => $confidence,
                 'ai_recommendation' => $recommendation,
                 'document_score' => $docScore,
+                'reviewed_at' => $p->reviewed_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+                'comments_count' => $p->comments_count,
+                'latest_comment' => $p->comments->first()
+                    ? [
+                        'sender_type' => $p->comments->first()->sender_type,
+                        'sender_name' => $p->comments->first()->sender_name,
+                        'message' => $p->comments->first()->message,
+                        'created_at' => $p->comments->first()->created_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
+                    ]
+                    : null,
             ];
         });
 
@@ -127,6 +143,13 @@ class PermitController extends Controller
         if ($permit->session->course->dosen_id !== $dosen->id) {
             abort(403);
         }
+
+        if (! $permit->reviewed_at) {
+            $permit->update(['reviewed_at' => now()]);
+            $permit->refresh();
+        }
+
+        $permit->load(['comments' => fn($q) => $q->orderBy('created_at', 'asc')]);
 
         // Mock AI Analysis (same as index)
         $confidence = rand(75, 99);
@@ -169,6 +192,15 @@ class PermitController extends Controller
             'ai_recommendation' => $recommendation,
             'document_score' => $docScore,
             'approved_at' => $permit->approved_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            'reviewed_at' => $permit->reviewed_at?->timezone('Asia/Jakarta')->format('d M Y H:i'),
+            'comments' => $permit->comments->map(fn(AttendancePermitComment $comment) => [
+                'id' => $comment->id,
+                'sender_type' => $comment->sender_type,
+                'sender_name' => $comment->sender_name,
+                'message' => $comment->message,
+                'created_at' => $comment->created_at->timezone('Asia/Jakarta')->format('d M Y H:i'),
+                'is_mine' => $comment->sender_type === 'dosen' && $comment->sender_id === $dosen->id,
+            ])->values(),
         ];
 
         return Inertia::render('dosen/permit-detail', [
@@ -186,11 +218,25 @@ class PermitController extends Controller
             abort(403);
         }
 
+        $validated = $request->validate([
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
         $permit->update([
             'status' => 'approved',
             'approved_by' => $dosen->id,
             'approved_at' => now(),
+            'reviewed_at' => $permit->reviewed_at ?? now(),
         ]);
+
+        if (! empty($validated['comment'])) {
+            $permit->comments()->create([
+                'sender_type' => 'dosen',
+                'sender_id' => $dosen->id,
+                'sender_name' => $dosen->nama,
+                'message' => $validated['comment'],
+            ]);
+        }
 
         // Recalculate student activity score
         StudentActivityScore::recalculate($permit->mahasiswa_id, $session->course_id);
@@ -208,16 +254,27 @@ class PermitController extends Controller
             abort(403);
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'rejection_reason' => 'required|string|max:500',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $permit->update([
             'status' => 'rejected',
             'approved_by' => $dosen->id,
             'approved_at' => now(),
-            'rejection_reason' => $request->rejection_reason,
+            'reviewed_at' => $permit->reviewed_at ?? now(),
+            'rejection_reason' => $validated['rejection_reason'],
         ]);
+
+        if (! empty($validated['comment'])) {
+            $permit->comments()->create([
+                'sender_type' => 'dosen',
+                'sender_id' => $dosen->id,
+                'sender_name' => $dosen->nama,
+                'message' => $validated['comment'],
+            ]);
+        }
 
         // Recalculate student activity score
         StudentActivityScore::recalculate($permit->mahasiswa_id, $session->course_id);
@@ -250,6 +307,7 @@ class PermitController extends Controller
                 'status' => 'approved',
                 'approved_by' => $dosen->id,
                 'approved_at' => now(),
+                'reviewed_at' => $permit->reviewed_at ?? now(),
             ]);
 
             StudentActivityScore::recalculate($permit->mahasiswa_id, $permit->session->course_id);
@@ -257,5 +315,32 @@ class PermitController extends Controller
         }
 
         return back()->with('success', "{$approved} izin berhasil disetujui.");
+    }
+
+    public function addComment(Request $request, AttendancePermit $permit): RedirectResponse
+    {
+        $dosen = auth('dosen')->user();
+
+        $session = $permit->session;
+        if ($session->course->dosen_id !== $dosen->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $permit->comments()->create([
+            'sender_type' => 'dosen',
+            'sender_id' => $dosen->id,
+            'sender_name' => $dosen->nama,
+            'message' => $validated['message'],
+        ]);
+
+        if (! $permit->reviewed_at) {
+            $permit->update(['reviewed_at' => now()]);
+        }
+
+        return back()->with('success', 'Komentar berhasil dikirim ke mahasiswa.');
     }
 }

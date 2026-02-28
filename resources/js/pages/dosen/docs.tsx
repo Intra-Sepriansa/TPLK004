@@ -226,21 +226,28 @@ export default function DosenDocs() {
                     />
 
                     <div className="relative">
-                        <div className="flex items-center justify-between flex-wrap gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={TotalGuidesIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={TotalGuidesIcon} alt="Dokumentasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-white/90 font-medium tracking-wide flex items-center gap-2">
-                                        <BookOpen className="h-4 w-4" />
-                                        Dokumentasi
-                                    </p>
-                                    <h1 className="text-3xl font-bold text-white">Documentation Hub</h1>
-                                    <p className="mt-1 text-white/90 max-w-lg">
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-white/90 font-medium tracking-wide flex items-center gap-2 justify-center sm:justify-start"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        <BookOpen className="h-4 w-4" /> Dokumentasi
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>Documentation Hub</motion.h1>
+                                    <motion.p className="mt-2 text-white/90 text-sm leading-relaxed"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                                         Learn everything about the platform
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +259,7 @@ export default function DosenDocs() {
                     variants={staggerContainerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 mb-8"
                 >
                     {/* Total Guides Card */}
                     <motion.div
@@ -367,8 +374,8 @@ export default function DosenDocs() {
                     className="mb-8"
                 >
                     <div className={`rounded-3xl p-6 transition-all duration-300 border backdrop-blur-xl ${stats.overallProgress === 100
-                            ? 'bg-white/40 dark:bg-neutral-900/40 border-emerald-500/50 shadow-xl shadow-emerald-500/20'
-                            : 'bg-white/40 dark:bg-neutral-900/40 border-white/20 dark:border-white/5 shadow-xl'
+                        ? 'bg-white/40 dark:bg-neutral-900/40 border-emerald-500/50 shadow-xl shadow-emerald-500/20'
+                        : 'bg-white/40 dark:bg-neutral-900/40 border-white/20 dark:border-white/5 shadow-xl'
                         }`}>
                         <div className="flex items-center gap-6">
                             <ProgressIndicator
@@ -438,8 +445,8 @@ export default function DosenDocs() {
                                 transition={{ delay: 0.4 + index * 0.05 }}
                                 onClick={() => setSelectedCategory(category)}
                                 className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${selectedCategory === category
-                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
-                                        : 'bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-md'
+                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
+                                    : 'bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-md'
                                     }`}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -529,8 +536,8 @@ export default function DosenDocs() {
                                                     <span>{guide.estimatedReadTime || 10} min</span>
                                                 </div>
                                                 <div className={`text-xs font-semibold transition-colors flex items-center gap-1 ${guide.progress >= 100
-                                                        ? 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
-                                                        : 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
+                                                    ? 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
+                                                    : 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
                                                     }`}>
                                                     {guide.progress >= 100 ? (
                                                         <>

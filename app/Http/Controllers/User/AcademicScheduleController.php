@@ -9,6 +9,7 @@ use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
 use App\Services\ScheduleService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -126,12 +127,15 @@ class AcademicScheduleController extends Controller
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
 
+        // Auto-sync courses if needed
+        $this->syncCoursesFromMataKuliah($mahasiswa->id);
+
         $weeklySchedule = $this->scheduleService->getWeeklySchedule($mahasiswa->id);
 
-        // Get current day
-        $currentDay = strtolower(now()->format('l'));
+        // Get current day in english lowercase
+        $currentDayEn = strtolower(now()->format('l'));
 
-        // Day names in Indonesian
+        // Day names mapping
         $dayNames = [
             'monday' => 'Senin',
             'tuesday' => 'Selasa',
@@ -140,24 +144,133 @@ class AcademicScheduleController extends Controller
             'friday' => 'Jumat',
         ];
 
+        // Get all courses for stats
+        $allCourses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
+
+        // Enrich schedule with sks and fetch real dosen data
+        $colors = ['blue', 'green', 'purple', 'orange', 'pink', 'indigo', 'teal', 'cyan', 'amber', 'rose'];
+        
+        $enrichedSchedule = [];
+        foreach ($weeklySchedule as $day => $items) {
+            $enrichedSchedule[$day] = collect($items)->map(function ($item) use ($allCourses, $colors) {
+                $course = $allCourses->firstWhere('id', $item['id']);
+                // Try to match with original Mata Kuliah to get dosen info
+                $mataKuliah = \App\Models\MataKuliah::where('nama', $course?->name)->with('dosen')->first();
+                
+                $item['sks'] = $course?->sks ?? 3;
+                
+                $startTime = $course?->schedule_time;
+                $endTime = $startTime ? $startTime->copy()->addMinutes($item['sks'] * 50) : null;
+                
+                $item['schedule_time_end'] = $endTime ? $endTime->format('H:i') : null;
+                
+                // Fields required by the frontend schedule UI
+                $item['course_code'] = $mataKuliah?->kode ?? ('MK-' . str_pad($item['id'] ?? 1, 3, '0', STR_PAD_LEFT));
+                $item['dosen_name'] = $mataKuliah?->dosen?->nama ?? 'Dosen Belum Ditentukan';
+                $item['ruangan'] = $item['mode'] === 'online' ? 'Online/Zoom' : ($mataKuliah?->ruang ?? 'Ruang Kelas');
+                $item['jam_mulai'] = $item['time'] ?? '00:00';
+                $item['jam_selesai'] = $item['schedule_time_end'] ?? '00:00';
+                $item['time_range'] = $item['jam_mulai'] . ' - ' . $item['jam_selesai'];
+                $item['duration'] = ($item['sks'] * 50) . ' menit';
+                $item['color'] = $colors[($item['id'] ?? 1) % count($colors)];
+                $item['notes'] = 'SKS: ' . $item['sks'] . ' | Mode: ' . ucfirst($item['mode'] ?? 'offline');
+                
+                return $item;
+            })->toArray();
+        }
+
+        // Stats
+        $totalClasses = collect($weeklySchedule)->flatten(1)->count();
+        $todayClasses = count($enrichedSchedule[$currentDayEn] ?? []);
+        $totalSks = $allCourses->sum('sks');
+
+        // Busiest day
+        $busiestDay = 'monday';
+        $busiestCount = 0;
+        foreach ($dayNames as $en => $id) {
+            $count = count($enrichedSchedule[$en] ?? []);
+            if ($count > $busiestCount) {
+                $busiestCount = $count;
+                $busiestDay = $id;
+            }
+        }
+
+        // Next class calculation
+        $currentTime = now()->format('H:i');
+        $nextClass = null;
+        $daysOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        $currentDayIndex = array_search($currentDayEn, $daysOrder);
+
+        // Check today's remaining classes first
+        if ($currentDayIndex !== false) {
+            $todayItems = $enrichedSchedule[$currentDayEn] ?? [];
+            foreach ($todayItems as $item) {
+                if ($item['time'] && $item['time'] > $currentTime) {
+                    $nextClass = array_merge($item, [
+                        'day' => $dayNames[$currentDayEn],
+                        'is_today' => true,
+                    ]);
+                    break;
+                }
+            }
+        }
+
+        // If no class today, check next days
+        if (!$nextClass) {
+            for ($i = 1; $i <= 5; $i++) {
+                $checkIndex = (($currentDayIndex !== false ? $currentDayIndex : 0) + $i) % 5;
+                $checkDay = $daysOrder[$checkIndex];
+                $dayItems = $enrichedSchedule[$checkDay] ?? [];
+                if (!empty($dayItems)) {
+                    $nextClass = array_merge($dayItems[0], [
+                        'day' => $dayNames[$checkDay],
+                        'is_today' => false,
+                    ]);
+                    break;
+                }
+            }
+        }
+
         return Inertia::render('user/akademik/jadwal', [
-            'weeklySchedule' => $weeklySchedule,
-            'currentDay' => $currentDay,
+            'weeklySchedule' => $enrichedSchedule,
+            'currentDay' => $currentDayEn,
             'dayNames' => $dayNames,
             'today' => [
                 'day' => now()->translatedFormat('l'),
                 'date' => now()->translatedFormat('d F Y'),
             ],
+            'stats' => [
+                'total_courses' => $allCourses->count(),
+                'total_classes_per_week' => $totalClasses,
+                'classes_today' => $todayClasses,
+                'total_sks' => $totalSks,
+                'busiest_day' => $busiestDay,
+            ],
+            'nextClass' => $nextClass,
         ]);
     }
 
     public function exams(): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
+        return Inertia::render('user/akademik/ujian', $this->buildExamPayload($mahasiswa->id));
+    }
 
-        $upcomingExams = $this->scheduleService->getUpcomingExams($mahasiswa->id);
+    public function examDetail(Request $request): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $payload = $this->buildExamPayload($mahasiswa->id);
 
-        // Group by month for calendar view
+        $payload['selectedCourseId'] = $request->integer('course_id');
+        $payload['selectedExamId'] = $request->integer('exam_id');
+
+        return Inertia::render('user/akademik/ujian-detail', $payload);
+    }
+
+    private function buildExamPayload(int $mahasiswaId): array
+    {
+        $upcomingExams = $this->scheduleService->getUpcomingExams($mahasiswaId);
+
         $examsByMonth = $upcomingExams->groupBy(function ($exam) {
             return \Carbon\Carbon::parse($exam['date'])->format('Y-m');
         })->map(function ($exams, $month) {
@@ -168,8 +281,7 @@ class AcademicScheduleController extends Controller
             ];
         })->values();
 
-        // Get courses for reference
-        $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
+        $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswaId)
             ->select('id', 'name', 'sks', 'uts_meeting', 'uas_meeting', 'current_meeting', 'total_meetings')
             ->get()
             ->map(fn($c) => [
@@ -184,7 +296,6 @@ class AcademicScheduleController extends Controller
                 'uas_passed' => $c->current_meeting >= $c->uas_meeting,
             ]);
 
-        // Preparation checklist template
         $preparationChecklist = [
             ['id' => 1, 'text' => 'Review semua catatan pertemuan'],
             ['id' => 2, 'text' => 'Kerjakan latihan soal'],
@@ -194,12 +305,12 @@ class AcademicScheduleController extends Controller
             ['id' => 6, 'text' => 'Istirahat cukup sebelum ujian'],
         ];
 
-        return Inertia::render('user/akademik/ujian', [
+        return [
             'upcomingExams' => $upcomingExams,
             'examsByMonth' => $examsByMonth,
             'courses' => $courses,
             'preparationChecklist' => $preparationChecklist,
-        ]);
+        ];
     }
 
     /**

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdminActivityLog;
 use App\Services\PreferenceManagerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class SettingsController extends Controller
@@ -29,7 +31,7 @@ class SettingsController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $settings,
+            'data' => $this->transformSettingsForFrontend($settings),
         ]);
     }
 
@@ -52,14 +54,16 @@ class SettingsController extends Controller
                 'privacy' => 'sometimes|array',
                 'security' => 'sometimes|array',
                 'data' => 'sometimes|array',
+                'dataManagement' => 'sometimes|array',
             ]);
 
-            $settings = $this->preferenceManager->updateSettings($user, $validated);
+            $normalized = $this->normalizeSettingsPayload($validated);
+            $settings = $this->preferenceManager->updateSettings($user, $normalized);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Settings updated successfully',
-                'data' => $settings,
+                'data' => $this->transformSettingsForFrontend($settings),
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -82,13 +86,14 @@ class SettingsController extends Controller
         }
 
         try {
+            $normalizedCategory = $this->normalizeCategoryName($category);
             $settings = $request->all();
-            $updated = $this->preferenceManager->updateCategorySettings($user, $category, $settings);
+            $updated = $this->preferenceManager->updateCategorySettings($user, $normalizedCategory, $settings);
 
             return response()->json([
                 'success' => true,
-                'message' => "Settings for {$category} updated successfully",
-                'data' => $updated,
+                'message' => "Settings for {$normalizedCategory} updated successfully",
+                'data' => $this->transformCategorySettingsForFrontend($normalizedCategory, $updated),
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -111,16 +116,17 @@ class SettingsController extends Controller
         }
 
         $category = $request->input('category');
-        $settings = $this->preferenceManager->resetToDefaults($user, $category);
+        $normalizedCategory = $category ? $this->normalizeCategoryName($category) : null;
+        $settings = $this->preferenceManager->resetToDefaults($user, $normalizedCategory);
 
-        $message = $category 
-            ? "Settings for {$category} reset to defaults"
+        $message = $normalizedCategory
+            ? "Settings for {$normalizedCategory} reset to defaults"
             : 'All settings reset to defaults';
 
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $settings,
+            'data' => $this->transformSettingsForFrontend($settings),
         ]);
     }
 
@@ -136,6 +142,7 @@ class SettingsController extends Controller
         }
 
         $exported = $this->preferenceManager->exportSettings($user);
+        $exported['settings'] = $this->transformSettingsForFrontend($exported['settings'] ?? []);
 
         return response()->json([
             'success' => true,
@@ -160,12 +167,13 @@ class SettingsController extends Controller
                 'settings' => 'required|array',
             ]);
 
+            $validated['settings'] = $this->normalizeSettingsPayload($validated['settings']);
             $settings = $this->preferenceManager->importSettings($user, $validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Settings imported successfully',
-                'data' => $settings,
+                'data' => $this->transformSettingsForFrontend($settings),
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -183,7 +191,7 @@ class SettingsController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $this->preferenceManager->getDefaults(),
+            'data' => $this->transformSettingsForFrontend($this->preferenceManager->getDefaults()),
         ]);
     }
 
@@ -219,18 +227,42 @@ class SettingsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Return mock session data - in production, this would query actual sessions
-        $sessions = [
-            [
-                'id' => 'session_' . md5($request->ip() . $request->userAgent()),
+        $currentSessionId = $request->session()->getId();
+
+        $sessions = DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->orderByDesc('last_activity')
+            ->limit(15)
+            ->get()
+            ->map(function ($session) use ($currentSessionId) {
+                $lastActive = is_numeric($session->last_activity)
+                    ? now()->setTimestamp((int) $session->last_activity)->toIso8601String()
+                    : now()->toIso8601String();
+
+                return [
+                    'id' => $session->id,
+                    'device' => $this->parseUserAgent($session->user_agent),
+                    'browser' => $this->parseBrowser($session->user_agent),
+                    'ip_address' => $session->ip_address,
+                    'location' => 'Tidak diketahui',
+                    'last_active' => $lastActive,
+                    'is_current' => $session->id === $currentSessionId,
+                ];
+            })
+            ->values()
+            ->all();
+
+        if (empty($sessions)) {
+            $sessions[] = [
+                'id' => $currentSessionId,
                 'device' => $this->parseUserAgent($request->userAgent()),
                 'browser' => $this->parseBrowser($request->userAgent()),
                 'ip_address' => $request->ip(),
-                'location' => 'Indonesia',
+                'location' => 'Tidak diketahui',
                 'last_active' => now()->toIso8601String(),
                 'is_current' => true,
-            ],
-        ];
+            ];
+        }
 
         return response()->json([
             'success' => true,
@@ -249,7 +281,25 @@ class SettingsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // In production, this would invalidate the actual session
+        if ($sessionId === $request->session()->getId()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat mengakhiri sesi yang sedang aktif',
+            ], 422);
+        }
+
+        $deleted = DB::table('sessions')
+            ->where('id', $sessionId)
+            ->where('user_id', $user->id)
+            ->delete();
+
+        if ($deleted === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi tidak ditemukan atau tidak memiliki akses',
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Session terminated successfully',
@@ -267,31 +317,38 @@ class SettingsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $limit = $request->input('limit', 10);
+        $limit = (int) $request->input('limit', 10);
+        $limit = min(max($limit, 1), 50);
 
-        // Return mock login history - in production, query login_logs table
-        $history = [
-            [
-                'id' => 'login_1',
-                'device' => 'Chrome on Windows',
-                'ip_address' => $request->ip(),
-                'location' => 'Indonesia',
-                'status' => 'success',
-                'timestamp' => now()->subHours(1)->toIso8601String(),
-            ],
-            [
-                'id' => 'login_2',
-                'device' => 'Safari on iPhone',
-                'ip_address' => '192.168.1.10',
-                'location' => 'Indonesia',
-                'status' => 'success',
-                'timestamp' => now()->subDays(1)->toIso8601String(),
-            ],
-        ];
+        $userTypes = array_values(array_unique([
+            get_class($user),
+            method_exists($user, 'getMorphClass') ? $user->getMorphClass() : null,
+        ]));
+
+        $history = AdminActivityLog::query()
+            ->where('user_id', $user->id)
+            ->whereIn('user_type', array_filter($userTypes))
+            ->whereIn('action', ['login', 'login_success', 'login_failed'])
+            ->latest()
+            ->limit($limit)
+            ->get()
+            ->map(function (AdminActivityLog $log) {
+                return [
+                    'id' => (string) $log->id,
+                    'device' => $this->parseUserAgent($log->user_agent),
+                    'browser' => $this->parseBrowser($log->user_agent),
+                    'ip_address' => $log->ip_address,
+                    'location' => 'Tidak diketahui',
+                    'status' => str_contains($log->action, 'failed') ? 'failed' : 'success',
+                    'timestamp' => optional($log->created_at)->toIso8601String(),
+                ];
+            })
+            ->values()
+            ->all();
 
         return response()->json([
             'success' => true,
-            'data' => array_slice($history, 0, $limit),
+            'data' => $history,
         ]);
     }
 
@@ -330,9 +387,6 @@ class SettingsController extends Controller
         
         // Total available (100 MB per user)
         $total = 100 * 1024 * 1024; // 100 MB
-
-        // Ensure no division by zero
-        $percentage = $total > 0 ? round(($used / $total) * 100, 2) : 0;
 
         $storageData = [
             'used' => max(0, $used),
@@ -476,5 +530,52 @@ class SettingsController extends Controller
         if (auth('mahasiswa')->check()) return 'mahasiswa';
         if (auth('dosen')->check()) return 'dosen';
         return 'admin';
+    }
+
+    /**
+     * Normalize incoming category alias from frontend.
+     */
+    protected function normalizeCategoryName(string $category): string
+    {
+        return $category === 'dataManagement' ? 'data' : $category;
+    }
+
+    /**
+     * Normalize incoming payload so API can accept both `data` and `dataManagement`.
+     */
+    protected function normalizeSettingsPayload(array $payload): array
+    {
+        if (array_key_exists('dataManagement', $payload) && !array_key_exists('data', $payload)) {
+            $payload['data'] = $payload['dataManagement'];
+            unset($payload['dataManagement']);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Transform settings payload so frontend receives `dataManagement`.
+     */
+    protected function transformSettingsForFrontend(array $settings): array
+    {
+        if (array_key_exists('data', $settings) && !array_key_exists('dataManagement', $settings)) {
+            $settings['dataManagement'] = $settings['data'];
+        }
+
+        unset($settings['data']);
+
+        return $settings;
+    }
+
+    /**
+     * Transform single category response to frontend expected shape.
+     */
+    protected function transformCategorySettingsForFrontend(string $category, array $settings): array
+    {
+        if ($category === 'data') {
+            return ['dataManagement' => $settings];
+        }
+
+        return [$category => $settings];
     }
 }

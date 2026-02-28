@@ -4,19 +4,17 @@ import DosenLayout from '@/layouts/dosen-layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import {
     ArrowLeft, Clock, CheckCircle, XCircle, AlertTriangle, Timer, Sparkles,
-    Paperclip, Check, X, BookOpen, Calendar, Shield, User, Download,
-    ExternalLink, Activity, Heart, FileText, ChevronRight, Mail, Phone,
-    TrendingUp, Star, Zap, Eye, Award, Info,
+    Paperclip, Check, X, BookOpen, Calendar, Shield,
+    ExternalLink, Activity, Heart, FileText, Mail, Phone,
+    TrendingUp, Eye, Info, MessageSquare, Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
-import JadwalIcon from '@/assets/admin/jadwal/jadwal.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */
@@ -40,6 +38,15 @@ type Permit = {
     ai_recommendation: 'approve' | 'reject' | 'review';
     document_score: number;
     approved_at: string | null;
+    reviewed_at: string | null;
+    comments: Array<{
+        id: number;
+        sender_type: 'mahasiswa' | 'dosen';
+        sender_name: string;
+        message: string;
+        created_at: string;
+        is_mine: boolean;
+    }>;
 };
 
 type Props = { permit: Permit };
@@ -70,9 +77,10 @@ const typeConfig = {
 /*                 MAIN COMPONENT                     */
 /* ═══════════════════════════════════════════════════ */
 export default function PermitDetail({ permit }: Props) {
-    const { flash } = usePage().props as any;
+    const { flash } = usePage<{ flash?: { success?: string } }>().props;
     const [isRejectOpen, setIsRejectOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
+    const [commentMessage, setCommentMessage] = useState('');
     const [processingId, setProcessingId] = useState<number | null>(null);
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -90,9 +98,24 @@ export default function PermitDetail({ permit }: Props) {
     const doReject = () => {
         if (!rejectionReason) return;
         setProcessingId(permit.id);
-        router.patch(`/dosen/permits/${permit.id}/reject`, { rejection_reason: rejectionReason } as any, {
+        router.patch(`/dosen/permits/${permit.id}/reject`, { rejection_reason: rejectionReason }, {
             onSuccess: () => { setIsRejectOpen(false); setRejectionReason(''); setShowSuccess(true); setTimeout(() => setShowSuccess(false), 3000); },
             onFinish: () => setProcessingId(null),
+        });
+    };
+
+    const sendComment = () => {
+        if (!commentMessage.trim()) return;
+
+        router.post(`/dosen/permits/${permit.id}/comment`, {
+            message: commentMessage,
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setCommentMessage('');
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 3000);
+            },
         });
     };
 
@@ -114,11 +137,12 @@ export default function PermitDetail({ permit }: Props) {
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 md:p-6 space-y-6">
 
                 {/* ═══ Back Button ═══ */}
-                <motion.div variants={itemVariants}>
-                    <Button variant="ghost" className="group gap-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white px-3"
-                        onClick={() => router.visit('/dosen/permits')}>
-                        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-sm font-medium">Kembali ke Daftar Permit</span>
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="mb-2">
+                    <Button variant="ghost" onClick={() => router.visit('/dosen/permits')} className="group hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60 transition-all duration-300">
+                        <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                        </motion.div>
+                        Kembali ke Daftar Permit
                     </Button>
                 </motion.div>
 
@@ -356,7 +380,16 @@ export default function PermitDetail({ permit }: Props) {
                                         <p className="text-[11px] text-neutral-500">{permit.created_at}</p>
                                     </div>
 
-                                    {/* Reviewed */}
+                                    <div className="relative">
+                                        <div className={cn("absolute -left-6 top-0.5 h-5 w-5 rounded-full border-2 border-white dark:border-neutral-950 shadow flex items-center justify-center",
+                                            permit.reviewed_at ? "bg-indigo-500" : "bg-slate-400")}>
+                                            <Eye className="h-2.5 w-2.5 text-white" />
+                                        </div>
+                                        <p className="text-xs font-bold text-neutral-900 dark:text-white">Dibaca Dosen</p>
+                                        <p className="text-[11px] text-neutral-500">{permit.reviewed_at || 'Belum dibaca'}</p>
+                                    </div>
+
+                                    {/* Reviewed Decision */}
                                     {permit.status !== 'pending' && (
                                         <div className="relative">
                                             <div className={cn("absolute -left-6 top-0.5 h-5 w-5 rounded-full border-2 border-white dark:border-neutral-950 shadow flex items-center justify-center",
@@ -379,6 +412,59 @@ export default function PermitDetail({ permit }: Props) {
                                             <p className="text-[11px] text-neutral-500">Belum diproses</p>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Discussion */}
+                        <motion.div variants={itemVariants} className="rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-lg overflow-hidden">
+                            <div className="p-5 border-b border-neutral-200/50 dark:border-neutral-800 flex items-center gap-3">
+                                <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600"><MessageSquare className="h-4 w-4 text-white" /></div>
+                                <div><h3 className="font-bold text-sm text-neutral-900 dark:text-white">Diskusi Dengan Mahasiswa</h3><p className="text-[11px] text-neutral-500">{permit.comments.length} pesan</p></div>
+                            </div>
+                            <div className="p-4">
+                                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                                    {permit.comments.length > 0 ? (
+                                        permit.comments.map((comment) => (
+                                            <div
+                                                key={comment.id}
+                                                className={`rounded-xl p-3 text-sm ${comment.is_mine
+                                                    ? 'bg-indigo-600 text-white ml-5'
+                                                    : 'bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-700 mr-5 text-neutral-700 dark:text-neutral-200'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center justify-between gap-2 mb-1">
+                                                    <p className={`text-xs font-semibold ${comment.is_mine ? 'text-indigo-100' : 'text-neutral-500'}`}>
+                                                        {comment.sender_name}
+                                                    </p>
+                                                    <p className={`text-[10px] ${comment.is_mine ? 'text-indigo-200' : 'text-neutral-400'}`}>
+                                                        {comment.created_at}
+                                                    </p>
+                                                </div>
+                                                <p className="whitespace-pre-wrap">{comment.message}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-neutral-500">Belum ada diskusi. Kirim komentar untuk memberi klarifikasi ke mahasiswa.</p>
+                                    )}
+                                </div>
+
+                                <div className="mt-3 flex items-end gap-2">
+                                    <Textarea
+                                        rows={2}
+                                        value={commentMessage}
+                                        onChange={(e) => setCommentMessage(e.target.value)}
+                                        placeholder="Ketik komentar untuk mahasiswa..."
+                                        className="bg-white dark:bg-neutral-950"
+                                    />
+                                    <Button
+                                        size="sm"
+                                        className="rounded-xl bg-indigo-600 hover:bg-indigo-700"
+                                        disabled={!commentMessage.trim()}
+                                        onClick={sendComment}
+                                    >
+                                        <Send className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </div>
                         </motion.div>

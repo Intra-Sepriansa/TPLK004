@@ -24,6 +24,12 @@ class MahasiswaCourse extends Model
         'schedule_time',
         'mode',
         'start_date',
+        'is_favorite',
+        'study_time_hours',
+        'difficulty_level',
+        'ai_recommendation',
+        'color',
+        'ruangan',
     ];
 
     protected $casts = [
@@ -34,6 +40,8 @@ class MahasiswaCourse extends Model
         'uas_meeting' => 'integer',
         'start_date' => 'date',
         'schedule_time' => 'datetime:H:i',
+        'is_favorite' => 'boolean',
+        'study_time_hours' => 'integer',
     ];
 
     protected $appends = [
@@ -67,6 +75,16 @@ class MahasiswaCourse extends Model
     public function notes(): HasMany
     {
         return $this->hasMany(AcademicNote::class);
+    }
+
+    public function materials(): HasMany
+    {
+        return $this->hasMany(CourseMaterial::class, 'course_id');
+    }
+
+    public function studyGroups(): HasMany
+    {
+        return $this->hasMany(StudyGroup::class, 'mahasiswa_course_id');
     }
 
     // Accessors

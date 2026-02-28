@@ -21,20 +21,32 @@ class ProfileController extends Controller
             'totalAttendance' => $mahasiswa->attendanceLogs()->count(),
             'attendanceRate' => $this->calculateAttendanceRate($mahasiswa),
             'currentStreak' => $this->calculateStreak($mahasiswa),
+            'onTimeRate' => $this->calculateOnTimeRate($mahasiswa),
         ];
 
         // Get badges data for profile display
         $badges = $this->getBadgesForProfile($mahasiswa);
+        $recentActivities = $this->getRecentActivities($mahasiswa);
 
         return Inertia::render('user/profile', [
             'mahasiswa' => [
                 'id' => $mahasiswa?->id,
                 'nama' => $mahasiswa?->nama,
                 'nim' => $mahasiswa?->nim,
+                'email' => $mahasiswa?->email,
+                'phone' => $mahasiswa?->phone,
+                'fakultas' => $mahasiswa?->fakultas,
+                'prodi' => $mahasiswa?->prodi,
+                'kelas' => $mahasiswa?->kelas,
+                'semester' => $mahasiswa?->semester,
+                'jenis_reguler' => $mahasiswa?->jenis_reguler,
                 'avatar_url' => $mahasiswa?->avatar_url,
+                'last_activity_at' => $mahasiswa?->last_activity_at,
+                'created_at' => $mahasiswa?->created_at,
             ],
             'stats' => $stats,
             'badges' => $badges,
+            'recentActivities' => $recentActivities,
         ]);
     }
 
@@ -58,20 +70,26 @@ class ProfileController extends Controller
         $mahasiswa = Auth::guard('mahasiswa')->user();
 
         $request->validate([
-            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp,heic,heif', 'max:2048'],
         ]);
 
         // Delete old avatar if exists
-        if ($mahasiswa->avatar_url && Storage::disk('public')->exists($mahasiswa->avatar_url)) {
-            Storage::disk('public')->delete($mahasiswa->avatar_url);
+        if ($mahasiswa->avatar_url && Storage::disk('public')->exists(str_replace('/storage/', '', $mahasiswa->avatar_url))) {
+            Storage::disk('public')->delete(str_replace('/storage/', '', $mahasiswa->avatar_url));
         }
 
         // Store new avatar
         $path = $request->file('avatar')->store('avatars/mahasiswa', 'public');
+        $avatarUrl = '/storage/' . $path;
 
-        $mahasiswa->forceFill([
-            'avatar_url' => '/storage/' . $path,
-        ])->save();
+        $mahasiswa->avatar_url = $avatarUrl;
+        $mahasiswa->save();
+
+        \Log::info('Mahasiswa avatar updated', [
+            'mahasiswa_id' => $mahasiswa->id,
+            'avatar_url' => $mahasiswa->avatar_url,
+            'path' => $path,
+        ]);
 
         return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
@@ -79,20 +97,44 @@ class ProfileController extends Controller
     private function calculateAttendanceRate($mahasiswa): int
     {
         $totalLogs = $mahasiswa->attendanceLogs()->count();
-        if ($totalLogs === 0) return 0;
+        if ($totalLogs === 0) {
+            return 0;
+        }
 
-        $presentLogs = $mahasiswa->attendanceLogs()->where('status', 'hadir')->count();
-        return (int) round(($presentLogs / $totalLogs) * 100);
+        $attendedLogs = $mahasiswa->attendanceLogs()
+            ->whereIn('status', ['present', 'late', 'hadir'])
+            ->count();
+
+        return (int) round(($attendedLogs / $totalLogs) * 100);
+    }
+
+    private function calculateOnTimeRate($mahasiswa): int
+    {
+        $attendedLogs = $mahasiswa->attendanceLogs()
+            ->whereIn('status', ['present', 'late', 'hadir'])
+            ->count();
+
+        if ($attendedLogs === 0) {
+            return 0;
+        }
+
+        $onTimeLogs = $mahasiswa->attendanceLogs()
+            ->whereIn('status', ['present', 'hadir'])
+            ->count();
+
+        return (int) round(($onTimeLogs / $attendedLogs) * 100);
     }
 
     private function calculateStreak($mahasiswa): int
     {
         $logs = $mahasiswa->attendanceLogs()
-            ->where('status', 'hadir')
+            ->whereIn('status', ['present', 'hadir'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        if ($logs->isEmpty()) return 0;
+        if ($logs->isEmpty()) {
+            return 0;
+        }
 
         $streak = 0;
         $lastDate = null;
@@ -128,7 +170,7 @@ class ProfileController extends Controller
         $presentCount = $logs->where('status', 'present')->count();
         $currentStreak = $this->calculateStreak($mahasiswa);
 
-        // Check and award any new badges (this won't remove existing badges)
+        // Keep badge awarding flow in sync before displaying profile badges.
         \App\Services\BadgeService::checkAndAwardBadges($mahasiswa->id);
 
         // Get earned badges from database (permanent)
@@ -199,5 +241,66 @@ class ProfileController extends Controller
         }
 
         return $badges;
+    }
+
+    private function getRecentActivities($mahasiswa): array
+    {
+        if (!$mahasiswa) {
+            return [];
+        }
+
+        $logs = $mahasiswa->attendanceLogs()
+            ->with(['session.course'])
+            ->orderByDesc('scanned_at')
+            ->orderByDesc('created_at')
+            ->limit(7)
+            ->get();
+
+        return $logs->map(function ($log) {
+            $occurredAt = $log->scanned_at ?? $log->created_at;
+            $status = (string) ($log->status ?? '');
+
+            return [
+                'id' => $log->id,
+                'title' => $this->buildActivityTitle($status),
+                'description' => $this->buildActivityDescription($log),
+                'status' => $status,
+                'occurred_at' => $occurredAt?->toIso8601String(),
+            ];
+        })->values()->all();
+    }
+
+    private function buildActivityTitle(string $status): string
+    {
+        return match (strtolower($status)) {
+            'present', 'hadir' => 'Kehadiran berhasil diverifikasi',
+            'late' => 'Kehadiran tercatat terlambat',
+            'pending' => 'Kehadiran sedang menunggu verifikasi',
+            'rejected' => 'Kehadiran ditolak oleh sistem',
+            'absent', 'alpha' => 'Tidak ada kehadiran yang tercatat',
+            'izin', 'sick', 'permit' => 'Kehadiran tercatat sebagai izin',
+            default => 'Aktivitas kehadiran tercatat',
+        };
+    }
+
+    private function buildActivityDescription($log): string
+    {
+        $status = strtolower((string) ($log->status ?? ''));
+        $courseName = $log->session?->course?->nama;
+        $sessionTitle = $log->session?->title;
+        $meetingNumber = $log->session?->meeting_number;
+
+        $sessionLabel = $sessionTitle ?: ($meetingNumber ? "Pertemuan {$meetingNumber}" : 'Sesi perkuliahan');
+        $context = $courseName ? "{$courseName} • {$sessionLabel}" : $sessionLabel;
+
+        return match ($status) {
+            'present', 'hadir' => "{$context} • Kamu tercatat hadir pada sesi ini.",
+            'late' => "{$context} • Kehadiran tercatat terlambat, tetap masuk rekap.",
+            'pending' => "{$context} • Data absensi masih diproses verifikasi.",
+            'rejected' => "{$context} • Verifikasi absensi belum disetujui.",
+            'absent', 'alpha' => "{$context} • Tidak ada check-in pada sesi ini.",
+            'izin', 'sick', 'permit' => "{$context} • Status kehadiran tercatat sebagai izin/sakit.",
+            default => "{$context} • Status absensi: " . strtoupper($status ?: 'UNKNOWN'),
+        };
     }
 }

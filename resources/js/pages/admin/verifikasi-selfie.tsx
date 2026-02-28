@@ -249,27 +249,6 @@ export default function VerifikasiSelfie({
                     <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Pulsating Rings */}
-                    <motion.div
-                        className="absolute top-1/2 right-16 h-32 w-32 -translate-y-1/2 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: 'easeOut',
-                        }}
-                    />
-                    <motion.div
-                        className="absolute top-1/2 right-16 h-32 w-32 -translate-y-1/2 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: 'easeOut',
-                            delay: 1,
-                        }}
-                    />
-
                     <div className="relative flex flex-col justify-between gap-6 md:flex-row md:items-center">
                         <div className="text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-3 mb-2">
@@ -569,8 +548,8 @@ export default function VerifikasiSelfie({
                                             key={s}
                                             onClick={() => handleFilter(s)}
                                             className={`relative rounded-lg px-4 py-2 text-xs font-semibold transition-all ${filter === s
-                                                    ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 dark:bg-neutral-700 dark:text-indigo-400'
-                                                    : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+                                                ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5 dark:bg-neutral-700 dark:text-indigo-400'
+                                                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
                                                 } `}
                                         >
                                             {s === 'all'

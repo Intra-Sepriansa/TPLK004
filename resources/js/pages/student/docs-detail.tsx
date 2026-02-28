@@ -1,42 +1,81 @@
-/**
- * Student Documentation Detail Page
- * Menampilkan detail guide dengan sections dan progress tracking
- */
-
-import { useState, useEffect, useRef } from 'react';
-import { Head, router } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ArrowLeft, 
-    CheckCircle, 
-    Clock, 
-    BookOpen,
-    ChevronRight,
-    Award,
-} from 'lucide-react';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
+import DocumentationIcon from '@/assets/admin/panduan/panduan.png';
 import StudentLayout from '@/layouts/student-layout';
-import DarkContainer from '@/components/ui/dark-container';
-import { SkeletonGrid } from '@/components/ui/skeleton-loader';
-import { fadeInVariants, slideUpVariants } from '@/lib/animations';
-import { toast } from 'sonner';
+import {
+    getOfflineGuideFromCache,
+    migrateLegacyOfflineDocsCache,
+    removeOfflineGuideFromCache,
+    saveOfflineGuideToCache,
+} from '@/lib/offline-docs-cache';
+import { cn } from '@/lib/utils';
+import { Head, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import {
+    ArrowLeft,
+    BookOpen,
+    Bookmark,
+    BookmarkCheck,
+    Check,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    ClipboardList,
+    Clock3,
+    Download,
+    Info,
+    MessageSquare,
+    Star,
+    ThumbsDown,
+    ThumbsUp,
+    Trash2,
+    WifiOff,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+
+type SectionType = 'text' | 'steps' | 'faq' | 'callout' | string;
 
 interface GuideSection {
     id: string;
     title: string;
-    type: string;
+    type: SectionType;
     content: string;
     steps?: Array<{ title: string; description: string }>;
     faqs?: Array<{ question: string; answer: string }>;
+}
+
+interface QuizQuestion {
+    id: string;
+    question: string;
+    type: 'multiple-choice' | string;
+    options?: string[];
+    correctAnswer: string | string[];
+    explanation?: string;
+    points?: number;
+}
+
+interface Exercise {
+    id: string;
+    title: string;
+    instruction: string;
 }
 
 interface GuideDetail {
     id: string;
     title: string;
     description: string;
+    slug?: string;
     icon: string;
     category: string;
+    difficulty?: number;
     estimatedReadTime: number;
+    author?: string;
+    tags?: string[];
     sections: GuideSection[];
+    quiz?: QuizQuestion[];
+    exercises?: Exercise[];
     progress: {
         completed_sections: string[];
         is_completed: boolean;
@@ -44,472 +83,994 @@ interface GuideDetail {
     };
 }
 
-export default function StudentDocsDetail({ guideId }: { guideId: string }) {
-    const [guide, setGuide] = useState<GuideDetail | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [activeSection, setActiveSection] = useState<string>('');
-    const [completedSections, setCompletedSections] = useState<string[]>([]);
-    const [scrollProgress, setScrollProgress] = useState(0);
-    const [isGuideCompleted, setIsGuideCompleted] = useState(false);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const hasAutoCompleted = useRef(false);
+interface RelatedGuide {
+    id: string;
+    title: string;
+    category: string;
+    progress: number;
+    estimatedTime: number;
+}
 
+interface Props {
+    guide: GuideDetail;
+    relatedGuides: RelatedGuide[];
+}
+
+interface FeedbackStats {
+    helpful_count: number;
+    not_helpful_count: number;
+    total_ratings: number;
+    average_rating: number;
+}
+
+const categoryConfig: Record<string, { label: string; badge: string }> = {
+    beginner: {
+        label: 'Pemula',
+        badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+    },
+    intermediate: {
+        label: 'Menengah',
+        badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+    },
+    advanced: {
+        label: 'Lanjutan',
+        badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+    },
+    reference: {
+        label: 'Referensi',
+        badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+    },
+};
+
+function getSectionTone(type: SectionType): string {
+    if (type === 'callout') {
+        return 'border-indigo-200 bg-indigo-50 dark:border-indigo-800 dark:bg-indigo-950/20';
+    }
+
+    if (type === 'faq') {
+        return 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20';
+    }
+
+    if (type === 'steps') {
+        return 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/20';
+    }
+
+    return 'border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60';
+}
+
+export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
+    const [activeSectionId, setActiveSectionId] = useState(guide.sections[0]?.id ?? '');
+    const [completedSections, setCompletedSections] = useState<string[]>(
+        guide.progress?.completed_sections ?? [],
+    );
+    const [isCompleted, setIsCompleted] = useState<boolean>(guide.progress?.is_completed ?? false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
+    const [quizSubmitted, setQuizSubmitted] = useState(false);
+    const [helpfulVote, setHelpfulVote] = useState<'yes' | 'no' | null>(null);
+    const [rating, setRating] = useState<number>(0);
+    const [comment, setComment] = useState('');
+    const [feedbackStats, setFeedbackStats] = useState<FeedbackStats>({
+        helpful_count: 0,
+        not_helpful_count: 0,
+        total_ratings: 0,
+        average_rating: 0,
+    });
+
+    const [isFeedbackSaving, setIsFeedbackSaving] = useState(false);
+    const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+    const [isOfflineLoading, setIsOfflineLoading] = useState(false);
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [isOfflineSaved, setIsOfflineSaved] = useState(false);
+    const [isOnline, setIsOnline] = useState<boolean>(
+        typeof window === 'undefined' ? true : window.navigator.onLine,
+    );
+    const [offlineActionMessage, setOfflineActionMessage] = useState<string | null>(null);
+
+    const getCsrfToken = () =>
+        document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+
+    // Initial hydration from DB-backed endpoints (bookmark, feedback, offline status).
     useEffect(() => {
-        loadGuideDetail();
-    }, [guideId]);
-
-    // Auto-complete tracking based on scroll
-    useEffect(() => {
-        if (!guide || !activeSection) return;
-
-        const handleScroll = () => {
-            if (!contentRef.current) return;
-
-            const element = contentRef.current;
-            const scrollTop = element.scrollTop;
-            const scrollHeight = element.scrollHeight;
-            const clientHeight = element.clientHeight;
-
-            // If content is not scrollable (fits in viewport), consider it as 100% read
-            const maxScroll = scrollHeight - clientHeight;
-            let progress = 0;
-            
-            if (maxScroll <= 10) {
-                // Content fits in viewport or very close
-                progress = 100;
-            } else {
-                // Calculate scroll percentage
-                progress = Math.round((scrollTop / maxScroll) * 100);
-            }
-            
-            setScrollProgress(Math.min(progress, 100));
-
-            // Auto-complete when scrolled to 90% or more
-            if (progress >= 90 && !completedSections.includes(activeSection) && !hasAutoCompleted.current) {
-                hasAutoCompleted.current = true;
-                setTimeout(() => {
-                    handleSectionComplete(activeSection, true);
-                }, 500); // Small delay to ensure smooth UX
-            }
+        const syncConnectionState = () => {
+            setIsOnline(window.navigator.onLine);
         };
 
-        const element = contentRef.current;
-        if (element) {
-            // Initial check
-            setTimeout(() => handleScroll(), 100);
-            
-            element.addEventListener('scroll', handleScroll);
-            return () => element.removeEventListener('scroll', handleScroll);
-        }
-    }, [activeSection, completedSections, guide]);
+        window.addEventListener('online', syncConnectionState);
+        window.addEventListener('offline', syncConnectionState);
 
-    // Reset auto-complete flag when section changes
-    useEffect(() => {
-        hasAutoCompleted.current = false;
-        setScrollProgress(0);
-        
-        // Trigger initial scroll check after section change
-        setTimeout(() => {
-            if (contentRef.current) {
-                const element = contentRef.current;
-                const scrollHeight = element.scrollHeight;
-                const clientHeight = element.clientHeight;
-                
-                // If content fits in viewport, auto-complete after 3 seconds of viewing
-                if (scrollHeight - clientHeight <= 10 && !completedSections.includes(activeSection)) {
-                    setTimeout(() => {
-                        if (!hasAutoCompleted.current && !completedSections.includes(activeSection)) {
-                            hasAutoCompleted.current = true;
-                            handleSectionComplete(activeSection, true);
-                        }
-                    }, 3000);
-                }
+        void (async () => {
+            await migrateLegacyOfflineDocsCache();
+            await Promise.all([loadBookmarkState(), loadFeedback(), loadOfflineState()]);
+        })();
+
+        return () => {
+            window.removeEventListener('online', syncConnectionState);
+            window.removeEventListener('offline', syncConnectionState);
+        };
+    }, [guide.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const completionPercentage = useMemo(() => {
+        if (guide.sections.length === 0) return 0;
+
+        return Math.round((completedSections.length / guide.sections.length) * 100);
+    }, [completedSections, guide.sections.length]);
+
+    const activeSection = useMemo(
+        () => guide.sections.find((section) => section.id === activeSectionId) ?? guide.sections[0],
+        [guide.sections, activeSectionId],
+    );
+
+    const currentSectionIndex = useMemo(
+        () => guide.sections.findIndex((section) => section.id === activeSection?.id),
+        [guide.sections, activeSection?.id],
+    );
+
+    const quizScore = useMemo(() => {
+        const quiz = guide.quiz ?? [];
+        if (!quiz.length) return 0;
+
+        let total = 0;
+        quiz.forEach((question) => {
+            const answer = quizAnswers[question.id];
+            const correct = Array.isArray(question.correctAnswer)
+                ? question.correctAnswer.includes(answer)
+                : question.correctAnswer === answer;
+
+            if (correct) {
+                total += question.points ?? 10;
             }
-        }, 200);
-    }, [activeSection]);
+        });
 
-    const loadGuideDetail = async () => {
+        return total;
+    }, [guide.quiz, quizAnswers]);
+
+    const maxQuizScore = useMemo(
+        () => (guide.quiz ?? []).reduce((sum, item) => sum + (item.points ?? 10), 0),
+        [guide.quiz],
+    );
+
+    const loadBookmarkState = async () => {
         try {
-            setIsLoading(true);
-            const response = await fetch(`/api/docs/guides/${guideId}?role=mahasiswa`);
-            const data = await response.json();
-            
-            if (data.success) {
-                setGuide(data.data);
-                setCompletedSections(data.data.progress?.completed_sections || []);
-                setIsGuideCompleted(data.data.progress?.is_completed || false);
-                setActiveSection(data.data.sections[0]?.id || '');
-            }
-        } catch (error) {
-            console.error('Failed to load guide:', error);
-        } finally {
-            setIsLoading(false);
+            const response = await fetch('/api/docs/bookmarks', {
+                headers: { Accept: 'application/json' },
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload?.success) return;
+
+            const bookmarked = (payload.data ?? []).some(
+                (item: { guide_id: string }) => item.guide_id === guide.id,
+            );
+            setIsBookmarked(bookmarked);
+        } catch {
+            // Ignore transient fetch errors.
         }
     };
 
-    const handleSectionComplete = async (sectionId: string, isAutoComplete = false) => {
-        const newCompleted = completedSections.includes(sectionId)
-            ? completedSections.filter(id => id !== sectionId)
-            : [...completedSections, sectionId];
+    const loadFeedback = async () => {
+        try {
+            const response = await fetch(`/api/docs/feedback/${guide.id}`, {
+                headers: { Accept: 'application/json' },
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload?.success) return;
 
-        setCompletedSections(newCompleted);
+            const myFeedback = payload?.data?.my_feedback;
+            const stats = payload?.data?.stats;
 
-        // NO toast notification for auto-complete
-        // Only save progress silently
+            if (typeof myFeedback?.helpful === 'boolean') {
+                setHelpfulVote(myFeedback.helpful ? 'yes' : 'no');
+            } else {
+                setHelpfulVote(null);
+            }
+
+            setRating(Number(myFeedback?.rating ?? 0));
+            setComment(String(myFeedback?.comment ?? ''));
+            setFeedbackStats({
+                helpful_count: Number(stats?.helpful_count ?? 0),
+                not_helpful_count: Number(stats?.not_helpful_count ?? 0),
+                total_ratings: Number(stats?.total_ratings ?? 0),
+                average_rating: Number(stats?.average_rating ?? 0),
+            });
+        } catch {
+            // Ignore transient fetch errors.
+        }
+    };
+
+    const loadOfflineState = async () => {
+        try {
+            const response = await fetch('/api/docs/offline-downloads', {
+                headers: { Accept: 'application/json' },
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload?.success) {
+                const cached = await getOfflineGuideFromCache(guide.id);
+                setIsOfflineSaved(Boolean(cached));
+                return;
+            }
+
+            const saved = (payload.data ?? []).some(
+                (item: { guide_id: string }) => item.guide_id === guide.id,
+            );
+            if (saved) {
+                setIsOfflineSaved(true);
+                return;
+            }
+
+            const cached = await getOfflineGuideFromCache(guide.id);
+            setIsOfflineSaved(Boolean(cached));
+        } catch {
+            const cached = await getOfflineGuideFromCache(guide.id);
+            setIsOfflineSaved(Boolean(cached));
+        }
+    };
+
+    const toggleBookmark = async () => {
+        setIsBookmarkLoading(true);
+        try {
+            const response = await fetch(`/api/docs/bookmarks/${guide.id}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload?.success) return;
+
+            setIsBookmarked(Boolean(payload?.data?.bookmarked));
+        } finally {
+            setIsBookmarkLoading(false);
+        }
+    };
+
+    const upsertFeedback = async (patch?: {
+        helpful?: boolean | null;
+        rating?: number | null;
+        comment?: string | null;
+    }) => {
+        setIsFeedbackSaving(true);
+        try {
+            const response = await fetch(`/api/docs/feedback/${guide.id}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    helpful: patch?.helpful ?? (helpfulVote === 'yes' ? true : helpfulVote === 'no' ? false : null),
+                    rating: patch?.rating ?? (rating > 0 ? rating : null),
+                    comment: patch?.comment ?? (comment.trim() ? comment.trim() : null),
+                }),
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload?.success) return;
+
+            const myFeedback = payload?.data?.my_feedback;
+            const stats = payload?.data?.stats;
+
+            if (typeof myFeedback?.helpful === 'boolean') {
+                setHelpfulVote(myFeedback.helpful ? 'yes' : 'no');
+            } else {
+                setHelpfulVote(null);
+            }
+
+            setRating(Number(myFeedback?.rating ?? 0));
+            setComment(String(myFeedback?.comment ?? ''));
+            setFeedbackStats({
+                helpful_count: Number(stats?.helpful_count ?? 0),
+                not_helpful_count: Number(stats?.not_helpful_count ?? 0),
+                total_ratings: Number(stats?.total_ratings ?? 0),
+                average_rating: Number(stats?.average_rating ?? 0),
+            });
+        } finally {
+            setIsFeedbackSaving(false);
+        }
+    };
+
+    const downloadOffline = async () => {
+        setIsOfflineLoading(true);
+        try {
+            const guideResponse = await fetch(`/api/docs/guides/${guide.id}`, {
+                headers: { Accept: 'application/json' },
+            });
+            const guidePayload = await guideResponse.json();
+            if (!guideResponse.ok || !guidePayload?.success) return;
+
+            const sizeKb = Math.max(1, Math.ceil(JSON.stringify(guidePayload.data).length / 1024));
+            await saveOfflineGuideToCache({
+                guideId: guide.id,
+                payload: guidePayload.data,
+                title: guide.title,
+                version: 'v2',
+                sizeKb,
+            });
+
+            await fetch(`/api/docs/offline-downloads/${guide.id}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    title: guide.title,
+                    version: 'v2',
+                    size_kb: sizeKb,
+                }),
+            });
+
+            setIsOfflineSaved(true);
+            setOfflineActionMessage('Dokumentasi berhasil disimpan ke cache offline.');
+        } finally {
+            setIsOfflineLoading(false);
+        }
+    };
+
+    const removeOffline = async () => {
+        setIsOfflineLoading(true);
+        try {
+            await removeOfflineGuideFromCache(guide.id);
+
+            await fetch(`/api/docs/offline-downloads/${guide.id}`, {
+                method: 'DELETE',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+            });
+
+            setIsOfflineSaved(false);
+            setOfflineActionMessage('Cache offline untuk dokumentasi ini sudah dihapus.');
+        } finally {
+            setIsOfflineLoading(false);
+        }
+    };
+
+    const openFromOfflineCache = async () => {
+        setIsOfflineLoading(true);
+        try {
+            const cached = await getOfflineGuideFromCache(guide.id);
+            if (!cached || typeof cached.payload !== 'object' || cached.payload === null) {
+                setOfflineActionMessage('Cache offline tidak ditemukan untuk materi ini.');
+                setIsOfflineSaved(false);
+                return;
+            }
+
+            const payload = cached.payload as { sections?: unknown };
+            if (Array.isArray(payload.sections) && payload.sections.length > 0) {
+                const firstSection = payload.sections[0];
+                if (
+                    typeof firstSection === 'object' &&
+                    firstSection !== null &&
+                    'id' in firstSection &&
+                    typeof (firstSection as { id?: unknown }).id === 'string'
+                ) {
+                    setActiveSectionId((firstSection as { id: string }).id);
+                }
+            }
+
+            setOfflineActionMessage('Materi berhasil dibuka dari cache offline.');
+        } finally {
+            setIsOfflineLoading(false);
+        }
+    };
+
+    const syncProgress = async (nextCompletedSections: string[]) => {
+        setIsSaving(true);
 
         try {
-            await fetch(`/api/docs/guides/${guideId}/progress`, {
+            await fetch(`/api/docs/progress/${guide.id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                    'X-CSRF-TOKEN': getCsrfToken(),
                 },
-                body: JSON.stringify({
-                    completed_sections: newCompleted,
-                }),
+                body: JSON.stringify({ completed_sections: nextCompletedSections }),
             });
-        } catch (error) {
-            console.error('Failed to update progress:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    const handleManualComplete = async () => {
-        if (!guide) return;
+    const handleToggleSection = async (sectionId: string) => {
+        const nextCompletedSections = completedSections.includes(sectionId)
+            ? completedSections.filter((id) => id !== sectionId)
+            : [...completedSections, sectionId];
 
-        // Check if all sections are completed
-        const allSectionsComplete = guide.sections.every(section => 
-            completedSections.includes(section.id)
-        );
+        setCompletedSections(nextCompletedSections);
+        await syncProgress(nextCompletedSections);
+    };
 
-        if (allSectionsComplete) {
-            // Mark guide as fully completed
-            try {
-                await fetch(`/api/docs/progress/${guideId}/complete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    },
-                });
+    const markGuideAsComplete = async () => {
+        setIsSaving(true);
 
-                // Update local state
-                setIsGuideCompleted(true);
-
-                // Show success notification
-                toast.success('Guide Selesai! 🎊', {
-                    description: 'Selamat! Anda telah menyelesaikan panduan ini!',
-                    duration: 5000,
-                });
-
-                // Optional: Navigate back to docs list after 2 seconds
-                setTimeout(() => {
-                    router.visit('/user/docs');
-                }, 2000);
-            } catch (error) {
-                console.error('Failed to mark guide as complete:', error);
-                toast.error('Gagal menyelesaikan guide', {
-                    description: 'Silakan coba lagi nanti.',
-                });
-            }
-        } else {
-            toast.warning('Belum semua section selesai', {
-                description: 'Silakan baca semua section terlebih dahulu.',
+        try {
+            await fetch(`/api/docs/progress/${guide.id}/complete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
             });
+
+            setCompletedSections(guide.sections.map((item) => item.id));
+            setIsCompleted(true);
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    const handleBack = () => {
-        router.visit('/user/docs');
+    const submitQuiz = () => {
+        setQuizSubmitted(true);
     };
 
-    if (isLoading) {
-        return (
-            <StudentLayout>
-                <Head title="Loading..." />
-                <div className="space-y-6 p-6">
-                    <SkeletonGrid count={4} columns={1} />
-                </div>
-            </StudentLayout>
-        );
-    }
-
-    if (!guide) {
-        return (
-            <StudentLayout>
-                <Head title="Guide Not Found" />
-                <div className="flex items-center justify-center min-h-screen">
-                    <div className="text-center">
-                        <h2 className="text-2xl font-bold text-white mb-4">Guide Not Found</h2>
-                        <button
-                            onClick={handleBack}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Back to Documentation
-                        </button>
-                    </div>
-                </div>
-            </StudentLayout>
-        );
-    }
-
-    const activeContent = guide.sections.find(s => s.id === activeSection);
-    const completionPercentage = Math.round((completedSections.length / guide.sections.length) * 100);
+    const category = categoryConfig[guide.category] ?? {
+        label: guide.category,
+        badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+    };
 
     return (
         <StudentLayout>
-            <Head title={guide.title} />
+            <Head title={`Dokumentasi • ${guide.title}`} />
 
-            <div className="space-y-6 p-6">
-                {/* Header */}
+            <div className="space-y-6 p-4 md:space-y-8 md:p-6 lg:p-8">
                 <motion.div
-                    variants={fadeInVariants}
-                    initial="hidden"
-                    animate="visible"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
-                    <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-lg">
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4 font-medium"
-                        >
-                            <ArrowLeft className="w-4 h-4 text-blue-500" />
-                            <span>Back to Documentation</span>
-                        </button>
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{guide.title}</h1>
-                                <p className="text-gray-600 dark:text-gray-400 mb-4">{guide.description}</p>
-                                
-                                <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-blue-500" />
-                                        <span className="font-medium">{guide.estimatedReadTime} min read</span>
+                    <div className="relative">
+                        <motion.button
+                            whileHover={{ scale: 1.02, x: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.visit('/user/docs')}
+                            className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:text-white"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali ke Dokumentasi
+                        </motion.button>
+
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+                                <motion.div
+                                    className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                >
+                                    <img
+                                        src={DocumentationIcon}
+                                        alt="Documentation"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
+                                </motion.div>
+
+                                <div className="flex-1">
+                                    <div className="mb-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                                        <span className={cn('rounded-lg px-2.5 py-1 text-xs font-semibold', category.badge)}>
+                                            {category.label}
+                                        </span>
+                                        <span className="rounded-lg bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">
+                                            Lv.{guide.difficulty ?? 1}
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <BookOpen className="w-4 h-4 text-cyan-500" />
-                                        <span className="font-medium">{guide.sections.length} sections</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Award className="w-4 h-4 text-purple-500" />
-                                        <span className="font-medium">{completionPercentage}% complete</span>
+
+                                    <h1 className="text-2xl font-bold sm:text-3xl">{guide.title}</h1>
+                                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-indigo-100 sm:text-base">
+                                        {guide.description}
+                                    </p>
+
+                                    <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-indigo-100/90 sm:justify-start sm:text-sm">
+                                        <span className="inline-flex items-center gap-1">
+                                            <Clock3 className="h-3.5 w-3.5" /> {guide.estimatedReadTime} menit
+                                        </span>
+                                        <span className="inline-flex items-center gap-1">
+                                            <BookOpen className="h-3.5 w-3.5" /> {guide.sections.length} section
+                                        </span>
+                                        {(guide.quiz?.length ?? 0) > 0 && (
+                                            <span className="inline-flex items-center gap-1">
+                                                <MessageSquare className="h-3.5 w-3.5" /> {guide.quiz?.length} quiz
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Progress Circle */}
-                            <div className="relative w-24 h-24">
-                                <svg className="w-24 h-24 transform -rotate-90">
-                                    <circle
-                                        cx="48"
-                                        cy="48"
-                                        r="40"
-                                        stroke="currentColor"
-                                        strokeWidth="8"
-                                        fill="none"
-                                        className="text-white/10"
-                                    />
-                                    <circle
-                                        cx="48"
-                                        cy="48"
-                                        r="40"
-                                        stroke="url(#gradient)"
-                                        strokeWidth="8"
-                                        fill="none"
-                                        strokeDasharray={`${2 * Math.PI * 40}`}
-                                        strokeDashoffset={`${2 * Math.PI * 40 * (1 - completionPercentage / 100)}`}
-                                        className="transition-all duration-500"
-                                    />
-                                    <defs>
-                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#3b82f6" />
-                                            <stop offset="100%" stopColor="#06b6d4" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-xl font-bold text-gray-900 dark:text-white">{completionPercentage}%</span>
+                            <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
+                                <div className="flex w-full flex-wrap justify-center gap-2 sm:justify-end">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        disabled={isBookmarkLoading}
+                                        onClick={() => void toggleBookmark()}
+                                        className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                        {isBookmarked ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                                        {isBookmarked ? 'Tersimpan' : 'Simpan'}
+                                    </motion.button>
+
+                                    {isOfflineSaved ? (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            disabled={isOfflineLoading}
+                                            onClick={() => void removeOffline()}
+                                            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <Trash2 className="h-4 w-4" /> Hapus Offline
+                                        </motion.button>
+                                    ) : (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            disabled={isOfflineLoading}
+                                            onClick={() => void downloadOffline()}
+                                            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <Download className="h-4 w-4" /> Download Offline
+                                        </motion.button>
+                                    )}
+
+                                    {!isOnline && isOfflineSaved && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            disabled={isOfflineLoading}
+                                            onClick={() => void openFromOfflineCache()}
+                                            className="inline-flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <WifiOff className="h-4 w-4" /> Buka dari cache offline
+                                        </motion.button>
+                                    )}
+
+                                    <div className="w-full rounded-2xl border border-white/10 bg-white/20 px-5 py-3 text-center shadow-lg backdrop-blur-xl sm:w-auto sm:text-left">
+                                        <p className="text-xs text-indigo-100">Progress</p>
+                                        <p className="text-2xl font-bold text-white">
+                                            <AnimatedCounter value={completionPercentage} suffix="%" />
+                                        </p>
+                                    </div>
                                 </div>
+
+                                {offlineActionMessage && (
+                                    <p className="max-w-md text-center text-xs text-indigo-100/90 sm:text-right">
+                                        {offlineActionMessage}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Content */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* Sidebar - Sections List */}
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-3 xl:gap-6">
                     <motion.div
-                        variants={slideUpVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="lg:col-span-1"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-4 xl:col-span-2"
                     >
-                        <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-lg sticky top-24">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Sections</h3>
-                            <div className="space-y-2">
-                                {guide.sections.map((section) => (
-                                    <button
-                                        key={section.id}
-                                        onClick={() => setActiveSection(section.id)}
-                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
-                                            activeSection === section.id
-                                                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-                                                : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
-                                        }`}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                {completedSections.includes(section.id) ? (
-                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                                ) : (
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                                                        activeSection === section.id ? 'border-white' : 'border-current'
-                                                    }`} />
-                                                )}
-                                                <span className="text-sm font-medium">{section.title}</span>
-                                            </div>
-                                            {activeSection === section.id && (
-                                                <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Materi Dokumentasi</h2>
+                                <div className="text-xs text-neutral-500 dark:text-neutral-400">
+                                    {isSaving ? 'Menyimpan progress...' : 'Progress tersimpan otomatis'}
+                                </div>
+                            </div>
+
+                            <div className="mb-4 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                {guide.sections.map((section) => {
+                                    const sectionDone = completedSections.includes(section.id);
+
+                                    return (
+                                        <button
+                                            key={section.id}
+                                            onClick={() => setActiveSectionId(section.id)}
+                                            className={cn(
+                                                'inline-flex items-center gap-2 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-medium transition sm:text-sm',
+                                                activeSectionId === section.id
+                                                    ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg'
+                                                    : 'border-white/20 bg-white/60 text-neutral-700 hover:bg-white dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-300',
                                             )}
+                                        >
+                                            {sectionDone && <Check className="h-3.5 w-3.5" />}
+                                            {section.title}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {activeSection && (
+                                <div className={cn('rounded-2xl border p-4 sm:p-5', getSectionTone(activeSection.type))}>
+                                    <div className="mb-3 flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-neutral-900 dark:text-white">{activeSection.title}</h3>
+                                            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Jenis konten: {activeSection.type}</p>
                                         </div>
-                                    </button>
-                                ))}
+
+                                        <Button
+                                            type="button"
+                                            onClick={() => handleToggleSection(activeSection.id)}
+                                            variant={completedSections.includes(activeSection.id) ? 'outline' : 'default'}
+                                            className={cn(
+                                                'rounded-xl',
+                                                completedSections.includes(activeSection.id)
+                                                    ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                                    : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white',
+                                            )}
+                                        >
+                                            {completedSections.includes(activeSection.id) ? (
+                                                <>
+                                                    <CheckCircle2 className="h-4 w-4" /> Selesai
+                                                </>
+                                            ) : (
+                                                'Tandai Selesai'
+                                            )}
+                                        </Button>
+                                    </div>
+
+                                    <div className="space-y-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+                                        {activeSection.content
+                                            .split('\n')
+                                            .filter(Boolean)
+                                            .map((paragraph, idx) => (
+                                                <p key={`${activeSection.id}-p-${idx}`}>{paragraph}</p>
+                                            ))}
+                                    </div>
+
+                                    {activeSection.steps && activeSection.steps.length > 0 && (
+                                        <div className="mt-5 space-y-3">
+                                            {activeSection.steps.map((step, index) => (
+                                                <div
+                                                    key={`${activeSection.id}-step-${index}`}
+                                                    className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
+                                                >
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                        Langkah {index + 1}: {step.title}
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
+                                                        {step.description}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {activeSection.faqs && activeSection.faqs.length > 0 && (
+                                        <div className="mt-5 space-y-2">
+                                            {activeSection.faqs.map((faq, index) => (
+                                                <div
+                                                    key={`${activeSection.id}-faq-${index}`}
+                                                    className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
+                                                >
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">Q: {faq.question}</p>
+                                                    <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">A: {faq.answer}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="mt-4 flex items-center justify-between gap-3">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (currentSectionIndex > 0) {
+                                            setActiveSectionId(guide.sections[currentSectionIndex - 1].id);
+                                        }
+                                    }}
+                                    disabled={currentSectionIndex <= 0}
+                                    className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70"
+                                >
+                                    <ChevronLeft className="h-4 w-4" /> Sebelumnya
+                                </Button>
+
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (currentSectionIndex < guide.sections.length - 1) {
+                                            setActiveSectionId(guide.sections[currentSectionIndex + 1].id);
+                                        }
+                                    }}
+                                    disabled={currentSectionIndex >= guide.sections.length - 1}
+                                    className="rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70"
+                                >
+                                    Selanjutnya <ChevronRight className="h-4 w-4" />
+                                </Button>
                             </div>
                         </div>
-                    </motion.div>
 
-                    {/* Main Content */}
-                    <motion.div
-                        variants={fadeInVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="lg:col-span-3"
-                    >
-                        <DarkContainer variant="primary" padding="lg" rounded="xl">
-                            <AnimatePresence mode="wait">
-                                {activeContent && (
-                                    <motion.div
-                                        key={activeContent.id}
-                                        ref={contentRef}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="overflow-y-auto pr-4 custom-scrollbar"
-                                        style={{ 
-                                            maxHeight: 'calc(100vh - 400px)',
-                                            minHeight: '400px',
-                                            scrollBehavior: 'smooth' 
-                                        }}
-                                    >
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className="flex-1">
-                                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{activeContent.title}</h2>
-                                                {!completedSections.includes(activeContent.id) && scrollProgress > 0 && (
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                                        <div className="h-1.5 w-32 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner">
-                                                            <motion.div
-                                                                className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
-                                                                initial={{ width: 0 }}
-                                                                animate={{ width: `${scrollProgress}%` }}
-                                                                transition={{ duration: 0.3 }}
-                                                            />
-                                                        </div>
-                                                        <span>{scrollProgress}% read</span>
-                                                    </div>
+                        {(guide.quiz?.length ?? 0) > 0 && (
+                            <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                                <div className="mb-4 flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-600 text-white shadow-lg">
+                                        <Info className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Quiz Pemahaman</h3>
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                            {guide.quiz?.length} pertanyaan
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {(guide.quiz ?? []).map((question, index) => {
+                                        const selected = quizAnswers[question.id];
+                                        const correctAnswer = Array.isArray(question.correctAnswer)
+                                            ? question.correctAnswer
+                                            : [question.correctAnswer];
+
+                                        return (
+                                            <div
+                                                key={question.id}
+                                                className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-900/70"
+                                            >
+                                                <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                    {index + 1}. {question.question}
+                                                </p>
+
+                                                <div className="mt-3 space-y-2">
+                                                    {(question.options ?? []).map((option) => {
+                                                        const isSelected = selected === option;
+                                                        const isCorrect = correctAnswer.includes(option);
+
+                                                        return (
+                                                            <button
+                                                                key={option}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setQuizAnswers((prev) => ({
+                                                                        ...prev,
+                                                                        [question.id]: option,
+                                                                    }))
+                                                                }
+                                                                className={cn(
+                                                                    'w-full rounded-xl border px-3 py-2 text-left text-sm transition',
+                                                                    isSelected
+                                                                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30'
+                                                                        : 'border-white/20 bg-white dark:border-white/10 dark:bg-neutral-900',
+                                                                    quizSubmitted && isCorrect && 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30',
+                                                                    quizSubmitted && isSelected && !isCorrect && 'border-red-500 bg-red-50 dark:bg-red-950/30',
+                                                                )}
+                                                            >
+                                                                {option}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                {quizSubmitted && question.explanation && (
+                                                    <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-300">
+                                                        {question.explanation}
+                                                    </p>
                                                 )}
                                             </div>
-                                            {isGuideCompleted ? (
-                                                <div className="px-6 py-2 rounded-xl bg-green-600 text-white font-bold flex items-center gap-2 flex-shrink-0 shadow-lg">
-                                                    <CheckCircle className="w-5 h-5" />
-                                                    <span>Selesai</span>
-                                                </div>
-                                            ) : completionPercentage === 100 ? (
-                                                <button
-                                                    onClick={handleManualComplete}
-                                                    className="px-6 py-2 rounded-xl transition-all duration-300 flex-shrink-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 font-bold shadow-lg shadow-green-500/30 hover:shadow-green-500/50"
-                                                >
-                                                    <span className="flex items-center gap-2">
-                                                        <CheckCircle className="w-4 h-4" />
-                                                        Tandai Selesai
-                                                    </span>
-                                                </button>
-                                            ) : (
-                                                <div className="text-sm text-gray-600 dark:text-gray-400 flex-shrink-0 font-medium">
-                                                    {completionPercentage}% Complete
-                                                </div>
-                                            )}
-                                        </div>
+                                        );
+                                    })}
+                                </div>
 
-                                        <div className="prose prose-slate dark:prose-invert max-w-none">
-                                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                                {activeContent.content}
+                                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <Button
+                                        type="button"
+                                        onClick={submitQuiz}
+                                        className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                                    >
+                                        Submit Quiz
+                                    </Button>
+
+                                    {quizSubmitted && (
+                                        <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-300">
+                                            Skor: <AnimatedCounter value={quizScore} />/{maxQuizScore}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {(guide.exercises?.length ?? 0) > 0 && (
+                            <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                                <div className="mb-3 flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
+                                        <ClipboardList className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Latihan</h3>
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400">Praktikkan materi agar lebih melekat</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    {(guide.exercises ?? []).map((exercise, index) => (
+                                        <div
+                                            key={exercise.id}
+                                            className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
+                                        >
+                                            <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {index + 1}. {exercise.title}
                                             </p>
+                                            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
+                                                {exercise.instruction}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
 
-                                            {/* Steps */}
-                                            {activeContent.steps && activeContent.steps.length > 0 && (
-                                                <div className="mt-6 space-y-4">
-                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Steps</h3>
-                                                    {activeContent.steps.map((step, index) => (
-                                                        <div key={index} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                                                                    <span className="text-white font-bold text-sm">{index + 1}</span>
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <h4 className="font-bold text-gray-900 dark:text-white mb-1">{step.title}</h4>
-                                                                    <p className="text-gray-600 dark:text-gray-400 text-sm">{step.description}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 }}
+                        className="space-y-4"
+                    >
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Progress Materi</h3>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                                {completedSections.length}/{guide.sections.length} section selesai
+                            </p>
 
-                                            {/* FAQs */}
-                                            {activeContent.faqs && activeContent.faqs.length > 0 && (
-                                                <div className="mt-6 space-y-4">
-                                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Frequently Asked Questions</h3>
-                                                    {activeContent.faqs.map((faq, index) => (
-                                                        <div key={index} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                                                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">{faq.question}</h4>
-                                                            <p className="text-gray-600 dark:text-gray-400">{faq.answer}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                            <div className="mt-3">
+                                <Progress
+                                    value={completionPercentage}
+                                    className="h-2 bg-neutral-200/80 dark:bg-neutral-700"
+                                    indicatorClassName="bg-gradient-to-r from-indigo-500 to-purple-600"
+                                />
+                            </div>
+
+                            <div className="mt-4 space-y-2">
+                                {guide.sections.map((section) => {
+                                    const done = completedSections.includes(section.id);
+                                    return (
+                                        <div
+                                            key={section.id}
+                                            className="flex items-center justify-between rounded-xl border border-white/20 bg-white/70 px-3 py-2 text-xs dark:border-white/10 dark:bg-neutral-900/70"
+                                        >
+                                            <span className="line-clamp-1 text-neutral-700 dark:text-neutral-300">{section.title}</span>
+                                            {done ? (
+                                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                            ) : (
+                                                <div className="h-3 w-3 rounded-full border border-neutral-400" />
                                             )}
                                         </div>
+                                    );
+                                })}
+                            </div>
 
-                                        {/* Navigation */}
-                                        <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-                                            <button
-                                                onClick={() => {
-                                                    const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
-                                                    if (currentIndex > 0) {
-                                                        setActiveSection(guide.sections[currentIndex - 1].id);
-                                                    }
-                                                }}
-                                                disabled={guide.sections.findIndex(s => s.id === activeSection) === 0}
-                                                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                                            >
-                                                ← Previous
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    const currentIndex = guide.sections.findIndex(s => s.id === activeSection);
-                                                    if (currentIndex < guide.sections.length - 1) {
-                                                        setActiveSection(guide.sections[currentIndex + 1].id);
-                                                    }
-                                                }}
-                                                disabled={guide.sections.findIndex(s => s.id === activeSection) === guide.sections.length - 1}
-                                                className="px-4 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                                            >
-                                                Next →
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </DarkContainer>
+                            <Button
+                                type="button"
+                                onClick={markGuideAsComplete}
+                                disabled={isSaving || isCompleted}
+                                className="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                            >
+                                {isCompleted ? 'Guide Selesai' : 'Tandai Guide Selesai'}
+                            </Button>
+                        </div>
+
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Feedback Cepat</h3>
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Apakah materi ini membantu?</p>
+
+                            <div className="mt-3 rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70">
+                                <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                    <span>Helpful</span>
+                                    <span>
+                                        {feedbackStats.helpful_count} ya • {feedbackStats.not_helpful_count} tidak
+                                    </span>
+                                </div>
+                                <div className="mt-2 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                    <span>Rating</span>
+                                    <span>
+                                        {feedbackStats.average_rating.toFixed(1)} / 5 ({feedbackStats.total_ratings})
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-2 gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isFeedbackSaving}
+                                    onClick={() => void upsertFeedback({ helpful: true })}
+                                    className={cn(
+                                        'rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70',
+                                        helpfulVote === 'yes' && 'border-emerald-500 text-emerald-600 dark:text-emerald-400',
+                                    )}
+                                >
+                                    <ThumbsUp className="h-4 w-4" /> Ya
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={isFeedbackSaving}
+                                    onClick={() => void upsertFeedback({ helpful: false })}
+                                    className={cn(
+                                        'rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70',
+                                        helpfulVote === 'no' && 'border-red-500 text-red-600 dark:text-red-400',
+                                    )}
+                                >
+                                    <ThumbsDown className="h-4 w-4" /> Tidak
+                                </Button>
+                            </div>
+
+                            <div className="mt-3">
+                                <p className="mb-2 text-xs font-medium text-neutral-600 dark:text-neutral-300">Rating materi</p>
+                                <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((level) => (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            disabled={isFeedbackSaving}
+                                            onClick={() => setRating(level)}
+                                            className="rounded-md p-1 transition hover:bg-white dark:hover:bg-neutral-800"
+                                        >
+                                            <Star
+                                                className={cn(
+                                                    'h-5 w-5',
+                                                    level <= rating ? 'fill-amber-400 text-amber-400' : 'text-neutral-300 dark:text-neutral-600',
+                                                )}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mt-3">
+                                <Textarea
+                                    value={comment}
+                                    onChange={(event) => setComment(event.target.value)}
+                                    placeholder="Tulis masukan singkat (opsional)"
+                                    className="min-h-[90px] rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70"
+                                />
+                            </div>
+
+                            <Button
+                                type="button"
+                                onClick={() => void upsertFeedback()}
+                                disabled={isFeedbackSaving}
+                                className="mt-3 w-full rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                            >
+                                {isFeedbackSaving ? 'Menyimpan...' : 'Simpan Feedback'}
+                            </Button>
+                        </div>
+
+                        {relatedGuides.length > 0 && (
+                            <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Materi Terkait</h3>
+                                <div className="mt-3 space-y-2">
+                                    {relatedGuides.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => router.visit(`/user/docs/${item.id}`)}
+                                            className="w-full rounded-xl border border-white/20 bg-white/70 p-3 text-left transition hover:bg-white dark:border-white/10 dark:bg-neutral-900/70 dark:hover:bg-neutral-900"
+                                        >
+                                            <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {item.title}
+                                            </p>
+                                            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                {item.estimatedTime} menit • {item.progress}% progress
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 </div>
             </div>

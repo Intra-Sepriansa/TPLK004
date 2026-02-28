@@ -337,16 +337,15 @@ export default function CourseDetail({
                     ))}
 
                     <div className="relative z-10">
-                        <Link href="/dosen/courses">
-                            <motion.button
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                whileHover={{ x: -5, backgroundColor: 'rgba(255,255,255,0.15)' }}
-                                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm font-medium mb-8 hover:bg-white/20 transition-all group"
-                            >
-                                <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Kembali ke Daftar
-                            </motion.button>
-                        </Link>
+                        {/* ═══ BACK BUTTON ═══ */}
+                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="mb-6">
+                            <Button variant="ghost" onClick={() => router.visit('/dosen/courses')} className="group hover:bg-white/60 dark:hover:bg-neutral-800/60 transition-all duration-300">
+                                <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                </motion.div>
+                                Kembali ke Daftar
+                            </Button>
+                        </motion.div>
 
                         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
                             <div className="flex items-start gap-6">
@@ -434,23 +433,23 @@ export default function CourseDetail({
                 </motion.div>
 
                 {/* ═══════ ENHANCED SUMMARY CARDS ═══════ */}
-                <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <motion.div variants={containerVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                     {/* Total Mahasiswa */}
                     <motion.div variants={cardVariants} whileHover="hover" className="group relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/40 dark:bg-neutral-900/60 p-4 shadow-xl backdrop-blur-2xl transition-all dark:border-white/5 box-border">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 dark:from-indigo-500/20 dark:to-blue-500/20" />
-                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-indigo-500/30 blur-3xl transition-all duration-500 group-hover:bg-indigo-500/50" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 dark:from-teal-500/20 dark:to-cyan-500/20" />
+                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-teal-500/30 blur-3xl transition-all duration-500 group-hover:bg-teal-500/50" />
 
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center">
                                 <img src={StatTotalStudents} alt="Total Mahasiswa" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
-                            <div>
-                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
-                                <p className="text-xl font-black text-neutral-900 dark:text-white mt-1">
+                            <div className="flex flex-col items-center sm:items-start">
+                                <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400">Total Mahasiswa</p>
+                                <p className="text-lg sm:text-xl font-black text-neutral-900 dark:text-white mt-0.5 sm:mt-1">
                                     <AnimatedCounter value={stats.totalStudents} />
                                 </p>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full w-fit mt-1">
-                                    <ArrowUpRight className="h-3 w-3" /> +100% Aktif
+                                <div className="flex items-center justify-center sm:justify-start gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full w-fit mt-1">
+                                    <ArrowUpRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> <span className="hidden sm:inline">+100% Aktif</span><span className="sm:hidden">Aktif</span>
                                 </div>
                             </div>
                         </div>
@@ -458,19 +457,19 @@ export default function CourseDetail({
 
                     {/* Sesi Berlangsung */}
                     <motion.div variants={cardVariants} whileHover="hover" className="group relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/40 dark:bg-neutral-900/60 p-4 shadow-xl backdrop-blur-2xl transition-all dark:border-white/5 box-border">
-                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/20 dark:to-orange-500/20" />
-                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-amber-500/30 blur-3xl transition-all duration-500 group-hover:bg-amber-500/50" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-fuchsia-500/5 dark:from-purple-500/20 dark:to-fuchsia-500/20" />
+                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-purple-500/30 blur-3xl transition-all duration-500 group-hover:bg-purple-500/50" />
 
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center">
                                 <img src={StatTotalSessions} alt="Sesi Berlangsung" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
-                            <div>
-                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sesi Berlangsung</p>
-                                <p className="text-xl font-black text-neutral-900 dark:text-white mt-1">
+                            <div className="flex flex-col items-center sm:items-start">
+                                <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400 whitespace-nowrap">Sesi Berlangsung</p>
+                                <p className="text-lg sm:text-xl font-black text-neutral-900 dark:text-white mt-0.5 sm:mt-1">
                                     <AnimatedCounter value={stats.activeSessions} />
                                 </p>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-neutral-500 bg-neutral-500/10 px-2 py-0.5 rounded-full w-fit mt-1">
+                                <div className="flex items-center justify-center sm:justify-start gap-1 text-[9px] sm:text-[10px] font-bold text-neutral-500 bg-neutral-500/10 px-2 py-0.5 rounded-full w-fit mt-1 whitespace-nowrap">
                                     {stats.completedSessions} Selesai
                                 </div>
                             </div>
@@ -479,22 +478,22 @@ export default function CourseDetail({
 
                     {/* Tingkat Kehadiran */}
                     <motion.div variants={cardVariants} whileHover="hover" className="group relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/40 dark:bg-neutral-900/60 p-4 shadow-xl backdrop-blur-2xl transition-all dark:border-white/5 box-border">
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/20 dark:to-teal-500/20" />
-                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-emerald-500/30 blur-3xl transition-all duration-500 group-hover:bg-emerald-500/50" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 dark:from-amber-500/20 dark:to-orange-500/20" />
+                        <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-amber-500/30 blur-3xl transition-all duration-500 group-hover:bg-amber-500/50" />
 
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center">
                                 <img src={StatAttendanceRate} alt="Tingkat Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
-                            <div>
-                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Tingkat Kehadiran</p>
-                                <p className="text-xl font-black text-neutral-900 dark:text-white mt-1">
+                            <div className="flex flex-col items-center sm:items-start">
+                                <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400">Kehadiran</p>
+                                <p className="text-lg sm:text-xl font-black text-neutral-900 dark:text-white mt-0.5 sm:mt-1">
                                     <AnimatedCounter value={stats.attendanceRate} suffix="%" />
                                 </p>
-                                <div className={cn("flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mt-1",
+                                <div className={cn("flex items-center justify-center sm:justify-start gap-1 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mt-1 whitespace-nowrap",
                                     stats.attendanceRate >= 80 ? "text-emerald-500 bg-emerald-500/10" : "text-amber-500 bg-amber-500/10"
                                 )}>
-                                    {stats.attendanceRate >= 80 ? "Bagus" : "Perlu ditingkatkan"}
+                                    {stats.attendanceRate >= 80 ? "Bagus" : "Tingkat"}
                                 </div>
                             </div>
                         </div>
@@ -505,17 +504,17 @@ export default function CourseDetail({
                         <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-red-500/5 dark:from-rose-500/20 dark:to-red-500/20" />
                         <motion.div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-rose-500/30 blur-3xl transition-all duration-500 group-hover:bg-rose-500/50" />
 
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-14 w-14 items-center justify-center">
+                        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center">
                                 <img src={OverdueIcon} alt="Tingkat < 70%" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                             </motion.div>
-                            <div>
-                                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Tingkat &lt; 70%</p>
-                                <p className="text-xl font-black text-neutral-900 dark:text-white mt-1">
+                            <div className="flex flex-col items-center sm:items-start">
+                                <p className="text-[10px] sm:text-xs font-medium text-neutral-500 dark:text-neutral-400 whitespace-nowrap">Tingkat &lt; 70%</p>
+                                <p className="text-lg sm:text-xl font-black text-neutral-900 dark:text-white mt-0.5 sm:mt-1">
                                     <AnimatedCounter value={stats.atRiskCount} />
                                 </p>
-                                <div className="flex items-center gap-1 text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full w-fit mt-1">
-                                    Perlu Perhatian
+                                <div className="flex items-center justify-center sm:justify-start gap-1 text-[9px] sm:text-[10px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded-full w-fit mt-1 whitespace-nowrap">
+                                    <span className="hidden sm:inline">Perlu Perhatian</span><span className="sm:hidden">Waspada</span>
                                 </div>
                             </div>
                         </div>

@@ -6,10 +6,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ArrowLeft, 
-    CheckCircle, 
-    Clock, 
+import {
+    ArrowLeft,
+    CheckCircle,
+    Clock,
     BookOpen,
     ChevronRight,
     Award,
@@ -82,9 +82,9 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
             // Calculate how far from bottom (with 100px buffer for easier completion)
             const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
             const maxScroll = scrollHeight - clientHeight;
-            
+
             let progress = 0;
-            
+
             if (maxScroll <= 10) {
                 // Content fits in viewport or very close
                 progress = 100;
@@ -92,7 +92,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                 // Calculate scroll percentage
                 progress = Math.round((scrollTop / maxScroll) * 100);
             }
-            
+
             setScrollProgress(Math.min(progress, 100));
 
             // Auto-complete when:
@@ -100,7 +100,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
             // 2. Progress >= 70% (lebih mudah lagi)
             const isNearBottom = distanceFromBottom <= 100;
             const hasReadEnough = progress >= 70;
-            
+
             // Debug log
             console.log('Scroll Debug:', {
                 scrollTop,
@@ -113,7 +113,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                 hasAutoCompleted: hasAutoCompleted.current,
                 isCompleted: completedSections.includes(activeSection)
             });
-            
+
             if ((isNearBottom || hasReadEnough) && !completedSections.includes(activeSection) && !hasAutoCompleted.current) {
                 console.log('✅ Triggering auto-complete!');
                 hasAutoCompleted.current = true;
@@ -127,18 +127,18 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
         if (element) {
             // Initial check after mount
             setTimeout(() => handleScroll(), 100);
-            
+
             // Add scroll listener
             element.addEventListener('scroll', handleScroll, { passive: true });
-            
+
             // Also check when scroll ends (for better detection)
             element.addEventListener('scrollend', handleScroll);
-            
+
             // Fallback: Check every 500ms if user is near bottom
             checkInterval = setInterval(() => {
                 handleScroll();
             }, 500);
-            
+
             return () => {
                 element.removeEventListener('scroll', handleScroll);
                 element.removeEventListener('scrollend', handleScroll);
@@ -153,14 +153,14 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
     useEffect(() => {
         hasAutoCompleted.current = false;
         setScrollProgress(0);
-        
+
         // Trigger initial scroll check after section change
         setTimeout(() => {
             if (contentRef.current && activeSection) {
                 const element = contentRef.current;
                 const scrollHeight = element.scrollHeight;
                 const clientHeight = element.clientHeight;
-                
+
                 // If content fits in viewport (tidak perlu scroll), auto-complete after 1.5 seconds
                 if (scrollHeight - clientHeight <= 10 && !completedSections.includes(activeSection)) {
                     setTimeout(() => {
@@ -179,7 +179,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
             setIsLoading(true);
             const response = await fetch(`/api/docs/guides/${guideId}?role=dosen`);
             const data = await response.json();
-            
+
             if (data.success) {
                 setGuide(data.data);
                 setCompletedSections(data.data.progress?.completed_sections || []);
@@ -261,7 +261,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
 
                 // Update local state
                 setIsGuideCompleted(true);
-                
+
                 // Show celebration overlay
                 setShowCelebration(true);
 
@@ -274,10 +274,10 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                 // Big confetti celebration
                 const duration = 3000;
                 const animationEnd = Date.now() + duration;
-                const defaults = { 
-                    startVelocity: 30, 
-                    spread: 360, 
-                    ticks: 60, 
+                const defaults = {
+                    startVelocity: 30,
+                    spread: 360,
+                    ticks: 60,
                     zIndex: 9999,
                     colors: ['#10b981', '#14b8a6', '#06b6d4', '#22d3ee', '#34d399', '#fbbf24']
                 };
@@ -309,7 +309,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
         if (!guide) return;
 
         // Check if all sections are completed
-        const allSectionsComplete = guide.sections.every(section => 
+        const allSectionsComplete = guide.sections.every(section =>
             completedSections.includes(section.id)
         );
 
@@ -471,7 +471,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
 
                         <div className="flex items-center gap-4 mb-4">
                             <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={PanduanIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                <img src={PanduanIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </div>
                             <div>
                                 <p className="text-sm text-white/90 font-medium">Dokumentasi Dosen</p>
@@ -579,20 +579,18 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                     <button
                                         key={section.id}
                                         onClick={() => setActiveSection(section.id)}
-                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${
-                                            activeSection === section.id
+                                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${activeSection === section.id
                                                 ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/30'
                                                 : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 {completedSections.includes(section.id) ? (
                                                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                                                 ) : (
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
-                                                        activeSection === section.id ? 'border-white' : 'border-current'
-                                                    }`} />
+                                                    <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${activeSection === section.id ? 'border-white' : 'border-current'
+                                                        }`} />
                                                 )}
                                                 <span className="text-sm font-medium">{section.title}</span>
                                             </div>
@@ -624,10 +622,10 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                         exit={{ opacity: 0, y: -20 }}
                                         transition={{ duration: 0.3 }}
                                         className="overflow-y-auto pr-4 custom-scrollbar"
-                                        style={{ 
+                                        style={{
                                             maxHeight: 'calc(100vh - 400px)',
                                             minHeight: '400px',
-                                            scrollBehavior: 'smooth' 
+                                            scrollBehavior: 'smooth'
                                         }}
                                     >
                                         <div className="flex items-center justify-between mb-6">
@@ -647,7 +645,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             {/* Section Complete Buttons */}
                                             <div className="flex items-center gap-3 flex-shrink-0">
                                                 {completedSections.includes(activeContent.id) ? (
@@ -697,7 +695,7 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                             <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                                                 {activeContent.content.split('\n\n').map((paragraph, idx) => {
                                                     if (!paragraph.trim()) return null;
-                                                    
+
                                                     // Replace **text** with <strong>text</strong>
                                                     const parts = paragraph.split(/(\*\*.*?\*\*)/g);
                                                     const rendered = parts.map((part, i) => {
@@ -796,27 +794,27 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                         <motion.div
                             initial={{ scale: 0, rotate: -180 }}
                             animate={{ scale: 1, rotate: 0 }}
-                            transition={{ 
-                                type: "spring", 
-                                stiffness: 200, 
+                            transition={{
+                                type: "spring",
+                                stiffness: 200,
                                 damping: 20,
-                                duration: 0.8 
+                                duration: 0.8
                             }}
                             className="relative"
                         >
                             {/* Glowing background */}
                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-3xl blur-3xl opacity-50 animate-pulse" />
-                            
+
                             {/* Main card */}
                             <div className="relative bg-white dark:bg-neutral-900 rounded-3xl p-12 shadow-2xl border-4 border-emerald-500 max-w-md">
                                 {/* Floating icons */}
                                 <div className="absolute -top-8 -left-8">
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             rotate: [0, 360],
                                             scale: [1, 1.2, 1]
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "easeInOut"
@@ -826,14 +824,14 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                         <Award className="w-8 h-8 text-white" />
                                     </motion.div>
                                 </div>
-                                
+
                                 <div className="absolute -top-8 -right-8">
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             rotate: [360, 0],
                                             scale: [1, 1.2, 1]
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 2,
                                             repeat: Infinity,
                                             ease: "easeInOut",
@@ -847,11 +845,11 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
 
                                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             y: [0, -10, 0],
                                             scale: [1, 1.1, 1]
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 1.5,
                                             repeat: Infinity,
                                             ease: "easeInOut"
@@ -866,11 +864,11 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                 <div className="text-center space-y-6">
                                     {/* Trophy icon */}
                                     <motion.div
-                                        animate={{ 
+                                        animate={{
                                             scale: [1, 1.1, 1],
                                             rotate: [0, 5, -5, 0]
                                         }}
-                                        transition={{ 
+                                        transition={{
                                             duration: 1,
                                             repeat: Infinity,
                                             ease: "easeInOut"

@@ -1,4 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import { motion } from 'framer-motion';
 import { useState, useEffect, FormEvent } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
@@ -146,7 +147,12 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
             <Head title="Persetujuan Izin" />
             <div className="space-y-6 p-6">
                 {/* Header with Black Gradient */}
-                <div className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl border border-gray-800 transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 text-white shadow-2xl border border-gray-800"
+                >
                     {/* Animated Background Orbs */}
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 blur-3xl animate-pulse" />
                     <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -224,37 +230,44 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             ))}
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Stats Cards */}
-                <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
                     {[
-                        { imgSrc: TotalTugasIcon, label: 'Total Pengajuan', value: stats.total, color: 'from-blue-500 to-indigo-600', shadow: 'shadow-black/25' },
-                        { imgSrc: TerlambatIcon, label: 'Menunggu', value: stats.pending, color: 'from-amber-500 to-orange-600', shadow: 'shadow-amber-500/25' },
-                        { imgSrc: DisetujuiIcon, label: 'Disetujui', value: stats.approved, color: 'from-emerald-500 to-teal-600', shadow: 'shadow-emerald-500/25' },
-                        { imgSrc: DitolakIcon, label: 'Ditolak', value: stats.rejected, color: 'from-red-500 to-rose-600', shadow: 'shadow-red-500/25' },
+                        { imgSrc: TotalTugasIcon, label: 'Total Pengajuan', value: stats.total },
+                        { imgSrc: TerlambatIcon, label: 'Menunggu', value: stats.pending },
+                        { imgSrc: DisetujuiIcon, label: 'Disetujui', value: stats.approved },
+                        { imgSrc: DitolakIcon, label: 'Ditolak', value: stats.rejected },
                     ].map((stat, i) => (
-                        <div
+                        <motion.div
                             key={i}
-                            className={`rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 transition-all duration-500 hover:scale-105 hover:shadow-xl group`}
-                            style={{ transitionDelay: `${i * 100}ms` }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + i * 0.1 }}
+                            whileHover={{ scale: 1.02, y: -2 }}
+                            className="rounded-2xl border border-slate-200/70 bg-white/80 p-4 sm:p-5 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="relative flex shrink-0 h-12 w-12 items-center justify-center">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
+                                <div className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12">
                                     <img src={stat.imgSrc} alt={stat.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
                                 </div>
-                                <div>
-                                    <p className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                                    <p className="text-sm text-slate-500">{stat.label}</p>
+                                <div className="text-center sm:text-left">
+                                    <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+                                    <p className="text-xs sm:text-sm text-slate-500">{stat.label}</p>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
 
                 {/* Bulk Actions */}
                 {selectedPermits.length > 0 && (
-                    <div className={`flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800 transition-all duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 dark:from-blue-900/20 dark:to-indigo-900/20 dark:border-blue-800"
+                    >
                         <div className="flex items-center gap-2">
                             <div className="p-2 rounded-lg bg-blue-500 text-white">
                                 <Users className="h-4 w-4" />
@@ -271,11 +284,16 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => setSelectedPermits([])}>Batal</Button>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {/* Tabs & Permits List */}
-                <div className={`rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/70 overflow-hidden"
+                >
                     <div className="p-4 border-b border-slate-200 dark:border-gray-800">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-2">
@@ -468,7 +486,7 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Reject Modal */}
                 {rejectDialog.open && (
@@ -571,12 +589,6 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                 )}
             </div>
 
-            <style>{`
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </DosenLayout>
     );
 }

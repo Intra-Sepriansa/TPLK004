@@ -8,6 +8,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, LabelList } from 'recharts';
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
+import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
+import TerlambatIcon from '@/assets/admin/analytics/terlambat.png';
+import RataRataIcon from '@/assets/admin/leaderboard/rata-rata.png';
 
 interface AttRec { id: number; meeting_number: number; session_title: string; session_date: string; session_time: string; status: 'present' | 'late' | 'permit' | 'sick' | 'absent' | 'rejected'; points: number; check_in_time?: string | null; check_in_location?: { latitude: number; longitude: number; address?: string | null } | null; selfie_photo?: string | null; notes?: string | null; device_info?: string | null; edited_by?: string | null; edit_reason?: string | null; }
 interface DNote { id: number; content: string; title: string; created_by: string; created_at: string; is_important: boolean; is_visible_to_student: boolean; }
@@ -48,6 +52,7 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
   const [ct, setCt] = useState('trend'); const [cp, setCp] = useState(false); const [tf, setTf] = useState('all');
   const [hCard, setHCard] = useState<string | null>(null); const [selfieM, setSelfieM] = useState<string | null>(null);
   const [page, setPage] = useState(1); const perPage = 8;
+  const [imgError, setImgError] = useState(false);
   const ef = useForm({ log_id: 0, status: '', reason: '' });
   const nf = useForm({ mahasiswa_id: student.id, content: '', title: '' });
   const sb = gd.status_breakdown; const pb = gd.points_breakdown;
@@ -71,12 +76,10 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
   const delN = useCallback((id: number) => { if (confirm('Yakin hapus catatan?')) router.delete('/dosen/grading/detail/note/' + id); }, []);
 
   const cards = [
-    { k: 't', l: 'Total Pertemuan', v: gd.total_sessions, s: 'Sesi Terlaksana', I: BookOpen, f: 'from-blue-400', t2: 'to-cyan-600', sh: 'shadow-blue-500/30', glow: 'bg-blue-500' },
-    { k: 'h', l: 'Hadir', v: sb.present, s: 'Kehadiran Penuh', I: CheckCircle, f: 'from-emerald-400', t2: 'to-teal-600', sh: 'shadow-emerald-500/30', glow: 'bg-emerald-500' },
-    { k: 'l', l: 'Terlambat', v: sb.late, s: 'Datang Terlambat', I: Clock, f: 'from-amber-400', t2: 'to-orange-600', sh: 'shadow-amber-500/30', glow: 'bg-amber-500' },
-    { k: 'i', l: 'Izin/Sakit', v: sb.permit + sb.sick, s: 'Dengan Keterangan', I: FileText, f: 'from-blue-400', t2: 'to-indigo-600', sh: 'shadow-blue-500/30', glow: 'bg-indigo-500' },
-    { k: 'a', l: 'Absen', v: sb.absent + sb.rejected, s: 'Tanpa Keterangan', I: XCircle, f: 'from-red-400', t2: 'to-rose-600', sh: 'shadow-red-500/30', glow: 'bg-red-500' },
-    { k: 'p', l: 'Rata-rata Poin', v: gd.average_points, s: 'Poin Per Sesi', I: Award, f: 'from-purple-400', t2: 'to-pink-600', sh: 'shadow-purple-500/30', glow: 'bg-purple-500' },
+    { k: 't', l: 'Total Pertemuan', v: gd.total_sessions, s: 'Sesi Terlaksana', I: TotalIcon, f: 'from-blue-400', t2: 'to-cyan-600', sh: 'shadow-blue-500/30', glow: 'bg-blue-500', isImage: true },
+    { k: 'h', l: 'Hadir', v: sb.present, s: 'Kehadiran Penuh', I: HadirIcon, f: 'from-emerald-400', t2: 'to-teal-600', sh: 'shadow-emerald-500/30', glow: 'bg-emerald-500', isImage: true },
+    { k: 'l', l: 'Terlambat', v: sb.late, s: 'Datang Terlambat', I: TerlambatIcon, f: 'from-amber-400', t2: 'to-orange-600', sh: 'shadow-amber-500/30', glow: 'bg-amber-500', isImage: true },
+    { k: 'p', l: 'Rata-rata Poin', v: gd.average_points, s: 'Poin Per Sesi', I: RataRataIcon, f: 'from-purple-400', t2: 'to-pink-600', sh: 'shadow-purple-500/30', glow: 'bg-purple-500', isImage: true },
   ];
   const tbs: { k: string; l: string; I: any }[] = [{ k: 'timeline', l: 'Timeline', I: Calendar }, { k: 'stats', l: 'Statistik', I: BarChart3 }, { k: 'riwayat', l: 'Riwayat', I: FileText }, { k: 'catatan', l: 'Catatan', I: MessageSquare }, { k: 'perbandingan', l: 'Perbandingan', I: TrendingUp }];
   const diff = gd.attendance_rate - ca.average_attendance_rate;
@@ -96,12 +99,22 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
           {[0, 1, 2].map(i => <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />)}
           <div className="relative">
             <div className="flex items-center gap-2 mb-6">
-              <motion.button whileHover={{ scale: 1.05, x: -3 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/grading')} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30"><ArrowLeft className="h-4 w-4" /> Kembali</motion.button>
+              {/* ═══ BACK BUTTON ═══ */}
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
+                <Button variant="ghost" onClick={() => router.visit('/dosen/grading')} className="group text-white hover:bg-white/20 hover:text-white transition-all duration-300">
+                  <motion.div whileHover={{ x: -4 }} transition={{ type: "spring", stiffness: 400, damping: 25 }}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                  </motion.div>
+                  Kembali
+                </Button>
+              </motion.div>
               <div className="hidden md:flex items-center gap-1 text-sm text-white/60"><span>Grading</span><ChevronDown className="h-3 w-3 rotate-[-90deg]" /><span className="text-white/90">Detail</span></div>
             </div>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-5">
-                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-3xl font-bold shadow-xl overflow-hidden">{student.foto ? <img src={student.foto} alt="" className="h-full w-full rounded-2xl object-cover" /> : ini(student.nama)}</motion.div>
+                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-3xl font-bold shadow-xl overflow-hidden">
+                  {student.foto && !imgError ? <img src={student.foto} alt="" className="h-full w-full rounded-2xl object-cover" onError={() => setImgError(true)} /> : ini(student.nama)}
+                </motion.div>
                 <div><h1 className="text-2xl md:text-3xl font-bold">{student.nama}</h1><div className="flex items-center gap-2 mt-1"><span className="font-mono text-sm text-indigo-100">{student.nim}</span><motion.button whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} onClick={cpN} className="p-1 rounded-md hover:bg-white/20">{cp ? <Check className="h-3 w-3 text-emerald-300" /> : <Copy className="h-3 w-3 text-white/60" />}</motion.button></div><p className="text-sm text-indigo-100 mt-1">{course.nama} ({course.sks} SKS) - {student.prodi}</p></div>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -118,12 +131,14 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
           </div>
         </motion.div>
 
-        {/* ═══ 6 SUMMARY CARDS ═══ */}
-        <motion.div variants={cV} className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+        {/* ═══ 4 SUMMARY CARDS ═══ */}
+        <motion.div variants={cV} className="grid gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
           {cards.map(c => <motion.div key={c.k} variants={cardV} whileHover="hover" onHoverStart={() => setHCard(c.k)} onHoverEnd={() => setHCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5">
             <motion.div animate={{ scale: hCard === c.k ? 1.5 : 1, opacity: hCard === c.k ? 0.4 : 0.2 }} className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${c.glow} blur-3xl transition-all duration-500`} />
             <div className="relative flex items-center gap-3">
-              <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${c.f} ${c.t2} text-white shadow-lg ${c.sh}`}><c.I className="h-6 w-6" /></motion.div>
+              <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${c.f} ${c.t2} text-white shadow-lg ${c.sh}`}>
+                {c.isImage ? <img src={c.I as string} alt="" className="h-6 w-6 object-contain drop-shadow-md" /> : <c.I className="h-6 w-6" />}
+              </motion.div>
               <div><p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.l}</p><p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">{c.v}</p><p className="text-[10px] text-neutral-400 dark:text-neutral-500">{c.s}</p></div>
             </div>
           </motion.div>)}

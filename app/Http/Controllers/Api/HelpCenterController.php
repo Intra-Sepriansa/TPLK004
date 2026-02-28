@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\HelpFaq;
+use App\Models\HelpFeedback;
+use App\Models\HelpTroubleshooting;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class HelpCenterController extends Controller
@@ -19,11 +24,9 @@ class HelpCenterController extends Controller
      */
     public function faqs(Request $request): JsonResponse
     {
-        $faqs = $this->getAllFaqs();
-
         return response()->json([
             'success' => true,
-            'data' => $faqs,
+            'data' => $this->getAllFaqs(),
         ]);
     }
 
@@ -32,13 +35,18 @@ class HelpCenterController extends Controller
      */
     public function faqsByCategory(Request $request, string $category): JsonResponse
     {
-        $faqs = $this->getAllFaqs();
-        $categoryFaqs = collect($faqs)->firstWhere('id', $category);
+        $faqs = collect($this->getAllFaqs());
+        $normalizedCategory = Str::slug($category);
+
+        $categoryFaqs = $faqs->first(function (array $item) use ($normalizedCategory) {
+            return Str::slug((string) ($item['id'] ?? '')) === $normalizedCategory
+                || Str::slug((string) ($item['name'] ?? '')) === $normalizedCategory;
+        });
 
         if (!$categoryFaqs) {
             return response()->json([
                 'success' => false,
-                'error' => 'Category not found',
+                'message' => 'Category not found',
             ], 404);
         }
 
@@ -49,30 +57,182 @@ class HelpCenterController extends Controller
     }
 
     /**
-     * Search FAQs and documentation.
+     * Persist FAQ vote (helpful / not helpful).
+     */
+    public function rateFaq(Request $request, string $faqId): JsonResponse
+    {
+        $validated = $request->validate([
+            'helpful' => 'required|boolean',
+        ]);
+
+        if (!Schema::hasTable('help_faqs') || !Schema::hasTable('help_faq_votes')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'FAQ voting storage is not ready',
+            ], 503);
+        }
+
+        $resolvedId = $this->extractFaqPrimaryKey($faqId);
+        $faq = $resolvedId ? HelpFaq::query()->find($resolvedId) : null;
+
+        if (!$faq) {
+            return response()->json([
+                'success' => false,
+                'message' => 'FAQ not found',
+            ], 404);
+        }
+
+        $user = $this->getAuthenticatedUser();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $userType = $this->getUserRole();
+        $voteType = $validated['helpful'] ? 'helpful' : 'not_helpful';
+
+        $existingVote = DB::table('help_faq_votes')
+            ->where('faq_id', $faq->id)
+            ->where('user_type', $userType)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingVote) {
+            $counts = $this->resolveFaqVoteCounts($faq->id, $faq);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah memberikan vote untuk pertanyaan ini.',
+                'data' => [
+                    'faq_id' => "faq-{$faq->id}",
+                    'helpful' => $counts['helpful'],
+                    'notHelpful' => $counts['notHelpful'],
+                    'userVote' => $existingVote->vote_type === 'helpful' ? 'helpful' : 'notHelpful',
+                    'alreadyVoted' => true,
+                ],
+            ], 409);
+        }
+
+        try {
+            DB::transaction(function () use ($faq, $userType, $user, $voteType) {
+                DB::table('help_faq_votes')->insert([
+                    'faq_id' => $faq->id,
+                    'user_type' => $userType,
+                    'user_id' => $user->id,
+                    'vote_type' => $voteType,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $column = $voteType === 'helpful' ? 'helpful_count' : 'not_helpful_count';
+                $faq->increment($column);
+            });
+        } catch (QueryException $exception) {
+            // Unique constraint: user already voted in parallel request.
+            if ((string) $exception->getCode() === '23000') {
+                $faq->refresh();
+                $counts = $this->resolveFaqVoteCounts($faq->id, $faq);
+
+                $voteRow = DB::table('help_faq_votes')
+                    ->where('faq_id', $faq->id)
+                    ->where('user_type', $userType)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah memberikan vote untuk pertanyaan ini.',
+                    'data' => [
+                        'faq_id' => "faq-{$faq->id}",
+                        'helpful' => $counts['helpful'],
+                        'notHelpful' => $counts['notHelpful'],
+                        'userVote' => ($voteRow?->vote_type ?? '') === 'helpful' ? 'helpful' : 'notHelpful',
+                        'alreadyVoted' => true,
+                    ],
+                ], 409);
+            }
+
+            throw $exception;
+        }
+
+        $faq->refresh();
+        $counts = $this->resolveFaqVoteCounts($faq->id, $faq);
+
+        Cache::forget('help_center_faqs');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'FAQ vote recorded',
+            'data' => [
+                'faq_id' => "faq-{$faq->id}",
+                'helpful' => $counts['helpful'],
+                'notHelpful' => $counts['notHelpful'],
+                'userVote' => $voteType === 'helpful' ? 'helpful' : 'notHelpful',
+                'alreadyVoted' => false,
+            ],
+        ]);
+    }
+
+    /**
+     * Search FAQs and troubleshooting guides.
      */
     public function search(Request $request): JsonResponse
     {
-        $query = $request->input('q', '');
+        $query = trim((string) $request->input('q', ''));
 
-        if (empty($query)) {
+        if ($query === '') {
             return response()->json([
                 'success' => true,
                 'data' => [
                     'faqs' => [],
-                    'guides' => [],
+                    'troubleshooting' => [],
+                    'query' => '',
+                    'count' => 0,
                 ],
             ]);
         }
 
-        $faqs = $this->searchFaqs($query);
-        
+        $queryLower = Str::lower($query);
+
+        $faqResults = collect($this->getAllFaqs())
+            ->flatMap(function (array $category) {
+                $faqs = is_array($category['faqs'] ?? null) ? $category['faqs'] : [];
+
+                return collect($faqs)->map(function (array $faq) use ($category) {
+                    return [
+                        ...$faq,
+                        'category' => $category['name'] ?? 'Umum',
+                        'category_id' => $category['id'] ?? 'umum',
+                    ];
+                });
+            })
+            ->filter(function (array $faq) use ($queryLower) {
+                return Str::contains(Str::lower((string) ($faq['question'] ?? '')), $queryLower)
+                    || Str::contains(Str::lower((string) ($faq['answer'] ?? '')), $queryLower);
+            })
+            ->values();
+
+        $troubleshootingResults = collect($this->getTroubleshootingGuides())
+            ->filter(function (array $guide) use ($queryLower) {
+                $searchable = implode(' ', [
+                    (string) ($guide['title'] ?? ''),
+                    (string) ($guide['problem'] ?? ''),
+                    (string) ($guide['category'] ?? ''),
+                ]);
+
+                return Str::contains(Str::lower($searchable), $queryLower);
+            })
+            ->values();
+
         return response()->json([
             'success' => true,
             'data' => [
-                'faqs' => $faqs,
+                'faqs' => $faqResults,
+                'troubleshooting' => $troubleshootingResults,
                 'query' => $query,
-                'count' => count($faqs),
+                'count' => $faqResults->count() + $troubleshootingResults->count(),
             ],
         ]);
     }
@@ -82,35 +242,387 @@ class HelpCenterController extends Controller
      */
     public function troubleshooting(Request $request): JsonResponse
     {
-        $guides = $this->getTroubleshootingGuides();
-
         return response()->json([
             'success' => true,
-            'data' => $guides,
+            'data' => $this->getTroubleshootingGuides(),
         ]);
     }
 
     /**
-     * Submit feedback or question.
+     * Get video tutorials from backend source.
+     */
+    public function videos(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->getVideoTutorials(),
+        ]);
+    }
+
+    /**
+     * Track page view analytics event.
+     */
+    public function trackPageView(Request $request): JsonResponse
+    {
+        $this->storeAnalyticsEvent($request, 'page_view');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'tracked' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Track search query analytics event.
+     */
+    public function trackSearch(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'query' => 'required|string|min:2|max:255',
+            'result_count' => 'nullable|integer|min:0',
+        ]);
+
+        $normalizedQuery = Str::lower(trim($validated['query']));
+
+        $this->storeAnalyticsEvent(
+            $request,
+            'search_query',
+            contentType: null,
+            contentKey: null,
+            query: $normalizedQuery,
+            resultCount: (int) ($validated['result_count'] ?? 0),
+        );
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'tracked' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Track article/video view and persist real-time counters.
+     */
+    public function trackView(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'content_type' => 'required|string|in:faq,troubleshooting,video',
+            'content_id' => 'required|string|max:120',
+        ]);
+
+        $contentType = $validated['content_type'];
+        $contentId = trim($validated['content_id']);
+        $viewCount = 0;
+
+        if ($contentType === 'faq') {
+            if (!Schema::hasTable('help_faqs')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'FAQ storage is not ready',
+                ], 503);
+            }
+
+            $faqPrimaryKey = $this->extractFaqPrimaryKey($contentId);
+            $faq = $faqPrimaryKey ? HelpFaq::query()->find($faqPrimaryKey) : null;
+
+            if (!$faq) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'FAQ not found',
+                ], 404);
+            }
+
+            if (Schema::hasColumn('help_faqs', 'view_count')) {
+                $faq->increment('view_count');
+                $faq->refresh();
+                $viewCount = (int) $faq->view_count;
+            }
+
+            Cache::forget('help_center_faqs');
+            $contentId = "faq-{$faq->id}";
+
+            $this->storeAnalyticsEvent(
+                $request,
+                'article_view',
+                contentType: 'faq',
+                contentKey: $contentId,
+            );
+        }
+
+        if ($contentType === 'troubleshooting') {
+            if (!Schema::hasTable('help_troubleshooting')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Troubleshooting storage is not ready',
+                ], 503);
+            }
+
+            $guidePrimaryKey = $this->extractTroubleshootingPrimaryKey($contentId);
+            $guide = $guidePrimaryKey ? HelpTroubleshooting::query()->find($guidePrimaryKey) : null;
+
+            if (!$guide) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Troubleshooting guide not found',
+                ], 404);
+            }
+
+            if (Schema::hasColumn('help_troubleshooting', 'view_count')) {
+                $guide->increment('view_count');
+                $guide->refresh();
+                $viewCount = (int) $guide->view_count;
+            }
+
+            Cache::forget('help_center_troubleshooting');
+            $contentId = "ts-{$guide->id}";
+
+            $this->storeAnalyticsEvent(
+                $request,
+                'article_view',
+                contentType: 'troubleshooting',
+                contentKey: $contentId,
+            );
+        }
+
+        if ($contentType === 'video') {
+            if (Schema::hasTable('help_video_metrics')) {
+                $existing = DB::table('help_video_metrics')
+                    ->where('video_id', $contentId)
+                    ->first();
+
+                if ($existing) {
+                    DB::table('help_video_metrics')
+                        ->where('video_id', $contentId)
+                        ->update([
+                            'view_count' => DB::raw('view_count + 1'),
+                            'last_viewed_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                } else {
+                    DB::table('help_video_metrics')->insert([
+                        'video_id' => $contentId,
+                        'view_count' => 1,
+                        'last_viewed_at' => now(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
+                $viewCount = (int) DB::table('help_video_metrics')
+                    ->where('video_id', $contentId)
+                    ->value('view_count');
+            }
+
+            Cache::forget('help_center_videos');
+
+            $this->storeAnalyticsEvent(
+                $request,
+                'video_view',
+                contentType: 'video',
+                contentKey: $contentId,
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'View tracked',
+            'data' => [
+                'content_type' => $contentType,
+                'content_id' => $contentId,
+                'view_count' => $viewCount,
+            ],
+        ]);
+    }
+
+    /**
+     * Get mini analytics summary for Help page.
+     */
+    public function analyticsSummary(Request $request): JsonResponse
+    {
+        $topQueries = [];
+        $topFaqs = [];
+        $topVideos = [];
+
+        $pageViews = 0;
+        $searchCount = 0;
+        $articleViews = 0;
+        $videoViews = 0;
+
+        if (Schema::hasTable('help_analytics_events')) {
+            $events = DB::table('help_analytics_events');
+
+            $pageViews = (int) (clone $events)->where('event_type', 'page_view')->count();
+            $searchCount = (int) (clone $events)->where('event_type', 'search_query')->count();
+            $articleViews = (int) (clone $events)->where('event_type', 'article_view')->count();
+            $videoViews = (int) (clone $events)->where('event_type', 'video_view')->count();
+
+            $topQueries = (clone $events)
+                ->selectRaw('query, COUNT(*) as total, AVG(COALESCE(result_count, 0)) as avg_result_count')
+                ->where('event_type', 'search_query')
+                ->whereNotNull('query')
+                ->where('query', '!=', '')
+                ->groupBy('query')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->get()
+                ->map(fn ($row) => [
+                    'query' => (string) $row->query,
+                    'count' => (int) $row->total,
+                    'avg_result_count' => round((float) $row->avg_result_count, 2),
+                ])
+                ->all();
+        }
+
+        if (Schema::hasTable('help_faqs')) {
+            if (Schema::hasTable('help_faq_votes')) {
+                $topFaqs = DB::table('help_faqs as f')
+                    ->leftJoin(
+                        DB::raw('(
+                            SELECT faq_id,
+                                SUM(CASE WHEN vote_type = "helpful" THEN 1 ELSE 0 END) as helpful_count,
+                                SUM(CASE WHEN vote_type = "not_helpful" THEN 1 ELSE 0 END) as not_helpful_count
+                            FROM help_faq_votes
+                            GROUP BY faq_id
+                        ) as v'),
+                        'v.faq_id',
+                        '=',
+                        'f.id',
+                    )
+                    ->where('f.is_active', true)
+                    ->selectRaw('
+                        f.id,
+                        f.question,
+                        COALESCE(v.helpful_count, 0) as helpful,
+                        COALESCE(v.not_helpful_count, 0) as not_helpful,
+                        (COALESCE(v.helpful_count, 0) - COALESCE(v.not_helpful_count, 0)) as score
+                    ')
+                    ->orderByDesc('score')
+                    ->orderByDesc('helpful')
+                    ->orderBy('not_helpful')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn ($faq) => [
+                        'id' => "faq-{$faq->id}",
+                        'question' => (string) $faq->question,
+                        'helpful' => (int) $faq->helpful,
+                        'notHelpful' => (int) $faq->not_helpful,
+                        'score' => (int) $faq->score,
+                    ])
+                    ->all();
+            } else {
+                $topFaqs = HelpFaq::query()
+                    ->where('is_active', true)
+                    ->orderByDesc('helpful_count')
+                    ->orderBy('not_helpful_count')
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (HelpFaq $faq) => [
+                        'id' => "faq-{$faq->id}",
+                        'question' => $faq->question,
+                        'helpful' => (int) $faq->helpful_count,
+                        'notHelpful' => (int) $faq->not_helpful_count,
+                        'score' => (int) $faq->helpful_count - (int) $faq->not_helpful_count,
+                    ])
+                    ->all();
+            }
+        }
+
+        if (Schema::hasTable('help_video_metrics')) {
+            $videoMap = collect($this->getVideoTutorials())->keyBy('id');
+
+            $topVideos = DB::table('help_video_metrics')
+                ->select(['video_id', 'view_count'])
+                ->orderByDesc('view_count')
+                ->limit(5)
+                ->get()
+                ->map(function ($row) use ($videoMap) {
+                    $videoId = (string) $row->video_id;
+                    $video = $videoMap->get($videoId);
+
+                    return [
+                        'id' => $videoId,
+                        'title' => (string) ($video['title'] ?? $videoId),
+                        'views' => (int) $row->view_count,
+                    ];
+                })
+                ->all();
+        }
+
+        $ctr = $pageViews > 0 ? round(($videoViews / $pageViews) * 100, 2) : 0.0;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'totals' => [
+                    'page_views' => $pageViews,
+                    'searches' => $searchCount,
+                    'article_views' => $articleViews,
+                    'video_views' => $videoViews,
+                ],
+                'video_ctr' => [
+                    'clicks' => $videoViews,
+                    'page_views' => $pageViews,
+                    'ctr_percent' => $ctr,
+                ],
+                'top_queries' => $topQueries,
+                'top_faqs' => $topFaqs,
+                'top_videos' => $topVideos,
+            ],
+        ]);
+    }
+
+    /**
+     * Submit feedback or support ticket.
      */
     public function submitFeedback(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'category' => 'required|string|in:question,bug,suggestion,other',
+            'category' => 'required|string|in:question,bug,suggestion,feature,other',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
             'email' => 'sometimes|email',
         ]);
 
-        // In a real implementation, this would save to database or send email
-        // For now, we just acknowledge receipt
+        if (!Schema::hasTable('help_feedback')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Feedback storage is not ready',
+            ], 503);
+        }
+
+        $user = $this->getAuthenticatedUser();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $userType = $this->getUserRole();
+        $userName = (string) ($user->nama ?? $user->name ?? 'Pengguna');
+        $userEmail = (string) ($validated['email'] ?? $user->email ?? '');
+        $category = $validated['category'] === 'feature' ? 'suggestion' : $validated['category'];
+
+        $ticket = HelpFeedback::query()->create([
+            'user_type' => $userType,
+            'user_id' => $user->id,
+            'user_name' => $userName,
+            'user_email' => $userEmail,
+            'category' => $category,
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+            'status' => 'pending',
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Feedback submitted successfully. We will respond within 24 hours.',
             'data' => [
-                'ticket_id' => 'HLP-' . strtoupper(Str::random(8)),
-                'submitted_at' => now()->toIso8601String(),
+                'ticket_id' => 'HLP-' . str_pad((string) $ticket->id, 6, '0', STR_PAD_LEFT),
+                'submitted_at' => $ticket->created_at?->toIso8601String(),
             ],
         ]);
     }
@@ -120,165 +632,481 @@ class HelpCenterController extends Controller
      */
     public function contact(): JsonResponse
     {
+        $activeTickets = 0;
+
+        if (Schema::hasTable('help_feedback')) {
+            $user = $this->getAuthenticatedUser();
+
+            if ($user) {
+                $activeTickets = HelpFeedback::query()
+                    ->where('user_type', $this->getUserRole())
+                    ->where('user_id', $user->id)
+                    ->whereIn('status', ['pending', 'replied'])
+                    ->count();
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
                 'email' => 'support@absensi.unpam.ac.id',
+                'phone' => '+62 21 7412566',
                 'whatsapp' => '+62 812-3456-7890',
                 'support_hours' => 'Senin - Jumat, 08:00 - 17:00 WIB',
                 'response_time' => '1-2 hari kerja',
+                'active_tickets' => $activeTickets,
             ],
         ]);
     }
 
     /**
-     * Get all FAQs.
+     * Build FAQs from database with cache.
      */
     protected function getAllFaqs(): array
     {
-        return Cache::remember('help_center_faqs', self::CACHE_TTL, function () {
-            return $this->getDefaultFaqs();
-        });
-    }
-
-    /**
-     * Search FAQs by query.
-     */
-    protected function searchFaqs(string $query): array
-    {
-        $query = Str::lower($query);
-        $allFaqs = $this->getAllFaqs();
-        $results = [];
-
-        foreach ($allFaqs as $category) {
-            foreach ($category['faqs'] ?? [] as $faq) {
-                if (Str::contains(Str::lower($faq['question']), $query) ||
-                    Str::contains(Str::lower($faq['answer']), $query)) {
-                    $results[] = array_merge($faq, [
-                        'category' => $category['name'],
-                        'category_id' => $category['id'],
-                    ]);
-                }
+        $faqs = Cache::remember('help_center_faqs', self::CACHE_TTL, function () {
+            if (!Schema::hasTable('help_faqs')) {
+                return $this->getDefaultFaqs();
             }
+
+            $hasViewCount = Schema::hasColumn('help_faqs', 'view_count');
+
+            $faqs = HelpFaq::query()
+                ->where('is_active', true)
+                ->orderBy('category')
+                ->orderBy('order')
+                ->orderBy('id')
+                ->get();
+
+            if ($faqs->isEmpty()) {
+                return $this->getDefaultFaqs();
+            }
+
+            return $faqs
+                ->groupBy('category')
+                ->map(function ($items, string $category) use ($hasViewCount) {
+                    $slug = Str::slug($category);
+
+                    return [
+                        'id' => $slug,
+                        'name' => $category,
+                        'description' => $this->resolveCategoryDescription($category),
+                        'icon' => $this->resolveCategoryIcon($category),
+                        'faqs' => $items
+                            ->map(function (HelpFaq $faq) use ($slug, $hasViewCount) {
+                                return [
+                                    'id' => "faq-{$faq->id}",
+                                    'question' => $faq->question,
+                                    'answer' => $faq->answer,
+                                    'category' => $slug,
+                                    'helpful' => (int) $faq->helpful_count,
+                                    'notHelpful' => (int) $faq->not_helpful_count,
+                                    'views' => $hasViewCount ? (int) $faq->view_count : 0,
+                                    'lastUpdated' => $faq->updated_at?->toIso8601String(),
+                                ];
+                            })
+                            ->values()
+                            ->all(),
+                    ];
+                })
+                ->values()
+                ->all();
+        });
+
+        if (!Schema::hasTable('help_faq_votes')) {
+            return $faqs;
         }
 
-        return $results;
+        $voteCountMap = DB::table('help_faq_votes')
+            ->selectRaw('
+                faq_id,
+                SUM(CASE WHEN vote_type = "helpful" THEN 1 ELSE 0 END) as helpful_count,
+                SUM(CASE WHEN vote_type = "not_helpful" THEN 1 ELSE 0 END) as not_helpful_count
+            ')
+            ->groupBy('faq_id')
+            ->get()
+            ->keyBy('faq_id');
+
+        $user = $this->getAuthenticatedUser();
+        $votesMap = $user
+            ? DB::table('help_faq_votes')
+                ->where('user_type', $this->getUserRole())
+                ->where('user_id', $user->id)
+                ->pluck('vote_type', 'faq_id')
+            : collect();
+
+        return collect($faqs)
+            ->map(function (array $category) use ($votesMap, $voteCountMap) {
+                $faqRows = is_array($category['faqs'] ?? null) ? $category['faqs'] : [];
+
+                $category['faqs'] = collect($faqRows)
+                    ->map(function (array $faq) use ($votesMap, $voteCountMap) {
+                        $primaryKey = $this->extractFaqPrimaryKey((string) ($faq['id'] ?? ''));
+                        $voteType = $primaryKey ? $votesMap->get($primaryKey) : null;
+                        $countRow = $primaryKey ? $voteCountMap->get($primaryKey) : null;
+
+                        return [
+                            ...$faq,
+                            'helpful' => $countRow
+                                ? (int) ($countRow->helpful_count ?? 0)
+                                : (int) ($faq['helpful'] ?? 0),
+                            'notHelpful' => $countRow
+                                ? (int) ($countRow->not_helpful_count ?? 0)
+                                : (int) ($faq['notHelpful'] ?? 0),
+                            'userVote' => match ($voteType) {
+                                'helpful' => 'helpful',
+                                'not_helpful' => 'notHelpful',
+                                default => null,
+                            },
+                        ];
+                    })
+                    ->values()
+                    ->all();
+
+                return $category;
+            })
+            ->values()
+            ->all();
+    }
+
+    protected function resolveFaqVoteCounts(int $faqId, ?HelpFaq $faq = null): array
+    {
+        if (Schema::hasTable('help_faq_votes')) {
+            $row = DB::table('help_faq_votes')
+                ->where('faq_id', $faqId)
+                ->selectRaw('
+                    SUM(CASE WHEN vote_type = "helpful" THEN 1 ELSE 0 END) as helpful_count,
+                    SUM(CASE WHEN vote_type = "not_helpful" THEN 1 ELSE 0 END) as not_helpful_count
+                ')
+                ->first();
+
+            return [
+                'helpful' => (int) ($row->helpful_count ?? 0),
+                'notHelpful' => (int) ($row->not_helpful_count ?? 0),
+            ];
+        }
+
+        return [
+            'helpful' => (int) ($faq?->helpful_count ?? 0),
+            'notHelpful' => (int) ($faq?->not_helpful_count ?? 0),
+        ];
     }
 
     /**
-     * Get troubleshooting guides.
+     * Build troubleshooting data from database with cache.
      */
     protected function getTroubleshootingGuides(): array
     {
         return Cache::remember('help_center_troubleshooting', self::CACHE_TTL, function () {
-            return $this->getDefaultTroubleshootingGuides();
+            if (!Schema::hasTable('help_troubleshooting')) {
+                return $this->getDefaultTroubleshootingGuides();
+            }
+
+            $hasViewCount = Schema::hasColumn('help_troubleshooting', 'view_count');
+
+            $guides = HelpTroubleshooting::query()
+                ->where('is_active', true)
+                ->orderBy('category')
+                ->orderBy('order')
+                ->orderBy('id')
+                ->get();
+
+            if ($guides->isEmpty()) {
+                return $this->getDefaultTroubleshootingGuides();
+            }
+
+            return $guides
+                ->map(function (HelpTroubleshooting $guide) use ($hasViewCount) {
+                    $steps = $this->decodeTroubleshootingSteps($guide->steps);
+
+                    return [
+                        'id' => "ts-{$guide->id}",
+                        'title' => $guide->title,
+                        'problem' => $guide->description,
+                        'symptoms' => [],
+                        'solutions' => collect($steps)
+                            ->values()
+                            ->map(fn (string $step, int $index) => [
+                                'step' => $index + 1,
+                                'title' => 'Langkah ' . ($index + 1),
+                                'description' => $step,
+                            ])
+                            ->all(),
+                        'category' => Str::slug($guide->category),
+                        'severity' => $this->resolveTroubleshootingSeverity($guide->category),
+                        'estimatedTime' => $this->resolveTroubleshootingTime($steps),
+                        'views' => $hasViewCount ? (int) $guide->view_count : 0,
+                        'lastUpdated' => $guide->updated_at?->toIso8601String(),
+                    ];
+                })
+                ->values()
+                ->all();
         });
     }
 
     /**
-     * Get default FAQs.
+     * Build video tutorials from backend JSON source with cache.
+     */
+    protected function getVideoTutorials(): array
+    {
+        return Cache::remember('help_center_videos', self::CACHE_TTL, function () {
+            $filePath = resource_path('docs/help-videos-mahasiswa.json');
+
+            if (File::exists($filePath)) {
+                $decoded = json_decode((string) File::get($filePath), true);
+                if (is_array($decoded)) {
+                    $videos = $this->normalizeVideoPayload($decoded);
+                    if (!empty($videos)) {
+                        return $videos;
+                    }
+                }
+            }
+
+            return [
+                [
+                    'id' => 'video-default-onboarding',
+                    'title' => 'Onboarding Sistem untuk Mahasiswa Baru',
+                    'description' => 'Pengenalan menu inti dan alur belajar awal pada aplikasi mahasiswa.',
+                    'duration' => '09:40',
+                    'category' => 'Onboarding',
+                    'url' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
+                    'thumbnail' => 'https://img.youtube.com/vi/aqz-KE-bpKQ/hqdefault.jpg',
+                    'views' => 0,
+                ],
+            ];
+        });
+    }
+
+    protected function normalizeVideoPayload(array $rows): array
+    {
+        $metrics = collect();
+
+        if (Schema::hasTable('help_video_metrics')) {
+            $metrics = DB::table('help_video_metrics')
+                ->select(['video_id', 'view_count'])
+                ->get()
+                ->keyBy('video_id');
+        }
+
+        return collect($rows)
+            ->map(function ($row) use ($metrics) {
+                if (!is_array($row)) {
+                    return null;
+                }
+
+                $id = trim((string) ($row['id'] ?? ''));
+                $title = trim((string) ($row['title'] ?? ''));
+                $url = trim((string) ($row['url'] ?? ''));
+
+                if ($id === '' || $title === '' || $url === '') {
+                    return null;
+                }
+
+                $persistedViews = (int) ($metrics->get($id)->view_count ?? 0);
+                $defaultViews = (int) ($row['views'] ?? 0);
+
+                return [
+                    'id' => $id,
+                    'title' => $title,
+                    'description' => trim((string) ($row['description'] ?? '')),
+                    'duration' => trim((string) ($row['duration'] ?? '0:00')),
+                    'category' => trim((string) ($row['category'] ?? 'Tutorial')),
+                    'url' => $url,
+                    'thumbnail' => trim((string) ($row['thumbnail'] ?? '')),
+                    'views' => max($persistedViews, $defaultViews),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    protected function decodeTroubleshootingSteps(mixed $steps): array
+    {
+        if (is_string($steps)) {
+            $decoded = json_decode($steps, true);
+            if (is_array($decoded)) {
+                return collect($decoded)
+                    ->map(fn ($step) => trim((string) $step))
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+
+            return array_values(array_filter(array_map('trim', preg_split('/\R+/', $steps) ?: [])));
+        }
+
+        if (is_array($steps)) {
+            return collect($steps)
+                ->map(fn ($step) => trim((string) $step))
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        return [];
+    }
+
+    protected function resolveCategoryIcon(string $category): string
+    {
+        $normalized = Str::lower($category);
+
+        return match (true) {
+            Str::contains($normalized, 'absensi') => 'QrCode',
+            Str::contains($normalized, 'tugas') => 'ClipboardList',
+            Str::contains($normalized, 'izin') => 'FileCheck',
+            Str::contains($normalized, 'akun'), Str::contains($normalized, 'profil') => 'UserCircle',
+            Str::contains($normalized, 'teknis') => 'Wrench',
+            default => 'HelpCircle',
+        };
+    }
+
+    protected function resolveCategoryDescription(string $category): string
+    {
+        $normalized = Str::lower($category);
+
+        return match (true) {
+            Str::contains($normalized, 'absensi') => 'Panduan absensi QR, verifikasi lokasi, dan validasi kehadiran mahasiswa.',
+            Str::contains($normalized, 'tugas') => 'Alur pengumpulan tugas, batas waktu, revisi, dan pemantauan nilai.',
+            Str::contains($normalized, 'izin') => 'Panduan pengajuan izin/sakit beserta dokumen pendukung dan status verifikasi.',
+            Str::contains($normalized, 'akun'), Str::contains($normalized, 'profil') => 'Pengaturan akun, keamanan password, dan manajemen profil pengguna.',
+            Str::contains($normalized, 'teknis') => 'Solusi kendala teknis aplikasi dan troubleshooting masalah umum.',
+            default => 'Informasi bantuan terkait penggunaan fitur mahasiswa.',
+        };
+    }
+
+    protected function resolveTroubleshootingSeverity(string $category): string
+    {
+        $normalized = Str::lower($category);
+
+        return match (true) {
+            Str::contains($normalized, 'teknis') => 'high',
+            Str::contains($normalized, 'absensi') => 'medium',
+            default => 'low',
+        };
+    }
+
+    protected function resolveTroubleshootingTime(array $steps): string
+    {
+        $count = count($steps);
+
+        if ($count <= 2) {
+            return '5 menit';
+        }
+
+        if ($count <= 4) {
+            return '10 menit';
+        }
+
+        return '15 menit';
+    }
+
+    protected function extractFaqPrimaryKey(string $faqId): ?int
+    {
+        if (ctype_digit($faqId)) {
+            return (int) $faqId;
+        }
+
+        if (preg_match('/faq-?(\d+)/i', $faqId, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    protected function extractTroubleshootingPrimaryKey(string $guideId): ?int
+    {
+        if (ctype_digit($guideId)) {
+            return (int) $guideId;
+        }
+
+        if (preg_match('/ts-?(\d+)/i', $guideId, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        return null;
+    }
+
+    protected function storeAnalyticsEvent(
+        Request $request,
+        string $eventType,
+        ?string $contentType = null,
+        ?string $contentKey = null,
+        ?string $query = null,
+        ?int $resultCount = null,
+        array $meta = [],
+    ): void {
+        if (!Schema::hasTable('help_analytics_events')) {
+            return;
+        }
+
+        $user = $this->getAuthenticatedUser();
+
+        DB::table('help_analytics_events')->insert([
+            'user_type' => $user ? $this->getUserRole() : null,
+            'user_id' => $user?->id,
+            'event_type' => $eventType,
+            'content_type' => $contentType,
+            'content_key' => $contentKey,
+            'query' => $query,
+            'result_count' => $resultCount,
+            'meta' => empty($meta) ? null : json_encode($meta),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    protected function getAuthenticatedUser(): mixed
+    {
+        if ($user = auth('mahasiswa')->user()) {
+            return $user;
+        }
+
+        if ($user = auth('dosen')->user()) {
+            return $user;
+        }
+
+        if ($user = auth('web')->user()) {
+            return $user;
+        }
+
+        return null;
+    }
+
+    protected function getUserRole(): string
+    {
+        if (auth('dosen')->check()) {
+            return 'dosen';
+        }
+
+        if (auth('web')->check()) {
+            return 'admin';
+        }
+
+        return 'mahasiswa';
+    }
+
+    /**
+     * Default fallback FAQs.
      */
     protected function getDefaultFaqs(): array
     {
         return [
             [
-                'id' => 'absensi',
-                'name' => 'Absensi',
-                'icon' => 'QrCode',
+                'id' => 'umum',
+                'name' => 'Umum',
+                'description' => 'Informasi dasar penggunaan sistem bantuan mahasiswa.',
+                'icon' => 'HelpCircle',
                 'faqs' => [
                     [
                         'id' => 'faq-1',
-                        'question' => 'Bagaimana cara melakukan absensi?',
-                        'answer' => 'Untuk melakukan absensi: 1) Buka menu Absen, 2) Scan QR code yang ditampilkan dosen, 3) Ambil foto selfie untuk verifikasi, 4) Klik Konfirmasi. Pastikan Anda berada di lokasi yang benar dan wajah terlihat jelas.',
-                        'tags' => ['absen', 'qr code', 'selfie'],
-                    ],
-                    [
-                        'id' => 'faq-2',
-                        'question' => 'QR code tidak bisa di-scan, apa yang harus dilakukan?',
-                        'answer' => 'Pastikan: 1) Kamera HP dalam kondisi baik, 2) Pencahayaan cukup, 3) QR code tidak blur atau terpotong, 4) Jarak scan tidak terlalu jauh/dekat. Jika masih bermasalah, minta dosen untuk refresh QR code.',
-                        'tags' => ['qr code', 'scan', 'error'],
-                    ],
-                    [
-                        'id' => 'faq-3',
-                        'question' => 'Selfie saya ditolak, mengapa?',
-                        'answer' => 'Selfie bisa ditolak karena: 1) Wajah tidak terlihat jelas, 2) Pencahayaan kurang, 3) Menggunakan foto orang lain, 4) Wajah tertutup masker/kacamata hitam. Pastikan wajah terlihat jelas dan pencahayaan cukup.',
-                        'tags' => ['selfie', 'verifikasi', 'ditolak'],
-                    ],
-                ],
-            ],
-            [
-                'id' => 'tugas',
-                'name' => 'Tugas',
-                'icon' => 'ClipboardList',
-                'faqs' => [
-                    [
-                        'id' => 'faq-4',
-                        'question' => 'Bagaimana cara mengumpulkan tugas?',
-                        'answer' => 'Untuk mengumpulkan tugas: 1) Buka menu Informasi Tugas, 2) Pilih tugas yang ingin dikumpulkan, 3) Baca instruksi dengan teliti, 4) Upload file tugas, 5) Klik Submit. Pastikan format file sesuai ketentuan.',
-                        'tags' => ['tugas', 'submit', 'upload'],
-                    ],
-                    [
-                        'id' => 'faq-5',
-                        'question' => 'Apakah bisa mengumpulkan tugas setelah deadline?',
-                        'answer' => 'Tergantung kebijakan dosen. Beberapa tugas mengizinkan late submission dengan pengurangan nilai, beberapa tidak. Cek detail tugas untuk informasi lebih lanjut.',
-                        'tags' => ['deadline', 'terlambat', 'late'],
-                    ],
-                ],
-            ],
-            [
-                'id' => 'izin',
-                'name' => 'Izin & Sakit',
-                'icon' => 'FileCheck',
-                'faqs' => [
-                    [
-                        'id' => 'faq-6',
-                        'question' => 'Bagaimana cara mengajukan izin tidak hadir?',
-                        'answer' => 'Untuk mengajukan izin: 1) Buka menu Izin/Sakit, 2) Klik Ajukan Izin Baru, 3) Pilih jenis izin (Sakit/Izin), 4) Isi alasan dan tanggal, 5) Upload bukti jika diperlukan, 6) Klik Kirim.',
-                        'tags' => ['izin', 'sakit', 'tidak hadir'],
-                    ],
-                    [
-                        'id' => 'faq-7',
-                        'question' => 'Dokumen apa yang diperlukan untuk izin sakit?',
-                        'answer' => 'Untuk izin sakit, diperlukan surat keterangan dokter atau foto resep obat. Dokumen harus jelas terbaca dan mencantumkan tanggal yang sesuai dengan izin.',
-                        'tags' => ['surat dokter', 'bukti', 'sakit'],
-                    ],
-                ],
-            ],
-            [
-                'id' => 'akun',
-                'name' => 'Akun & Profil',
-                'icon' => 'UserCircle',
-                'faqs' => [
-                    [
-                        'id' => 'faq-8',
-                        'question' => 'Bagaimana cara mengubah password?',
-                        'answer' => 'Untuk mengubah password: 1) Buka menu Pengaturan, 2) Pilih Keamanan, 3) Klik Ubah Password, 4) Masukkan password lama dan password baru, 5) Klik Simpan.',
-                        'tags' => ['password', 'ubah', 'keamanan'],
-                    ],
-                    [
-                        'id' => 'faq-9',
-                        'question' => 'Bagaimana cara mengubah foto profil?',
-                        'answer' => 'Untuk mengubah foto profil: 1) Buka menu Profil, 2) Klik foto profil atau ikon edit, 3) Pilih foto baru dari galeri, 4) Crop jika diperlukan, 5) Klik Simpan.',
-                        'tags' => ['foto', 'profil', 'avatar'],
-                    ],
-                ],
-            ],
-            [
-                'id' => 'teknis',
-                'name' => 'Masalah Teknis',
-                'icon' => 'Settings',
-                'faqs' => [
-                    [
-                        'id' => 'faq-10',
-                        'question' => 'Aplikasi tidak bisa dibuka atau error, apa yang harus dilakukan?',
-                        'answer' => 'Coba langkah berikut: 1) Refresh halaman (F5), 2) Clear cache browser, 3) Coba browser lain, 4) Periksa koneksi internet, 5) Jika masih error, hubungi support.',
-                        'tags' => ['error', 'tidak bisa', 'masalah'],
-                    ],
-                    [
-                        'id' => 'faq-11',
-                        'question' => 'Data saya tidak tersimpan, bagaimana?',
-                        'answer' => 'Pastikan: 1) Koneksi internet stabil, 2) Tidak ada error saat menyimpan, 3) Tunggu loading selesai sebelum menutup halaman. Jika data hilang, hubungi support dengan detail waktu dan aktivitas.',
-                        'tags' => ['data', 'hilang', 'tidak tersimpan'],
+                        'question' => 'Bagaimana cara menggunakan pusat bantuan?',
+                        'answer' => 'Gunakan pencarian di bagian header atau buka kategori FAQ untuk menemukan jawaban paling relevan.',
+                        'category' => 'umum',
+                        'helpful' => 0,
+                        'notHelpful' => 0,
+                        'views' => 0,
+                        'lastUpdated' => now()->toIso8601String(),
                     ],
                 ],
             ],
@@ -286,68 +1114,28 @@ class HelpCenterController extends Controller
     }
 
     /**
-     * Get default troubleshooting guides.
+     * Default fallback troubleshooting guides.
      */
     protected function getDefaultTroubleshootingGuides(): array
     {
         return [
             [
                 'id' => 'ts-1',
-                'title' => 'QR Code Tidak Bisa Di-scan',
-                'problem' => 'QR code tidak terdeteksi atau scan gagal terus menerus',
-                'solution' => [
-                    'Pastikan kamera HP berfungsi dengan baik',
-                    'Periksa pencahayaan ruangan - hindari backlight',
-                    'Bersihkan lensa kamera dari debu atau kotoran',
-                    'Pastikan QR code tidak blur atau terpotong',
-                    'Coba atur jarak scan (tidak terlalu dekat/jauh)',
-                    'Minta dosen untuk refresh QR code',
-                    'Restart aplikasi dan coba lagi',
+                'title' => 'Koneksi Internet Bermasalah',
+                'problem' => 'Aplikasi lambat atau data tidak bisa dimuat.',
+                'symptoms' => [],
+                'solutions' => [
+                    [
+                        'step' => 1,
+                        'title' => 'Periksa koneksi internet',
+                        'description' => 'Pastikan jaringan stabil sebelum memuat ulang halaman.',
+                    ],
                 ],
-                'relatedGuides' => ['mahasiswa-absen'],
-            ],
-            [
-                'id' => 'ts-2',
-                'title' => 'Selfie Verifikasi Ditolak',
-                'problem' => 'Foto selfie selalu ditolak oleh sistem',
-                'solution' => [
-                    'Pastikan wajah terlihat jelas dan tidak tertutup',
-                    'Lepas masker, kacamata hitam, atau topi',
-                    'Cari tempat dengan pencahayaan yang cukup',
-                    'Hindari backlight (cahaya dari belakang)',
-                    'Posisikan wajah di tengah frame',
-                    'Jangan gunakan foto orang lain',
-                    'Jika masih gagal, hubungi dosen untuk verifikasi manual',
-                ],
-                'relatedGuides' => ['mahasiswa-absen', 'dosen-verify'],
-            ],
-            [
-                'id' => 'ts-3',
-                'title' => 'Tidak Bisa Login',
-                'problem' => 'Gagal login dengan NIM dan password',
-                'solution' => [
-                    'Periksa kembali NIM - pastikan tidak ada typo',
-                    'Periksa password - perhatikan huruf besar/kecil',
-                    'Pastikan Caps Lock tidak aktif',
-                    'Coba reset password jika lupa',
-                    'Clear cache browser dan coba lagi',
-                    'Hubungi admin jika akun terkunci',
-                ],
-                'relatedGuides' => [],
-            ],
-            [
-                'id' => 'ts-4',
-                'title' => 'Upload File Gagal',
-                'problem' => 'File tugas tidak bisa di-upload',
-                'solution' => [
-                    'Periksa ukuran file - maksimal 10MB',
-                    'Periksa format file - sesuaikan dengan ketentuan',
-                    'Pastikan koneksi internet stabil',
-                    'Coba compress file jika terlalu besar',
-                    'Gunakan format umum (PDF, DOC, DOCX)',
-                    'Refresh halaman dan coba lagi',
-                ],
-                'relatedGuides' => ['mahasiswa-tugas'],
+                'category' => 'teknis',
+                'severity' => 'medium',
+                'estimatedTime' => '5 menit',
+                'views' => 0,
+                'lastUpdated' => now()->toIso8601String(),
             ],
         ];
     }

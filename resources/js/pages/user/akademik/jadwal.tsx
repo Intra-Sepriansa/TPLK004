@@ -1,482 +1,319 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
+import jadwalIcon from '@/assets/admin/jadwal/jadwal.png';
+import mataKuliahIcon from '@/assets/dosen/matakuliah/mata-kuliah.png';
+import weeklyIcon from '@/assets/mahasiswa/jadwal-kuliah/kelas-per-minggu.png';
+import todayIcon from '@/assets/mahasiswa/jadwal-kuliah/kelas-hari-ini.png';
+import sksIcon from '@/assets/mahasiswa/jadwal-kuliah/total-sks.png';
+import { motion, AnimatePresence } from 'framer-motion';
 import StudentLayout from '@/layouts/student-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, CheckCircle2, ArrowLeft, Monitor, Building2, MapPin, BookOpen, X, Download, Sparkles, Target } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Calendar,
+    Clock,
+    MapPin,
+    BookOpen,
+    User,
+    Building2,
+    Monitor,
+    Download,
+    Search,
+    X,
+    CalendarDays,
+    GraduationCap,
+    Bell,
+    TrendingUp,
+    Sparkles,
+    ChevronRight,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
+/* ═══════════════════════════════════════════════════ */
+/*                     TYPES                          */
+/* ═══════════════════════════════════════════════════ */
 interface ScheduleItem {
     id: number;
     course_name: string;
-    time: string;
+    time: string | null;
+    schedule_time_end: string | null;
     meeting_number: number;
     total_meetings: number;
-    mode: 'online' | 'offline';
+    mode: string;
+    mode_name?: string;
     is_completed: boolean;
     progress: number;
+    sks: number;
+}
+
+interface NextClass extends ScheduleItem {
+    day: string;
+    is_today: boolean;
 }
 
 interface Props {
-    weeklySchedule: {
-        [day: string]: ScheduleItem[];
-    };
+    weeklySchedule: Record<string, ScheduleItem[]>;
     currentDay: string;
-    dayNames: {
-        [key: string]: string;
+    dayNames: Record<string, string>;
+    today: { day: string; date: string };
+    stats: {
+        total_courses: number;
+        total_classes_per_week: number;
+        classes_today: number;
+        total_sks: number;
+        busiest_day: string;
     };
-    today: {
-        day: string;
-        date: string;
-    };
+    nextClass: NextClass | null;
 }
 
-// Simple Animation Variants
+/* ═══════════════════════════════════════════════════ */
+/*          ANIMATION VARIANTS — Matching Dashboard   */
+/* ═══════════════════════════════════════════════════ */
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
             staggerChildren: 0.04,
-            delayChildren: 0.05,
-            when: "beforeChildren" as const,
+            delayChildren: 0.1,
         },
     },
 };
 
 const itemVariants = {
-    hidden: { 
-        opacity: 0, 
-        y: 20,
-    },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 200,
-            damping: 20,
-        },
+        scale: 1,
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
     },
 };
 
-const cardVariants = {
-    hidden: { 
-        opacity: 0, 
-        y: 20,
-    },
-    visible: (i: number) => ({
-        opacity: 1,
-        y: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 200,
-            damping: 20,
-            delay: i * 0.05,
-        },
-    }),
+const colorVariants: Record<number, { bg: string; badge: string; accent: string }> = {
+    0: { bg: 'bg-blue-50/50 dark:bg-blue-900/20', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300', accent: 'text-blue-600' },
+    1: { bg: 'bg-emerald-50/50 dark:bg-emerald-900/20', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300', accent: 'text-emerald-600' },
+    2: { bg: 'bg-purple-50/50 dark:bg-purple-900/20', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300', accent: 'text-purple-600' },
+    3: { bg: 'bg-orange-50/50 dark:bg-orange-900/20', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300', accent: 'text-orange-600' },
+    4: { bg: 'bg-pink-50/50 dark:bg-pink-900/20', badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300', accent: 'text-pink-600' },
 };
 
-const scheduleItemVariants = {
-    hidden: { 
-        opacity: 0, 
-        x: -10,
-    },
-    visible: (i: number) => ({
-        opacity: 1,
-        x: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 200,
-            damping: 20,
-            delay: i * 0.03,
-        },
-    }),
-};
-
-export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames, today }: Props) {
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-    const [selectedSchedule, setSelectedSchedule] = useState<ScheduleItem | null>(null);
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const [filterMode, setFilterMode] = useState<'all' | 'online' | 'offline'>('all');
+export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames, today, stats, nextClass }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [filterMode, setFilterMode] = useState<'all' | 'online' | 'offline'>('all');
+
+    const daysOrder = Object.keys(dayNames); // ['monday', 'tuesday', ...]
 
     // Filter schedules
-    const filterSchedules = (schedule: ScheduleItem[]) => {
-        return schedule.filter(item => {
+    const filterSchedules = (daySchedules: ScheduleItem[]) => {
+        return daySchedules.filter(item => {
             const matchesMode = filterMode === 'all' || item.mode === filterMode;
             const matchesSearch = item.course_name.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesMode && matchesSearch;
         });
     };
 
-    // Export schedule as text
-    const exportSchedule = () => {
-        let text = `JADWAL MINGGUAN - ${today.date}\n\n`;
-        days.forEach(day => {
-            const schedule = weeklySchedule[day] || [];
-            if (schedule.length > 0) {
-                text += `${dayNames[day].toUpperCase()}\n`;
-                schedule.forEach(item => {
-                    text += `- ${item.course_name}\n`;
-                    text += `  Waktu: ${item.time}\n`;
-                    text += `  Mode: ${item.mode === 'offline' ? 'Offline' : 'Online'}\n`;
-                    text += `  Pertemuan: ${item.meeting_number}/${item.total_meetings}\n\n`;
-                });
-            }
-        });
-        
-        const blob = new Blob([text], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `jadwal-mingguan-${new Date().toISOString().split('T')[0]}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
     return (
         <StudentLayout>
             <Head title="Jadwal Kuliah" />
-            
-            {/* Background Gradient */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden bg-slate-50 dark:bg-gradient-to-b dark:from-gray-900 dark:via-black dark:to-gray-900" />
 
-            <motion.div 
-                className="flex flex-col gap-6 p-4 md:p-6 max-w-7xl mx-auto relative"
-                variants={containerVariants}
+            <motion.div
+                className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8"
                 initial="hidden"
                 animate="visible"
+                variants={containerVariants}
             >
-                {/* Ultra Advanced Header - matching Dashboard */}
+                {/* ═══════ HERO HEADER — Matching Dashboard ═══════ */}
                 <motion.div
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01, rotateY: 1 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl mb-2"
-                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Ultra Advanced Animated Background Orbs */}
-                    <motion.div 
-                        animate={{
-                            scale: [1, 1.4, 1],
-                            rotate: [0, 180, 360],
-                            opacity: [0.1, 0.2, 0.1],
-                            x: [0, 50, 0],
-                            y: [0, -30, 0],
-                        }}
-                        transition={{
-                            duration: 20,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
-                    />
-                    <motion.div 
-                        animate={{
-                            scale: [1, 1.5, 1],
-                            rotate: [360, 180, 0],
-                            opacity: [0.1, 0.15, 0.1],
-                            x: [0, -40, 0],
-                            y: [0, 40, 0],
-                        }}
-                        transition={{
-                            duration: 25,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
-                    />
-                    <motion.div 
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0],
-                            opacity: [0.08, 0.12, 0.08],
-                            x: [0, 30, 0],
-                            y: [0, -20, 0],
-                        }}
-                        transition={{
-                            duration: 18,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 2,
-                        }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
-                    />
-                    
-                    {/* 30 Floating Particles with Advanced Physics */}
-                    {[...Array(30)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{ 
-                                opacity: [0, 0.8, 1, 0.6, 0],
-                                scale: [0, 1.8, 1.2, 0.8, 0],
-                                y: [0, -50, -100, -150, -200],
-                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
-                                rotate: [0, 180, 360, 540, 720],
-                            }}
-                            transition={{
-                                duration: 5 + Math.random() * 3,
-                                repeat: Infinity,
-                                delay: i * 0.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute rounded-full shadow-lg"
-                            style={{
-                                width: `${3 + Math.random() * 10}px`,
-                                height: `${3 + Math.random() * 10}px`,
-                                left: `${10 + (i * 3) % 80}%`,
-                                top: `${20 + (i % 4) * 20}%`,
-                                background: i % 3 === 0 
-                                    ? 'rgba(255, 255, 255, 0.6)' 
-                                    : i % 3 === 1 
-                                        ? 'rgba(6, 182, 212, 0.5)' 
-                                        : 'rgba(59, 130, 246, 0.5)',
-                                filter: 'blur(1px)',
-                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
-                            }}
-                        />
-                    ))}
-                    
-                    {/* Floating Icons with Advanced Animations */}
-                    <motion.div
-                        animate={{
-                            y: [0, -15, 0],
-                            x: [0, 10, 0],
-                            rotate: [0, 5, -5, 0],
-                            opacity: [0.3, 0.5, 0.3],
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute top-10 right-20 text-white/20"
-                    >
-                        <BookOpen className="h-16 w-16" />
-                    </motion.div>
-                    <motion.div
-                        animate={{
-                            y: [0, 20, 0],
-                            x: [0, -15, 0],
-                            rotate: [0, -10, 10, 0],
-                            opacity: [0.2, 0.4, 0.2],
-                        }}
-                        transition={{
-                            duration: 7,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 1,
-                        }}
-                        className="absolute bottom-10 left-20 text-white/20"
-                    >
-                        <Target className="h-20 w-20" />
-                    </motion.div>
-                    
-                    {/* Animated Rings */}
-                    {[...Array(3)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                scale: [1, 2, 3],
-                                opacity: [0.3, 0.15, 0],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 1.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
-                            style={{
-                                width: '100px',
-                                height: '100px',
-                            }}
-                        />
-                    ))}
-                    
-                    <div className="relative flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex items-center gap-5">
-                            <motion.div
-                                whileHover={{ scale: 1.1, y: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                            >
-                                <Link href="/user/akademik" className="p-2 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm">
-                                    <ArrowLeft className="h-5 w-5" />
-                                </Link>
-                            </motion.div>
-                            <motion.div 
-                                whileHover={{ 
-                                    scale: 1.2, 
-                                    rotate: [0, -8, 8, 0],
-                                    boxShadow: "0 0 40px rgba(255,255,255,0.6)"
-                                }}
-                                whileTap={{ scale: 0.92 }}
-                                transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
-                            >
-                                {/* Glow effect behind icon */}
+                    {/* Static Background Graphic */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+                    <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-white/10 blur-3xl opacity-50" />
+                    <div className="absolute left-0 bottom-0 h-64 w-64 rounded-full bg-white/10 blur-3xl opacity-50" />
+
+                    <div className="relative">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                            <div className="flex items-center gap-4 sm:gap-6 text-left">
                                 <motion.div
-                                    animate={{
-                                        scale: [1, 1.2, 1],
-                                        opacity: [0.5, 0.8, 0.5],
-                                    }}
-                                    transition={{
-                                        duration: 3,
-                                        repeat: Infinity,
-                                        ease: "easeInOut"
-                                    }}
-                                    className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
-                                />
-                                <motion.div
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                    className="relative"
+                                    className="relative flex shrink-0 h-16 w-16 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <Calendar className="h-10 w-10" />
+                                    <img src={jadwalIcon} alt="Jadwal" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                            </motion.div>
-                            <div>
-                                <motion.p 
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2, type: "spring" }}
-                                    className="text-sm text-cyan-100 font-semibold tracking-wide"
-                                >
-                                    Manajemen Akademik
-                                </motion.p>
-                                <motion.h1 
-                                    initial={{ opacity: 0, x: -20, scale: 0.9 }}
-                                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                                    transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
-                                    className="text-3xl font-extrabold tracking-tight"
-                                >
-                                    Jadwal Mingguan
-                                </motion.h1>
+                                <div className="flex-1">
+                                    <motion.p
+                                        className="text-xs sm:text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Jadwal Kuliah
+                                    </motion.p>
+                                    <motion.h1
+                                        className="text-xl sm:text-3xl font-bold text-white mt-0.5 sm:mt-1"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Minggu Ini
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-1 sm:mt-2 text-indigo-100 max-w-lg text-[11px] sm:text-base leading-relaxed"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Kelola dan pantau jadwal perkuliahan Anda
+                                    </motion.p>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col w-full sm:w-auto items-end gap-2 mt-2 sm:mt-0">
                                 <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.4, type: "spring" }}
-                                    className="flex items-center gap-2 mt-1"
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex items-center justify-end gap-3 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-xl px-3 py-1.5 sm:px-6 sm:py-3 shadow-lg border border-white/10 w-fit self-end"
                                 >
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.2, 1],
-                                            opacity: [0.7, 1, 0.7],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                        }}
-                                        className="h-2 w-2 rounded-full bg-cyan-300"
-                                    />
-                                    <p className="text-sm text-cyan-100 font-mono">
-                                        {today.day}, {today.date}
-                                    </p>
+                                    <div className="text-right">
+                                        <p className="text-2xl sm:text-3xl font-bold">{today.day}</p>
+                                        <p className="text-[10px] sm:text-xs text-indigo-200">{today.date}</p>
+                                    </div>
                                 </motion.div>
                             </div>
                         </div>
-                        
-                        <motion.button
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={exportSchedule}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xl border-2 border-white/40 shadow-lg transition-all"
-                        >
-                            <Download className="h-5 w-5" />
-                            <span className="font-semibold">Export Jadwal</span>
-                        </motion.button>
+
+
                     </div>
                 </motion.div>
 
-                {/* Legend */}
-                <motion.div 
-                    variants={itemVariants}
-                    className="flex flex-wrap gap-4 text-sm relative"
+                {/* ═══════ STATS CARDS — Matching Dashboard ═══════ */}
+                <motion.div
+                    className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } },
+                    }}
                 >
                     {[
-                        { color: 'bg-blue-500', label: 'Online', icon: Monitor },
-                        { color: 'bg-emerald-500', label: 'Offline (Kamis)', icon: Building2 },
-                        { icon: CheckCircle2, label: 'Selesai', color: 'text-emerald-500' },
-                    ].map((item, i) => (
-                        <motion.div 
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ 
-                                delay: 0.2 + i * 0.05,
-                                type: "spring",
-                                stiffness: 200
+                        {
+                            customIcon: mataKuliahIcon, // Total Mata Kuliah
+                            title: 'Total Mata Kuliah',
+                            value: stats.total_courses,
+                            note: 'semester ini',
+                            colorConfig: { gradientBg: 'from-purple-500/5 to-indigo-500/5 dark:from-purple-500/10 dark:to-indigo-500/10', glow: 'bg-purple-500' },
+                        },
+                        {
+                            customIcon: weeklyIcon, // Kelas Per Minggu
+                            title: 'Kelas Per Minggu',
+                            value: stats.total_classes_per_week,
+                            note: 'total pertemuan',
+                            colorConfig: { gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', glow: 'bg-sky-500' },
+                        },
+                        {
+                            customIcon: todayIcon, // Kelas Hari Ini
+                            title: 'Kelas Hari Ini',
+                            value: stats.classes_today,
+                            note: today.day,
+                            colorConfig: { gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', glow: 'bg-emerald-500' },
+                        },
+                        {
+                            customIcon: sksIcon, // Total SKS
+                            title: 'Total SKS',
+                            value: stats.total_sks,
+                            note: 'beban studi',
+                            colorConfig: { gradientBg: 'from-orange-500/5 to-amber-500/5 dark:from-orange-500/10 dark:to-amber-500/10', glow: 'bg-orange-500' },
+                        },
+                    ].map((stat, i) => (
+                        <motion.div
+                            key={stat.title}
+                            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-3 sm:p-6 shadow-xl backdrop-blur-xl dark:border-white/5"
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.9 },
+                                visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 20 } },
                             }}
-                            whileHover={{ scale: 1.05, x: 3 }}
-                            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/80 dark:bg-black/80 border border-slate-200/70 dark:border-gray-800/70 backdrop-blur cursor-pointer shadow-sm"
+                            whileHover={{ scale: 1.04, y: -4 }}
                         >
-                            {item.icon ? (
-                                <item.icon className={`h-4 w-4 ${item.color}`} />
-                            ) : (
-                                <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                            )}
-                            <span className="font-medium text-slate-700 dark:text-slate-300">{item.label}</span>
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.colorConfig.gradientBg}`} />
+                            <motion.div className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.colorConfig.glow} blur-3xl opacity-20 group-hover:opacity-40 transition-opacity duration-500`} />
+
+                            <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                <motion.div
+                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                    className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                >
+                                    <img src={stat.customIcon} alt={stat.title} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
+                                </motion.div>
+
+                                <div className="flex flex-col items-center sm:items-start">
+                                    <p className="text-[10px] sm:text-sm font-medium text-neutral-500 dark:text-neutral-400">{stat.title}</p>
+                                    <p className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white mt-0.5 sm:mt-1">{stat.value}</p>
+                                    <p className="text-[8px] sm:text-xs text-neutral-400 mt-0.5">{stat.note}</p>
+                                </div>
+                            </div>
                         </motion.div>
                     ))}
                 </motion.div>
 
-                {/* Filter and Search Bar */}
-                <motion.div
-                    variants={itemVariants}
-                    className="flex flex-col sm:flex-row gap-4"
-                >
-                    {/* Search */}
+                {/* ═══════ SEARCH & FILTER ═══════ */}
+                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
                     <div className="flex-1">
-                        <div className="relative">
+                        <motion.div className="relative" whileHover={{ scale: 1.01 }}>
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
                             <Input
                                 type="text"
                                 placeholder="Cari mata kuliah..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-10 h-12 rounded-xl border-slate-200/70 bg-white/80 dark:border-gray-800/70 dark:bg-black/80 backdrop-blur"
+                                className="pl-10 h-12 rounded-xl border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl dark:border-white/5"
                             />
-                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            {searchQuery && (
-                                <motion.button
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-                                >
-                                    <X className="h-4 w-4" />
-                                </motion.button>
-                            )}
-                        </div>
+                            <AnimatePresence>
+                                {searchQuery && (
+                                    <motion.button
+                                        initial={{ scale: 0, rotate: -180 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        exit={{ scale: 0, rotate: 180 }}
+                                        whileHover={{ scale: 1.2, rotate: 90 }}
+                                        whileTap={{ scale: 0.8 }}
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </motion.button>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
                     </div>
 
-                    {/* Filter Buttons */}
                     <div className="flex gap-2">
-                        {[
+                        {([
                             { value: 'all' as const, label: 'Semua', icon: Calendar },
                             { value: 'online' as const, label: 'Online', icon: Monitor },
                             { value: 'offline' as const, label: 'Offline', icon: Building2 },
-                        ].map((filter) => (
+                        ]).map((filter) => (
                             <motion.button
                                 key={filter.value}
                                 whileHover={{ scale: 1.05, y: -2 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setFilterMode(filter.value)}
-                                className={`flex items-center gap-2 px-4 h-12 rounded-xl border-2 transition-all shadow-sm ${
+                                className={cn(
+                                    'flex items-center gap-2 px-4 h-12 rounded-xl border-2 transition-all shadow-sm',
                                     filterMode === filter.value
-                                        ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-blue-500/30'
-                                        : 'bg-white/80 dark:bg-black/80 border-slate-200/70 dark:border-gray-800/70 hover:border-blue-300 backdrop-blur'
-                                }`}
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-500'
+                                        : 'bg-white/40 dark:bg-neutral-900/40 border-white/20 dark:border-white/5 backdrop-blur-xl'
+                                )}
                             >
                                 <filter.icon className="h-4 w-4" />
                                 <span className="hidden sm:inline font-medium">{filter.label}</span>
@@ -485,395 +322,218 @@ export default function AcademicSchedule({ weeklySchedule, currentDay, dayNames,
                     </div>
                 </motion.div>
 
-                {/* Weekly Schedule */}
-                <motion.div 
-                    className="grid gap-4 md:grid-cols-5"
-                    variants={containerVariants}
+                {/* ═══════ NEXT CLASS HIGHLIGHT ═══════ */}
+                {nextClass && (
+                    <motion.div
+                        variants={itemVariants}
+                        whileHover={{ scale: 1.02, y: -4 }}
+                        className="rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 shadow-xl dark:border-amber-800 dark:from-amber-950/30 dark:to-orange-950/30 relative overflow-hidden"
+                    >
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            animate={{ x: ['-100%', '100%'] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+                        />
+
+                        <div className="flex items-center justify-between mb-4 relative z-10">
+                            <div className="flex items-center gap-2">
+                                <motion.div
+                                    whileHover={{ scale: 1.3, rotate: [0, -10, 10, 0] }}
+                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg"
+                                >
+                                    <Bell className="h-5 w-5" />
+                                </motion.div>
+                                <div>
+                                    <h3 className="font-semibold text-amber-900 dark:text-amber-100">Kelas Berikutnya</h3>
+                                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                                        {nextClass.is_today ? 'Hari ini' : nextClass.day}
+                                    </p>
+                                </div>
+                            </div>
+                            <Badge className="bg-amber-500 text-white">
+                                {nextClass.is_today ? 'Segera' : 'Mendatang'}
+                            </Badge>
+                        </div>
+
+                        <div className="relative z-10 space-y-3">
+                            <div>
+                                <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100">
+                                    {nextClass.course_name}
+                                </h4>
+                                <p className="text-sm text-amber-700 dark:text-amber-300">
+                                    Pertemuan {nextClass.meeting_number}/{nextClass.total_meetings} • {nextClass.sks} SKS
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
+                                    <Clock className="h-4 w-4" />
+                                    <span>{nextClass.time}{nextClass.schedule_time_end ? ` - ${nextClass.schedule_time_end}` : ''}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
+                                    {nextClass.mode === 'online' ? (
+                                        <><Monitor className="h-4 w-4" /><span>Online</span></>
+                                    ) : (
+                                        <><Building2 className="h-4 w-4" /><span>Offline</span></>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Progress bar */}
+                            <div>
+                                <div className="flex justify-between text-xs text-amber-700 dark:text-amber-300 mb-1">
+                                    <span>Progress Perkuliahan</span>
+                                    <span>{nextClass.progress}%</span>
+                                </div>
+                                <div className="h-2 rounded-full bg-amber-200 dark:bg-amber-900/50 overflow-hidden">
+                                    <motion.div
+                                        className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${nextClass.progress}%` }}
+                                        transition={{ duration: 1, delay: 0.5 }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ═══════ WEEKLY SCHEDULE GRID ═══════ */}
+                <motion.div
+                    className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.3 } },
+                    }}
                 >
-                    {days.map((day, dayIndex) => {
-                        const isToday = day === currentDay;
-                        const schedule = filterSchedules(weeklySchedule[day] || []);
-                        
+                    {daysOrder.map((dayKey) => {
+                        const isToday = dayKey === currentDay;
+                        const dayLabel = dayNames[dayKey];
+                        const daySchedules = filterSchedules(weeklySchedule[dayKey] || []);
+
                         return (
                             <motion.div
-                                key={dayIndex}
-                                custom={dayIndex}
-                                variants={cardVariants}
-                                whileHover={{ scale: 1.02, y: -3 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                                key={dayKey}
+                                variants={itemVariants}
+                                whileHover={{ scale: 1.02, y: -4 }}
+                                className={cn(
+                                    'rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 sm:p-6 shadow-xl backdrop-blur-xl dark:border-white/5 transition-all',
+                                    isToday && 'ring-2 ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/20'
+                                )}
                             >
-                                <Card 
-                                    className={`${isToday ? 'ring-2 ring-blue-500 bg-blue-50/50 dark:bg-blue-950/20' : 'border-slate-200/70 bg-white/80 dark:border-gray-800/70 dark:bg-black/80'} overflow-hidden rounded-2xl backdrop-blur shadow-sm`}
-                                >
-                                <CardHeader className="pb-2">
-                                    <CardTitle className={`text-base flex items-center justify-between ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-white'}`}>
-                                        <motion.span
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: dayIndex * 0.05 }}
-                                        >
-                                            {dayNames[day]}
-                                        </motion.span>
-                                        <AnimatePresence>
-                                            {isToday && (
-                                                <motion.div
-                                                    initial={{ scale: 0, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    exit={{ scale: 0, opacity: 0 }}
-                                                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                                                >
-                                                    <Badge variant="default" className="bg-blue-500 text-xs">
-                                                        Hari Ini
-                                                    </Badge>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    <AnimatePresence mode="popLayout">
-                                        {schedule.length > 0 ? (
-                                            schedule.map((item, itemIndex) => (
-                                                <motion.div 
-                                                    key={item.id}
-                                                    custom={itemIndex}
-                                                    variants={scheduleItemVariants}
-                                                    initial="hidden"
-                                                    animate="visible"
-                                                    exit={{ opacity: 0, x: -10, scale: 0.95 }}
-                                                    whileHover={{ scale: 1.02, x: 3 }}
-                                                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                                    layout
-                                                    onClick={() => {
-                                                        setSelectedSchedule(item);
-                                                        setIsDetailOpen(true);
-                                                    }}
-                                                    className={`p-3 rounded-xl border cursor-pointer ${
-                                                        item.is_completed 
-                                                            ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800' 
-                                                            : item.mode === 'offline' 
-                                                                ? 'bg-emerald-50/50 border-emerald-200/50 dark:bg-emerald-950/20 dark:border-emerald-800/50'
-                                                                : 'bg-blue-50/50 border-blue-200/50 dark:bg-blue-950/20 dark:border-blue-800/50'
-                                                    }`}
-                                                >
-                                                <div className="flex items-start justify-between gap-2 mb-2">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <motion.div
-                                                            whileHover={{ scale: 1.2, y: -2 }}
-                                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                                        >
-                                                            {item.mode === 'offline' ? (
-                                                                <Building2 className="h-4 w-4 text-emerald-600" />
-                                                            ) : (
-                                                                <Monitor className="h-4 w-4 text-blue-600" />
-                                                            )}
-                                                        </motion.div>
-                                                        <motion.div
-                                                            whileHover={{ scale: 1.05 }}
-                                                            whileTap={{ scale: 0.95 }}
-                                                        >
-                                                            <Badge 
-                                                                variant={item.mode === 'offline' ? 'default' : 'secondary'} 
-                                                                className={`text-xs ${item.mode === 'offline' ? 'bg-emerald-500' : ''}`}
-                                                            >
-                                                                {item.mode === 'offline' ? 'Offline' : 'Online'}
-                                                            </Badge>
-                                                        </motion.div>
-                                                    </div>
-                                                    <AnimatePresence>
-                                                        {item.is_completed && (
-                                                            <motion.div
-                                                                initial={{ scale: 0, rotate: -180 }}
-                                                                animate={{ scale: 1, rotate: 0 }}
-                                                                exit={{ scale: 0, rotate: 180 }}
-                                                                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                                                            >
-                                                                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
-                                                </div>
-                                                <motion.p 
-                                                    className="font-medium text-sm line-clamp-2 text-slate-900 dark:text-white"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    transition={{ delay: 0.1 }}
-                                                >
-                                                    {item.course_name}
-                                                </motion.p>
-                                                <motion.div 
-                                                    className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400 mt-1"
-                                                    initial={{ opacity: 0, x: -10 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: 0.15 }}
-                                                >
-                                                    <Clock className="h-3 w-3" />
-                                                    <span>{item.time}</span>
-                                                </motion.div>
-                                                <motion.div 
-                                                    className="mt-2"
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: 0.2 }}
-                                                >
-                                                    <div className="flex items-center justify-between text-xs mb-1 text-slate-700 dark:text-slate-300">
-                                                        <span>Pertemuan {item.meeting_number}/{item.total_meetings}</span>
-                                                        <motion.span
-                                                            key={item.progress}
-                                                            initial={{ scale: 1.5, opacity: 0 }}
-                                                            animate={{ scale: 1, opacity: 1 }}
-                                                            transition={{ type: 'spring', stiffness: 300 }}
-                                                            className="font-semibold"
-                                                        >
-                                                            {item.progress}%
-                                                        </motion.span>
-                                                    </div>
-                                                    <motion.div
-                                                        initial={{ scaleX: 0 }}
-                                                        animate={{ scaleX: 1 }}
-                                                        transition={{ delay: 0.3, duration: 0.5 }}
-                                                        style={{ transformOrigin: 'left' }}
-                                                    >
-                                                        <Progress value={item.progress} className="h-1.5" />
-                                                    </motion.div>
-                                                </motion.div>
-                                            </motion.div>
-                                        ))
-                                    ) : (
-                                        <motion.div 
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ type: 'spring', stiffness: 200 }}
-                                            className="text-center py-6 text-muted-foreground"
-                                        >
-                                            <Calendar className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                                            <p className="text-xs">Tidak ada jadwal</p>
-                                        </motion.div>
+                                {/* Day Header */}
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className={cn(
+                                            'flex h-10 w-10 items-center justify-center rounded-xl shadow-lg',
+                                            isToday
+                                                ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
+                                                : 'bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-700 text-neutral-600 dark:text-neutral-400'
+                                        )}>
+                                            <Calendar className="h-5 w-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className={cn(
+                                                'font-semibold',
+                                                isToday ? 'text-indigo-900 dark:text-indigo-100' : 'text-neutral-900 dark:text-white'
+                                            )}>
+                                                {dayLabel}
+                                            </h3>
+                                            <p className="text-xs text-neutral-500">
+                                                {daySchedules.length} kelas
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {isToday && (
+                                        <Badge className="bg-indigo-500 text-white text-[10px]">
+                                            Hari Ini
+                                        </Badge>
                                     )}
+                                </div>
+
+                                {/* Schedule Items */}
+                                <div className="space-y-3">
+                                    <AnimatePresence mode="popLayout">
+                                        {daySchedules.length > 0 ? (
+                                            daySchedules.map((item, itemIndex) => {
+                                                const colors = colorVariants[item.id % 5];
+                                                return (
+                                                    <motion.div
+                                                        key={item.id}
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        exit={{ opacity: 0, x: -10 }}
+                                                        transition={{ delay: itemIndex * 0.05 }}
+                                                        whileHover={{ scale: 1.03, x: 4 }}
+                                                        onClick={() => router.visit(`/user/akademik/jadwal/${item.id}`)}
+                                                        className={cn(
+                                                            'p-3 sm:p-4 rounded-xl border cursor-pointer transition-all',
+                                                            colors.bg,
+                                                            'border-white/20 dark:border-white/5'
+                                                        )}
+                                                    >
+                                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                                            <div className="flex items-center gap-1.5">
+                                                                {item.mode === 'online' ? (
+                                                                    <Monitor className="h-3.5 w-3.5 text-blue-600" />
+                                                                ) : (
+                                                                    <Building2 className="h-3.5 w-3.5 text-emerald-600" />
+                                                                )}
+                                                                <Badge className={cn(colors.badge, 'text-[10px]')}>
+                                                                    {item.mode === 'online' ? 'Online' : 'Offline'}
+                                                                </Badge>
+                                                            </div>
+                                                            <span className="text-[10px] font-mono text-neutral-500">
+                                                                {item.sks} SKS
+                                                            </span>
+                                                        </div>
+
+                                                        <h4 className="font-semibold text-sm text-neutral-900 dark:text-white mb-1 line-clamp-2">
+                                                            {item.course_name}
+                                                        </h4>
+
+                                                        <div className="space-y-1 text-xs text-neutral-600 dark:text-neutral-400">
+                                                            <div className="flex items-center gap-1">
+                                                                <Clock className="h-3 w-3" />
+                                                                <span>{item.time}{item.schedule_time_end ? ` - ${item.schedule_time_end}` : ''}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1">
+                                                                <BookOpen className="h-3 w-3" />
+                                                                <span>Pertemuan {item.meeting_number}/{item.total_meetings}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Mini progress */}
+                                                        <div className="mt-2">
+                                                            <div className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden">
+                                                                <div
+                                                                    className="h-full rounded-full bg-gradient-to-r from-indigo-400 to-purple-500"
+                                                                    style={{ width: `${item.progress}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })
+                                        ) : (
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="rounded-2xl border border-white/10 bg-neutral-50/50 dark:bg-neutral-800/50 p-6 text-center text-sm text-neutral-500"
+                                            >
+                                                Tidak ada kelas
+                                            </motion.div>
+                                        )}
                                     </AnimatePresence>
-                                </CardContent>
-                            </Card>
+                                </div>
                             </motion.div>
                         );
                     })}
                 </motion.div>
 
-                {/* Info Card */}
-                <motion.div
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01, y: -2 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                    className="relative"
-                >
-                    <Card className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-950/30 dark:to-emerald-950/30 border-blue-200 dark:border-blue-800 relative overflow-hidden rounded-2xl backdrop-blur">
-                        <CardContent className="p-4 relative">
-                            <div className="flex items-start gap-3">
-                                <motion.div 
-                                    whileHover={{ scale: 1.1, rotate: 5 }}
-                                    className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg"
-                                >
-                                    <Calendar className="h-5 w-5 text-blue-600" />
-                                </motion.div>
-                                <div>
-                                    <motion.p 
-                                        className="font-medium text-slate-900 dark:text-white"
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                    >
-                                        Jadwal Kelas 06TPLK004
-                                    </motion.p>
-                                    <motion.p 
-                                        className="text-sm text-slate-600 dark:text-slate-400 mt-1"
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.6 }}
-                                    >
-                                        Perkuliahan online dilaksanakan Senin - Jumat. Perkuliahan offline hanya di hari Kamis.
-                                    </motion.p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
             </motion.div>
-
-            {/* Schedule Detail Dialog */}
-            <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <DialogContent className="max-w-2xl rounded-3xl border-slate-200/70 bg-white/95 dark:border-gray-800/70 dark:bg-black/95 backdrop-blur">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-2xl text-slate-900 dark:text-white">
-                            <motion.div
-                                animate={{
-                                    rotate: [0, 5, -5, 0],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                            >
-                                <BookOpen className="h-6 w-6 text-blue-500" />
-                            </motion.div>
-                            Detail Jadwal Kuliah
-                        </DialogTitle>
-                    </DialogHeader>
-                    {selectedSchedule && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6 py-4"
-                        >
-                            {/* Course Info */}
-                            <div className="space-y-4">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">{selectedSchedule.course_name}</h3>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <Badge 
-                                                variant={selectedSchedule.mode === 'offline' ? 'default' : 'secondary'}
-                                                className={`${selectedSchedule.mode === 'offline' ? 'bg-emerald-500' : ''}`}
-                                            >
-                                                {selectedSchedule.mode === 'offline' ? (
-                                                    <><Building2 className="h-3 w-3 mr-1" /> Offline</>
-                                                ) : (
-                                                    <><Monitor className="h-3 w-3 mr-1" /> Online</>
-                                                )}
-                                            </Badge>
-                                            {selectedSchedule.is_completed && (
-                                                <Badge className="bg-emerald-500 hover:bg-emerald-600">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Selesai
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <motion.div
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{ type: "spring", stiffness: 200 }}
-                                        className="text-center"
-                                    >
-                                        <div className="text-4xl font-bold text-blue-600">
-                                            {selectedSchedule.progress}%
-                                        </div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">Progress</p>
-                                    </motion.div>
-                                </div>
-
-                                {/* Progress Bar */}
-                                <div>
-                                    <div className="flex items-center justify-between text-sm mb-2">
-                                        <span className="text-slate-600 dark:text-slate-400">Pertemuan</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">
-                                            {selectedSchedule.meeting_number} dari {selectedSchedule.total_meetings}
-                                        </span>
-                                    </div>
-                                    <Progress value={selectedSchedule.progress} className="h-3" />
-                                </div>
-                            </div>
-
-                            {/* Schedule Details */}
-                            <div className="grid grid-cols-2 gap-4">
-                                {/* Time Card */}
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    className="p-4 rounded-xl border-2 border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30"
-                                >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                                            <Clock className="h-5 w-5 text-blue-600" />
-                                        </div>
-                                        <h4 className="font-semibold text-slate-900 dark:text-white">Waktu</h4>
-                                    </div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{selectedSchedule.time}</p>
-                                </motion.div>
-
-                                {/* Mode Card */}
-                                <motion.div
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    whileHover={{ scale: 1.02, y: -2 }}
-                                    className={`p-4 rounded-xl border-2 ${
-                                        selectedSchedule.mode === 'offline'
-                                            ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30'
-                                            : 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-950/30'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className={`p-2 rounded-lg ${
-                                            selectedSchedule.mode === 'offline'
-                                                ? 'bg-emerald-100 dark:bg-emerald-900/50'
-                                                : 'bg-blue-100 dark:bg-blue-900/50'
-                                        }`}>
-                                            {selectedSchedule.mode === 'offline' ? (
-                                                <Building2 className="h-5 w-5 text-emerald-600" />
-                                            ) : (
-                                                <Monitor className="h-5 w-5 text-blue-600" />
-                                            )}
-                                        </div>
-                                        <h4 className="font-semibold text-slate-900 dark:text-white">Mode</h4>
-                                    </div>
-                                    <p className="text-2xl font-bold capitalize text-slate-900 dark:text-white">{selectedSchedule.mode}</p>
-                                </motion.div>
-                            </div>
-
-                            {/* Additional Info */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                whileHover={{ scale: 1.01 }}
-                                className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/30 space-y-3 border border-slate-200/70 dark:border-gray-800/70"
-                            >
-                                <h4 className="font-semibold flex items-center gap-2 text-slate-900 dark:text-white">
-                                    <MapPin className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                                    Informasi Tambahan
-                                </h4>
-                                <div className="space-y-2 text-sm">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-600 dark:text-slate-400">Pertemuan Saat Ini:</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">Pertemuan {selectedSchedule.meeting_number}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-600 dark:text-slate-400">Total Pertemuan:</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">{selectedSchedule.total_meetings} pertemuan</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-600 dark:text-slate-400">Sisa Pertemuan:</span>
-                                        <span className="font-medium text-slate-900 dark:text-white">
-                                            {selectedSchedule.total_meetings - selectedSchedule.meeting_number} pertemuan
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-600 dark:text-slate-400">Status:</span>
-                                        <Badge variant={selectedSchedule.is_completed ? 'default' : 'secondary'}>
-                                            {selectedSchedule.is_completed ? 'Selesai' : 'Berlangsung'}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {/* Close Button */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                            >
-                                <Button
-                                    onClick={() => setIsDetailOpen(false)}
-                                    className="w-full h-12 text-base bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-xl shadow-lg"
-                                >
-                                    Tutup
-                                </Button>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </DialogContent>
-            </Dialog>
         </StudentLayout>
     );
 }

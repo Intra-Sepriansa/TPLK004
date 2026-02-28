@@ -52,7 +52,7 @@ const studentNavItems: NavItem[] = [
     },
     {
         title: 'Jadwal Kuliah',
-        href: '/user/schedule',
+        href: '/user/akademik/jadwal',
         icon: CalendarDays,
     },
     {
@@ -167,7 +167,7 @@ export function StudentSidebar() {
         },
         {
             title: 'Jadwal Kuliah',
-            href: '/user/schedule',
+            href: '/user/akademik/jadwal',
             icon: CalendarDays,
         },
         {

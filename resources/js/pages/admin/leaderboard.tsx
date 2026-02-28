@@ -321,26 +321,6 @@ export default function AdminLeaderboard({ leaderboard, podium, stats, kelasList
                     >
                         {/* Animated Background */}
                         <div className="absolute inset-0 overflow-hidden">
-                            {[...Array(15)].map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    className="absolute h-2 w-2 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400"
-                                    animate={{
-                                        y: [0, -100],
-                                        x: [0, Math.random() * 50 - 25],
-                                        opacity: [0, 1, 0],
-                                    }}
-                                    transition={{
-                                        duration: 3 + Math.random() * 2,
-                                        repeat: Infinity,
-                                        delay: i * 0.2,
-                                    }}
-                                    style={{
-                                        left: `${Math.random() * 100}%`,
-                                        bottom: 0,
-                                    }}
-                                />
-                            ))}
                         </div>
 
                         <div className="relative p-4 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10">

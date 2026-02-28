@@ -3,28 +3,100 @@ import { Head } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { BarChart3, TrendingUp, TrendingDown, Flame, Award, Calendar, CheckCircle, Clock, XCircle, AlertTriangle, Lightbulb, Users, BookOpen, FileText, GraduationCap, Sparkles, Star, Zap, Target } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Award,
+    BookOpen,
+    Calendar,
+    CheckCircle,
+    Clock,
+    FileText,
+    GraduationCap,
+    Lightbulb,
+    TrendingDown,
+    TrendingUp,
+    Users,
+    XCircle,
+    AlertTriangle,
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { useState } from 'react';
 
+import analyticsIcon from '@/assets/mahasiswa/analitik/analytics.png';
+import rateStatIcon from '@/assets/admin/dashboard/total-icon.png';
+import streakStatIcon from '@/assets/admin/verifikasi-selfie/pending.png';
+import totalActivityStatIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
+import rankStatIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+
 interface ActivityDay {
-    date: string; count: number; level: number; types: string[]; dayOfWeek: number; week: number; month: number; monthName: string; isFuture?: boolean;
+    date: string;
+    count: number;
+    level: number;
+    types: string[];
+    dayOfWeek: number;
+    week: number;
+    month: number;
+    monthName: string;
+    isFuture?: boolean;
 }
 
 interface Props {
     mahasiswa: { id: number; nama: string; nim: string };
-    overview: { total_sessions: number; present: number; late: number; absent: number; overall_rate: number; on_time_rate: number; this_month_rate: number; trend: number; trend_direction: 'up' | 'down' | 'stable' };
+    overview: {
+        total_sessions: number;
+        present: number;
+        late: number;
+        absent: number;
+        overall_rate: number;
+        on_time_rate: number;
+        this_month_rate: number;
+        trend: number;
+        trend_direction: 'up' | 'down' | 'stable';
+    };
     streakData: { current_streak: number; longest_streak: number; last_attendance: string | null };
-    courseBreakdown: Array<{ course_id: number; course_name: string; total: number; present: number; late: number; absent: number; rate: number; can_take_uas: boolean }>;
+    courseBreakdown: Array<{
+        course_id: number;
+        course_name: string;
+        total: number;
+        present: number;
+        late: number;
+        absent: number;
+        rate: number;
+        can_take_uas: boolean;
+    }>;
     weeklyTrend: Array<{ date: string; day: string; status: string; time: string | null }>;
-    activityGraph: { activities: ActivityDay[]; weeks: ActivityDay[][]; months: Array<{ month: number; name: string }>; totalActivities: number; activeDays: number; longestStreak: number; currentStreak: number; year: number };
-    comparison: { my_rate: number; class_average: number; difference: number; rank: number; total_students: number; percentile: number; status: 'above' | 'below' };
-    badges: Array<{ id: number; name: string; description: string; icon: string; color: string; category: string; points: number; earned_at: string }>;
+    activityGraph: {
+        activities: ActivityDay[];
+        weeks: ActivityDay[][];
+        months: Array<{ month: number; name: string }>;
+        totalActivities: number;
+        activeDays: number;
+        longestStreak: number;
+        currentStreak: number;
+        year: number;
+    };
+    comparison: {
+        my_rate: number;
+        class_average: number;
+        difference: number;
+        rank: number;
+        total_students: number;
+        percentile: number;
+        status: 'above' | 'below';
+    };
+    badges: Array<{
+        id: number;
+        name: string;
+        description: string;
+        icon: string;
+        color: string;
+        category: string;
+        points: number;
+        earned_at: string;
+    }>;
     tips: Array<{ type: 'success' | 'warning' | 'danger' | 'info'; title: string; message: string }>;
 }
 
-// Animation variants
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -37,94 +109,112 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30, scale: 0.9 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 400,
-            damping: 17,
-        },
-    },
-};
-
-const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: {
-        opacity: 1,
         scale: 1,
-        transition: {
-            type: 'spring' as const,
-            stiffness: 300,
-            damping: 20,
-        },
+        transition: { type: 'spring' as const, stiffness: 300, damping: 20 },
     },
 };
 
-export default function PersonalAnalytics({ mahasiswa, overview, streakData, courseBreakdown, weeklyTrend, activityGraph, comparison, badges, tips }: Props) {
-    const [hoveredDay, setHoveredDay] = useState<string | null>(null);
-    
+export default function PersonalAnalytics({
+    mahasiswa,
+    overview,
+    streakData,
+    courseBreakdown,
+    weeklyTrend,
+    activityGraph,
+    comparison,
+    badges,
+    tips,
+}: Props) {
+    const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
     const getStatusColor = (status: string | null) => {
         switch (status) {
-            case 'present': return 'bg-green-500';
-            case 'late': return 'bg-yellow-500';
-            case 'rejected': case 'absent': return 'bg-red-500';
-            case 'permit': case 'sick': return 'bg-blue-500';
-            default: return 'bg-gray-200 dark:bg-gray-700';
-        }
-    };
-
-    const getTipIcon = (type: string) => {
-        switch (type) {
-            case 'success': return <CheckCircle className="h-5 w-5 text-green-500" />;
-            case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-            case 'danger': return <XCircle className="h-5 w-5 text-red-500" />;
-            default: return <Lightbulb className="h-5 w-5 text-blue-500" />;
-        }
-    };
-
-    const getTipBg = (type: string) => {
-        switch (type) {
-            case 'success': return 'bg-green-50 dark:bg-green-900/20 border-green-200';
-            case 'warning': return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200';
-            case 'danger': return 'bg-red-50 dark:bg-red-900/20 border-red-200';
-            default: return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200';
+            case 'present':
+                return 'bg-emerald-500';
+            case 'late':
+                return 'bg-amber-500';
+            case 'rejected':
+            case 'absent':
+                return 'bg-red-500';
+            case 'permit':
+            case 'sick':
+                return 'bg-blue-500';
+            default:
+                return 'bg-neutral-300 dark:bg-neutral-700';
         }
     };
 
     const getActivityColor = (level: number) => {
         switch (level) {
-            case -1: return 'bg-gray-100/50 dark:bg-gray-800/30';
-            case 0: return 'bg-gray-200 dark:bg-gray-700';
-            case 1: return 'bg-emerald-300 dark:bg-emerald-800';
-            case 2: return 'bg-emerald-400 dark:bg-emerald-600';
-            case 3: return 'bg-emerald-500 dark:bg-emerald-500';
-            case 4: return 'bg-emerald-600 dark:bg-emerald-400';
-            default: return 'bg-gray-200 dark:bg-gray-700';
+            case -1:
+                return 'bg-neutral-100/70 dark:bg-neutral-800/40';
+            case 0:
+                return 'bg-neutral-200 dark:bg-neutral-700';
+            case 1:
+                return 'bg-emerald-300 dark:bg-emerald-800';
+            case 2:
+                return 'bg-emerald-400 dark:bg-emerald-700';
+            case 3:
+                return 'bg-emerald-500 dark:bg-emerald-600';
+            case 4:
+                return 'bg-emerald-600 dark:bg-emerald-500';
+            default:
+                return 'bg-neutral-200 dark:bg-neutral-700';
+        }
+    };
+
+    const getTipIcon = (type: string) => {
+        switch (type) {
+            case 'success':
+                return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+            case 'warning':
+                return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+            case 'danger':
+                return <XCircle className="h-5 w-5 text-red-500" />;
+            default:
+                return <Lightbulb className="h-5 w-5 text-blue-500" />;
+        }
+    };
+
+    const getTipBg = (type: string) => {
+        switch (type) {
+            case 'success':
+                return 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-900/20';
+            case 'warning':
+                return 'border-amber-200 bg-amber-50/70 dark:border-amber-900/60 dark:bg-amber-900/20';
+            case 'danger':
+                return 'border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-900/20';
+            default:
+                return 'border-blue-200 bg-blue-50/70 dark:border-blue-900/60 dark:bg-blue-900/20';
         }
     };
 
     const getBadgeGradient = (color: string) => {
         const gradients: Record<string, string> = {
-            orange: 'bg-gradient-to-br from-orange-400 to-orange-600 text-white',
-            yellow: 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white',
-            green: 'bg-gradient-to-br from-green-400 to-green-600 text-white',
-            blue: 'bg-gradient-to-br from-blue-400 to-blue-600 text-white',
-            purple: 'bg-gradient-to-br from-purple-400 to-purple-600 text-white',
-            red: 'bg-gradient-to-br from-red-400 to-red-600 text-white',
-            emerald: 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white',
-            pink: 'bg-gradient-to-br from-pink-400 to-pink-600 text-white',
+            orange: 'from-orange-400 to-orange-600',
+            yellow: 'from-yellow-400 to-yellow-600',
+            green: 'from-green-400 to-green-600',
+            blue: 'from-blue-400 to-blue-600',
+            purple: 'from-purple-400 to-purple-600',
+            red: 'from-red-400 to-red-600',
+            emerald: 'from-emerald-400 to-emerald-600',
+            pink: 'from-pink-400 to-pink-600',
         };
-        return gradients[color] || 'bg-gradient-to-br from-gray-400 to-gray-600 text-white';
+
+        return gradients[color] || 'from-slate-400 to-slate-600';
     };
 
-    const getBadgeEmoji = (category: string) => {
-        const emojis: Record<string, string> = { streak: '🔥', attendance: '✅', achievement: '🏆', special: '⭐' };
-        return emojis[category] || '🎖️';
-    };
-
-    const formatActivityDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const formatActivityDate = (dateStr: string) =>
+        new Date(dateStr).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
 
     const getActivityTypeLabel = (types: string[]) => {
         const labels: string[] = [];
@@ -137,409 +227,324 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
     return (
         <StudentLayout>
             <Head title="Personal Analytics" />
+
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="p-6 space-y-6"
+                className="space-y-6 p-4 md:space-y-8 md:p-6 lg:p-8"
             >
-                {/* Header with Advanced Animations */}
                 <motion.div
-                    variants={cardVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-cyan-500 to-blue-600 p-8 text-white shadow-2xl"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8"
                 >
-                    {/* Animated Background Orbs */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
-                        />
-                        
-                        {/* Large Floating Icons */}
-                        <motion.div
-                            animate={{
-                                y: [0, -20, 0],
-                                rotate: [0, 5, 0],
-                            }}
-                            transition={{
-                                duration: 6,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute right-8 top-8 opacity-10"
-                        >
-                            <BarChart3 className="h-32 w-32" />
-                        </motion.div>
-                        <motion.div
-                            animate={{
-                                y: [0, 15, 0],
-                                rotate: [0, -5, 0],
-                            }}
-                            transition={{
-                                duration: 7,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute left-8 bottom-8 opacity-10"
-                        >
-                            <TrendingUp className="h-28 w-28" />
-                        </motion.div>
-                        
-                        {/* Floating Academic Icons */}
-                        {[BarChart3, TrendingUp, Target, Award, Calendar].map((Icon, i) => (
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    <div className="relative">
+                       
+
+                        <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                             <motion.div
-                                key={i}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{
-                                    opacity: [0, 0.4, 0],
-                                    scale: [0, 1, 0],
-                                    y: [0, -40, -80],
-                                }}
-                                transition={{
-                                    duration: 4,
-                                    repeat: Infinity,
-                                    delay: i * 0.8,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${15 + i * 18}%`,
-                                    top: `${20 + (i % 2) * 40}%`,
-                                }}
+                                className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
+                                initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                whileHover={{ scale: 1.05, rotate: 5 }}
                             >
-                                <Icon className="h-6 w-6 text-white" />
+                                <img
+                                    src={analyticsIcon}
+                                    alt="Personal Analytics"
+                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                />
                             </motion.div>
-                        ))}
-                    </div>
-                    
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-4">
-                            <motion.div
-                                initial={{ scale: 0, rotate: -180 }}
-                                animate={{ scale: 1, rotate: 0 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                whileHover={{ rotate: 360, scale: 1.1 }}
-                                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
-                            >
-                                <BarChart3 className="h-8 w-8" />
-                            </motion.div>
-                            <div>
+
+                            <div className="mt-1 flex-1 sm:mt-0">
                                 <motion.p
-                                    initial={{ opacity: 0, x: -20 }}
+                                    className="text-sm font-medium tracking-wide text-indigo-100"
+                                    initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="text-sm text-white/80 font-medium"
+                                    transition={{ delay: 0.3 }}
                                 >
                                     Analisis Akademik
                                 </motion.p>
                                 <motion.h1
-                                    initial={{ opacity: 0, x: -20 }}
+                                    className="mt-1 text-2xl font-bold text-white sm:text-3xl"
+                                    initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="text-3xl font-bold"
+                                    transition={{ delay: 0.4 }}
                                 >
                                     Personal Analytics
                                 </motion.h1>
+                                <motion.p
+                                    className="mt-2 max-w-2xl text-sm leading-relaxed text-indigo-100 sm:text-base"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    Pantau perkembangan akademik kamu secara real-time.
+                                    <span className="ml-1 font-semibold">{mahasiswa.nama}</span>
+                                    <span className="mx-1 text-white/70">|</span>
+                                    <span>{mahasiswa.nim}</span>
+                                </motion.p>
+                                <motion.p
+                                    className="mt-1 text-xs text-white/80 sm:text-sm"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.55 }}
+                                >
+                                    Streak kehadiran saat ini: {streakData.current_streak} hari
+                                </motion.p>
                             </div>
                         </div>
-                        <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="mt-4 text-white/90 text-lg"
-                        >
-                            Pantau perkembangan dan aktivitas akademik kamu secara real-time
-                        </motion.p>
                     </div>
                 </motion.div>
 
-                {/* Overview Cards with Dock-Style Animations */}
                 <motion.div
-                    variants={containerVariants}
-                    className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                    className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: { opacity: 1, transition: { staggerChildren: 0.04, delayChildren: 0.2 } },
+                    }}
                 >
-                    {/* Rate Kehadiran Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        whileHover={{ 
-                            scale: 1.08, 
-                            y: -10,
-                            boxShadow: "0 20px 40px rgba(59, 130, 246, 0.3)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-50 to-white p-5 shadow-lg backdrop-blur dark:border-blue-800/50 dark:from-blue-950/30 dark:to-black/80 overflow-hidden"
-                    >
-                        {/* Glow Effect */}
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                            animate={{
-                                scale: [1, 1.2, 1],
-                            }}
-                            transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        />
-                        
-                        <div className="relative flex items-center gap-3">
+                    {[
+                        {
+                            key: 'rate',
+                            title: 'Rate Kehadiran',
+                            value: overview.overall_rate,
+                            suffix: '%',
+                            decimals: 1,
+                            note: `${overview.trend >= 0 ? '+' : ''}${overview.trend}% bulan ini`,
+                            icon: rateStatIcon,
+                            iconScale: 'scale-[0.98]',
+                            colorConfig: {
+                                bg: 'bg-blue-500',
+                                gradientBg:
+                                    'from-blue-500/5 to-indigo-500/5 dark:from-blue-500/10 dark:to-indigo-500/10',
+                            },
+                        },
+                        {
+                            key: 'streak',
+                            title: 'Streak Aktivitas',
+                            value: activityGraph.currentStreak,
+                            suffix: ' hari',
+                            note: `Terpanjang ${activityGraph.longestStreak} hari`,
+                            icon: streakStatIcon,
+                            iconScale: 'scale-[0.98]',
+                            colorConfig: {
+                                bg: 'bg-amber-500',
+                                gradientBg:
+                                    'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
+                            },
+                        },
+                        {
+                            key: 'total',
+                            title: 'Total Aktivitas',
+                            value: activityGraph.totalActivities,
+                            note: `${activityGraph.activeDays} hari aktif`,
+                            icon: totalActivityStatIcon,
+                            iconScale: 'scale-[0.98]',
+                            colorConfig: {
+                                bg: 'bg-emerald-500',
+                                gradientBg:
+                                    'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10',
+                            },
+                        },
+                        {
+                            key: 'rank',
+                            title: 'Peringkat Kelas',
+                            value: comparison.rank,
+                            prefix: '#',
+                            note: `Top ${comparison.percentile}%`,
+                            icon: rankStatIcon,
+                            iconScale: 'scale-[0.94]',
+                            colorConfig: {
+                                bg: 'bg-purple-500',
+                                gradientBg:
+                                    'from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10',
+                            },
+                        },
+                    ].map((stat) => {
+                        return (
                             <motion.div
-                                whileHover={{ rotate: 360 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 text-white shadow-lg shadow-blue-500/50"
+                                key={stat.key}
+                                className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-3 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:rounded-3xl sm:p-6"
+                                variants={itemVariants}
+                                whileHover={{
+                                    scale: 1.04,
+                                    y: -4,
+                                    transition: { type: 'spring', stiffness: 400, damping: 15 },
+                                }}
+                                onHoverStart={() => setHoveredCard(stat.key)}
+                                onHoverEnd={() => setHoveredCard(null)}
                             >
-                                {overview.trend_direction === 'up' ? <TrendingUp className="h-6 w-6" /> : overview.trend_direction === 'down' ? <TrendingDown className="h-6 w-6" /> : <BarChart3 className="h-6 w-6" />}
-                            </motion.div>
-                            <div>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Rate Kehadiran</p>
-                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                    <AnimatedCounter value={overview.overall_rate} suffix="%" duration={1500} />
-                                </p>
-                                <p className="text-xs text-slate-500 flex items-center gap-1">
-                                    {overview.trend > 0 ? <TrendingUp className="h-3 w-3 text-green-500" /> : <TrendingDown className="h-3 w-3 text-red-500" />}
-                                    {overview.trend > 0 ? '+' : ''}{overview.trend}% bulan lalu
-                                </p>
-                            </div>
-                        </div>
-                    </motion.div>
+                                <div className={`absolute inset-0 bg-gradient-to-br ${stat.colorConfig.gradientBg}`} />
+                                <motion.div
+                                    initial={false}
+                                    animate={{
+                                        scale: hoveredCard === stat.key ? 1.5 : 1,
+                                        opacity: hoveredCard === stat.key ? 0.4 : 0.2,
+                                    }}
+                                    transition={{ duration: 0.5 }}
+                                    className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${stat.colorConfig.bg} blur-3xl`}
+                                />
 
-                    {/* Streak Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        whileHover={{ 
-                            scale: 1.08, 
-                            y: -10,
-                            boxShadow: "0 20px 40px rgba(249, 115, 22, 0.3)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative rounded-2xl border border-orange-200/50 bg-gradient-to-br from-orange-50 to-white p-5 shadow-lg backdrop-blur dark:border-orange-800/50 dark:from-orange-950/30 dark:to-black/80 overflow-hidden"
-                    >
-                        {/* Animated Fire Particles */}
-                        {activityGraph.currentStreak > 0 && [...Array(5)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ y: 0, opacity: 0 }}
-                                animate={{
-                                    y: [-10, -40],
-                                    opacity: [0, 1, 0],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    delay: i * 0.3,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${20 + i * 15}%`,
-                                    bottom: '10%',
-                                }}
-                            >
-                                <div className="h-2 w-2 rounded-full bg-orange-400" />
+                                <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 10 }}
+                                        className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-12 sm:w-12"
+                                    >
+                                        <img
+                                            src={stat.icon}
+                                            alt={stat.title}
+                                            className={`h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.32)] ${stat.iconScale ?? ''}`}
+                                        />
+                                    </motion.div>
+                                    <div>
+                                        <p className="text-[10px] font-medium leading-tight text-neutral-500 dark:text-neutral-400 sm:text-sm">
+                                            {stat.title}
+                                        </p>
+                                        <div className="mt-0.5 sm:mt-1">
+                                            <span className="text-lg font-bold text-neutral-900 dark:text-white sm:text-2xl">
+                                                <AnimatedCounter
+                                                    value={stat.value}
+                                                    prefix={stat.prefix}
+                                                    suffix={stat.suffix}
+                                                    decimals={stat.decimals}
+                                                />
+                                            </span>
+                                        </div>
+                                        <p className="mt-0.5 text-[8px] leading-tight text-neutral-400 sm:text-xs">
+                                            {stat.note}
+                                        </p>
+                                    </div>
+                                </div>
                             </motion.div>
-                        ))}
-                        
-                        <div className="relative flex items-center gap-3">
-                            <motion.div
-                                animate={activityGraph.currentStreak > 0 ? {
-                                    scale: [1, 1.2, 1],
-                                } : {}}
-                                transition={{
-                                    duration: 1.5,
-                                    repeat: Infinity,
-                                    ease: "easeInOut"
-                                }}
-                                className={`flex h-12 w-12 items-center justify-center rounded-xl shadow-lg ${activityGraph.currentStreak > 0 ? 'bg-orange-500 text-white shadow-orange-500/50' : 'bg-slate-300 text-slate-500'}`}
-                            >
-                                <Flame className="h-6 w-6" />
-                            </motion.div>
-                            <div>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Streak Aktivitas</p>
-                                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                    <AnimatedCounter value={activityGraph.currentStreak} duration={1500} /> hari
-                                </p>
-                                <p className="text-xs text-slate-500">Terpanjang: {activityGraph.longestStreak} hari</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Total Aktivitas Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        whileHover={{ 
-                            scale: 1.08, 
-                            y: -10,
-                            boxShadow: "0 20px 40px rgba(16, 185, 129, 0.3)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative rounded-2xl border border-emerald-200/50 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-lg backdrop-blur dark:border-emerald-800/50 dark:from-emerald-950/30 dark:to-black/80 overflow-hidden"
-                    >
-                        {/* Pulsing Glow */}
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-transparent"
-                            animate={{
-                                opacity: [0.3, 0.6, 0.3],
-                            }}
-                            transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        />
-                        
-                        <div className="relative flex items-center gap-3">
-                            <motion.div
-                                whileHover={{ rotate: 360 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/50"
-                            >
-                                <Calendar className="h-6 w-6" />
-                            </motion.div>
-                            <div>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Total Aktivitas</p>
-                                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                    <AnimatedCounter value={activityGraph.totalActivities} duration={1500} />
-                                </p>
-                                <p className="text-xs text-slate-500">{activityGraph.activeDays} hari aktif</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Ranking Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        whileHover={{ 
-                            scale: 1.08, 
-                            y: -10,
-                            boxShadow: "0 20px 40px rgba(168, 85, 247, 0.3)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
-                        className="group relative rounded-2xl border border-purple-200/50 bg-gradient-to-br from-purple-50 to-white p-5 shadow-lg backdrop-blur dark:border-purple-800/50 dark:from-purple-950/30 dark:to-black/80 overflow-hidden"
-                    >
-                        {/* Floating Stars */}
-                        {[...Array(3)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{
-                                    opacity: [0, 1, 0],
-                                    scale: [0, 1, 0],
-                                    y: [0, -20],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    delay: i * 0.4,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${30 + i * 20}%`,
-                                    top: '20%',
-                                }}
-                            >
-                                <Star className="h-3 w-3 text-purple-400 fill-purple-400" />
-                            </motion.div>
-                        ))}
-                        
-                        <div className="relative flex items-center gap-3">
-                            <motion.div
-                                whileHover={{ rotate: 360 }}
-                                transition={{ duration: 0.6 }}
-                                className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500 text-white shadow-lg shadow-purple-500/50"
-                            >
-                                <Users className="h-6 w-6" />
-                            </motion.div>
-                            <div>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Ranking Kelas</p>
-                                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                    #<AnimatedCounter value={comparison.rank} duration={1500} />
-                                </p>
-                                <p className="text-xs text-slate-500">Top {comparison.percentile}%</p>
-                            </div>
-                        </div>
-                    </motion.div>
+                        );
+                    })}
                 </motion.div>
 
-                {/* Activity Graph */}
                 <motion.div
-                    variants={cardVariants}
+                    variants={itemVariants}
                     whileHover={{ scale: 1.01, y: -2 }}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                        <div className="flex items-center gap-2">
-                            <motion.div whileHover={{ rotate: 10 }}>
-                                <Calendar className="h-5 w-5 text-indigo-600" />
-                            </motion.div>
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Aktivitas Tahun {activityGraph.year}</h2>
+                    <div className="border-b border-white/10 p-6">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
+                                <Calendar className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Aktivitas Tahun {activityGraph.year}
+                                </h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                    {activityGraph.totalActivities} aktivitas sejak 1 Januari {activityGraph.year}
+                                </p>
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">{activityGraph.totalActivities} aktivitas sejak 1 Januari {activityGraph.year}</p>
                     </div>
-                    <div className="p-4 overflow-x-auto">
-                        <div className="flex mb-2 ml-8 text-xs text-slate-500">
+
+                    <div className="overflow-x-auto p-6">
+                        <div className="mb-2 ml-8 flex text-xs text-neutral-500 dark:text-neutral-400">
                             {(() => {
                                 const monthPositions: { name: string; startWeek: number; span: number }[] = [];
                                 let currentMonth = -1;
+
                                 activityGraph.weeks.forEach((week, weekIndex) => {
-                                    const firstDayOfWeek = week.find(d => d.month !== undefined);
+                                    const firstDayOfWeek = week.find((d) => d.month !== undefined);
                                     if (firstDayOfWeek && firstDayOfWeek.month !== currentMonth) {
-                                        if (monthPositions.length > 0) monthPositions[monthPositions.length - 1].span = weekIndex - monthPositions[monthPositions.length - 1].startWeek;
-                                        monthPositions.push({ name: firstDayOfWeek.monthName, startWeek: weekIndex, span: 1 });
+                                        if (monthPositions.length > 0) {
+                                            monthPositions[monthPositions.length - 1].span =
+                                                weekIndex - monthPositions[monthPositions.length - 1].startWeek;
+                                        }
+                                        monthPositions.push({
+                                            name: firstDayOfWeek.monthName,
+                                            startWeek: weekIndex,
+                                            span: 1,
+                                        });
                                         currentMonth = firstDayOfWeek.month;
                                     }
                                 });
-                                if (monthPositions.length > 0) monthPositions[monthPositions.length - 1].span = activityGraph.weeks.length - monthPositions[monthPositions.length - 1].startWeek;
-                                return monthPositions.map((m, i) => (
-                                    <div key={i} style={{ width: `${m.span * 13}px`, minWidth: m.span > 2 ? 'auto' : '0px' }} className="text-left">{m.span > 2 ? m.name : ''}</div>
+
+                                if (monthPositions.length > 0) {
+                                    monthPositions[monthPositions.length - 1].span =
+                                        activityGraph.weeks.length - monthPositions[monthPositions.length - 1].startWeek;
+                                }
+
+                                return monthPositions.map((month, index) => (
+                                    <div
+                                        key={index}
+                                        style={{
+                                            width: `${month.span * 13}px`,
+                                            minWidth: month.span > 2 ? 'auto' : '0px',
+                                        }}
+                                        className="text-left"
+                                    >
+                                        {month.span > 2 ? month.name : ''}
+                                    </div>
                                 ));
                             })()}
                         </div>
+
                         <div className="flex gap-[3px]">
-                            <div className="flex flex-col gap-[3px] mr-2 text-[10px] text-slate-500">
-                                <div className="h-[11px]"></div>
-                                <div className="h-[11px] flex items-center">Sen</div>
-                                <div className="h-[11px]"></div>
-                                <div className="h-[11px] flex items-center">Rab</div>
-                                <div className="h-[11px]"></div>
-                                <div className="h-[11px] flex items-center">Jum</div>
-                                <div className="h-[11px]"></div>
+                            <div className="mr-2 flex flex-col gap-[3px] text-[10px] text-neutral-500 dark:text-neutral-400">
+                                <div className="h-[11px]" />
+                                <div className="flex h-[11px] items-center">Sen</div>
+                                <div className="h-[11px]" />
+                                <div className="flex h-[11px] items-center">Rab</div>
+                                <div className="h-[11px]" />
+                                <div className="flex h-[11px] items-center">Jum</div>
+                                <div className="h-[11px]" />
                             </div>
+
                             <TooltipProvider>
                                 <div className="flex gap-[3px]">
                                     {activityGraph.weeks.map((week, weekIndex) => (
                                         <div key={weekIndex} className="flex flex-col gap-[3px]">
-                                            {[0, 1, 2, 3, 4, 5, 6].map(dayOfWeek => {
-                                                const day = week.find(d => d.dayOfWeek === dayOfWeek);
-                                                if (!day) return <div key={dayOfWeek} className="w-[11px] h-[11px]" />;
+                                            {[0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => {
+                                                const day = week.find((d) => d.dayOfWeek === dayOfWeek);
+
+                                                if (!day) {
+                                                    return <div key={dayOfWeek} className="h-[11px] w-[11px]" />;
+                                                }
+
                                                 return (
                                                     <Tooltip key={dayOfWeek}>
                                                         <TooltipTrigger asChild>
-                                                            <div className={`w-[11px] h-[11px] rounded-[2px] ${getActivityColor(day.level)} cursor-pointer hover:ring-1 hover:ring-offset-1 hover:ring-gray-400 transition-all`} />
+                                                            <div
+                                                                className={`h-[11px] w-[11px] cursor-pointer rounded-[2px] ${getActivityColor(day.level)} transition-all hover:ring-1 hover:ring-neutral-400 hover:ring-offset-1 dark:hover:ring-neutral-500`}
+                                                            />
                                                         </TooltipTrigger>
                                                         <TooltipContent side="top" className="text-xs">
                                                             <p className="font-medium">{formatActivityDate(day.date)}</p>
-                                                            {day.isFuture ? <p className="text-slate-500">Belum terjadi</p> : day.count > 0 ? (<><p>{day.count} aktivitas</p><p className="text-slate-500">{getActivityTypeLabel(day.types)}</p></>) : <p className="text-slate-500">Tidak ada aktivitas</p>}
+                                                            {day.isFuture ? (
+                                                                <p className="text-neutral-500 dark:text-neutral-400">
+                                                                    Belum terjadi
+                                                                </p>
+                                                            ) : day.count > 0 ? (
+                                                                <>
+                                                                    <p>{day.count} aktivitas</p>
+                                                                    <p className="text-neutral-500 dark:text-neutral-400">
+                                                                        {getActivityTypeLabel(day.types)}
+                                                                    </p>
+                                                                </>
+                                                            ) : (
+                                                                <p className="text-neutral-500 dark:text-neutral-400">
+                                                                    Tidak ada aktivitas
+                                                                </p>
+                                                            )}
                                                         </TooltipContent>
                                                     </Tooltip>
                                                 );
@@ -549,165 +554,248 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                 </div>
                             </TooltipProvider>
                         </div>
-                        <div className="flex items-center justify-end gap-2 mt-4 text-xs text-slate-500">
+
+                        <div className="mt-4 flex items-center justify-end gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                             <span>Sedikit</span>
-                            <div className="flex gap-[3px]">{[0, 1, 2, 3, 4].map(level => (<div key={level} className={`w-[11px] h-[11px] rounded-[2px] ${getActivityColor(level)}`} />))}</div>
+                            <div className="flex gap-[3px]">
+                                {[0, 1, 2, 3, 4].map((level) => (
+                                    <div key={level} className={`h-[11px] w-[11px] rounded-[2px] ${getActivityColor(level)}`} />
+                                ))}
+                            </div>
                             <span>Banyak</span>
                         </div>
-                        <div className="flex items-center justify-center gap-4 mt-3 text-xs">
-                            <div className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /><span>Absensi</span></div>
-                            <div className="flex items-center gap-1"><FileText className="h-3 w-3 text-blue-500" /><span>Tugas</span></div>
-                            <div className="flex items-center gap-1"><BookOpen className="h-3 w-3 text-purple-500" /><span>Catatan</span></div>
+
+                        <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
+                            <div className="flex items-center gap-1">
+                                <CheckCircle className="h-3 w-3 text-emerald-500" />
+                                <span>Absensi</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <FileText className="h-3 w-3 text-blue-500" />
+                                <span>Tugas</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <BookOpen className="h-3 w-3 text-purple-500" />
+                                <span>Catatan</span>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
 
-                <div className="grid lg:grid-cols-2 gap-6">
-                    {/* Weekly Trend */}
+                <div className="grid gap-6 lg:grid-cols-2">
                     <motion.div
-                        variants={cardVariants}
+                        variants={itemVariants}
                         whileHover={{ scale: 1.01, y: -2 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                        className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                            <div className="flex items-center gap-2">
-                                <motion.div whileHover={{ rotate: 10 }}>
-                                    <Calendar className="h-5 w-5 text-blue-600" />
-                                </motion.div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran Minggu Ini</h2>
+                        <div className="border-b border-white/10 p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 text-white shadow-lg">
+                                    <Calendar className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Kehadiran Minggu Ini
+                                </h2>
                             </div>
                         </div>
-                        <div className="p-4">
-                            <div className="flex justify-between">
-                                {weeklyTrend.map((d, i) => (
+
+                        <div className="p-6">
+                            <div className="grid grid-cols-4 gap-3 sm:grid-cols-8 sm:gap-2">
+                                {weeklyTrend.map((day, index) => (
                                     <motion.div
-                                        key={i}
-                                        initial={{ opacity: 0, y: 20 }}
+                                        key={index}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        whileHover={{ scale: 1.1, y: -5 }}
+                                        transition={{ delay: index * 0.03 }}
+                                        whileHover={{ scale: 1.04, y: -2 }}
                                         className="text-center"
                                     >
-                                        <p className="text-xs text-slate-500 mb-2">{d.day}</p>
-                                        <motion.div
-                                            whileHover={{ rotate: 10 }}
-                                            className={`w-10 h-10 rounded-full ${getStatusColor(d.status)} flex items-center justify-center mx-auto`}
+                                        <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                            {day.day}
+                                        </p>
+                                        <div
+                                            className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full ${getStatusColor(day.status)}`}
                                         >
-                                            {d.status === 'present' && <CheckCircle className="h-5 w-5 text-white" />}
-                                            {d.status === 'late' && <Clock className="h-5 w-5 text-white" />}
-                                            {(d.status === 'rejected' || d.status === 'absent') && <XCircle className="h-5 w-5 text-white" />}
-                                        </motion.div>
-                                        <p className="text-xs mt-2 text-slate-600">{d.date}</p>
-                                        {d.time && <p className="text-xs text-slate-500">{d.time}</p>}
+                                            {day.status === 'present' && <CheckCircle className="h-5 w-5 text-white" />}
+                                            {day.status === 'late' && <Clock className="h-5 w-5 text-white" />}
+                                            {(day.status === 'rejected' || day.status === 'absent') && (
+                                                <XCircle className="h-5 w-5 text-white" />
+                                            )}
+                                            {(day.status === 'permit' || day.status === 'sick') && (
+                                                <FileText className="h-5 w-5 text-white" />
+                                            )}
+                                        </div>
+                                        <p className="mt-2 text-[11px] text-neutral-600 dark:text-neutral-300">
+                                            {day.date}
+                                        </p>
+                                        {day.time && (
+                                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                                                {day.time}
+                                            </p>
+                                        )}
                                     </motion.div>
                                 ))}
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Class Comparison */}
                     <motion.div
-                        variants={cardVariants}
+                        variants={itemVariants}
                         whileHover={{ scale: 1.01, y: -2 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                        className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                            <div className="flex items-center gap-2">
-                                <motion.div whileHover={{ rotate: 10 }}>
-                                    <Users className="h-5 w-5 text-purple-600" />
-                                </motion.div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Perbandingan dengan Kelas</h2>
+                        <div className="border-b border-white/10 p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-pink-600 text-white shadow-lg">
+                                    <Users className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Perbandingan dengan Kelas
+                                </h2>
                             </div>
                         </div>
-                        <div className="p-4 space-y-4">
-                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Kamu</span><span className="font-bold text-slate-900 dark:text-white"><AnimatedCounter value={comparison.my_rate} suffix="%" duration={1500} /></span></div>
+
+                        <div className="space-y-4 p-6">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-neutral-600 dark:text-neutral-300">Kamu</span>
+                                <span className="font-bold text-neutral-900 dark:text-white">
+                                    <AnimatedCounter value={comparison.my_rate} suffix="%" decimals={1} />
+                                </span>
+                            </div>
                             <Progress value={comparison.my_rate} className="h-3" />
-                            <div className="flex justify-between items-center"><span className="text-sm text-slate-600">Rata-rata Kelas</span><span className="font-bold text-slate-900 dark:text-white"><AnimatedCounter value={comparison.class_average} suffix="%" duration={1500} /></span></div>
-                            <Progress value={comparison.class_average} className="h-3 bg-slate-200" />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className={`p-3 rounded-lg ${comparison.status === 'above' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-neutral-600 dark:text-neutral-300">Rata-rata Kelas</span>
+                                <span className="font-bold text-neutral-900 dark:text-white">
+                                    <AnimatedCounter value={comparison.class_average} suffix="%" decimals={1} />
+                                </span>
+                            </div>
+                            <Progress value={comparison.class_average} className="h-3 bg-neutral-200 dark:bg-neutral-700" />
+
+                            <div
+                                className={`rounded-xl border p-3 ${
+                                    comparison.status === 'above'
+                                        ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-900/20'
+                                        : 'border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-900/20'
+                                }`}
                             >
-                                <p className={`text-sm font-medium ${comparison.status === 'above' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                                    {comparison.status === 'above' ? `🎉 Kamu ${comparison.difference}% di atas rata-rata!` : `📈 Kamu ${Math.abs(comparison.difference)}% di bawah rata-rata`}
+                                <p
+                                    className={`flex items-center gap-2 text-sm font-medium ${
+                                        comparison.status === 'above'
+                                            ? 'text-emerald-700 dark:text-emerald-300'
+                                            : 'text-red-700 dark:text-red-300'
+                                    }`}
+                                >
+                                    {comparison.status === 'above' ? (
+                                        <TrendingUp className="h-4 w-4" />
+                                    ) : (
+                                        <TrendingDown className="h-4 w-4" />
+                                    )}
+                                    {comparison.status === 'above'
+                                        ? `Kamu ${comparison.difference}% di atas rata-rata kelas`
+                                        : `Kamu ${Math.abs(comparison.difference)}% di bawah rata-rata kelas`}
                                 </p>
-                            </motion.div>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Course Breakdown */}
                 <motion.div
-                    variants={cardVariants}
+                    variants={itemVariants}
                     whileHover={{ scale: 1.01, y: -2 }}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                    className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                        <div className="flex items-center gap-2">
-                            <motion.div whileHover={{ rotate: 10 }}>
-                                <GraduationCap className="h-5 w-5 text-blue-600" />
-                            </motion.div>
-                            <h2 className="font-semibold text-slate-900 dark:text-white">Kehadiran per Mata Kuliah</h2>
+                    <div className="border-b border-white/10 p-6">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg">
+                                <GraduationCap className="h-5 w-5" />
+                            </div>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                Kehadiran per Mata Kuliah
+                            </h2>
                         </div>
                     </div>
-                    <div className="p-4 space-y-4">
-                        {courseBreakdown.map((course, index) => (
-                            <motion.div
-                                key={course.course_id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                                whileHover={{ x: 5, scale: 1.01 }}
-                                className="p-4 border border-slate-200 dark:border-gray-700 rounded-xl"
-                            >
-                                <div className="flex justify-between items-start mb-2">
-                                    <div>
-                                        <p className="font-medium text-slate-900 dark:text-white">{course.course_name}</p>
-                                        <div className="flex gap-2 mt-1 text-xs">
-                                            <span className="text-green-600">Hadir: {course.present}</span>
-                                            <span className="text-yellow-600">Terlambat: {course.late}</span>
-                                            <span className="text-red-600">Absen: {course.absent}</span>
+
+                    <div className="space-y-4 p-6">
+                        {courseBreakdown.length > 0 ? (
+                            courseBreakdown.map((course, index) => (
+                                <motion.div
+                                    key={course.course_id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.04 }}
+                                    whileHover={{ scale: 1.01, x: 2 }}
+                                    className="rounded-2xl border border-white/30 bg-white/60 p-4 backdrop-blur dark:border-white/10 dark:bg-neutral-800/40"
+                                >
+                                    <div className="mb-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div>
+                                            <p className="font-semibold text-neutral-900 dark:text-white">
+                                                {course.course_name}
+                                            </p>
+                                            <div className="mt-1 flex flex-wrap gap-2 text-xs">
+                                                <span className="text-emerald-600 dark:text-emerald-400">
+                                                    Hadir: {course.present}
+                                                </span>
+                                                <span className="text-amber-600 dark:text-amber-400">
+                                                    Terlambat: {course.late}
+                                                </span>
+                                                <span className="text-red-600 dark:text-red-400">
+                                                    Absen: {course.absent}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="text-left sm:text-right">
+                                            <Badge
+                                                className={
+                                                    course.rate >= 80
+                                                        ? 'bg-emerald-500'
+                                                        : course.rate >= 60
+                                                          ? 'bg-amber-500'
+                                                          : 'bg-red-500'
+                                                }
+                                            >
+                                                {course.rate}%
+                                            </Badge>
+                                            {!course.can_take_uas && (
+                                                <p className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400 sm:justify-end">
+                                                    <AlertTriangle className="h-3 w-3" />
+                                                    Tidak memenuhi syarat UAS
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <Badge variant={course.rate >= 80 ? 'default' : course.rate >= 60 ? 'secondary' : 'destructive'}>{course.rate}%</Badge>
-                                        {!course.can_take_uas && <p className="text-xs text-red-600 mt-1">⚠️ Tidak bisa UAS</p>}
-                                    </div>
-                                </div>
-                                <Progress value={course.rate} className="h-2" />
-                            </motion.div>
-                        ))}
-                        {courseBreakdown.length === 0 && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-center py-8"
-                            >
-                                <GraduationCap className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                                <p className="text-slate-500">Belum ada data kehadiran</p>
-                            </motion.div>
+
+                                    <Progress value={course.rate} className="h-2" />
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="py-8 text-center">
+                                <GraduationCap className="mx-auto mb-2 h-12 w-12 text-neutral-300 dark:text-neutral-600" />
+                                <p className="text-neutral-500 dark:text-neutral-400">Belum ada data kehadiran</p>
+                            </div>
                         )}
                     </div>
                 </motion.div>
 
-                <div className="grid lg:grid-cols-2 gap-6">
-                    {/* Badges */}
+                <div className="grid gap-6 lg:grid-cols-2">
                     <motion.div
-                        variants={cardVariants}
+                        variants={itemVariants}
                         whileHover={{ scale: 1.01, y: -2 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                        className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                            <div className="flex items-center gap-2">
-                                <motion.div whileHover={{ rotate: 10 }}>
-                                    <Award className="h-5 w-5 text-yellow-500" />
-                                </motion.div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Badge Kamu ({badges.length})</h2>
+                        <div className="border-b border-white/10 p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 text-white shadow-lg">
+                                    <Award className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Badge Kamu ({badges.length})
+                                </h2>
                             </div>
                         </div>
-                        <div className="p-4">
+
+                        <div className="p-6">
                             {badges.length > 0 ? (
                                 <div className="space-y-3">
                                     {badges.map((badge, index) => (
@@ -715,85 +803,108 @@ export default function PersonalAnalytics({ mahasiswa, overview, streakData, cou
                                             key={badge.id}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                            whileHover={{ x: 5, scale: 1.02 }}
-                                            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-gray-700 hover:bg-slate-50 dark:hover:bg-black/30 transition-colors"
+                                            transition={{ delay: index * 0.04 }}
+                                            whileHover={{ scale: 1.01, x: 2 }}
+                                            className="flex items-center gap-3 rounded-xl border border-white/30 bg-white/60 p-3 backdrop-blur dark:border-white/10 dark:bg-neutral-800/40"
                                         >
-                                            <div className="w-14 h-14 shrink-0">
+                                            <div className="h-14 w-14 shrink-0">
                                                 {badge.icon ? (
-                                                    <img src={`/images/badges/${badge.icon}`} alt={badge.name} className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; if (e.currentTarget.nextElementSibling) (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex'; }} />
+                                                    <img
+                                                        src={`/images/badges/${badge.icon}`}
+                                                        alt={badge.name}
+                                                        className="h-full w-full object-contain"
+                                                        onError={(event) => {
+                                                            event.currentTarget.style.display = 'none';
+                                                            if (event.currentTarget.nextElementSibling) {
+                                                                (event.currentTarget.nextElementSibling as HTMLElement).style.display =
+                                                                    'flex';
+                                                            }
+                                                        }}
+                                                    />
                                                 ) : null}
-                                                <div className={`w-full h-full rounded-full items-center justify-center text-xl ${getBadgeGradient(badge.color)} ${badge.icon ? 'hidden' : 'flex'}`}>{getBadgeEmoji(badge.category)}</div>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <p className="font-medium text-sm text-slate-900 dark:text-white truncate">{badge.name}</p>
-                                                    <span className="px-1.5 py-0 rounded text-[10px] bg-slate-100 text-slate-600">+{badge.points} pts</span>
+                                                <div
+                                                    className={`h-full w-full items-center justify-center rounded-full bg-gradient-to-br ${getBadgeGradient(badge.color)} text-white ${badge.icon ? 'hidden' : 'flex'}`}
+                                                >
+                                                    <Award className="h-6 w-6" />
                                                 </div>
-                                                <p className="text-xs text-slate-500 line-clamp-1">{badge.description}</p>
-                                                <p className="text-[10px] text-slate-400 mt-0.5">Diperoleh {badge.earned_at}</p>
+                                            </div>
+
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                                                        {badge.name}
+                                                    </p>
+                                                    <span className="rounded bg-neutral-100 px-1.5 py-0 text-[10px] text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300">
+                                                        +{badge.points} pts
+                                                    </span>
+                                                </div>
+                                                <p className="line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                                    {badge.description}
+                                                </p>
+                                                <p className="mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                                                    Diperoleh {badge.earned_at}
+                                                </p>
                                             </div>
                                         </motion.div>
                                     ))}
                                 </div>
                             ) : (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-8"
-                                >
-                                    <Award className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                                    <p className="text-slate-500">Belum ada badge</p>
-                                    <p className="text-xs text-slate-400">Terus tingkatkan aktivitas untuk mendapatkan badge!</p>
-                                </motion.div>
+                                <div className="py-8 text-center">
+                                    <Award className="mx-auto mb-2 h-12 w-12 text-neutral-300 dark:text-neutral-600" />
+                                    <p className="text-neutral-500 dark:text-neutral-400">Belum ada badge</p>
+                                    <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                                        Tingkatkan aktivitas untuk mendapatkan badge.
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </motion.div>
 
-                    {/* Tips */}
                     <motion.div
-                        variants={cardVariants}
+                        variants={itemVariants}
                         whileHover={{ scale: 1.01, y: -2 }}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-gray-800/70 dark:bg-black/80 overflow-hidden"
+                        className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
-                        <div className="p-4 border-b border-slate-200 dark:border-gray-800">
-                            <div className="flex items-center gap-2">
-                                <motion.div whileHover={{ rotate: 10 }}>
-                                    <Lightbulb className="h-5 w-5 text-yellow-500" />
-                                </motion.div>
-                                <h2 className="font-semibold text-slate-900 dark:text-white">Tips & Saran</h2>
+                        <div className="border-b border-white/10 p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg">
+                                    <Lightbulb className="h-5 w-5" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                    Tips dan Saran
+                                </h2>
                             </div>
                         </div>
-                        <div className="p-4 space-y-3">
-                            {tips.map((tip, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.05 }}
-                                    whileHover={{ x: 5, scale: 1.02 }}
-                                    className={`p-3 rounded-lg border ${getTipBg(tip.type)}`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <motion.div whileHover={{ rotate: 10, scale: 1.1 }}>
+
+                        <div className="space-y-3 p-6">
+                            {tips.length > 0 ? (
+                                tips.map((tip, index) => (
+                                    <motion.div
+                                        key={index}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: index * 0.04 }}
+                                        whileHover={{ scale: 1.01, x: 2 }}
+                                        className={`rounded-xl border p-3 ${getTipBg(tip.type)}`}
+                                    >
+                                        <div className="flex items-start gap-3">
                                             {getTipIcon(tip.type)}
-                                        </motion.div>
-                                        <div>
-                                            <p className="font-medium text-sm text-slate-900 dark:text-white">{tip.title}</p>
-                                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{tip.message}</p>
+                                            <div>
+                                                <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                                                    {tip.title}
+                                                </p>
+                                                <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
+                                                    {tip.message}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                            {tips.length === 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-8"
-                                >
-                                    <Lightbulb className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                                    <p className="text-slate-500">Tidak ada tips saat ini</p>
-                                </motion.div>
+                                    </motion.div>
+                                ))
+                            ) : (
+                                <div className="py-8 text-center">
+                                    <Lightbulb className="mx-auto mb-2 h-12 w-12 text-neutral-300 dark:text-neutral-600" />
+                                    <p className="text-neutral-500 dark:text-neutral-400">Tidak ada tips saat ini</p>
+                                </div>
                             )}
                         </div>
                     </motion.div>

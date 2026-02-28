@@ -16,12 +16,14 @@ class HelpFaq extends Model
         'is_active',
         'helpful_count',
         'not_helpful_count',
+        'view_count',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'helpful_count' => 'integer',
         'not_helpful_count' => 'integer',
+        'view_count' => 'integer',
         'order' => 'integer',
     ];
 }

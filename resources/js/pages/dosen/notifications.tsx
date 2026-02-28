@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
 import TotalNotifIcon from '@/assets/admin/notification-center/total.png';
 import UnreadNotifIcon from '@/assets/admin/notification-center/scheduled.png';
@@ -140,6 +141,13 @@ export default function Notifications({ dosen, notifications, sentNotifications,
         return matchesSearch && matchesType && matchesStatus;
     });
 
+    const notifCards = [
+        { key: 'total', label: 'Total Notifikasi', value: stats.total, sub: 'semua pemberitahuan', imgSrc: TotalNotifIcon, color: 'bg-indigo-500', from: 'from-indigo-400', to: 'to-purple-600', shadow: 'shadow-indigo-500/30', hoverShadow: 'hover:shadow-indigo-500/10', gradientBg: 'from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10', float: false },
+        { key: 'unread', label: 'Belum Dibaca', value: stats.unread, sub: 'perlu perhatian', imgSrc: UnreadNotifIcon, color: 'bg-orange-500', from: 'from-orange-400', to: 'to-red-600', shadow: 'shadow-orange-500/30', hoverShadow: 'hover:shadow-orange-500/10', gradientBg: 'from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10', float: stats.unread > 0 },
+        { key: 'read', label: 'Sudah Dibaca', value: stats.read, sub: 'telah ditinjau', imgSrc: ReadNotifIcon, color: 'bg-emerald-500', from: 'from-emerald-400', to: 'to-teal-600', shadow: 'shadow-emerald-500/30', hoverShadow: 'hover:shadow-emerald-500/10', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', float: false },
+        { key: 'sent', label: 'Terkirim Hari Ini', value: stats.sent_today, sub: 'notifikasi terkirim', imgSrc: SentNotifIcon, color: 'bg-blue-500', from: 'from-sky-400', to: 'to-cyan-600', shadow: 'shadow-blue-500/30', hoverShadow: 'hover:shadow-blue-500/10', gradientBg: 'from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10', float: false },
+    ];
+
     const handleMarkAsRead = (id: number) => router.post(`/dosen/notifications/${id}/read`);
     const handleMarkAllAsRead = () => router.post('/dosen/notifications/read-all');
     const handleRefresh = () => router.reload({ only: ['notifications', 'sentNotifications', 'stats'] });
@@ -193,155 +201,125 @@ export default function Notifications({ dosen, notifications, sentNotifications,
                     ))}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
-                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 >
-                                    <img src={NotifIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    <img src={NotifIcon} alt="Notifikasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Pemberitahuan</p>
-                                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        Pemberitahuan
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1 flex items-center justify-center sm:justify-start gap-3"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                                         Notifikasi
                                         {stats.unread > 0 && (
-                                            <motion.span
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                className="px-3 py-1 rounded-full text-lg bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/30"
-                                            >
+                                            <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                                                className="px-2.5 py-0.5 rounded-full text-sm bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/30">
                                                 <AnimatedCounter value={stats.unread} duration={1000} />
                                             </motion.span>
                                         )}
-                                    </h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">
+                                    </motion.h1>
+                                    <motion.p className="mt-2 text-indigo-100 text-sm sm:text-base leading-relaxed max-w-lg"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                                         Pemberitahuan dan pengumuman terbaru untuk Anda
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.6, type: 'spring' }}
-                                className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
-                            >
-                                <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                    <Send className="h-6 w-6 text-white" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-indigo-100">Terkirim Bulan Ini</p>
-                                    <p className="text-2xl font-bold text-white">
-                                        <AnimatedCounter value={stats.sent_this_month} duration={1500} />
-                                    </p>
-                                </div>
-                            </motion.div>
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
-                        >
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => router.visit('/dosen/notifications/create')}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Buat Notifikasi
-                            </motion.button>
-
-                            {stats.unread > 0 && (
-                                <motion.button
-                                    whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={handleMarkAllAsRead}
-                                    className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
                                 >
-                                    <CheckCircle className="h-4 w-4" />
-                                    Tandai Semua Dibaca
-                                </motion.button>
-                            )}
-
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={handleRefresh}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
-                            >
-                                <RefreshCw className="h-4 w-4" />
-                                Refresh
-                            </motion.button>
-                        </motion.div>
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg"><Send className="h-6 w-6 text-white" /></div>
+                                    <div>
+                                        <p className="text-xs text-indigo-100">Terkirim Bulan Ini</p>
+                                        <p className="text-2xl font-bold text-white"><AnimatedCounter value={stats.sent_this_month} duration={1500} /></p>
+                                    </div>
+                                </motion.div>
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                                    className="flex flex-wrap justify-center gap-2">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => router.visit('/dosen/notifications/create')}
+                                        className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
+                                    >
+                                        <Plus className="h-4 w-4" /> Buat Notifikasi
+                                    </motion.button>
+                                    {stats.unread > 0 && (
+                                        <motion.button
+                                            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={handleMarkAllAsRead}
+                                            className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
+                                        >
+                                            <CheckCircle className="h-4 w-4" /> Tandai Dibaca
+                                        </motion.button>
+                                    )}
+                                    <motion.button
+                                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={handleRefresh}
+                                        className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg"
+                                    >
+                                        <RefreshCw className="h-4 w-4" /> Refresh
+                                    </motion.button>
+                                </motion.div>
+                            </div>
+                        </div>
                     </div>
                 </motion.div>
 
                 {/* SUMMARY CARDS */}
-                <motion.div variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                    <motion.div variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard('total')} onHoverEnd={() => setHoveredCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-indigo-500/10 dark:border-white/5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10" />
-                        <motion.div animate={{ scale: hoveredCard === 'total' ? 1.5 : 1, opacity: hoveredCard === 'total' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-500 blur-3xl transition-all duration-500" />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
-                                <img src={TotalNotifIcon} alt="Total" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Notifikasi</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.total} duration={1500} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">semua pemberitahuan</p>
+                <motion.div variants={containerVariants} className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+                    {notifCards.map((c, i) => (
+                        <motion.div
+                            key={c.key}
+                            variants={{
+                                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+                            }}
+                            whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                            onHoverStart={() => setHoveredCard(c.key)} onHoverEnd={() => setHoveredCard(null)}
+                            className={cn(`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5`, c.hoverShadow)}
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradientBg} opacity-50 dark:opacity-100`} />
+                            <motion.div
+                                className={cn(`absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all`, c.color)}
+                                animate={{ opacity: hoveredCard === c.key ? 0.4 : 0.15 }}
+                            />
+                            <div className="relative z-10 flex flex-col items-center sm:items-start gap-3 sm:gap-4 h-full justify-between">
+                                <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
+                                        animate={{ scale: c.float ? [1, 1.1, 1] : 1 }} transition={{ duration: 1, repeat: c.float ? Infinity : 0, repeatDelay: 2 }}
+                                        className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                    >
+                                        <img src={c.imgSrc} alt={c.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                    </motion.div>
+                                    <div className="flex flex-col">
+                                        <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{c.label}</p>
+                                        <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                                            <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                                                <AnimatedCounter value={c.value} duration={1500} />
+                                            </span>
+                                        </div>
+                                        <p className="text-[10px] text-neutral-400 mt-0.5 sm:mt-1">{c.sub}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard('unread')} onHoverEnd={() => setHoveredCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-orange-500/10 dark:border-white/5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10" />
-                        <motion.div animate={{ scale: hoveredCard === 'unread' ? 1.5 : 1, opacity: hoveredCard === 'unread' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500 blur-3xl transition-all duration-500" />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} animate={{ scale: stats.unread > 0 ? [1, 1.1, 1] : 1 }} transition={{ duration: 1, repeat: stats.unread > 0 ? Infinity : 0, repeatDelay: 2 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
-                                <img src={UnreadNotifIcon} alt="Unread" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Belum Dibaca</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.unread} duration={1500} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">perlu perhatian</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard('read')} onHoverEnd={() => setHoveredCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
-                        <motion.div animate={{ scale: hoveredCard === 'read' ? 1.5 : 1, opacity: hoveredCard === 'read' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500" />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
-                                <img src={ReadNotifIcon} alt="Read" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Sudah Dibaca</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.read} duration={1500} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">telah ditinjau</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div variants={cardVariants} whileHover="hover" onHoverStart={() => setHoveredCard('sent')} onHoverEnd={() => setHoveredCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-blue-500/10 dark:border-white/5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10" />
-                        <motion.div animate={{ scale: hoveredCard === 'sent' ? 1.5 : 1, opacity: hoveredCard === 'sent' ? 0.4 : 0.2 }} className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500" />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-14 w-14 items-center justify-center shrink-0">
-                                <img src={SentNotifIcon} alt="Sent" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Terkirim Hari Ini</p>
-                                <div className="mt-1"><span className="text-2xl font-bold text-neutral-900 dark:text-white"><AnimatedCounter value={stats.sent_today} duration={1500} /></span></div>
-                                <p className="text-xs text-neutral-400 mt-1">notifikasi terkirim</p>
-                            </div>
-                        </div>
-                    </motion.div>
+                        </motion.div>
+                    ))}
                 </motion.div>
 
                 {/* TABS NAVIGATION */}

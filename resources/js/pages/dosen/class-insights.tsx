@@ -258,87 +258,46 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                     ))}
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={AnalyticsIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={AnalyticsIcon} alt="Class Insights" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Analitik Kehadiran</p>
-                                    <h1 className="text-3xl font-bold text-white">Class Insights</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">Analisis kehadiran per kelas untuk {dosen.nama}</p>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>Analitik Kehadiran</motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>Class Insights</motion.h1>
+                                    <motion.p className="mt-2 text-indigo-100 text-sm leading-relaxed max-w-lg"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>Analisis kehadiran per kelas untuk {dosen.nama}</motion.p>
                                 </div>
                             </div>
-
-                            {/* Quick Stats Badge */}
-                            {selectedCourse && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.6, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
-                                >
-                                    <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                        <TrendingUp className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-indigo-100">Rata-rata Kehadiran</p>
-                                        <div className="text-2xl font-bold text-white flex items-center gap-1">
-                                            <AnimatedCounter value={selectedCourse.average_attendance_rate} />%
+                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                                {selectedCourse && (
+                                    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
+                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                        <div className="p-2 bg-indigo-500/20 rounded-lg"><TrendingUp className="h-6 w-6 text-white" /></div>
+                                        <div>
+                                            <p className="text-xs text-indigo-100">Rata-rata Kehadiran</p>
+                                            <div className="text-2xl font-bold text-white flex items-center gap-1"><AnimatedCounter value={selectedCourse.average_attendance_rate} />%</div>
                                         </div>
-                                    </div>
+                                    </motion.div>
+                                )}
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                                    className="flex flex-wrap justify-center gap-2">
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={handleRefresh} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><RefreshCw className="h-4 w-4" />Refresh</motion.button>
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowExportModal(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><Download className="h-4 w-4" />Export</motion.button>
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowCompareModal(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><GitCompare className="h-4 w-4" />Bandingkan</motion.button>
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowAIInsights(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><Sparkles className="h-4 w-4" />AI Insights</motion.button>
                                 </motion.div>
-                            )}
+                            </div>
                         </div>
-
-                        {/* Action Buttons Row */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
-                        >
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={handleRefresh}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"
-                            >
-                                <RefreshCw className="h-4 w-4" />
-                                Refresh Data
-                            </motion.button>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setShowExportModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"
-                            >
-                                <Download className="h-4 w-4" />
-                                Export Laporan
-                            </motion.button>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setShowCompareModal(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"
-                            >
-                                <GitCompare className="h-4 w-4" />
-                                Bandingkan Kelas
-                            </motion.button>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setShowAIInsights(true)}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"
-                            >
-                                <Sparkles className="h-4 w-4" />
-                                AI Insights
-                            </motion.button>
-                        </motion.div>
                     </div>
                 </motion.div>
 

@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\DocumentationProgress;
+use App\Models\DocumentationBookmark;
+use App\Models\DocumentationFeedback;
+use App\Models\DocumentationOfflineDownload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -31,7 +34,7 @@ class DocumentationService
      */
     public function getGuides(string $role): Collection
     {
-        $cacheKey = "documentation_guides:{$role}";
+        $cacheKey = "documentation_guides:v2:{$role}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($role) {
             $guides = $this->loadGuidesFromFile($role);
@@ -172,7 +175,12 @@ class DocumentationService
                 'description' => $guide['description'],
                 'icon' => $guide['icon'] ?? '📚',
                 'category' => $guide['category'],
+                'slug' => $guide['slug'] ?? '',
+                'difficulty' => (int) ($guide['difficulty'] ?? 1),
+                'tags' => $guide['tags'] ?? [],
                 'estimatedTime' => $guide['estimatedReadTime'] ?? 10,
+                'sectionCount' => count($guide['sections'] ?? []),
+                'quizCount' => count($guide['quiz'] ?? []),
                 'progress' => $guideProgress?->getCompletionPercentage() ?? 0,
                 'isCompleted' => $guideProgress?->is_completed ?? false,
                 'lastReadAt' => $guideProgress?->last_read_at?->toIso8601String(),
@@ -185,24 +193,35 @@ class DocumentationService
      */
     protected function loadGuidesFromFile(string $role): array
     {
-        $filename = $role === 'dosen' ? 'dosen-guides.json' : 'mahasiswa-guides.json';
-        $filepath = "{$this->docsPath}/{$filename}";
+        $candidates = $role === 'dosen'
+            ? ['dosen-guides.json']
+            : ['student-guides.json', 'mahasiswa-guides.json'];
 
-        if (!File::exists($filepath)) {
-            // Return default guides if file doesn't exist
-            return $this->getDefaultGuides($role);
+        foreach ($candidates as $filename) {
+            $filepath = "{$this->docsPath}/{$filename}";
+
+            if (!File::exists($filepath)) {
+                continue;
+            }
+
+            $content = File::get($filepath);
+            $data = json_decode($content, true);
+
+            if (!is_array($data)) {
+                continue;
+            }
+
+            if (isset($data['guides']) && is_array($data['guides'])) {
+                return $data['guides'];
+            }
+
+            if (array_is_list($data)) {
+                return $data;
+            }
         }
 
-        $content = File::get($filepath);
-        $data = json_decode($content, true);
-
-        // Support both array format and object with 'guides' key
-        if (isset($data['guides'])) {
-            return $data['guides'];
-        }
-        
-        // If data is already an array of guides, return it directly
-        return is_array($data) ? $data : [];
+        // Return default guides if files do not exist or invalid.
+        return $this->getDefaultGuides($role);
     }
 
     /**
@@ -217,7 +236,7 @@ class DocumentationService
         }
         
         // Average reading speed: 200 words per minute
-        $estimatedMinutes = max(1, ceil($totalWords / 200));
+        $estimatedMinutes = (int) ($guide['estimatedReadTime'] ?? max(1, ceil($totalWords / 200)));
 
         return array_merge($guide, [
             'estimatedReadTime' => $estimatedMinutes,
@@ -336,10 +355,143 @@ class DocumentationService
     public function clearCache(?string $role = null): void
     {
         if ($role) {
-            Cache::forget("documentation_guides:{$role}");
+            Cache::forget("documentation_guides:v2:{$role}");
         } else {
-            Cache::forget('documentation_guides:dosen');
-            Cache::forget('documentation_guides:mahasiswa');
+            Cache::forget('documentation_guides:v2:dosen');
+            Cache::forget('documentation_guides:v2:mahasiswa');
         }
+    }
+
+    /**
+     * Get all bookmarks for a user.
+     */
+    public function getBookmarks(Model $user): Collection
+    {
+        return DocumentationBookmark::query()
+            ->where('reader_id', $user->id)
+            ->where('reader_type', get_class($user))
+            ->orderByDesc('updated_at')
+            ->get();
+    }
+
+    /**
+     * Toggle bookmark for a guide.
+     */
+    public function toggleBookmark(Model $user, string $guideId): bool
+    {
+        $existing = DocumentationBookmark::query()
+            ->where('reader_id', $user->id)
+            ->where('reader_type', get_class($user))
+            ->where('guide_id', $guideId)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            return false;
+        }
+
+        DocumentationBookmark::create([
+            'reader_id' => $user->id,
+            'reader_type' => get_class($user),
+            'guide_id' => $guideId,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Get feedback stats for a guide.
+     */
+    public function getFeedbackStats(string $guideId): array
+    {
+        $query = DocumentationFeedback::query()->where('guide_id', $guideId);
+
+        $helpfulCount = (clone $query)->where('helpful', true)->count();
+        $notHelpfulCount = (clone $query)->where('helpful', false)->count();
+        $totalRatings = (clone $query)->whereNotNull('rating')->count();
+        $averageRating = (clone $query)->whereNotNull('rating')->avg('rating');
+
+        return [
+            'helpful_count' => $helpfulCount,
+            'not_helpful_count' => $notHelpfulCount,
+            'total_ratings' => $totalRatings,
+            'average_rating' => $totalRatings > 0 ? round((float) $averageRating, 2) : 0,
+        ];
+    }
+
+    /**
+     * Get feedback for a specific guide and user.
+     */
+    public function getMyFeedback(Model $user, string $guideId): ?DocumentationFeedback
+    {
+        return DocumentationFeedback::query()
+            ->where('reader_id', $user->id)
+            ->where('reader_type', get_class($user))
+            ->where('guide_id', $guideId)
+            ->first();
+    }
+
+    /**
+     * Upsert feedback for a specific guide and user.
+     */
+    public function upsertFeedback(Model $user, string $guideId, array $payload): DocumentationFeedback
+    {
+        return DocumentationFeedback::query()->updateOrCreate(
+            [
+                'reader_id' => $user->id,
+                'reader_type' => get_class($user),
+                'guide_id' => $guideId,
+            ],
+            [
+                'helpful' => $payload['helpful'] ?? null,
+                'rating' => $payload['rating'] ?? null,
+                'comment' => $payload['comment'] ?? null,
+            ],
+        );
+    }
+
+    /**
+     * Get all offline downloads for a user.
+     */
+    public function getOfflineDownloads(Model $user): Collection
+    {
+        return DocumentationOfflineDownload::query()
+            ->where('reader_id', $user->id)
+            ->where('reader_type', get_class($user))
+            ->orderByDesc('downloaded_at')
+            ->orderByDesc('updated_at')
+            ->get();
+    }
+
+    /**
+     * Upsert offline download metadata for a guide.
+     */
+    public function upsertOfflineDownload(Model $user, string $guideId, array $meta): DocumentationOfflineDownload
+    {
+        return DocumentationOfflineDownload::query()->updateOrCreate(
+            [
+                'reader_id' => $user->id,
+                'reader_type' => get_class($user),
+                'guide_id' => $guideId,
+            ],
+            [
+                'title' => $meta['title'] ?? null,
+                'version' => $meta['version'] ?? null,
+                'size_kb' => $meta['size_kb'] ?? null,
+                'downloaded_at' => now(),
+            ],
+        );
+    }
+
+    /**
+     * Remove offline download metadata for a guide.
+     */
+    public function removeOfflineDownload(Model $user, string $guideId): void
+    {
+        DocumentationOfflineDownload::query()
+            ->where('reader_id', $user->id)
+            ->where('reader_type', get_class($user))
+            ->where('guide_id', $guideId)
+            ->delete();
     }
 }

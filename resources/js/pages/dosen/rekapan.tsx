@@ -317,34 +317,37 @@ export default function DosenRekapan({
                     <motion.div className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} />
                     <motion.div className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: 1 }} />
 
-                    <div className="relative flex flex-wrap items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <motion.div className="relative" whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 300 }}>
-                                {dosen.avatar_url ? (
-                                    <img src={dosen.avatar_url} alt={dosen.nama} className="h-16 w-16 rounded-2xl object-cover border-2 border-white/30 shadow-lg" />
-                                ) : (
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg">
-                                        <span className="text-xl font-bold text-white">{dosen.initials}</span>
-                                    </div>
-                                )}
-                                <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-emerald-400 border-2 border-white shadow flex items-center justify-center">
-                                    <CheckCircle className="h-3 w-3 text-white" />
-                                </div>
-                            </motion.div>
-                            <div>
-                                <p className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2">
-                                    <GraduationCap className="h-4 w-4" /> Dosen Pengampu
-                                </p>
-                                <h1 className="text-2xl md:text-3xl font-bold text-white">{dosen.nama}</h1>
-                                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-indigo-100">
-                                    <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> NIDN: {dosen.nidn}</span>
-                                    {dosen.email && <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> {dosen.email}</span>}
+                    <div className="relative">
+                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
+                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                >
+                                    <img src={RekapIcon} alt="Rekapan Kehadiran" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                </motion.div>
+                                <div className="flex-1 mt-1 sm:mt-0">
+                                    <motion.p className="text-sm text-indigo-100 font-medium tracking-wide flex items-center gap-2 justify-center sm:justify-start"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        <GraduationCap className="h-4 w-4" /> Rekapan Kehadiran
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+                                        {dosen.nama}
+                                    </motion.h1>
+                                    <motion.div className="mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm text-indigo-100"
+                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                                        <span className="flex items-center gap-1"><Award className="h-3.5 w-3.5" /> NIDN: {dosen.nidn}</span>
+                                        {dosen.email && <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> {dosen.email}</span>}
+                                    </motion.div>
                                 </div>
                             </div>
+                            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleExportPdf} disabled={!sessionId}
+                                className="flex items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed mt-2 lg:mt-0">
+                                <Download className="h-5 w-5" /> Export PDF
+                            </motion.button>
                         </div>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleExportPdf} disabled={!sessionId} className="flex items-center gap-2 rounded-xl bg-white/20 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">
-                            <Download className="h-5 w-5" /> Export PDF
-                        </motion.button>
                     </div>
                 </motion.div>
 
@@ -436,7 +439,7 @@ export default function DosenRekapan({
 
                 {/* ═══════ STATS CARDS ═══════ */}
                 {sessionId && (
-                    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
                         {statCards.map(card => (
                             <motion.div
                                 key={card.key}
@@ -524,7 +527,7 @@ export default function DosenRekapan({
                                 </div>
                             </div>
                             {attendanceLogs.length > 0 && (
-                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-4 py-2 border border-white/30">
+                                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="hidden sm:flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-4 py-2 border border-white/30">
                                     <span className="text-sm font-semibold text-white">{attendanceLogs.length} data</span>
                                 </motion.div>
                             )}

@@ -165,6 +165,233 @@ class DocumentationController extends Controller
     }
 
     /**
+     * Get bookmarks for authenticated user.
+     */
+    public function bookmarks(Request $request): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $bookmarks = $this->documentationService
+            ->getBookmarks($user)
+            ->map(fn ($item) => [
+                'guide_id' => $item->guide_id,
+                'notes' => $item->notes,
+                'updated_at' => $item->updated_at?->toIso8601String(),
+            ])
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $bookmarks,
+        ]);
+    }
+
+    /**
+     * Toggle bookmark state for a guide.
+     */
+    public function toggleBookmark(Request $request, string $guideId): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $role = $this->getUserRole($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $guide = $this->documentationService->getGuide($guideId, $role);
+        if (!$guide) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Guide not found',
+            ], 404);
+        }
+
+        $bookmarked = $this->documentationService->toggleBookmark($user, $guideId);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'guide_id' => $guideId,
+                'bookmarked' => $bookmarked,
+            ],
+        ]);
+    }
+
+    /**
+     * Get feedback (my feedback + aggregate stats) for a guide.
+     */
+    public function feedback(Request $request, string $guideId): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $role = $this->getUserRole($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $guide = $this->documentationService->getGuide($guideId, $role);
+        if (!$guide) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Guide not found',
+            ], 404);
+        }
+
+        $myFeedback = $this->documentationService->getMyFeedback($user, $guideId);
+        $stats = $this->documentationService->getFeedbackStats($guideId);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'my_feedback' => [
+                    'helpful' => $myFeedback?->helpful,
+                    'rating' => $myFeedback?->rating,
+                    'comment' => $myFeedback?->comment,
+                    'updated_at' => $myFeedback?->updated_at?->toIso8601String(),
+                ],
+                'stats' => $stats,
+            ],
+        ]);
+    }
+
+    /**
+     * Upsert feedback for a guide.
+     */
+    public function upsertFeedback(Request $request, string $guideId): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $role = $this->getUserRole($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $guide = $this->documentationService->getGuide($guideId, $role);
+        if (!$guide) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Guide not found',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'helpful' => 'nullable|boolean',
+            'rating' => 'nullable|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $feedback = $this->documentationService->upsertFeedback($user, $guideId, $validated);
+        $stats = $this->documentationService->getFeedbackStats($guideId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback updated successfully',
+            'data' => [
+                'my_feedback' => [
+                    'helpful' => $feedback->helpful,
+                    'rating' => $feedback->rating,
+                    'comment' => $feedback->comment,
+                    'updated_at' => $feedback->updated_at?->toIso8601String(),
+                ],
+                'stats' => $stats,
+            ],
+        ]);
+    }
+
+    /**
+     * Get offline downloads metadata for authenticated user.
+     */
+    public function offlineDownloads(Request $request): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $downloads = $this->documentationService
+            ->getOfflineDownloads($user)
+            ->map(fn ($item) => [
+                'guide_id' => $item->guide_id,
+                'title' => $item->title,
+                'version' => $item->version,
+                'size_kb' => $item->size_kb,
+                'downloaded_at' => $item->downloaded_at?->toIso8601String(),
+                'updated_at' => $item->updated_at?->toIso8601String(),
+            ])
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $downloads,
+        ]);
+    }
+
+    /**
+     * Upsert offline download metadata for a guide.
+     */
+    public function upsertOfflineDownload(Request $request, string $guideId): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        $role = $this->getUserRole($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $guide = $this->documentationService->getGuide($guideId, $role);
+        if (!$guide) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Guide not found',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'version' => 'nullable|string|max:100',
+            'size_kb' => 'nullable|integer|min:0',
+        ]);
+
+        $download = $this->documentationService->upsertOfflineDownload($user, $guideId, $validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Offline download metadata saved',
+            'data' => [
+                'guide_id' => $download->guide_id,
+                'title' => $download->title,
+                'version' => $download->version,
+                'size_kb' => $download->size_kb,
+                'downloaded_at' => $download->downloaded_at?->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
+     * Remove offline download metadata for a guide.
+     */
+    public function removeOfflineDownload(Request $request, string $guideId): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $this->documentationService->removeOfflineDownload($user, $guideId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Offline download metadata removed',
+        ]);
+    }
+
+    /**
      * Get the authenticated user from various auth guards.
      */
     protected function getAuthenticatedUser(Request $request)
@@ -251,11 +478,17 @@ class DocumentationController extends Controller
         $completed = $request->input('completed', true);
 
         if ($sectionId) {
+            $existingProgress = $this->documentationService->getGuideProgress($user, $guideId);
+            $currentSections = $existingProgress?->completed_sections ?? [];
+
+            $nextSections = $completed
+                ? array_values(array_unique([...$currentSections, $sectionId]))
+                : array_values(array_filter($currentSections, fn ($id) => $id !== $sectionId));
+
             $progress = $this->documentationService->trackProgress(
                 $user,
                 $guideId,
-                $completed ? [$sectionId] : [],
-                $completed ? [] : [$sectionId]
+                $nextSections
             );
         } else {
             $completedSections = $request->input('completed_sections', []);

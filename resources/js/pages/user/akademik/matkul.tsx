@@ -215,7 +215,7 @@ export default function AcademicCourses({ courses }: Props) {
                 <motion.div
                     variants={itemVariants}
                     onMouseMove={handleMouseMove}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
                 >
                     {/* Animated Background Particles */}
                     <div className="absolute inset-0 overflow-hidden">

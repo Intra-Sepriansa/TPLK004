@@ -17,11 +17,26 @@ class AcademicNote extends Model
         'title',
         'content',
         'links',
+        'blocks',
+        'tags',
+        'is_pinned',
+        'is_favorite',
+        'word_count',
+        'reading_time',
+        'ai_summary',
+        'ai_keywords',
     ];
 
     protected $casts = [
         'meeting_number' => 'integer',
         'links' => 'array',
+        'blocks' => 'array',
+        'tags' => 'array',
+        'ai_keywords' => 'array',
+        'is_pinned' => 'boolean',
+        'is_favorite' => 'boolean',
+        'word_count' => 'integer',
+        'reading_time' => 'integer',
     ];
 
     // Relationships

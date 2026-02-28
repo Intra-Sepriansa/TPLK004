@@ -7,6 +7,8 @@ use App\Models\AttendanceLog;
 use App\Models\AttendanceToken;
 use App\Models\AppNotification;
 use App\Models\AuditLog;
+use App\Models\MahasiswaCourse;
+use App\Models\MataKuliah;
 use App\Models\SelfieVerification;
 use App\Models\Setting;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -14,13 +16,13 @@ use Illuminate\Http\Client\Response as HttpResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
-use App\Services\BadgeService;
 
 class AbsensiController extends Controller
 {
@@ -294,42 +296,158 @@ class AbsensiController extends Controller
         ]);
     }
 
+    public function historyDetail($id): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $log = AttendanceLog::with([
+            'session.course.dosen',
+            'mahasiswa',
+            'selfieVerification',
+        ])->where('mahasiswa_id', $mahasiswa?->id)->findOrFail($id);
+
+        $selfieUrl = null;
+        if ($log->selfie_path) {
+            $selfieUrl = asset('storage/' . ltrim($log->selfie_path, '/'));
+        }
+
+        // Get related records (same day, same student)
+        $relatedRecords = AttendanceLog::where('mahasiswa_id', $log->mahasiswa_id)
+            ->where('id', '!=', $id)
+            ->whereDate('scanned_at', $log->scanned_at?->toDateString())
+            ->with('session.course')
+            ->get()
+            ->map(fn($r) => [
+                'id' => $r->id,
+                'course' => $r->session?->course?->nama ?? 'Unknown',
+                'status' => $r->status,
+                'scanned_at' => $r->scanned_at?->toIso8601String(),
+                'checkInTime' => $r->scanned_at?->format('H:i'),
+            ]);
+
+        // Get previous and next record IDs for navigation
+        $prevId = AttendanceLog::where('mahasiswa_id', $mahasiswa?->id)
+            ->where('scanned_at', '<', $log->scanned_at)
+            ->orderByDesc('scanned_at')
+            ->value('id');
+
+        $nextId = AttendanceLog::where('mahasiswa_id', $mahasiswa?->id)
+            ->where('scanned_at', '>', $log->scanned_at)
+            ->orderBy('scanned_at')
+            ->value('id');
+
+        // Class average stats for this session
+        $classStats = [
+            'total' => 0,
+            'present_count' => 0,
+            'avg_distance' => 0,
+        ];
+        if ($log->attendance_session_id) {
+            $sessionLogs = AttendanceLog::where('attendance_session_id', $log->attendance_session_id)->get();
+            $classStats['total'] = $sessionLogs->count();
+            $classStats['present_count'] = $sessionLogs->whereIn('status', ['present', 'late'])->count();
+            $classStats['avg_distance'] = $sessionLogs->avg('distance_m') ?? 0;
+        }
+
+        // Verification timeline
+        $timeline = [];
+        $timeline[] = [
+            'type' => 'scan',
+            'time' => $log->scanned_at?->toIso8601String(),
+            'status' => 'completed',
+            'description' => 'QR Code di-scan',
+        ];
+        if ($log->selfie_path) {
+            $timeline[] = [
+                'type' => 'selfie',
+                'time' => $log->scanned_at?->toIso8601String(),
+                'status' => 'completed',
+                'description' => 'Selfie diupload',
+            ];
+        }
+        if ($log->selfieVerification) {
+            $sv = $log->selfieVerification;
+            $timeline[] = [
+                'type' => 'verification',
+                'time' => $sv->verified_at?->toIso8601String(),
+                'status' => $sv->status === 'approved' ? 'completed' : ($sv->status === 'pending' ? 'pending' : 'rejected'),
+                'description' => match($sv->status) {
+                    'approved' => 'Selfie diverifikasi ✓',
+                    'rejected' => 'Selfie ditolak',
+                    default => 'Menunggu verifikasi',
+                },
+            ];
+        }
+
+        $record = [
+            'id' => $log->id,
+            'status' => $log->status,
+            'scanned_at' => $log->scanned_at?->toIso8601String(),
+            'distance' => $log->distance_m ?? 0,
+            'lat' => $log->latitude ? (float) $log->latitude : null,
+            'long' => $log->longitude ? (float) $log->longitude : null,
+            'selfie_url' => $selfieUrl,
+            'note' => $log->note,
+            'device_info' => [
+                'model' => $log->device_model ?? 'Unknown',
+                'os' => $log->device_os ?? 'Unknown',
+                'browser' => $log->browser ?? 'Unknown',
+                'type' => $log->device_type ?? 'Unknown',
+            ],
+            'selfie_verification' => $log->selfieVerification ? [
+                'status' => $log->selfieVerification->status,
+                'verified_at' => $log->selfieVerification->verified_at?->toIso8601String(),
+                'verified_by' => $log->selfieVerification->verified_by_name ?? 'System',
+                'notes' => $log->selfieVerification->note ?? $log->selfieVerification->rejection_reason,
+            ] : [
+                'status' => 'pending',
+                'verified_at' => null,
+                'verified_by' => null,
+                'notes' => null,
+            ],
+            'session' => [
+                'id' => $log->session?->id,
+                'meeting_number' => $log->session?->meeting_number ?? 1,
+                'title' => $log->session?->title ?? 'Pertemuan',
+                'start_at' => $log->session?->start_at?->toIso8601String(),
+                'end_at' => $log->session?->end_at?->toIso8601String(),
+                'course' => [
+                    'nama' => $log->session?->course?->nama ?? 'Unknown',
+                    'sks' => $log->session?->course?->sks ?? 0,
+                    'dosen' => [
+                        'nama' => $log->session?->course?->dosen?->nama ?? 'Unknown',
+                    ],
+                ],
+            ],
+            'ai_info' => [
+                'face_detected' => $log->face_detected,
+                'face_match_score' => $log->face_match_score,
+                'is_live_photo' => $log->is_live_photo,
+                'ai_confidence' => $log->ai_confidence,
+                'image_quality' => $log->image_quality_score,
+            ],
+        ];
+
+        return Inertia::render('user/history-detail', [
+            'record' => $record,
+            'relatedRecords' => $relatedRecords,
+            'classAverage' => $classStats,
+            'timeline' => $timeline,
+            'prevId' => $prevId,
+            'nextId' => $nextId,
+        ]);
+    }
+
     public function achievements(): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
 
-        $logs = AttendanceLog::query()
-            ->where('mahasiswa_id', $mahasiswa?->id)
-            ->get();
-
-        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
-        $totalSessions = $logs->count();
-        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
-        $presentCount = $logs->where('status', 'present')->count();
-        $onTimeRate = $totalAttendance > 0 ? round(($presentCount / $totalAttendance) * 100) : 0;
-
-        // Calculate streak
-        $sortedLogs = $logs->sortByDesc('scanned_at');
-        $currentStreak = 0;
-        $longestStreak = 0;
-        $tempStreak = 0;
-
-        foreach ($sortedLogs as $log) {
-            if (in_array($log->status, ['present', 'late'])) {
-                $tempStreak++;
-            } else {
-                $longestStreak = max($longestStreak, $tempStreak);
-                $tempStreak = 0;
-            }
-        }
-        $longestStreak = max($longestStreak, $tempStreak);
-        $currentStreak = $tempStreak;
-
-        // Check and award any new badges (this won't remove existing badges)
-        BadgeService::checkAndAwardBadges($mahasiswa?->id);
+        $courseScope = $this->resolveLatestCourseScope($mahasiswa?->id);
+        $logs = $this->getScopedAchievementLogs($mahasiswa?->id, $courseScope);
+        $metrics = $this->buildAchievementMetrics($mahasiswa?->id, $logs, $mahasiswa?->total_points, $courseScope);
 
         // Get user's earned badges from database (permanent, won't be removed)
-        $earnedBadges = \DB::table('mahasiswa_badges')
+        $earnedBadges = DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->get()
             ->keyBy('badge_id');
@@ -344,40 +462,30 @@ class AbsensiController extends Controller
             return preg_replace('/_[0-9]+$/', '', $badge->code);
         });
 
-        // Calculate progress for each badge type
-        $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
-
         // Build achievements array - show only the current level for each badge type
         $achievements = [];
         foreach ($badgeGroups as $baseCode => $badges) {
-            // Find the highest unlocked level (from database) or the next level to unlock
-            $currentBadge = null;
-            $isUnlocked = false;
-            $unlockedAt = null;
-            
-            foreach ($badges as $badge) {
-                // Check if badge is earned (stored in database - permanent)
-                if (isset($earnedBadges[$badge->id])) {
-                    $currentBadge = $badge;
-                    $isUnlocked = true;
-                    $unlockedAt = $earnedBadges[$badge->id]->earned_at;
-                } elseif (!$isUnlocked && !$currentBadge) {
-                    // First badge not yet earned - show as next target
-                    $currentBadge = $badge;
-                }
-            }
+            // Show next badge level to pursue (or highest level if all claimed)
+            $currentBadge = $badges->first(function ($badge) use ($earnedBadges) {
+                return !isset($earnedBadges[$badge->id]);
+            });
 
-            // If all levels unlocked, show the highest level
             if (!$currentBadge) {
                 $currentBadge = $badges->last();
-                $isUnlocked = isset($earnedBadges[$currentBadge->id]);
-                $unlockedAt = $isUnlocked ? $earnedBadges[$currentBadge->id]->earned_at : null;
             }
 
-            // Get progress for this badge type - current value from progressData, target from badge
-            $progress = $progressData[$baseCode] ?? ['current' => 0];
-            $currentValue = $progress['current'];
+            $isUnlocked = isset($earnedBadges[$currentBadge->id]);
+            $unlockedAt = $isUnlocked ? $earnedBadges[$currentBadge->id]->earned_at : null;
+
+            // Real progress is resolved per requirement_type & requirement_value
+            $currentValue = $this->resolveRequirementProgress(
+                $currentBadge->requirement_type,
+                (int) $currentBadge->requirement_value,
+                $metrics,
+            );
             $targetValue = $currentBadge->requirement_value;
+            $isCompleted = $currentValue >= $targetValue;
+            $isClaimable = $isCompleted && !$isUnlocked;
 
             $achievements[] = [
                 'id' => $currentBadge->id,
@@ -388,6 +496,8 @@ class AbsensiController extends Controller
                 'progress' => $currentValue,
                 'target' => $targetValue,
                 'unlocked' => $isUnlocked,
+                'completed' => $isCompleted,
+                'claimable' => $isClaimable,
                 'unlockedAt' => $unlockedAt,
                 'points' => $currentBadge->points,
                 'level' => $currentBadge->badge_level,
@@ -397,14 +507,13 @@ class AbsensiController extends Controller
             ];
         }
 
-        // Calculate points
-        $points = $mahasiswa?->total_points ?? (($totalAttendance * 10) + ($currentStreak * 5) + ($presentCount * 2));
+        // Real points from scoped point history (fallback to mahasiswa.total_points when no scope)
+        $points = $metrics['points'];
         $level = $mahasiswa?->current_level ?? ((int) floor($points / 100) + 1);
         $nextLevelPoints = 100;
 
-        // Get rank
-        $rank = \App\Models\Mahasiswa::where('total_points', '>', $mahasiswa?->total_points ?? 0)->count() + 1;
-        $totalStudents = \App\Models\Mahasiswa::count();
+        $rank = $metrics['leaderboard_rank'];
+        $totalStudents = $metrics['total_students'];
 
         return Inertia::render('user/achievements', [
             'mahasiswa' => [
@@ -420,91 +529,428 @@ class AbsensiController extends Controller
         ]);
     }
 
+    public function claimAchievement(int $badgeId): RedirectResponse
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $badge = \App\Models\Badge::where('id', $badgeId)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$mahasiswa || !$badge) {
+            return back()->with('error', 'Badge tidak ditemukan.');
+        }
+
+        $alreadyClaimed = DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('badge_id', $badge->id)
+            ->exists();
+
+        if ($alreadyClaimed) {
+            return back()->with('error', 'Badge ini sudah diklaim.');
+        }
+
+        $baseCode = preg_replace('/_[0-9]+$/', '', $badge->code);
+
+        $badgeLevels = \App\Models\Badge::where('code', 'like', $baseCode . '%')
+            ->where('is_active', true)
+            ->orderBy('badge_level')
+            ->get();
+
+        $earnedBadgeIds = DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->pluck('badge_id')
+            ->toArray();
+
+        $nextBadge = $badgeLevels->first(function ($levelBadge) use ($earnedBadgeIds) {
+            return !in_array($levelBadge->id, $earnedBadgeIds, true);
+        });
+
+        if (!$nextBadge || $nextBadge->id !== $badge->id) {
+            return back()->with('error', 'Badge ini belum bisa diklaim sekarang. Selesaikan level sebelumnya terlebih dahulu.');
+        }
+
+        $courseScope = $this->resolveLatestCourseScope($mahasiswa->id);
+        $logs = $this->getScopedAchievementLogs($mahasiswa->id, $courseScope);
+        $metrics = $this->buildAchievementMetrics($mahasiswa->id, $logs, $mahasiswa->total_points, $courseScope);
+        $currentProgress = $this->resolveRequirementProgress(
+            $badge->requirement_type,
+            (int) $badge->requirement_value,
+            $metrics,
+        );
+        if ($currentProgress < $badge->requirement_value) {
+            return back()->with('error', 'Misi belum selesai. Selesaikan progres terlebih dahulu sebelum klaim badge.');
+        }
+
+        $claimed = \App\Models\Badge::award(
+            $mahasiswa->id,
+            $badge->code,
+            'Claim manual dari halaman pencapaian'
+        );
+
+        if (!$claimed) {
+            return back()->with('error', 'Badge gagal diklaim.');
+        }
+
+        return back()->with('success', "Badge {$badge->name} berhasil diklaim.");
+    }
+
     /**
      * Calculate progress for each badge type
      * Returns current value for each badge type (target comes from badge requirement_value)
      */
     private function calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance): array
     {
-        $earnedBadgesCount = \DB::table('mahasiswa_badges')
-            ->where('mahasiswa_id', $mahasiswa?->id)
-            ->count();
-        
-        // Calculate longest streak (not just current)
-        $sortedLogs = $logs->sortByDesc('scanned_at');
-        $longestStreak = 0;
-        $tempStreak = 0;
-        $lastDate = null;
-        
-        foreach ($sortedLogs as $log) {
-            if (in_array($log->status, ['present', 'late'])) {
-                $logDate = $log->scanned_at?->format('Y-m-d');
-                if ($lastDate === null || $lastDate === $logDate) {
-                    $tempStreak++;
-                } elseif ($lastDate && \Carbon\Carbon::parse($lastDate)->subDay()->format('Y-m-d') === $logDate) {
-                    $tempStreak++;
-                } else {
-                    $longestStreak = max($longestStreak, $tempStreak);
-                    $tempStreak = 1;
-                }
-                $lastDate = $logDate;
-            } else {
-                $longestStreak = max($longestStreak, $tempStreak);
-                $tempStreak = 0;
-                $lastDate = null;
-            }
+        $courseScope = $this->resolveLatestCourseScope($mahasiswa?->id);
+        $metrics = $this->buildAchievementMetrics($mahasiswa?->id, $logs, $mahasiswa?->total_points ?? null, $courseScope);
+
+        // Keep backward-compatible keys for callers that expect base badge code
+        return [
+            'streak_master' => ['current' => $metrics['longest_streak']],
+            'perfect_attendance' => ['current' => $metrics['present_count']],
+            'early_bird' => ['current' => $metrics['present_count']],
+            'consistent' => ['current' => $metrics['total_attendance']],
+            'champion' => ['current' => max(0, $metrics['total_students'] - $metrics['leaderboard_rank'] + 1)],
+            'legend' => ['current' => $metrics['earned_badges_count']],
+            'first_step' => ['current' => $metrics['total_attendance']],
+            'ai_verified' => ['current' => $metrics['ai_verified_count']],
+            'kas_hero' => ['current' => $metrics['kas_on_time_count']],
+            'task_master' => ['current' => $metrics['task_on_time_count']],
+            'social_star' => ['current' => $metrics['voting_count']],
+            'speed_demon' => ['current' => $metrics['fast_attendance_count']],
+        ];
+    }
+
+    private function normalizeCourseName(string $name): string
+    {
+        $normalized = mb_strtolower(trim($name));
+        $normalized = preg_replace('/\s+/u', ' ', $normalized) ?? $normalized;
+
+        return preg_replace('/[^\pL\pN\s]/u', '', $normalized) ?? $normalized;
+    }
+
+    private function resolveLatestCourseScope(?int $mahasiswaId): array
+    {
+        if (!$mahasiswaId) {
+            return [
+                'course_ids' => collect(),
+                'start_at' => null,
+            ];
         }
-        $longestStreak = max($longestStreak, $tempStreak);
-        
-        // Count AI verifications (selfie uploads)
-        $aiVerifiedCount = $logs->whereNotNull('selfie_path')->count();
-        
-        // Count kas payments (safely check if table exists)
+
+        $courses = MahasiswaCourse::query()
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->select(['name', 'start_date', 'created_at'])
+            ->orderByDesc('start_date')
+            ->orderByDesc('created_at')
+            ->get();
+
+        if ($courses->isEmpty()) {
+            return [
+                'course_ids' => collect(),
+                'start_at' => null,
+            ];
+        }
+
+        $firstCourse = $courses->first();
+        $latestStartAt = $firstCourse?->start_date
+            ? Carbon::parse($firstCourse->start_date)->startOfDay()
+            : $firstCourse?->created_at?->copy()->startOfDay();
+
+        $latestCourses = $latestStartAt
+            ? $courses->filter(function (MahasiswaCourse $course) use ($latestStartAt) {
+                if ($course->start_date) {
+                    return Carbon::parse($course->start_date)->isSameDay($latestStartAt);
+                }
+
+                return $course->created_at && $course->created_at->isSameDay($latestStartAt);
+            })
+            : $courses;
+
+        if ($latestCourses->isEmpty()) {
+            $latestCourses = collect([$firstCourse])->filter();
+        }
+
+        $normalizedNames = $latestCourses
+            ->pluck('name')
+            ->map(fn (?string $name) => $this->normalizeCourseName((string) $name))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $courseIds = collect();
+        if ($normalizedNames->isNotEmpty()) {
+            $mataKuliahMap = MataKuliah::query()
+                ->select(['id', 'nama'])
+                ->get()
+                ->keyBy(fn (MataKuliah $mk) => $this->normalizeCourseName((string) $mk->nama));
+
+            $courseIds = $normalizedNames
+                ->map(fn (string $name) => $mataKuliahMap->get($name)?->id)
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+        }
+
+        return [
+            'course_ids' => $courseIds,
+            'start_at' => $latestStartAt,
+        ];
+    }
+
+    private function getScopedAchievementLogs(?int $mahasiswaId, ?array $courseScope = null)
+    {
+        if (!$mahasiswaId) {
+            return new \Illuminate\Database\Eloquent\Collection();
+        }
+
+        $courseScope ??= $this->resolveLatestCourseScope($mahasiswaId);
+        $courseIds = collect($courseScope['course_ids'] ?? [])->filter()->values();
+        $startAt = $courseScope['start_at'] ?? null;
+
+        if ($startAt && !($startAt instanceof Carbon)) {
+            $startAt = Carbon::parse($startAt)->startOfDay();
+        }
+
+        $query = AttendanceLog::query()
+            ->with(['session'])
+            ->where('mahasiswa_id', $mahasiswaId);
+
+        if ($courseIds->isNotEmpty()) {
+            $query->whereHas('session', function ($sessionQuery) use ($courseIds) {
+                $sessionQuery->whereIn('course_id', $courseIds->all());
+            });
+        }
+
+        if ($startAt) {
+            $query->where(function ($dateQuery) use ($startAt) {
+                $dateQuery
+                    ->where('scanned_at', '>=', $startAt)
+                    ->orWhereHas('session', function ($sessionQuery) use ($startAt) {
+                        $sessionQuery->where('start_at', '>=', $startAt);
+                    });
+            });
+        }
+
+        return $query
+            ->orderByDesc('scanned_at')
+            ->get();
+    }
+
+    private function buildAchievementMetrics(?int $mahasiswaId, $logs, ?int $storedPoints = null, ?array $courseScope = null): array
+    {
+        if (!$mahasiswaId) {
+            return [
+                'total_sessions' => 0,
+                'total_attendance' => 0,
+                'present_count' => 0,
+                'attendance_rate' => 0,
+                'on_time_rate' => 0,
+                'current_streak' => 0,
+                'longest_streak' => 0,
+                'earned_badges_count' => 0,
+                'ai_verified_count' => 0,
+                'kas_on_time_count' => 0,
+                'task_on_time_count' => 0,
+                'voting_count' => 0,
+                'fast_attendance_count' => 0,
+                'points' => 0,
+                'leaderboard_rank' => 0,
+                'total_students' => 0,
+            ];
+        }
+
+        $courseScope ??= $this->resolveLatestCourseScope($mahasiswaId);
+        $courseIds = collect($courseScope['course_ids'] ?? [])->filter()->values();
+        $startAt = $courseScope['start_at'] ?? null;
+        if ($startAt && !($startAt instanceof Carbon)) {
+            $startAt = Carbon::parse($startAt)->startOfDay();
+        }
+
+        $logCollection = $logs instanceof \Illuminate\Database\Eloquent\Collection
+            ? $logs
+            : new \Illuminate\Database\Eloquent\Collection(collect($logs)->all());
+        $logCollection->loadMissing(['session', 'selfieVerification']);
+
+        $normalizedLogs = $this->normalizeAttendanceLogs($logCollection);
+        $totalSessions = $normalizedLogs->count();
+        $totalAttendance = $normalizedLogs->whereIn('status', ['present', 'late'])->count();
+        $presentCount = $normalizedLogs->where('status', 'present')->count();
+        $attendanceRate = $totalSessions > 0 ? (int) round(($totalAttendance / $totalSessions) * 100) : 0;
+        $onTimeRate = $totalAttendance > 0 ? (int) round(($presentCount / $totalAttendance) * 100) : 0;
+
+        $streaks = $this->calculateDailyStreaks($normalizedLogs);
+
+        $earnedBadgesCount = (int) DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->count();
+
+        $aiVerifiedCount = (int) $normalizedLogs
+            ->filter(fn ($log) => $log->selfieVerification?->status === 'approved')
+            ->count();
+
         $kasOnTimeCount = 0;
         try {
-            $kasOnTimeCount = \DB::table('kas')
-                ->where('mahasiswa_id', $mahasiswa?->id)
+            $kasQuery = DB::table('kas')
+                ->where('mahasiswa_id', $mahasiswaId)
                 ->where('type', 'income')
-                ->where('status', 'paid')
-                ->count();
+                ->where('status', 'paid');
+            if ($startAt) {
+                $kasQuery->whereDate('period_date', '>=', $startAt->toDateString());
+            }
+            $kasOnTimeCount = (int) $kasQuery->count();
         } catch (\Throwable $e) {
-            // Table doesn't exist or other error - ignore
             $kasOnTimeCount = 0;
         }
-        
-        // Count voting participation (safely check if table exists)
+
+        $taskOnTimeCount = 0;
+        try {
+            $taskQuery = DB::table('tugas_submissions as ts')
+                ->join('tugas as t', 't.id', '=', 'ts.tugas_id')
+                ->where('ts.mahasiswa_id', $mahasiswaId)
+                ->whereNotNull('t.deadline')
+                ->whereRaw('ts.submitted_at <= t.deadline');
+            if ($courseIds->isNotEmpty()) {
+                $taskQuery->whereIn('t.course_id', $courseIds->all());
+            }
+            if ($startAt) {
+                $taskQuery->where('ts.submitted_at', '>=', $startAt);
+            }
+            $taskOnTimeCount = (int) $taskQuery->count();
+        } catch (\Throwable $e) {
+            $taskOnTimeCount = 0;
+        }
+
         $votingCount = 0;
         try {
-            $votingCount = \DB::table('kas_votes')
-                ->where('mahasiswa_id', $mahasiswa?->id)
-                ->count();
+            $votingQuery = DB::table('kas_votes')
+                ->where('mahasiswa_id', $mahasiswaId);
+            if ($startAt) {
+                $votingQuery->where('created_at', '>=', $startAt);
+            }
+            $votingCount = (int) $votingQuery->count();
         } catch (\Throwable $e) {
-            // Table doesn't exist or other error - ignore
             $votingCount = 0;
         }
-        
-        // Count fast attendance (within 1 minute of session start)
-        $fastAttendanceCount = $logs->filter(function ($log) {
-            if (!$log->scanned_at || !$log->session?->start_at) return false;
-            $diff = $log->scanned_at->diffInSeconds($log->session->start_at);
-            return $diff <= 60 && in_array($log->status, ['present', 'late']);
+
+        $fastAttendanceCount = $normalizedLogs->filter(function ($log) {
+            if (!in_array($log->status, ['present', 'late'], true)) {
+                return false;
+            }
+            if (!$log->scanned_at || !$log->session?->start_at) {
+                return false;
+            }
+
+            return $log->scanned_at->between(
+                $log->session->start_at,
+                $log->session->start_at->copy()->addMinute(),
+            );
         })->count();
 
-        // Return current values - target will be taken from badge requirement_value
+        $pointsQuery = DB::table('point_histories')
+            ->where('mahasiswa_id', $mahasiswaId);
+        if ($startAt) {
+            $pointsQuery->where('created_at', '>=', $startAt);
+        }
+        $points = (int) $pointsQuery->sum('points');
+        if (!$startAt && $storedPoints !== null) {
+            $points = (int) $storedPoints;
+        }
+
+        $rank = (int) \App\Models\Mahasiswa::whereRaw('COALESCE(total_points, 0) > ?', [$points])->count() + 1;
+        $totalStudents = (int) \App\Models\Mahasiswa::count();
+
         return [
-            'streak_master' => ['current' => $longestStreak],
-            'perfect_attendance' => ['current' => $presentCount], // Perfect sessions = present (not late)
-            'early_bird' => ['current' => $presentCount], // On-time sessions
-            'consistent' => ['current' => $totalAttendance], // Total attendance
-            'champion' => ['current' => 0], // Placeholder - needs leaderboard calculation
-            'legend' => ['current' => $earnedBadgesCount],
-            'first_step' => ['current' => $totalAttendance],
-            'ai_verified' => ['current' => $aiVerifiedCount],
-            'kas_hero' => ['current' => $kasOnTimeCount],
-            'task_master' => ['current' => 0], // Placeholder - needs task calculation
-            'social_star' => ['current' => $votingCount],
-            'speed_demon' => ['current' => $fastAttendanceCount],
+            'total_sessions' => $totalSessions,
+            'total_attendance' => $totalAttendance,
+            'present_count' => $presentCount,
+            'attendance_rate' => $attendanceRate,
+            'on_time_rate' => $onTimeRate,
+            'current_streak' => $streaks['current'],
+            'longest_streak' => $streaks['longest'],
+            'earned_badges_count' => $earnedBadgesCount,
+            'ai_verified_count' => $aiVerifiedCount,
+            'kas_on_time_count' => $kasOnTimeCount,
+            'task_on_time_count' => $taskOnTimeCount,
+            'voting_count' => $votingCount,
+            'fast_attendance_count' => $fastAttendanceCount,
+            'points' => $points,
+            'leaderboard_rank' => $rank,
+            'total_students' => $totalStudents,
         ];
+    }
+
+    private function normalizeAttendanceLogs($logs)
+    {
+        return collect($logs)
+            ->sortByDesc('scanned_at')
+            ->unique(function ($log) {
+                return $log->attendance_session_id
+                    ? 'session_' . $log->attendance_session_id
+                    : 'log_' . $log->id;
+            })
+            ->values();
+    }
+
+    private function calculateDailyStreaks($logs): array
+    {
+        $dates = collect($logs)
+            ->filter(fn ($log) => in_array($log->status, ['present', 'late'], true) && $log->scanned_at)
+            ->map(fn ($log) => $log->scanned_at->toDateString())
+            ->unique()
+            ->sort()
+            ->values();
+
+        if ($dates->isEmpty()) {
+            return ['current' => 0, 'longest' => 0];
+        }
+
+        $longest = 1;
+        $running = 1;
+        for ($i = 1; $i < $dates->count(); $i++) {
+            $prev = Carbon::parse($dates[$i - 1]);
+            $curr = Carbon::parse($dates[$i]);
+            if ($prev->copy()->addDay()->isSameDay($curr)) {
+                $running++;
+            } else {
+                $running = 1;
+            }
+            $longest = max($longest, $running);
+        }
+
+        $desc = $dates->sortDesc()->values();
+        $current = 1;
+        for ($i = 1; $i < $desc->count(); $i++) {
+            $prev = Carbon::parse($desc[$i - 1]);
+            $curr = Carbon::parse($desc[$i]);
+            if ($prev->copy()->subDay()->isSameDay($curr)) {
+                $current++;
+            } else {
+                break;
+            }
+        }
+
+        return ['current' => $current, 'longest' => $longest];
+    }
+
+    private function resolveRequirementProgress(?string $requirementType, int $requirementValue, array $metrics): int
+    {
+        return match ($requirementType) {
+            'streak_days' => (int) $metrics['longest_streak'],
+            'perfect_sessions', 'on_time_sessions' => (int) $metrics['present_count'],
+            'total_present', 'total_attendance' => (int) $metrics['total_attendance'],
+            'ai_verification' => (int) $metrics['ai_verified_count'],
+            'kas_on_time' => (int) $metrics['kas_on_time_count'],
+            'task_on_time' => (int) $metrics['task_on_time_count'],
+            'voting_participation' => (int) $metrics['voting_count'],
+            'fast_attendance' => (int) $metrics['fast_attendance_count'],
+            'total_badges' => (int) $metrics['earned_badges_count'],
+            'leaderboard_rank' => max(0, $requirementValue - (int) $metrics['leaderboard_rank'] + 1),
+            'attendance_percentage', 'attendance_percentage_month', 'attendance_percentage_semester',
+            'consistent_month', 'consistent_quarter', 'consistent_semester' => (int) $metrics['attendance_rate'],
+            default => 0,
+        };
     }
 
     /**
@@ -516,10 +962,12 @@ class AbsensiController extends Controller
         
         return match($badge->requirement_type) {
             'streak_days' => "Hadir {$value} hari berturut-turut",
+            'perfect_sessions' => "Hadir tepat waktu {$value} sesi",
             'attendance_percentage' => "Kehadiran {$value}% dalam 1 minggu",
             'attendance_percentage_month' => "Kehadiran {$value}% dalam 1 bulan",
             'attendance_percentage_semester' => "Kehadiran {$value}% dalam 1 semester",
             'on_time_sessions' => "Tidak terlambat dalam {$value} sesi",
+            'total_present' => "Hadir sebanyak {$value} sesi",
             'consistent_month' => "Kehadiran >{$value}% selama 1 bulan",
             'consistent_quarter' => "Kehadiran >{$value}% selama 3 bulan",
             'consistent_semester' => "Kehadiran >{$value}% selama 1 semester",
@@ -556,42 +1004,20 @@ class AbsensiController extends Controller
         }
         
         // Get user's earned badges from database (permanent)
-        $earnedBadgeIds = \DB::table('mahasiswa_badges')
+        $earnedBadgeIds = DB::table('mahasiswa_badges')
             ->where('mahasiswa_id', $mahasiswa?->id)
             ->pluck('badge_id')
             ->toArray();
         
-        // Get attendance logs for progress calculation
-        $logs = AttendanceLog::query()
-            ->where('mahasiswa_id', $mahasiswa?->id)
-            ->get();
-        
-        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
-        $totalSessions = $logs->count();
-        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
-        $presentCount = $logs->where('status', 'present')->count();
-        
-        // Calculate streak
-        $sortedLogs = $logs->sortByDesc('scanned_at');
-        $currentStreak = 0;
-        $tempStreak = 0;
-        foreach ($sortedLogs as $log) {
-            if (in_array($log->status, ['present', 'late'])) {
-                $tempStreak++;
-            } else {
-                break;
-            }
-        }
-        $currentStreak = $tempStreak;
-        
-        // Get progress data - only current value, target comes from each badge's requirement_value
-        $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
-        $currentProgress = $progressData[$baseType]['current'] ?? 0;
+        // Get scoped attendance logs/metrics from latest course batch only
+        $courseScope = $this->resolveLatestCourseScope($mahasiswa?->id);
+        $logs = $this->getScopedAchievementLogs($mahasiswa?->id, $courseScope);
+        $metrics = $this->buildAchievementMetrics($mahasiswa?->id, $logs, $mahasiswa?->total_points, $courseScope);
         
         // Build badge levels data - check EACH level independently based on its requirement_value
-        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds, $currentProgress) {
-            // Check database for earned status OR if current progress meets THIS level's requirement
-            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($currentProgress >= $b->requirement_value);
+        $badgeLevels = $allBadges->map(function ($b) use ($earnedBadgeIds) {
+            // Badge hanya terbuka jika sudah diklaim (ada di database)
+            $isUnlocked = in_array($b->id, $earnedBadgeIds);
             
             return [
                 'id' => $b->id,
@@ -611,8 +1037,8 @@ class AbsensiController extends Controller
         $currentBadge = null;
         $nextBadge = null;
         foreach ($allBadges as $b) {
-            // Check database OR if current progress meets THIS level's requirement
-            $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($currentProgress >= $b->requirement_value);
+            // Badge hanya terbuka jika sudah diklaim (ada di database)
+            $isUnlocked = in_array($b->id, $earnedBadgeIds);
             if ($isUnlocked) {
                 $currentBadge = $b;
             } elseif (!$nextBadge) {
@@ -638,12 +1064,10 @@ class AbsensiController extends Controller
             ->inRandomOrder()
             ->limit(4)
             ->get()
-            ->map(function ($b) use ($earnedBadgeIds, $progressData) {
-                $baseCode = preg_replace('/_[0-9]+$/', '', $b->code);
-                $relatedProgress = $progressData[$baseCode]['current'] ?? 0;
-                $isUnlocked = in_array($b->id, $earnedBadgeIds) || ($relatedProgress >= $b->requirement_value);
+            ->map(function ($b) use ($earnedBadgeIds) {
+                $isUnlocked = in_array($b->id, $earnedBadgeIds);
                 return [
-                    'type' => $baseCode,
+                    'type' => preg_replace('/_[0-9]+$/', '', $b->code),
                     'name' => preg_replace('/ I$/', '', $b->name),
                     'icon' => $b->icon,
                     'color' => $b->color,
@@ -651,6 +1075,14 @@ class AbsensiController extends Controller
                 ];
             })->toArray();
         
+        $progressBadge = $nextBadge ?: $currentBadge;
+        $currentProgress = $this->resolveRequirementProgress(
+            $progressBadge->requirement_type,
+            (int) $progressBadge->requirement_value,
+            $metrics,
+        );
+        $progressTarget = (int) $progressBadge->requirement_value;
+
         return Inertia::render('user/badge-detail', [
             'mahasiswa' => [
                 'nama' => $mahasiswa?->nama,
@@ -669,10 +1101,10 @@ class AbsensiController extends Controller
             'levels' => $badgeLevels,
             'progress' => [
                 'current' => $currentProgress,
-                'target' => $nextBadge ? $nextBadge->requirement_value : $currentBadge->requirement_value,
-                'percentage' => $nextBadge 
-                    ? min(100, round(($currentProgress / $nextBadge->requirement_value) * 100))
-                    : 100,
+                'target' => $progressTarget,
+                'percentage' => $progressTarget > 0
+                    ? min(100, round(($currentProgress / $progressTarget) * 100))
+                    : 0,
             ],
             'tips' => $tips,
             'howToEarn' => $howToEarn,
@@ -866,6 +1298,145 @@ class AbsensiController extends Controller
         $locationSampleCount = (int) config('attendance.location.sample_count', 3);
         $locationSampleWindowSeconds = (int) config('attendance.location.sample_window_seconds', 20);
 
+        // === REAL GAMIFICATION DATA ===
+        $logs = AttendanceLog::query()
+            ->with(['session.course'])
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->get();
+
+        $totalAttendance = $logs->whereIn('status', ['present', 'late'])->count();
+        $totalSessions = $logs->count();
+        $presentCount = $logs->where('status', 'present')->count();
+
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $currentStreak = 0;
+        $longestStreak = 0;
+        $tempStreak = 0;
+        $lastDate = null;
+
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $logDate = $log->scanned_at?->format('Y-m-d');
+                if ($lastDate === null || $lastDate === $logDate) {
+                    $tempStreak++;
+                } elseif ($lastDate && Carbon::parse($lastDate)->subDay()->format('Y-m-d') === $logDate) {
+                    $tempStreak++;
+                } else {
+                    $longestStreak = max($longestStreak, $tempStreak);
+                    $tempStreak = 1;
+                }
+                $lastDate = $logDate;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+                $lastDate = null;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+        $currentStreak = $tempStreak;
+
+        // XP / Points
+        $points = $mahasiswa?->total_points ?? (($totalAttendance * 10) + ($currentStreak * 5) + ($presentCount * 2));
+        $comboMultiplier = $currentStreak >= 7 ? 3 : ($currentStreak >= 3 ? 2 : 1);
+        $baseXP = $totalAttendance > 0 ? 25 : 0;
+        $xpGained = $baseXP * $comboMultiplier;
+
+        // Rank
+        $rank = \App\Models\Mahasiswa::where('total_points', '>', $mahasiswa?->total_points ?? 0)->count() + 1;
+        $totalStudents = \App\Models\Mahasiswa::count();
+
+        // === REAL ACHIEVEMENTS ===
+        $earnedBadges = DB::table('mahasiswa_badges')
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->get()
+            ->keyBy('badge_id');
+
+        $allBadges = \App\Models\Badge::where('is_active', true)
+            ->orderBy('badge_level')
+            ->get();
+
+        $badgeGroups = $allBadges->groupBy(function ($badge) {
+            return preg_replace('/_[0-9]+$/', '', $badge->code);
+        });
+
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100) : 0;
+        $progressData = $this->calculateBadgeProgress($mahasiswa, $logs, $currentStreak, $attendanceRate, $presentCount, $totalAttendance);
+
+        $achievements = [];
+        foreach ($badgeGroups as $baseCode => $badges) {
+            $currentBadge = $badges->first(function ($badge) use ($earnedBadges) {
+                return !isset($earnedBadges[$badge->id]);
+            });
+            if (!$currentBadge) {
+                $currentBadge = $badges->last();
+            }
+            $isUnlocked = isset($earnedBadges[$currentBadge->id]);
+            $progress = $progressData[$baseCode] ?? ['current' => 0];
+            $achievements[] = [
+                'id' => (string) $currentBadge->id,
+                'name' => $currentBadge->name,
+                'description' => $currentBadge->description,
+                'icon' => $currentBadge->icon ?? '🏅',
+                'unlocked' => $isUnlocked,
+                'progress' => $progress['current'],
+                'total' => $currentBadge->requirement_value,
+            ];
+        }
+
+        // === REAL SOCIAL PROOF DATA ===
+        // Find active sessions today
+        $today = now()->toDateString();
+        $activeSessionModels = \App\Models\AttendanceSession::with('course')
+            ->whereDate('start_at', $today)
+            ->where('is_active', true)
+            ->get();
+        $activeSessions = $activeSessionModels->pluck('id');
+
+        $todayLogs = AttendanceLog::whereIn('session_id', $activeSessions)
+            ->whereIn('status', ['present', 'late'])
+            ->with('mahasiswa')
+            ->latest('scanned_at')
+            ->get();
+
+        $attendedCount = $todayLogs->count();
+        $isFirstAttendee = $attendedCount > 0 && $todayLogs->last()?->mahasiswa_id === $mahasiswa?->id;
+
+        $recentAttendees = $todayLogs->take(5)->map(function ($log) {
+            return $log->mahasiswa?->nama ?? 'Unknown';
+        })->values()->toArray();
+
+        // Leaderboard - top 5 by points
+        $leaderboard = \App\Models\Mahasiswa::orderByDesc('total_points')
+            ->limit(5)
+            ->get()
+            ->map(function ($m, $index) {
+                // Calculate streak for each student
+                $studentLogs = AttendanceLog::where('mahasiswa_id', $m->id)
+                    ->whereIn('status', ['present', 'late'])
+                    ->orderByDesc('scanned_at')
+                    ->get();
+                $streak = 0;
+                $lastDate = null;
+                foreach ($studentLogs as $sl) {
+                    $d = $sl->scanned_at?->format('Y-m-d');
+                    if ($lastDate === null || $lastDate === $d) {
+                        $streak++;
+                    } elseif ($lastDate && Carbon::parse($lastDate)->subDay()->format('Y-m-d') === $d) {
+                        $streak++;
+                    } else {
+                        break;
+                    }
+                    $lastDate = $d;
+                }
+                return [
+                    'rank' => $index + 1,
+                    'name' => $m->nama,
+                    'streak' => $streak,
+                    'points' => $m->total_points ?? 0,
+                ];
+            })->toArray();
+
         return Inertia::render('user/absen', [
             'mahasiswa' => [
                 'id' => $mahasiswa?->id,
@@ -876,6 +1447,32 @@ class AbsensiController extends Controller
             'selfieRequired' => $selfieRequired,
             'locationSampleCount' => $locationSampleCount,
             'locationSampleWindowSeconds' => $locationSampleWindowSeconds,
+            // Active session info
+            'activeSession' => $activeSessionModels->first() ? [
+                'courseName' => $activeSessionModels->first()->course?->nama ?? 'Mata Kuliah',
+                'meetingNumber' => $activeSessionModels->first()->meeting_number,
+                'title' => $activeSessionModels->first()->title,
+                'startAt' => $activeSessionModels->first()->start_at?->format('H:i'),
+                'endAt' => $activeSessionModels->first()->end_at?->format('H:i'),
+            ] : null,
+            // Gamification data
+            'gamification' => [
+                'xpGained' => $xpGained,
+                'currentStreak' => $currentStreak,
+                'longestStreak' => $longestStreak,
+                'totalPoints' => $points,
+                'comboMultiplier' => $comboMultiplier,
+                'leaderboardPosition' => $rank,
+                'achievements' => $achievements,
+            ],
+            // Social proof data
+            'socialProof' => [
+                'totalStudents' => $totalStudents,
+                'attendedCount' => $attendedCount,
+                'isFirstAttendee' => $isFirstAttendee,
+                'recentAttendees' => $recentAttendees,
+                'leaderboard' => $leaderboard,
+            ],
         ]);
     }
 
@@ -1132,7 +1729,7 @@ class AbsensiController extends Controller
                 'lon' => $longitude,
                 'format' => 'json',
             ]);
-            if ($geoResponse->successful()) {
+            if ($geoResponse instanceof HttpResponse && $geoResponse->successful()) {
                 $address = $geoResponse->json('display_name');
             }
         } catch (\Exception $e) {
@@ -1179,9 +1776,6 @@ class AbsensiController extends Controller
         }
 
         $statusLabel = $status === 'late' ? 'Terlambat' : 'Hadir';
-
-        // Check and award badges after successful attendance
-        BadgeService::checkAndAwardBadges($mahasiswa->id);
 
         return back()->with(
             'success',

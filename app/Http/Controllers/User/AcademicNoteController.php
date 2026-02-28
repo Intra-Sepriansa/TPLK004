@@ -14,6 +14,13 @@ use Inertia\Response;
 
 class AcademicNoteController extends Controller
 {
+    protected $aiService;
+
+    public function __construct(\App\Services\AINotesService $aiService)
+    {
+        $this->aiService = $aiService;
+    }
+
     public function index(Request $request): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
@@ -26,7 +33,7 @@ class AcademicNoteController extends Controller
         $this->syncCoursesFromMataKuliah($mahasiswa->id);
 
         $query = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with('course:id,name,mode');
+            ->with(['course:id,name,mode', 'collaborators', 'versions']);
 
         // Filter by course
         if ($request->filled('course_id')) {
@@ -38,34 +45,34 @@ class AcademicNoteController extends Controller
             $query->search($request->search);
         }
 
-        $notes = $query->orderBy('mahasiswa_course_id')
-            ->orderBy('meeting_number')
+        // Apply filters & sorts based on the request (simulating fuzzy search/advanced viewing)
+        $notes = $query->orderBy('is_pinned', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->get()
             ->map(function ($note) {
                 return [
                     'id' => $note->id,
                     'title' => $note->title,
                     'content' => $note->content,
+                    'blocks' => $note->blocks ?? [],
+                    'tags' => $note->tags ?? [],
+                    'is_pinned' => $note->is_pinned,
+                    'is_favorite' => $note->is_favorite,
+                    'word_count' => $note->word_count,
+                    'reading_time' => $note->reading_time,
+                    'ai_summary' => $note->ai_summary,
+                    'ai_keywords' => $note->ai_keywords ?? [],
                     'course_id' => $note->mahasiswa_course_id,
                     'course_name' => $note->course?->name ?? 'Unknown',
                     'course_mode' => $note->course?->mode ?? 'online',
                     'meeting_number' => $note->meeting_number,
                     'links' => $note->links ?? [],
+                    'collaborators' => $note->collaborators ?? [],
+                    'versions' => $note->versions ?? [],
                     'created_at' => $note->created_at->format('Y-m-d H:i'),
                     'updated_at' => $note->updated_at->format('Y-m-d H:i'),
                 ];
             });
-
-        // Group notes by course
-        $notesByCourse = $notes->groupBy('course_id')->map(function ($courseNotes, $courseId) {
-            $firstNote = $courseNotes->first();
-            return [
-                'course_id' => $courseId,
-                'course_name' => $firstNote['course_name'],
-                'course_mode' => $firstNote['course_mode'],
-                'notes' => $courseNotes->values(),
-            ];
-        })->values();
 
         // Get courses for filter dropdown
         $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
@@ -73,10 +80,18 @@ class AcademicNoteController extends Controller
             ->orderBy('name')
             ->get();
 
+        $stats = [
+            'total_notes' => $notes->count(),
+            'total_words' => $notes->sum('word_count'),
+            'this_week' => AcademicNote::where('mahasiswa_id', $mahasiswa->id)
+                                ->where('created_at', '>=', now()->subWeek())->count(),
+            'favorite_count' => $notes->where('is_favorite', true)->count(),
+        ];
+
         return Inertia::render('user/akademik/catatan', [
-            'notes' => $notes,
-            'notesByCourse' => $notesByCourse,
+            'notes' => $notes->values(),
             'courses' => $courses,
+            'stats' => $stats,
             'filters' => [
                 'course_id' => $request->course_id,
                 'search' => $request->search,
@@ -116,6 +131,47 @@ class AcademicNoteController extends Controller
         }
     }
 
+    public function create()
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
+        
+        $templates = [
+            [
+                'id' => 'lecture',
+                'name' => 'Lecture Notes',
+                'description' => 'Template untuk catatan kuliah terstruktur',
+                'icon' => 'BookOpen',
+                'content' => '<h1>Lecture Notes</h1><h2>Dosen: </h2><h2>Topik Bahasan:</h2><p></p><h2>Poin-Poin Penting:</h2><ul><li></li></ul><h2>Ringkasan:</h2><p></p>',
+            ],
+            [
+                'id' => 'meeting',
+                'name' => 'Meeting Notes',
+                'description' => 'Template untuk catatan rapat/diskusi kelompok',
+                'icon' => 'Users',
+                'content' => '<h1>Meeting Notes</h1><h2>Agenda: </h2><ul><li></li></ul><h2>Catatan Diskusi:</h2><p></p><h2>Action Items:</h2><ul data-type="taskList"><li data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p></p></div></li></ul>',
+            ],
+        ];
+
+        return Inertia::render('user/akademik/catatan-form', [
+            'courses' => $courses,
+            'templates' => $templates,
+        ]);
+    }
+
+    public function edit(int $id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)->findOrFail($id);
+        $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
+        
+        return Inertia::render('user/akademik/catatan-form', [
+            'note' => $note,
+            'courses' => $courses,
+            'templates' => [],
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
@@ -126,20 +182,15 @@ class AcademicNoteController extends Controller
             'mahasiswa_course_id' => 'required|exists:mahasiswa_courses,id',
             'meeting_number' => 'required|integer|min:1',
             'links' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'blocks' => 'nullable|array',
         ]);
 
         // Verify course belongs to mahasiswa
         $course = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
             ->findOrFail($validated['mahasiswa_course_id']);
 
-        // Validate meeting number doesn't exceed total
-        if ($validated['meeting_number'] > $course->total_meetings) {
-            return back()->withErrors([
-                'meeting_number' => "Pertemuan tidak boleh melebihi {$course->total_meetings}.",
-            ]);
-        }
-
-        // Parse links from newline-separated string
+        // Parse links
         $links = [];
         if (!empty($validated['links'])) {
             $links = array_filter(
@@ -148,13 +199,36 @@ class AcademicNoteController extends Controller
             );
         }
 
-        AcademicNote::create([
+        // Words & Read time calculus
+        $wordCount = str_word_count(strip_tags($validated['content']));
+        $readingTime = ceil($wordCount / 200);
+
+        $note = AcademicNote::create([
             'mahasiswa_id' => $mahasiswa->id,
             'mahasiswa_course_id' => $validated['mahasiswa_course_id'],
             'meeting_number' => $validated['meeting_number'],
             'title' => $validated['title'],
             'content' => $validated['content'],
             'links' => !empty($links) ? array_values($links) : null,
+            'tags' => $validated['tags'] ?? [],
+            'blocks' => $validated['blocks'] ?? [],
+            'word_count' => $wordCount,
+            'reading_time' => $readingTime,
+        ]);
+
+        // Save first version
+        $note->versions()->create([
+            'content' => $note->content,
+            'created_by' => $mahasiswa->id,
+        ]);
+
+        // Generate AI Summary in background (simulated via DB job or sync)
+        $summary = $this->aiService->generateSummary($note->content);
+        $keywords = $this->aiService->extractKeywords($note->content);
+        
+        $note->update([
+            'ai_summary' => $summary,
+            'ai_keywords' => $keywords,
         ]);
 
         return back()->with('success', 'Catatan berhasil ditambahkan!');
@@ -172,16 +246,12 @@ class AcademicNoteController extends Controller
             'content' => 'required|string',
             'meeting_number' => 'required|integer|min:1',
             'links' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'blocks' => 'nullable|array',
+            'is_pinned' => 'nullable|boolean',
+            'is_favorite' => 'nullable|boolean',
         ]);
 
-        // Validate meeting number doesn't exceed total
-        if ($validated['meeting_number'] > $note->course->total_meetings) {
-            return back()->withErrors([
-                'meeting_number' => "Pertemuan tidak boleh melebihi {$note->course->total_meetings}.",
-            ]);
-        }
-
-        // Parse links from newline-separated string
         $links = [];
         if (!empty($validated['links'])) {
             $links = array_filter(
@@ -190,14 +260,62 @@ class AcademicNoteController extends Controller
             );
         }
 
+        $wordCount = str_word_count(strip_tags($validated['content']));
+        $readingTime = ceil($wordCount / 200);
+
         $note->update([
             'title' => $validated['title'],
             'content' => $validated['content'],
             'meeting_number' => $validated['meeting_number'],
             'links' => !empty($links) ? array_values($links) : null,
+            'tags' => $validated['tags'] ?? $note->tags,
+            'blocks' => $validated['blocks'] ?? $note->blocks,
+            'is_pinned' => $request->has('is_pinned') ? $validated['is_pinned'] : $note->is_pinned,
+            'is_favorite' => $request->has('is_favorite') ? $validated['is_favorite'] : $note->is_favorite,
+            'word_count' => $wordCount,
+            'reading_time' => $readingTime,
         ]);
 
+        // Save version history if content changed
+        if ($note->wasChanged('content')) {
+            $note->versions()->create([
+                'content' => $note->content,
+                'created_by' => $mahasiswa->id,
+            ]);
+        }
+
         return back()->with('success', 'Catatan berhasil diperbarui!');
+    }
+
+    public function generateAISummary(int $id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)->findOrFail($id);
+
+        $summary = $this->aiService->generateSummary($note->content);
+        $keywords = $this->aiService->extractKeywords($note->content);
+
+        $note->update([
+            'ai_summary' => $summary,
+            'ai_keywords' => $keywords,
+        ]);
+
+        return response()->json([
+            'summary' => $summary,
+            'keywords' => $keywords,
+        ]);
+    }
+
+    public function generateFlashcards(int $id)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)->findOrFail($id);
+
+        $flashcards = $this->aiService->generateFlashcards($note->content);
+
+        return response()->json([
+            'flashcards' => $flashcards,
+        ]);
     }
 
     public function destroy(int $id): RedirectResponse
@@ -214,33 +332,33 @@ class AcademicNoteController extends Controller
 
     public function search(Request $request): Response
     {
-        $mahasiswa = Auth::guard('mahasiswa')->user();
+        // ... handled in index with smart filters on frontend for now ...
+        return $this->index($request);
+    }
 
-        $keyword = $request->get('q', '');
-
-        $notes = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with('course:id,name,mode')
-            ->search($keyword)
-            ->orderByMeeting()
-            ->limit(20)
-            ->get()
-            ->map(function ($note) use ($keyword) {
-                // Highlight search term in content preview
-                $preview = strip_tags($note->content);
-                $preview = \Str::limit($preview, 150);
-                
-                return [
-                    'id' => $note->id,
-                    'title' => $note->title,
-                    'preview' => $preview,
-                    'course_name' => $note->course?->name ?? 'Unknown',
-                    'meeting_number' => $note->meeting_number,
-                ];
-            });
-
-        return Inertia::render('user/akademik/search', [
-            'notes' => $notes,
-            'keyword' => $keyword,
+    /**
+     * Handle generic text processing from the editor AI Assist button
+     */
+    public function processAI(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string',
+            'action' => 'required|string|in:improve,summarize,expand,simplify',
         ]);
+
+        try {
+            $result = $this->aiService->processText($request->text, $request->action);
+
+            return response()->json([
+                'success' => true,
+                'result' => $result,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('AI Process Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal memproses teks dengan AI.',
+            ], 500);
+        }
     }
 }

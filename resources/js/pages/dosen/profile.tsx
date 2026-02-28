@@ -10,7 +10,7 @@ import InputError from '@/components/input-error';
 import ProfileCard from '@/components/ui/profile-card';
 import {
     User, Shield, Eye, EyeOff, CheckCircle2, Mail, IdCard, Sparkles,
-    Lock, Phone, BookOpen, Calendar, BadgeCheck, Camera, Upload,
+    Lock, Phone, BadgeCheck, Camera, Upload,
     Edit3, Save, X, Award, Activity, TrendingUp, ChevronRight, CreditCard,
     Globe, MapPin, Clock, Star, Zap, FileText, Settings, Share2,
 } from 'lucide-react';
@@ -121,11 +121,7 @@ export default function DosenProfile() {
         { key: 'security' as TabType, label: 'Keamanan', icon: Shield, desc: 'Password & akses' },
     ];
 
-    const statCards = [
-        { icon: BookOpen, label: 'Mata Kuliah', val: stats.totalCourses, sub: 'Aktif semester ini', color: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500' },
-        { icon: Calendar, label: 'Total Sesi', val: stats.totalSessions, sub: 'Sesi perkuliahan', color: 'from-purple-500 to-violet-600', glow: 'bg-purple-500' },
-        { icon: BadgeCheck, label: 'Verifikasi', val: stats.totalVerifications, sub: 'Kehadiran berhasil', color: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500' },
-    ];
+
 
     return (
         <DosenLayout>
@@ -263,24 +259,7 @@ export default function DosenProfile() {
                             </div>
                         </div>
 
-                        {/* Stats Row */}
-                        <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-neutral-200/60 dark:border-neutral-800">
-                            {statCards.map((s, i) => (
-                                <motion.div key={i} variants={itemVariants} whileHover={{ y: -4, scale: 1.02 }}
-                                    className="group relative text-center p-4 md:p-5 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800 hover:shadow-lg transition-all cursor-pointer overflow-hidden">
-                                    <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-                                        className={`absolute -top-4 -right-4 h-20 w-20 rounded-full ${s.glow} blur-2xl`} />
-                                    <div className="relative">
-                                        <div className={`mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${s.color} text-white shadow-lg mb-3`}>
-                                            <s.icon className="h-5 w-5" />
-                                        </div>
-                                        <p className="text-3xl md:text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight">{s.val}</p>
-                                        <p className="text-xs font-bold text-neutral-500 dark:text-neutral-400 mt-1 uppercase tracking-wider">{s.label}</p>
-                                        <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">{s.sub}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
+
                     </div>
                 </motion.div>
 

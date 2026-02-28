@@ -45,6 +45,9 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
 
     // Verification (AI-Powered)
     Route::get('/verify', [VerificationController::class, 'index'])->name('verify');
+    Route::post('/verify/quick-verify', [VerificationController::class, 'quickVerify'])->name('verify.quick-verify');
+    Route::post('/verify/ai-auto-verify', [VerificationController::class, 'aiAutoVerify'])->name('verify.ai-auto-verify');
+    Route::post('/verify/export', [VerificationController::class, 'export'])->name('verify.export');
     Route::get('/verify/{verification}', [VerificationController::class, 'show'])->name('verify.show');
     Route::patch('/verify/{verification}/approve', [VerificationController::class, 'approve'])->name('verify.approve');
     Route::patch('/verify/{verification}/reject', [VerificationController::class, 'reject'])->name('verify.reject');
@@ -81,6 +84,7 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::get('/permits/{permit}', [\App\Http\Controllers\Dosen\PermitController::class, 'show'])->name('permits.show');
     Route::patch('/permits/{permit}/approve', [\App\Http\Controllers\Dosen\PermitController::class, 'approve'])->name('permits.approve');
     Route::patch('/permits/{permit}/reject', [\App\Http\Controllers\Dosen\PermitController::class, 'reject'])->name('permits.reject');
+    Route::post('/permits/{permit}/comment', [\App\Http\Controllers\Dosen\PermitController::class, 'addComment'])->name('permits.comment');
     Route::post('/permits/bulk-approve', [\App\Http\Controllers\Dosen\PermitController::class, 'bulkApprove'])->name('permits.bulk-approve');
     
     // Grading

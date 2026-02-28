@@ -9,6 +9,7 @@ import {
     TrendingUp, Send, Search, ChevronDown, Eye, Fingerprint, Zap,
     Smartphone, Globe, BrainCircuit, Activity, Target, Award
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import SesiAbsenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
 import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
@@ -257,21 +258,29 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                             {/* Quick Stats Badges */}
                             <div className="flex items-center gap-3">
                                 <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/20 hover:shadow-emerald-500/10 transition-all dark:border-white/5"
                                 >
-                                    <div className="p-2 bg-emerald-500/20 rounded-lg"><Users className="h-6 w-6 text-white" /></div>
-                                    <div>
-                                        <p className="text-xs text-indigo-100">Hadir</p>
-                                        <p className="text-2xl font-bold text-white">{stats.present}</p>
+                                    <div className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
+                                        <img src={HadirIcon} alt="Hadir" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="text-[10px] sm:text-xs font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5">Hadir</p>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">{stats.present}</span>
+                                        </div>
                                     </div>
                                 </motion.div>
                                 <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10"
+                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/20 hover:shadow-amber-500/10 transition-all dark:border-white/5"
                                 >
-                                    <div className="p-2 bg-amber-500/20 rounded-lg"><Clock className="h-6 w-6 text-white" /></div>
-                                    <div>
-                                        <p className="text-xs text-indigo-100">Pending</p>
-                                        <p className="text-2xl font-bold text-white">{stats.pending}</p>
+                                    <div className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
+                                        <img src={TerlambatDetailIcon} alt="Pending" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="text-[10px] sm:text-xs font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5">Pending</p>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">{stats.pending}</span>
+                                        </div>
                                     </div>
                                 </motion.div>
                             </div>
@@ -305,37 +314,64 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                     </div>
                 </motion.div>
 
-                {/* ═══════ 10 STAT CARDS ═══════ */}
-                <motion.div variants={containerVariants} className="grid gap-4 grid-cols-2 md:grid-cols-4">
-                    {cards.map(c => (
-                        <motion.div key={c.key}
-                            variants={cardVariants} whileHover="hover"
-                            onHoverStart={() => setHoveredCard(c.key)} onHoverEnd={() => setHoveredCard(null)}
-                            className={`group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all ${c.hoverShadow} dark:border-white/5`}
-                        >
-                            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient}`} />
+                {/* ═══════ 4 STAT CARDS ═══════ */}
+                <motion.div variants={containerVariants} className="grid gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
+                    {cards.map((card, i) => {
+                        const colorMap: Record<string, any> = {
+                            'bg-blue-500': { from: 'from-sky-400', to: 'to-indigo-600', gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10', hoverShadow: 'hover:shadow-sky-500/10' },
+                            'bg-emerald-500': { from: 'from-emerald-400', to: 'to-teal-600', gradientBg: 'from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10', hoverShadow: 'hover:shadow-emerald-500/10' },
+                            'bg-rose-500': { from: 'from-rose-400', to: 'to-red-600', gradientBg: 'from-rose-500/5 to-red-500/5 dark:from-rose-500/10 dark:to-red-500/10', hoverShadow: 'hover:shadow-rose-500/10' },
+                            'bg-red-500': { from: 'from-red-400', to: 'to-rose-600', gradientBg: 'from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10', hoverShadow: 'hover:shadow-red-500/10' },
+                        };
+                        const cc = colorMap[card.glow] || colorMap['bg-blue-500'];
+                        return (
                             <motion.div
-                                animate={{ scale: hoveredCard === c.key ? 1.5 : 1, opacity: hoveredCard === c.key ? 0.4 : 0.2 }}
-                                className={`absolute -right-10 -top-10 h-32 w-32 rounded-full ${c.glow} blur-3xl transition-all duration-500`}
-                            />
-                            <div className="relative flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
-                                    className="relative flex shrink-0 h-12 w-12 items-center justify-center"
-                                >
-                                    <img src={c.imgSrc} alt={c.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                                </motion.div>
-                                <div>
-                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.label}</p>
-                                    <div className="mt-0.5">
-                                        <span className="text-xl font-bold text-neutral-900 dark:text-white">
-                                            <AnimatedCounter value={c.value} duration={1500} />
-                                        </span>
+                                key={card.key}
+                                variants={{
+                                    hidden: { opacity: 0, y: 30, scale: 0.95 },
+                                    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+                                }}
+                                whileHover={{ y: -5, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+                                onHoverStart={() => setHoveredCard(card.key)} onHoverEnd={() => setHoveredCard(null)}
+                                className={cn(`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-4 sm:p-6 shadow-xl backdrop-blur-xl transition-all dark:border-white/5`, cc.hoverShadow)}
+                            >
+                                <div className={`absolute inset-0 bg-gradient-to-br ${cc.gradientBg} opacity-50 dark:opacity-100`} />
+                                <motion.div
+                                    className={cn(`absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl transition-all`, card.glow)}
+                                    animate={{ opacity: hoveredCard === card.key ? 0.4 : 0.15 }}
+                                />
+                                <div className="relative z-10 flex flex-col items-center sm:items-start gap-3 sm:gap-4 h-full justify-between">
+                                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-center sm:text-left">
+                                        <motion.div whileHover={{ scale: 1.1, rotate: 10 }}
+                                            className="relative flex shrink-0 h-10 w-10 sm:h-14 sm:w-14 items-center justify-center"
+                                        >
+                                            <img src={card.imgSrc} alt={card.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
+                                        </motion.div>
+                                        <div className="flex flex-col">
+                                            <p className="text-[10px] sm:text-sm font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5 sm:mb-1">{card.label}</p>
+                                            <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                                                <span className="text-xl sm:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">
+                                                    <AnimatedCounter value={card.value} duration={1500} />
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-neutral-400 mt-0.5 sm:mt-1">{card.sub}</p>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] text-neutral-400 mt-0.5">{c.sub}</p>
+                                    {/* Progress bar */}
+                                    <div className="mt-auto w-full pt-2 sm:pt-4">
+                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                                            <motion.div
+                                                className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: card.sub.includes('%') ? card.sub : '100%' }}
+                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: "easeOut" }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
+                            </motion.div>
+                        );
+                    })}
                 </motion.div>
 
                 {/* ═══════ TABS ═══════ */}

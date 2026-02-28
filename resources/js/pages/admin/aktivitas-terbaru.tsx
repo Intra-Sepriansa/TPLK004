@@ -27,7 +27,6 @@ import LiveMonitorIcon from '@/assets/admin/live-monitor/live-monitor-icon.png';
 import SesiAktifIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
 import ScanIcon from '@/assets/admin/live-monitor/scan-icon.png';
 import HadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
-import AnomaliIcon from '@/assets/admin/live-monitor/anomali-icon.png';
 
 // Mock pusher since real one needs env vars and backend setup.
 class MockPusher {
@@ -284,18 +283,6 @@ export default function AktivitasTerbaru({
                             <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                            {/* Pulsating Rings */}
-                            <motion.div
-                                className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                                animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                            />
-                            <motion.div
-                                className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                                animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                            />
-
                             <div className="relative">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 sm:gap-4">
                                     <div className="text-center sm:text-left">
@@ -377,7 +364,7 @@ export default function AktivitasTerbaru({
                         <StatCard imageIcon={SesiAktifIcon} label="Sesi Aktif" value={stats.activeSessions} color="purple" />
                         <StatCard imageIcon={ScanIcon} label="Scan Hari Ini" value={stats.totalScans} color="emerald" />
                         <StatCard imageIcon={HadirIcon} label="Hadir" value={todayStats.hadir} color="blue" />
-                        <StatCard imageIcon={AnomaliIcon} label="Anomali" value={stats.anomalyCount} color="red" />
+                        <StatCard icon={AlertTriangle} label="Anomali" value={stats.anomalyCount} color="red" />
                     </motion.div>
 
                     {/* MAIN CONTENT AREA */}

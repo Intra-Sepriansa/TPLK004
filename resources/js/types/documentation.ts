@@ -20,6 +20,7 @@ export interface FAQItem {
     category: string;
     helpful: number;
     notHelpful: number;
+    userVote?: 'helpful' | 'notHelpful' | null;
     views: number;
     lastUpdated: string;
 }
@@ -153,7 +154,7 @@ export interface TroubleshootingSolution {
 
 // Help Feedback
 export interface HelpFeedback {
-    category: 'bug' | 'feature' | 'question' | 'other';
+    category: 'bug' | 'feature' | 'suggestion' | 'question' | 'other';
     subject: string;
     message: string;
     email?: string;

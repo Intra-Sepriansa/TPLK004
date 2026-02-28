@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\VerifikasiSelfieController;
 use App\Http\Controllers\Auth\MahasiswaAuthController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\User\AbsensiController;
+use App\Http\Controllers\User\MataKuliahController;
 use App\Http\Controllers\User\PasswordController;
 use App\Http\Controllers\User\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -265,7 +266,9 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/rekapan', [AbsensiController::class, 'rekapan'])->name('user.rekapan');
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');
     Route::get('user/history', [AbsensiController::class, 'history'])->name('user.history');
+    Route::get('user/history/{id}', [AbsensiController::class, 'historyDetail'])->name('user.history.detail');
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
+    Route::post('user/achievements/{badgeId}/claim', [AbsensiController::class, 'claimAchievement'])->name('user.achievements.claim');
     Route::get('user/achievements/{badge}', [AbsensiController::class, 'badgeDetail'])->name('user.badge-detail');
     Route::get('user/leaderboard', [\App\Http\Controllers\User\LeaderboardController::class, 'index'])->name('user.leaderboard');
     Route::get('user/kas', [\App\Http\Controllers\User\KasController::class, 'index'])->name('user.kas');
@@ -275,11 +278,16 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // User Permit (Izin/Sakit)
     Route::get('user/permit', [\App\Http\Controllers\User\PermitController::class, 'index'])->name('user.permit');
+    Route::get('user/permit/create', [\App\Http\Controllers\User\PermitController::class, 'create'])->name('user.permit.create');
+    Route::get('user/permit/{permit}/attachment', [\App\Http\Controllers\User\PermitController::class, 'attachment'])->name('user.permit.attachment');
     Route::post('user/permit', [\App\Http\Controllers\User\PermitController::class, 'store'])->name('user.permit.store');
+    Route::post('user/permit/{permit}/comment', [\App\Http\Controllers\User\PermitController::class, 'addComment'])->name('user.permit.comment');
     Route::delete('user/permit/{permit}', [\App\Http\Controllers\User\PermitController::class, 'destroy'])->name('user.permit.destroy');
     
     // User Kas Voting
     Route::get('user/kas-voting', [\App\Http\Controllers\User\KasVotingController::class, 'index'])->name('user.kas-voting');
+    Route::get('user/kas-voting/create', [\App\Http\Controllers\User\KasVotingController::class, 'create'])->name('user.kas-voting.create');
+    Route::get('user/kas-voting/{voting}', [\App\Http\Controllers\User\KasVotingController::class, 'show'])->name('user.kas-voting.detail');
     Route::post('user/kas-voting', [\App\Http\Controllers\User\KasVotingController::class, 'store'])->name('user.kas-voting.store');
     Route::post('user/kas-voting/{voting}/vote', [\App\Http\Controllers\User\KasVotingController::class, 'vote'])->name('user.kas-voting.vote');
     
@@ -296,9 +304,22 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/akademik', [\App\Http\Controllers\User\AcademicScheduleController::class, 'dashboard'])->name('user.akademik');
     Route::get('user/akademik/jadwal', [\App\Http\Controllers\User\AcademicScheduleController::class, 'schedule'])->name('user.akademik.jadwal');
     Route::get('user/akademik/ujian', [\App\Http\Controllers\User\AcademicScheduleController::class, 'exams'])->name('user.akademik.ujian');
+    Route::get('user/akademik/ujian/detail', [\App\Http\Controllers\User\AcademicScheduleController::class, 'examDetail'])->name('user.akademik.ujian.detail');
+
+    // Jadwal Detail
+    Route::get('user/akademik/jadwal/{course}', [\App\Http\Controllers\User\ScheduleDetailController::class, 'show'])->name('user.schedule.detail');
+    Route::post('user/schedule/{course}/reminder/toggle', [\App\Http\Controllers\User\ScheduleDetailController::class, 'toggleReminder'])->name('user.schedule.reminder.toggle');
+    Route::get('user/schedule/{course}/export-ical', [\App\Http\Controllers\User\ScheduleDetailController::class, 'exportIcal'])->name('user.schedule.export-ical');
+    Route::post('user/schedule/{course}/notes', [\App\Http\Controllers\User\ScheduleDetailController::class, 'storeNote'])->name('user.schedule.notes.store');
+    Route::put('user/schedule/{course}/notes/{note}', [\App\Http\Controllers\User\ScheduleDetailController::class, 'updateNote'])->name('user.schedule.notes.update');
+    Route::delete('user/schedule/{course}/notes/{note}', [\App\Http\Controllers\User\ScheduleDetailController::class, 'deleteNote'])->name('user.schedule.notes.delete');
     
     // Akademik - Mata Kuliah
-    Route::get('user/akademik/matkul', [\App\Http\Controllers\User\AcademicCourseController::class, 'index'])->name('user.akademik.matkul');
+    Route::get('user/akademik/mata-kuliah', [MataKuliahController::class, 'index'])->name('user.akademik.mata-kuliah');
+    Route::get('user/akademik/matkul', [MataKuliahController::class, 'index'])->name('user.akademik.matkul');
+    Route::get('user/akademik/mata-kuliah/export', [MataKuliahController::class, 'export'])->name('user.akademik.mata-kuliah.export');
+    Route::post('user/akademik/mata-kuliah/{id}/favorite', [MataKuliahController::class, 'toggleFavorite'])->name('user.akademik.mata-kuliah.favorite');
+    Route::post('user/akademik/matkul/{id}/favorite', [MataKuliahController::class, 'toggleFavorite'])->name('user.akademik.matkul.favorite');
     Route::post('user/akademik/matkul', [\App\Http\Controllers\User\AcademicCourseController::class, 'store'])->name('user.akademik.matkul.store');
     Route::patch('user/akademik/matkul/{id}', [\App\Http\Controllers\User\AcademicCourseController::class, 'update'])->name('user.akademik.matkul.update');
     Route::delete('user/akademik/matkul/{id}', [\App\Http\Controllers\User\AcademicCourseController::class, 'destroy'])->name('user.akademik.matkul.destroy');
@@ -313,9 +334,14 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // Akademik - Catatan
     Route::get('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'index'])->name('user.akademik.catatan');
+    Route::get('user/akademik/catatan/create', [\App\Http\Controllers\User\AcademicNoteController::class, 'create'])->name('user.akademik.catatan.create');
     Route::post('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'store'])->name('user.akademik.catatan.store');
+    Route::get('user/akademik/catatan/{id}/edit', [\App\Http\Controllers\User\AcademicNoteController::class, 'edit'])->name('user.akademik.catatan.edit');
     Route::patch('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'update'])->name('user.akademik.catatan.update');
     Route::delete('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'destroy'])->name('user.akademik.catatan.destroy');
+    Route::post('user/akademik/catatan/ai-process', [\App\Http\Controllers\User\AcademicNoteController::class, 'processAI'])->name('user.akademik.catatan.ai-process');
+    Route::post('user/akademik/catatan/{id}/generate-summary', [\App\Http\Controllers\User\AcademicNoteController::class, 'generateAISummary'])->name('user.akademik.catatan.generate-summary');
+    Route::post('user/akademik/catatan/{id}/generate-flashcards', [\App\Http\Controllers\User\AcademicNoteController::class, 'generateFlashcards'])->name('user.akademik.catatan.generate-flashcards');
     
     // Personal Analytics
     Route::get('user/personal-analytics', [\App\Http\Controllers\User\PersonalAnalyticsController::class, 'index'])->name('user.personal-analytics');
@@ -332,8 +358,49 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // Settings, Documentation, Help (Inertia pages)
     Route::get('user/settings', fn () => inertia('student/settings'))->name('user.settings');
-    Route::get('user/docs', fn () => inertia('student/docs'))->name('user.docs');
-    Route::get('user/docs/{guideId}', fn (string $guideId) => inertia('student/docs-detail', ['guideId' => $guideId]))->name('user.docs.detail');
+    Route::get('user/docs', function (\App\Services\DocumentationService $documentationService) {
+        $mahasiswa = auth('mahasiswa')->user();
+        abort_if(!$mahasiswa, 403);
+
+        $guides = $documentationService->getGuidesWithProgress($mahasiswa, 'mahasiswa')->values();
+        $stats = $documentationService->getStats($mahasiswa, 'mahasiswa');
+
+        return inertia('student/docs', [
+            'guides' => $guides,
+            'stats' => $stats,
+            'categories' => $guides->pluck('category')->unique()->values(),
+        ]);
+    })->name('user.docs');
+
+    Route::get('user/docs/{guideId}', function (\App\Services\DocumentationService $documentationService, string $guideId) {
+        $mahasiswa = auth('mahasiswa')->user();
+        abort_if(!$mahasiswa, 403);
+
+        $guide = $documentationService->getGuide($guideId, 'mahasiswa');
+        abort_if(!$guide, 404);
+
+        $progress = $documentationService->getGuideProgress($mahasiswa, $guideId);
+        $completedSections = $progress?->completed_sections ?? [];
+
+        $guideWithProgress = array_merge($guide, [
+            'progress' => [
+                'completed_sections' => $completedSections,
+                'is_completed' => $progress?->is_completed ?? false,
+                'completion_percentage' => $progress?->getCompletionPercentage() ?? 0,
+            ],
+        ]);
+
+        $relatedGuides = $documentationService
+            ->getGuidesWithProgress($mahasiswa, 'mahasiswa')
+            ->filter(fn ($item) => $item['id'] !== $guideId && $item['category'] === ($guide['category'] ?? null))
+            ->take(4)
+            ->values();
+
+        return inertia('student/docs-detail', [
+            'guide' => $guideWithProgress,
+            'relatedGuides' => $relatedGuides,
+        ]);
+    })->name('user.docs.detail');
     Route::get('user/help', fn () => inertia('student/help'))->name('user.help');
     
     // Selfie Verification Requests

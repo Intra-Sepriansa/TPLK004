@@ -12,75 +12,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ScheduleController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
-        $mahasiswa = $request->user('mahasiswa');
-        
-        // Get enrolled courses from mahasiswa_courses table
-        $enrolledCourses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
-
-        // Map schedule day to Indonesian
-        $dayMapping = [
-            'monday' => 'Senin',
-            'tuesday' => 'Selasa',
-            'wednesday' => 'Rabu',
-            'thursday' => 'Kamis',
-            'friday' => 'Jumat',
-            'saturday' => 'Sabtu',
-            'sunday' => 'Minggu',
-        ];
-
-        // Transform mahasiswa_courses to schedule format
-        $schedules = $enrolledCourses->map(function ($course) use ($dayMapping) {
-            $startTime = \Carbon\Carbon::parse($course->schedule_time);
-            $endTime = $startTime->copy()->addMinutes($course->sks * 50); // Assume 50 min per SKS
-            
-            return [
-                'id' => $course->id,
-                'course_name' => $course->name,
-                'course_code' => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
-                'dosen_name' => 'Dosen', // Default since we don't have dosen relation
-                'ruangan' => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
-                'time_range' => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
-                'jam_mulai' => $startTime->format('H:i'),
-                'jam_selesai' => $endTime->format('H:i'),
-                'duration' => ($course->sks * 50) . ' menit',
-                'notes' => 'SKS: ' . $course->sks . ' | Mode: ' . ucfirst($course->mode),
-                'color' => $this->getColorForCourse($course->id),
-                'hari' => $dayMapping[$course->schedule_day] ?? 'Senin',
-            ];
-        })->groupBy('hari');
-
-        // Days of week in order
-        $daysOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        
-        // Organize schedules by day
-        $organizedSchedules = collect($daysOrder)->mapWithKeys(function ($day) use ($schedules) {
-            return [$day => $schedules->get($day, collect())];
-        });
-
-        // Get today's schedule
-        $today = Carbon::now()->locale('id')->dayName;
-        $todaySchedule = $organizedSchedules->get($today, collect());
-
-        // Get next class
-        $nextClass = $this->getNextClass($organizedSchedules);
-
-        // Statistics
-        $stats = [
-            'total_courses' => $enrolledCourses->count(),
-            'total_classes_per_week' => $enrolledCourses->count(),
-            'classes_today' => $todaySchedule->count(),
-            'busiest_day' => $organizedSchedules->map->count()->sortDesc()->keys()->first() ?? 'Senin',
-        ];
-
-        return Inertia::render('student/schedule', [
-            'schedules' => $organizedSchedules,
-            'todaySchedule' => $todaySchedule,
-            'nextClass' => $nextClass,
-            'stats' => $stats,
-            'currentDay' => $today,
-        ]);
+        return redirect()->route('user.akademik.jadwal');
     }
 
     private function getNextClass($schedules)
@@ -157,12 +91,14 @@ class ScheduleController extends Controller
             $startTime = \Carbon\Carbon::parse($course->schedule_time);
             $endTime = $startTime->copy()->addMinutes($course->sks * 50);
             
+            $mataKuliah = \App\Models\MataKuliah::where('nama', $course->name)->with('dosen')->first();
+            
             return [
                 'id' => $course->id,
                 'course_name' => $course->name,
-                'course_code' => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
-                'dosen_name' => 'Dosen',
-                'ruangan' => $course->mode === 'online' ? 'Online' : 'Ruang Kelas',
+                'course_code' => $mataKuliah?->kode ?? ('MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT)),
+                'dosen_name' => $mataKuliah?->dosen?->nama ?? 'Dosen Belum Ditentukan',
+                'ruangan' => $course->mode === 'online' ? 'Online' : ($mataKuliah?->ruang ?? 'Ruang Kelas'),
                 'time_range' => $startTime->format('H:i') . ' - ' . $endTime->format('H:i'),
                 'jam_mulai' => $startTime->format('H:i'),
                 'jam_selesai' => $endTime->format('H:i'),

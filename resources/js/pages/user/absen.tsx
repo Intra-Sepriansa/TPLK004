@@ -1,37 +1,63 @@
+import qrStepIcon from '@/assets/admin/qr-builder/qr-icon.png';
+import submitStepIcon from '@/assets/admin/rekap-kehadiran/total-scan.png';
+import selfieStepIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
+import locationStepIcon from '@/assets/admin/zona/icon-zona.png';
+import absenIcon from '@/assets/dosen/sesi-absen/sesi-absen.png';
+import { BiometricSetup } from '@/components/attendance/BiometricSetup';
+import { GamificationRewards } from '@/components/attendance/GamificationRewards';
+import { NotificationManager } from '@/components/attendance/NotificationManager';
+import { OfflineIndicator } from '@/components/attendance/OfflineIndicator';
+import { SocialProof } from '@/components/attendance/SocialProof';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { captureDeviceInfo } from '@/utils/deviceCapture';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
+import { QRCodeAnimated } from '@/components/ui/qr-code-animated';
 import StudentLayout from '@/layouts/student-layout';
+import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
+import { captureDeviceInfo } from '@/utils/deviceCapture';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Html5Qrcode } from 'html5-qrcode';
 import {
+    AlertCircle,
     Camera,
     CheckCircle2,
+    Loader2,
     MapPin,
+    Navigation,
     QrCode,
     RefreshCcw,
     Shield,
+    Sparkles,
     Wifi,
     Zap,
-    ChevronRight,
-    AlertCircle,
-    Loader2,
-    Sparkles,
-    Navigation,
-    User,
 } from 'lucide-react';
-import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Html5Qrcode } from 'html5-qrcode';
+import {
+    type ChangeEvent,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
-type MahasiswaInfo = { id: number; nama: string; nim: string };
+type MahasiswaInfo = {
+    id: number;
+    nama: string;
+    nim: string;
+    user?: { name?: string } | null;
+};
 type GeofenceInfo = { lat: number; lng: number; radius_m: number };
-type LocationSample = { latitude: number; longitude: number; accuracy_m: number; captured_at: string };
+type LocationSample = {
+    latitude: number;
+    longitude: number;
+    accuracy_m: number;
+    captured_at: string;
+};
 
 type PageProps = {
     mahasiswa: MahasiswaInfo;
@@ -39,6 +65,42 @@ type PageProps = {
     selfieRequired: boolean;
     locationSampleCount?: number;
     locationSampleWindowSeconds?: number;
+    gamification: {
+        xpGained: number;
+        currentStreak: number;
+        longestStreak: number;
+        totalPoints: number;
+        comboMultiplier: number;
+        leaderboardPosition: number;
+        achievements: Array<{
+            id: string;
+            name: string;
+            description: string;
+            icon: string;
+            unlocked: boolean;
+            progress: number;
+            total: number;
+        }>;
+    };
+    socialProof: {
+        totalStudents: number;
+        attendedCount: number;
+        isFirstAttendee: boolean;
+        recentAttendees: string[];
+        leaderboard: Array<{
+            rank: number;
+            name: string;
+            streak: number;
+            points: number;
+        }>;
+    };
+    activeSession: {
+        courseName: string;
+        meetingNumber: number;
+        title: string | null;
+        startAt: string;
+        endAt: string;
+    } | null;
 };
 
 // Animation variants
@@ -54,20 +116,20 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     visible: {
         opacity: 1,
         y: 0,
         transition: {
             type: 'spring' as const,
-            stiffness: 400,
-            damping: 17,
+            stiffness: 300,
+            damping: 20,
         },
     },
 };
 
 const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
+    hidden: { opacity: 0, scale: 0.98 },
     visible: {
         opacity: 1,
         scale: 1,
@@ -79,68 +141,87 @@ const cardVariants = {
     },
 };
 
-// Step indicator component
-function StepIndicator({ steps, currentStep }: { steps: { key: string; label: string; done: boolean }[]; currentStep: number }) {
+// Step indicator component - Glassmorphism Style
+function StepIndicator({
+    steps,
+    currentStep,
+}: {
+    steps: { key: string; label: string; done: boolean }[];
+    currentStep: number;
+}) {
     return (
         <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="flex items-center justify-between mb-6"
+            className="flex items-center justify-between px-2 sm:px-4"
         >
             {steps.map((step, index) => (
-                <div key={step.key} className="flex items-center flex-1">
+                <div key={step.key} className="flex flex-1 items-center">
                     <motion.div
                         variants={itemVariants}
-                        className="flex flex-col items-center"
+                        className="flex flex-1 flex-col items-center"
                     >
                         <motion.div
-                            whileHover={{ scale: 1.1 }}
+                            whileHover={{ scale: 1.1, rotate: 10 }}
                             whileTap={{ scale: 0.95 }}
                             className={cn(
-                                'flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300 shadow-sm',
-                                step.done ? 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-200 dark:shadow-emerald-900/50' :
-                                    index === currentStep ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 shadow-emerald-100 dark:shadow-emerald-900/30' :
-                                        'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-900'
+                                'flex h-10 w-10 items-center justify-center rounded-xl border-2 shadow-lg transition-all duration-300 sm:h-12 sm:w-12 sm:rounded-2xl',
+                                step.done
+                                    ? 'border-emerald-500 bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-emerald-500/30'
+                                    : index === currentStep
+                                        ? 'animate-pulse border-indigo-500 bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-indigo-500/30'
+                                        : 'border-white/20 bg-white/20 text-neutral-400 backdrop-blur-sm dark:bg-neutral-800/50',
                             )}
                         >
                             {step.done ? (
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 20,
+                                    }}
                                 >
-                                    <CheckCircle2 className="h-6 w-6" />
+                                    <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </motion.div>
                             ) : (
-                                <span className="font-bold text-lg">{index + 1}</span>
+                                <span className="text-sm font-bold sm:text-base">
+                                    {index + 1}
+                                </span>
                             )}
                         </motion.div>
-                        <motion.span
+                        <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: index * 0.05 + 0.2 }}
                             className={cn(
-                                'mt-2 text-xs font-semibold',
-                                step.done ? 'text-emerald-600 dark:text-emerald-400' :
-                                    index === currentStep ? 'text-gray-900 dark:text-white' :
-                                        'text-gray-400'
+                                'mt-2 text-center text-[10px] font-medium transition-colors sm:text-xs',
+                                step.done || index === currentStep
+                                    ? 'text-neutral-900 dark:text-white'
+                                    : 'text-neutral-500 dark:text-neutral-400',
                             )}
                         >
                             {step.label}
-                        </motion.span>
+                        </motion.p>
                     </motion.div>
                     {index < steps.length - 1 && (
                         <motion.div
+                            className="relative mx-2 h-0.5 flex-1 sm:mx-4"
                             initial={{ scaleX: 0 }}
                             animate={{ scaleX: 1 }}
-                            transition={{ delay: index * 0.05, duration: 0.3 }}
-                            className="flex-1 mx-2 origin-left"
+                            transition={{ delay: 0.2 + index * 0.1 }}
                         >
-                            <div className={cn(
-                                'h-1 rounded-full transition-all duration-500',
-                                step.done ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gray-200 dark:bg-gray-700'
-                            )} />
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/20 dark:from-neutral-700 dark:to-neutral-700" />
+                            {step.done && (
+                                <motion.div
+                                    className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-600"
+                                    initial={{ scaleX: 0 }}
+                                    animate={{ scaleX: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                />
+                            )}
                         </motion.div>
                     )}
                 </div>
@@ -151,7 +232,15 @@ function StepIndicator({ steps, currentStep }: { steps: { key: string; label: st
 
 export default function UserAbsensi() {
     const { props } = usePage<SharedData & PageProps>();
-    const { mahasiswa, geofence, flash, selfieRequired } = props;
+    const {
+        mahasiswa,
+        geofence,
+        flash,
+        selfieRequired,
+        gamification,
+        socialProof,
+        activeSession,
+    } = props;
     const locationSampleCount = props.locationSampleCount ?? 3;
 
     const form = useForm({
@@ -169,6 +258,10 @@ export default function UserAbsensi() {
     const [locationCollecting, setLocationCollecting] = useState(false);
     const [autoLocationTriggered, setAutoLocationTriggered] = useState(false);
     const [scanStatus, setScanStatus] = useState('');
+    const [scanResult, setScanResult] = useState<'success' | 'error' | null>(
+        null,
+    );
+    const [qrLoopIndex, setQrLoopIndex] = useState(0);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [scanning, setScanning] = useState(false);
     const [scanAvailable, setScanAvailable] = useState(false);
@@ -181,12 +274,16 @@ export default function UserAbsensi() {
     const [submitMessage, setSubmitMessage] = useState<string | null>(null);
     const [consentAccepted, setConsentAccepted] = useState(false);
     const [consentError, setConsentError] = useState<string | null>(null);
-    const [cameraPermission, setCameraPermission] = useState<PermissionState | 'unknown'>('unknown');
-    const [locationPermission, setLocationPermission] = useState<PermissionState | 'unknown'>('unknown');
+    const [cameraPermission, setCameraPermission] = useState<
+        PermissionState | 'unknown'
+    >('unknown');
+    const [locationPermission, setLocationPermission] = useState<
+        PermissionState | 'unknown'
+    >('unknown');
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const qrScannerRef = useRef<Html5Qrcode | null>(null);
-    const qrReaderDivId = useRef(`qr-reader-${Date.now()}`).current;
+    const qrReaderDivId = `qr-reader-${useId().replace(/:/g, '-')}`;
     const intervalRef = useRef<number | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const selfieVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -198,7 +295,10 @@ export default function UserAbsensi() {
         setScanAvailable(true);
         setSelfieAvailable(Boolean(navigator.mediaDevices?.getUserMedia));
         console.log('🔍 Scan available:', true);
-        console.log('🔍 Selfie available:', Boolean(navigator.mediaDevices?.getUserMedia));
+        console.log(
+            '🔍 Selfie available:',
+            Boolean(navigator.mediaDevices?.getUserMedia),
+        );
     }, []);
 
     useEffect(() => {
@@ -209,14 +309,20 @@ export default function UserAbsensi() {
 
     useEffect(() => {
         if (!navigator.permissions?.query) return;
-        navigator.permissions.query({ name: 'geolocation' as PermissionName }).then((result) => {
-            setLocationPermission(result.state);
-            result.onchange = () => setLocationPermission(result.state);
-        }).catch(() => setLocationPermission('unknown'));
-        navigator.permissions.query({ name: 'camera' as PermissionName }).then((result) => {
-            setCameraPermission(result.state);
-            result.onchange = () => setCameraPermission(result.state);
-        }).catch(() => setCameraPermission('unknown'));
+        navigator.permissions
+            .query({ name: 'geolocation' as PermissionName })
+            .then((result) => {
+                setLocationPermission(result.state);
+                result.onchange = () => setLocationPermission(result.state);
+            })
+            .catch(() => setLocationPermission('unknown'));
+        navigator.permissions
+            .query({ name: 'camera' as PermissionName })
+            .then((result) => {
+                setCameraPermission(result.state);
+                result.onchange = () => setCameraPermission(result.state);
+            })
+            .catch(() => setCameraPermission('unknown'));
     }, []);
 
     useEffect(() => {
@@ -227,6 +333,87 @@ export default function UserAbsensi() {
         const timer = window.setTimeout(() => setSuccessToast(null), 4500);
         return () => window.clearTimeout(timer);
     }, [flash?.success]);
+
+    useEffect(() => {
+        if (!scanResult) return;
+        if (scanResult === 'success') {
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: { y: 0.65 },
+                colors: ['#10b981', '#14b8a6', '#34d399', '#ffffff'],
+            });
+        }
+        const timer = window.setTimeout(
+            () => setScanResult(null),
+            scanResult === 'success' ? 1500 : 1200,
+        );
+        return () => window.clearTimeout(timer);
+    }, [scanResult]);
+
+    useEffect(() => {
+        if (!submitSuccess) return;
+        confetti({
+            particleCount: 180,
+            spread: 90,
+            origin: { y: 0.7 },
+            colors: ['#4f46e5', '#9333ea', '#ec4899', '#10b981'],
+        });
+    }, [submitSuccess]);
+
+    async function stopScan() {
+        console.log('Stopping QR scanner...');
+        if (intervalRef.current) {
+            window.clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+        if (qrScannerRef.current) {
+            try {
+                const state = await qrScannerRef.current.getState();
+                console.log('Scanner state:', state);
+                if (state === 2) {
+                    // 2 = SCANNING
+                    console.log('Stopping scanner...');
+                    await qrScannerRef.current.stop();
+                    console.log('Scanner stopped');
+                }
+            } catch (error) {
+                console.error('Error stopping scanner:', error);
+                // Ignore errors when stopping
+            }
+        }
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+            streamRef.current = null;
+        }
+        if (videoRef.current) videoRef.current.srcObject = null;
+    }
+
+    function getCameraErrorMessage(error: unknown) {
+        if (!error || typeof error !== 'object')
+            return 'Gagal mengakses kamera.';
+        const name = (error as DOMException).name;
+        if (name === 'NotAllowedError')
+            return 'Izin kamera ditolak. Aktifkan akses kamera di browser.';
+        if (name === 'NotFoundError')
+            return 'Kamera tidak ditemukan di perangkat ini.';
+        if (name === 'NotReadableError')
+            return 'Kamera sedang digunakan aplikasi lain.';
+        if (name === 'OverconstrainedError')
+            return 'Perangkat tidak mendukung mode kamera yang diminta.';
+        return 'Gagal mengakses kamera.';
+    }
+
+    function stopSelfie() {
+        if (selfieStreamRef.current) {
+            selfieStreamRef.current
+                .getTracks()
+                .forEach((track) => track.stop());
+            selfieStreamRef.current = null;
+        }
+        if (selfieVideoRef.current) selfieVideoRef.current.srcObject = null;
+        setSelfieActive(false);
+    }
 
     // QR Scanner effect - using html5-qrcode
     useEffect(() => {
@@ -241,7 +428,9 @@ export default function UserAbsensi() {
             return;
         }
         if (cameraPermission === 'denied') {
-            setScanStatus('Izin kamera ditolak. Aktifkan akses kamera di browser.');
+            setScanStatus(
+                'Izin kamera ditolak. Aktifkan akses kamera di browser.',
+            );
             setScanning(false);
             return;
         }
@@ -253,7 +442,10 @@ export default function UserAbsensi() {
 
                 // Initialize Html5Qrcode if not already initialized
                 if (!qrScannerRef.current) {
-                    console.log('Initializing Html5Qrcode with ID:', qrReaderDivId);
+                    console.log(
+                        'Initializing Html5Qrcode with ID:',
+                        qrReaderDivId,
+                    );
                     qrScannerRef.current = new Html5Qrcode(qrReaderDivId);
                 }
 
@@ -269,22 +461,23 @@ export default function UserAbsensi() {
                 console.log('Starting camera...');
                 // Start scanning
                 await qrScanner.start(
-                    { facingMode: "environment" }, // Use back camera
+                    { facingMode: 'environment' }, // Use back camera
                     {
                         fps: 10,
                         qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0
+                        aspectRatio: 1.0,
                     },
                     (decodedText) => {
                         // QR code detected
                         console.log('QR detected:', decodedText);
                         setScanStatus('QR terbaca!');
+                        setScanResult('success');
                         form.setData('token', decodedText);
                         setScanning(false);
                     },
-                    (errorMessage) => {
+                    () => {
                         // Scanning error (can be ignored, happens frequently during scanning)
-                    }
+                    },
                 );
 
                 console.log('Camera started successfully');
@@ -296,90 +489,87 @@ export default function UserAbsensi() {
                     setCameraPermission('denied');
                 }
                 setScanStatus(message);
+                setScanResult('error');
                 setScanning(false);
             }
         };
         start();
-        return () => { void stopScan(); };
+        return () => {
+            void stopScan();
+        };
     }, [cameraPermission, consentAccepted, scanning]);
 
-    useEffect(() => { return () => stopSelfie(); }, []);
-    useEffect(() => { return () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }; }, [previewUrl]);
-
-    const stopScan = async () => {
-        console.log('Stopping QR scanner...');
-        if (intervalRef.current) {
-            window.clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-        if (qrScannerRef.current) {
-            try {
-                const state = await qrScannerRef.current.getState();
-                console.log('Scanner state:', state);
-                if (state === 2) { // 2 = SCANNING
-                    console.log('Stopping scanner...');
-                    await qrScannerRef.current.stop();
-                    console.log('Scanner stopped');
-                }
-            } catch (error) {
-                console.error('Error stopping scanner:', error);
-                // Ignore errors when stopping
-            }
-        }
-        if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop());
-            streamRef.current = null;
-        }
-        if (videoRef.current) videoRef.current.srcObject = null;
-    };
-
-    const getCameraErrorMessage = (error: unknown) => {
-        if (!error || typeof error !== 'object') return 'Gagal mengakses kamera.';
-        const name = (error as DOMException).name;
-        if (name === 'NotAllowedError') return 'Izin kamera ditolak. Aktifkan akses kamera di browser.';
-        if (name === 'NotFoundError') return 'Kamera tidak ditemukan di perangkat ini.';
-        if (name === 'NotReadableError') return 'Kamera sedang digunakan aplikasi lain.';
-        if (name === 'OverconstrainedError') return 'Perangkat tidak mendukung mode kamera yang diminta.';
-        return 'Gagal mengakses kamera.';
-    };
+    useEffect(() => {
+        return () => stopSelfie();
+    }, []);
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
 
     const attachSelfieStream = async () => {
         const video = selfieVideoRef.current;
         const stream = selfieStreamRef.current;
         if (!video || !stream) return;
         if (video.srcObject !== stream) video.srcObject = stream;
-        try { await video.play(); } catch { setSelfieStatus('Gagal menampilkan kamera. Coba ulangi.'); }
-    };
-
-    const stopSelfie = () => {
-        if (selfieStreamRef.current) { selfieStreamRef.current.getTracks().forEach((track) => track.stop()); selfieStreamRef.current = null; }
-        if (selfieVideoRef.current) selfieVideoRef.current.srcObject = null;
-        setSelfieActive(false);
+        try {
+            await video.play();
+        } catch {
+            setSelfieStatus('Gagal menampilkan kamera. Coba ulangi.');
+        }
     };
 
     useEffect(() => {
-        if (!consentAccepted) { stopScan(); setScanning(false); stopSelfie(); setSelfieStatus(''); setScanStatus(''); }
+        if (!consentAccepted) {
+            stopScan();
+            setScanning(false);
+            stopSelfie();
+            setSelfieStatus('');
+            setScanStatus('');
+        }
     }, [consentAccepted]);
 
     const startSelfie = async () => {
-        if (!consentAccepted) { setConsentError('Setujui persetujuan kamera sebelum memulai.'); setSelfieStatus('Setujui penggunaan kamera terlebih dulu.'); return; }
-        if (!navigator.mediaDevices?.getUserMedia) { setSelfieStatus('Kamera tidak didukung di perangkat ini.'); return; }
-        if (cameraPermission === 'denied') { setSelfieStatus('Izin kamera ditolak. Aktifkan akses kamera di browser.'); return; }
+        if (!consentAccepted) {
+            setConsentError('Setujui persetujuan kamera sebelum memulai.');
+            setSelfieStatus('Setujui penggunaan kamera terlebih dulu.');
+            return;
+        }
+        if (!navigator.mediaDevices?.getUserMedia) {
+            setSelfieStatus('Kamera tidak didukung di perangkat ini.');
+            return;
+        }
+        if (cameraPermission === 'denied') {
+            setSelfieStatus(
+                'Izin kamera ditolak. Aktifkan akses kamera di browser.',
+            );
+            return;
+        }
         setSelfieStatus('Menyalakan kamera depan...');
-        stopSelfie(); stopScan(); setScanning(false); setSelfieActive(true);
+        stopSelfie();
+        stopScan();
+        setScanning(false);
+        setSelfieActive(true);
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user' },
+            });
             selfieStreamRef.current = stream;
             const waitForVideo = () => {
                 if (!selfieStreamRef.current) return;
-                if (!selfieVideoRef.current) { window.requestAnimationFrame(waitForVideo); return; }
+                if (!selfieVideoRef.current) {
+                    window.requestAnimationFrame(waitForVideo);
+                    return;
+                }
                 void attachSelfieStream();
             };
             waitForVideo();
             setSelfieStatus('Kamera siap. Ambil foto.');
         } catch (error) {
             const message = getCameraErrorMessage(error);
-            if ((error as DOMException)?.name === 'NotAllowedError') setCameraPermission('denied');
+            if ((error as DOMException)?.name === 'NotAllowedError')
+                setCameraPermission('denied');
             setSelfieStatus(message);
             setSelfieActive(false);
         }
@@ -388,16 +578,31 @@ export default function UserAbsensi() {
     const captureSelfie = async () => {
         if (!selfieVideoRef.current) return;
         const video = selfieVideoRef.current;
-        if (!video.videoWidth || !video.videoHeight) { setSelfieStatus('Kamera belum siap.'); return; }
+        if (!video.videoWidth || !video.videoHeight) {
+            setSelfieStatus('Kamera belum siap.');
+            return;
+        }
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const context = canvas.getContext('2d');
-        if (!context) { setSelfieStatus('Gagal mengambil foto.'); return; }
+        if (!context) {
+            setSelfieStatus('Gagal mengambil foto.');
+            return;
+        }
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9));
-        if (!blob) { setSelfieStatus('Gagal mengambil foto.'); return; }
-        const file = new File([blob], `selfie-${mahasiswa.nim}-${Date.now()}.jpg`, { type: blob.type });
+        const blob = await new Promise<Blob | null>((resolve) =>
+            canvas.toBlob(resolve, 'image/jpeg', 0.9),
+        );
+        if (!blob) {
+            setSelfieStatus('Gagal mengambil foto.');
+            return;
+        }
+        const file = new File(
+            [blob],
+            `selfie-${mahasiswa.nim}-${Date.now()}.jpg`,
+            { type: blob.type },
+        );
         form.setData('selfie', file);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         setPreviewUrl(URL.createObjectURL(file));
@@ -405,25 +610,43 @@ export default function UserAbsensi() {
         stopSelfie();
     };
 
-    const getLocationSample = () => new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
-    });
+    const getLocationSample = () =>
+        new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 0,
+            });
+        });
 
-    const pickBestSample = (samples: LocationSample[]) => samples.reduce((best, sample) => {
-        if (!best) return sample;
-        if (sample.accuracy_m < best.accuracy_m) return sample;
-        if (sample.accuracy_m === best.accuracy_m && Date.parse(sample.captured_at) > Date.parse(best.captured_at)) return sample;
-        return best;
-    }, samples[0]);
+    const pickBestSample = (samples: LocationSample[]) =>
+        samples.reduce((best, sample) => {
+            if (!best) return sample;
+            if (sample.accuracy_m < best.accuracy_m) return sample;
+            if (
+                sample.accuracy_m === best.accuracy_m &&
+                Date.parse(sample.captured_at) > Date.parse(best.captured_at)
+            )
+                return sample;
+            return best;
+        }, samples[0]);
 
     // Calculate distance from geofence center (Haversine formula)
-    const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const calculateDistance = (
+        lat1: number,
+        lng1: number,
+        lat2: number,
+        lng2: number,
+    ): number => {
         const R = 6371000; // Earth's radius in meters
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLng = (lng2 - lng1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLng = ((lng2 - lng1) * Math.PI) / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLng / 2) *
+            Math.sin(dLng / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     };
@@ -434,15 +657,30 @@ export default function UserAbsensi() {
         const lat = parseFloat(form.data.latitude);
         const lng = parseFloat(form.data.longitude);
         if (isNaN(lat) || isNaN(lng)) return null;
-        return Math.round(calculateDistance(lat, lng, geofence.lat, geofence.lng));
+        return Math.round(
+            calculateDistance(lat, lng, geofence.lat, geofence.lng),
+        );
     }, [form.data.latitude, form.data.longitude, geofence.lat, geofence.lng]);
 
-    const isInsideZone = currentDistance !== null && currentDistance <= geofence.radius_m;
+    const isInsideZone =
+        currentDistance !== null && currentDistance <= geofence.radius_m;
 
     const requestLocation = async () => {
-        if (!consentAccepted) { setConsentError('Setujui persetujuan lokasi sebelum memulai.'); setLocationStatus('Setujui penggunaan lokasi terlebih dulu.'); return; }
-        if (!navigator.geolocation) { setLocationStatus('GPS tidak didukung browser.'); return; }
-        if (locationPermission === 'denied') { setLocationStatus('Izin lokasi ditolak. Aktifkan GPS di pengaturan browser.'); return; }
+        if (!consentAccepted) {
+            setConsentError('Setujui persetujuan lokasi sebelum memulai.');
+            setLocationStatus('Setujui penggunaan lokasi terlebih dulu.');
+            return;
+        }
+        if (!navigator.geolocation) {
+            setLocationStatus('GPS tidak didukung browser.');
+            return;
+        }
+        if (locationPermission === 'denied') {
+            setLocationStatus(
+                'Izin lokasi ditolak. Aktifkan GPS di pengaturan browser.',
+            );
+            return;
+        }
         if (locationCollecting) return;
 
         setLocationCollecting(true);
@@ -464,14 +702,27 @@ export default function UserAbsensi() {
                     captured_at: new Date(position.timestamp).toISOString(),
                 });
                 if (index < locationSampleCount - 1) {
-                    setLocationStatus(`Mengambil lokasi (${index + 2}/${locationSampleCount})...`);
-                    await new Promise((resolve) => window.setTimeout(resolve, 800));
+                    setLocationStatus(
+                        `Mengambil lokasi (${index + 2}/${locationSampleCount})...`,
+                    );
+                    await new Promise((resolve) =>
+                        window.setTimeout(resolve, 800),
+                    );
                 }
             } catch (error) {
                 const geoError = error as GeolocationPositionError;
-                if (geoError.code === geoError.PERMISSION_DENIED) setLocationStatus('Izin lokasi ditolak. Aktifkan GPS di browser.');
-                else if (geoError.code === geoError.TIMEOUT) setLocationStatus('Waktu pengambilan lokasi habis. Coba ulangi.');
-                else if (geoError.code === geoError.POSITION_UNAVAILABLE) setLocationStatus('Lokasi tidak tersedia. Pastikan GPS aktif.');
+                if (geoError.code === geoError.PERMISSION_DENIED)
+                    setLocationStatus(
+                        'Izin lokasi ditolak. Aktifkan GPS di browser.',
+                    );
+                else if (geoError.code === geoError.TIMEOUT)
+                    setLocationStatus(
+                        'Waktu pengambilan lokasi habis. Coba ulangi.',
+                    );
+                else if (geoError.code === geoError.POSITION_UNAVAILABLE)
+                    setLocationStatus(
+                        'Lokasi tidak tersedia. Pastikan GPS aktif.',
+                    );
                 else setLocationStatus('Gagal mengambil lokasi.');
                 setLocationCollecting(false);
                 return;
@@ -487,14 +738,27 @@ export default function UserAbsensi() {
         form.setData('location_captured_at', bestSample.captured_at);
 
         if (bestSample.accuracy_m > accuracyThreshold) {
-            setLocationStatus(`Akurasi GPS terlalu rendah (${bestSample.accuracy_m}m). Coba ulangi.`);
+            setLocationStatus(
+                `Akurasi GPS terlalu rendah (${bestSample.accuracy_m}m). Coba ulangi.`,
+            );
         } else {
             // Calculate distance from geofence
-            const dist = Math.round(calculateDistance(bestSample.latitude, bestSample.longitude, geofence.lat, geofence.lng));
+            const dist = Math.round(
+                calculateDistance(
+                    bestSample.latitude,
+                    bestSample.longitude,
+                    geofence.lat,
+                    geofence.lng,
+                ),
+            );
             if (dist <= geofence.radius_m) {
-                setLocationStatus(`✓ Dalam zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`);
+                setLocationStatus(
+                    `✓ Dalam zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`,
+                );
             } else {
-                setLocationStatus(`⚠ Di luar zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`);
+                setLocationStatus(
+                    `⚠ Di luar zona! Jarak: ${dist}m dari titik pusat (maks ${geofence.radius_m}m)`,
+                );
             }
         }
     };
@@ -513,12 +777,22 @@ export default function UserAbsensi() {
     const resetAttendance = () => {
         form.reset();
         form.setData('device_info', JSON.stringify(captureDeviceInfo()));
-        stopSelfie(); stopScan(); setScanning(false);
-        setLocationCollecting(false); setAutoLocationTriggered(false);
-        setSelfieStatus(''); setScanStatus(''); setLocationStatus('');
-        setConsentError(null); setPreviewUrl(null);
-        setSubmitSuccess(false); setSubmitMessage(null); setSuccessToast(null);
+        stopSelfie();
+        stopScan();
+        setScanning(false);
+        setLocationCollecting(false);
+        setAutoLocationTriggered(false);
+        setSelfieStatus('');
+        setScanStatus('');
+        setLocationStatus('');
+        setConsentError(null);
+        setPreviewUrl(null);
+        setSubmitSuccess(false);
+        setSubmitMessage(null);
+        setSuccessToast(null);
         setSubmitError(null);
+        setScanResult(null);
+        setQrLoopIndex(0);
     };
 
     const submit = (event: React.FormEvent) => {
@@ -538,8 +812,17 @@ export default function UserAbsensi() {
             onError: (errors) => {
                 // Get the first error message to display
                 const errorMessages = Object.values(errors);
-                const firstError = errorMessages.length > 0 ? String(errorMessages[0]) : 'Gagal mengirim absensi. Coba lagi.';
+                const firstError =
+                    errorMessages.length > 0
+                        ? String(errorMessages[0])
+                        : 'Gagal mengirim absensi. Coba lagi.';
                 setSubmitError(firstError);
+                if (
+                    firstError.toLowerCase().includes('token') ||
+                    firstError.toLowerCase().includes('qr')
+                ) {
+                    setScanResult('error');
+                }
             },
         });
     };
@@ -550,9 +833,18 @@ export default function UserAbsensi() {
     const accuracyThreshold = Math.min(50, geofence.radius_m);
     const sampleCount = form.data.location_samples.length;
     const samplesReady = sampleCount >= locationSampleCount;
-    const accuracyValue = typeof form.data.location_accuracy_m === 'number' ? form.data.location_accuracy_m : null;
-    const accuracyOk = accuracyValue !== null && Number.isFinite(accuracyValue) && accuracyValue <= accuracyThreshold;
-    const locationDone = samplesReady && Boolean(form.data.latitude && form.data.longitude) && accuracyOk;
+    const accuracyValue =
+        typeof form.data.location_accuracy_m === 'number'
+            ? form.data.location_accuracy_m
+            : null;
+    const accuracyOk =
+        accuracyValue !== null &&
+        Number.isFinite(accuracyValue) &&
+        accuracyValue <= accuracyThreshold;
+    const locationDone =
+        samplesReady &&
+        Boolean(form.data.latitude && form.data.longitude) &&
+        accuracyOk;
     const submitReady = tokenDone && selfieDone && locationDone;
     const canSubmit = submitReady && !submitSuccess;
 
@@ -567,35 +859,72 @@ export default function UserAbsensi() {
         { key: 'submit', label: 'Kirim', done: submitSuccess },
     ];
 
-    const currentStep = submitSuccess ? 3 : locationDone ? 3 : selfieDone ? 2 : tokenDone ? 1 : 0;
-    const progressPercent = submitSuccess ? 100 : (flowSteps.filter(s => s.done).length / flowSteps.length) * 100;
-
+    const currentStep = submitSuccess
+        ? 3
+        : locationDone
+            ? 3
+            : selfieDone
+                ? 2
+                : tokenDone
+                    ? 1
+                    : 0;
     const missingInfo = useMemo(() => {
         if (submitSuccess) return [];
         const missing: string[] = [];
         if (!tokenDone) missing.push('Token belum diisi');
         if (selfieRequired && !selfieDone) missing.push('Selfie belum diambil');
-        if (!samplesReady) missing.push(`Sampel lokasi belum lengkap (${sampleCount}/${locationSampleCount})`);
-        else if (!form.data.latitude || !form.data.longitude) missing.push('Lokasi belum diambil');
-        else if (!accuracyOk) missing.push(`Akurasi GPS belum cukup (<= ${accuracyThreshold}m)`);
+        if (!samplesReady)
+            missing.push(
+                `Sampel lokasi belum lengkap (${sampleCount}/${locationSampleCount})`,
+            );
+        else if (!form.data.latitude || !form.data.longitude)
+            missing.push('Lokasi belum diambil');
+        else if (!accuracyOk)
+            missing.push(`Akurasi GPS belum cukup (<= ${accuracyThreshold}m)`);
         return missing;
-    }, [accuracyOk, accuracyThreshold, form.data.latitude, form.data.longitude, locationSampleCount, sampleCount, samplesReady, selfieDone, selfieRequired, submitSuccess, tokenDone]);
+    }, [
+        accuracyOk,
+        accuracyThreshold,
+        form.data.latitude,
+        form.data.longitude,
+        locationSampleCount,
+        sampleCount,
+        samplesReady,
+        selfieDone,
+        selfieRequired,
+        submitSuccess,
+        tokenDone,
+    ]);
 
     useEffect(() => {
-        if (step3Locked || locationDone || locationCollecting || autoLocationTriggered || !consentAccepted) return;
+        if (
+            step3Locked ||
+            locationDone ||
+            locationCollecting ||
+            autoLocationTriggered ||
+            !consentAccepted
+        )
+            return;
         setAutoLocationTriggered(true);
         void requestLocation();
-    }, [step3Locked, locationDone, locationCollecting, autoLocationTriggered, consentAccepted]);
+    }, [
+        step3Locked,
+        locationDone,
+        locationCollecting,
+        autoLocationTriggered,
+        consentAccepted,
+    ]);
 
     return (
         <StudentLayout>
             <Head title="Absensi" />
+            <OfflineIndicator />
 
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="p-6 space-y-6"
+                className="space-y-6 p-6"
             >
                 {/* Success Toast */}
                 <AnimatePresence>
@@ -604,342 +933,189 @@ export default function UserAbsensi() {
                             initial={{ opacity: 0, y: -50, scale: 0.9 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                            className="fixed right-6 top-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-xl backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100"
+                            transition={{
+                                type: 'spring',
+                                stiffness: 300,
+                                damping: 20,
+                            }}
+                            className="fixed top-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-5 py-4 text-sm text-emerald-700 shadow-xl backdrop-blur dark:border-emerald-200/30 dark:bg-emerald-500/10 dark:text-emerald-100"
                         >
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    delay: 0.2,
+                                }}
                             >
                                 <Sparkles className="mt-0.5 h-5 w-5 text-emerald-500" />
                             </motion.div>
                             <div>
-                                <p className="font-semibold">Absensi Berhasil!</p>
-                                <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">{successToast}</p>
+                                <p className="font-semibold">
+                                    Absensi Berhasil!
+                                </p>
+                                <p className="text-xs text-emerald-700/70 dark:text-emerald-100/80">
+                                    {successToast}
+                                </p>
                             </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Header Card - ULTRA ADVANCED with Student Theme */}
+                {/* ═══════ HEADER — Admin Dashboard Match ═══════ */}
                 <motion.div
-                    variants={cardVariants}
-                    whileHover={{ scale: 1.01, rotateY: 1 }}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-cyan-600 to-teal-600 p-8 text-white shadow-2xl"
-                    style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl p-6 text-white shadow-2xl sm:p-8"
                 >
-                    {/* Ultra Advanced Animated Background Orbs */}
+                    {/* Animated Gradient Background */}
                     <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{
-                            scale: [1, 1.4, 1],
-                            rotate: [0, 180, 360],
-                            opacity: [0.1, 0.2, 0.1],
-                            x: [0, 50, 0],
-                            y: [0, -30, 0],
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
                         }}
                         transition={{
-                            duration: 20,
+                            duration: 15,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: 'linear',
                         }}
-                        className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.5, 1],
-                            rotate: [360, 180, 0],
-                            opacity: [0.1, 0.15, 0.1],
-                            x: [0, -40, 0],
-                            y: [0, 40, 0],
+                        style={{
+                            backgroundSize: '200% 200%',
                         }}
-                        transition={{
-                            duration: 25,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-gradient-to-br from-teal-400/30 to-cyan-500/30 blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            rotate: [0, -90, 0],
-                            opacity: [0.08, 0.12, 0.08],
-                        }}
-                        transition={{
-                            duration: 18,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 2,
-                        }}
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full bg-gradient-to-br from-blue-400/20 to-teal-400/20 blur-3xl"
                     />
 
-                    {/* 25 Floating Particles */}
-                    {[...Array(25)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, scale: 0, y: 0 }}
-                            animate={{
-                                opacity: [0, 0.8, 1, 0.6, 0],
-                                scale: [0, 1.8, 1.2, 0.8, 0],
-                                y: [0, -50, -100, -150, -200],
-                                x: [0, Math.sin(i * 0.5) * 40, Math.cos(i * 0.3) * 30, Math.sin(i) * 20, 0],
-                                rotate: [0, 180, 360, 540, 720],
-                            }}
-                            transition={{
-                                duration: 5 + Math.random() * 3,
-                                repeat: Infinity,
-                                delay: i * 0.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute rounded-full shadow-lg"
-                            style={{
-                                width: `${3 + Math.random() * 10}px`,
-                                height: `${3 + Math.random() * 10}px`,
-                                left: `${10 + (i * 3) % 80}%`,
-                                top: `${20 + (i % 4) * 20}%`,
-                                background: i % 3 === 0
-                                    ? 'rgba(255, 255, 255, 0.6)'
-                                    : i % 3 === 1
-                                        ? 'rgba(6, 182, 212, 0.5)'
-                                        : 'rgba(59, 130, 246, 0.5)',
-                                filter: 'blur(1px)',
-                                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)',
-                            }}
-                        />
-                    ))}
+                    {/* Background Accents */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Floating Icons */}
-                    <motion.div
-                        animate={{
-                            y: [0, -15, 0],
-                            x: [0, 10, 0],
-                            rotate: [0, 5, -5, 0],
-                            opacity: [0.3, 0.5, 0.3],
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute top-10 right-20 text-white/20"
-                    >
-                        <QrCode className="h-16 w-16" />
-                    </motion.div>
-                    <motion.div
-                        animate={{
-                            y: [0, 20, 0],
-                            x: [0, -15, 0],
-                            rotate: [0, -10, 10, 0],
-                            opacity: [0.2, 0.4, 0.2],
-                        }}
-                        transition={{
-                            duration: 7,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 1,
-                        }}
-                        className="absolute bottom-10 left-20 text-white/20"
-                    >
-                        <Camera className="h-20 w-20" />
-                    </motion.div>
-
-                    {/* Animated Rings */}
-                    {[...Array(3)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{
-                                scale: [1, 2, 3],
-                                opacity: [0.3, 0.15, 0],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                delay: i * 1.3,
-                                ease: "easeOut"
-                            }}
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/30"
-                            style={{
-                                width: '100px',
-                                height: '100px',
-                            }}
-                        />
-                    ))}
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
+                            <div className="flex w-full flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left lg:w-auto">
                                 <motion.div
-                                    whileHover={{
-                                        scale: 1.2,
-                                        rotate: [0, -8, 8, 0],
-                                        boxShadow: "0 0 40px rgba(255,255,255,0.6)"
+                                    className="relative flex h-16 w-16 shrink-0 items-center justify-center p-1 sm:h-20 sm:w-20"
+                                    initial={{
+                                        opacity: 0,
+                                        scale: 0.5,
+                                        rotate: -10,
                                     }}
-                                    whileTap={{ scale: 0.92 }}
-                                    transition={{ type: "spring", stiffness: 350, damping: 15 }}
-                                    className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/25 backdrop-blur-xl ring-4 ring-white/40 cursor-pointer shadow-2xl"
+                                    animate={{
+                                        opacity: 1,
+                                        scale: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        delay: 0.2,
+                                    }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    {/* Glow effect */}
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.2, 1],
-                                            opacity: [0.5, 0.8, 0.5],
-                                        }}
-                                        transition={{
-                                            duration: 3,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-300/50 to-blue-300/50 blur-xl"
+                                    <img
+                                        src={absenIcon}
+                                        alt="Absensi"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
                                     />
-                                    <User className="h-10 w-10 relative z-10" />
                                 </motion.div>
-                                <div>
+                                <div className="mt-2 flex-1 sm:mt-1">
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="text-xs font-medium tracking-wide text-indigo-100 sm:text-sm"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2, type: "spring" }}
-                                        className="text-sm text-cyan-100 font-semibold tracking-wide"
+                                        transition={{ delay: 0.3 }}
                                     >
-                                        Selamat datang,
+                                        Absensi Mahasiswa
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ opacity: 0, x: -20, scale: 0.9 }}
-                                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                                        transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
-                                        className="text-3xl font-extrabold tracking-tight"
-                                    >
-                                        {mahasiswa.nama}
-                                    </motion.h1>
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
+                                        className="mt-1 text-xl font-bold text-white sm:text-3xl"
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.4, type: "spring" }}
-                                        className="flex items-center gap-2 mt-1"
+                                        transition={{ delay: 0.4 }}
                                     >
-                                        <motion.div
-                                            animate={{
-                                                scale: [1, 1.2, 1],
-                                                opacity: [0.7, 1, 0.7],
-                                            }}
-                                            transition={{
-                                                duration: 2,
-                                                repeat: Infinity,
-                                            }}
-                                            className="h-2 w-2 rounded-full bg-cyan-300"
-                                        />
-                                        <p className="text-sm text-cyan-100 font-mono">
-                                            NIM: {mahasiswa.nim}
-                                        </p>
-                                    </motion.div>
+                                        Scan QR Code
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-1 max-w-lg text-[11px] leading-relaxed text-indigo-100 sm:mt-2 sm:text-base"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Scan QR code untuk mencatat kehadiran
+                                        Anda.
+                                    </motion.p>
+                                    <motion.p
+                                        className="mt-2 text-xs text-indigo-100/90 sm:text-sm"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.55 }}
+                                    >
+                                        {mahasiswa.user?.name || mahasiswa.nama}{' '}
+                                        • NIM: {mahasiswa.nim}
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.5, type: 'spring' }}
-                                whileHover={{ scale: 1.08, y: -2 }}
-                                className="relative flex items-center gap-2 rounded-full bg-white/25 px-5 py-3 backdrop-blur-xl shadow-xl ring-2 ring-white/40"
-                            >
+                            {/* Active Session Badge */}
+                            {activeSession ? (
                                 <motion.div
-                                    animate={{
-                                        scale: [1, 1.15, 1],
-                                        rotate: [0, 10, -10, 0],
-                                    }}
-                                    transition={{
-                                        duration: 3,
-                                        repeat: Infinity,
-                                    }}
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-5 py-3 shadow-lg backdrop-blur-xl sm:w-auto sm:px-6"
                                 >
-                                    <MapPin className="h-5 w-5" />
+                                    <div className="shrink-0 rounded-lg border border-emerald-500/30 bg-emerald-500/20 p-2">
+                                        <div className="relative z-10 m-2 h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                                    </div>
+                                    <div className="flex flex-col py-1">
+                                        <p className="mb-1 max-w-[140px] truncate text-xs leading-tight font-medium text-indigo-100">
+                                            {activeSession.courseName}
+                                        </p>
+                                        <p className="text-sm leading-none font-bold text-white">
+                                            Pertemuan #
+                                            {activeSession.meetingNumber}
+                                        </p>
+                                    </div>
                                 </motion.div>
-                                <span className="text-sm font-bold">Radius {geofence.radius_m}m</span>
-                                {/* Pulse effect */}
+                            ) : (
                                 <motion.div
-                                    animate={{
-                                        scale: [1, 1.5, 1],
-                                        opacity: [0.5, 0, 0.5],
-                                    }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                    }}
-                                    className="absolute inset-0 rounded-full bg-cyan-300/30"
-                                />
-                            </motion.div>
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6, type: 'spring' }}
+                                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 backdrop-blur-xl sm:w-auto sm:justify-start lg:mt-0"
+                                >
+                                    <AlertCircle className="h-4 w-4 text-amber-300" />
+                                    <span className="text-sm font-medium text-amber-200">
+                                        Tidak ada sesi aktif
+                                    </span>
+                                </motion.div>
+                            )}
                         </div>
-
-                        {/* Progress Bar - Enhanced */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-6"
-                        >
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-cyan-100 font-semibold">Progress Absensi</span>
-                                <motion.span
-                                    key={progressPercent}
-                                    initial={{ scale: 1.5, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="text-base font-extrabold"
-                                >
-                                    {Math.round(progressPercent)}%
-                                </motion.span>
-                            </div>
-                            <div className="relative h-4 rounded-full bg-white/20 overflow-hidden backdrop-blur">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${progressPercent}%` }}
-                                    transition={{ duration: 1, ease: "easeOut", delay: 0.7 }}
-                                    className="h-full rounded-full bg-gradient-to-r from-white via-cyan-200 to-white shadow-lg relative overflow-hidden"
-                                >
-                                    {/* Shimmer effect */}
-                                    <motion.div
-                                        animate={{
-                                            x: ['-100%', '200%'],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "linear",
-                                        }}
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                                    />
-                                </motion.div>
-                            </div>
-                        </motion.div>
                     </div>
                 </motion.div>
 
-                {/* Step Indicator - Enhanced */}
+                {/* Step Indicator - Enhanced Glassmorphism */}
                 <motion.div
                     variants={cardVariants}
-                    whileHover={{ scale: 1.005, y: -2 }}
-                    className="rounded-2xl border border-cyan-200 bg-gradient-to-br from-white to-cyan-50/30 p-6 shadow-lg backdrop-blur dark:border-cyan-800 dark:from-black dark:to-cyan-950/20"
+                    whileHover={{ scale: 1.005 }}
+                    className="rounded-2xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:rounded-3xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <StepIndicator steps={flowSteps} currentStep={currentStep} />
+                    <StepIndicator
+                        steps={flowSteps}
+                        currentStep={currentStep}
+                    />
                 </motion.div>
 
                 {/* Consent Card - ENHANCED with attention-grabbing design */}
                 <motion.div
                     variants={cardVariants}
-                    whileHover={{ scale: 1.02, y: -4 }}
-                    animate={!consentAccepted ? {
-                        boxShadow: [
-                            "0 0 0 0 rgba(139, 92, 246, 0)",
-                            "0 0 0 8px rgba(139, 92, 246, 0.1)",
-                            "0 0 0 0 rgba(139, 92, 246, 0)"
-                        ]
-                    } : {}}
-                    transition={!consentAccepted ? { duration: 2, repeat: Infinity } : {}}
+                    whileHover={{ scale: 1.005 }}
                     className={cn(
-                        "rounded-2xl border p-6 shadow-lg backdrop-blur transition-all relative overflow-hidden",
+                        'relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40',
                         consentAccepted
-                            ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:border-emerald-800 dark:from-emerald-950/20 dark:to-black"
-                            : "border-violet-300 bg-gradient-to-br from-violet-50 to-white dark:border-violet-700 dark:from-violet-950/30 dark:to-black"
+                            ? 'border-emerald-200/50 dark:border-emerald-800/50'
+                            : 'border-indigo-300/50 dark:border-indigo-700/50',
                     )}
                 >
                     {/* Animated background pulse when not accepted */}
@@ -952,41 +1128,54 @@ export default function UserAbsensi() {
                             transition={{
                                 duration: 2,
                                 repeat: Infinity,
-                                ease: "easeInOut"
+                                ease: 'easeInOut',
                             }}
-                            className="absolute inset-0 bg-gradient-to-br from-violet-400/10 to-purple-400/10 pointer-events-none"
+                            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-purple-400/10"
                         />
                     )}
 
-                    <div className="flex items-start gap-4 relative z-10">
+                    <div className="relative z-10 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
                         <motion.div
                             whileHover={{ rotate: 10, scale: 1.1 }}
-                            animate={!consentAccepted ? {
-                                rotate: [0, -5, 5, -5, 0],
-                                scale: [1, 1.1, 1]
-                            } : {}}
-                            transition={!consentAccepted ? {
-                                duration: 2,
-                                repeat: Infinity,
-                                repeatDelay: 1
-                            } : {}}
+                            animate={
+                                !consentAccepted
+                                    ? {
+                                        rotate: [0, -5, 5, -5, 0],
+                                        scale: [1, 1.1, 1],
+                                    }
+                                    : {}
+                            }
+                            transition={
+                                !consentAccepted
+                                    ? {
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatDelay: 1,
+                                    }
+                                    : {}
+                            }
                             className={cn(
-                                "flex h-14 w-14 items-center justify-center rounded-xl shadow-lg",
+                                'flex h-14 w-14 shrink-0 items-center justify-center rounded-xl shadow-lg',
                                 consentAccepted
-                                    ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                    : "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
+                                    ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    : 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400',
                             )}
                         >
                             <Shield className="h-7 w-7" />
                         </motion.div>
-                        <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                                <h2 className="font-bold text-gray-900 dark:text-white text-lg">Persetujuan Privasi</h2>
+                        <div className="w-full flex-1">
+                            <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:justify-start">
+                                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                                    Persetujuan Privasi
+                                </h2>
                                 {!consentAccepted && (
                                     <motion.span
                                         animate={{ opacity: [1, 0.5, 1] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                        className="px-2 py-0.5 rounded-full bg-violet-500 text-white text-xs font-semibold"
+                                        transition={{
+                                            duration: 1.5,
+                                            repeat: Infinity,
+                                        }}
+                                        className="rounded-full bg-indigo-500 px-2 py-0.5 text-xs font-semibold text-white"
                                     >
                                         Wajib
                                     </motion.span>
@@ -995,26 +1184,26 @@ export default function UserAbsensi() {
                                     <motion.span
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        className="px-2 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1"
+                                        className="flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-semibold text-white"
                                     >
                                         <CheckCircle2 className="h-3 w-3" />
                                         Disetujui
                                     </motion.span>
                                 )}
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                                 {consentAccepted
-                                    ? "Terima kasih! Kamu sudah dapat menggunakan fitur kamera dan lokasi."
-                                    : "Centang kotak di bawah untuk mengaktifkan kamera dan lokasi."}
+                                    ? 'Terima kasih! Kamu sudah dapat menggunakan kamera dan merekam lokasi.'
+                                    : 'Centang kotak di bawah untuk mengaktifkan akses kamera dan merekam lokasi.'}
                             </p>
                             <motion.label
                                 whileHover={{ x: 5, scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 className={cn(
-                                    "flex items-center gap-3 mt-4 p-3 rounded-xl cursor-pointer transition-all border-2",
+                                    'mt-4 flex cursor-pointer items-center gap-3 rounded-xl border-2 p-3 text-left transition-all',
                                     consentAccepted
-                                        ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/20 dark:border-emerald-800"
-                                        : "bg-violet-50 border-violet-200 dark:bg-violet-950/20 dark:border-violet-700 hover:border-violet-400 dark:hover:border-violet-500"
+                                        ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/20'
+                                        : 'border-indigo-200 bg-indigo-50 hover:border-indigo-400 dark:border-indigo-700 dark:bg-indigo-950/20 dark:hover:border-indigo-500',
                                 )}
                             >
                                 <Checkbox
@@ -1023,24 +1212,39 @@ export default function UserAbsensi() {
                                         const checked = Boolean(value);
                                         setConsentAccepted(checked);
                                         setConsentError(null);
-                                        if (typeof window !== 'undefined') window.localStorage.setItem('tplk004_camera_consent', checked ? '1' : '0');
+                                        if (typeof window !== 'undefined')
+                                            window.localStorage.setItem(
+                                                'tplk004_camera_consent',
+                                                checked ? '1' : '0',
+                                            );
                                     }}
                                     className="h-5 w-5"
                                 />
-                                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                    Saya setuju menggunakan kamera & lokasi untuk absensi
+                                <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                    Saya setuju menggunakan kamera & lokasi
+                                    untuk absensi
                                 </span>
                             </motion.label>
                             <AnimatePresence>
                                 {consentError && (
                                     <motion.div
-                                        initial={{ opacity: 0, height: 0, y: -10 }}
-                                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                                        initial={{
+                                            opacity: 0,
+                                            height: 0,
+                                            y: -10,
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            height: 'auto',
+                                            y: 0,
+                                        }}
                                         exit={{ opacity: 0, height: 0, y: -10 }}
-                                        className="mt-3 flex items-center gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-800"
+                                        className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 sm:justify-start dark:border-rose-800 dark:bg-rose-950/20"
                                     >
-                                        <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
-                                        <span className="text-sm text-rose-700 dark:text-rose-300 font-medium">{consentError}</span>
+                                        <AlertCircle className="h-4 w-4 flex-shrink-0 text-rose-600 dark:text-rose-400" />
+                                        <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
+                                            {consentError}
+                                        </span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -1049,467 +1253,1157 @@ export default function UserAbsensi() {
                 </motion.div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    {/* Step 1: QR Scanner - ULTRA ENHANCED */}
+                    {/* Step 1: QR Scanner */}
                     <motion.div
                         variants={cardVariants}
-                        whileHover={!step1Locked ? { scale: 1.01, y: -3, boxShadow: "0 20px 25px -5px rgba(6, 182, 212, 0.3)" } : {}}
+                        whileHover={!step1Locked ? { scale: 1.005 } : {}}
                         className={cn(
-                            'rounded-2xl border border-cyan-200 bg-gradient-to-br from-white to-cyan-50/20 p-6 shadow-lg backdrop-blur transition-all dark:border-cyan-800 dark:from-black dark:to-cyan-950/10 relative overflow-hidden',
-                            step1Locked && 'opacity-60 pointer-events-none'
+                            'rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40',
+                            step1Locked && 'pointer-events-none opacity-60',
                         )}
                     >
-                        {/* Animated background gradient */}
-                        <motion.div
-                            animate={{
-                                opacity: [0, 0.05, 0],
-                                scale: [1, 1.2, 1],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                            className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 pointer-events-none"
-                        />
-
-                        <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
-                            <div className="flex items-center gap-3">
-                                <motion.div
-                                    whileHover={{ rotate: [0, -10, 10, 0], scale: 1.15 }}
+                        <div className="mb-6 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                            <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <motion.img
+                                    src={qrStepIcon}
+                                    alt="Icon Scan QR"
+                                    whileHover={{
+                                        rotate: [0, -10, 10, 0],
+                                        scale: 1.1,
+                                    }}
                                     transition={{ duration: 0.5 }}
-                                    className={cn(
-                                        'flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg relative',
-                                        tokenDone ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : 'bg-gradient-to-br from-cyan-400 to-blue-600 text-white'
-                                    )}
-                                >
-                                    {/* Glow effect */}
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.3, 1],
-                                            opacity: [0.5, 0, 0.5],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                        }}
-                                        className={cn(
-                                            "absolute inset-0 rounded-2xl blur-lg",
-                                            tokenDone ? "bg-emerald-400/50" : "bg-cyan-400/50"
-                                        )}
-                                    />
-                                    <QrCode className="h-7 w-7 relative z-10" />
-                                </motion.div>
+                                    className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]"
+                                />
                                 <div>
-                                    <h2 className="font-bold text-gray-900 dark:text-white text-lg">Scan QR Code</h2>
-                                    <p className="text-sm text-gray-500">Scan QR dari admin atau input token manual</p>
+                                    <h2 className="text-lg font-bold text-neutral-900 sm:text-xl dark:text-white">
+                                        Scan QR Code
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Arahkan kamera ke QR dosen atau isi
+                                        token manual
+                                    </p>
                                 </div>
                             </div>
                             <AnimatePresence>
                                 {tokenDone && (
                                     <motion.span
-                                        initial={{ scale: 0, opacity: 0, rotate: -180 }}
-                                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                        exit={{ scale: 0, opacity: 0, rotate: 180 }}
-                                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                                        className="flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
+                                        initial={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: -120,
+                                        }}
+                                        animate={{
+                                            scale: 1,
+                                            opacity: 1,
+                                            rotate: 0,
+                                        }}
+                                        exit={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: 120,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                        }}
+                                        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
                                     >
-                                        <CheckCircle2 className="h-4 w-4" /> Selesai
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Selesai
                                     </motion.span>
                                 )}
                             </AnimatePresence>
                         </div>
 
-                        {/* QR Scanner - Enhanced */}
-                        <motion.div
-                            whileHover={{ scale: 1.01 }}
-                            className="relative overflow-hidden rounded-2xl border-2 border-cyan-200 bg-gradient-to-br from-gray-50 to-cyan-50/30 dark:border-cyan-800 dark:from-gray-900 dark:to-cyan-950/20 shadow-lg"
-                        >
-                            {/* QR Reader Container */}
-                            <div
-                                id={qrReaderDivId}
-                                className={cn('w-full', scanning ? 'block' : 'hidden')}
-                                style={{ minHeight: '256px' }}
-                            />
-                            <AnimatePresence mode="wait">
-                                {!scanning && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="flex h-64 flex-col items-center justify-center text-gray-400 relative"
-                                    >
-                                        {/* Animated background */}
+                        <div className="mx-auto w-full max-w-md">
+                            <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl">
+                                <div
+                                    id={qrReaderDivId}
+                                    className={cn(
+                                        'h-full w-full [&>*]:!border-none',
+                                        scanning ? 'block' : 'hidden',
+                                    )}
+                                />
+
+                                <AnimatePresence mode="wait">
+                                    {!scanning && (
                                         <motion.div
-                                            animate={{
-                                                scale: [1, 1.2, 1],
-                                                opacity: [0.1, 0.2, 0.1],
-                                            }}
-                                            transition={{
-                                                duration: 3,
-                                                repeat: Infinity,
-                                            }}
-                                            className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-400/10 pointer-events-none"
-                                        />
-                                        <motion.div
-                                            animate={{
-                                                scale: [1, 1.15, 1],
-                                                rotate: [0, 5, -5, 0],
-                                            }}
-                                            transition={{ duration: 3, repeat: Infinity }}
-                                            className="relative z-10"
+                                            key="scanner-idle"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="absolute inset-0 flex flex-col items-center justify-center text-neutral-300"
                                         >
-                                            <QrCode className="h-16 w-16 mb-3 text-cyan-500" />
+                                            <div className="mb-4 opacity-80">
+                                                <QRCodeAnimated
+                                                    key={`empty-qr-placeholder-${qrLoopIndex}`}
+                                                    data="TAP_TO_SCAN_WAITING"
+                                                    size={120}
+                                                    color="#6366f1"
+                                                    onComplete={() =>
+                                                        setQrLoopIndex(
+                                                            (value) =>
+                                                                value + 1,
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                            <p className="rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-indigo-100">
+                                                Klik tombol untuk mulai scan
+                                            </p>
                                         </motion.div>
-                                        <span className="text-sm font-medium relative z-10">Klik tombol untuk scan QR</span>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                            {scanning && (
-                                <div className="absolute inset-0 pointer-events-none z-10">
-                                    {/* Status badge */}
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2 text-sm font-bold text-white shadow-xl"
-                                    >
-                                        <motion.span
-                                            animate={{ scale: [1, 1.3, 1] }}
-                                            transition={{ duration: 1, repeat: Infinity }}
-                                            className="h-2 w-2 rounded-full bg-white"
-                                        />
-                                        Scanning...
-                                    </motion.div>
-                                </div>
-                            )}
-                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <AnimatePresence>
+                                    {scanning && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="pointer-events-none absolute inset-0"
+                                        >
+                                            <div className="absolute inset-0 flex items-center justify-center p-7 sm:p-8">
+                                                <div className="relative h-full max-h-[280px] w-full max-w-[280px]">
+                                                    <motion.div
+                                                        animate={{
+                                                            opacity: [
+                                                                0.5, 1, 0.5,
+                                                            ],
+                                                            scale: [1, 1.06, 1],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                        }}
+                                                        className="absolute top-0 left-0 h-16 w-16 rounded-tl-2xl border-t-4 border-l-4 border-emerald-500"
+                                                    />
+                                                    <motion.div
+                                                        animate={{
+                                                            opacity: [
+                                                                0.5, 1, 0.5,
+                                                            ],
+                                                            scale: [1, 1.06, 1],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            delay: 0.4,
+                                                        }}
+                                                        className="absolute top-0 right-0 h-16 w-16 rounded-tr-2xl border-t-4 border-r-4 border-emerald-500"
+                                                    />
+                                                    <motion.div
+                                                        animate={{
+                                                            opacity: [
+                                                                0.5, 1, 0.5,
+                                                            ],
+                                                            scale: [1, 1.06, 1],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            delay: 0.8,
+                                                        }}
+                                                        className="absolute bottom-0 left-0 h-16 w-16 rounded-bl-2xl border-b-4 border-l-4 border-emerald-500"
+                                                    />
+                                                    <motion.div
+                                                        animate={{
+                                                            opacity: [
+                                                                0.5, 1, 0.5,
+                                                            ],
+                                                            scale: [1, 1.06, 1],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            delay: 1.2,
+                                                        }}
+                                                        className="absolute right-0 bottom-0 h-16 w-16 rounded-br-2xl border-r-4 border-b-4 border-emerald-500"
+                                                    />
+
+                                                    <motion.div
+                                                        animate={{
+                                                            y: [
+                                                                '0%',
+                                                                '100%',
+                                                                '0%',
+                                                            ],
+                                                        }}
+                                                        transition={{
+                                                            duration: 2,
+                                                            repeat: Infinity,
+                                                            ease: 'linear',
+                                                        }}
+                                                        className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-lg shadow-emerald-500/50"
+                                                    />
+
+                                                    <motion.div
+                                                        animate={{
+                                                            scale: [1, 1.15, 1],
+                                                            opacity: [
+                                                                0.35, 0.8, 0.35,
+                                                            ],
+                                                        }}
+                                                        transition={{
+                                                            duration: 1.6,
+                                                            repeat: Infinity,
+                                                        }}
+                                                        className="absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2"
+                                                    >
+                                                        <div className="absolute top-1/2 right-0 left-0 h-0.5 -translate-y-1/2 bg-emerald-500" />
+                                                        <div className="absolute top-0 bottom-0 left-1/2 w-0.5 -translate-x-1/2 bg-emerald-500" />
+                                                    </motion.div>
+                                                </div>
+                                            </div>
+
+                                            <motion.div
+                                                initial={{ y: -16, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                className="absolute top-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full bg-emerald-500/95 px-4 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-sm"
+                                            >
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                        ease: 'linear',
+                                                    }}
+                                                >
+                                                    <Sparkles className="h-4 w-4" />
+                                                </motion.div>
+                                                <span>Scanning...</span>
+                                            </motion.div>
+
+                                            <motion.p
+                                                initial={{ y: 16, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-1.5 text-[11px] text-white backdrop-blur-md"
+                                            >
+                                                Arahkan QR code ke dalam frame
+                                            </motion.p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <AnimatePresence>
+                                    {scanResult && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm"
+                                        >
+                                            {scanResult === 'success' ? (
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{
+                                                        scale: 1,
+                                                        rotate: 360,
+                                                    }}
+                                                    transition={{
+                                                        type: 'spring',
+                                                        stiffness: 300,
+                                                        damping: 20,
+                                                    }}
+                                                    className="text-center"
+                                                >
+                                                    <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-emerald-500 shadow-2xl shadow-emerald-500/50">
+                                                        <CheckCircle2 className="h-12 w-12 text-white" />
+                                                    </div>
+                                                    <h3 className="text-2xl font-bold text-white">
+                                                        Scan Berhasil!
+                                                    </h3>
+                                                    <p className="mt-1 text-sm text-emerald-300">
+                                                        QR Code terverifikasi
+                                                    </p>
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div
+                                                    animate={{
+                                                        x: [
+                                                            -10, 10, -10, 10, 0,
+                                                        ],
+                                                    }}
+                                                    transition={{
+                                                        duration: 0.45,
+                                                    }}
+                                                    className="text-center"
+                                                >
+                                                    <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-rose-500 shadow-2xl shadow-rose-500/50">
+                                                        <AlertCircle className="h-12 w-12 text-white" />
+                                                    </div>
+                                                    <h3 className="text-2xl font-bold text-white">
+                                                        QR Tidak Valid
+                                                    </h3>
+                                                    <p className="mt-1 text-sm text-rose-300">
+                                                        Coba scan ulang
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
 
                         <AnimatePresence>
                             {scanStatus && (
-                                <motion.p
-                                    initial={{ opacity: 0, y: -10 }}
+                                <motion.div
+                                    initial={{ opacity: 0, y: -8 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="mt-2 text-xs text-gray-500"
+                                    exit={{ opacity: 0, y: -8 }}
+                                    className="mt-3 flex items-center justify-center gap-2 sm:justify-start"
                                 >
-                                    {scanStatus}
-                                </motion.p>
+                                    <Zap className="h-4 w-4 text-indigo-500" />
+                                    <p className="text-xs font-medium text-indigo-700 sm:text-sm dark:text-indigo-400">
+                                        {scanStatus}
+                                    </p>
+                                </motion.div>
                             )}
                         </AnimatePresence>
 
-                        <div className="mt-4 flex flex-wrap gap-2 relative z-10">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <div className="relative z-10 mt-5 flex w-full flex-col flex-wrap gap-2 sm:w-auto sm:flex-row sm:gap-3">
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full sm:w-auto"
+                            >
                                 <Button
                                     type="button"
-                                    variant="outline"
-                                    size="sm"
+                                    className={cn(
+                                        'w-full font-semibold shadow-lg transition-all sm:w-auto',
+                                        scanning
+                                            ? 'bg-rose-500 text-white hover:bg-rose-600'
+                                            : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30 hover:from-emerald-600 hover:to-teal-700',
+                                    )}
                                     onClick={() => {
-                                        console.log('🔍 Button clicked!');
-                                        console.log('🔍 Consent accepted:', consentAccepted);
-                                        console.log('🔍 Scan available:', scanAvailable);
-                                        console.log('🔍 Step1 locked:', step1Locked);
                                         if (!consentAccepted) {
-                                            setConsentError('Setujui persetujuan kamera sebelum memulai.');
+                                            setConsentError(
+                                                'Setujui persetujuan di atas sebelum memulai.',
+                                            );
                                             return;
                                         }
-                                        setScanning((prev) => !prev);
+                                        if (scanning) {
+                                            void stopScan();
+                                            setScanning(false);
+                                            setScanStatus('');
+                                            return;
+                                        }
+                                        setScanResult(null);
+                                        setScanning(true);
                                     }}
                                     disabled={!scanAvailable || step1Locked}
                                 >
-                                    {scanning ? <><Loader2 className="h-4 w-4 animate-spin" /> Stop</> : <><QrCode className="h-4 w-4" /> Scan QR</>}
+                                    {scanning ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
+                                            Stop Scan
+                                        </>
+                                    ) : (
+                                        <>
+                                            <QrCode className="mr-2 h-4 w-4" />{' '}
+                                            Mulai Scan
+                                        </>
+                                    )}
                                 </Button>
                             </motion.div>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <Button type="button" variant="ghost" size="sm" onClick={() => { stopScan(); setScanning(false); form.setData('token', ''); setScanStatus(''); }} disabled={step1Locked}>
-                                    <RefreshCcw className="h-4 w-4" /> Reset
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full sm:w-auto"
+                            >
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full border-white/40 sm:w-auto dark:border-white/10"
+                                    onClick={() => {
+                                        void stopScan();
+                                        setScanning(false);
+                                        setScanStatus('');
+                                        setScanResult(null);
+                                        form.setData('token', '');
+                                    }}
+                                    disabled={step1Locked}
+                                >
+                                    <RefreshCcw className="mr-2 h-4 w-4" />{' '}
+                                    Reset
                                 </Button>
                             </motion.div>
                         </div>
 
-                        <div className="mt-4 relative z-10">
-                            <Label htmlFor="token" className="text-sm">Token Manual</Label>
-                            <Input id="token" value={form.data.token} onChange={(e) => form.setData('token', e.target.value)} placeholder="Masukkan token jika tidak bisa scan" className="mt-1" disabled={step1Locked} />
-                            <InputError message={form.errors.token} />
+                        <div className="relative z-10 mt-6 border-t border-neutral-200/50 pt-4 sm:mt-8 sm:pt-6 dark:border-white/10">
+                            <Label
+                                htmlFor="token"
+                                className="mb-2 text-sm font-semibold text-neutral-900 dark:text-white"
+                            >
+                                Alternatif: Input Token Manual
+                            </Label>
+                            <Input
+                                id="token"
+                                value={form.data.token}
+                                onChange={(e) =>
+                                    form.setData(
+                                        'token',
+                                        e.target.value.toUpperCase(),
+                                    )
+                                }
+                                placeholder="Cth: UNPAM-7A8B..."
+                                className="mt-1 h-12 rounded-xl border-white/40 bg-white/60 text-center font-mono tracking-widest shadow-inner transition-all focus:ring-indigo-500 sm:text-lg dark:border-white/10 dark:bg-black/40"
+                                disabled={step1Locked}
+                            />
+                            <p className="mt-2 text-xs text-neutral-500">
+                                Ketik manual token yang diberikan dosen jika
+                                scan tidak berhasil.
+                            </p>
+                            <InputError
+                                message={form.errors.token}
+                                className="mt-1"
+                            />
                         </div>
                     </motion.div>
 
                     {/* Step 2: Selfie */}
-                    <div className={cn(
-                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
-                        step2Locked && 'opacity-60 pointer-events-none'
-                    )}>
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-xl',
-                                    selfieDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                                )}>
-                                    <Camera className="h-5 w-5" />
-                                </div>
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={!step2Locked ? { scale: 1.005 } : {}}
+                        className={cn(
+                            'relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40',
+                            step2Locked && 'pointer-events-none opacity-60',
+                        )}
+                    >
+                        <div className="relative z-10 mb-6 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                            <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <img
+                                    src={selfieStepIcon}
+                                    alt="Icon Verifikasi Selfie"
+                                    className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]"
+                                />
                                 <div>
-                                    <h2 className="font-semibold text-gray-900 dark:text-white">Verifikasi Selfie</h2>
-                                    <p className="text-sm text-gray-500">{selfieRequired ? 'Ambil foto wajah untuk verifikasi' : 'Selfie tidak diwajibkan'}</p>
+                                    <h2 className="text-lg font-bold text-neutral-900 sm:text-xl dark:text-white">
+                                        Verifikasi Selfie
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        {selfieRequired
+                                            ? 'Ambil foto wajah untuk verifikasi'
+                                            : 'Selfie tidak diwajibkan'}
+                                    </p>
                                 </div>
                             </div>
-                            {selfieDone && (
-                                <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                    <CheckCircle2 className="h-3 w-3" /> Selesai
-                                </span>
-                            )}
+                            <AnimatePresence>
+                                {selfieDone && (
+                                    <motion.span
+                                        initial={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: -120,
+                                        }}
+                                        animate={{
+                                            scale: 1,
+                                            opacity: 1,
+                                            rotate: 0,
+                                        }}
+                                        exit={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: 120,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                        }}
+                                        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Selesai
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {step2Locked && !submitSuccess && (
-                            <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-3 text-sm text-gray-500 dark:bg-gray-800">
-                                <AlertCircle className="h-4 w-4" />
-                                Selesaikan langkah 1 terlebih dahulu
+                            <div className="rounded-xl border border-neutral-200 bg-neutral-100/80 p-3 text-sm text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800/80">
+                                <div className="flex items-center justify-center gap-2 sm:justify-start">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <span>
+                                        Selesaikan langkah sebelumnya terlebih
+                                        dahulu
+                                    </span>
+                                </div>
                             </div>
                         )}
 
                         {!step2Locked && selfieRequired && (
                             <>
-                                <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-700 dark:bg-gray-900">
+                                <div className="mx-auto flex aspect-[4/3] w-full max-w-md items-center justify-center overflow-hidden rounded-2xl border-2 border-amber-200/50 bg-gradient-to-br from-neutral-50 to-amber-50/30 shadow-lg sm:mx-0 md:aspect-video dark:border-amber-800/50 dark:from-neutral-900 dark:to-amber-950/20">
                                     {selfieActive ? (
-                                        <video ref={selfieVideoRef} className="h-56 w-full object-cover" autoPlay playsInline muted />
+                                        <video
+                                            ref={selfieVideoRef}
+                                            className="h-full w-full object-cover"
+                                            autoPlay
+                                            playsInline
+                                            muted
+                                        />
                                     ) : previewUrl ? (
-                                        <img src={previewUrl} alt="Preview selfie" className="h-56 w-full object-cover" />
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview selfie"
+                                            className="h-full w-full object-cover"
+                                        />
                                     ) : (
-                                        <div className="flex h-56 flex-col items-center justify-center text-gray-400">
-                                            <Camera className="h-12 w-12 mb-2" />
-                                            <span className="text-sm">Aktifkan kamera untuk selfie</span>
+                                        <div className="relative flex flex-col items-center justify-center text-neutral-400">
+                                            <Camera className="relative z-10 mb-4 h-16 w-16 text-amber-500/50" />
+                                            <span className="relative z-10 rounded-full border border-amber-100 bg-amber-50 px-4 py-1.5 text-sm font-semibold text-amber-600 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                                                Aktifkan kamera untuk selfie
+                                            </span>
+                                            <span className="relative z-10 mt-3 text-xs text-neutral-400">
+                                                Pastikan wajah terlihat jelas
+                                            </span>
                                         </div>
                                     )}
                                     {selfieActive && (
-                                        <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white">
-                                            <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                                        <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                                            <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
                                             Kamera Aktif
                                         </div>
                                     )}
                                 </div>
 
-                                {selfieStatus && <p className="mt-2 text-xs text-gray-500">{selfieStatus}</p>}
+                                <AnimatePresence>
+                                    {selfieStatus && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            className="mt-3 flex items-center justify-center gap-2 sm:justify-start"
+                                        >
+                                            <Zap className="h-4 w-4 text-amber-500" />
+                                            <p className="text-xs font-medium text-amber-700 sm:text-sm dark:text-amber-400">
+                                                {selfieStatus}
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
 
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <Button type="button" variant="outline" size="sm" onClick={selfieActive ? stopSelfie : startSelfie} disabled={!selfieAvailable || step2Locked}>
-                                        <Camera className="h-4 w-4" /> {selfieActive ? 'Matikan' : 'Aktifkan'} Kamera
-                                    </Button>
-                                    {selfieActive && (
-                                        <Button type="button" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white" onClick={captureSelfie}>
-                                            <Zap className="h-4 w-4" /> Ambil Foto
+                                <div className="relative z-10 mt-5 flex w-full flex-col flex-wrap gap-2 sm:w-auto sm:flex-row sm:gap-3">
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="w-full sm:w-auto"
+                                    >
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className={cn(
+                                                'w-full border-white/40 font-semibold transition-all sm:w-auto dark:border-white/10',
+                                                selfieActive
+                                                    ? 'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100'
+                                                    : '',
+                                            )}
+                                            onClick={
+                                                selfieActive
+                                                    ? stopSelfie
+                                                    : startSelfie
+                                            }
+                                            disabled={
+                                                !selfieAvailable || step2Locked
+                                            }
+                                        >
+                                            <Camera className="mr-2 h-4 w-4" />{' '}
+                                            {selfieActive
+                                                ? 'Matikan'
+                                                : 'Aktifkan'}{' '}
+                                            Kamera
                                         </Button>
+                                    </motion.div>
+                                    {selfieActive && (
+                                        <motion.div
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="w-full sm:w-auto"
+                                        >
+                                            <Button
+                                                type="button"
+                                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:from-amber-400 hover:to-orange-400 sm:w-auto"
+                                                onClick={captureSelfie}
+                                            >
+                                                <Zap className="mr-2 h-4 w-4" />{' '}
+                                                Ambil Foto Sekarang
+                                            </Button>
+                                        </motion.div>
                                     )}
                                     {previewUrl && !selfieActive && (
-                                        <Button type="button" variant="ghost" size="sm" onClick={startSelfie}>
-                                            <RefreshCcw className="h-4 w-4" /> Foto Ulang
-                                        </Button>
+                                        <motion.div
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="w-full sm:w-auto"
+                                        >
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                className="w-full sm:w-auto"
+                                                onClick={startSelfie}
+                                            >
+                                                <RefreshCcw className="mr-2 h-4 w-4" />{' '}
+                                                Foto Ulang
+                                            </Button>
+                                        </motion.div>
                                     )}
                                 </div>
 
-                                {(!selfieAvailable || cameraPermission === 'denied') && (
-                                    <div className="mt-4">
-                                        <Label className="text-sm">Upload Manual</Label>
-                                        <Input type="file" accept="image/*" onChange={handleSelfieChange} className="mt-1" />
-                                    </div>
-                                )}
-                                <InputError message={form.errors.selfie} />
+                                {(!selfieAvailable ||
+                                    cameraPermission === 'denied') && (
+                                        <div className="mt-6 border-t border-neutral-200/50 pt-4 dark:border-white/10">
+                                            <Label className="mb-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                                                Upload Manual (Alternatif)
+                                            </Label>
+                                            <Input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleSelfieChange}
+                                                className="mt-1 border-white/40 bg-white/60 dark:border-white/10 dark:bg-black/40"
+                                            />
+                                        </div>
+                                    )}
+                                <InputError
+                                    message={form.errors.selfie}
+                                    className="mt-2"
+                                />
                             </>
                         )}
 
                         {!step2Locked && !selfieRequired && (
-                            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
-                                <CheckCircle2 className="h-4 w-4" />
-                                Selfie tidak diwajibkan. Langkah ini otomatis selesai.
+                            <div className="rounded-xl border border-emerald-200/50 bg-emerald-50/80 p-4 text-sm text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                <div className="flex items-center justify-center gap-2 sm:justify-start">
+                                    <CheckCircle2 className="h-5 w-5 shrink-0" />
+                                    <span className="font-medium">
+                                        Selfie tidak diwajibkan untuk sesi ini.
+                                        Langkah otomatis selesai.
+                                    </span>
+                                </div>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Step 3: Location */}
-                    <div className={cn(
-                        'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur transition-all dark:border-gray-800 dark:bg-black',
-                        step3Locked && 'opacity-60 pointer-events-none'
-                    )}>
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-xl',
-                                    locationDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400'
-                                )}>
-                                    <Navigation className="h-5 w-5" />
-                                </div>
+                    <motion.div
+                        variants={cardVariants}
+                        whileHover={!step3Locked ? { scale: 1.005 } : {}}
+                        className={cn(
+                            'relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all sm:rounded-3xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40',
+                            step3Locked && 'pointer-events-none opacity-60',
+                        )}
+                    >
+                        <div className="relative z-10 mb-6 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                            <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <img
+                                    src={locationStepIcon}
+                                    alt="Icon Verifikasi Lokasi"
+                                    className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]"
+                                />
                                 <div>
-                                    <h2 className="font-semibold text-gray-900 dark:text-white">Verifikasi Lokasi</h2>
-                                    <p className="text-sm text-gray-500">Ambil {locationSampleCount} sampel GPS untuk validasi</p>
+                                    <h2 className="text-lg font-bold text-neutral-900 sm:text-xl dark:text-white">
+                                        Verifikasi Lokasi
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        Pastikan GPS aktif untuk mengambil{' '}
+                                        {locationSampleCount} sampel lokasi
+                                    </p>
                                 </div>
                             </div>
-                            {locationDone && (
-                                <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                    <CheckCircle2 className="h-3 w-3" /> Selesai
-                                </span>
-                            )}
+                            <AnimatePresence>
+                                {locationDone && (
+                                    <motion.span
+                                        initial={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: -120,
+                                        }}
+                                        animate={{
+                                            scale: 1,
+                                            opacity: 1,
+                                            rotate: 0,
+                                        }}
+                                        exit={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: 120,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                        }}
+                                        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Selesai
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {step3Locked && !submitSuccess && (
-                            <div className="flex items-center gap-2 rounded-xl bg-gray-100 p-3 text-sm text-gray-500 dark:bg-gray-800">
-                                <AlertCircle className="h-4 w-4" />
-                                Selesaikan langkah sebelumnya terlebih dahulu
+                            <div className="rounded-xl border border-neutral-200 bg-neutral-100/80 p-3 text-sm text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800/80">
+                                <div className="flex items-center justify-center gap-2 sm:justify-start">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <span>
+                                        Selesaikan langkah sebelumnya terlebih
+                                        dahulu
+                                    </span>
+                                </div>
                             </div>
                         )}
 
                         {!step3Locked && (
                             <>
-                                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-gray-500">Koordinat</span>
-                                        <span className="font-mono text-sm text-gray-900 dark:text-white">
-                                            {locationDone ? `${form.data.latitude}, ${form.data.longitude}` : '-'}
-                                        </span>
+                                <div className="rounded-2xl border border-white/40 bg-white/60 p-5 shadow-inner dark:border-white/10 dark:bg-black/20">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div className="flex flex-col justify-center rounded-xl border border-white/40 bg-white/50 p-3 dark:border-white/5 dark:bg-black/30">
+                                            <span className="mb-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                                <MapPin className="h-3.5 w-3.5" />
+                                                Koordinat
+                                            </span>
+                                            <span className="truncate font-mono text-xs text-neutral-900 sm:text-sm dark:text-white">
+                                                {locationDone
+                                                    ? `${form.data.latitude.slice(0, 10)}, ${form.data.longitude.slice(0, 10)}`
+                                                    : '-'}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col justify-center rounded-xl border border-white/40 bg-white/50 p-3 dark:border-white/5 dark:bg-black/30">
+                                            <span className="mb-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                                <Zap className="h-3.5 w-3.5" />
+                                                Akurasi GPS
+                                            </span>
+                                            <span
+                                                className={cn(
+                                                    'text-sm font-semibold',
+                                                    accuracyOk
+                                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                                        : 'text-amber-600 dark:text-amber-500',
+                                                )}
+                                            >
+                                                {accuracyValue !== null
+                                                    ? `${Math.round(accuracyValue)}m`
+                                                    : '-'}
+                                                <span className="ml-1 text-xs font-normal text-neutral-400 dark:text-neutral-500">
+                                                    (maks {accuracyThreshold}m)
+                                                </span>
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-gray-500">Akurasi GPS</span>
-                                        <span className={cn(
-                                            'font-semibold text-sm',
-                                            accuracyOk ? 'text-emerald-600' : 'text-amber-600'
-                                        )}>
-                                            {accuracyValue !== null ? `${Math.round(accuracyValue)}m` : '-'} <span className="font-normal text-gray-400">(maks {accuracyThreshold}m)</span>
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-sm text-gray-500">Jarak dari Zona</span>
-                                        <span className={cn(
-                                            'font-semibold text-sm',
-                                            isInsideZone ? 'text-emerald-600' : 'text-red-600'
-                                        )}>
-                                            {currentDistance !== null ? `${currentDistance}m` : '-'} <span className="font-normal text-gray-400">(maks {geofence.radius_m}m)</span>
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">Sampel</span>
-                                        <span className="text-sm text-gray-900 dark:text-white">{sampleCount}/{locationSampleCount}</span>
+
+                                    <div className="mt-4 grid grid-cols-1 gap-4 border-t border-white/40 pt-4 sm:grid-cols-2 dark:border-white/5">
+                                        <div>
+                                            <span className="mb-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                                <Navigation className="h-3.5 w-3.5" />
+                                                Jarak dari Zona
+                                            </span>
+                                            <span
+                                                className={cn(
+                                                    'text-sm font-semibold',
+                                                    isInsideZone
+                                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                                        : 'text-rose-600 dark:text-rose-400',
+                                                )}
+                                            >
+                                                {currentDistance !== null
+                                                    ? `${currentDistance}m`
+                                                    : '-'}
+                                                <span className="ml-1 text-xs font-normal text-neutral-400 dark:text-neutral-500">
+                                                    (maks {geofence.radius_m}m)
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="mb-1 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                                <Wifi className="h-3.5 w-3.5" />
+                                                Sampel Diambil
+                                            </span>
+                                            <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {sampleCount}/
+                                                {locationSampleCount}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Zone Status Alert */}
                                 {currentDistance !== null && (
-                                    <div className={cn(
-                                        'mt-3 flex items-center gap-2 rounded-xl p-3 text-sm',
-                                        isInsideZone
-                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                                            : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800'
-                                    )}>
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={cn(
+                                            'mt-4 flex items-center gap-3 rounded-xl border p-4 text-sm shadow-sm',
+                                            isInsideZone
+                                                ? 'border-emerald-200/50 bg-emerald-50 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                : 'border-rose-200/50 bg-rose-50 text-rose-700 dark:border-rose-800/50 dark:bg-rose-900/40 dark:text-rose-300',
+                                        )}
+                                    >
                                         {isInsideZone ? (
                                             <>
-                                                <CheckCircle2 className="h-4 w-4" />
-                                                <span>✓ Kamu berada dalam zona absensi ({currentDistance}m dari titik pusat)</span>
+                                                <div className="shrink-0 rounded-full bg-emerald-100 p-1.5 dark:bg-emerald-800/60">
+                                                    <CheckCircle2 className="h-5 w-5" />
+                                                </div>
+                                                <span className="font-medium">
+                                                    Kamu berada dalam zona
+                                                    absensi.
+                                                </span>
                                             </>
                                         ) : (
                                             <>
-                                                <AlertCircle className="h-4 w-4" />
-                                                <span>⚠ Kamu di luar zona absensi! Jarak {currentDistance}m, maksimal {geofence.radius_m}m</span>
+                                                <div className="shrink-0 rounded-full bg-rose-100 p-1.5 dark:bg-rose-800/60">
+                                                    <AlertCircle className="h-5 w-5" />
+                                                </div>
+                                                <span className="font-medium">
+                                                    Kamu di luar zona absensi.
+                                                    Harus berjarak maksimal{' '}
+                                                    {geofence.radius_m}m.
+                                                </span>
                                             </>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 )}
 
-                                {locationStatus && !currentDistance && (
-                                    <div className={cn(
-                                        'mt-3 flex items-center gap-2 rounded-xl p-3 text-sm',
-                                        locationDone ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
-                                    )}>
-                                        {locationCollecting ? <Loader2 className="h-4 w-4 animate-spin" /> : locationDone ? <CheckCircle2 className="h-4 w-4" /> : <Wifi className="h-4 w-4" />}
-                                        {locationStatus}
-                                    </div>
+                                {locationStatus && currentDistance === null && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={cn(
+                                            'mt-4 flex items-center gap-3 rounded-xl border p-4 text-sm shadow-sm',
+                                            locationDone
+                                                ? 'border-emerald-200/50 bg-emerald-50 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                                : 'border-blue-200/50 bg-blue-50 text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/40 dark:text-blue-300',
+                                        )}
+                                    >
+                                        <div
+                                            className={cn(
+                                                'shrink-0 rounded-full p-1.5',
+                                                locationDone
+                                                    ? 'bg-emerald-100 dark:bg-emerald-800/60'
+                                                    : 'bg-blue-100 dark:bg-blue-800/60',
+                                            )}
+                                        >
+                                            {locationCollecting ? (
+                                                <Loader2 className="h-5 w-5 animate-spin" />
+                                            ) : locationDone ? (
+                                                <CheckCircle2 className="h-5 w-5" />
+                                            ) : (
+                                                <Wifi className="h-5 w-5" />
+                                            )}
+                                        </div>
+                                        <span className="font-medium">
+                                            {locationStatus}
+                                        </span>
+                                    </motion.div>
                                 )}
 
-                                <Button type="button" variant="outline" size="sm" className="mt-4" onClick={requestLocation} disabled={step3Locked || locationCollecting}>
-                                    {locationCollecting ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengambil...</> : <><RefreshCcw className="h-4 w-4" /> Ambil Ulang Lokasi</>}
-                                </Button>
+                                <div className="relative z-10 mt-5 text-center sm:text-left">
+                                    <motion.div
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="inline-block w-full sm:w-auto"
+                                    >
+                                        <Button
+                                            type="button"
+                                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:from-blue-400 hover:to-indigo-500 sm:w-auto"
+                                            onClick={requestLocation}
+                                            disabled={
+                                                step3Locked ||
+                                                locationCollecting
+                                            }
+                                        >
+                                            {locationCollecting ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
+                                                    Sinkronisasi GPS...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <RefreshCcw className="mr-2 h-4 w-4" />{' '}
+                                                    {sampleCount > 0
+                                                        ? 'Perbarui Lokasi'
+                                                        : 'Verifikasi Lokasi'}
+                                                </>
+                                            )}
+                                        </Button>
+                                    </motion.div>
+                                </div>
 
-                                <InputError message={form.errors.location_samples} />
-                                <InputError message={form.errors.latitude} />
-                                <InputError message={form.errors.longitude} />
-                                <InputError message={form.errors.location_accuracy_m} />
+                                <InputError
+                                    message={form.errors.location_samples}
+                                    className="mt-2 text-center sm:text-left"
+                                />
+                                <InputError
+                                    message={form.errors.latitude}
+                                    className="mt-1 text-center sm:text-left"
+                                />
+                                <InputError
+                                    message={form.errors.longitude}
+                                    className="mt-1 text-center sm:text-left"
+                                />
+                                <InputError
+                                    message={form.errors.location_accuracy_m}
+                                    className="mt-1 text-center sm:text-left"
+                                />
                             </>
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Step 4: Submit */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-black">
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    'flex h-10 w-10 items-center justify-center rounded-xl',
-                                    submitSuccess ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
-                                )}>
-                                    <Zap className="h-5 w-5" />
-                                </div>
+                    <motion.div
+                        variants={cardVariants}
+                        className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl sm:rounded-3xl sm:p-8 dark:border-white/5 dark:bg-neutral-900/40"
+                    >
+                        <div className="mb-6 flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:items-start sm:text-left">
+                            <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+                                <img
+                                    src={submitStepIcon}
+                                    alt="Icon Kirim Absensi"
+                                    className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.35)]"
+                                />
                                 <div>
-                                    <h2 className="font-semibold text-gray-900 dark:text-white">Kirim Absensi</h2>
-                                    <p className="text-sm text-gray-500">Pastikan semua langkah sudah lengkap</p>
+                                    <h2 className="text-lg font-bold text-neutral-900 sm:text-xl dark:text-white">
+                                        Kirim Absensi
+                                    </h2>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        {canSubmit
+                                            ? 'Semua langkah selesai.'
+                                            : 'Pastikan semua langkah sudah lengkap.'}
+                                    </p>
                                 </div>
                             </div>
-                            {submitSuccess && (
-                                <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                    <CheckCircle2 className="h-3 w-3" /> Terkirim
-                                </span>
-                            )}
+                            <AnimatePresence>
+                                {submitSuccess && (
+                                    <motion.span
+                                        initial={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: -120,
+                                        }}
+                                        animate={{
+                                            scale: 1,
+                                            opacity: 1,
+                                            rotate: 0,
+                                        }}
+                                        exit={{
+                                            scale: 0,
+                                            opacity: 0,
+                                            rotate: 120,
+                                        }}
+                                        transition={{
+                                            type: 'spring',
+                                            stiffness: 300,
+                                            damping: 20,
+                                        }}
+                                        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-lg"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Terkirim
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
                         </div>
 
-                        {/* Summary */}
-                        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">Token</span>
-                                <span className="font-mono text-sm text-gray-900 dark:text-white truncate max-w-[150px]">{tokenDone ? form.data.token : '-'}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">Selfie</span>
-                                <span className={cn('text-sm font-medium', selfieDone ? 'text-emerald-600' : 'text-gray-400')}>
-                                    {selfieRequired ? (selfieDone ? '✓ Tersimpan' : 'Belum') : 'Tidak wajib'}
+                        <div className="relative z-10 space-y-3 rounded-2xl border border-white/40 bg-white/60 p-5 shadow-inner dark:border-white/10 dark:bg-black/20">
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                    Token Scan
+                                </span>
+                                <span className="max-w-[180px] truncate font-mono text-sm font-bold text-neutral-900 dark:text-white">
+                                    {tokenDone ? form.data.token : '-'}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">Lokasi</span>
-                                <span className={cn('text-sm font-medium', locationDone ? 'text-emerald-600' : 'text-gray-400')}>
-                                    {locationDone ? '✓ Valid' : 'Belum'}
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                    Verifikasi Selfie
+                                </span>
+                                <span
+                                    className={cn(
+                                        'text-sm font-semibold',
+                                        selfieDone
+                                            ? 'text-emerald-600 dark:text-emerald-400'
+                                            : 'text-neutral-400',
+                                    )}
+                                >
+                                    {selfieRequired
+                                        ? selfieDone
+                                            ? 'Tersimpan'
+                                            : 'Belum'
+                                        : 'Tidak wajib'}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                    Verifikasi Lokasi
+                                </span>
+                                <span
+                                    className={cn(
+                                        'text-sm font-semibold',
+                                        locationDone
+                                            ? 'text-emerald-600 dark:text-emerald-400'
+                                            : 'text-neutral-400',
+                                    )}
+                                >
+                                    {locationDone ? 'Valid' : 'Belum'}
                                 </span>
                             </div>
                         </div>
 
                         {submitSuccess ? (
-                            <div className="mt-4 space-y-3">
-                                <div className="flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
-                                    <Sparkles className="h-6 w-6" />
-                                    <div>
-                                        <p className="font-semibold">Absensi Berhasil!</p>
-                                        <p className="text-sm">{submitMessage ?? 'Data absensi kamu sudah tercatat.'}</p>
+                            <div className="relative z-10 mt-6 space-y-4">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="flex items-center gap-4 rounded-2xl border border-emerald-200/50 bg-gradient-to-r from-emerald-50 to-teal-50 p-5 text-emerald-800 shadow-sm dark:border-emerald-700/50 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-200"
+                                >
+                                    <div className="shrink-0 rounded-xl bg-emerald-200 p-2 dark:bg-emerald-800">
+                                        <Sparkles className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
                                     </div>
-                                </div>
-                                <Button type="button" variant="outline" className="w-full" onClick={resetAttendance}>
-                                    <RefreshCcw className="h-4 w-4" /> Mulai Absen Baru
-                                </Button>
+                                    <div>
+                                        <p className="text-lg font-bold">
+                                            Absensi Berhasil!
+                                        </p>
+                                        <p className="text-sm opacity-90">
+                                            {submitMessage ??
+                                                'Data absensi kamu sudah tercatat dengan aman.'}
+                                        </p>
+                                    </div>
+                                </motion.div>
+
+                                <GamificationRewards
+                                    xpGained={gamification.xpGained}
+                                    currentStreak={gamification.currentStreak}
+                                    achievements={gamification.achievements}
+                                    leaderboardPosition={
+                                        gamification.leaderboardPosition
+                                    }
+                                    comboMultiplier={
+                                        gamification.comboMultiplier
+                                    }
+                                />
+
+                                <motion.div
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                >
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full border-white/40 font-semibold dark:border-white/10"
+                                        onClick={resetAttendance}
+                                        size="lg"
+                                    >
+                                        <RefreshCcw className="mr-2 h-5 w-5" />{' '}
+                                        Mulai Absen Sesi Lain
+                                    </Button>
+                                </motion.div>
                             </div>
                         ) : (
-                            <div className="mt-4 space-y-3">
-                                {/* Error Alert */}
-                                {submitError && (
-                                    <div className="flex items-start gap-3 rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800">
-                                        <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                                        <div>
-                                            <p className="font-semibold">Absensi Gagal!</p>
-                                            <p className="text-sm">{submitError}</p>
-                                        </div>
-                                    </div>
-                                )}
-                                <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white" disabled={form.processing || !canSubmit}>
-                                    {form.processing ? <><Loader2 className="h-4 w-4 animate-spin" /> Mengirim...</> : <><Zap className="h-4 w-4" /> Kirim Absensi</>}
-                                </Button>
+                            <div className="relative z-10 mt-6 space-y-4">
+                                <AnimatePresence>
+                                    {submitError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{
+                                                opacity: 1,
+                                                height: 'auto',
+                                            }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="overflow-hidden rounded-xl border border-rose-200/50 bg-rose-50 p-4 text-rose-800 shadow-sm dark:border-rose-800/50 dark:bg-rose-900/40 dark:text-rose-200"
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" />
+                                                <div>
+                                                    <p className="font-bold">
+                                                        Proses Gagal
+                                                    </p>
+                                                    <p className="mt-0.5 text-sm opacity-90">
+                                                        {submitError}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <motion.div
+                                    whileHover={
+                                        canSubmit ? { scale: 1.02 } : {}
+                                    }
+                                    whileTap={canSubmit ? { scale: 0.98 } : {}}
+                                >
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        className={cn(
+                                            'w-full text-lg font-bold shadow-lg transition-all',
+                                            canSubmit
+                                                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30 hover:from-emerald-400 hover:to-teal-500'
+                                                : 'border-none bg-neutral-200 text-neutral-400 shadow-none dark:bg-neutral-800 dark:text-neutral-500',
+                                        )}
+                                        disabled={form.processing || !canSubmit}
+                                    >
+                                        {form.processing ? (
+                                            <>
+                                                <Loader2 className="mr-3 h-5 w-5 animate-spin" />{' '}
+                                                Mengirim Data Absensi...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Zap className="mr-2 h-5 w-5" />{' '}
+                                                Kirim Absensi Sekarang
+                                            </>
+                                        )}
+                                    </Button>
+                                </motion.div>
+
                                 {!canSubmit && missingInfo.length > 0 && (
-                                    <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-                                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                                        <span>Lengkapi: {missingInfo.join(', ')}</span>
-                                    </div>
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="rounded-xl border border-amber-200/50 bg-amber-50/80 p-4 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/30 dark:text-amber-200"
+                                    >
+                                        <div className="mb-2 flex items-center justify-center gap-2 font-semibold sm:justify-start">
+                                            <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                                            <span>
+                                                Harap lengkapi langkah berikut:
+                                            </span>
+                                        </div>
+                                        <ul className="list-inside list-disc space-y-1 px-2 text-left text-xs">
+                                            {missingInfo.map((info, index) => (
+                                                <li key={index}>{info}</li>
+                                            ))}
+                                        </ul>
+                                    </motion.div>
                                 )}
                             </div>
                         )}
-                    </div>
+                    </motion.div>
                 </form>
+
+                <motion.div variants={cardVariants}>
+                    <SocialProof
+                        totalStudents={socialProof.totalStudents}
+                        attendedCount={
+                            submitSuccess
+                                ? socialProof.attendedCount + 1
+                                : socialProof.attendedCount
+                        }
+                        isFirstAttendee={socialProof.isFirstAttendee}
+                        recentAttendees={socialProof.recentAttendees}
+                        leaderboard={socialProof.leaderboard}
+                    />
+                </motion.div>
+
+                <motion.div variants={cardVariants} className="space-y-4">
+                    <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+                        <Shield className="h-5 w-5 text-purple-500" />
+                        Pengaturan & Keamanan
+                    </h2>
+                    <NotificationManager />
+                    <BiometricSetup />
+                </motion.div>
             </motion.div>
         </StudentLayout>
     );

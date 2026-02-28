@@ -68,8 +68,16 @@ class ProfileController extends Controller
         // Store new avatar
         $path = $request->file('avatar')->store('avatars/dosen', 'public');
 
-        $dosen->update([
-            'avatar_url' => '/storage/' . $path,
+        $avatarUrl = '/storage/' . $path;
+
+        // Use save() instead of update() to ensure it persists
+        $dosen->avatar_url = $avatarUrl;
+        $dosen->save();
+
+        \Log::info('Dosen avatar updated', [
+            'dosen_id' => $dosen->id,
+            'avatar_url' => $dosen->avatar_url,
+            'path' => $path,
         ]);
 
         return back()->with('success', 'Foto profil berhasil diperbarui.');

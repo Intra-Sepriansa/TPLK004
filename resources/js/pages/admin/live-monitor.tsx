@@ -22,7 +22,6 @@ import LiveMonitorIcon from '@/assets/admin/live-monitor/live-monitor-icon.png';
 import SesiAktifIcon from '@/assets/admin/live-monitor/sesi-aktif-icon.png';
 import ScanIcon from '@/assets/admin/live-monitor/scan-icon.png';
 import HadirIcon from '@/assets/admin/live-monitor/hadir-icon.png';
-import AnomaliIcon from '@/assets/admin/live-monitor/anomali-icon.png';
 
 type Activity = {
     id: number;
@@ -434,7 +433,7 @@ export default function LiveMonitor({
                         <StatCard imageIcon={SesiAktifIcon} label="Sesi Aktif" value={stats.activeSessions} color="purple" />
                         <StatCard imageIcon={ScanIcon} label="Scan Hari Ini" value={stats.totalScans} color="emerald" />
                         <StatCard imageIcon={HadirIcon} label="Hadir" value={stats.present} color="blue" />
-                        <StatCard imageIcon={AnomaliIcon} label="Anomali" value={stats.anomaly} color="red" />
+                        <StatCard icon={AlertTriangle} label="Anomali" value={stats.anomaly} color="red" />
                     </motion.div>
 
                     {/* 3. MAIN CONTENT (2-Column Layout) */}

@@ -47,4 +47,14 @@ class Mahasiswa extends Authenticatable
     {
         return $this->hasMany(AttendanceWarning::class, 'mahasiswa_id');
     }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(MahasiswaCourse::class, 'mahasiswa_id');
+    }
+
+    public function studyGroupMemberships(): HasMany
+    {
+        return $this->hasMany(StudyGroupMember::class, 'mahasiswa_id');
+    }
 }

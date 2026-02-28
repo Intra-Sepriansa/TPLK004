@@ -4,16 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import StudentLayout from '@/layouts/student-layout';
 import { Head, router } from '@inertiajs/react';
-import { Icon } from '@iconify/react';
 import {
     ArrowLeft,
     BarChart3,
     CheckCircle,
+    ClipboardList,
     Clock,
+    Heart,
+    Package,
+    PartyPopper,
     Plus,
-    Target,
     ThumbsDown,
     ThumbsUp,
+    UtensilsCrossed,
     Users,
     Vote,
     XCircle,
@@ -24,6 +27,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SedangVotingIcon from '@/assets/admin/voting-kas/icon-coting.png';
 import DisetujuiVotingIcon from '@/assets/admin/voting-kas/disetujui.png';
 import DitolakVotingIcon from '@/assets/admin/voting-kas/ditolak.png';
+import ApprovalRateIcon from '@/assets/mahasiswa/voting/approval.png';
 
 interface Props {
     votings: Array<{
@@ -58,13 +62,18 @@ interface Props {
     filters: { status: string };
 }
 
-const categories = [
-    { value: 'kegiatan', label: 'Kegiatan Kelas', icon: 'noto:party-popper', color: 'bg-purple-100 text-purple-700' },
-    { value: 'perlengkapan', label: 'Perlengkapan', icon: 'noto:package', color: 'bg-blue-100 text-blue-700' },
-    { value: 'konsumsi', label: 'Konsumsi', icon: 'noto:pizza', color: 'bg-orange-100 text-orange-700' },
-    { value: 'donasi', label: 'Donasi/Sosial', icon: 'noto:red-heart', color: 'bg-pink-100 text-pink-700' },
-    { value: 'lainnya', label: 'Lainnya', icon: 'noto:clipboard', color: 'bg-neutral-100 text-neutral-700' },
-] as const;
+const categories: Array<{
+    value: 'kegiatan' | 'perlengkapan' | 'konsumsi' | 'donasi' | 'lainnya';
+    label: string;
+    icon: LucideIcon;
+    color: string;
+}> = [
+    { value: 'kegiatan', label: 'Kegiatan Kelas', icon: PartyPopper, color: 'bg-purple-100 text-purple-700' },
+    { value: 'perlengkapan', label: 'Perlengkapan', icon: Package, color: 'bg-blue-100 text-blue-700' },
+    { value: 'konsumsi', label: 'Konsumsi', icon: UtensilsCrossed, color: 'bg-orange-100 text-orange-700' },
+    { value: 'donasi', label: 'Donasi/Sosial', icon: Heart, color: 'bg-pink-100 text-pink-700' },
+    { value: 'lainnya', label: 'Lainnya', icon: ClipboardList, color: 'bg-neutral-100 text-neutral-700' },
+];
 
 const getStatusConfig = (status: string): {
     icon: LucideIcon;
@@ -266,12 +275,12 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                             delay: 0.2,
                         },
                         {
-                            icon: Target,
+                            image: ApprovalRateIcon,
+                            cropImage: true,
                             label: 'Approval Rate',
                             value: approvalRate,
                             valueSuffix: '%',
                             progress: approvalRate,
-                            iconColor: 'text-purple-500',
                             shadowColor: 'hover:shadow-purple-500/10',
                             glow: 'bg-purple-500',
                             innerGrad: 'from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10',
@@ -301,26 +310,29 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         whileHover={{ scale: 1.1, rotate: 10 }}
                                         className="relative flex h-12 w-12 shrink-0 items-center justify-center sm:h-14 sm:w-14"
                                     >
-                                        {'image' in stat ? (
+                                        <div className={`absolute inset-0 ${stat.cropImage ? 'overflow-hidden rounded-xl' : ''}`}>
                                             <img
                                                 src={stat.image}
                                                 alt={stat.label}
-                                                className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]"
+                                                className={`absolute inset-0 h-full w-full ${stat.cropImage ? 'object-cover object-center' : 'object-contain'} drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]`}
+                                                style={
+                                                    stat.cropImage
+                                                        ? {
+                                                              clipPath: 'inset(10% 10% 10% 10%)',
+                                                              transform: 'scale(1.22)',
+                                                              transformOrigin: 'center',
+                                                          }
+                                                        : undefined
+                                                }
                                             />
-                                        ) : (
-                                            stat.icon && (
-                                                <stat.icon
-                                                    className={`h-full w-full object-contain ${stat.iconColor} drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]`}
-                                                />
-                                            )
-                                        )}
+                                        </div>
                                     </motion.div>
                                     <div className="flex-1 text-center sm:text-left">
                                         <p className="text-xs font-medium leading-tight text-neutral-500 dark:text-neutral-400 sm:text-sm">
                                             {stat.label}
                                         </p>
                                         <div className="mt-1 text-xl font-bold text-neutral-900 dark:text-white sm:text-2xl">
-                                            <AnimatedCounter value={stat.value} suffix={'valueSuffix' in stat ? stat.valueSuffix : ''} />
+                                            <AnimatedCounter value={stat.value} suffix={stat.valueSuffix ?? ''} />
                                         </div>
                                         <p className="mt-0.5 text-[10px] text-neutral-400 sm:text-xs">
                                             {stat.progress.toFixed(0)}% dari total
@@ -401,6 +413,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                         const statusConfig = getStatusConfig(voting.status);
                                         const StatusIcon = statusConfig.icon;
                                         const categoryConfig = categories.find((c) => c.value === voting.category) ?? categories[4];
+                                        const CategoryIcon = categoryConfig.icon;
 
                                         return (
                                             <motion.div
@@ -429,7 +442,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                                 {statusConfig.label}
                                                             </span>
                                                             <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium sm:px-2.5 sm:text-xs ${categoryConfig.color}`}>
-                                                                <Icon icon={categoryConfig.icon} className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                                                <CategoryIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                                                                 {categoryConfig.label}
                                                             </span>
                                                         </div>
@@ -520,7 +533,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                                 disabled={voting.my_vote === 'approve'}
                                                             >
                                                                 <img
-                                                                    src="/build/assets/disetujui.png"
+                                                                    src={DisetujuiVotingIcon}
                                                                     alt="Setuju"
                                                                     className="mr-1 h-4 w-4 object-contain"
                                                                 />
@@ -542,7 +555,7 @@ export default function KasVoting({ votings, stats, filters }: Props) {
                                                                 disabled={voting.my_vote === 'reject'}
                                                             >
                                                                 <img
-                                                                    src="/build/assets/ditolak.png"
+                                                                    src={DitolakVotingIcon}
                                                                     alt="Tolak"
                                                                     className="mr-1 h-4 w-4 object-contain"
                                                                 />

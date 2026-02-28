@@ -398,27 +398,6 @@ export default function AdminActivityLog({ logs, actions, stats, filters }: Page
                                 <div className="relative h-32 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 flex items-start justify-between overflow-hidden shrink-0">
                                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
 
-                                    {/* Floating Particles */}
-                                    {[...Array(5)].map((_, i) => (
-                                        <motion.div
-                                            key={i}
-                                            className="absolute w-2 h-2 bg-white/30 rounded-full"
-                                            style={{
-                                                left: `${Math.random() * 100}%`,
-                                                top: `${Math.random() * 100}%`,
-                                            }}
-                                            animate={{
-                                                y: [0, -20, 0],
-                                                opacity: [0.3, 0.6, 0.3],
-                                            }}
-                                            transition={{
-                                                duration: 3 + Math.random() * 2,
-                                                repeat: Infinity,
-                                                delay: Math.random() * 2,
-                                            }}
-                                        />
-                                    ))}
-
                                     <div className="relative z-10 flex items-center gap-4">
                                         <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-xl">
                                             <Activity className="h-8 w-8" />
