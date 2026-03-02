@@ -303,21 +303,14 @@ export default function DosenRekapan({
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
                 {/* ═══════ HEADER — Dosen Profile ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Pulses */}
-                    <motion.div className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} />
-                    <motion.div className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: 1 }} />
 
-                    <div className="relative">
+<div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
@@ -538,7 +531,7 @@ export default function DosenRekapan({
                     {!sessionId ? (
                         /* Empty: no session selected */
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-16 px-4">
-                            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                            <div>
                                 <ClipboardList className="h-24 w-24 text-neutral-300 dark:text-neutral-700 mb-4" />
                             </motion.div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Pilih Filter Terlebih Dahulu</h3>
@@ -547,7 +540,7 @@ export default function DosenRekapan({
                     ) : attendanceLogs.length === 0 ? (
                         /* Empty: no data */
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-16 px-4">
-                            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                            <div>
                                 <FileSearch className="h-24 w-24 text-neutral-300 dark:text-neutral-700 mb-4" />
                             </motion.div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Tidak Ada Data Kehadiran</h3>

@@ -195,10 +195,7 @@ export default function RekapanDetail({ log, mahasiswa, course, session, selfieV
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-20" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-
-                    <motion.div className="absolute right-20 top-1/2 -translate-y-1/2 h-28 w-28 rounded-full border-2 border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} />
-
-                    <div className="relative flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
+<div className="relative flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                         <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                             {/* Avatar */}
                             <motion.div whileHover={{ scale: 1.05, rotate: 5 }}

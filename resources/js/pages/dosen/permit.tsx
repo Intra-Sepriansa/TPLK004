@@ -159,15 +159,14 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
 
                 {/* ════════════════ HEADER ════════════════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl min-h-[160px] md:min-h-[180px]">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     {/* Decorative orbs */}
                     <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-pink-400/10 blur-3xl" />
                     <div className="absolute top-1/2 left-1/3 h-48 w-48 rounded-full bg-indigo-300/10 blur-3xl" />
                     {/* Animated pulse rings */}
-                    {[0, 1, 2].map(i => <motion.div key={i} className="absolute right-20 top-1/2 -translate-y-1/2 h-36 w-36 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.8], opacity: [0.4, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeOut', delay: i * 1.2 }} />)}
-                    {/* Grid pattern overlay */}
+{/* Grid pattern overlay */}
                     <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                     <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
@@ -294,7 +293,7 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                                                             <p className="font-bold text-sm truncate text-neutral-900 dark:text-white">{p.mahasiswa.nama}</p>
                                                             <p className="text-[11px] text-neutral-500 font-medium">{p.mahasiswa.nim}</p>
                                                         </div>
-                                                        {p.is_urgent && <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20"><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
+                                                        {p.is_urgent && <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20"><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
                                                     </div>
 
                                                     {/* Meta Info Row */}

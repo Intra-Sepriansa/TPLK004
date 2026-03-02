@@ -205,25 +205,10 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 md:p-6 space-y-6">
                 {/* ═══════ HEADER ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* 3 Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i}
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }}
-                        />
-                    ))}
 
                     <div className="relative">
                         {/* Back link */}

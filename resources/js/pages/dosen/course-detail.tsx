@@ -290,51 +290,14 @@ export default function CourseDetail({
                 {/* ═══════ ENHANCED HEADER ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-[2.5rem] p-5 md:p-6 text-white shadow-2xl isolate">
                     <div className="absolute inset-0 bg-neutral-900 z-0" />
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                            filter: ['hue-rotate(0deg)', 'hue-rotate(15deg)', 'hue-rotate(0deg)'],
-                        }}
-                        transition={{
-                            duration: 18,
-                            repeat: Infinity,
-                            ease: "linear",
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90" />
 
                     {/* Complex Floating Orbs & Light Effects */}
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay" />
                     <div className="absolute -top-40 -right-40 w-96 h-96 bg-pink-500/40 rounded-full blur-[100px] mix-blend-screen" />
                     <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600/40 rounded-full blur-[100px] mix-blend-screen" />
 
-                    {[...Array(5)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-white/10 blur-xl mix-blend-overlay"
-                            style={{
-                                width: Math.random() * 100 + 50,
-                                height: Math.random() * 100 + 50,
-                                left: `${Math.random() * 100}%`,
-                                top: `${Math.random() * 100}%`,
-                            }}
-                            animate={{
-                                y: [0, Math.random() * -100, 0],
-                                x: [0, Math.random() * 50 - 25, 0],
-                                opacity: [0.3, 0.6, 0.3],
-                                scale: [1, 1.2, 1],
-                            }}
-                            transition={{
-                                duration: Math.random() * 10 + 10,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: Math.random() * 5,
-                            }}
-                        />
-                    ))}
+
 
                     <div className="relative z-10">
                         {/* ═══ BACK BUTTON ═══ */}

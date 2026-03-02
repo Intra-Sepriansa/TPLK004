@@ -146,23 +146,14 @@ export default function DosenProfile() {
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white dark:bg-neutral-950 shadow-2xl">
                     {/* ─── Gradient Banner ─── */}
                     <div className="relative h-44 md:h-56 overflow-hidden">
-                        <motion.div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-500 to-fuchsia-500"
-                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-                            style={{ backgroundSize: '200% 200%' }} />
+                        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-500 to-fuchsia-500" />
                         {/* Decorative elements */}
                         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '40px 40px, 60px 60px' }} />
                         <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/15 blur-3xl" />
                         <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-pink-400/20 blur-3xl" />
                         <div className="absolute right-1/3 top-1/3 h-32 w-32 rounded-full bg-indigo-300/15 blur-3xl" />
                         {/* Animated orbs */}
-                        {[0, 1, 2].map(i => (
-                            <motion.div key={i} className="absolute rounded-full bg-white/10"
-                                style={{ width: 12 + i * 8, height: 12 + i * 8, left: `${20 + i * 30}%`, top: `${30 + i * 15}%` }}
-                                animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
-                                transition={{ duration: 3 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.5 }} />
-                        ))}
-                        {/* Action buttons on banner */}
+{/* Action buttons on banner */}
                         <div className="absolute top-4 right-4 flex items-center gap-2">
                             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                                 className="p-2.5 rounded-xl bg-black/20 backdrop-blur-xl border border-white/10 text-white hover:bg-black/30 transition-colors">
@@ -220,7 +211,7 @@ export default function DosenProfile() {
                             <div className="mt-4 text-center space-y-2">
                                 <div className="flex items-center justify-center gap-2">
                                     <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">{dosen.nama}</h1>
-                                    <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                                    <div>
                                         <Sparkles className="h-5 w-5 text-amber-500" />
                                     </motion.div>
                                 </div>

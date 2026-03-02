@@ -135,30 +135,8 @@ export default function DosenDocs() {
                 <Head title="Documentation" />
                 <div className="space-y-6 p-6">
                     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                rotate: [0, 90, 0],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1.2, 1, 1.2],
-                                rotate: [0, -90, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl"
-                        />
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+                        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
                         <div className="relative">
                             <div className="flex items-center gap-4">
                                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
@@ -189,41 +167,14 @@ export default function DosenDocs() {
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600" />
 
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Pulsating Rings */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
+
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">

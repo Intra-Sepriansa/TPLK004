@@ -235,12 +235,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        style={{ backgroundSize: '200% 200%' }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
 
                     {/* Overlay & Orbs */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
@@ -248,16 +243,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* 3 PULSE RINGS (Animated) */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div
-                            key={i}
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i }}
-                        />
-                    ))}
-
-                    <div className="relative">
+<div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
@@ -572,8 +558,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                         <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-5xl rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
                             <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shrink-0">
                                 <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                                {[0, 1, 2].map(i => (<motion.div key={i} className="absolute right-10 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: i * 0.8 }} />))}
-                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><GitCompare className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">Bandingkan Kelas</h3><p className="text-sm text-white/80">Analisis komparatif antar mata kuliah</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowCompareModal(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
+<div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><GitCompare className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">Bandingkan Kelas</h3><p className="text-sm text-white/80">Analisis komparatif antar mata kuliah</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowCompareModal(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
                             </div>
                             <div className="p-6 space-y-6 overflow-y-auto flex-1">
                                 <div className="grid grid-cols-2 gap-4">
@@ -609,7 +594,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                         <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-4xl rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
                             <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-500 p-6 text-white shrink-0">
                                 <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><motion.div animate={{ rotate: [0, 360] }} transition={{ duration: 3, repeat: Infinity, ease: 'linear' }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><Sparkles className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">AI Insights</h3><p className="text-sm text-white/80">Analisis cerdas & rekomendasi</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowAIInsights(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
+                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><Sparkles className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">AI Insights</h3><p className="text-sm text-white/80">Analisis cerdas & rekomendasi</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowAIInsights(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
                             </div>
                             <div className="p-6 space-y-4 overflow-y-auto flex-1">
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-blue-200/50 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/20 p-5 flex gap-4">

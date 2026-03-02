@@ -424,41 +424,14 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600"
-                        animate={{
-                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-                        }}
-                        transition={{
-                            duration: 15,
-                            repeat: Infinity,
-                            ease: "linear"
-                        }}
-                        style={{
-                            backgroundSize: '200% 200%',
-                        }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600" />
 
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Pulsating Rings */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
+
 
                     <div className="relative">
                         <button
@@ -580,8 +553,8 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                                         key={section.id}
                                         onClick={() => setActiveSection(section.id)}
                                         className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 ${activeSection === section.id
-                                                ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/30'
-                                                : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
+                                            ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/30'
+                                            : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
@@ -809,76 +782,31 @@ export default function DosenDocsDetail({ guideId, dosen }: Props) {
                             <div className="relative bg-white dark:bg-neutral-900 rounded-3xl p-12 shadow-2xl border-4 border-emerald-500 max-w-md">
                                 {/* Floating icons */}
                                 <div className="absolute -top-8 -left-8">
-                                    <motion.div
-                                        animate={{
-                                            rotate: [0, 360],
-                                            scale: [1, 1.2, 1]
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg"
-                                    >
+                                    <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
                                         <Award className="w-8 h-8 text-white" />
-                                    </motion.div>
+                                    </div>
                                 </div>
 
                                 <div className="absolute -top-8 -right-8">
-                                    <motion.div
-                                        animate={{
-                                            rotate: [360, 0],
-                                            scale: [1, 1.2, 1]
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
-                                            delay: 0.5
-                                        }}
-                                        className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg"
-                                    >
+                                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
                                         <Star className="w-8 h-8 text-white" />
-                                    </motion.div>
+                                    </div>
                                 </div>
 
                                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2">
-                                    <motion.div
-                                        animate={{
-                                            y: [0, -10, 0],
-                                            scale: [1, 1.1, 1]
-                                        }}
-                                        transition={{
-                                            duration: 1.5,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg"
-                                    >
+                                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
                                         <Sparkles className="w-8 h-8 text-white" />
-                                    </motion.div>
+                                    </div>
                                 </div>
 
                                 {/* Content */}
                                 <div className="text-center space-y-6">
                                     {/* Trophy icon */}
-                                    <motion.div
-                                        animate={{
-                                            scale: [1, 1.1, 1],
-                                            rotate: [0, 5, -5, 0]
-                                        }}
-                                        transition={{
-                                            duration: 1,
-                                            repeat: Infinity,
-                                            ease: "easeInOut"
-                                        }}
-                                        className="flex justify-center"
-                                    >
+                                    <div className="flex justify-center">
                                         <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-2xl">
                                             <Award className="w-14 h-14 text-white" />
                                         </div>
-                                    </motion.div>
+                                    </div>
 
                                     {/* Text */}
                                     <div className="space-y-3">

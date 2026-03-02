@@ -97,22 +97,13 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     className="relative overflow-hidden rounded-3xl p-8 shadow-2xl"
                 >
                     {/* Animated gradient bg */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Pulse rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />
-                    ))}
-
-                    <div className="relative">
+<div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
@@ -130,7 +121,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                             <Badge className={`${getPriorityStyle(tugas.prioritas)} px-4 py-1.5 text-sm font-semibold capitalize flex items-center gap-1.5`}><Zap className="h-3.5 w-3.5" />{tugas.prioritas}</Badge>
                             <Badge className={`${getStatusStyle(tugas.status)} px-4 py-1.5 text-sm font-semibold capitalize flex items-center gap-1.5`}><CheckCircle className="h-3.5 w-3.5" />{tugas.status}</Badge>
                             <Badge className="bg-white/20 text-white px-4 py-1.5 text-sm font-semibold capitalize flex items-center gap-1.5 border border-white/30 backdrop-blur-md"><FileText className="h-3.5 w-3.5" />{tugas.jenis}</Badge>
-                            {tugas.is_overdue && <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}><Badge className="bg-red-500/80 text-white px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 border border-red-400/30 backdrop-blur-md"><AlertTriangle className="h-3.5 w-3.5" />Overdue</Badge></motion.div>}
+                            {tugas.is_overdue && <div><Badge className="bg-red-500/80 text-white px-4 py-1.5 text-sm font-semibold flex items-center gap-1.5 border border-red-400/30 backdrop-blur-md"><AlertTriangle className="h-3.5 w-3.5" />Overdue</Badge></motion.div>}
                         </div>
 
                         {/* Summary stats in header */}
@@ -260,7 +251,7 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     <div className="relative p-6 space-y-4 max-h-[600px] overflow-y-auto">
                         {diskusi.length === 0 ? (
                             <motion.div className="text-center py-20" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-                                <motion.div className="relative mx-auto w-32 h-32 mb-8" animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }}>
+                                <div className="relative mx-auto w-32 h-32 mb-8">
                                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl" />
                                     <div className="relative flex items-center justify-center w-full h-full bg-gradient-to-br from-purple-500 to-pink-600 rounded-full shadow-2xl shadow-purple-500/30">
                                         <MessageSquare className="h-16 w-16 text-white" />

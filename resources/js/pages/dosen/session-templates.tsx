@@ -274,26 +274,10 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Gradient Background */}
-                    <motion.div
-                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                        style={{ backgroundSize: '200% 200%' }}
-                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* 3 Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div
-                            key={i}
-                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }}
-                        />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -450,7 +434,7 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                 {
                     filteredTemplates.length === 0 ? (
                         <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/50 p-12 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50 text-center">
-                            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
+                            <div>
                                 <FileText className="h-16 w-16 mx-auto mb-4 text-neutral-300" />
                             </motion.div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
@@ -573,9 +557,7 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                 {/* Modal Header */}
                                 <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                                    {[0, 1, 2].map(i => (
-                                        <motion.div key={i} className="absolute right-10 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: i * 0.8 }} />
-                                    ))}
+
                                     <div className="relative flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
@@ -750,9 +732,9 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                 <div className="relative overflow-hidden bg-gradient-to-br from-red-600 via-rose-600 to-pink-500 p-6 text-white">
                                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
                                     <div className="relative flex items-center gap-3">
-                                        <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 1, repeat: Infinity }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
                                             <AlertTriangle className="h-6 w-6" />
-                                        </motion.div>
+                                        </div>
                                         <div>
                                             <h3 className="text-lg font-bold">Hapus Template</h3>
                                             <p className="text-sm text-white/80">Tindakan ini tidak dapat dibatalkan</p>

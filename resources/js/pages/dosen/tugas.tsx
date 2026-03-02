@@ -341,7 +341,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     <div className="p-4">
                         {filteredList.length === 0 ? (
                             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-16">
-                                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="mx-auto w-20 h-20 mb-6 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full"><FileText className="h-10 w-10 text-white" /></motion.div>
+                                <div className="mx-auto w-20 h-20 mb-6 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full"><FileText className="h-10 w-10 text-white" /></motion.div>
                                 <p className="text-xl font-semibold text-slate-700 dark:text-slate-300">Belum ada tugas</p>
                                 <p className="text-sm text-slate-500 mt-2">Klik "Tambah Tugas" untuk memulai</p>
                                 <Button onClick={() => setShowCreate(true)} className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"><Plus className="mr-2 h-4 w-4" /> Tambah Tugas</Button>
@@ -502,11 +502,11 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                         <motion.div variants={modalVariants} className="relative w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
                             {/* Modal Header */}
                             <div className="relative overflow-hidden p-6 text-white flex-shrink-0">
-                                <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                                 <div className="relative z-10">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-4">
-                                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><ClipboardList className="h-7 w-7" /></motion.div>
+                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><ClipboardList className="h-7 w-7" /></motion.div>
                                             <div><h2 className="text-xl font-bold">{detailTugas.judul}</h2><p className="text-white/70 text-sm mt-1">{detailTugas.course.nama}</p></div>
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => setShowDetail(false)} className="text-white hover:bg-white/20"><X className="h-5 w-5" /></Button>

@@ -486,9 +486,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                                     <td className="px-4 py-4 text-center">
                                                         {session.is_active ? (
                                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-semibold text-emerald-700 dark:text-emerald-400 shadow-sm">
-                                                                <motion.span className="h-2 w-2 rounded-full bg-emerald-500"
-                                                                    animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
-                                                                    transition={{ duration: 2, repeat: Infinity }} />
+                                                                <span className="h-2 w-2 rounded-full bg-emerald-500" />
                                                                 Aktif
                                                             </span>
                                                         ) : (
@@ -559,8 +557,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                                 </div>
                                                 {session.is_active ? (
                                                     <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                                                        <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-500"
-                                                            animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                         Aktif
                                                     </span>
                                                 ) : (

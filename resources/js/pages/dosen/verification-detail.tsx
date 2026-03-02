@@ -191,24 +191,10 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(139,92,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.3) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
                         {/* Floating particles */}
-                        {Array.from({ length: 30 }).map((_, i) => (
-                            <motion.div key={`p-${i}`}
-                                className="absolute h-1 w-1 rounded-full bg-violet-400/60"
-                                style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
-                                animate={{ y: [0, -30, 0], opacity: [0.2, 0.8, 0.2], scale: [1, 1.5, 1] }}
-                                transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 3 }}
-                            />
-                        ))}
+
 
                         {/* Orbital rings */}
-                        {[0, 1, 2].map(i => (
-                            <motion.div key={`ring-${i}`}
-                                className="absolute rounded-full border border-violet-500/20"
-                                style={{ width: 300 + i * 120, height: 300 + i * 120 }}
-                                animate={{ rotate: i % 2 === 0 ? 360 : -360, scale: [1, 1.05, 1] }}
-                                transition={{ rotate: { duration: 15 + i * 5, repeat: Infinity, ease: 'linear' }, scale: { duration: 3, repeat: Infinity } }}
-                            />
-                        ))}
+
 
                         {/* Central scan container */}
                         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }}
@@ -223,9 +209,7 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                                 <div className="text-center mb-8">
                                     <motion.div className="relative mx-auto w-20 h-20 mb-4"
                                         animate={scanComplete ? { scale: [1, 1.2, 1] } : {}}>
-                                        <motion.div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 opacity-30"
-                                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0.1, 0.3] }}
-                                            transition={{ duration: 2, repeat: Infinity }} />
+                                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 opacity-30" />
                                         <div className="relative h-full w-full rounded-full bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center border-2 border-violet-400/50 shadow-lg shadow-violet-500/50">
                                             {scanComplete ? (
                                                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, delay: 0.2 }}>
@@ -256,9 +240,8 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                                     <div className="h-2 rounded-full bg-neutral-800 overflow-hidden relative">
                                         <motion.div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-violet-600 via-indigo-500 to-purple-500"
                                             style={{ width: `${scanProgress}%` }} transition={{ duration: 0.15 }} />
-                                        <motion.div className="absolute inset-y-0 left-0 rounded-full bg-white/20"
-                                            style={{ width: `${scanProgress}%` }}
-                                            animate={{ opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                                        <div className="absolute inset-y-0 left-0 rounded-full bg-white/20"
+                                            style={{ width: `${scanProgress}%` }} />
                                     </div>
                                 </div>
 
@@ -305,9 +288,9 @@ export default function VerificationDetailPage({ verification: v }: Props) {
                                                 </div>
                                                 {/* Status indicator */}
                                                 {isActive && (
-                                                    <motion.div className="flex gap-1" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }}>
+                                                    <div className="flex gap-1">
                                                         {[0, 1, 2].map(d => <div key={d} className="h-1.5 w-1.5 rounded-full bg-violet-400" />)}
-                                                    </motion.div>
+                                                    </div>
                                                 )}
                                                 {isDone && <span className="text-[9px] text-emerald-400 font-bold">DONE</span>}
                                             </motion.div>
@@ -317,9 +300,7 @@ export default function VerificationDetailPage({ verification: v }: Props) {
 
                                 {/* Scan line effect for active */}
                                 {!scanComplete && scanStage >= 0 && (
-                                    <motion.div className="mt-4 h-0.5 bg-gradient-to-r from-transparent via-violet-500 to-transparent rounded-full"
-                                        animate={{ opacity: [0, 1, 0], scaleX: [0.3, 1, 0.3] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }} />
+                                    <div className="mt-4 h-0.5 bg-gradient-to-r from-transparent via-violet-500 to-transparent rounded-full opacity-50" />
                                 )}
 
                                 {/* Complete message */}
@@ -351,17 +332,10 @@ export default function VerificationDetailPage({ verification: v }: Props) {
 
                 {/* ═══ HEADER CARD ═══ */}
                 <motion.div variants={iV} className="relative overflow-hidden rounded-3xl shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />
-                    ))}
                     <div className="relative p-8">
                         <div className="flex flex-wrap items-center gap-6">
                             <div className="relative">

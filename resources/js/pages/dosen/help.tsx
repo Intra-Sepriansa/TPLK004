@@ -119,8 +119,8 @@ export default function DosenHelp({ auth }: any) {
           <div className="absolute inset-0 opacity-20 mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
 
           {/* Pulsating Rings & Floating Orbs */}
-          <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-white/20 blur-3xl pointer-events-none" />
-          <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
+          <div className="absolute -right-20 -top-20 h-[500px] w-[500px] rounded-full bg-white/20 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-indigo-500/20 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto space-y-6">
             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: "spring", stiffness: 300, damping: 15 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">

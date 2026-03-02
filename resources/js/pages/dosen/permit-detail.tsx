@@ -152,20 +152,12 @@ export default function PermitDetail({ permit }: Props) {
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white dark:bg-neutral-950 shadow-2xl">
                     {/* Gradient Banner */}
                     <div className="relative h-40 md:h-52 overflow-hidden">
-                        <motion.div className={`absolute inset-0 bg-gradient-to-br ${sc.color}`}
-                            style={{ backgroundSize: '200% 200%' }}
-                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }} />
+                        <div className={`absolute inset-0 bg-gradient-to-br ${sc.color}`} />
                         {/* Decorative */}
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 75%, white 1px, transparent 1px), radial-gradient(circle at 75% 25%, white 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
                         <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
                         <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                        {[0, 1, 2, 3].map(i => (
-                            <motion.div key={i} className="absolute rounded-full bg-white/15"
-                                style={{ width: 8 + i * 6, height: 8 + i * 6, left: `${15 + i * 22}%`, top: `${20 + i * 15}%` }}
-                                animate={{ y: [0, -15, 0], opacity: [0.3, 0.6, 0.3] }}
-                                transition={{ duration: 3 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }} />
-                        ))}
+
                         {/* Status badge on banner */}
                         <div className="absolute top-5 right-5 flex items-center gap-2">
                             <div className={cn("flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-xl border border-white/20 bg-white/15 text-white font-bold text-sm")}>
@@ -173,10 +165,9 @@ export default function PermitDetail({ permit }: Props) {
                                 {sc.label}
                             </div>
                             {permit.is_urgent && (
-                                <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 1.5, repeat: Infinity }}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl backdrop-blur-xl bg-red-500/30 border border-red-400/30 text-white text-xs font-bold">
+                                <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl backdrop-blur-xl bg-red-500/30 border border-red-400/30 text-white text-xs font-bold">
                                     <AlertTriangle className="h-4 w-4" /> Urgent
-                                </motion.div>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -249,8 +240,7 @@ export default function PermitDetail({ permit }: Props) {
                     ].map((info, i) => (
                         <motion.div key={i} variants={itemVariants} whileHover={{ y: -3 }}
                             className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-5 shadow-lg hover:shadow-xl transition-all">
-                            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.15, 0.08] }} transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-                                className={`absolute -top-4 -right-4 h-20 w-20 rounded-full ${info.glow} blur-2xl`} />
+                            <div className={`absolute -top-4 -right-4 h-20 w-20 rounded-full ${info.glow} blur-2xl opacity-10`} />
                             <div className="relative">
                                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${info.color} text-white shadow-lg mb-3`}>
                                     <info.icon className="h-5 w-5" />
@@ -308,9 +298,9 @@ export default function PermitDetail({ permit }: Props) {
                                     <p className="text-[11px] text-purple-500">Analisis otomatis berbasis machine learning</p>
                                 </div>
                                 <div className="ml-auto">
-                                    <motion.div animate={{ rotate: [0, 360] }} transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}>
+                                    <div>
                                         <Activity className="h-4 w-4 text-purple-400" />
-                                    </motion.div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="p-5 space-y-5">
@@ -404,10 +394,9 @@ export default function PermitDetail({ permit }: Props) {
                                     {/* Pending */}
                                     {permit.status === 'pending' && (
                                         <div className="relative">
-                                            <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}
-                                                className="absolute -left-6 top-0.5 h-5 w-5 rounded-full bg-amber-500 border-2 border-white dark:border-neutral-950 shadow flex items-center justify-center">
+                                            <div className="absolute -left-6 top-0.5 h-5 w-5 rounded-full bg-amber-500 border-2 border-white dark:border-neutral-950 shadow flex items-center justify-center">
                                                 <Clock className="h-2.5 w-2.5 text-white" />
-                                            </motion.div>
+                                            </div>
                                             <p className="text-xs font-bold text-amber-600">Menunggu Keputusan</p>
                                             <p className="text-[11px] text-neutral-500">Belum diproses</p>
                                         </div>
