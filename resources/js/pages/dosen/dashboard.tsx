@@ -4,7 +4,7 @@ import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
     AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { BookOpen, Users, Calendar, TrendingUp, Clock, CheckCircle2, AlertCircle, ChevronRight, Play, Eye, QrCode, FileText, BarChart3, Settings, ClipboardList, Zap, X, Sparkles, Award, Image, GraduationCap, LayoutDashboard, Presentation } from 'lucide-react';
+import { BookOpen, Users, Calendar, TrendingUp, Clock, CheckCircle2, AlertCircle, ChevronRight, Play, Eye, QrCode, ClipboardList, Zap, X, Sparkles, Award, Image, GraduationCap, LayoutDashboard, Presentation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn, formatShortName } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +14,11 @@ import StatTotalCourse from '@/assets/dosen/dashboard/stat-total-course.png';
 import StatTotalStudents from '@/assets/dosen/dashboard/stat-total-students.png';
 import StatTotalSessions from '@/assets/dosen/dashboard/stat-total-sessions.png';
 import StatAttendanceRate from '@/assets/dosen/dashboard/stat-attendance-rate.png';
+import SesiBaruIcon from '@/assets/admin/sesi-absen/sesi-baru-icon.png';
+import SelfieIcon from '@/assets/admin/verifikasi-selfie/verifikasi-selfie.png';
+import RekapIcon from '@/assets/admin/rekap-kehadiran/rekapan.png';
+import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
+import PengaturanIcon from '@/assets/admin/pengaturan/pengaturan.png';
 
 interface DosenInfo { id: number; nama: string; nidn: string; email: string; avatar_url?: string; initials: string; }
 interface TodaySchedule { id: number; course_name: string; meeting_number: number; time: string; room: string; student_count: number; }
@@ -47,6 +52,11 @@ const containerVariants = {
 const itemVariants = {
     hidden: { opacity: 0, y: 60, scale: 0.9, rotateX: -10, filter: 'blur(8px)' },
     visible: { opacity: 1, y: 0, scale: 1, rotateX: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 300, damping: 15, mass: 0.8 } },
+} as const;
+
+const headerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
 } as const;
 
 const cardVariants = {
@@ -99,12 +109,12 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
     }, []);
 
     const quickActions = [
-        { icon: QrCode, label: 'Buat Sesi Baru', href: '/dosen/sessions/create', gradient: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-500/20', glow: 'bg-emerald-500', shadow: 'shadow-emerald-500/25', desc: 'Mulai sesi absensi baru', stat: `${stats.thisMonthSessions} bulan ini`, statColor: 'text-emerald-600 dark:text-emerald-400' },
-        { icon: Eye, label: 'Verifikasi Selfie', href: '/dosen/verify', gradient: 'from-amber-500 to-orange-600', ring: 'ring-amber-500/20', glow: 'bg-amber-500', shadow: 'shadow-amber-500/25', desc: 'Review foto kehadiran', stat: `${stats.pendingCount} menunggu`, statColor: 'text-amber-600 dark:text-amber-400', badge: stats.pendingCount },
-        { icon: FileText, label: 'Lihat Laporan', href: '/dosen/reports', gradient: 'from-sky-500 to-blue-600', ring: 'ring-sky-500/20', glow: 'bg-sky-500', shadow: 'shadow-sky-500/25', desc: 'Export & analisis data', stat: 'Realtime', statColor: 'text-sky-600 dark:text-sky-400' },
-        { icon: ClipboardList, label: 'Kelola Tugas', href: '/dosen/tugas', gradient: 'from-violet-500 to-purple-600', ring: 'ring-violet-500/20', glow: 'bg-violet-500', shadow: 'shadow-violet-500/25', desc: 'Buat & kelola tugas', stat: 'Buat baru', statColor: 'text-violet-600 dark:text-violet-400' },
-        { icon: BarChart3, label: 'Statistik Kelas', href: '/dosen/class-insights', gradient: 'from-indigo-500 to-blue-600', ring: 'ring-indigo-500/20', glow: 'bg-indigo-500', shadow: 'shadow-indigo-500/25', desc: 'Analisis mendalam', stat: `${stats.totalCourses} kelas`, statColor: 'text-indigo-600 dark:text-indigo-400' },
-        { icon: Settings, label: 'Pengaturan', href: '/dosen/settings', gradient: 'from-slate-500 to-gray-600', ring: 'ring-slate-500/20', glow: 'bg-slate-500', shadow: 'shadow-slate-500/25', desc: 'Konfigurasi akun', stat: 'Profil', statColor: 'text-slate-600 dark:text-slate-400' },
+        { imgSrc: SesiBaruIcon, label: 'Buat Sesi Baru', href: '/dosen/sessions/create', glow: 'bg-emerald-500', shadow: 'shadow-emerald-500/25', desc: 'Mulai sesi absensi baru', stat: `${stats.thisMonthSessions} bulan ini`, statColor: 'text-emerald-600 dark:text-emerald-400' },
+        { imgSrc: SelfieIcon, label: 'Verifikasi Selfie', href: '/dosen/verify', glow: 'bg-amber-500', shadow: 'shadow-amber-500/25', desc: 'Review foto kehadiran', stat: `${stats.pendingCount} menunggu`, statColor: 'text-amber-600 dark:text-amber-400', badge: stats.pendingCount },
+        { imgSrc: RekapIcon, label: 'Lihat Laporan', href: '/dosen/reports', glow: 'bg-sky-500', shadow: 'shadow-sky-500/25', desc: 'Export & analisis data', stat: 'Realtime', statColor: 'text-sky-600 dark:text-sky-400' },
+        { imgSrc: TugasIcon, label: 'Kelola Tugas', href: '/dosen/tugas', glow: 'bg-violet-500', shadow: 'shadow-violet-500/25', desc: 'Buat & kelola tugas', stat: 'Buat baru', statColor: 'text-violet-600 dark:text-violet-400' },
+        { imgSrc: StatTotalCourse, label: 'Statistik Kelas', href: '/dosen/class-insights', glow: 'bg-indigo-500', shadow: 'shadow-indigo-500/25', desc: 'Analisis mendalam', stat: `${stats.totalCourses} kelas`, statColor: 'text-indigo-600 dark:text-indigo-400' },
+        { imgSrc: PengaturanIcon, label: 'Pengaturan', href: '/dosen/settings', glow: 'bg-slate-500', shadow: 'shadow-slate-500/25', desc: 'Konfigurasi akun', stat: 'Profil', statColor: 'text-slate-600 dark:text-slate-400' },
     ];
 
     const summaryCards = [
@@ -120,7 +130,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
 
                 {/* ═══════ HEADER ═══════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
+                <motion.div variants={headerVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
                     {/* Animated Gradient Background */}
                     <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
                         animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
@@ -140,10 +150,11 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
-                                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                <motion.div whileHover={{ scale: 1.05, rotate: 5 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 >
                                     <img src={DashboardIcon} alt="Dashboard" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
@@ -172,7 +183,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         <p className="text-2xl font-bold text-white">{stats.attendanceRate}%</p>
                                     </div>
                                 </motion.div>
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
                                     className="flex flex-wrap justify-center gap-2">
                                     {[
                                         { icon: QrCode, label: 'Buat Sesi', href: '/dosen/sessions/create' },
@@ -242,17 +253,6 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Progress bar */}
-                                    <div className="mt-auto w-full pt-2 sm:pt-4">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div
-                                                className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: card.suffix === '%' ? `${card.value}%` : '70%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: "easeOut" }}
-                                            />
-                                        </div>
-                                    </div>
                                 </div>
                             </motion.div>
                         );
@@ -280,12 +280,12 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                             </div>
                         </div>
                         <motion.div whileHover={{ scale: 1.05 }}
-                            className="px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 dark:border-indigo-800/50">
+                            className="hidden sm:block px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 dark:border-indigo-800/50">
                             <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">{quickActions.length} fitur</span>
                         </motion.div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 relative z-10">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 relative z-10">
                         {quickActions.map((action, i) => (
                             <Link key={action.href} href={action.href}>
                                 <motion.div
@@ -295,7 +295,7 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     whileHover={{ scale: 1.04, y: -6, boxShadow: '0 20px 40px -10px rgba(0,0,0,0.15)' }}
                                     whileTap={{ scale: 0.97 }}
                                     className={cn(
-                                        "group relative rounded-2xl border border-white/30 dark:border-white/10 bg-white/70 dark:bg-neutral-800/70 p-3 sm:p-5 cursor-pointer backdrop-blur-lg transition-all duration-300 overflow-hidden",
+                                        "group relative rounded-2xl border border-white/30 dark:border-white/10 bg-white/70 dark:bg-neutral-800/70 p-3 sm:p-5 cursor-pointer backdrop-blur-lg transition-all duration-300 overflow-hidden min-h-[112px] sm:min-h-[132px]",
                                         `hover:${action.shadow}`
                                     )}>
                                     {/* Animated shimmer sweep */}
@@ -305,22 +305,22 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                     <motion.div className={cn("absolute -bottom-6 -right-6 w-24 h-24 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-all duration-500", action.glow)} />
 
                                     {/* Decorative dots grid */}
-                                    <div className="absolute top-3 right-3 grid grid-cols-3 gap-1 opacity-0 group-hover:opacity-30 transition-opacity duration-300">
+                                    <div className="absolute top-3 right-3 hidden sm:grid grid-cols-3 gap-1 opacity-0 group-hover:opacity-30 transition-opacity duration-300">
                                         {[...Array(9)].map((_, di) => (
                                             <div key={di} className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-500" />
                                         ))}
                                     </div>
 
-                                    <div className="relative z-10 flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                                    <div className="relative z-10 flex h-full flex-col items-center gap-2 sm:flex-row sm:items-start sm:gap-4">
                                         {/* Icon container with gradient ring */}
                                         <div className="relative flex-shrink-0">
                                             <motion.div whileHover={{ rotate: [0, -8, 8, 0], scale: 1.15 }}
                                                 transition={{ type: 'spring', stiffness: 300 }}
-                                                className={cn("flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br text-white shadow-lg ring-2 sm:ring-4", action.gradient, action.ring)}>
-                                                <action.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                                                className="relative flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center">
+                                                <img src={action.imgSrc} alt={action.label} className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
                                             </motion.div>
                                             {/* Badge */}
-                                            {action.badge && action.badge > 0 && (
+                                            {(action.badge ?? 0) > 0 && (
                                                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}
                                                     className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold shadow-lg ring-2 ring-white dark:ring-neutral-800">
                                                     {action.badge}
@@ -329,8 +329,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-white truncate">{action.label}</h3>
+                                        <div className="flex-1 min-w-0 text-center sm:text-left">
+                                            <h3 className="text-xs sm:text-sm font-bold text-neutral-900 dark:text-white group-hover:text-neutral-800 dark:group-hover:text-white leading-snug line-clamp-2 sm:line-clamp-1">{action.label}</h3>
                                             <p className="hidden sm:block text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 line-clamp-1">{action.desc}</p>
                                             <div className="hidden sm:flex items-center gap-1.5 mt-2">
                                                 <Sparkles className="h-3 w-3 text-neutral-400 group-hover:text-amber-500 transition-colors" />

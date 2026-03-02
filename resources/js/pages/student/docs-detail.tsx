@@ -12,7 +12,7 @@ import {
 } from '@/lib/offline-docs-cache';
 import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
     ArrowLeft,
     BookOpen,
@@ -103,6 +103,13 @@ interface FeedbackStats {
     average_rating: number;
 }
 
+const defaultFeedbackStats: FeedbackStats = {
+    helpful_count: 0,
+    not_helpful_count: 0,
+    total_ratings: 0,
+    average_rating: 0,
+};
+
 const categoryConfig: Record<string, { label: string; badge: string }> = {
     beginner: {
         label: 'Pemula',
@@ -140,8 +147,8 @@ function getSectionTone(type: SectionType): string {
 
 export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
     const [activeSectionId, setActiveSectionId] = useState(guide.sections[0]?.id ?? '');
-    const [completedSections, setCompletedSections] = useState<string[]>(
-        guide.progress?.completed_sections ?? [],
+    const [completedSections, setCompletedSections] = useState<string[]>(() =>
+        Array.from(new Set(guide.progress?.completed_sections ?? [])),
     );
     const [isCompleted, setIsCompleted] = useState<boolean>(guide.progress?.is_completed ?? false);
     const [isSaving, setIsSaving] = useState(false);
@@ -151,12 +158,9 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
     const [helpfulVote, setHelpfulVote] = useState<'yes' | 'no' | null>(null);
     const [rating, setRating] = useState<number>(0);
     const [comment, setComment] = useState('');
-    const [feedbackStats, setFeedbackStats] = useState<FeedbackStats>({
-        helpful_count: 0,
-        not_helpful_count: 0,
-        total_ratings: 0,
-        average_rating: 0,
-    });
+    const [feedbackStats, setFeedbackStats] = useState<FeedbackStats>(defaultFeedbackStats);
+    const [showFeedbackSavedAnimation, setShowFeedbackSavedAnimation] = useState(false);
+    const [feedbackSavedAnimationKey, setFeedbackSavedAnimationKey] = useState(0);
 
     const [isFeedbackSaving, setIsFeedbackSaving] = useState(false);
     const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
@@ -173,6 +177,19 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
 
     // Initial hydration from DB-backed endpoints (bookmark, feedback, offline status).
     useEffect(() => {
+        setActiveSectionId(guide.sections[0]?.id ?? '');
+        setCompletedSections(Array.from(new Set(guide.progress?.completed_sections ?? [])));
+        setIsCompleted(Boolean(guide.progress?.is_completed));
+        setQuizAnswers({});
+        setQuizSubmitted(false);
+        setHelpfulVote(null);
+        setRating(0);
+        setComment('');
+        setFeedbackStats(defaultFeedbackStats);
+        setShowFeedbackSavedAnimation(false);
+        setFeedbackSavedAnimationKey(0);
+        setOfflineActionMessage(null);
+
         const syncConnectionState = () => {
             setIsOnline(window.navigator.onLine);
         };
@@ -190,6 +207,20 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
             window.removeEventListener('offline', syncConnectionState);
         };
     }, [guide.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!showFeedbackSavedAnimation) {
+            return;
+        }
+
+        const timerId = window.setTimeout(() => {
+            setShowFeedbackSavedAnimation(false);
+        }, 1600);
+
+        return () => {
+            window.clearTimeout(timerId);
+        };
+    }, [showFeedbackSavedAnimation, feedbackSavedAnimationKey]);
 
     const completionPercentage = useMemo(() => {
         if (guide.sections.length === 0) return 0;
@@ -330,6 +361,10 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
         rating?: number | null;
         comment?: string | null;
     }) => {
+        if (isFeedbackSaving) {
+            return;
+        }
+
         setIsFeedbackSaving(true);
         try {
             const response = await fetch(`/api/docs/feedback/${guide.id}`, {
@@ -365,6 +400,8 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                 total_ratings: Number(stats?.total_ratings ?? 0),
                 average_rating: Number(stats?.average_rating ?? 0),
             });
+            setFeedbackSavedAnimationKey((current) => current + 1);
+            setShowFeedbackSavedAnimation(true);
         } finally {
             setIsFeedbackSaving(false);
         }
@@ -458,45 +495,130 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
         }
     };
 
-    const syncProgress = async (nextCompletedSections: string[]) => {
+    const normalizeProgressPayload = (
+        responseData: unknown,
+        fallbackSections: string[],
+    ): { completedSections: string[]; isCompleted: boolean } => {
+        const payload =
+            typeof responseData === 'object' && responseData !== null
+                ? (responseData as Record<string, unknown>)
+                : {};
+
+        const rawSections = payload.completed_sections ?? payload.completedSections;
+        const normalizedSections = Array.isArray(rawSections)
+            ? Array.from(new Set(rawSections.filter((section): section is string => typeof section === 'string')))
+            : fallbackSections;
+
+        const rawIsCompleted = payload.is_completed ?? payload.isCompleted;
+        const normalizedIsCompleted =
+            typeof rawIsCompleted === 'boolean'
+                ? rawIsCompleted
+                : normalizedSections.length >= guide.sections.length;
+
+        return {
+            completedSections: normalizedSections,
+            isCompleted: normalizedIsCompleted,
+        };
+    };
+
+    const syncProgress = async (
+        nextCompletedSections: string[],
+    ): Promise<{ completedSections: string[]; isCompleted: boolean } | null> => {
         setIsSaving(true);
 
         try {
-            await fetch(`/api/docs/progress/${guide.id}`, {
+            const response = await fetch(`/api/docs/progress/${guide.id}`, {
                 method: 'POST',
                 headers: {
+                    Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken(),
                 },
                 body: JSON.stringify({ completed_sections: nextCompletedSections }),
             });
+
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || !payload?.success) {
+                return null;
+            }
+
+            return normalizeProgressPayload(payload?.data, nextCompletedSections);
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleToggleSection = async (sectionId: string) => {
-        const nextCompletedSections = completedSections.includes(sectionId)
-            ? completedSections.filter((id) => id !== sectionId)
-            : [...completedSections, sectionId];
+    const syncSectionCompletion = async (sectionId: string, shouldComplete: boolean) => {
+        const previousSections = completedSections;
+        const previousCompletedFlag = isCompleted;
+        const hasBeenCompleted = previousSections.includes(sectionId);
+
+        if ((shouldComplete && hasBeenCompleted) || (!shouldComplete && !hasBeenCompleted)) {
+            return;
+        }
+
+        const nextCompletedSections = shouldComplete
+            ? Array.from(new Set([...previousSections, sectionId]))
+            : previousSections.filter((id) => id !== sectionId);
 
         setCompletedSections(nextCompletedSections);
-        await syncProgress(nextCompletedSections);
+        const synced = await syncProgress(nextCompletedSections);
+
+        if (!synced) {
+            setCompletedSections(previousSections);
+            setIsCompleted(previousCompletedFlag);
+            return;
+        }
+
+        setCompletedSections(synced.completedSections);
+        setIsCompleted(synced.isCompleted);
     };
+
+    const handleToggleSection = async (sectionId: string) => {
+        const shouldComplete = !completedSections.includes(sectionId);
+        await syncSectionCompletion(sectionId, shouldComplete);
+    };
+
+    useEffect(() => {
+        if (!activeSection?.id) {
+            return;
+        }
+
+        if (completedSections.includes(activeSection.id)) {
+            return;
+        }
+
+        const timerId = window.setTimeout(() => {
+            void syncSectionCompletion(activeSection.id, true);
+        }, 3000);
+
+        return () => {
+            window.clearTimeout(timerId);
+        };
+    }, [activeSection?.id, completedSections]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const markGuideAsComplete = async () => {
         setIsSaving(true);
 
         try {
-            await fetch(`/api/docs/progress/${guide.id}/complete`, {
+            const response = await fetch(`/api/docs/progress/${guide.id}/complete`, {
                 method: 'POST',
                 headers: {
+                    Accept: 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken(),
                 },
             });
 
-            setCompletedSections(guide.sections.map((item) => item.id));
-            setIsCompleted(true);
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || !payload?.success) {
+                return;
+            }
+
+            const fallbackSections = guide.sections.map((item) => item.id);
+            const synced = normalizeProgressPayload(payload?.data, fallbackSections);
+
+            setCompletedSections(synced.completedSections);
+            setIsCompleted(synced.isCompleted);
         } finally {
             setIsSaving(false);
         }
@@ -537,10 +659,10 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                             whileHover={{ scale: 1.02, x: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => router.visit('/user/docs')}
-                            className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:text-white"
+                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
                         >
                             <ArrowLeft className="h-4 w-4" />
-                            Kembali ke Dokumentasi
+                            Kembali
                         </motion.button>
 
                         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -666,7 +788,9 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                             <div className="mb-4 flex items-center justify-between gap-3">
                                 <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Materi Dokumentasi</h2>
                                 <div className="text-xs text-neutral-500 dark:text-neutral-400">
-                                    {isSaving ? 'Menyimpan progress...' : 'Progress tersimpan otomatis'}
+                                    {isSaving
+                                        ? 'Menyimpan progress...'
+                                        : 'Section aktif otomatis selesai setelah 3 detik dibaca'}
                                 </div>
                             </div>
 
@@ -1017,7 +1141,7 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                                             key={level}
                                             type="button"
                                             disabled={isFeedbackSaving}
-                                            onClick={() => setRating(level)}
+                                            onClick={() => void upsertFeedback({ rating: level })}
                                             className="rounded-md p-1 transition hover:bg-white dark:hover:bg-neutral-800"
                                         >
                                             <Star
@@ -1035,6 +1159,11 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                                 <Textarea
                                     value={comment}
                                     onChange={(event) => setComment(event.target.value)}
+                                    onBlur={() =>
+                                        void upsertFeedback({
+                                            comment: comment.trim() ? comment.trim() : null,
+                                        })
+                                    }
                                     placeholder="Tulis masukan singkat (opsional)"
                                     className="min-h-[90px] rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/70"
                                 />
@@ -1048,6 +1177,22 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                             >
                                 {isFeedbackSaving ? 'Menyimpan...' : 'Simpan Feedback'}
                             </Button>
+
+                            <AnimatePresence mode="wait">
+                                {showFeedbackSavedAnimation && (
+                                    <motion.div
+                                        key={feedbackSavedAnimationKey}
+                                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                                        transition={{ duration: 0.24, ease: 'easeOut' }}
+                                        className="mt-2 inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        Feedback tersimpan
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {relatedGuides.length > 0 && (

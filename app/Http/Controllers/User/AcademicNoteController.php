@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicNote;
 use App\Models\MahasiswaCourse;
 use App\Models\MataKuliah;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,7 +36,7 @@ class AcademicNoteController extends Controller
         $this->syncCoursesFromMataKuliah($mahasiswa->id);
 
         $query = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['course:id,name,mode', 'collaborators', 'versions']);
+            ->with(['course:id,name,mode']);
 
         // Filter by course
         if ($request->filled('course_id')) {
@@ -67,8 +70,8 @@ class AcademicNoteController extends Controller
                     'course_mode' => $note->course?->mode ?? 'online',
                     'meeting_number' => $note->meeting_number,
                     'links' => $note->links ?? [],
-                    'collaborators' => $note->collaborators ?? [],
-                    'versions' => $note->versions ?? [],
+                    'collaborators' => [],
+                    'versions' => [],
                     'created_at' => $note->created_at->format('Y-m-d H:i'),
                     'updated_at' => $note->updated_at->format('Y-m-d H:i'),
                 ];
@@ -96,6 +99,61 @@ class AcademicNoteController extends Controller
                 'course_id' => $request->course_id,
                 'search' => $request->search,
             ],
+        ]);
+    }
+
+    public function show(int $id): Response
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
+        $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
+            ->with(['course:id,name,mode,total_meetings,sks'])
+            ->findOrFail($id);
+
+        $plainText = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $note->content)));
+        $computedWordCount = str_word_count($plainText);
+        $computedReadingTime = max(1, (int) ceil($computedWordCount / 200));
+
+        $relatedNotes = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
+            ->where('id', '!=', $note->id)
+            ->where('mahasiswa_course_id', $note->mahasiswa_course_id)
+            ->orderByDesc('updated_at')
+            ->limit(6)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'meeting_number' => $item->meeting_number,
+                    'updated_at' => $item->updated_at->format('Y-m-d H:i'),
+                ];
+            })
+            ->values();
+
+        return Inertia::render('user/akademik/catatan-detail', [
+            'note' => [
+                'id' => $note->id,
+                'title' => $note->title,
+                'content' => $note->content,
+                'meeting_number' => $note->meeting_number,
+                'course_id' => $note->mahasiswa_course_id,
+                'course_name' => $note->course?->name ?? '-',
+                'course_mode' => $note->course?->mode ?? 'offline',
+                'total_meetings' => $note->course?->total_meetings ?? 16,
+                'sks' => $note->course?->sks ?? null,
+                'tags' => $note->tags ?? [],
+                'links' => $note->links ?? [],
+                'created_at' => $note->created_at->format('Y-m-d H:i'),
+                'updated_at' => $note->updated_at->format('Y-m-d H:i'),
+                'word_count' => $note->word_count ?: $computedWordCount,
+                'reading_time' => $note->reading_time ?: $computedReadingTime,
+                'ai_summary' => $note->ai_summary,
+                'ai_keywords' => $note->ai_keywords ?? [],
+            ],
+            'relatedNotes' => $relatedNotes,
         ]);
     }
 
@@ -131,9 +189,16 @@ class AcademicNoteController extends Controller
         }
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
+        // Ensure dropdown mata kuliah tidak kosong saat pertama kali buka form.
+        $this->syncCoursesFromMataKuliah($mahasiswa->id);
+
         $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
         
         $templates = [
@@ -156,12 +221,17 @@ class AcademicNoteController extends Controller
         return Inertia::render('user/akademik/catatan-form', [
             'courses' => $courses,
             'templates' => $templates,
+            'initialCourseId' => $request->integer('course_id') ?: null,
         ]);
     }
 
     public function edit(int $id)
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.login');
+        }
+
         $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)->findOrFail($id);
         $courses = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)->get();
         
@@ -169,6 +239,7 @@ class AcademicNoteController extends Controller
             'note' => $note,
             'courses' => $courses,
             'templates' => [],
+            'initialCourseId' => $note->mahasiswa_course_id,
         ]);
     }
 
@@ -179,16 +250,24 @@ class AcademicNoteController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'mahasiswa_course_id' => 'required|exists:mahasiswa_courses,id',
+            'mahasiswa_course_id' => 'nullable|exists:mahasiswa_courses,id',
+            'course_id' => 'nullable|exists:mahasiswa_courses,id',
             'meeting_number' => 'required|integer|min:1',
             'links' => 'nullable|string',
             'tags' => 'nullable|array',
             'blocks' => 'nullable|array',
         ]);
 
+        $courseId = $validated['mahasiswa_course_id'] ?? $validated['course_id'] ?? null;
+        if (!$courseId) {
+            return back()
+                ->withErrors(['mahasiswa_course_id' => 'Mata kuliah wajib dipilih.'])
+                ->withInput();
+        }
+
         // Verify course belongs to mahasiswa
         $course = MahasiswaCourse::where('mahasiswa_id', $mahasiswa->id)
-            ->findOrFail($validated['mahasiswa_course_id']);
+            ->findOrFail($courseId);
 
         // Parse links
         $links = [];
@@ -205,7 +284,7 @@ class AcademicNoteController extends Controller
 
         $note = AcademicNote::create([
             'mahasiswa_id' => $mahasiswa->id,
-            'mahasiswa_course_id' => $validated['mahasiswa_course_id'],
+            'mahasiswa_course_id' => $courseId,
             'meeting_number' => $validated['meeting_number'],
             'title' => $validated['title'],
             'content' => $validated['content'],
@@ -214,12 +293,6 @@ class AcademicNoteController extends Controller
             'blocks' => $validated['blocks'] ?? [],
             'word_count' => $wordCount,
             'reading_time' => $readingTime,
-        ]);
-
-        // Save first version
-        $note->versions()->create([
-            'content' => $note->content,
-            'created_by' => $mahasiswa->id,
         ]);
 
         // Generate AI Summary in background (simulated via DB job or sync)
@@ -231,7 +304,7 @@ class AcademicNoteController extends Controller
             'ai_keywords' => $keywords,
         ]);
 
-        return back()->with('success', 'Catatan berhasil ditambahkan!');
+        return redirect()->route('user.akademik.catatan')->with('success', 'Catatan berhasil ditambahkan!');
     }
 
     public function update(Request $request, int $id): RedirectResponse
@@ -276,15 +349,7 @@ class AcademicNoteController extends Controller
             'reading_time' => $readingTime,
         ]);
 
-        // Save version history if content changed
-        if ($note->wasChanged('content')) {
-            $note->versions()->create([
-                'content' => $note->content,
-                'created_by' => $mahasiswa->id,
-            ]);
-        }
-
-        return back()->with('success', 'Catatan berhasil diperbarui!');
+        return redirect()->route('user.akademik.catatan')->with('success', 'Catatan berhasil diperbarui!');
     }
 
     public function generateAISummary(int $id)
@@ -304,6 +369,33 @@ class AcademicNoteController extends Controller
             'summary' => $summary,
             'keywords' => $keywords,
         ]);
+    }
+
+    public function exportPdf(Request $request, int $id)
+    {
+        $mahasiswa = $request->user('mahasiswa');
+
+        $note = AcademicNote::where('mahasiswa_id', $mahasiswa->id)
+            ->with(['course:id,name,mode,total_meetings,sks'])
+            ->findOrFail($id);
+
+        $plainText = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $note->content)));
+        $wordCount = $note->word_count ?: str_word_count($plainText);
+        $readingTime = $note->reading_time ?: max(1, (int) ceil($wordCount / 200));
+
+        $pdf = Pdf::loadView('pdf.academic-note-detail', [
+            'note' => $note,
+            'mahasiswa' => $mahasiswa,
+            'wordCount' => $wordCount,
+            'readingTime' => $readingTime,
+            'generatedAt' => Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY HH:mm'),
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        $filename = 'Catatan-' . Str::slug((string) $note->title) . '-' . $mahasiswa->nim . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function generateFlashcards(int $id)

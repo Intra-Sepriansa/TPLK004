@@ -294,11 +294,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                         transition={{ delay: i * 0.05 }}
                                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/50 dark:bg-neutral-900/50 shadow-xl backdrop-blur-xl dark:border-white/5 cursor-pointer"
                                         onClick={() => router.visit(`/dosen/courses/${course.id}`)}>
-                                        {/* Gradient accent bar */}
-                                        <div className={cn("h-1.5 w-full bg-gradient-to-r",
-                                            course.attendanceRate >= 80 ? "from-emerald-400 to-teal-500" :
-                                                course.attendanceRate >= 60 ? "from-amber-400 to-orange-500" :
-                                                    "from-rose-400 to-red-500")} />
+
 
                                         <div className="p-6">
                                             <div className="flex items-start justify-between mb-3">

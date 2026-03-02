@@ -204,20 +204,10 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
 
                 {/* ═══════ HEADER — Kas Admin Style ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
-                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                        style={{ backgroundSize: '200% 200%' }} />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-                    {/* Pulse Rings */}
-                    {[0, 1, 2].map(i => (
-                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i }} />
-                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -556,8 +546,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                         exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
                                         className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/50 dark:bg-neutral-900/50 shadow-xl backdrop-blur-xl dark:border-white/5 cursor-pointer"
                                         onClick={() => router.get(`/dosen/sesi-absen/${session.id}`)}>
-                                        {/* Gradient accent bar */}
-                                        <div className={cn("h-1.5 w-full bg-gradient-to-r", session.is_active ? "from-emerald-400 to-teal-500" : "from-neutral-300 to-neutral-400 dark:from-neutral-700 dark:to-neutral-600")} />
+
 
                                         <div className="p-5">
                                             <div className="flex items-start justify-between mb-3">
@@ -651,11 +640,7 @@ export default function DosenSesiAbsen({ dosen, sessions, courses, stats }: Page
                                     <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 blur-2xl" />
                                         <div className="absolute -bottom-5 -left-5 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-                                        {[0, 1].map(i => (
-                                            <motion.div key={i} className="absolute right-8 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10"
-                                                animate={{ scale: [1, 2], opacity: [0.3, 0] }}
-                                                transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.8 }} />
-                                        ))}
+
                                         <div className="relative flex items-center justify-between">
                                             <div className="flex items-center gap-4">
                                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }}

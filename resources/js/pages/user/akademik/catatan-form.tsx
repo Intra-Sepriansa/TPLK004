@@ -55,7 +55,8 @@ const lowlight = createLowlight(common);
 
 interface Note {
     id: number;
-    course_id: number;
+    course_id?: number;
+    mahasiswa_course_id?: number;
     meeting_number: number;
     title: string;
     content: string;
@@ -80,14 +81,25 @@ interface Props {
     note?: Note;
     courses: Course[];
     templates: Template[];
+    initialCourseId?: number | null;
 }
 
-export default function CatatanForm({ note, courses = [], templates = [] }: Props) {
+export default function CatatanForm({ note, courses = [], templates = [], initialCourseId = null }: Props) {
     const isEditing = !!note;
+    const resolvedCourseId = note?.course_id ?? note?.mahasiswa_course_id ?? initialCourseId ?? '';
+    const getCsrfToken = () => {
+        const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (metaToken) return metaToken;
+
+        const cookieMatch = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return cookieMatch ? decodeURIComponent(cookieMatch[1]) : '';
+    };
 
     // Form state
-    const { data, setData, post, patch, processing, errors } = useForm({
-        course_id: note?.course_id || '',
+    const { data, setData, transform, post, patch, processing, errors } = useForm({
+        _token: getCsrfToken(),
+        course_id: resolvedCourseId ? String(resolvedCourseId) : '',
+        mahasiswa_course_id: resolvedCourseId ? String(resolvedCourseId) : '',
         meeting_number: note?.meeting_number || '',
         title: note?.title || '',
         content: note?.content || '',
@@ -395,20 +407,66 @@ export default function CatatanForm({ note, courses = [], templates = [] }: Prop
     };
 
     // Submit Form
+    const isEffectivelyEmptyContent = (html: string) => {
+        const cleaned = html
+            .replace(/<p><\/p>/g, '')
+            .replace(/<p>\s*<\/p>/g, '')
+            .replace(/<br\s*\/?>/g, '')
+            .replace(/&nbsp;/g, '')
+            .replace(/<[^>]*>/g, '')
+            .trim();
+
+        return cleaned.length === 0;
+    };
+
     const handleSubmit = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
 
-        // Transform backend fields
-        const payload = {
-            ...data,
-            mahasiswa_course_id: data.course_id // Aligning with controller expectation
+        if (!isEditing && currentStep < 2) {
+            if (data.course_id && data.meeting_number) {
+                setCurrentStep(2);
+            } else {
+                alert('Pilih mata kuliah dan pertemuan terlebih dahulu.');
+            }
+            return;
+        }
+
+        if (!String(data.title || '').trim()) {
+            alert('Judul catatan wajib diisi.');
+            return;
+        }
+
+        if (isEffectivelyEmptyContent(String(data.content || ''))) {
+            alert('Konten catatan masih kosong. Silakan isi catatan terlebih dahulu.');
+            return;
+        }
+
+        const submitOptions = {
+            preserveScroll: true,
+            headers: {
+                'X-CSRF-TOKEN': getCsrfToken(),
+            },
+            onError: () => {
+                alert('Catatan gagal disimpan. Periksa kembali data wajib pada form.');
+            },
         };
 
         if (isEditing && note) {
-            // Simulate patch with Interia mapping if needed, direct fetch or inertia patch
-            patch(`/user/akademik/catatan/${note.id}`);
+            transform((formData) => ({
+                ...formData,
+                _token: getCsrfToken(),
+                mahasiswa_course_id: formData.course_id,
+                meeting_number: Number(formData.meeting_number),
+            }));
+            patch(`/user/akademik/catatan/${note.id}`, submitOptions);
         } else {
-            post(`/user/akademik/catatan`);
+            transform((formData) => ({
+                ...formData,
+                _token: getCsrfToken(),
+                mahasiswa_course_id: formData.course_id,
+                meeting_number: Number(formData.meeting_number),
+            }));
+            post(`/user/akademik/catatan`, submitOptions);
         }
     };
 
@@ -682,7 +740,10 @@ export default function CatatanForm({ note, courses = [], templates = [] }: Prop
                                             <select
                                                 value={data.course_id}
                                                 required
-                                                onChange={(e) => setData('course_id', e.target.value)}
+                                                onChange={(e) => {
+                                                    setData('course_id', e.target.value);
+                                                    setData('mahasiswa_course_id', e.target.value);
+                                                }}
                                                 className="w-full h-12 px-4 rounded-xl border border-white/40 dark:border-neutral-700 bg-white/60 dark:bg-neutral-800/60 backdrop-blur-lg focus:ring-2 focus:ring-indigo-500 text-neutral-900 dark:text-white transition-all outline-none"
                                             >
                                                 <option value="">Pilih Mata Kuliah</option>
@@ -692,8 +753,10 @@ export default function CatatanForm({ note, courses = [], templates = [] }: Prop
                                                     </option>
                                                 ))}
                                             </select>
-                                            {errors.course_id && (
-                                                <p className="mt-1 text-sm text-red-500">{errors.course_id}</p>
+                                            {(errors.course_id || errors.mahasiswa_course_id) && (
+                                                <p className="mt-1 text-sm text-red-500">
+                                                    {errors.course_id || errors.mahasiswa_course_id}
+                                                </p>
                                             )}
                                         </div>
 

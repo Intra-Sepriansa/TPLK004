@@ -1,113 +1,115 @@
-/**
- * useTheme Hook - FIXED VERSION
- * Properly manages theme with localStorage + database persistence
- * NO MORE BUGS!
- */
-
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePage } from '@inertiajs/react';
-import axios from 'axios';
 
-export type Theme = 'light' | 'dark' | 'auto';
+export type Theme = 'light' | 'dark' | 'system';
+
+type LegacyTheme = Theme | 'auto';
 
 const THEME_STORAGE_KEY = 'app-theme';
 const THEME_ATTRIBUTE = 'data-theme';
+const THEME_COOKIE = 'appearance';
+
+function normalizeThemeValue(theme: unknown): Theme {
+    if (theme === 'auto') {
+        return 'system';
+    }
+
+    if (theme === 'light' || theme === 'dark' || theme === 'system') {
+        return theme;
+    }
+
+    return 'light';
+}
+
+function resolveTheme(theme: Theme): 'light' | 'dark' {
+    if (theme === 'system') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+    }
+
+    return theme;
+}
+
+function applyThemeToDOMDirect(actualTheme: 'light' | 'dark') {
+    const root = document.documentElement;
+
+    root.classList.remove('light', 'dark');
+    root.classList.add(actualTheme);
+    root.setAttribute(THEME_ATTRIBUTE, actualTheme);
+    root.style.colorScheme = actualTheme;
+}
+
+function applyTheme(theme: Theme) {
+    applyThemeToDOMDirect(resolveTheme(theme));
+}
+
+function setThemeCookie(theme: Theme) {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    const maxAge = 365 * 24 * 60 * 60;
+    document.cookie = `${THEME_COOKIE}=${theme};path=/;max-age=${maxAge};SameSite=Lax`;
+}
 
 export function useTheme() {
-    const { themePreference } = usePage().props as { themePreference?: Theme };
+    const { themePreference } = usePage().props as {
+        themePreference?: LegacyTheme;
+    };
 
-    // Initialize theme from localStorage FIRST (highest priority)
     const [theme, setThemeState] = useState<Theme>(() => {
-        // 1. Check localStorage first
-        const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-        if (stored && ['light', 'dark', 'auto'].includes(stored)) {
-            return stored;
+        if (typeof window === 'undefined') {
+            return normalizeThemeValue(themePreference);
         }
 
-        // 2. Fallback to server theme
-        if (themePreference && ['light', 'dark', 'auto'].includes(themePreference)) {
-            return themePreference;
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+        if (stored) {
+            return normalizeThemeValue(stored);
         }
 
-        // 3. Default to light
-        return 'light';
+        return normalizeThemeValue(themePreference);
     });
 
-    // Resolved theme (actual theme applied to DOM)
-    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+    const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
+        if (typeof window === 'undefined') {
+            return 'light';
+        }
 
-    // Apply theme to DOM immediately on mount
+        return resolveTheme(theme);
+    });
+
     useEffect(() => {
-        applyThemeToDOM(theme);
-    }, []);
+        if (typeof window === 'undefined') {
+            return;
+        }
 
-    // Apply theme whenever it changes
-    useEffect(() => {
-        applyThemeToDOM(theme);
-
-        // Save to localStorage immediately
+        const nextResolved = resolveTheme(theme);
+        setResolvedTheme(nextResolved);
+        applyThemeToDOMDirect(nextResolved);
         localStorage.setItem(THEME_STORAGE_KEY, theme);
-
-        // Save to database (async, non-blocking)
-        saveThemeToDatabase(theme);
+        setThemeCookie(theme);
     }, [theme]);
 
-    // Listen for system theme changes (only when theme is 'auto')
     useEffect(() => {
-        if (theme !== 'auto') return;
+        if (theme !== 'system' || typeof window === 'undefined') {
+            return;
+        }
 
         const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
         const handleChange = (e: MediaQueryListEvent) => {
-            const newResolvedTheme = e.matches ? 'dark' : 'light';
-            setResolvedTheme(newResolvedTheme);
-            applyThemeToDOMDirect(newResolvedTheme);
+            const nextResolved = e.matches ? 'dark' : 'light';
+            setResolvedTheme(nextResolved);
+            applyThemeToDOMDirect(nextResolved);
         };
 
         mediaQuery.addEventListener('change', handleChange);
         return () => mediaQuery.removeEventListener('change', handleChange);
     }, [theme]);
 
-    // Function to apply theme to DOM
-    const applyThemeToDOM = useCallback((themeValue: Theme) => {
-        let actualTheme: 'light' | 'dark' = 'light';
-
-        if (themeValue === 'auto') {
-            // Use system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            actualTheme = prefersDark ? 'dark' : 'light';
-        } else {
-            actualTheme = actualTheme = themeValue as 'light' | 'dark';
-        }
-
-        setResolvedTheme(actualTheme);
-        applyThemeToDOMDirect(actualTheme);
-    }, []);
-
-    // Direct DOM manipulation
-    const applyThemeToDOMDirect = (actualTheme: 'light' | 'dark') => {
-        const root = document.documentElement;
-
-        // Remove both classes first
-        root.classList.remove('light', 'dark');
-
-        // Add the correct class
-        root.classList.add(actualTheme);
-
-        // Set data attribute for CSS
-        root.setAttribute(THEME_ATTRIBUTE, actualTheme);
-
-        // Set color-scheme for native browser elements
-        root.style.colorScheme = actualTheme;
-    };
-
-    // Public API to change theme
-    const setTheme = useCallback((newTheme: Theme) => {
-        if (!['light', 'dark', 'auto'].includes(newTheme)) {
-            console.error('Invalid theme:', newTheme);
-            return;
-        }
-        setThemeState(newTheme);
+    const setTheme = useCallback((nextTheme: Theme) => {
+        setThemeState(normalizeThemeValue(nextTheme));
     }, []);
 
     return {
@@ -119,67 +121,19 @@ export function useTheme() {
     };
 }
 
-/**
- * Save theme to database (async, non-blocking)
- */
-async function saveThemeToDatabase(theme: Theme) {
-    try {
-        // Get CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-        if (!csrfToken) {
-            console.warn('CSRF token not found, skipping database save');
-            return;
-        }
-
-        // Save to database
-        await axios.post('/api/settings/theme',
-            { theme },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-            }
-        );
-
-        console.log('✅ Theme saved to database:', theme);
-    } catch (error) {
-        console.error('❌ Failed to save theme to database:', error);
-        // Don't throw error - localStorage is already saved
-    }
-}
-
-/**
- * Get current theme from localStorage
- */
 export function getStoredTheme(): Theme {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-    if (stored && ['light', 'dark', 'auto'].includes(stored)) {
-        return stored;
+    if (typeof window === 'undefined') {
+        return 'light';
     }
-    return 'light';
+
+    return normalizeThemeValue(localStorage.getItem(THEME_STORAGE_KEY));
 }
 
-/**
- * Initialize theme on app load (call this in app.tsx)
- */
 export function initializeTheme() {
-    const theme = getStoredTheme();
-    const root = document.documentElement;
-
-    let actualTheme: 'light' | 'dark' = 'light';
-
-    if (theme === 'auto') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        actualTheme = prefersDark ? 'dark' : 'light';
-    } else {
-        actualTheme = theme;
+    if (typeof window === 'undefined') {
+        return;
     }
 
-    // Apply immediately (before React renders)
-    root.classList.remove('light', 'dark');
-    root.classList.add(actualTheme);
-    root.setAttribute('data-theme', actualTheme);
-    root.style.colorScheme = actualTheme;
+    const storedTheme = getStoredTheme();
+    applyTheme(storedTheme);
 }

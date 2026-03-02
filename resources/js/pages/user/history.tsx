@@ -45,6 +45,8 @@ import {
     Filter,
     Bookmark,
     Download,
+    FileBarChart,
+    RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
@@ -438,346 +440,73 @@ function ExportPanel({
     mahasiswa: { nama: string; nim: string };
     stats: PageProps['stats'];
 }) {
+    const [isExporting, setIsExporting] = useState(false);
     const handleExport = () => {
-        if (typeof window !== 'undefined') {
-            window.print();
-        }
+        setIsExporting(true);
+        // Use backend DomPDF route for reliable PDF generation
+        window.location.href = '/user/history/export-pdf';
+        // Reset loading state after a delay (download starts in background)
+        setTimeout(() => setIsExporting(false), 3000);
     };
 
-    const sortedRecords = useMemo(
-        () => [...records].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-        [records],
-    );
-    const detailRows = sortedRecords.slice(0, 8);
-    const periodStart = sortedRecords.length ? sortedRecords[sortedRecords.length - 1].date : undefined;
-    const periodEnd = sortedRecords[0]?.date;
-    const printDateTime = new Date().toLocaleString('id-ID');
     const printDateOnly = new Date().toLocaleDateString('id-ID');
-    const unpamLogo = typeof window !== 'undefined' ? `${window.location.origin}/logo-unpam.png` : '/logo-unpam.png';
-    const sasmitaLogo = typeof window !== 'undefined' ? `${window.location.origin}/sasmita.png` : '/sasmita.png';
-
-    const statusLabelByKey: Record<AttendanceRecord['status'], string> = {
-        present: 'Hadir',
-        late: 'Terlambat',
-        absent: 'Tidak Hadir',
-        pending: 'Pending',
-        rejected: 'Ditolak',
-    };
 
     return (
-        <>
-            <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
-                <div className="flex items-center gap-3 mb-4">
-                    <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                        <Download className="h-5 w-5 text-rose-500" />
-                    </motion.div>
+        <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5">
+            <div className="flex items-center gap-3 mb-4">
+                <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                    <Download className="h-5 w-5 text-rose-500" />
+                </motion.div>
+                <div>
+                    <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Export Data</h2>
+                    <p className="text-xs text-neutral-500">PDF detail satu halaman (A4)</p>
+                </div>
+            </div>
+
+            <div className="mb-5 rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-800/70">
+                <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                        <h2 className="font-bold text-lg text-neutral-900 dark:text-white">Export Data</h2>
-                        <p className="text-xs text-neutral-500">PDF detail satu halaman (A4)</p>
+                        <p className="text-neutral-500">Nama</p>
+                        <p className="font-bold text-neutral-900 dark:text-white">{mahasiswa.nama}</p>
                     </div>
-                </div>
-
-                <div className="mb-5 rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-800/70">
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <p className="text-neutral-500">Nama</p>
-                            <p className="font-bold text-neutral-900 dark:text-white">{mahasiswa.nama}</p>
-                        </div>
-                        <div>
-                            <p className="text-neutral-500">NIM</p>
-                            <p className="font-bold text-neutral-900 dark:text-white">{mahasiswa.nim}</p>
-                        </div>
-                        <div>
-                            <p className="text-neutral-500">Total Data</p>
-                            <p className="font-bold text-neutral-900 dark:text-white">{records.length}</p>
-                        </div>
-                        <div>
-                            <p className="text-neutral-500">Dicetak</p>
-                            <p className="font-bold text-neutral-900 dark:text-white">{printDateOnly}</p>
-                        </div>
+                    <div>
+                        <p className="text-neutral-500">NIM</p>
+                        <p className="font-bold text-neutral-900 dark:text-white">{mahasiswa.nim}</p>
                     </div>
-                </div>
-
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleExport}
-                    className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold shadow-lg hover:shadow-xl transition-shadow"
-                >
-                    <Download className="h-5 w-5 inline mr-2" />
-                    Export PDF Satu Halaman
-                </motion.button>
-            </motion.div>
-
-            <div className="history-export-report hidden print:block">
-                <div className="history-export-sheet">
-                    <div className="history-export-header">
-                        <img src={unpamLogo} alt="Logo UNPAM" className="history-export-logo" />
-                        <div className="history-export-title">
-                            <h1>Laporan Riwayat Kehadiran Mahasiswa</h1>
-                            <p>Universitas Pamulang • Yayasan Sasmita Jaya</p>
-                        </div>
-                        <img src={sasmitaLogo} alt="Logo Sasmita" className="history-export-logo" />
+                    <div>
+                        <p className="text-neutral-500">Total Data</p>
+                        <p className="font-bold text-neutral-900 dark:text-white">{records.length}</p>
                     </div>
-
-                    <div className="history-export-meta">
-                        <span><strong>Nama:</strong> {mahasiswa.nama}</span>
-                        <span><strong>NIM:</strong> {mahasiswa.nim}</span>
-                        <span><strong>Dicetak:</strong> {printDateTime}</span>
-                    </div>
-
-                    <div className="history-export-meta">
-                        <span><strong>Periode:</strong> {periodStart ? new Date(periodStart).toLocaleDateString('id-ID') : '-'} s.d. {periodEnd ? new Date(periodEnd).toLocaleDateString('id-ID') : '-'}</span>
-                        <span><strong>Total Data:</strong> {records.length}</span>
-                        <span><strong>Streak:</strong> {stats.streak} hari</span>
-                    </div>
-
-                    <div className="history-export-summary">
-                        <div><p>Hadir</p><strong>{stats.present}</strong></div>
-                        <div><p>Terlambat</p><strong>{stats.late}</strong></div>
-                        <div><p>Tidak Hadir</p><strong>{stats.absent}</strong></div>
-                        <div><p>Pending</p><strong>{stats.pending}</strong></div>
-                        <div><p>Total</p><strong>{stats.total}</strong></div>
-                        <div><p>Longest Streak</p><strong>{stats.longestStreak}</strong></div>
-                    </div>
-
-                    <div className="history-export-table-wrap">
-                        <h3>Detail Riwayat (8 data terbaru)</h3>
-                        <table className="history-export-table">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Mata Kuliah</th>
-                                    <th>Pertemuan</th>
-                                    <th>Status</th>
-                                    <th>Check-in</th>
-                                    <th>Jarak</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {detailRows.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} className="empty">Tidak ada data riwayat.</td>
-                                    </tr>
-                                ) : (
-                                    detailRows.map((record, index) => (
-                                        <tr key={record.id}>
-                                            <td>{index + 1}</td>
-                                            <td>{new Date(record.date).toLocaleDateString('id-ID')}</td>
-                                            <td>{record.course}</td>
-                                            <td>#{record.meetingNumber}</td>
-                                            <td>{statusLabelByKey[record.status]}</td>
-                                            <td>{record.checkInTime || '-'}</td>
-                                            <td>{record.distance != null ? `${Math.round(record.distance)} m` : '-'}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div className="history-export-footer">
-                        <div className="sign">
-                            Mengetahui,<br />Petugas Akademik
-                            <div className="line" />
-                            (................................)
-                        </div>
-                        <div className="sign">
-                            Tangerang Selatan, {printDateOnly}<br />Mahasiswa
-                            <div className="line" />
-                            ({mahasiswa.nama})
-                        </div>
+                    <div>
+                        <p className="text-neutral-500">Dicetak</p>
+                        <p className="font-bold text-neutral-900 dark:text-white">{printDateOnly}</p>
                     </div>
                 </div>
             </div>
 
-            <style>{`
-                @media print {
-                    @page {
-                        size: A4 portrait;
-                        margin: 8mm;
-                    }
-
-                    body * {
-                        visibility: hidden !important;
-                    }
-
-                    .history-export-report,
-                    .history-export-report * {
-                        visibility: visible !important;
-                    }
-
-                    .history-export-report {
-                        position: fixed;
-                        inset: 0;
-                        display: block !important;
-                        color: #0f172a;
-                        background: white;
-                        font-family: "Segoe UI", Arial, sans-serif;
-                    }
-
-                    .history-export-sheet {
-                        width: 194mm;
-                        height: 281mm;
-                        margin: 0 auto;
-                        padding: 7mm;
-                        border: 1px solid #dbe3ef;
-                        border-radius: 6mm;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 3.2mm;
-                        overflow: hidden;
-                    }
-
-                    .history-export-header {
-                        display: grid;
-                        grid-template-columns: 18mm 1fr 18mm;
-                        align-items: center;
-                        gap: 4mm;
-                        border-bottom: 1px solid #dbeafe;
-                        padding-bottom: 3mm;
-                    }
-
-                    .history-export-logo {
-                        width: 18mm;
-                        height: 18mm;
-                        object-fit: contain;
-                    }
-
-                    .history-export-title {
-                        text-align: center;
-                        line-height: 1.2;
-                    }
-
-                    .history-export-title h1 {
-                        margin: 0;
-                        font-size: 14.5px;
-                        font-weight: 800;
-                        text-transform: uppercase;
-                        letter-spacing: .3px;
-                        color: #1e3a8a;
-                    }
-
-                    .history-export-title p {
-                        margin: 2px 0 0;
-                        font-size: 10.8px;
-                        color: #334155;
-                        font-weight: 600;
-                    }
-
-                    .history-export-meta {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr 1fr;
-                        gap: 2mm;
-                        font-size: 10px;
-                        background: #f8fafc;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 3mm;
-                        padding: 2.4mm 2.8mm;
-                    }
-
-                    .history-export-summary {
-                        display: grid;
-                        grid-template-columns: repeat(6, 1fr);
-                        gap: 2mm;
-                    }
-
-                    .history-export-summary > div {
-                        border: 1px solid #e2e8f0;
-                        border-radius: 2.6mm;
-                        background: #ffffff;
-                        padding: 2mm 1.6mm;
-                        text-align: center;
-                    }
-
-                    .history-export-summary p {
-                        margin: 0;
-                        font-size: 9px;
-                        color: #64748b;
-                    }
-
-                    .history-export-summary strong {
-                        display: block;
-                        margin-top: 1mm;
-                        font-size: 13px;
-                        color: #0f172a;
-                    }
-
-                    .history-export-table-wrap {
-                        border: 1px solid #e2e8f0;
-                        border-radius: 3mm;
-                        padding: 2.5mm;
-                        background: #fff;
-                        flex: 1;
-                        min-height: 0;
-                        overflow: hidden;
-                    }
-
-                    .history-export-table-wrap h3 {
-                        margin: 0 0 2mm;
-                        font-size: 10.6px;
-                        text-transform: uppercase;
-                        letter-spacing: .35px;
-                        color: #1e293b;
-                    }
-
-                    .history-export-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        font-size: 9.4px;
-                    }
-
-                    .history-export-table th,
-                    .history-export-table td {
-                        border: 1px solid #e2e8f0;
-                        padding: 1.25mm 1mm;
-                        line-height: 1.25;
-                        vertical-align: middle;
-                    }
-
-                    .history-export-table th {
-                        background: #f1f5f9;
-                        color: #334155;
-                        font-weight: 700;
-                    }
-
-                    .history-export-table td:nth-child(3) {
-                        max-width: 52mm;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                    }
-
-                    .history-export-table td.empty {
-                        text-align: center;
-                        color: #64748b;
-                        font-style: italic;
-                    }
-
-                    .history-export-footer {
-                        margin-top: auto;
-                        border-top: 1px solid #dbeafe;
-                        padding-top: 3mm;
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 8mm;
-                    }
-
-                    .history-export-footer .sign {
-                        text-align: center;
-                        font-size: 10px;
-                        color: #334155;
-                    }
-
-                    .history-export-footer .line {
-                        width: 85%;
-                        margin: 16mm auto 2mm;
-                        border-top: 1px solid #334155;
-                    }
-                }
-            `}</style>
-        </>
+            <motion.button
+                whileHover={!isExporting ? { scale: 1.02 } : undefined}
+                whileTap={!isExporting ? { scale: 0.98 } : undefined}
+                onClick={handleExport}
+                disabled={isExporting}
+                className={`w-full px-6 py-3 rounded-xl flex items-center justify-center text-white font-bold shadow-lg transition-all ${isExporting
+                    ? 'bg-neutral-500 cursor-not-allowed opacity-80'
+                    : 'bg-gradient-to-r from-rose-500 to-pink-600 hover:shadow-xl'
+                    }`}
+            >
+                {isExporting ? (
+                    <>
+                        <RefreshCw className="h-5 w-5 inline mr-2 animate-spin" />
+                        Memproses PDF...
+                    </>
+                ) : (
+                    <>
+                        <Download className="h-5 w-5 inline mr-2" />
+                        Export PDF Satu Halaman
+                    </>
+                )}
+            </motion.button>
+        </motion.div>
     );
 }
 

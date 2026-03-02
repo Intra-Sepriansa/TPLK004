@@ -268,6 +268,14 @@ class PreferenceManagerService
     }
 
     /**
+     * Public wrapper for clearing user preference cache safely.
+     */
+    public function clearUserCache(Model $user): void
+    {
+        $this->clearCache($user);
+    }
+
+    /**
      * Get default settings for all categories.
      */
     public function getDefaults(): array

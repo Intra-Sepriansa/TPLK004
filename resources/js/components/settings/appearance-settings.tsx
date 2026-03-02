@@ -9,9 +9,12 @@ import type { AppearanceSettings as AppearanceSettingsType } from '@/types/setti
 import { SettingsCard } from './SettingsCard';
 import { ThemeToggle } from './ThemeToggle';
 import { AnimatedToggle } from './AnimatedToggle';
+import type { Theme } from '@/hooks/useTheme';
 
 interface AppearanceSettingsProps {
     settings: AppearanceSettingsType;
+    resolvedTheme: 'light' | 'dark';
+    onThemeChange: (theme: Theme) => void;
     onUpdate: (settings: Partial<AppearanceSettingsType>) => void;
 }
 
@@ -21,12 +24,21 @@ const fontSizes = [
     { value: 'large', label: 'Besar', size: 'text-lg' },
 ] as const;
 
-export function AppearanceSettings({ settings, onUpdate }: AppearanceSettingsProps) {
+export function AppearanceSettings({
+    settings,
+    resolvedTheme,
+    onThemeChange,
+    onUpdate,
+}: AppearanceSettingsProps) {
     return (
         <div className="space-y-6">
             {/* Theme Selection using new ThemeToggle component */}
             <SettingsCard title="Tema Aplikasi" icon={Layout} delay={0.1}>
-                <ThemeToggle />
+                <ThemeToggle
+                    value={settings.theme}
+                    resolvedTheme={resolvedTheme}
+                    onChange={onThemeChange}
+                />
             </SettingsCard>
 
             {/* Font Size Selection */}

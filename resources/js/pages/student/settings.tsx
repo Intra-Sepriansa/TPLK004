@@ -41,6 +41,7 @@ import {
     uploadSettings,
 } from '@/lib/settings-api';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import {
     defaultSettings,
     type ActiveSession,
@@ -51,6 +52,33 @@ import {
 } from '@/types/settings';
 
 type ToastType = { type: 'success' | 'error'; message: string } | null;
+
+function mergeCategoryState<T extends object>(
+    current: T,
+    updates: Partial<T>,
+): T {
+    const next = { ...(current as Record<string, unknown>) };
+
+    for (const [key, value] of Object.entries(updates)) {
+        const existing = next[key];
+        const canDeepMerge =
+            existing &&
+            typeof existing === 'object' &&
+            !Array.isArray(existing) &&
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value);
+
+        next[key] = canDeepMerge
+            ? mergeCategoryState(
+                  existing as Record<string, unknown>,
+                  value as Record<string, unknown>,
+              )
+            : value;
+    }
+
+    return next as T;
+}
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -124,6 +152,7 @@ const categoryInfo: Record<
 };
 
 export default function StudentSettings() {
+    const { setTheme, resolvedTheme } = useTheme();
     const [settings, setSettings] = useState<UserSettings>(defaultSettings);
     const [activeCategory, setActiveCategory] =
         useState<SettingsCategory>('general');
@@ -154,13 +183,15 @@ export default function StudentSettings() {
         try {
             const data = await getSettings();
             setSettings(data);
+            setTheme(data.appearance.theme);
         } catch {
             showToast('error', 'Gagal memuat pengaturan.');
             setSettings(defaultSettings);
+            setTheme(defaultSettings.appearance.theme);
         } finally {
             setIsLoading(false);
         }
-    }, [showToast]);
+    }, [setTheme, showToast]);
 
     const loadSecurityData = useCallback(async () => {
         try {
@@ -208,10 +239,7 @@ export default function StudentSettings() {
         ) => {
             setSettings((prev) => ({
                 ...prev,
-                [category]: {
-                    ...prev[category],
-                    ...updates,
-                },
+                [category]: mergeCategoryState(prev[category], updates),
             }));
 
             setIsSaving(true);
@@ -222,11 +250,21 @@ export default function StudentSettings() {
                 );
                 setSettings((prev) => ({
                     ...prev,
-                    [category]: {
-                        ...prev[category],
-                        ...(updatedCategory as UserSettings[K]),
-                    },
+                    [category]: mergeCategoryState(
+                        prev[category],
+                        updatedCategory,
+                    ),
                 }));
+                if (
+                    category === 'appearance' &&
+                    typeof (updatedCategory as { theme?: unknown }).theme ===
+                        'string'
+                ) {
+                    setTheme(
+                        (updatedCategory as { theme: UserSettings['appearance']['theme'] })
+                            .theme,
+                    );
+                }
                 showToast('success', 'Perubahan pengaturan berhasil disimpan.');
             } catch {
                 await loadSettings();
@@ -243,6 +281,7 @@ export default function StudentSettings() {
         try {
             const data = await resetSettings();
             setSettings(data);
+            setTheme(data.appearance.theme);
             showToast('success', 'Pengaturan berhasil direset ke default.');
         } catch {
             showToast('error', 'Gagal mereset pengaturan.');
@@ -264,6 +303,7 @@ export default function StudentSettings() {
         try {
             const data = await uploadSettings(file);
             setSettings(data);
+            setTheme(data.appearance.theme);
             showToast('success', 'Pengaturan berhasil diimpor.');
         } catch {
             showToast('error', 'Gagal mengimpor pengaturan.');
@@ -314,6 +354,13 @@ export default function StudentSettings() {
                 return (
                     <AppearanceSettings
                         settings={settings.appearance}
+                        resolvedTheme={resolvedTheme}
+                        onThemeChange={(nextTheme) => {
+                            setTheme(nextTheme);
+                            void handleUpdateCategory('appearance', {
+                                theme: nextTheme,
+                            });
+                        }}
                         onUpdate={(updates) =>
                             handleUpdateCategory('appearance', updates)
                         }
@@ -338,6 +385,12 @@ export default function StudentSettings() {
                         activeSessions={activeSessions}
                         loginHistory={loginHistory}
                         onTerminateSession={handleTerminateSession}
+                        onSetup2FA={() => {
+                            void handleUpdateCategory('security', {
+                                twoFactorEnabled:
+                                    !settings.security.twoFactorEnabled,
+                            });
+                        }}
                     />
                 );
             case 'dataManagement':
@@ -425,7 +478,7 @@ export default function StudentSettings() {
                             whileHover={{ scale: 1.02, x: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => router.visit('/user/dashboard')}
-                            className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:text-white"
+                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
                         >
                             <ArrowLeft className="h-4 w-4" />
                             Kembali

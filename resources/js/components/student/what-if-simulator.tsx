@@ -47,36 +47,30 @@ export function WhatIfSimulator({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-[2rem] bg-[#0F172A] border border-slate-800 overflow-hidden shadow-2xl h-full flex flex-col"
+            className="h-full flex flex-col w-full mb-2"
         >
-            <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-slate-900 to-slate-900/50">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 rounded-xl bg-violet-500/10 border border-violet-500/20 text-violet-400 shadow-[0_0_15px_rgba(139,92,246,0.15)]">
-                        <Calculator className="h-5 w-5" />
-                    </div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">Simulator "What-If"</h3>
-                </div>
-                <p className="text-sm text-slate-400 leading-relaxed">
+            <div className="mb-6">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
                     Proyeksikan kehadiran akhirmu dengan mengatur rencana kehadiran di masa depan.
                 </p>
             </div>
 
-            <div className="p-6 flex-1 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col gap-6">
                 <div className="space-y-4">
                     <div className="flex justify-between items-end">
-                        <span className="text-sm text-slate-400 font-medium">Rencana Hadir (Sesi)</span>
+                        <span className="text-sm flex-1 text-neutral-500 dark:text-neutral-400 font-medium">Rencana Hadir (Sesi)</span>
                         <motion.span
                             key={futurePresent}
-                            initial={{ scale: 1.2, color: '#fff' }}
-                            animate={{ scale: 1, color: '#94a3b8' }}
-                            className="text-xl font-bold font-mono text-white"
+                            initial={{ scale: 1.2, color: '#10b981' }}
+                            animate={{ scale: 1, color: '' }}
+                            className="text-xl sm:text-2xl font-bold font-mono text-neutral-900 dark:text-white"
                         >
                             {futurePresent} / {remainingSessions}
                         </motion.span>
                     </div>
 
-                    <div className="relative py-2">
-                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 blur-xl opacity-50" />
+                    <div className="relative py-2 px-1">
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 blur-xl opacity-50 dark:opacity-30" />
                         <Slider
                             value={[futurePresent]}
                             max={remainingSessions}
@@ -86,28 +80,28 @@ export function WhatIfSimulator({
                         />
                     </div>
 
-                    <div className="flex justify-between text-xs text-slate-500 font-medium uppercase tracking-wider">
+                    <div className="flex justify-between text-xs text-neutral-400 dark:text-neutral-500 font-medium uppercase tracking-wider">
                         <span>Bolos Semua</span>
                         <span>Hadir Semua</span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                        <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Saat Ini</p>
-                        <p className={cn("text-3xl font-black tracking-tight", getGradeColor(currentRate))}>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-auto">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-white/50 border border-white/20 dark:bg-neutral-900/50 dark:border-white/10 shadow-sm space-y-2 backdrop-blur-sm transition-all hover:scale-105">
+                        <p className="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold">Saat Ini</p>
+                        <p className={cn("text-2xl sm:text-3xl font-black tracking-tight", getGradeColor(currentRate))}>
                             {currentRate.toFixed(1)}%
                         </p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 space-y-2 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        <p className="text-xs text-slate-400 uppercase tracking-wider font-semibold relative z-10">Proyeksi Akhir</p>
-                        <div className="flex items-baseline gap-2 relative z-10">
-                            <p className={cn("text-3xl font-black tracking-tight", getGradeColor(projectedRate))}>
+                    <div className="p-4 sm:p-5 rounded-2xl bg-white/50 border border-emerald-500/20 dark:bg-emerald-900/10 dark:border-emerald-500/20 shadow-sm space-y-2 relative overflow-hidden group transition-all hover:scale-105">
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <p className="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 uppercase tracking-wider font-semibold relative z-10">Proyeksi Akhir</p>
+                        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2 relative z-10">
+                            <p className={cn("text-2xl sm:text-3xl font-black tracking-tight", getGradeColor(projectedRate))}>
                                 {projectedRate.toFixed(1)}%
                             </p>
                             <ArrowRight className={cn(
-                                "h-4 w-4 mb-1 transition-transform",
+                                "hidden sm:block h-4 w-4 mb-1 transition-transform",
                                 projectedRate >= currentRate
                                     ? "text-emerald-500 -rotate-45"
                                     : "text-red-500 rotate-45"
@@ -118,9 +112,9 @@ export function WhatIfSimulator({
 
                 <motion.div
                     layout
-                    className="mt-auto p-4 rounded-xl bg-violet-500/5 border border-violet-500/10 text-violet-300 text-sm flex gap-3 items-start"
+                    className="p-3 sm:p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-500/20 text-violet-700 dark:text-violet-300 text-xs sm:text-sm flex gap-3 items-start shadow-sm"
                 >
-                    <RefreshCw className="h-4 w-4 mt-0.5 flex-shrink-0 animate-spin-slow" />
+                    <RefreshCw className="h-4 w-4 mt-0.5 flex-shrink-0 animate-spin-slow text-violet-500" />
                     <p className="leading-relaxed font-medium">{getRecommendation()}</p>
                 </motion.div>
             </div>

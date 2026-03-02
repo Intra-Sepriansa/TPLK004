@@ -296,6 +296,79 @@ class AbsensiController extends Controller
         ]);
     }
 
+    public function historyExportPdf()
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $logs = AttendanceLog::query()
+            ->with(['session.course'])
+            ->where('mahasiswa_id', $mahasiswa?->id)
+            ->latest('scanned_at')
+            ->get();
+
+        $records = $logs->map(function ($log) {
+            return [
+                'id' => $log->id,
+                'date' => $log->scanned_at?->toIso8601String(),
+                'course' => $log->session?->course?->nama ?? 'Unknown',
+                'courseId' => $log->session?->course?->id ?? 0,
+                'meetingNumber' => $log->session?->meeting_number ?? 1,
+                'status' => $log->status,
+                'checkInTime' => $log->scanned_at?->format('H:i'),
+                'distance' => $log->distance_m,
+            ];
+        })->values()->toArray();
+
+        // Calculate stats
+        $present = $logs->where('status', 'present')->count();
+        $absent = $logs->where('status', 'rejected')->count();
+        $late = $logs->where('status', 'late')->count();
+        $pending = $logs->where('status', 'pending')->count();
+        $total = $logs->count();
+
+        // Calculate streak
+        $sortedLogs = $logs->sortByDesc('scanned_at');
+        $longestStreak = 0;
+        $tempStreak = 0;
+        foreach ($sortedLogs as $log) {
+            if (in_array($log->status, ['present', 'late'])) {
+                $tempStreak++;
+            } else {
+                $longestStreak = max($longestStreak, $tempStreak);
+                $tempStreak = 0;
+            }
+        }
+        $longestStreak = max($longestStreak, $tempStreak);
+
+        $periodStart = $sortedLogs->last()?->scanned_at?->format('d/m/Y') ?? '-';
+        $periodEnd = $sortedLogs->first()?->scanned_at?->format('d/m/Y') ?? '-';
+
+        $logoUnpam = public_path('logo-unpam.png');
+        $logoSasmita = public_path('sasmita.png');
+
+        $data = [
+            'mahasiswa' => $mahasiswa,
+            'records' => $records,
+            'stats' => [
+                'present' => $present,
+                'absent' => $absent,
+                'late' => $late,
+                'pending' => $pending,
+                'total' => $total,
+                'longestStreak' => $longestStreak,
+            ],
+            'periodStart' => $periodStart,
+            'periodEnd' => $periodEnd,
+            'logoUnpam' => $logoUnpam,
+            'logoSasmita' => $logoSasmita,
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.riwayat-kehadiran', $data);
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->download('Riwayat-Kehadiran-' . ($mahasiswa?->nim ?? 'unknown') . '.pdf');
+    }
+
     public function historyDetail($id): Response
     {
         $mahasiswa = Auth::guard('mahasiswa')->user();
@@ -1393,7 +1466,7 @@ class AbsensiController extends Controller
             ->get();
         $activeSessions = $activeSessionModels->pluck('id');
 
-        $todayLogs = AttendanceLog::whereIn('session_id', $activeSessions)
+        $todayLogs = AttendanceLog::whereIn('attendance_session_id', $activeSessions)
             ->whereIn('status', ['present', 'late'])
             ->with('mahasiswa')
             ->latest('scanned_at')

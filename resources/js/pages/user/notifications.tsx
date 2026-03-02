@@ -24,8 +24,8 @@ import { useState } from 'react';
 import NotificationIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
 import NotificationTotalIcon from '@/assets/admin/notification-center/total.png';
 import NotificationApprovedIcon from '@/assets/admin/verifikasi-selfie/disetujui.png';
-import NotificationPendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
 import NotificationRejectedIcon from '@/assets/admin/verifikasi-selfie/ditolak.png';
+import NotificationPendingIcon from '@/assets/admin/verifikasi-selfie/pending.png';
 
 interface Notification {
     id: number;
@@ -892,6 +892,7 @@ export default function Notifications({
                 title="Hapus Notifikasi"
                 message="Yakin ingin menghapus notifikasi ini? Tindakan ini tidak dapat dibatalkan."
                 variant="danger"
+                theme="admin-dashboard"
                 confirmText="Ya, Hapus"
                 cancelText="Batal"
             />

@@ -41,6 +41,7 @@ export interface AppearanceSettings {
     compactMode: boolean;
     animations: boolean;
     sidebarCollapsed: boolean;
+    highContrast?: boolean;
 }
 
 // Privacy Settings
@@ -49,6 +50,9 @@ export interface PrivacySettings {
     showOnlineStatus: boolean;
     showActivityStatus: boolean;
     allowDataCollection: boolean;
+    showLastSeen?: boolean;
+    shareActivity?: boolean;
+    allowSearchByNim?: boolean;
 }
 
 // Security Settings
@@ -64,6 +68,7 @@ export interface DataManagementSettings {
     backupFrequency: 'daily' | 'weekly' | 'monthly';
     cacheEnabled: boolean;
     offlineMode: boolean;
+    dataRetention?: number;
 }
 
 // Combined User Settings
@@ -114,12 +119,16 @@ export const defaultSettings: UserSettings = {
         compactMode: false,
         animations: true,
         sidebarCollapsed: false,
+        highContrast: false,
     },
     privacy: {
         profileVisibility: 'contacts',
         showOnlineStatus: true,
         showActivityStatus: true,
         allowDataCollection: true,
+        showLastSeen: true,
+        shareActivity: true,
+        allowSearchByNim: true,
     },
     security: {
         twoFactorEnabled: false,
@@ -131,6 +140,7 @@ export const defaultSettings: UserSettings = {
         backupFrequency: 'weekly',
         cacheEnabled: true,
         offlineMode: false,
+        dataRetention: 365,
     },
 };
 

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceLog;
+use App\Models\AttendanceSession;
 use App\Models\CourseMaterial;
 use App\Models\CourseNote;
 use App\Models\MahasiswaCourse;
+use App\Models\MataKuliah;
 use App\Models\ScheduleReminder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -43,24 +46,55 @@ class ScheduleDetailController extends Controller
             'syllabus_url' => null,
         ];
 
-        // Meetings as attendance records (use CourseMeeting if exists)
+        // Real attendance from AttendanceLog via AttendanceSession
+        // Match MahasiswaCourse.name to MataKuliah.nama to find sessions
+        $mataKuliah = MataKuliah::where('nama', $course->name)->first();
+
         $attendanceRecords = [];
-        if ($course->meetings()->exists()) {
-            $attendanceRecords = $course->meetings()
-                ->orderBy('meeting_number', 'desc')
-                ->get()
-                ->map(function ($meeting) use ($course) {
-                    $status = $meeting->is_completed ? 'present' : 'absent';
-                    return [
-                        'id'             => $meeting->id,
-                        'meeting_number' => $meeting->meeting_number,
-                        'date'           => $meeting->date ? Carbon::parse($meeting->date)->format('d M Y') : '-',
-                        'status'         => $status,
-                        'time_in'        => $meeting->is_completed ? Carbon::parse($course->schedule_time)->format('H:i') : null,
-                        'notes'          => $meeting->notes ?? null,
+        if ($mataKuliah) {
+            $sessionIds = AttendanceSession::where('course_id', $mataKuliah->id)
+                ->pluck('id');
+
+            $logs = AttendanceLog::where('mahasiswa_id', $mahasiswa->id)
+                ->whereIn('attendance_session_id', $sessionIds)
+                ->with('session')
+                ->orderByDesc('scanned_at')
+                ->get();
+
+            $attendanceRecords = $logs->map(function ($log) {
+                return [
+                    'id'             => $log->id,
+                    'meeting_number' => $log->session->meeting_number ?? 0,
+                    'date'           => $log->scanned_at ? $log->scanned_at->format('d M Y') : '-',
+                    'status'         => $log->status,
+                    'time_in'        => $log->scanned_at ? $log->scanned_at->format('H:i') : null,
+                    'notes'          => $log->note ?? null,
+                ];
+            })->toArray();
+
+            // Also count sessions where this student was absent (no log)
+            $allSessions = AttendanceSession::where('course_id', $mataKuliah->id)
+                ->where('start_at', '<=', now())
+                ->orderByDesc('meeting_number')
+                ->get();
+
+            $attendedSessionIds = $logs->pluck('attendance_session_id')->toArray();
+
+            foreach ($allSessions as $session) {
+                if (!in_array($session->id, $attendedSessionIds)) {
+                    $attendanceRecords[] = [
+                        'id'             => $session->id,
+                        'meeting_number' => $session->meeting_number ?? 0,
+                        'date'           => $session->start_at ? $session->start_at->format('d M Y') : '-',
+                        'status'         => 'absent',
+                        'time_in'        => null,
+                        'notes'          => null,
                     ];
-                })
-                ->toArray();
+                }
+            }
+
+            // Sort by meeting_number descending
+            usort($attendanceRecords, fn($a, $b) => $b['meeting_number'] <=> $a['meeting_number']);
         }
 
         // Materials
@@ -116,8 +150,11 @@ class ScheduleDetailController extends Controller
             ->where('is_active', true)
             ->exists();
 
-        // Next meeting
-        $nextMeeting = $this->getNextMeeting($course, count($attendanceRecords));
+        // Next meeting — use the number of actual sessions held
+        $sessionsHeld = $mataKuliah
+            ? AttendanceSession::where('course_id', $mataKuliah->id)->count()
+            : 0;
+        $nextMeeting = $this->getNextMeeting($course, $sessionsHeld);
 
         return Inertia::render('user/akademik/jadwal-detail', [
             'course'            => $courseDetail,

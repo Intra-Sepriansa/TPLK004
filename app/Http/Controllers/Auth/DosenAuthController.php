@@ -4,20 +4,22 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dosen;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
-use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class DosenAuthController extends Controller
 {
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): Response
     {
         $credentials = $request->validate([
             'nidn' => 'required|string',
             'password' => 'required|string',
         ]);
+        $credentials['nidn'] = trim($credentials['nidn']);
 
         $dosen = Dosen::where('nidn', $credentials['nidn'])->first();
 
@@ -31,11 +33,10 @@ class DosenAuthController extends Controller
 
         $request->session()->regenerate();
 
-        // Force redirect to dosen dashboard
-        return redirect('/dosen');
+        return $this->redirectAfterLogin($request);
     }
 
-    public function destroy(Request $request): \Illuminate\Http\RedirectResponse
+    public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('dosen')->logout();
 
@@ -43,5 +44,14 @@ class DosenAuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function redirectAfterLogin(Request $request): Response
+    {
+        if ($request->header('X-Inertia')) {
+            return Inertia::location('/dosen');
+        }
+
+        return redirect()->intended('/dosen');
     }
 }

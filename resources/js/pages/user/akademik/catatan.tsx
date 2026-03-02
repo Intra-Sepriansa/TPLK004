@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import {
-    NotebookPen, Plus, ArrowLeft, Search, BookOpen, Monitor, Building2,
+    NotebookPen, Plus, ChevronLeft, Search, BookOpen, Monitor, Building2,
     Trash2, Edit, ExternalLink, Calendar, CheckCircle, XCircle, Sparkles,
     FileText, Clock, TrendingUp, LayoutGrid, List, Columns3, Star, Copy,
     Download, Filter, ArrowUpDown, Eye, Pin, Hash, BookMarked, ArrowRight,
@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TipTapEditor from '@/components/editor/TipTapEditor';
 import MindMapView from '@/components/MindMapView';
 import { useState, FormEvent, useEffect, useRef, useMemo } from 'react';
+import AkademikIcon from '@/assets/mahasiswa/akademik/akademik.png';
 
 // Add new AI Response interface
 interface AIResponse {
@@ -186,6 +187,10 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
         router.visit(`/user/akademik/catatan/${note.id}/edit`);
     };
 
+    const handleView = (note: Note) => {
+        router.visit(`/user/akademik/catatan/${note.id}`);
+    };
+
     const openDeleteDialog = (id: number) => setDeleteDialog({ open: true, id });
 
     const handleDelete = () => {
@@ -241,139 +246,60 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                     )}
                 </AnimatePresence>
 
-                {/* Advanced Header with Particles */}
+                {/* Header */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl border border-white/20 p-8 text-white shadow-2xl"
                 >
-                    {/* Animated Background Particles */}
-                    <div className="absolute inset-0 overflow-hidden">
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.3, 1],
-                                rotate: [0, 180, 360],
-                            }}
-                            transition={{
-                                duration: 20,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-white/10 blur-3xl"
-                        />
-                        <motion.div
-                            animate={{
-                                scale: [1, 1.4, 1],
-                                rotate: [360, 180, 0],
-                            }}
-                            transition={{
-                                duration: 15,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                            className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/10 blur-2xl"
-                        />
-
-                        {/* Floating Academic Icons */}
-                        {[...Array(15)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 0 }}
-                                animate={{
-                                    opacity: [0, 0.4, 0],
-                                    y: [0, -100 - Math.random() * 50],
-                                    x: [0, (Math.random() - 0.5) * 50],
-                                    rotate: [0, Math.random() * 360],
-                                }}
-                                transition={{
-                                    duration: 3 + Math.random() * 2,
-                                    repeat: Infinity,
-                                    delay: i * 0.4,
-                                    ease: "easeOut"
-                                }}
-                                className="absolute"
-                                style={{
-                                    left: `${10 + (i * 6) % 80}%`,
-                                    bottom: '0',
-                                }}
-                            >
-                                {i % 5 === 0 ? (
-                                    <NotebookPen className="h-4 w-4 text-white/30" />
-                                ) : i % 5 === 1 ? (
-                                    <BookOpen className="h-4 w-4 text-white/30" />
-                                ) : i % 5 === 2 ? (
-                                    <FileText className="h-4 w-4 text-white/30" />
-                                ) : i % 5 === 3 ? (
-                                    <Sparkles className="h-4 w-4 text-white/30" />
-                                ) : (
-                                    <Calendar className="h-4 w-4 text-white/30" />
-                                )}
-                            </motion.div>
-                        ))}
-                    </div>
-
-                    {/* Floating Large Icons */}
                     <motion.div
-                        animate={{
-                            y: [0, -15, 0],
-                            rotate: [0, 5, -5, 0],
-                        }}
-                        transition={{
-                            duration: 6,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="absolute top-8 right-16 text-white/10"
-                    >
-                        <NotebookPen className="h-24 w-24" />
-                    </motion.div>
-                    <motion.div
-                        animate={{
-                            y: [0, 15, 0],
-                            rotate: [0, -8, 8, 0],
-                        }}
-                        transition={{
-                            duration: 7,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: 1,
-                        }}
-                        className="absolute bottom-8 left-16 text-white/10"
-                    >
-                        <BookOpen className="h-28 w-28" />
-                    </motion.div>
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative z-10">
-                        <div className="flex items-center justify-between flex-wrap gap-4">
+                        <Link href="/user/akademik">
+                            <motion.button
+                                whileHover={{ scale: 1.05, x: -2 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="mb-4 inline-flex items-center gap-2 text-sm text-indigo-100 hover:text-white"
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Kembali ke Akademik
+                            </motion.button>
+                        </Link>
+
+                        <div className="flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-4">
-                                <Link href="/user/akademik">
-                                    <motion.div
-                                        whileHover={{ scale: 1.1, x: -5 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        className="p-2 hover:bg-white/20 rounded-lg transition-colors backdrop-blur-sm"
-                                    >
-                                        <ArrowLeft className="h-5 w-5" />
-                                    </motion.div>
-                                </Link>
                                 <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm ring-4 ring-white/30"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.06, rotate: 4 }}
+                                    className="relative flex h-16 w-16 shrink-0 sm:h-20 sm:w-20"
                                 >
-                                    <NotebookPen className="h-8 w-8" />
+                                    <img
+                                        src={AkademikIcon}
+                                        alt="Catatan Pembelajaran"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.55)]"
+                                    />
                                 </motion.div>
+
                                 <div>
                                     <motion.p
-                                        initial={{ opacity: 0, x: -20 }}
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="text-sm text-white/90 font-medium"
+                                        transition={{ delay: 0.25 }}
+                                        className="text-sm font-medium text-indigo-100"
                                     >
                                         Manajemen Pembelajaran
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ opacity: 0, x: -20 }}
+                                        initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.3 }}
                                         className="text-3xl font-bold"
@@ -383,80 +309,95 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 </div>
                             </div>
 
-                            {/* New Add Note Button */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                transition={{ delay: 0.4 }}
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.96 }}
                             >
                                 <Link href="/user/akademik/catatan/create">
-                                    <Button
-                                        className="bg-teal-500 hover:bg-teal-600 text-white rounded-xl px-6 py-6 shadow-lg shadow-teal-500/30 flex items-center gap-2 group transition-all"
-                                    >
-                                        <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform" />
-                                        <span className="font-semibold text-lg">Catatan Baru</span>
+                                    <Button className="group flex items-center gap-2 rounded-2xl border border-white/25 bg-white/15 px-6 py-6 text-white shadow-lg shadow-black/20 backdrop-blur-xl transition-all hover:bg-white/25 hover:shadow-white/10">
+                                        <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
+                                        <span className="text-lg font-semibold">Catatan Baru</span>
                                     </Button>
                                 </Link>
                             </motion.div>
                         </div>
+
                         <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="mt-4 text-white/90 text-lg"
+                            className="mt-4 text-lg text-indigo-100"
                         >
                             Catat materi setiap pertemuan untuk referensi belajar
                         </motion.p>
+                    </div>
+                </motion.div>
 
-                        {/* Quick Stats with Dock-Style Animations */}
+                {/* Stats Cards - Outside Header */}
+                <motion.div
+                    variants={itemVariants}
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6"
+                >
+                    {[
+                        {
+                            icon: FileText,
+                            label: 'Total Catatan',
+                            value: stats.total,
+                            iconColor: 'text-sky-500',
+                            glow: 'bg-sky-500',
+                            gradientBg: 'from-sky-500/5 to-indigo-500/5 dark:from-sky-500/10 dark:to-indigo-500/10',
+                        },
+                        {
+                            icon: BookOpen,
+                            label: 'Mata Kuliah',
+                            value: stats.courses,
+                            iconColor: 'text-violet-500',
+                            glow: 'bg-violet-500',
+                            gradientBg: 'from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10',
+                        },
+                        {
+                            icon: TrendingUp,
+                            label: 'Minggu Ini',
+                            value: stats.thisWeek,
+                            iconColor: 'text-amber-500',
+                            glow: 'bg-amber-500',
+                            gradientBg: 'from-amber-500/5 to-orange-500/5 dark:from-amber-500/10 dark:to-orange-500/10',
+                        },
+                    ].map((stat, index) => (
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-6 grid grid-cols-3 gap-4"
+                            key={stat.label}
+                            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ delay: 0.15 + index * 0.05, type: 'spring', stiffness: 260, damping: 20 }}
+                            whileHover={{ scale: 1.03, y: -4 }}
+                            className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:rounded-3xl sm:p-5 dark:border-white/5 dark:bg-neutral-900/40"
                         >
-                            {[
-                                { icon: FileText, label: 'Total Catatan', value: stats.total },
-                                { icon: BookOpen, label: 'Mata Kuliah', value: stats.courses },
-                                { icon: TrendingUp, label: 'Minggu Ini', value: stats.thisWeek },
-                            ].map((stat, index) => (
-                                <motion.div
-                                    key={stat.label}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.7 + index * 0.1, type: "spring", stiffness: 200 }}
-                                    whileHover={{
-                                        scale: 1.05,
-                                        y: -5,
-                                        boxShadow: "0 10px 30px rgba(255,255,255,0.2)"
-                                    }}
-                                    className="bg-white/10 backdrop-blur rounded-xl p-4 cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <motion.div
-                                            whileHover={{ scale: 1.2, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                                        >
-                                            <stat.icon className="h-5 w-5 text-white/80" />
-                                        </motion.div>
-                                        <p className="text-white/80 text-xs font-medium">{stat.label}</p>
-                                    </div>
-                                    <p className="text-3xl font-bold">
+                            <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradientBg}`} />
+                            <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${stat.glow} opacity-15 blur-3xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-35`} />
+
+                            <div className="relative flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{stat.label}</p>
+                                    <p className="mt-1 text-2xl font-bold text-neutral-900 dark:text-white">
                                         <AnimatedCounter value={stat.value} duration={1500} />
                                     </p>
+                                </div>
+                                <motion.div whileHover={{ scale: 1.08, rotate: 6 }}>
+                                    <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
                                 </motion.div>
-                            ))}
+                            </div>
                         </motion.div>
-                    </div>
+                    ))}
                 </motion.div>
 
                 {/* Search & Filter */}
                 <motion.div
                     variants={itemVariants}
                     whileHover={{ scale: 1.01, y: -2 }}
-                    className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                    className="overflow-hidden rounded-2xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
                     <div className="p-4 space-y-4">
                         <div className="flex flex-col md:flex-row gap-4">
@@ -491,10 +432,10 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                         </div>
 
                         {/* View Mode & Sort Options */}
-                        <div className="flex items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center justify-between gap-4 border-t border-neutral-200/70 pt-4 dark:border-neutral-700/70">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Tampilan:</span>
-                                <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Tampilan:</span>
+                                <div className="flex items-center gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
                                     {[
                                         { value: 'grid' as const, icon: LayoutGrid, label: 'Grid' },
                                         { value: 'list' as const, icon: List, label: 'List' },
@@ -506,9 +447,9 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => setViewMode(mode.value)}
-                                            className={`p-2 rounded-md transition-colors ${viewMode === mode.value
-                                                ? 'bg-white dark:bg-slate-700 text-purple-600 shadow-sm'
-                                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                            className={`rounded-md p-2 transition-colors ${viewMode === mode.value
+                                                ? 'bg-white text-purple-600 shadow-sm dark:bg-neutral-700'
+                                                : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                                                 }`}
                                             title={mode.label}
                                         >
@@ -519,7 +460,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                             </div>
 
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Urutkan:</span>
+                                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Urutkan:</span>
                                 <Select value={sortBy} onValueChange={(v: any) => setSortBy(v)}>
                                     <SelectTrigger className="w-[140px] h-9 border-2 hover:border-purple-300 transition-colors rounded-lg">
                                         <SelectValue />
@@ -555,7 +496,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="w-full bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800"
+                        className="w-full rounded-xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
                         <MindMapView notes={notes} courses={courses} />
                     </motion.div>
@@ -568,9 +509,9 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
                                 whileHover={{ scale: 1.01, y: -2 }}
-                                className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                                className="overflow-hidden rounded-2xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                             >
-                                <div className="p-4 border-b border-slate-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 dark:from-purple-950/20 dark:to-pink-950/20 border-b border-neutral-200/70 dark:border-neutral-700/70">
                                     <div className="flex items-center gap-2">
                                         <motion.div
                                             whileHover={{ scale: 1.2, y: -2 }}
@@ -584,8 +525,8 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                             )}
                                         </motion.div>
                                         <div className="flex-1">
-                                            <h2 className="font-semibold text-slate-900 dark:text-white">{courseName}</h2>
-                                            <p className="text-xs text-slate-500">{courseNotes.length} catatan tersimpan</p>
+                                            <h2 className="font-semibold text-neutral-900 dark:text-white">{courseName}</h2>
+                                            <p className="text-xs text-neutral-500">{courseNotes.length} catatan tersimpan</p>
                                         </div>
                                         <Badge variant={mode === 'offline' ? 'default' : 'secondary'} className={`text-xs ${mode === 'offline' ? 'bg-emerald-500' : ''}`}>
                                             {mode === 'offline' ? 'Offline' : 'Online'}
@@ -607,6 +548,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                                 isFavorite={favoriteNotes.includes(note.id)}
                                                 onTogglePin={() => togglePin(note.id)}
                                                 onToggleFavorite={() => toggleFavorite(note.id)}
+                                                onView={() => handleView(note)}
                                                 onEdit={() => handleEdit(note)}
                                                 onDuplicate={() => handleDuplicate(note)}
                                                 onDelete={() => openDeleteDialog(note.id)}
@@ -621,7 +563,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                 ) : (
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-slate-200/70 bg-white/80 shadow-sm backdrop-blur dark:border-slate-800/70 dark:bg-black/70 overflow-hidden"
+                        className="overflow-hidden rounded-2xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                     >
                         <div className="py-12">
                             <div className="text-center">
@@ -637,7 +579,11 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
                                     }}
                                     className="inline-block"
                                 >
-                                    <NotebookPen className="h-16 w-16 mx-auto text-purple-400 mb-3 opacity-50" />
+                                    <img
+                                        src={AkademikIcon}
+                                        alt="Catatan Pembelajaran"
+                                        className="mb-3 h-16 w-16 object-contain opacity-65 drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
+                                    />
                                 </motion.div>
                                 <p className="text-muted-foreground font-medium mb-2">Belum ada catatan</p>
                                 <p className="text-sm text-muted-foreground mb-4">Mulai catat materi pembelajaran kamu</p>
@@ -677,6 +623,7 @@ function AdvancedNoteCard({
     isFavorite,
     onTogglePin,
     onToggleFavorite,
+    onView,
     onEdit,
     onDuplicate,
     onDelete,
@@ -689,6 +636,7 @@ function AdvancedNoteCard({
     isFavorite: boolean;
     onTogglePin: () => void;
     onToggleFavorite: () => void;
+    onView: () => void;
     onEdit: () => void;
     onDuplicate: () => void;
     onDelete: () => void;
@@ -764,7 +712,7 @@ function AdvancedNoteCard({
                 transition: 'transform 0.1s ease-out',
             } : {}}
             whileHover={{ scale: isListView ? 1.01 : 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
-            className={`relative rounded-2xl border-2 bg-white dark:bg-slate-900/50 overflow-hidden group ${isPinned ? 'border-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-800'
+            className={`group relative overflow-hidden rounded-2xl border-2 bg-white/70 dark:bg-neutral-900/40 backdrop-blur-xl ${isPinned ? 'border-amber-400 dark:border-amber-600' : 'border-white/20 dark:border-white/5'
                 } ${isListView ? 'flex items-start gap-4 p-4' : 'p-5'}`}
         >
             {/* Pin Indicator */}
@@ -830,11 +778,22 @@ function AdvancedNoteCard({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={`h-8 w-8 ${isPinned ? 'text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                        className={`h-8 w-8 ${isPinned ? 'text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
                                         onClick={onTogglePin}
                                         title={isPinned ? 'Unpin' : 'Pin'}
                                     >
                                         <Pin className={`h-4 w-4 ${isPinned ? 'fill-amber-600' : ''}`} />
+                                    </Button>
+                                </motion.div>
+                                <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-emerald-600 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/30"
+                                        onClick={onView}
+                                        title="Lihat Detail"
+                                    >
+                                        <Eye className="h-4 w-4" />
                                     </Button>
                                 </motion.div>
                                 <motion.div whileHover={{ scale: 1.2, y: -2 }} whileTap={{ scale: 0.9 }}>
@@ -863,7 +822,7 @@ function AdvancedNoteCard({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={`h-8 w-8 ${isFavorite ? 'text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30' : 'hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                                        className={`h-8 w-8 ${isFavorite ? 'text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}
                                         onClick={onToggleFavorite}
                                         title={isFavorite ? 'Unfavorite' : 'Favorite'}
                                     >
@@ -911,19 +870,20 @@ function AdvancedNoteCard({
                 {/* Title */}
                 <motion.h4
                     whileHover={{ x: 3 }}
-                    className={`font-bold text-slate-900 dark:text-white mb-2 ${isListView ? 'text-xl' : 'text-lg'}`}
+                    onClick={onView}
+                    className={`mb-2 cursor-pointer font-bold text-neutral-900 transition hover:text-indigo-600 dark:text-white dark:hover:text-indigo-300 ${isListView ? 'text-xl' : 'text-lg'}`}
                 >
                     {note.title}
                 </motion.h4>
 
                 {/* Content Preview */}
                 <div
-                    className={`text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert max-w-none ${isListView ? 'line-clamp-2' : 'line-clamp-3'}`}
+                    className={`text-sm text-neutral-600 dark:text-neutral-400 mb-3 prose prose-sm dark:prose-invert max-w-none ${isListView ? 'line-clamp-2' : 'line-clamp-3'}`}
                     dangerouslySetInnerHTML={{ __html: note.content }}
                 />
 
                 {/* Stats */}
-                <div className="flex items-center gap-3 mb-3 text-xs text-slate-500">
+                <div className="mb-3 flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
                     <div className="flex items-center gap-1">
                         <FileText className="h-3 w-3" />
                         <span>{stats.words} kata</span>
@@ -939,7 +899,7 @@ function AdvancedNoteCard({
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700"
+                        className="mt-3 border-t border-neutral-200/70 pt-3 dark:border-neutral-700/70"
                     >
                         <div className="flex items-center gap-2 mb-2">
                             <Sparkles className="h-3.5 w-3.5 text-purple-500" />
@@ -953,29 +913,38 @@ function AdvancedNoteCard({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     whileHover={{ x: 5, scale: 1.02 }}
-                                    className="flex items-center gap-2 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+                                    className="flex items-center gap-2 rounded-lg p-2 text-xs text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-neutral-800/70 dark:hover:text-blue-300"
                                 >
                                     <ExternalLink className="h-3 w-3 shrink-0" />
                                     <span className="truncate">{link}</span>
                                 </motion.a>
                             ))}
                             {note.links.length > (isListView ? 1 : 2) && (
-                                <p className="text-xs text-slate-400 pl-2">+{note.links.length - (isListView ? 1 : 2)} link lainnya</p>
+                                <p className="pl-2 text-xs text-neutral-500 dark:text-neutral-400">+{note.links.length - (isListView ? 1 : 2)} link lainnya</p>
                             )}
                         </div>
                     </motion.div>
                 )}
 
                 {/* Footer */}
-                <div className="flex items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                <div className="mt-4 flex items-center justify-between gap-2 border-t border-neutral-200/70 pt-3 dark:border-neutral-700/70">
                     <div className="flex items-center gap-2">
-                        <Clock className="h-3 w-3 text-slate-400" />
-                        <p className="text-xs text-slate-400">{note.created_at}</p>
+                        <Clock className="h-3 w-3 text-neutral-500 dark:text-neutral-400" />
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">{note.created_at}</p>
                     </div>
                     <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onView}
+                            className="h-6 px-2 text-[10px] font-semibold text-indigo-600 hover:bg-indigo-100 dark:text-indigo-300 dark:hover:bg-indigo-900/30"
+                        >
+                            Detail
+                            <ArrowRight className="ml-1 h-3 w-3" />
+                        </Button>
                         <div className="flex -space-x-2 mr-2">
                             <motion.div whileHover={{ scale: 1.1, zIndex: 10 }} className="relative z-0">
-                                <div className="h-6 w-6 rounded-full border-2 border-white dark:border-slate-800 bg-teal-100 flex items-center justify-center text-[10px] font-bold text-teal-700">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-teal-100 text-[10px] font-bold text-teal-700 dark:border-neutral-800">
                                     ME
                                 </div>
                             </motion.div>
@@ -1005,13 +974,13 @@ function AdvancedNoteCard({
                     <div className="py-4 min-h-[200px] flex flex-col justify-center">
                         <AnimatePresence mode="wait">
                             {isGeneratingAI ? (
-                                <motion.div
-                                    key="loading"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center justify-center gap-4 py-8"
-                                >
+                                    <motion.div
+                                        key="loading"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="flex flex-col items-center justify-center gap-4 py-8"
+                                    >
                                     <motion.div
                                         animate={{
                                             rotate: 360,
@@ -1023,7 +992,7 @@ function AdvancedNoteCard({
                                         }}
                                         className="h-12 w-12 rounded-full border-4 border-indigo-200 border-t-indigo-600"
                                     />
-                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 animate-pulse">
+                                    <p className="animate-pulse text-sm font-medium text-neutral-600 dark:text-neutral-400">
                                         Memproses catatan dengan AI...
                                     </p>
                                 </motion.div>
@@ -1037,18 +1006,18 @@ function AdvancedNoteCard({
                                     {aiMode === 'summary' && (
                                         <>
                                             <div className="space-y-2">
-                                                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                <h4 className="flex items-center gap-2 font-bold text-neutral-900 dark:text-white">
                                                     <AlignLeft className="h-4 w-4 text-indigo-500" />
                                                     Ringkasan Topik
                                                 </h4>
-                                                <div className="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                <div className="rounded-xl bg-indigo-50 p-4 text-sm leading-relaxed text-neutral-700 dark:bg-violet-900/30 dark:text-neutral-300">
                                                     {aiResponse.summary || 'Summary not returning.'}
                                                 </div>
                                             </div>
 
                                             {aiResponse.keywords && aiResponse.keywords.length > 0 && (
                                                 <div className="space-y-2">
-                                                    <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <h4 className="flex items-center gap-2 font-bold text-neutral-900 dark:text-white">
                                                         <Hash className="h-4 w-4 text-purple-500" />
                                                         Keywords
                                                     </h4>
@@ -1072,15 +1041,15 @@ function AdvancedNoteCard({
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: idx * 0.1 }}
-                                                    className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-800 space-y-2 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800/50"
+                                                    className="space-y-2 rounded-xl border-2 border-neutral-200 dark:border-neutral-700 bg-gradient-to-br from-white to-neutral-50 p-4 dark:from-neutral-900 dark:to-neutral-800/50"
                                                 >
                                                     <div className="flex gap-2">
                                                         <span className="font-bold text-yellow-600 dark:text-yellow-500">Q:</span>
-                                                        <p className="font-medium text-slate-900 dark:text-white">{card.question}</p>
+                                                        <p className="font-medium text-neutral-900 dark:text-white">{card.question}</p>
                                                     </div>
-                                                    <div className="flex gap-2 pt-2 mt-2 border-t border-slate-100 dark:border-slate-800/50">
+                                                    <div className="mt-2 flex gap-2 border-t border-neutral-100 pt-2 dark:border-neutral-700/60">
                                                         <span className="font-bold text-emerald-600 dark:text-emerald-500">A:</span>
-                                                        <p className="text-slate-600 dark:text-slate-400">{card.answer}</p>
+                                                        <p className="text-neutral-600 dark:text-neutral-400">{card.answer}</p>
                                                     </div>
                                                 </motion.div>
                                             ))}

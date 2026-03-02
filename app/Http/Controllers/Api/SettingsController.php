@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AdminActivityLog;
 use App\Services\PreferenceManagerService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class SettingsController extends Controller
 {
@@ -24,7 +27,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         $settings = $this->preferenceManager->getSettings($user);
@@ -43,7 +50,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         try {
@@ -68,8 +79,9 @@ class SettingsController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Validation failed',
+                'message' => 'Validasi pengaturan gagal',
                 'details' => $e->errors(),
+                'code' => 'SETTINGS_VALIDATION_FAILED',
             ], 422);
         }
     }
@@ -82,12 +94,26 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         try {
             $normalizedCategory = $this->normalizeCategoryName($category);
             $settings = $request->all();
+
+            if (
+                $normalizedCategory === 'appearance' &&
+                array_key_exists('theme', $settings)
+            ) {
+                $settings['theme'] = $this->normalizeThemeValue(
+                    $settings['theme'] ?? null
+                );
+            }
+
             $updated = $this->preferenceManager->updateCategorySettings($user, $normalizedCategory, $settings);
 
             return response()->json([
@@ -98,9 +124,16 @@ class SettingsController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Validation failed',
+                'message' => 'Validasi pengaturan kategori gagal',
                 'details' => $e->errors(),
+                'code' => 'SETTINGS_VALIDATION_FAILED',
             ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui pengaturan kategori',
+                'code' => 'SETTINGS_UPDATE_FAILED',
+            ], 500);
         }
     }
 
@@ -112,7 +145,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         $category = $request->input('category');
@@ -138,7 +175,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         $exported = $this->preferenceManager->exportSettings($user);
@@ -158,7 +199,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         try {
@@ -178,9 +223,16 @@ class SettingsController extends Controller
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Invalid settings format',
+                'message' => 'Format file pengaturan tidak valid',
                 'details' => $e->errors(),
+                'code' => 'SETTINGS_IMPORT_INVALID',
             ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengimpor pengaturan',
+                'code' => 'SETTINGS_IMPORT_FAILED',
+            ], 500);
         }
     }
 
@@ -198,7 +250,7 @@ class SettingsController extends Controller
     /**
      * Get the authenticated user from various auth guards.
      */
-    protected function getAuthenticatedUser(Request $request)
+    protected function getAuthenticatedUser(Request $request): ?Model
     {
         // Try different auth guards
         if ($user = auth('mahasiswa')->user()) {
@@ -224,16 +276,23 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         $currentSessionId = $request->session()->getId();
 
-        $sessions = DB::table('sessions')
+        $rawSessions = DB::table('sessions')
             ->where('user_id', $user->id)
             ->orderByDesc('last_activity')
             ->limit(15)
-            ->get()
+            ->get();
+
+        $sessions = $rawSessions
+            ->filter(fn ($session) => $this->sessionBelongsToUser($session->payload ?? null, $user))
             ->map(function ($session) use ($currentSessionId) {
                 $lastActive = is_numeric($session->last_activity)
                     ? now()->setTimestamp((int) $session->last_activity)->toIso8601String()
@@ -278,7 +337,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         if ($sessionId === $request->session()->getId()) {
@@ -288,17 +351,29 @@ class SettingsController extends Controller
             ], 422);
         }
 
-        $deleted = DB::table('sessions')
+        $session = DB::table('sessions')
             ->where('id', $sessionId)
             ->where('user_id', $user->id)
-            ->delete();
+            ->first();
 
-        if ($deleted === 0) {
+        if (!$session) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sesi tidak ditemukan atau tidak memiliki akses',
             ], 404);
         }
+
+        if (!$this->sessionBelongsToUser($session->payload ?? null, $user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi tidak valid untuk akun saat ini',
+                'code' => 'SESSION_OWNERSHIP_MISMATCH',
+            ], 403);
+        }
+
+        DB::table('sessions')
+            ->where('id', $sessionId)
+            ->delete();
 
         return response()->json([
             'success' => true,
@@ -314,7 +389,11 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         $limit = (int) $request->input('limit', 10);
@@ -360,25 +439,27 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
-        // Calculate real storage usage
         $documentsSize = 0;
         $cacheSize = 0;
         $otherSize = 0;
 
-        // Calculate cache size from Laravel cache
         try {
-            $cacheSize = $this->getCacheSize();
-        } catch (\Exception $e) {
+            $userSettings = $this->preferenceManager->getSettings($user);
+            $cacheSize = strlen((string) json_encode($userSettings));
+        } catch (Throwable $e) {
             $cacheSize = 0;
         }
 
-        // Calculate session size
         try {
-            $otherSize = $this->getSessionSize();
-        } catch (\Exception $e) {
+            $otherSize = $this->getSessionSizeForUser($user);
+        } catch (Throwable $e) {
             $otherSize = 0;
         }
 
@@ -404,50 +485,17 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Get cache directory size.
-     */
-    protected function getCacheSize(): int
+    protected function getSessionSizeForUser(Model $user): int
     {
-        $cachePath = storage_path('framework/cache/data');
-        
-        if (!is_dir($cachePath)) {
-            return 0;
-        }
+        $sessions = DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->limit(50)
+            ->get(['payload']);
 
         $size = 0;
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($cachePath, \RecursiveDirectoryIterator::SKIP_DOTS)
-        );
-
-        foreach ($files as $file) {
-            if ($file->isFile()) {
-                $size += $file->getSize();
-            }
-        }
-
-        return $size;
-    }
-
-    /**
-     * Get session directory size.
-     */
-    protected function getSessionSize(): int
-    {
-        $sessionPath = storage_path('framework/sessions');
-        
-        if (!is_dir($sessionPath)) {
-            return 0;
-        }
-
-        $size = 0;
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sessionPath, \RecursiveDirectoryIterator::SKIP_DOTS)
-        );
-
-        foreach ($files as $file) {
-            if ($file->isFile()) {
-                $size += $file->getSize();
+        foreach ($sessions as $session) {
+            if ($this->sessionBelongsToUser($session->payload ?? null, $user)) {
+                $size += strlen((string) ($session->payload ?? ''));
             }
         }
 
@@ -462,30 +510,25 @@ class SettingsController extends Controller
         $user = $this->getAuthenticatedUser($request);
         
         if (!$user) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'code' => 'UNAUTHORIZED',
+            ], 401);
         }
 
         try {
-            // Clear application cache
-            \Illuminate\Support\Facades\Artisan::call('cache:clear');
-            
-            // Clear config cache
-            \Illuminate\Support\Facades\Artisan::call('config:clear');
-            
-            // Clear route cache
-            \Illuminate\Support\Facades\Artisan::call('route:clear');
-            
-            // Clear view cache
-            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            $this->preferenceManager->clearUserCache($user);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cache cleared successfully',
+                'message' => 'Cache preferensi berhasil dibersihkan',
             ]);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to clear cache: ' . $e->getMessage(),
+                'message' => 'Gagal membersihkan cache preferensi',
+                'code' => 'SETTINGS_CACHE_CLEAR_FAILED',
             ], 500);
         }
     }
@@ -550,6 +593,16 @@ class SettingsController extends Controller
             unset($payload['dataManagement']);
         }
 
+        if (
+            array_key_exists('appearance', $payload) &&
+            is_array($payload['appearance']) &&
+            array_key_exists('theme', $payload['appearance'])
+        ) {
+            $payload['appearance']['theme'] = $this->normalizeThemeValue(
+                $payload['appearance']['theme'] ?? null
+            );
+        }
+
         return $payload;
     }
 
@@ -560,6 +613,15 @@ class SettingsController extends Controller
     {
         if (array_key_exists('data', $settings) && !array_key_exists('dataManagement', $settings)) {
             $settings['dataManagement'] = $settings['data'];
+        }
+
+        if (
+            array_key_exists('appearance', $settings) &&
+            is_array($settings['appearance'])
+        ) {
+            $settings['appearance']['theme'] = $this->normalizeThemeValue(
+                $settings['appearance']['theme'] ?? null
+            );
         }
 
         unset($settings['data']);
@@ -576,6 +638,55 @@ class SettingsController extends Controller
             return ['dataManagement' => $settings];
         }
 
+        if ($category === 'appearance') {
+            $settings['theme'] = $this->normalizeThemeValue(
+                $settings['theme'] ?? null
+            );
+        }
+
         return [$category => $settings];
+    }
+
+    protected function normalizeThemeValue(mixed $theme): string
+    {
+        if ($theme === 'auto') {
+            return 'system';
+        }
+
+        if (in_array($theme, ['light', 'dark', 'system'], true)) {
+            return $theme;
+        }
+
+        return 'system';
+    }
+
+    protected function sessionBelongsToUser(?string $payload, Model $user): bool
+    {
+        if (!$payload) {
+            return false;
+        }
+
+        $decoded = base64_decode($payload, true);
+        $sessionData = @unserialize($decoded !== false ? $decoded : $payload);
+
+        if (!is_array($sessionData)) {
+            return false;
+        }
+
+        $userId = (string) $user->getAuthIdentifier();
+        $flatten = Arr::dot($sessionData);
+
+        foreach ($flatten as $key => $value) {
+            if (
+                is_scalar($value) &&
+                is_string($key) &&
+                str_contains($key, 'login_') &&
+                (string) $value === $userId
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

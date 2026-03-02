@@ -1,9 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sun, Moon, Monitor } from 'lucide-react';
-import { useTheme, type Theme } from '@/hooks/useTheme';
+import type { Theme } from '@/hooks/useTheme';
 
-export function ThemeToggle() {
-    const { theme, setTheme, resolvedTheme } = useTheme();
+interface ThemeToggleProps {
+    value: Theme;
+    resolvedTheme: 'light' | 'dark';
+    onChange: (theme: Theme) => void;
+}
+
+export function ThemeToggle({ value, resolvedTheme, onChange }: ThemeToggleProps) {
 
     const themes: { value: Theme; icon: any; label: string; gradient: string }[] = [
         {
@@ -19,7 +24,7 @@ export function ThemeToggle() {
             gradient: 'from-indigo-500 to-purple-600'
         },
         {
-            value: 'auto',
+            value: 'system',
             icon: Monitor,
             label: 'Auto',
             gradient: 'from-teal-400 to-cyan-500'
@@ -43,13 +48,13 @@ export function ThemeToggle() {
             <div className="grid grid-cols-3 gap-3">
                 {themes.map((themeOption) => {
                     const Icon = themeOption.icon;
-                    const isActive = theme === themeOption.value;
+                    const isActive = value === themeOption.value;
 
                     return (
                         <motion.button
                             type="button"
                             key={themeOption.value}
-                            onClick={() => setTheme(themeOption.value)}
+                            onClick={() => onChange(themeOption.value)}
                             className={`
                                 relative overflow-hidden rounded-2xl p-4 
                                 border-2 transition-all duration-300

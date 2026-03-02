@@ -1,84 +1,48 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import {
+    initializeTheme as initializeRuntimeTheme,
+    type Theme,
+    useTheme,
+} from './useTheme';
 
-export type Appearance = 'light' | 'dark' | 'system';
+export type Appearance = Theme;
 
-const prefersDark = () => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
+const APPEARANCE_COOKIE = 'appearance';
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
-const setCookie = (name: string, value: string, days = 365) => {
+function setCookie(name: string, value: string, days = 365) {
     if (typeof document === 'undefined') {
         return;
     }
 
     const maxAge = days * 24 * 60 * 60;
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
-};
+}
 
-const applyTheme = (appearance: Appearance) => {
-    const isDark =
-        appearance === 'dark' || (appearance === 'system' && prefersDark());
-
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-};
-
-const mediaQuery = () => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
-};
-
-const handleSystemThemeChange = () => {
-    const currentAppearance = localStorage.getItem('appearance') as Appearance;
-    applyTheme(currentAppearance || 'system');
-};
-
+/**
+ * Backward-compatible initializer used by legacy components.
+ */
 export function initializeTheme() {
-    const savedAppearance =
-        (localStorage.getItem('appearance') as Appearance) || 'system';
-
-    applyTheme(savedAppearance);
-
-    // Add the event listener for system theme changes...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    initializeRuntimeTheme();
 }
 
+/**
+ * Backward-compatible appearance hook that proxies to the canonical theme hook.
+ */
 export function useAppearance() {
-    const [appearance, setAppearance] = useState<Appearance>('system');
+    const { theme, setTheme, resolvedTheme } = useTheme();
 
-    const updateAppearance = useCallback((mode: Appearance) => {
-        setAppearance(mode);
+    const updateAppearance = useCallback(
+        (mode: Appearance) => {
+            setTheme(mode);
+            setCookie(APPEARANCE_COOKIE, mode);
+        },
+        [setTheme],
+    );
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
-
-        // Store in cookie for SSR...
-        setCookie('appearance', mode);
-
-        applyTheme(mode);
-    }, []);
-
-    useEffect(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
-
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        updateAppearance(savedAppearance || 'system');
-
-        return () =>
-            mediaQuery()?.removeEventListener(
-                'change',
-                handleSystemThemeChange,
-            );
-    }, [updateAppearance]);
-
-    return { appearance, updateAppearance } as const;
+    return {
+        appearance: theme,
+        actualTheme: resolvedTheme,
+        updateAppearance,
+    } as const;
 }
+

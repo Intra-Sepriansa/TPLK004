@@ -251,7 +251,7 @@ export default function PersonalAnalytics({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                       
+
 
                         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left">
                             <motion.div
@@ -440,62 +440,64 @@ export default function PersonalAnalytics({
                     whileHover={{ scale: 1.01, y: -2 }}
                     className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="border-b border-white/10 p-6">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
+                    <div className="border-b border-white/10 p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
                                 <Calendar className="h-5 w-5" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                                <h2 className="text-base sm:text-lg font-semibold text-neutral-900 dark:text-white">
                                     Aktivitas Tahun {activityGraph.year}
                                 </h2>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                <p className="mt-0.5 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
                                     {activityGraph.totalActivities} aktivitas sejak 1 Januari {activityGraph.year}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto p-6">
-                        <div className="mb-2 ml-8 flex text-xs text-neutral-500 dark:text-neutral-400">
-                            {(() => {
-                                const monthPositions: { name: string; startWeek: number; span: number }[] = [];
-                                let currentMonth = -1;
+                    <div className="overflow-x-auto p-4 sm:p-6 custom-scrollbar">
+                        <div className="min-w-max pb-2">
+                            <div className="mb-2 ml-8 flex text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">
+                                {(() => {
+                                    const monthPositions: { name: string; startWeek: number; span: number }[] = [];
+                                    let currentMonth = -1;
 
-                                activityGraph.weeks.forEach((week, weekIndex) => {
-                                    const firstDayOfWeek = week.find((d) => d.month !== undefined);
-                                    if (firstDayOfWeek && firstDayOfWeek.month !== currentMonth) {
-                                        if (monthPositions.length > 0) {
-                                            monthPositions[monthPositions.length - 1].span =
-                                                weekIndex - monthPositions[monthPositions.length - 1].startWeek;
+                                    activityGraph.weeks.forEach((week, weekIndex) => {
+                                        const firstDayOfWeek = week.find((d) => d.month !== undefined);
+                                        if (firstDayOfWeek && firstDayOfWeek.month !== currentMonth) {
+                                            if (monthPositions.length > 0) {
+                                                monthPositions[monthPositions.length - 1].span =
+                                                    weekIndex - monthPositions[monthPositions.length - 1].startWeek;
+                                            }
+                                            monthPositions.push({
+                                                name: firstDayOfWeek.monthName,
+                                                startWeek: weekIndex,
+                                                span: 1,
+                                            });
+                                            currentMonth = firstDayOfWeek.month;
                                         }
-                                        monthPositions.push({
-                                            name: firstDayOfWeek.monthName,
-                                            startWeek: weekIndex,
-                                            span: 1,
-                                        });
-                                        currentMonth = firstDayOfWeek.month;
+                                    });
+
+                                    if (monthPositions.length > 0) {
+                                        monthPositions[monthPositions.length - 1].span =
+                                            activityGraph.weeks.length - monthPositions[monthPositions.length - 1].startWeek;
                                     }
-                                });
 
-                                if (monthPositions.length > 0) {
-                                    monthPositions[monthPositions.length - 1].span =
-                                        activityGraph.weeks.length - monthPositions[monthPositions.length - 1].startWeek;
-                                }
-
-                                return monthPositions.map((month, index) => (
-                                    <div
-                                        key={index}
-                                        style={{
-                                            width: `${month.span * 13}px`,
-                                            minWidth: month.span > 2 ? 'auto' : '0px',
-                                        }}
-                                        className="text-left"
-                                    >
-                                        {month.span > 2 ? month.name : ''}
-                                    </div>
-                                ));
-                            })()}
+                                    return monthPositions.map((month, index) => (
+                                        <div
+                                            key={index}
+                                            style={{
+                                                width: `${month.span * 13}px`,
+                                                minWidth: month.span > 2 ? 'auto' : '0px',
+                                            }}
+                                            className="text-left"
+                                        >
+                                            {month.span > 2 ? month.name : ''}
+                                        </div>
+                                    ));
+                                })()}
+                            </div>
                         </div>
 
                         <div className="flex gap-[3px]">
@@ -673,18 +675,16 @@ export default function PersonalAnalytics({
                             <Progress value={comparison.class_average} className="h-3 bg-neutral-200 dark:bg-neutral-700" />
 
                             <div
-                                className={`rounded-xl border p-3 ${
-                                    comparison.status === 'above'
-                                        ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-900/20'
-                                        : 'border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-900/20'
-                                }`}
+                                className={`rounded-xl border p-3 ${comparison.status === 'above'
+                                    ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/60 dark:bg-emerald-900/20'
+                                    : 'border-red-200 bg-red-50/70 dark:border-red-900/60 dark:bg-red-900/20'
+                                    }`}
                             >
                                 <p
-                                    className={`flex items-center gap-2 text-sm font-medium ${
-                                        comparison.status === 'above'
-                                            ? 'text-emerald-700 dark:text-emerald-300'
-                                            : 'text-red-700 dark:text-red-300'
-                                    }`}
+                                    className={`flex items-center gap-2 text-sm font-medium ${comparison.status === 'above'
+                                        ? 'text-emerald-700 dark:text-emerald-300'
+                                        : 'text-red-700 dark:text-red-300'
+                                        }`}
                                 >
                                     {comparison.status === 'above' ? (
                                         <TrendingUp className="h-4 w-4" />
@@ -751,8 +751,8 @@ export default function PersonalAnalytics({
                                                     course.rate >= 80
                                                         ? 'bg-emerald-500'
                                                         : course.rate >= 60
-                                                          ? 'bg-amber-500'
-                                                          : 'bg-red-500'
+                                                            ? 'bg-amber-500'
+                                                            : 'bg-red-500'
                                                 }
                                             >
                                                 {course.rate}%

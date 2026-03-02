@@ -68,7 +68,12 @@ export default function Login({ status }: LoginProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const endpoint = mode === 'admin' ? '/login' : mode === 'dosen' ? '/dosen/login' : '/login/mahasiswa';
+        const csrfToken =
+            document
+                .querySelector<HTMLMetaElement>('meta[name="csrf-token"]')
+                ?.getAttribute('content') ?? '';
         currentForm.post(endpoint, {
+            headers: csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {},
             onFinish: () => {
                 if (mode === 'admin') {
                     adminForm.reset('password');

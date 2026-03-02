@@ -80,14 +80,15 @@ class HandleInertiaRequests extends Middleware
         }
 
         // Get theme preference from authenticated user
-        $themePreference = 'light'; // default
+        $themePreference = 'system';
         if ($request->user()) {
-            $themePreference = $request->user()->theme_preference ?? 'light';
+            $themePreference = $request->user()->theme_preference ?? 'system';
         } elseif (auth()->guard('mahasiswa')->check()) {
-            $themePreference = auth()->guard('mahasiswa')->user()->theme_preference ?? 'light';
+            $themePreference = auth()->guard('mahasiswa')->user()->theme_preference ?? 'system';
         } elseif (auth()->guard('dosen')->check()) {
-            $themePreference = auth()->guard('dosen')->user()->theme_preference ?? 'light';
+            $themePreference = auth()->guard('dosen')->user()->theme_preference ?? 'system';
         }
+        $themePreference = $this->normalizeThemePreference($themePreference);
 
         // Get header notifications based on authenticated user type
         $headerNotifications = null;
@@ -164,5 +165,21 @@ class HandleInertiaRequests extends Middleware
             'headerNotifications' => $headerNotifications,
             'notificationConfig' => $notificationConfig,
         ];
+    }
+
+    /**
+     * Normalize legacy theme value to a single canonical enum.
+     */
+    protected function normalizeThemePreference(mixed $theme): string
+    {
+        if ($theme === 'auto') {
+            return 'system';
+        }
+
+        if (in_array($theme, ['light', 'dark', 'system'], true)) {
+            return $theme;
+        }
+
+        return 'system';
     }
 }

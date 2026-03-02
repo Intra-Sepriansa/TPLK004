@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import InputError from '@/components/input-error';
-import { useAppearance } from '@/hooks/use-appearance';
+import { useTheme } from '@/hooks/useTheme';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ThemeToggle } from '@/components/settings/ThemeToggle';
 import { AnimatedToggle } from '@/components/settings/AnimatedToggle';
@@ -74,7 +74,7 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { appearance, updateAppearance } = useAppearance();
+    const { theme, resolvedTheme, setTheme } = useTheme();
 
     const securityForm = useForm({ token_ttl_seconds: settings.token_ttl_seconds, late_minutes: settings.late_minutes, selfie_required: settings.selfie_required, notify_rejected: settings.notify_rejected, notify_selfie_blur: settings.notify_selfie_blur });
     const passwordForm = useForm({ current_password: '', password: '', password_confirmation: '' });
@@ -255,7 +255,11 @@ export default function AdminPengaturan({ settings, systemInfo, storageInfo, aut
                                         </div>
 
                                         {/* Inject animated theme toggle */}
-                                        <ThemeToggle />
+                                        <ThemeToggle
+                                            value={theme}
+                                            resolvedTheme={resolvedTheme}
+                                            onChange={setTheme}
+                                        />
                                     </motion.div>
                                 </div>
                             </>

@@ -844,3 +844,14 @@
     scrollbar-width: thin;
     scrollbar-color: rgba(59, 130, 246, 0.5) rgba(255, 255, 255, 0.05);
 }
+
+/*
+ * Global UI simplification:
+ * - remove decorative thin gradient lines on cards/sections across pages.
+ */
+[class~='bg-gradient-to-r'][class~='h-0.5'],
+[class~='bg-gradient-to-r'][class~='h-1'],
+[class~='bg-gradient-to-r'][class~='h-1.5'],
+[class~='bg-gradient-to-r'][class~='h-px'] {
+    display: none !important;
+}

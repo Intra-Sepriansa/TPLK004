@@ -54,7 +54,7 @@ const defaultSettings: Settings = {
     emailNotif: { attendance: true, tasks: true, messages: true },
     pushNotif: { reminder: true, updates: false },
     notifSound: true,
-    theme: 'auto',
+    theme: 'system',
     sidebarPosition: 'left',
     compactMode: false,
     profileVisibility: 'students',
@@ -145,7 +145,7 @@ export default function DosenSettings({ dosen }: DosenProps) {
             const isChanged = JSON.stringify(settings) !== JSON.stringify(initialSettings);
             setHasChanges(isChanged);
             // Dynamic theme update for immediate preview
-            if (settings.theme !== theme && (settings.theme === 'light' || settings.theme === 'dark' || settings.theme === 'auto')) {
+            if (settings.theme !== theme && (settings.theme === 'light' || settings.theme === 'dark' || settings.theme === 'system')) {
                 setTheme(settings.theme);
             }
         }

@@ -1,5 +1,4 @@
 import StudentSidebarLayout from '@/layouts/student/student-sidebar-layout';
-import { BottomNav } from '@/components/student/bottom-nav';
 import { OfflineIndicator } from '@/components/offline/offline-indicator';
 import { InstallPrompt } from '@/components/pwa/install-prompt';
 import { Toaster } from 'sonner';
@@ -17,10 +16,7 @@ export default function StudentLayout({
 }: StudentLayoutProps) {
     return (
         <StudentSidebarLayout breadcrumbs={breadcrumbs}>
-            <div className="pb-20 lg:pb-0">
-                {children}
-            </div>
-            <BottomNav />
+            <div>{children}</div>
             <OfflineIndicator />
             <InstallPrompt />
             <Toaster 

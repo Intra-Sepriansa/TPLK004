@@ -1,5 +1,6 @@
 import type {
     ActiveSession,
+    AppearanceSettings,
     LoginHistoryEntry,
     SettingsCategory,
     StorageUsage,
@@ -52,20 +53,83 @@ function unwrapResponse<T>(payload: unknown): T {
     ) as T;
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object'
+        ? (value as Record<string, unknown>)
+        : {};
+}
+
+function mergeDeep<T>(
+    defaults: T,
+    incoming: Record<string, unknown>,
+): T {
+    const output: Record<string, unknown> = {
+        ...(defaults as Record<string, unknown>),
+    };
+
+    for (const [key, value] of Object.entries(incoming)) {
+        if (value === undefined) {
+            continue;
+        }
+
+        const current = output[key];
+        const bothObjects =
+            current &&
+            typeof current === 'object' &&
+            !Array.isArray(current) &&
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value);
+
+        output[key] = bothObjects
+            ? mergeDeep(
+                  current as Record<string, unknown>,
+                  value as Record<string, unknown>,
+              )
+            : value;
+    }
+
+    return output as T;
+}
+
+function normalizeThemeValue(theme: unknown): AppearanceSettings['theme'] {
+    if (theme === 'auto') {
+        return 'system';
+    }
+
+    if (theme === 'light' || theme === 'dark' || theme === 'system') {
+        return theme;
+    }
+
+    return defaultSettings.appearance.theme;
+}
+
 function normalizeSettings(raw: unknown): UserSettings {
     const source = unwrapResponse<Record<string, unknown>>(raw) ?? {};
-    const dataCategory =
-        (source.dataManagement as Record<string, unknown> | undefined) ??
-        (source.data as Record<string, unknown> | undefined) ??
-        {};
+    const hasDataManagement = Object.prototype.hasOwnProperty.call(
+        source,
+        'dataManagement',
+    );
+    const dataCategory = hasDataManagement
+        ? asRecord(source.dataManagement)
+        : asRecord(source.data);
+
+    const appearanceSource = asRecord(source.appearance);
+    const normalizedAppearance = mergeDeep(defaultSettings.appearance, {
+        ...appearanceSource,
+        theme: normalizeThemeValue(appearanceSource.theme),
+    });
 
     return {
-        ...defaultSettings,
-        ...(source as Partial<UserSettings>),
-        dataManagement: {
-            ...defaultSettings.dataManagement,
-            ...(dataCategory as Partial<UserSettings['dataManagement']>),
-        },
+        general: mergeDeep(defaultSettings.general, asRecord(source.general)),
+        notifications: mergeDeep(
+            defaultSettings.notifications,
+            asRecord(source.notifications),
+        ),
+        appearance: normalizedAppearance,
+        privacy: mergeDeep(defaultSettings.privacy, asRecord(source.privacy)),
+        security: mergeDeep(defaultSettings.security, asRecord(source.security)),
+        dataManagement: mergeDeep(defaultSettings.dataManagement, dataCategory),
     };
 }
 
@@ -117,15 +181,25 @@ export async function getSettings(): Promise<UserSettings> {
 /**
  * Update category settings
  */
-export async function updateCategorySettings(
-    category: SettingsCategory,
-    data: Partial<UserSettings[SettingsCategory]>,
-): Promise<UserSettings[SettingsCategory]> {
+export async function updateCategorySettings<K extends SettingsCategory>(
+    category: K,
+    data: Partial<UserSettings[K]>,
+): Promise<UserSettings[K]> {
     try {
         const apiCategory = CATEGORY_MAP[category] ?? category;
-        const response = await api.patch(`/${apiCategory}`, data);
+        const payload =
+            category === 'appearance'
+                ? ({
+                      ...data,
+                      theme:
+                          'theme' in data
+                              ? normalizeThemeValue(data.theme)
+                              : undefined,
+                  } as Partial<UserSettings[K]>)
+                : data;
+        const response = await api.patch(`/${apiCategory}`, payload);
         const normalized = normalizeSettings(response.data);
-        return normalized[category];
+        return normalized[category] as UserSettings[K];
     } catch (error) {
         console.error(`Failed to update ${category} settings:`, error);
         throw error;
@@ -216,7 +290,15 @@ export async function uploadSettings(file: File) {
             throw new Error('Invalid settings file');
         }
 
-        const response = await api.post('/import', settingsPayload);
+        const normalizedSettings = normalizeSettings(
+            asRecord(settingsPayload).settings,
+        );
+        const response = await api.post('/import', {
+            version:
+                (asRecord(settingsPayload).version as string | undefined) ??
+                '1.0',
+            settings: normalizedSettings,
+        });
         return normalizeSettings(response.data);
     } catch (error) {
         console.error('Failed to upload settings:', error);

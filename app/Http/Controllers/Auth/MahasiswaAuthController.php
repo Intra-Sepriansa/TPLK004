@@ -74,9 +74,9 @@ class MahasiswaAuthController extends Controller
     private function redirectAfterLogin(Request $request): Response
     {
         if ($request->header('X-Inertia')) {
-            return Inertia::location('/user/absen');
+            return Inertia::location('/user/dashboard');
         }
 
-        return redirect()->intended('/user/absen');
+        return redirect()->intended('/user/dashboard');
     }
 }

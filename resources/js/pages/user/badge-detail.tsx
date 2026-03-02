@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import StudentLayout from '@/layouts/student-layout';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
@@ -199,15 +199,16 @@ export default function BadgeDetail({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative z-20">
-                        <motion.button
-                            whileHover={{ scale: 1.02, x: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => router.visit('/user/achievements')}
-                            className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:text-white"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                            Kembali
-                        </motion.button>
+                        <Link href="/user/achievements">
+                            <motion.button
+                                whileHover={{ x: -4 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="mb-4 flex items-center gap-2 text-sm font-medium text-indigo-100 hover:text-white transition-colors"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Kembali
+                            </motion.button>
+                        </Link>
 
                         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                             <motion.div

@@ -432,9 +432,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                 <motion.div variants={containerVariants}>
                     {filtered.length === 0 ? (
                         <motion.div variants={itemVariants} className="text-center py-16 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl">
-                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-                                <CheckCircle className="h-16 w-16 mx-auto mb-4 text-emerald-300" />
-                            </motion.div>
+                            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-emerald-300" />
                             <p className="text-lg font-semibold text-neutral-500">Tidak ada data verifikasi</p>
                             <p className="text-sm text-neutral-400 mt-1">Belum ada selfie yang sesuai filter</p>
                         </motion.div>
@@ -461,13 +459,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                         </button>
                                     )}
 
-                                    {/* Status / Risk accent bar */}
-                                    <div className={cn("h-1.5",
-                                        v.status === 'pending' && v.risk_level === 'low' ? 'bg-gradient-to-r from-amber-400 to-orange-500' :
-                                            v.status === 'pending' && (v.risk_level === 'high' || v.risk_level === 'critical') ? 'bg-gradient-to-r from-red-500 to-rose-600' :
-                                                v.status === 'approved' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
-                                                    v.status === 'rejected' ? 'bg-gradient-to-r from-red-400 to-rose-500' :
-                                                        'bg-gradient-to-r from-amber-400 to-orange-500')} />
+
 
                                     <div className="p-5 space-y-4">
                                         {/* Student Info Row */}

@@ -354,4 +354,28 @@ class AcademicScheduleController extends Controller
             }
         }
     }
+
+    /**
+     * Reschedule a course to a different day/time
+     */
+    public function reschedule(Request $request, $courseId)
+    {
+        $mahasiswa = Auth::guard('mahasiswa')->user();
+
+        $validated = $request->validate([
+            'schedule_day'  => 'required|in:monday,tuesday,wednesday,thursday,friday',
+            'schedule_time' => 'required|date_format:H:i',
+        ]);
+
+        $course = MahasiswaCourse::where('id', $courseId)
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->firstOrFail();
+
+        $course->update([
+            'schedule_day'  => $validated['schedule_day'],
+            'schedule_time' => $validated['schedule_time'],
+        ]);
+
+        return back()->with('success', 'Jadwal berhasil dipindahkan!');
+    }
 }

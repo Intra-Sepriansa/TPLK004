@@ -282,9 +282,8 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                     <motion.div
                                         animate={tugas.is_overdue ? { scale: [1, 1.1, 1] } : {}}
                                         transition={tugas.is_overdue ? { duration: 1.5, repeat: Infinity } : {}}
-                                        className={`text-4xl font-extrabold sm:text-5xl ${
-                                            tugas.is_overdue ? 'text-red-300' : tugas.days_until_deadline <= 3 ? 'text-amber-300' : 'text-white'
-                                        }`}
+                                        className={`text-4xl font-extrabold sm:text-5xl ${tugas.is_overdue ? 'text-red-300' : tugas.days_until_deadline <= 3 ? 'text-amber-300' : 'text-white'
+                                            }`}
                                     >
                                         {tugas.is_overdue ? '❌' : tugas.days_until_deadline}
                                     </motion.div>
@@ -556,72 +555,83 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                     variants={itemVariants}
                     className="overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="border-b border-white/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 dark:border-white/5 sm:p-6">
+                    <div className="border-b border-white/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 dark:border-white/5 sm:px-6 sm:py-4">
                         <div className="flex items-center gap-3">
-                            <div className="rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-3 text-white shadow-lg">
-                                <MessageSquare className="h-6 w-6" />
+                            <div className="rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 p-2.5 text-white shadow-lg">
+                                <MessageSquare className="h-5 w-5" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-neutral-900 dark:text-white">Diskusi & Tanya Jawab</h3>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{diskusi.length} pesan</p>
+                                <h3 className="text-base font-bold text-neutral-900 dark:text-white">Diskusi & Tanya Jawab</h3>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400">{diskusi.length} pesan</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="h-[420px] space-y-3 overflow-y-auto p-4 sm:h-[500px] sm:space-y-4 sm:p-6">
+                    {/* Chat area — adaptive height with scrollable overflow */}
+                    <div className="max-h-[400px] min-h-[100px] space-y-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+                        {diskusi.length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-10 text-center">
+                                <div className="mb-3 rounded-2xl bg-neutral-100 p-4 dark:bg-neutral-800">
+                                    <MessageSquare className="h-8 w-8 text-neutral-400" />
+                                </div>
+                                <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Belum ada diskusi</p>
+                                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Mulai percakapan dengan mengirim pesan di bawah</p>
+                            </div>
+                        )}
                         <AnimatePresence>
                             {diskusi.map((msg, index) => (
                                 <motion.div
                                     key={msg.id}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 12 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
-                                    transition={{ delay: index * 0.05 }}
-                                    className={`flex gap-2 sm:gap-3 ${msg.is_mine ? 'flex-row-reverse' : 'flex-row'}`}
+                                    exit={{ opacity: 0, y: -12 }}
+                                    transition={{ delay: index * 0.03 }}
+                                    className={`flex items-end gap-2 ${msg.is_mine ? 'flex-row-reverse' : 'flex-row'}`}
                                 >
-                                    <div className="flex-shrink-0">
-                                        <div className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white sm:h-10 sm:w-10 ${getSenderStyle(msg.sender_type)}`}>
+                                    {/* Avatar */}
+                                    <div className="mb-5 flex-shrink-0">
+                                        <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white ${getSenderStyle(msg.sender_type)}`}>
                                             {msg.sender_name.charAt(0).toUpperCase()}
                                         </div>
                                     </div>
 
-                                    <div className={`max-w-[82%] flex-1 sm:max-w-[70%] ${msg.is_mine ? 'items-end' : 'items-start'}`}>
-                                        <div className="mb-1 flex items-center gap-2">
-                                            <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">{msg.sender_name}</span>
-                                            <span className="text-xs text-neutral-400">{msg.time_ago}</span>
+                                    {/* Bubble wrapper — uses inline-block for auto-width */}
+                                    <div className={`flex max-w-[65%] flex-col ${msg.is_mine ? 'items-end' : 'items-start'}`}>
+                                        {/* Sender info */}
+                                        <div className={`mb-1 flex items-center gap-1.5 px-1 ${msg.is_mine ? 'flex-row-reverse' : 'flex-row'}`}>
+                                            <span className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300">{msg.sender_name}</span>
+                                            <span className="text-[10px] text-neutral-400">{msg.time_ago}</span>
                                             {msg.is_pinned && <Pin className="h-3 w-3 text-amber-500" />}
                                         </div>
 
+                                        {/* Reply quote — shown inside bubble area */}
                                         {msg.reply_to && (
-                                            <div className="mb-2 rounded-lg border-l-4 border-indigo-500 bg-neutral-100 p-2 dark:bg-neutral-800">
-                                                <p className="text-xs font-bold text-neutral-600 dark:text-neutral-400">{msg.reply_to.sender_name}</p>
-                                                <p className="line-clamp-1 text-xs text-neutral-500 dark:text-neutral-500">{msg.reply_to.pesan}</p>
+                                            <div className={`mb-1 w-full rounded-lg border-l-2 border-indigo-400 bg-neutral-100/80 px-2.5 py-1.5 dark:bg-neutral-700/60 ${msg.is_mine ? 'border-white/40' : ''}`}>
+                                                <p className="text-[10px] font-bold text-neutral-600 dark:text-neutral-300">{msg.reply_to.sender_name}</p>
+                                                <p className="line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-400">{msg.reply_to.pesan}</p>
                                             </div>
                                         )}
 
-                                        <motion.div
-                                            whileHover={{ scale: 1.04, y: -4 }}
-                                            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                                            className={`rounded-2xl p-3 shadow-lg sm:p-4 ${
-                                                msg.is_mine
-                                                    ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
-                                                    : 'bg-white/60 text-neutral-900 backdrop-blur-xl dark:bg-neutral-800/60 dark:text-white'
-                                            }`}
+                                        {/* Bubble */}
+                                        <div
+                                            className={`inline-block rounded-2xl px-3.5 py-2.5 shadow-sm ${msg.is_mine
+                                                    ? 'rounded-br-md bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
+                                                    : 'rounded-bl-md bg-white/80 text-neutral-900 dark:bg-neutral-800/80 dark:text-white'
+                                                }`}
                                         >
-                                            <p className="whitespace-pre-wrap text-sm">{msg.pesan}</p>
-                                        </motion.div>
-
-                                        <div className="mt-2 flex items-center gap-2">
-                                            <motion.button
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.9 }}
-                                                onClick={() => handleReply(msg)}
-                                                className="flex items-center gap-1 text-xs text-neutral-500 hover:text-indigo-600 dark:hover:text-indigo-400"
-                                            >
-                                                <Reply className="h-3 w-3" />
-                                                Reply
-                                            </motion.button>
+                                            <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.pesan}</p>
                                         </div>
+
+                                        {/* Reply action */}
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => handleReply(msg)}
+                                            className={`mt-1 flex items-center gap-1 px-1 text-[11px] text-neutral-400 transition-colors hover:text-indigo-500 dark:hover:text-indigo-400 ${msg.is_mine ? 'flex-row-reverse' : ''}`}
+                                        >
+                                            <Reply className="h-3 w-3" />
+                                            Reply
+                                        </motion.button>
                                     </div>
                                 </motion.div>
                             ))}
@@ -629,37 +639,36 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                         <div ref={chatEndRef} />
                     </div>
 
-                    <div className="border-t border-white/20 bg-white/20 p-3 dark:border-white/5 dark:bg-neutral-900/20 sm:p-4">
+                    {/* Input area */}
+                    <div className="border-t border-white/20 bg-white/30 p-3 dark:border-white/5 dark:bg-neutral-900/30 sm:p-4">
                         {replyTo && (
-                            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-3 flex items-start justify-between rounded-lg border-l-4 border-indigo-500 bg-indigo-50 p-3 dark:bg-indigo-900/20">
-                                <div className="flex-1">
-                                    <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">Membalas {replyTo.sender_name}</p>
-                                    <p className="line-clamp-1 text-xs text-neutral-600 dark:text-neutral-400">{replyTo.pesan}</p>
+                            <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-2.5 flex items-center justify-between gap-2 rounded-xl border-l-3 border-indigo-500 bg-indigo-50/80 px-3 py-2 dark:bg-indigo-900/20">
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">Membalas {replyTo.sender_name}</p>
+                                    <p className="truncate text-[11px] text-neutral-500 dark:text-neutral-400">{replyTo.pesan}</p>
                                 </div>
-                                <button onClick={() => setReplyTo(null)} className="text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300">
-                                    <X className="h-4 w-4" />
+                                <button onClick={() => setReplyTo(null)} className="flex-shrink-0 rounded-md p-1 text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-600 dark:hover:bg-neutral-700 dark:hover:text-neutral-300">
+                                    <X className="h-3.5 w-3.5" />
                                 </button>
                             </motion.div>
                         )}
 
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <div className="mb-2.5 flex items-center gap-1.5">
                             <button
                                 onClick={() => setVisibility('public')}
-                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                                    visibility === 'public'
-                                        ? 'bg-indigo-500 text-white'
-                                        : 'bg-white/60 text-neutral-600 dark:bg-neutral-800/60 dark:text-neutral-300'
-                                }`}
+                                className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-all ${visibility === 'public'
+                                        ? 'bg-indigo-500 text-white shadow-sm'
+                                        : 'bg-white/60 text-neutral-500 hover:bg-white/80 dark:bg-neutral-800/60 dark:text-neutral-400 dark:hover:bg-neutral-700/60'
+                                    }`}
                             >
                                 Public
                             </button>
                             <button
                                 onClick={() => setVisibility('private')}
-                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                                    visibility === 'private'
-                                        ? 'bg-amber-500 text-white'
-                                        : 'bg-white/60 text-neutral-600 dark:bg-neutral-800/60 dark:text-neutral-300'
-                                }`}
+                                className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-all ${visibility === 'private'
+                                        ? 'bg-amber-500 text-white shadow-sm'
+                                        : 'bg-white/60 text-neutral-500 hover:bg-white/80 dark:bg-neutral-800/60 dark:text-neutral-400 dark:hover:bg-neutral-700/60'
+                                    }`}
                             >
                                 Private
                             </button>
@@ -677,16 +686,16 @@ export default function UserTugasDetail({ tugas, diskusi, submission }: Props) {
                                     }
                                 }}
                                 placeholder="Ketik pesan..."
-                                className="min-h-[56px] max-h-[120px] flex-1 resize-none rounded-2xl border-white/20 bg-white/60 text-neutral-900 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-800/60 dark:text-white"
+                                rows={1}
+                                className="min-h-[42px] max-h-[100px] flex-1 resize-none rounded-2xl border-white/20 bg-white/60 text-sm text-neutral-900 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-800/60 dark:text-white"
                             />
 
                             <motion.button
-                                whileHover={{ scale: 1.04, y: -4 }}
-                                whileTap={{ scale: 0.98 }}
-                                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={sendMessage}
                                 disabled={!message.trim()}
-                                className="shrink-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 p-3 text-white transition-all hover:from-indigo-600 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="shrink-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 p-2.5 text-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <Send className="h-5 w-5" />
                             </motion.button>

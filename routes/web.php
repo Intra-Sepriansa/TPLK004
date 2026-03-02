@@ -266,6 +266,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/rekapan', [AbsensiController::class, 'rekapan'])->name('user.rekapan');
     Route::get('user/bukti-masuk', [AbsensiController::class, 'buktiMasuk'])->name('user.bukti-masuk');
     Route::get('user/history', [AbsensiController::class, 'history'])->name('user.history');
+    Route::get('user/history/export-pdf', [AbsensiController::class, 'historyExportPdf'])->name('user.history.export-pdf');
     Route::get('user/history/{id}', [AbsensiController::class, 'historyDetail'])->name('user.history.detail');
     Route::get('user/achievements', [AbsensiController::class, 'achievements'])->name('user.achievements');
     Route::post('user/achievements/{badgeId}/claim', [AbsensiController::class, 'claimAchievement'])->name('user.achievements.claim');
@@ -303,6 +304,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     // Akademik (Jadwal & Pengingat)
     Route::get('user/akademik', [\App\Http\Controllers\User\AcademicScheduleController::class, 'dashboard'])->name('user.akademik');
     Route::get('user/akademik/jadwal', [\App\Http\Controllers\User\AcademicScheduleController::class, 'schedule'])->name('user.akademik.jadwal');
+    Route::patch('user/akademik/jadwal/{course}/reschedule', [\App\Http\Controllers\User\AcademicScheduleController::class, 'reschedule'])->name('user.akademik.jadwal.reschedule');
     Route::get('user/akademik/ujian', [\App\Http\Controllers\User\AcademicScheduleController::class, 'exams'])->name('user.akademik.ujian');
     Route::get('user/akademik/ujian/detail', [\App\Http\Controllers\User\AcademicScheduleController::class, 'examDetail'])->name('user.akademik.ujian.detail');
 
@@ -336,6 +338,8 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'index'])->name('user.akademik.catatan');
     Route::get('user/akademik/catatan/create', [\App\Http\Controllers\User\AcademicNoteController::class, 'create'])->name('user.akademik.catatan.create');
     Route::post('user/akademik/catatan', [\App\Http\Controllers\User\AcademicNoteController::class, 'store'])->name('user.akademik.catatan.store');
+    Route::get('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'show'])->whereNumber('id')->name('user.akademik.catatan.show');
+    Route::get('user/akademik/catatan/{id}/export-pdf', [\App\Http\Controllers\User\AcademicNoteController::class, 'exportPdf'])->whereNumber('id')->name('user.akademik.catatan.export-pdf');
     Route::get('user/akademik/catatan/{id}/edit', [\App\Http\Controllers\User\AcademicNoteController::class, 'edit'])->name('user.akademik.catatan.edit');
     Route::patch('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'update'])->name('user.akademik.catatan.update');
     Route::delete('user/akademik/catatan/{id}', [\App\Http\Controllers\User\AcademicNoteController::class, 'destroy'])->name('user.akademik.catatan.destroy');
