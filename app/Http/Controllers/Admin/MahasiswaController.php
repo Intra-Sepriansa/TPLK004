@@ -9,7 +9,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 use App\Models\FraudAlert;
@@ -47,9 +46,7 @@ class MahasiswaController extends Controller
         
         // Transform avatar_url to full URL
         $mahasiswa->getCollection()->transform(function ($m) {
-            if ($m->avatar_url) {
-                $m->avatar_url = Storage::url($m->avatar_url);
-            }
+            $m->avatar_url = $this->resolveAvatarUrl($m->avatar_url);
             return $m;
         });
         
@@ -90,30 +87,72 @@ class MahasiswaController extends Controller
             ],
         ]);
     }
+
+    public function create()
+    {
+        $fakultasList = Mahasiswa::distinct()->whereNotNull('fakultas')->pluck('fakultas');
+        $kelasList = Mahasiswa::distinct()->whereNotNull('kelas')->pluck('kelas');
+        $stats = ['total' => Mahasiswa::count()];
+
+        return Inertia::render('admin/mahasiswa/create', [
+            'fakultasList' => $fakultasList,
+            'kelasList' => $kelasList,
+            'stats' => $stats,
+        ]);
+    }
     
     public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255',
             'nim' => 'required|string|max:20|unique:mahasiswa,nim',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
             'fakultas' => 'nullable|string|max:100',
+            'prodi' => 'nullable|string|max:100',
             'kelas' => 'nullable|string|max:20',
             'semester' => 'nullable|integer|min:1|max:14',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
         
-        $lastTwoDigits = substr($request->nim, -2);
-        $defaultPassword = 'tplk004#' . $lastTwoDigits;
+        // Use provided password or auto-generate from NIM
+        if ($request->filled('password')) {
+            $password = Hash::make($request->password);
+        } else {
+            $lastTwoDigits = substr($request->nim, -2);
+            $password = Hash::make('tplk004#' . $lastTwoDigits);
+        }
         
         Mahasiswa::create([
             'nama' => $request->nama,
             'nim' => $request->nim,
+            'email' => $request->email,
+            'phone' => $request->phone,
             'fakultas' => $request->fakultas,
+            'prodi' => $request->prodi,
             'kelas' => $request->kelas,
             'semester' => $request->semester,
-            'password' => Hash::make($defaultPassword),
+            'password' => $password,
         ]);
         
-        return back()->with('success', 'Mahasiswa berhasil ditambahkan.');
+        return redirect()->route('admin.mahasiswa')->with('success', 'Mahasiswa berhasil ditambahkan.');
+    }
+
+    public function checkDuplicate(Request $request)
+    {
+        $result = [];
+
+        if ($request->has('nim')) {
+            $result['exists'] = Mahasiswa::where('nim', $request->nim)->exists();
+            $result['field'] = 'nim';
+        } elseif ($request->has('email')) {
+            $result['exists'] = Mahasiswa::where('email', $request->email)->exists();
+            $result['field'] = 'email';
+        } else {
+            $result['exists'] = false;
+        }
+
+        return response()->json($result);
     }
     
     public function edit(Mahasiswa $mahasiswa)
@@ -139,7 +178,7 @@ class MahasiswaController extends Controller
             'class' => $mahasiswa->kelas ?? '',
             'semester' => $mahasiswa->semester ?? 1,
             'entry_year' => $mahasiswa->entry_year ?? date('Y'),
-            'photo' => $mahasiswa->avatar_url ? Storage::url($mahasiswa->avatar_url) : null,
+            'photo' => $this->resolveAvatarUrl($mahasiswa->avatar_url),
             'status' => $mahasiswa->status ?? 'active',
         ];
 
@@ -169,7 +208,6 @@ class MahasiswaController extends Controller
             'entry_year' => 'nullable|integer',
             'status' => 'nullable|in:active,inactive,graduated',
             'password' => 'nullable|string|min:8|confirmed',
-            'photo' => 'nullable|image|max:5120',
         ]);
         
         $data = [
@@ -188,16 +226,6 @@ class MahasiswaController extends Controller
             'entry_year' => $request->entry_year,
             'status' => $request->status,
         ];
-
-        // Handle photo upload
-        if ($request->hasFile('photo')) {
-            // Delete old avatar if exists
-            if ($mahasiswa->avatar_url && Storage::exists($mahasiswa->avatar_url)) {
-                Storage::delete($mahasiswa->avatar_url);
-            }
-            $path = $request->file('photo')->store('avatars', 'public');
-            $data['avatar_url'] = $path;
-        }
 
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
@@ -272,8 +300,21 @@ class MahasiswaController extends Controller
             ->latest()
             ->get();
 
+        $mahasiswaData = [
+            'id' => $mahasiswa->id,
+            'nama' => $mahasiswa->nama,
+            'nim' => $mahasiswa->nim,
+            'email' => $mahasiswa->email,
+            'photo' => $this->resolveAvatarUrl($mahasiswa->avatar_url),
+            'fakultas' => $mahasiswa->fakultas,
+            'prodi' => $mahasiswa->prodi,
+            'semester' => $mahasiswa->semester,
+            'kelas' => $mahasiswa->kelas,
+            'created_at' => $mahasiswa->created_at,
+        ];
+
         return Inertia::render('admin/mahasiswa-detail', [
-            'mahasiswa' => $mahasiswa,
+            'mahasiswa' => $mahasiswaData,
             'stats' => array_merge($stats, ['rate' => $attendanceRate]),
             'recentActivity' => $recentActivity,
             'fraudHistory' => $fraudHistory,
@@ -418,5 +459,28 @@ class MahasiswaController extends Controller
             'labels' => $trend->keys()->toArray(),
             'values' => $trend->values()->toArray(),
         ];
+    }
+
+    private function resolveAvatarUrl(?string $avatarUrl): ?string
+    {
+        if (!$avatarUrl) {
+            return null;
+        }
+
+        if (
+            str_starts_with($avatarUrl, 'http://') ||
+            str_starts_with($avatarUrl, 'https://') ||
+            str_starts_with($avatarUrl, 'data:')
+        ) {
+            return $avatarUrl;
+        }
+
+        if (str_starts_with($avatarUrl, '/storage/')) {
+            return asset(ltrim($avatarUrl, '/'));
+        }
+
+        $normalized = preg_replace('/^storage\//', '', ltrim($avatarUrl, '/'));
+
+        return asset('storage/' . $normalized);
     }
 }

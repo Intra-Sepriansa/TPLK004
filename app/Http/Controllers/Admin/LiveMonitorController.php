@@ -214,14 +214,14 @@ class LiveMonitorController extends Controller
             ]
         ]);
 
-        $activeSessionsData = AttendanceSession::with(['course', 'lecturer'])
+        $activeSessionsData = AttendanceSession::with(['course', 'dosen'])
             ->where('is_active', true)
             ->get()
             ->map(fn($sess) => [
                 'id' => $sess->id,
                 'course' => $sess->course?->nama ?? 'Custom Course',
                 'class' => 'Kelas A',
-                'lecturer' => $sess->lecturer?->name ?? 'Dosen Pengampu',
+                'lecturer' => $sess->dosen?->nama ?? 'Dosen Pengampu',
                 'location' => 'Ruang 101',
                 'present' => AttendanceLog::where('attendance_session_id', $sess->id)->whereIn('status', ['present', 'late'])->count(),
                 'total' => 40, // Mock total

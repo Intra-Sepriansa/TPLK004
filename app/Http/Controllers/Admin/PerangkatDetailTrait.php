@@ -77,6 +77,79 @@ trait PerangkatDetailTrait
             ])->count());
         }
 
+        // Build real access locations from scan logs (grouped by coordinate)
+        $rawLocations = $logs
+            ->filter(function ($log) {
+                return is_numeric($log->latitude) && is_numeric($log->longitude);
+            })
+            ->groupBy(function ($log) {
+                return round((float) $log->latitude, 6) . ',' . round((float) $log->longitude, 6);
+            })
+            ->map(function ($group, $coordinateKey) {
+                [$lat, $lng] = array_map('floatval', explode(',', $coordinateKey));
+
+                $withAddress = $group->first(function ($item) {
+                    return !empty($item->address);
+                });
+                $primary = $withAddress ?: $group->first();
+                $address = $primary?->address ?: null;
+
+                return [
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'address' => $address,
+                    'count' => $group->count(),
+                ];
+            })
+            ->sortByDesc('count')
+            ->values();
+
+        if ($rawLocations->isNotEmpty()) {
+            $latMin = (float) $rawLocations->min('lat');
+            $latMax = (float) $rawLocations->max('lat');
+            $lngMin = (float) $rawLocations->min('lng');
+            $lngMax = (float) $rawLocations->max('lng');
+
+            $latRange = max($latMax - $latMin, 0.000001);
+            $lngRange = max($lngMax - $lngMin, 0.000001);
+
+            $locationsData = $rawLocations->map(function ($location, $index) use ($latMin, $latRange, $lngMin, $lngRange) {
+                $x = 15 + ((($location['lng'] - $lngMin) / $lngRange) * 70);
+                $y = 85 - ((($location['lat'] - $latMin) / $latRange) * 70);
+
+                $x = max(10, min(90, $x));
+                $y = max(10, min(90, $y));
+
+                $name = $location['address']
+                    ? \Illuminate\Support\Str::limit($location['address'], 46, '...')
+                    : 'Titik Akses #' . ($index + 1);
+
+                return [
+                    'name' => $name,
+                    'coordinates' => number_format((float) $location['lat'], 6, '.', '') . ', ' . number_format((float) $location['lng'], 6, '.', ''),
+                    'count' => $location['count'],
+                    'x' => round($x, 2),
+                    'y' => round($y, 2),
+                    'google_maps_url' => 'https://www.google.com/maps?q=' . $location['lat'] . ',' . $location['lng'],
+                ];
+            })->values()->toArray();
+        } else {
+            $fallbackCoordinates = ($baseLog->latitude && $baseLog->longitude)
+                ? $baseLog->latitude . ', ' . $baseLog->longitude
+                : '-, -';
+
+            $locationsData = [[
+                'name' => $baseLog->address ?: 'Lokasi tidak tersedia',
+                'coordinates' => $fallbackCoordinates,
+                'count' => $totalScans,
+                'x' => 50,
+                'y' => 50,
+                'google_maps_url' => ($baseLog->latitude && $baseLog->longitude)
+                    ? 'https://www.google.com/maps?q=' . $baseLog->latitude . ',' . $baseLog->longitude
+                    : null,
+            ]];
+        }
+
         return Inertia::render('admin/perangkat-detail', [
             'deviceInfo' => [
                 'id' => $baseLog->id, // Send primary key ID to frontend for safe routing instead of model string
@@ -119,13 +192,7 @@ trait PerangkatDetailTrait
                 'totalWeek' => $timelineValues->sum(),
             ],
             'locations' => [
-                [
-                    'name' => 'Kampus Utama',
-                    'coordinates' => ($baseLog->latitude ?? '-') . ', ' . ($baseLog->longitude ?? '-'),
-                    'count' => $totalScans,
-                    'x' => 50,
-                    'y' => 50
-                ]
+                ...$locationsData,
             ],
             'security' => [
                 'score' => $score,

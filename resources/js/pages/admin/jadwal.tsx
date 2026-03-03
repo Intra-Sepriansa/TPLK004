@@ -284,21 +284,6 @@ export default function AdminJadwal({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
 
                     <div className="relative">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
@@ -324,7 +309,7 @@ export default function AdminJadwal({
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    onClick={() => setShowAddForm(true)}
+                                    onClick={() => router.visit('/admin/jadwal/create')}
                                     className="group relative overflow-hidden rounded-xl bg-white px-6 py-3 text-indigo-600 shadow-xl transition-all hover:bg-indigo-50"
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2 font-bold">
@@ -953,7 +938,7 @@ export default function AdminJadwal({
                                                         <Play className="h-4 w-4" />
                                                     </Button>
                                                 )}
-                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={() => startEdit(s)}>
+                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={() => router.visit(`/admin/jadwal/${s.id}/edit`)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
                                                 <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-red-600" onClick={() => router.delete(`/admin/jadwal/${s.id}`, { preserveScroll: true })}>

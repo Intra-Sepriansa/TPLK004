@@ -140,8 +140,8 @@ export default function AdminHelpCenter() {
 
             {/* Advanced Background - Uang Kas Style */}
             <div className="fixed inset-0 bg-slate-50 dark:bg-black/80 lg:rounded-tl-3xl z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[100px] animate-pulse" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px] animate-pulse delay-700" />
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[100px]" />
+                <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px]" />
                 <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] rounded-full bg-pink-500/10 blur-[80px]" />
             </div>
 

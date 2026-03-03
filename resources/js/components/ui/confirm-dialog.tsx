@@ -105,6 +105,17 @@ const adminVariantConfig = {
     },
 } as const;
 
+const deleteThemeConfig = {
+    iconBg: 'border-0 bg-transparent',
+    iconColor: 'text-white',
+    buttonClass:
+        'h-12 rounded-xl border-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-[0_14px_30px_rgba(99,102,241,0.35)] transition-all hover:from-indigo-500 hover:via-purple-500 hover:to-pink-400',
+    warningClass:
+        'border-white/15 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 text-indigo-100',
+    warningKickerClass: 'text-indigo-200',
+    warningMessageClass: 'text-indigo-100/85',
+} as const;
+
 // Provider Component
 export function ConfirmProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -137,7 +148,9 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         `${options?.title ?? ''} ${options?.message ?? ''} ${options?.confirmText ?? ''}`,
     );
     const config = variantConfig[variant];
-    const adminConfig = adminVariantConfig[variant];
+    const adminConfig = isDeleteAction
+        ? deleteThemeConfig
+        : adminVariantConfig[variant];
     const IconComponent = config.icon;
     const isAdminTheme = theme === 'admin-dashboard' || isDeleteAction;
 
@@ -171,8 +184,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                     >
                         {isAdminTheme && (
                             <>
-                                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_600px_at_90%_10%,rgba(255,255,255,0.12),transparent_60%)]" />
-                                <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_200%] opacity-60 animate-sweep" />
+                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/12 to-pink-500/20" />
+                                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(800px_500px_at_15%_85%,rgba(99,102,241,0.18),transparent_65%)]" />
                             </>
                         )}
 
@@ -193,27 +206,25 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                         <div className={cn('relative p-6 sm:p-7', isAdminTheme && 'z-10')}>
                             {/* Icon */}
                             <div className="mb-5 flex justify-center">
-                                <div
-                                    className={cn(
-                                        'flex items-center justify-center',
-                                        isAdminTheme
-                                            ? 'h-20 w-20 rounded-[22px]'
-                                            : 'h-16 w-16 rounded-full',
-                                        isAdminTheme ? adminConfig.iconBg : config.iconBg,
-                                    )}
-                                >
-                                    {options.icon || (
-                                        isDeleteAction ? (
-                                            <img
-                                                src={DeleteIconImage}
-                                                alt="Hapus"
-                                                className={cn(
-                                                    isAdminTheme
-                                                        ? 'h-10 w-10 object-contain'
-                                                        : 'h-8 w-8 object-contain',
-                                                )}
-                                            />
-                                        ) : (
+                                {isDeleteAction ? (
+                                    options.icon || (
+                                        <img
+                                            src={DeleteIconImage}
+                                            alt="Hapus"
+                                            className="h-14 w-14 object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.4)]"
+                                        />
+                                    )
+                                ) : (
+                                    <div
+                                        className={cn(
+                                            'flex items-center justify-center',
+                                            isAdminTheme
+                                                ? 'h-20 w-20 rounded-[22px]'
+                                                : 'h-16 w-16 rounded-full',
+                                            isAdminTheme ? adminConfig.iconBg : config.iconBg,
+                                        )}
+                                    >
+                                        {options.icon || (
                                             <IconComponent
                                                 className={cn(
                                                     isAdminTheme ? 'h-9 w-9' : 'h-8 w-8',
@@ -222,9 +233,9 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
                                                         : config.iconColor,
                                                 )}
                                             />
-                                        )
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Title */}
@@ -344,7 +355,9 @@ export function ConfirmDialog({
         `${title} ${message} ${confirmText}`,
     );
     const config = variantConfig[variant];
-    const adminConfig = adminVariantConfig[variant];
+    const adminConfig = isDeleteAction
+        ? deleteThemeConfig
+        : adminVariantConfig[variant];
     const IconComponent = config.icon;
     const isAdminTheme = theme === 'admin-dashboard' || isDeleteAction;
 
@@ -375,8 +388,8 @@ export function ConfirmDialog({
             >
                 {isAdminTheme && (
                     <>
-                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_600px_at_90%_10%,rgba(255,255,255,0.12),transparent_60%)]" />
-                        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.06),transparent)] bg-[length:200%_200%] opacity-60 animate-sweep" />
+                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/12 to-pink-500/20" />
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(800px_500px_at_15%_85%,rgba(99,102,241,0.18),transparent_65%)]" />
                     </>
                 )}
 
@@ -398,27 +411,25 @@ export function ConfirmDialog({
                 <div className={cn('relative p-6 sm:p-7', isAdminTheme && 'z-10')}>
                     {/* Icon */}
                     <div className="mb-5 flex justify-center">
-                        <div
-                            className={cn(
-                                'flex items-center justify-center',
-                                isAdminTheme
-                                    ? 'h-20 w-20 rounded-[22px]'
-                                    : 'h-16 w-16 rounded-full',
-                                isAdminTheme ? adminConfig.iconBg : config.iconBg,
-                            )}
-                        >
-                            {icon || (
-                                isDeleteAction ? (
-                                    <img
-                                        src={DeleteIconImage}
-                                        alt="Hapus"
-                                        className={cn(
-                                            isAdminTheme
-                                                ? 'h-10 w-10 object-contain'
-                                                : 'h-8 w-8 object-contain',
-                                        )}
-                                    />
-                                ) : (
+                        {isDeleteAction ? (
+                            icon || (
+                                <img
+                                    src={DeleteIconImage}
+                                    alt="Hapus"
+                                    className="h-14 w-14 object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.4)]"
+                                />
+                            )
+                        ) : (
+                            <div
+                                className={cn(
+                                    'flex items-center justify-center',
+                                    isAdminTheme
+                                        ? 'h-20 w-20 rounded-[22px]'
+                                        : 'h-16 w-16 rounded-full',
+                                    isAdminTheme ? adminConfig.iconBg : config.iconBg,
+                                )}
+                            >
+                                {icon || (
                                     <IconComponent
                                         className={cn(
                                             isAdminTheme ? 'h-9 w-9' : 'h-8 w-8',
@@ -427,9 +438,9 @@ export function ConfirmDialog({
                                                 : config.iconColor,
                                         )}
                                     />
-                                )
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Title */}

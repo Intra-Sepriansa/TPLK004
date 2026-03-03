@@ -80,6 +80,46 @@ class JadwalController extends Controller
             ],
         ]);
     }
+
+    public function create()
+    {
+        $courses = MataKuliah::with('dosen')->orderBy('nama')->get();
+        $stats = ['total' => AttendanceSession::count()];
+
+        // Pass existing sessions for meeting progress & conflict checking
+        $existingSessions = AttendanceSession::with('course')
+            ->select('id', 'course_id', 'meeting_number', 'title', 'start_at', 'end_at')
+            ->orderBy('start_at', 'desc')
+            ->limit(200)
+            ->get();
+
+        return Inertia::render('admin/jadwal/create', [
+            'courses' => $courses,
+            'stats' => $stats,
+            'existingSessions' => $existingSessions,
+        ]);
+    }
+
+    public function edit(AttendanceSession $session)
+    {
+        $session->load(['course.dosen']);
+        $session->loadCount('logs');
+
+        $courses = MataKuliah::with('dosen')->orderBy('nama')->get();
+
+        // Existing sessions for conflict checking (excluding current)
+        $existingSessions = AttendanceSession::where('id', '!=', $session->id)
+            ->select('id', 'course_id', 'meeting_number', 'title', 'start_at', 'end_at')
+            ->orderBy('start_at', 'desc')
+            ->limit(200)
+            ->get();
+
+        return Inertia::render('admin/jadwal/edit', [
+            'session' => $session,
+            'courses' => $courses,
+            'existingSessions' => $existingSessions,
+        ]);
+    }
     
     public function store(Request $request)
     {
@@ -101,7 +141,7 @@ class JadwalController extends Controller
             'created_by' => auth()->id(),
         ]);
         
-        return back()->with('success', 'Jadwal berhasil ditambahkan.');
+        return redirect()->route('admin.jadwal')->with('success', 'Jadwal berhasil ditambahkan.');
     }
     
     public function update(Request $request, AttendanceSession $session)
@@ -116,7 +156,7 @@ class JadwalController extends Controller
         
         $session->update($request->only(['course_id', 'meeting_number', 'title', 'start_at', 'end_at']));
         
-        return back()->with('success', 'Jadwal berhasil diperbarui.');
+        return redirect()->route('admin.jadwal')->with('success', 'Jadwal berhasil diperbarui.');
     }
     
     public function destroy(AttendanceSession $session)

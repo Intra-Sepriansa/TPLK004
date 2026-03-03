@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import IconMahasiswa from '@/assets/admin/mahasiswa/icon-mahasiswa.png';
@@ -11,11 +11,9 @@ import {
     Calendar,
     BookOpen,
     GraduationCap,
-    Camera,
     Save,
     X,
     ChevronLeft,
-    Upload,
     Check,
     AlertCircle,
     Loader2,
@@ -25,7 +23,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -45,7 +42,7 @@ interface Student {
     class: string;
     semester: number;
     entry_year: number;
-    photo: string;
+    photo?: string | null;
     status: 'active' | 'inactive' | 'graduated';
     password?: string;
     password_confirmation?: string;
@@ -71,18 +68,10 @@ const containerVariants = {
     }
 };
 
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-};
-
 export default function MahasiswaEdit({ student, faculties, majors, classes }: Props) {
-    const [photoPreview, setPhotoPreview] = useState<string>(student.photo);
-    const [isDragging, setIsDragging] = useState(false);
     const [activeSection, setActiveSection] = useState('personal');
     const [showPassword, setShowPassword] = useState(false);
     const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { data, setData, post, processing, errors } = useForm({
         _method: 'patch',
@@ -100,28 +89,9 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
         semester: student.semester || 1,
         entry_year: student.entry_year || new Date().getFullYear(),
         status: student.status || 'active',
-        photo: null as File | null,
         password: '',
         password_confirmation: '',
     });
-
-    const handlePhotoChange = (file: File) => {
-        if (file && file.type.startsWith('image/')) {
-            setData('photo', file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPhotoPreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) handlePhotoChange(file);
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -264,15 +234,14 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                         Foto Profil
                                     </h2>
 
-
-                                    {/* Photo Preview */}
+                                    {/* Photo Preview (read-only for admin) */}
                                     <motion.div
                                         className="relative aspect-square rounded-2xl overflow-hidden mb-4 group bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border-4 border-white/20"
                                         whileHover={{ scale: 1.02 }}
                                     >
-                                        {photoPreview ? (
+                                        {student.photo ? (
                                             <img
-                                                src={photoPreview.startsWith('http') || photoPreview.startsWith('data:') ? photoPreview : `/storage/${photoPreview}`}
+                                                src={student.photo}
                                                 alt={data.name || 'Foto Profil'}
                                                 className="w-full h-full object-cover"
                                             />
@@ -283,63 +252,11 @@ export default function MahasiswaEdit({ student, faculties, majors, classes }: P
                                                 </span>
                                             </div>
                                         )}
-
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={() => fileInputRef.current?.click()}
-                                            >
-                                                <Camera className="h-4 w-4 mr-2" />
-                                                Ganti Foto
-                                            </Button>
-                                        </div>
                                     </motion.div>
 
-                                    {/* Drag & Drop Area */}
-                                    <motion.div
-                                        onDragOver={(e) => {
-                                            e.preventDefault();
-                                            setIsDragging(true);
-                                        }}
-                                        onDragLeave={() => setIsDragging(false)}
-                                        onDrop={handleDrop}
-                                        className={cn(
-                                            "border-2 border-dashed rounded-xl p-6 text-center transition-all",
-                                            isDragging ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 backdrop-blur-md" : "border-neutral-300 dark:border-neutral-700 bg-white/50 dark:bg-neutral-800/50 backdrop-blur-md"
-                                        )}
-                                    >
-                                        <Upload className="h-8 w-8 mx-auto mb-2 text-neutral-400" />
-                                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-                                            Drag & drop foto atau
-                                        </p>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => fileInputRef.current?.click()}
-                                        >
-                                            Pilih File
-                                        </Button>
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) handlePhotoChange(file);
-                                            }}
-                                        />
-                                        <p className="text-xs text-neutral-500 mt-2">
-                                            PNG, JPG up to 5MB
-                                        </p>
-                                    </motion.div>
-
-                                    {errors.photo && (
-                                        <p className="text-sm text-red-500 mt-2">{errors.photo}</p>
-                                    )}
+                                    <p className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100/70 dark:bg-neutral-800/40 px-3 py-2 text-xs text-neutral-600 dark:text-neutral-300">
+                                        Foto profil hanya dapat diubah oleh mahasiswa melalui akun masing-masing.
+                                    </p>
                                 </div>
                             </motion.div>
 

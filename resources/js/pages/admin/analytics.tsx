@@ -443,7 +443,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         className="rounded-3xl border border-indigo-200/50 dark:border-indigo-800/50 bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-900/20 dark:to-purple-900/20 backdrop-blur-xl p-8 shadow-xl relative overflow-hidden flex flex-col"
                     >
                         {/* Animated background accent */}
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 blur-3xl rounded-full animate-pulse" />
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/20 blur-3xl rounded-full" />
 
                         <div className="relative z-10 mb-6">
                             <div className="flex items-center gap-3 mb-2">
@@ -483,7 +483,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                         animate={{ opacity: 1 }}
                                         className="text-center text-sm text-indigo-400 py-10 flex flex-col items-center gap-2"
                                     >
-                                        <Activity className="h-8 w-8 opacity-50 animate-pulse" />
+                                        <Activity className="h-8 w-8 opacity-50" />
                                         <span>Analyzing data patterns...</span>
                                     </motion.div>
                                 )}
@@ -555,7 +555,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 sm:mb-8 z-10 relative">
                             <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-3">
                                 <div className="h-8 w-8 rounded-full border border-emerald-500/30 flex items-center justify-center bg-emerald-500/10 shrink-0">
-                                    <div className="h-4 w-4 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                                    <div className="h-4 w-4 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                 </div>
                                 Top Attendance
                             </h3>
@@ -677,7 +677,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                     {/* Modal Header */}
                                     <div className="relative h-40 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 overflow-hidden shrink-0">
                                         <div className="absolute inset-0 bg-black/10" />
-                                        <div className="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl animate-pulse" />
+                                        <div className="absolute -right-10 -top-10 w-60 h-60 bg-white/10 rounded-full blur-3xl" />
                                         <div className="absolute left-10 bottom-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
 
                                         <div className="absolute top-6 right-6 flex gap-3 z-20">
@@ -950,7 +950,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                         <div>
                                             <div className="flex items-center gap-3">
                                                 <h2 className="text-2xl font-bold text-white">AI Neural Engine</h2>
-                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${aiReportReady ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' : 'bg-amber-500/20 border-amber-400/30 text-amber-300 animate-pulse'}`}>
+                                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${aiReportReady ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-300' : 'bg-amber-500/20 border-amber-400/30 text-amber-300'}`}>
                                                     ● {aiReportReady ? 'COMPLETE' : 'ANALYZING...'}
                                                 </span>
                                             </div>
@@ -980,7 +980,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                                 { n: 'Data Load', I: Activity }, { n: 'Pattern Match', I: Scan }, { n: 'Behavioral', I: Users },
                                                 { n: 'Risk Assess', I: AlertTriangle }, { n: 'Geo-Spatial', I: MapPin }, { n: 'Forecasting', I: TrendingUp }, { n: 'Compile', I: FileText },
                                             ].map((p, i) => (
-                                                <div key={p.n} className={`rounded-2xl p-4 text-center border transition-all duration-300 shadow-sm ${i < aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-emerald-500/30 shadow-emerald-500/10' : i === aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-amber-500/50 shadow-amber-500/20 animate-pulse' : 'bg-slate-100 dark:bg-neutral-900/50 border-transparent opacity-50'}`}>
+                                                <div key={p.n} className={`rounded-2xl p-4 text-center border transition-all duration-300 shadow-sm ${i < aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-emerald-500/30 shadow-emerald-500/10' : i === aiGenerationStep ? 'bg-white dark:bg-neutral-800 border-amber-500/50 shadow-amber-500/20' : 'bg-slate-100 dark:bg-neutral-900/50 border-transparent opacity-50'}`}>
                                                     <p.I className={`h-6 w-6 mx-auto mb-2 ${i < aiGenerationStep ? 'text-emerald-500' : i === aiGenerationStep ? 'text-amber-500' : 'text-slate-400'}`} />
                                                     <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{p.n}</p>
                                                     <p className={`text-[9px] font-bold mt-1 ${i < aiGenerationStep ? 'text-emerald-500' : i === aiGenerationStep ? 'text-amber-500' : 'text-slate-400'}`}>

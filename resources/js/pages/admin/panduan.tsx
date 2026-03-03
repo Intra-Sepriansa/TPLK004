@@ -1213,8 +1213,8 @@ export default function AdminPanduan() {
 
             {/* Advanced Background - Uang Kas Style */}
             <div className="fixed inset-0 bg-slate-50 dark:bg-black/80 lg:rounded-tl-3xl z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[100px] animate-pulse" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px] animate-pulse delay-700" />
+                <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-indigo-500/20 blur-[100px]" />
+                <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px]" />
                 <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] rounded-full bg-pink-500/10 blur-[80px]" />
             </div>
 
@@ -1239,8 +1239,8 @@ export default function AdminPanduan() {
                         <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px]" />
 
                         {/* Floating Orbs */}
-                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse" />
-                        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl animate-pulse delay-1000" />
+                        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
+                        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
 
                         <div className="relative z-10">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -516,14 +516,7 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     <div className="relative">
-                        <motion.button
-                            whileHover={{ scale: 1.02, x: -2 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => router.visit('/dosen/dashboard')}
-                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
-                        >
-                            
-                        </motion.button>
+            
 
                         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                             <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
@@ -575,13 +568,7 @@ export default function DosenDocs({ guides, stats, categories }: Props) {
                                 transition={{ delay: 0.5 }}
                                 className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-4 py-3 shadow-lg backdrop-blur-xl sm:w-auto sm:px-6"
                             >
-                                <div className="rounded-lg bg-indigo-500/20 p-2">
-                                    <img
-                                        src={DocumentationIcon}
-                                        alt="Documentation"
-                                        className="h-6 w-6 object-contain"
-                                    />
-                                </div>
+                                
                                 <div>
                                     <p className="text-xs text-indigo-100">Progress Belajar</p>
                                     <p className="text-2xl font-bold text-white">

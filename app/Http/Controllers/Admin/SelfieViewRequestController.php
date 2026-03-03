@@ -17,15 +17,27 @@ class SelfieViewRequestController extends Controller
         ]);
 
         $selfieVerification = SelfieVerification::with('attendanceLog.mahasiswa')->findOrFail($validated['selfie_verification_id']);
+        $currentUserId = auth()->id();
         
         // Check if attendance log and mahasiswa exist
         if (!$selfieVerification->attendanceLog || !$selfieVerification->attendanceLog->mahasiswa) {
             return back()->withErrors(['error' => 'Data mahasiswa tidak ditemukan untuk selfie ini']);
         }
+
+        // Prevent duplicate pending requests for the same admin + selfie.
+        $hasPendingRequest = SelfieViewRequest::query()
+            ->where('selfie_verification_id', $validated['selfie_verification_id'])
+            ->where('requested_by', $currentUserId)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($hasPendingRequest) {
+            return back()->withErrors(['error' => 'Permintaan izin masih menunggu persetujuan mahasiswa']);
+        }
         
-        $viewRequest = SelfieViewRequest::create([
+        SelfieViewRequest::create([
             'selfie_verification_id' => $validated['selfie_verification_id'],
-            'requested_by' => auth()->id(),
+            'requested_by' => $currentUserId,
             'mahasiswa_id' => $selfieVerification->attendanceLog->mahasiswa->id,
             'reason' => $validated['reason'],
             'status' => 'pending',

@@ -1,10 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import {
     Monitor,
     Smartphone,
-    Tablet,
     Cpu,
     HardDrive,
     Activity,
@@ -27,7 +26,6 @@ import {
     MessageSquare,
     Code,
     ChevronRight,
-    Home,
     AlertCircle,
     Info,
     Lightbulb,
@@ -37,10 +35,8 @@ import {
     Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -138,9 +134,14 @@ export default function PerangkatDetail({
     anomalies,
     activities
 }: any) {
-    const [currentPage, setCurrentPage] = useState(1);
     const [filter, setFilter] = useState('all');
     const [isExporting, setIsExporting] = useState(false);
+    const [isOpeningChat, setIsOpeningChat] = useState(false);
+    const [showAllLocations, setShowAllLocations] = useState(false);
+
+    const deviceIdentifier = String(deviceInfo?.deviceId || deviceInfo?.id || '-');
+    const deviceModel = String(deviceInfo?.model || '-');
+    const safeLocations = Array.isArray(locations) ? locations : [];
 
     const handleBlock = () => {
         setIsExporting(true); // Reusing state for button loading temporarily if needed, or better just use toast
@@ -181,6 +182,49 @@ export default function PerangkatDetail({
         }, 1500);
     };
 
+    const openLocationInMaps = (location: any) => {
+        const directUrl = location?.google_maps_url;
+        if (typeof directUrl === 'string' && directUrl.startsWith('http')) {
+            window.open(directUrl, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        const coordinates = String(location?.coordinates || '')
+            .split(',')
+            .map((part: string) => Number(part.trim()));
+
+        if (coordinates.length === 2 && !Number.isNaN(coordinates[0]) && !Number.isNaN(coordinates[1])) {
+            window.open(`https://www.google.com/maps?q=${coordinates[0]},${coordinates[1]}`, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        toast.error('Koordinat lokasi belum tersedia.');
+    };
+
+    const handleContactStudent = () => {
+        if (!student?.id) {
+            toast.error('Data mahasiswa tidak tersedia.');
+            return;
+        }
+
+        setIsOpeningChat(true);
+        toast.info('Membuka chat mahasiswa...');
+
+        router.post('/chat', {
+            type: 'personal',
+            participant_id: student.id,
+            participant_type: 'App\\Models\\Mahasiswa',
+        }, {
+            preserveScroll: true,
+            onError: () => {
+                toast.error('Gagal membuka chat mahasiswa.');
+            },
+            onFinish: () => {
+                setIsOpeningChat(false);
+            }
+        });
+    };
+
     return (
         <AppLayout>
             <Head title={`Detail Perangkat - ${deviceInfo.model}`} />
@@ -214,22 +258,7 @@ export default function PerangkatDetail({
                             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                             {/* Floating Animations (Pulses) */}
-                            <motion.div
-                                className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10 hidden md:block"
-                                animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                            />
-                            <motion.div
-                                className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10 hidden md:block"
-                                animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                            />
-                            <motion.div
-                                className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10 hidden md:block"
-                                animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                            />
-
+                                                                                    
                             <div className="relative z-10">
                                 <Button
                                     type="button"
@@ -241,7 +270,7 @@ export default function PerangkatDetail({
                                     Kembali ke Daftar Perangkat
                                 </Button>
                                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-                                    <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
+                                    <div className="flex min-w-0 flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left">
                                         <motion.div
                                             className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
                                             initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
@@ -251,19 +280,28 @@ export default function PerangkatDetail({
                                         >
                                             <img src={iconPerangkat} alt="Perangkat" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                         </motion.div>
-                                        <div className="flex-1 mt-1 sm:mt-0">
-                                            <p className="text-sm font-medium tracking-wide text-indigo-100 mb-1">
-                                                ID: {deviceInfo.deviceId || deviceInfo.id}
+                                        <div className="min-w-0 flex-1 mt-1 sm:mt-0">
+                                            <p className="text-[11px] sm:text-sm font-medium tracking-wide text-indigo-100/90 mb-1">
+                                                <span className="mr-1">ID:</span>
+                                                <span
+                                                    className="inline-block max-w-full align-middle font-mono text-indigo-50/95 leading-tight break-all"
+                                                    title={deviceIdentifier}
+                                                >
+                                                    {deviceIdentifier}
+                                                </span>
                                             </p>
-                                            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                                                {deviceInfo.model}
+                                            <h1
+                                                className="text-xl sm:text-3xl font-bold text-white mb-2 leading-tight break-words line-clamp-2 sm:line-clamp-1"
+                                                title={deviceModel}
+                                            >
+                                                {deviceModel}
                                             </h1>
                                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm text-indigo-100">
                                                 <span>{deviceInfo.os}</span>
                                                 <span className="text-indigo-300 hidden sm:inline">•</span>
                                                 <StatusBadge status={deviceInfo.status} />
                                                 <span className="text-indigo-300 hidden sm:inline">•</span>
-                                                <span>
+                                                <span className="max-w-full break-words">
                                                     Digunakan oleh: <span className="font-semibold text-white">{student.nama}</span>
                                                 </span>
                                             </div>
@@ -649,9 +687,14 @@ export default function PerangkatDetail({
                                                 <span>Profile Detail</span>
                                             </button>
                                         </Link>
-                                        <button className="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-white font-medium transition-all duration-300 flex items-center justify-center gap-2">
-                                            <MessageSquare className="w-4 h-4" />
-                                            <span>Hubungi</span>
+                                        <button
+                                            type="button"
+                                            onClick={handleContactStudent}
+                                            disabled={isOpeningChat || !student?.id}
+                                            className="w-full px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-white font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                        >
+                                            {isOpeningChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
+                                            <span>{isOpeningChat ? 'Membuka Chat...' : 'Hubungi'}</span>
                                         </button>
                                     </div>
                                 </motion.div>
@@ -674,35 +717,69 @@ export default function PerangkatDetail({
                                             </div>
                                         </div>
 
-                                        {locations.map((loc: any, index: number) => (
-                                            <div key={index} className="absolute w-4 h-4 bg-violet-500 rounded-full border-[3px] border-slate-900 shadow-[0_0_15px_rgba(139,92,246,0.8)] -translate-x-1/2 -translate-y-1/2" style={{ left: `${loc.x}%`, top: `${loc.y}%` }}>
-                                                <div className="absolute inset-0 bg-violet-400 rounded-full animate-ping opacity-75"></div>
-                                            </div>
+                                        {safeLocations.map((loc: any, index: number) => (
+                                            <button
+                                                key={index}
+                                                type="button"
+                                                onClick={() => openLocationInMaps(loc)}
+                                                className="absolute w-4 h-4 bg-violet-500 rounded-full border-[3px] border-slate-900 shadow-[0_0_15px_rgba(139,92,246,0.8)] -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-125"
+                                                style={{ left: `${loc.x}%`, top: `${loc.y}%` }}
+                                                title={`Buka peta: ${loc.name}`}
+                                            >
+                                                <span className="absolute inset-0 bg-violet-400 rounded-full animate-ping opacity-75"></span>
+                                            </button>
                                         ))}
                                     </div>
 
                                     <div className="space-y-3">
-                                        {locations.slice(0, 3).map((loc: any, index: number) => (
-                                            <div key={index} className="flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 hover:bg-slate-800 hover:border-violet-500/50 transition-all cursor-pointer group">
+                                        {(showAllLocations ? safeLocations : safeLocations.slice(0, 3)).map((loc: any, index: number) => (
+                                            <button
+                                                key={index}
+                                                type="button"
+                                                onClick={() => openLocationInMaps(loc)}
+                                                className="w-full flex items-center justify-between p-3.5 bg-slate-800/40 rounded-xl border border-slate-700/50 hover:bg-slate-800 hover:border-violet-500/50 transition-all cursor-pointer group text-left"
+                                                title="Buka lokasi di Google Maps"
+                                            >
                                                 <div className="flex items-center gap-3">
                                                     <div className="p-2.5 bg-violet-500/10 rounded-lg group-hover:bg-violet-500/20 transition-colors">
                                                         <MapPin className="w-4 h-4 text-violet-400" />
                                                     </div>
-                                                    <div>
-                                                        <div className="text-sm text-white font-medium">{loc.name}</div>
+                                                    <div className="min-w-0">
+                                                        <div className="text-sm text-white font-medium truncate">{loc.name}</div>
                                                         <div className="text-[11px] text-slate-400 font-mono mt-0.5">{loc.coordinates}</div>
                                                     </div>
                                                 </div>
-                                                <div className="px-2.5 py-1 bg-slate-900 rounded-md text-xs font-semibold text-violet-400 border border-slate-800">
-                                                    {loc.count}x
+                                                <div className="flex items-center gap-2">
+                                                    <div className="px-2.5 py-1 bg-slate-900 rounded-md text-xs font-semibold text-violet-400 border border-slate-800">
+                                                        {loc.count}x
+                                                    </div>
+                                                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-violet-400 transition-colors" />
                                                 </div>
-                                            </div>
+                                            </button>
                                         ))}
                                     </div>
 
-                                    <button className="w-full mt-5 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (safeLocations.length === 0) {
+                                                toast.error('Belum ada data lokasi untuk ditampilkan.');
+                                                return;
+                                            }
+                                            if (safeLocations.length > 3) {
+                                                setShowAllLocations((prev) => !prev);
+                                                return;
+                                            }
+                                            openLocationInMaps(safeLocations[0]);
+                                        }}
+                                        className="w-full mt-5 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-sm font-medium text-slate-300 hover:text-white transition-all duration-300 flex items-center justify-center gap-2"
+                                    >
                                         <Eye className="w-4 h-4" />
-                                        <span>Log Lokasi Lengkap</span>
+                                        <span>
+                                            {safeLocations.length > 3
+                                                ? (showAllLocations ? 'Sembunyikan Log Lokasi' : `Log Lokasi Lengkap (${safeLocations.length})`)
+                                                : 'Buka Lokasi di Maps'}
+                                        </span>
                                     </button>
                                 </motion.div>
 

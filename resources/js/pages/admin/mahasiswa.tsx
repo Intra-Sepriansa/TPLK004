@@ -50,6 +50,23 @@ import mahasiswaAktifIcon from '@/assets/admin/mahasiswa/mahasiswa-aktif.png';
 import totalIcon from '@/assets/admin/mahasiswa/total.png';
 import fakultasIcon from '@/assets/admin/mahasiswa/fakultas.png';
 
+// Fallback avatars
+import defaultFemaleAvatar from '@/assets/admin/mahasiswa/perempuan.png';
+import defaultMaleAvatar from '@/assets/admin/mahasiswa/laki.png';
+
+const getFallbackAvatar = (nama: string) => {
+    const nameStr = (nama || '').toLowerCase();
+    const femaleIndicators = ['siti', 'ayu', 'wati', 'nisa', 'putri', 'dewi', 'nur', 'indah', 'sari', 'lia', 'dwi', 'annisa', 'aulia', 'safitri', 'zahra', 'kartika', 'linda', 'ratna'];
+    const isFemale = femaleIndicators.some(indicator => nameStr.includes(indicator)) ||
+        /^[a-z]+[a|i|y]\b/.test(nameStr.split(' ')[0] || '');
+
+    // Male exceptions for names ending in a/i
+    const maleExceptions = ['arya', 'dika', 'bima', 'raka', 'nanda', 'reza', 'yuda', 'putra', 'adi', 'budi', 'jodi', 'fauzi', 'dani', 'toni'];
+    const isMaleException = maleExceptions.some(indicator => nameStr.includes(indicator));
+
+    return (isFemale && !isMaleException) ? defaultFemaleAvatar : defaultMaleAvatar;
+};
+
 interface Mahasiswa {
     id: number;
     nama: string;
@@ -360,21 +377,6 @@ export default function AdminMahasiswa({
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating graduation pulses */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
 
                     <div className="relative">
                         <div className="flex flex-wrap items-start justify-between gap-6">
@@ -564,7 +566,7 @@ export default function AdminMahasiswa({
                     </div>
                     <div className="mt-5 flex flex-wrap gap-3">
                         <motion.button
-                            onClick={() => setShowAddForm(true)}
+                            onClick={() => router.visit('/admin/mahasiswa/create')}
                             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-2 hover:from-emerald-600 hover:to-teal-700 transition-all"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
@@ -1150,17 +1152,11 @@ export default function AdminMahasiswa({
                                             >
                                                 <td className="px-5 py-3.5">
                                                     <div className="flex items-center gap-3">
-                                                        {m.avatar_url ? (
-                                                            <img
-                                                                src={m.avatar_url}
-                                                                alt={m.nama}
-                                                                className="h-9 w-9 rounded-lg object-cover shadow-sm"
-                                                            />
-                                                        ) : (
-                                                            <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${getInitialColor(m.nama)} flex items-center justify-center text-white font-bold text-xs shadow-sm`}>
-                                                                {getInitials(m.nama)}
-                                                            </div>
-                                                        )}
+                                                        <img
+                                                            src={m.avatar_url || getFallbackAvatar(m.nama)}
+                                                            alt={m.nama}
+                                                            className="h-9 w-9 rounded-lg object-cover shadow-sm bg-neutral-100"
+                                                        />
                                                         <p className="font-semibold text-neutral-900 dark:text-white text-sm">{m.nama}</p>
                                                     </div>
                                                 </td>

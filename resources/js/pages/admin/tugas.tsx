@@ -250,22 +250,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
-
+                                                            
                     <div className="relative">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full sm:w-auto">
@@ -524,7 +509,7 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                             <p className="text-sm text-muted-foreground mt-2">Klik tombol "Tambah Tugas" untuk membuat tugas baru</p>
                         </motion.div>
                     ) : (
-                        tugasList.map((tugas, index) => (
+                        tugasList.map((tugas) => (
                             <motion.div
                                 key={tugas.id}
                                 variants={cardVariants}
@@ -545,21 +530,24 @@ export default function AdminTugas({ tugasList, courses, stats, filters }: Props
                                         </div>
                                         <h3 className="font-bold text-lg group-hover:text-purple-600 transition-colors duration-200">{tugas.judul}</h3>
                                         <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{tugas.deskripsi}</p>
-                                        <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
-                                                <BookOpen className="h-4 w-4 text-blue-500" /> {tugas.course.nama}
+                                        <div className="mt-4 grid grid-cols-1 gap-2.5 text-sm text-muted-foreground sm:grid-cols-3 sm:gap-3">
+                                            <span className="flex min-w-0 items-center gap-1.5 rounded-lg bg-muted/50 px-2.5 py-2">
+                                                <BookOpen className="h-4 w-4 shrink-0 text-blue-500" />
+                                                <span className="line-clamp-2 break-words sm:line-clamp-1">{tugas.course.nama}</span>
                                             </span>
-                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
-                                                <Calendar className="h-4 w-4 text-purple-500" /> {tugas.deadline_display}
+                                            <span className="flex min-w-0 items-center gap-1.5 rounded-lg bg-muted/50 px-2.5 py-2">
+                                                <Calendar className="h-4 w-4 shrink-0 text-purple-500" />
+                                                <span className="line-clamp-2 break-words sm:line-clamp-1">{tugas.deadline_display}</span>
                                             </span>
-                                            <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-1 rounded-lg">
-                                                <MessageSquare className="h-4 w-4 text-emerald-500" /> {tugas.diskusi_count} diskusi
+                                            <span className="flex min-w-0 items-center gap-1.5 rounded-lg bg-muted/50 px-2.5 py-2">
+                                                <MessageSquare className="h-4 w-4 shrink-0 text-emerald-500" />
+                                                <span className="whitespace-nowrap">{tugas.diskusi_count} diskusi</span>
                                             </span>
                                         </div>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <Button variant="ghost" size="icon" className="opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100">
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>

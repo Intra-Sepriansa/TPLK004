@@ -266,17 +266,7 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
                     <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-                    <motion.div
-                      className="absolute right-8 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border-2 border-white/10"
-                      animate={{ scale: [1, 2.5], opacity: [0.3, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                      className="absolute right-8 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border-2 border-white/10"
-                      animate={{ scale: [1, 2.5], opacity: [0.3, 0] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-
+                                        
                     <div className="relative flex items-center gap-4">
                       <motion.div
                         initial={{ scale: 0, rotate: -45 }}

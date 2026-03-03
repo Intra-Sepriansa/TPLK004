@@ -11,12 +11,13 @@ class SelfieVerificationController extends Controller
     /**
      * Display the specified verification detail.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         // For development/showcase purposes without a real AI backend yet, 
         // we generate a consistent but highly detailed mock dataset that matches the UI requirements.
         
         $model = \App\Models\SelfieVerification::with(['attendanceLog.mahasiswa', 'attendanceLog.session.course', 'verifier'])->findOrFail($id);
+        $currentUserId = $request->user()?->id;
         $log = $model->attendanceLog;
         $mhs = $log ? $log->mahasiswa : null;
         $course = $log && $log->session ? $log->session->course : null;
@@ -76,9 +77,69 @@ class SelfieVerificationController extends Controller
         // Build photo URLs - strip leading /storage/ from paths if present to avoid double-storage
         $avatarPath = $mhs && $mhs->avatar_url ? ltrim(str_replace('/storage/', '', $mhs->avatar_url), '/') : null;
         $selfiePath = $log && $log->selfie_path ? ltrim(str_replace('/storage/', '', $log->selfie_path), '/') : null;
+        $selfieUrl = $selfiePath ? asset('storage/' . $selfiePath) : null;
+
+        $approvedRequest = null;
+        $pendingRequest = null;
+        $latestRejectedRequest = null;
+
+        if ($currentUserId) {
+            $approvedRequest = $model->viewRequests()
+                ->where('requested_by', $currentUserId)
+                ->where('status', 'approved')
+                ->latest('responded_at')
+                ->first();
+
+            $pendingRequest = $model->viewRequests()
+                ->where('requested_by', $currentUserId)
+                ->where('status', 'pending')
+                ->latest('created_at')
+                ->first();
+
+            $latestRejectedRequest = $model->viewRequests()
+                ->where('requested_by', $currentUserId)
+                ->where('status', 'rejected')
+                ->latest('responded_at')
+                ->first();
+        }
+
+        $hasApprovedRequest = $approvedRequest !== null;
+        $isLocked = !$hasApprovedRequest;
+
+        // One-time access: once detail is opened with approved access, consume permission.
+        if ($approvedRequest) {
+            $approvedRequest->delete();
+        }
+
+        $requestStatus = 'none';
+        if ($pendingRequest) {
+            $requestStatus = 'pending';
+        } elseif ($latestRejectedRequest) {
+            $requestStatus = 'rejected';
+        } elseif ($hasApprovedRequest) {
+            $requestStatus = 'approved';
+        }
+
+        $privacyMessage = 'Foto selfie terkunci. Admin harus meminta izin ke mahasiswa sebelum verifikasi ulang.';
+        if ($pendingRequest) {
+            $privacyMessage = 'Permintaan izin sedang menunggu persetujuan mahasiswa.';
+        } elseif ($latestRejectedRequest) {
+            $privacyMessage = 'Permintaan izin sebelumnya ditolak. Silakan kirim permintaan baru dengan alasan yang jelas.';
+        } elseif ($hasApprovedRequest) {
+            $privacyMessage = 'Izin sudah dipakai untuk 1 kali akses. Untuk buka ulang, admin harus meminta izin lagi.';
+        }
+
+        $canRequest = $pendingRequest === null;
+        if (!$selfieUrl) {
+            $isLocked = true;
+            $privacyMessage = 'Foto selfie tidak tersedia untuk verifikasi.';
+            $requestStatus = 'none';
+            $canRequest = false;
+        }
 
         return \Inertia\Inertia::render('admin/verifikasi-selfie-detail', [
             'verification' => [
+                'raw_id' => $model->id,
                 'id' => 'VER-' . str_pad($model->id, 6, '0', STR_PAD_LEFT),
                 'student' => [
                     'name' => $mhs->nama ?? 'Unknown',
@@ -89,7 +150,7 @@ class SelfieVerificationController extends Controller
                     'semester' => $mhs->semester ?? 5,
                 ],
                 'reference_photo' => $avatarPath ? asset('storage/' . $avatarPath) : 'https://ui-avatars.com/api/?name=' . urlencode($mhs->nama ?? 'U') . '&background=random',
-                'selfie_photo' => $selfiePath ? asset('storage/' . $selfiePath) : null,
+                'selfie_photo' => $hasApprovedRequest ? $selfieUrl : null,
                 'match_score' => $log->face_match_score ?? 0,
                 'confidence_level' => $log->ai_confidence ?? 0,
                 'status' => $model->status,
@@ -127,6 +188,19 @@ class SelfieVerificationController extends Controller
                 'recommendations' => !empty($fraudFlags) ? $fraudFlags : ($log && $log->is_suspicious ? ['Periksa manual foto selfie ini.'] : ['Kualitas foto memenuhi standar.']),
                 'history' => $history,
                 'anomalies' => $anomalies,
+            ],
+            'privacy' => [
+                'is_locked' => $isLocked,
+                'has_selfie' => (bool) $selfieUrl,
+                'request_status' => $requestStatus,
+                'can_request' => $canRequest,
+                'message' => $privacyMessage,
+                'last_request' => [
+                    'reason' => $pendingRequest?->reason ?? $latestRejectedRequest?->reason ?? null,
+                    'response_note' => $latestRejectedRequest?->response_note,
+                    'requested_at' => ($pendingRequest?->created_at ?? $latestRejectedRequest?->created_at)?->format('d M Y, H:i'),
+                    'responded_at' => $latestRejectedRequest?->responded_at?->format('d M Y, H:i'),
+                ],
             ],
             'facialLandmarks' => [
                 'reference' => $aiData['landmarks']['reference'] ?? $this->generateMockLandmarks(),

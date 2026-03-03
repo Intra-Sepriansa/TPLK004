@@ -11,6 +11,23 @@ import {
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
+// Fallback avatars
+import defaultFemaleAvatar from '@/assets/admin/mahasiswa/perempuan.png';
+import defaultMaleAvatar from '@/assets/admin/mahasiswa/laki.png';
+
+const getFallbackAvatar = (nama: string) => {
+    const nameStr = (nama || '').toLowerCase();
+    const femaleIndicators = ['siti', 'ayu', 'wati', 'nisa', 'putri', 'dewi', 'nur', 'indah', 'sari', 'lia', 'dwi', 'annisa', 'aulia', 'safitri', 'zahra', 'kartika', 'linda', 'ratna'];
+    const isFemale = femaleIndicators.some(indicator => nameStr.includes(indicator)) ||
+        /^[a-z]+[a|i|y]\b/.test(nameStr.split(' ')[0] || '');
+
+    // Male exceptions
+    const maleExceptions = ['arya', 'dika', 'bima', 'raka', 'nanda', 'reza', 'yuda', 'putra', 'adi', 'budi', 'jodi', 'fauzi', 'dani', 'toni'];
+    const isMaleException = maleExceptions.some(indicator => nameStr.includes(indicator));
+
+    return (isFemale && !isMaleException) ? defaultFemaleAvatar : defaultMaleAvatar;
+};
+
 interface Props {
     mahasiswa: {
         id: number;
@@ -96,13 +113,11 @@ export default function MahasiswaDetail({ mahasiswa, stats, recentActivity, frau
                             >
                                 <div className="w-40 h-40 rounded-full p-1.5 bg-neutral-50 dark:bg-neutral-900 shadow-2xl">
                                     <div className="w-full h-full rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-800 relative group">
-                                        {mahasiswa.photo ? (
-                                            <img src={mahasiswa.photo} alt={mahasiswa.nama} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-900/50 dark:to-fuchsia-900/50 text-violet-500 dark:text-violet-300">
-                                                <User className="h-16 w-16" />
-                                            </div>
-                                        )}
+                                        <img
+                                            src={mahasiswa.photo || getFallbackAvatar(mahasiswa.nama)}
+                                            alt={mahasiswa.nama}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-neutral-100"
+                                        />
                                         {/* Status Indicator */}
                                         <div className="absolute bottom-3 right-3 w-6 h-6 rounded-full bg-emerald-500 border-4 border-white dark:border-neutral-900 shadow-sm" title="Active"></div>
                                     </div>

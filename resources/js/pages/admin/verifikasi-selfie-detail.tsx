@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
     Scan, Brain, Cpu, CheckCircle, XCircle, AlertTriangle, Clock,
     ChevronLeft, Sparkles, Loader2, Eye, Smile, Shield, User,
-    Monitor, Move, FileText, Download, Share2, Lightbulb, History,
+    Monitor, Move, FileText, Download, Share2, Lightbulb, History, Lock,
     ScanFace, BarChart3, AlertCircle, Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ interface FacialLandmark {
 }
 
 interface Verification {
+    raw_id: number;
     id: string;
     student: {
         name: string;
@@ -34,7 +35,7 @@ interface Verification {
         semester: number;
     };
     reference_photo: string;
-    selfie_photo: string;
+    selfie_photo: string | null;
     match_score: number;
     confidence_level: number;
     status: 'verified' | 'rejected' | 'pending';
@@ -88,6 +89,19 @@ interface Verification {
 
 interface PageProps {
     verification: Verification;
+    privacy: {
+        is_locked: boolean;
+        has_selfie: boolean;
+        request_status: 'none' | 'pending' | 'rejected' | 'approved';
+        can_request: boolean;
+        message: string;
+        last_request?: {
+            reason?: string | null;
+            response_note?: string | null;
+            requested_at?: string | null;
+            responded_at?: string | null;
+        } | null;
+    };
     facialLandmarks: {
         reference: FacialLandmark[];
         selfie: FacialLandmark[];
@@ -143,12 +157,15 @@ const AI_PHASES = [
     { label: 'Analisis Selesai', detail: 'All checks completed successfully', icon: CheckCircle, duration: 500 },
 ];
 
-export default function VerifikasiSelfieDetail({ verification: initialVerification, facialLandmarks: initialLandmarks, facialFeatures, confidenceMetrics, relatedVerifications }: PageProps) {
+export default function VerifikasiSelfieDetail({ verification: initialVerification, privacy: initialPrivacy, facialLandmarks: initialLandmarks, facialFeatures, confidenceMetrics, relatedVerifications }: PageProps) {
     const [verification, setVerification] = useState<Verification>(initialVerification);
+    const [privacy, setPrivacy] = useState(initialPrivacy);
     const [facialLandmarks, setFacialLandmarks] = useState(initialLandmarks);
     const [isProcessing, setIsProcessing] = useState(false);
     const [aiPhase, setAiPhase] = useState(-1); // -1 = not started, 0-5 = processing, 6 = complete
     const [aiComplete, setAiComplete] = useState(false);
+    const [requestReason, setRequestReason] = useState('Permintaan verifikasi ulang selfie untuk validasi kehadiran.');
+    const [isRequestingAccess, setIsRequestingAccess] = useState(false);
 
     // AI Processing animation sequence
     useEffect(() => {
@@ -185,7 +202,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
 
     const handleVerify = async (action: 'approve' | 'reject') => {
         setIsProcessing(true);
-        router.post(`/admin/verifikasi-selfie/${verification.id}/${action}`, {}, {
+        router.post(`/admin/verifikasi-selfie/${verification.raw_id}/${action}`, {}, {
             onSuccess: () => {
                 toast.success(`Verifikasi ${action === 'approve' ? 'disetujui' : 'ditolak'}`);
             },
@@ -195,7 +212,40 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
     };
 
     const handleDownloadReport = () => {
-        window.open(`/admin/verifikasi-selfie/${verification.id}/report`, '_blank');
+        window.open(`/admin/verifikasi-selfie/${verification.raw_id}/report`, '_blank');
+    };
+
+    const handleRequestAccess = () => {
+        if (requestReason.trim().length < 10) {
+            toast.error('Alasan minimal 10 karakter');
+            return;
+        }
+
+        setIsRequestingAccess(true);
+        router.post('/selfie-view-requests', {
+            selfie_verification_id: verification.raw_id,
+            reason: requestReason.trim(),
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Permintaan izin berhasil dikirim ke mahasiswa');
+                setPrivacy((prev) => ({
+                    ...prev,
+                    request_status: 'pending',
+                    can_request: false,
+                    message: 'Permintaan izin sedang menunggu persetujuan mahasiswa.',
+                    last_request: {
+                        reason: requestReason.trim(),
+                        requested_at: 'Baru saja',
+                    },
+                }));
+            },
+            onError: (errors) => {
+                const message = (errors.error as string) ?? 'Gagal mengirim permintaan izin';
+                toast.error(message);
+            },
+            onFinish: () => setIsRequestingAccess(false),
+        });
     };
 
     return (
@@ -216,18 +266,7 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Pulsating Rings */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-
+                                        
                     <div className="relative space-y-5">
                         {/* Back Button Row */}
                         <motion.div
@@ -492,89 +531,125 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                                         <Badge variant="outline">Live Capture</Badge>
                                     </div>
                                     <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
-                                        <img src={verification.selfie_photo} alt="Selfie" className="w-full h-full object-cover" />
+                                        {!privacy.is_locked && verification.selfie_photo ? (
+                                            <>
+                                                <img src={verification.selfie_photo} alt="Selfie" className="w-full h-full object-cover" />
 
-                                        {/* Scanning line - only during processing */}
-                                        {!aiComplete && aiPhase >= 2 && (
-                                            <motion.div variants={scanningVariants} initial="initial" animate="animate" className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
-                                        )}
+                                                {/* Scanning line - only during processing */}
+                                                {!aiComplete && aiPhase >= 2 && (
+                                                    <motion.div variants={scanningVariants} initial="initial" animate="animate" className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_8px_rgba(192,132,252,0.8)]" />
+                                                )}
 
-                                        {/* Face bounding box - appears after face detection, color based on final result after complete */}
-                                        {aiPhase >= 2 && (
-                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="absolute inset-0">
-                                                <motion.div
-                                                    initial={{ scale: 0, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    transition={{ type: 'spring', stiffness: 200 }}
-                                                    className={cn(
-                                                        "absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 rounded-lg",
-                                                        aiComplete
-                                                            ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
-                                                            : "border-cyan-400"
-                                                    )}
-                                                >
-                                                    {/* Corners */}
-                                                    {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => {
-                                                        const borderColor = aiComplete
-                                                            ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
-                                                            : "border-cyan-400";
-                                                        const pos = corner.split('-');
-                                                        return (
-                                                            <div key={corner} className={cn(
-                                                                "absolute w-4 h-4",
-                                                                pos[0] === 'top' ? '-top-1' : '-bottom-1',
-                                                                pos[1] === 'left' ? '-left-1' : '-right-1',
-                                                                pos[0] === 'top' ? `border-t-4` : `border-b-4`,
-                                                                pos[1] === 'left' ? `border-l-4` : `border-r-4`,
-                                                                borderColor
-                                                            )} />
-                                                        );
-                                                    })}
-
-                                                    {/* Match label - only after AI completes */}
-                                                    {aiComplete && (
+                                                {/* Face bounding box - appears after face detection, color based on final result after complete */}
+                                                {aiPhase >= 2 && (
+                                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="absolute inset-0">
                                                         <motion.div
-                                                            initial={{ opacity: 0, scale: 0 }}
-                                                            animate={{ opacity: 1, scale: 1 }}
-                                                            transition={{ type: 'spring', stiffness: 300 }}
+                                                            initial={{ scale: 0, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 1 }}
+                                                            transition={{ type: 'spring', stiffness: 200 }}
                                                             className={cn(
-                                                                "absolute -top-8 left-0 px-3 py-1 text-white text-xs font-bold rounded-full",
-                                                                verification.match_score >= 80 ? "bg-green-500" : verification.match_score >= 60 ? "bg-yellow-500" : "bg-red-500"
+                                                                "absolute top-[10%] left-[10%] right-[10%] bottom-[20%] border-2 rounded-lg",
+                                                                aiComplete
+                                                                    ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
+                                                                    : "border-cyan-400"
                                                             )}
                                                         >
-                                                            {verification.match_score >= 80 ? "MATCH" : verification.match_score >= 60 ? "PARTIAL MATCH" : "NO MATCH"}
+                                                            {['top-left', 'top-right', 'bottom-left', 'bottom-right'].map((corner) => {
+                                                                const borderColor = aiComplete
+                                                                    ? verification.match_score >= 80 ? "border-green-400" : verification.match_score >= 60 ? "border-yellow-400" : "border-red-400"
+                                                                    : "border-cyan-400";
+                                                                const pos = corner.split('-');
+                                                                return (
+                                                                    <div key={corner} className={cn(
+                                                                        "absolute w-4 h-4",
+                                                                        pos[0] === 'top' ? '-top-1' : '-bottom-1',
+                                                                        pos[1] === 'left' ? '-left-1' : '-right-1',
+                                                                        pos[0] === 'top' ? `border-t-4` : `border-b-4`,
+                                                                        pos[1] === 'left' ? `border-l-4` : `border-r-4`,
+                                                                        borderColor
+                                                                    )} />
+                                                                );
+                                                            })}
+
+                                                            {aiComplete && (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, scale: 0 }}
+                                                                    animate={{ opacity: 1, scale: 1 }}
+                                                                    transition={{ type: 'spring', stiffness: 300 }}
+                                                                    className={cn(
+                                                                        "absolute -top-8 left-0 px-3 py-1 text-white text-xs font-bold rounded-full",
+                                                                        verification.match_score >= 80 ? "bg-green-500" : verification.match_score >= 60 ? "bg-yellow-500" : "bg-red-500"
+                                                                    )}
+                                                                >
+                                                                    {verification.match_score >= 80 ? "MATCH" : verification.match_score >= 60 ? "PARTIAL MATCH" : "NO MATCH"}
+                                                                </motion.div>
+                                                            )}
+
+                                                            {!aiComplete && aiPhase >= 2 && (
+                                                                <motion.div
+                                                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                                                    transition={{ duration: 1, repeat: Infinity }}
+                                                                    className="absolute -top-8 left-0 px-3 py-1 bg-cyan-500 text-white text-xs font-bold rounded-full"
+                                                                >ANALYZING...</motion.div>
+                                                            )}
                                                         </motion.div>
-                                                    )}
-
-                                                    {/* "Analyzing..." label during processing */}
-                                                    {!aiComplete && aiPhase >= 2 && (
-                                                        <motion.div
-                                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                                            transition={{ duration: 1, repeat: Infinity }}
-                                                            className="absolute -top-8 left-0 px-3 py-1 bg-cyan-500 text-white text-xs font-bold rounded-full"
-                                                        >ANALYZING...</motion.div>
-                                                    )}
-                                                </motion.div>
-                                            </motion.div>
-                                        )}
-
-                                        {/* Landmarks - appear after extraction, color changes after complete */}
-                                        {aiPhase >= 3 && facialLandmarks.selfie.map((point, i) => (
-                                            <motion.div
-                                                key={i}
-                                                initial={{ scale: 0, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                transition={{ delay: i * 0.03, type: 'spring' }}
-                                                className={cn(
-                                                    "absolute w-2 h-2 rounded-full",
-                                                    aiComplete
-                                                        ? verification.match_score >= 80 ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" : verification.match_score >= 60 ? "bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.8)]" : "bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]"
-                                                        : "bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]"
+                                                    </motion.div>
                                                 )}
-                                                style={{ left: `${point.x}%`, top: `${point.y}%` }}
-                                            />
-                                        ))}
+
+                                                {aiPhase >= 3 && facialLandmarks.selfie.map((point, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ scale: 0, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 1 }}
+                                                        transition={{ delay: i * 0.03, type: 'spring' }}
+                                                        className={cn(
+                                                            "absolute w-2 h-2 rounded-full",
+                                                            aiComplete
+                                                                ? verification.match_score >= 80 ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" : verification.match_score >= 60 ? "bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.8)]" : "bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]"
+                                                                : "bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]"
+                                                        )}
+                                                        style={{ left: `${point.x}%`, top: `${point.y}%` }}
+                                                    />
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/65 p-5 text-center backdrop-blur-sm">
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                                                    <Lock className="h-6 w-6 text-white" />
+                                                </div>
+                                                <p className="text-sm font-semibold text-white">Foto selfie terkunci</p>
+                                                <p className="max-w-xs text-xs text-white/80">{privacy.message}</p>
+                                            </div>
+                                        )}
                                     </div>
+                                    {privacy.is_locked && (
+                                        <div className="rounded-xl border border-amber-300/40 bg-amber-100/50 p-3 dark:border-amber-700/40 dark:bg-amber-900/20">
+                                            <p className="text-xs font-semibold text-amber-900 dark:text-amber-300">Akses Privasi Selfie</p>
+                                            <p className="mt-1 text-xs text-amber-800 dark:text-amber-200">{privacy.message}</p>
+                                            {privacy.last_request?.requested_at && (
+                                                <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300">Permintaan terakhir: {privacy.last_request.requested_at}</p>
+                                            )}
+                                            {privacy.last_request?.response_note && (
+                                                <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300">Catatan mahasiswa: {privacy.last_request.response_note}</p>
+                                            )}
+                                            <textarea
+                                                value={requestReason}
+                                                onChange={(event) => setRequestReason(event.target.value)}
+                                                rows={3}
+                                                className="mt-3 w-full rounded-lg border border-amber-300/40 bg-white/80 px-3 py-2 text-xs text-neutral-900 outline-none focus:border-amber-500 dark:border-amber-700/40 dark:bg-neutral-900/70 dark:text-white"
+                                                placeholder="Tulis alasan permintaan izin (minimal 10 karakter)"
+                                            />
+                                            <Button
+                                                type="button"
+                                                onClick={handleRequestAccess}
+                                                disabled={!privacy.can_request || isRequestingAccess}
+                                                className="mt-3 w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 disabled:opacity-60"
+                                            >
+                                                {isRequestingAccess ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+                                                {privacy.request_status === 'pending' ? 'Menunggu Persetujuan Mahasiswa' : 'Minta Izin ke Mahasiswa'}
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -754,7 +829,12 @@ export default function VerifikasiSelfieDetail({ verification: initialVerificati
                         <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 backdrop-blur-xl shadow-xl dark:border-white/5">
                             <h3 className="text-lg font-bold mb-4 text-neutral-900 dark:text-white">Actions</h3>
                             <div className="space-y-3">
-                                {verification.status === 'pending' && (
+                                {privacy.is_locked && (
+                                    <div className="rounded-xl border border-amber-300/40 bg-amber-100/60 p-3 text-xs text-amber-900 dark:border-amber-700/40 dark:bg-amber-900/20 dark:text-amber-200">
+                                        Verifikasi ulang dikunci. Minta izin mahasiswa terlebih dahulu untuk membuka selfie.
+                                    </div>
+                                )}
+                                {verification.status === 'pending' && !privacy.is_locked && (
                                     <>
                                         <Button disabled={isProcessing} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg" onClick={() => handleVerify('approve')}>
                                             {isProcessing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />} Setujui Verifikasi

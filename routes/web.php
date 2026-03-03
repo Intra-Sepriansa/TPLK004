@@ -94,6 +94,8 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Mahasiswa
     Route::get('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'index'])->name('admin.mahasiswa');
+    Route::get('admin/mahasiswa/create', [\App\Http\Controllers\Admin\MahasiswaController::class, 'create'])->name('admin.mahasiswa.create');
+    Route::get('admin/mahasiswa/check-duplicate', [\App\Http\Controllers\Admin\MahasiswaController::class, 'checkDuplicate'])->name('admin.mahasiswa.check-duplicate');
     Route::post('admin/mahasiswa', [\App\Http\Controllers\Admin\MahasiswaController::class, 'store'])->name('admin.mahasiswa.store');
     Route::get('admin/mahasiswa/{mahasiswa}/edit', [\App\Http\Controllers\Admin\MahasiswaController::class, 'edit'])->name('admin.mahasiswa.edit');
     Route::get('admin/mahasiswa/{mahasiswa}', [\App\Http\Controllers\Admin\MahasiswaController::class, 'show'])->name('admin.mahasiswa.show');
@@ -104,7 +106,9 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Jadwal
     Route::get('admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'index'])->name('admin.jadwal');
+    Route::get('admin/jadwal/create', [\App\Http\Controllers\Admin\JadwalController::class, 'create'])->name('admin.jadwal.create');
     Route::post('admin/jadwal', [\App\Http\Controllers\Admin\JadwalController::class, 'store'])->name('admin.jadwal.store');
+    Route::get('admin/jadwal/{session}/edit', [\App\Http\Controllers\Admin\JadwalController::class, 'edit'])->name('admin.jadwal.edit');
     Route::patch('admin/jadwal/{session}', [\App\Http\Controllers\Admin\JadwalController::class, 'update'])->name('admin.jadwal.update');
     Route::delete('admin/jadwal/{session}', [\App\Http\Controllers\Admin\JadwalController::class, 'destroy'])->name('admin.jadwal.destroy');
     Route::patch('admin/jadwal/{session}/activate', [\App\Http\Controllers\Admin\JadwalController::class, 'activate'])->name('admin.jadwal.activate');
@@ -158,6 +162,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Admin Sesi Absen
     Route::get('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'index'])->name('admin.sesi-absen');
     Route::get('admin/sesi-absen/create', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'create'])->name('admin.sesi-absen.create');
+    Route::get('admin/sesi-absen/{session}/edit', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'edit'])->name('admin.sesi-absen.edit');
     Route::post('admin/sesi-absen', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'store'])->name('admin.sesi-absen.store');
     Route::get('admin/sesi-absen/pdf', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'exportPdf'])->name('admin.sesi-absen.pdf');
     Route::get('admin/sesi-absen/{session}', [\App\Http\Controllers\Admin\SesiAbsenController::class, 'show'])->name('admin.sesi-absen.show');

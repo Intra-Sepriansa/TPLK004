@@ -196,6 +196,39 @@ class SesiAbsenController extends Controller
             'courses' => $courses,
         ]);
     }
+
+    public function edit(AttendanceSession $session): Response
+    {
+        $session->load(['course.dosen']);
+
+        $courses = MataKuliah::with('dosen')->orderBy('nama')->get()->map(fn($c) => [
+            'id' => $c->id,
+            'nama' => $c->nama,
+            'sks' => $c->sks,
+            'dosen' => $c->dosen?->nama ?? '-',
+        ]);
+
+        return Inertia::render('admin/sesi-absen/edit', [
+            'session' => [
+                'id' => $session->id,
+                'course_id' => $session->course_id,
+                'course_name' => $session->course?->nama ?? 'Tanpa Mata Kuliah',
+                'dosen_name' => $session->course?->dosen?->nama ?? '-',
+                'meeting_number' => $session->meeting_number,
+                'title' => $session->title,
+                'start_at' => $session->start_at?->format('Y-m-d\TH:i'),
+                'end_at' => $session->end_at?->format('Y-m-d\TH:i'),
+                'is_active' => $session->is_active,
+                'status' => $this->getSessionStatus($session),
+                'logs_count' => $session->logs()->count(),
+                'created_at' => $session->created_at?->toIso8601String(),
+                'updated_at' => $session->updated_at?->toIso8601String(),
+                'can_edit_meeting' => $session->logs()->count() === 0,
+                'can_edit_time' => !$session->is_active,
+            ],
+            'courses' => $courses,
+        ]);
+    }
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -235,6 +268,41 @@ class SesiAbsenController extends Controller
 
     public function update(Request $request, AttendanceSession $session): RedirectResponse
     {
+        if ((int) $request->input('course_id') !== (int) $session->course_id) {
+            return back()->withErrors([
+                'course_id' => 'Mata kuliah tidak dapat diubah setelah sesi dibuat.',
+            ]);
+        }
+
+        if ($session->logs()->count() > 0 && (int) $request->input('meeting_number') !== (int) $session->meeting_number) {
+            return back()->withErrors([
+                'meeting_number' => 'Tidak dapat mengubah nomor pertemuan karena sudah ada data kehadiran.',
+            ]);
+        }
+
+        $submittedStart = (string) $request->input('start_at');
+        $submittedEnd = (string) $request->input('end_at');
+        $currentStartVariants = array_filter([
+            optional($session->start_at)->format('Y-m-d\TH:i'),
+            optional($session->start_at)->format('Y-m-d H:i:s'),
+            optional($session->start_at)->format('Y-m-d H:i'),
+        ]);
+        $currentEndVariants = array_filter([
+            optional($session->end_at)->format('Y-m-d\TH:i'),
+            optional($session->end_at)->format('Y-m-d H:i:s'),
+            optional($session->end_at)->format('Y-m-d H:i'),
+        ]);
+
+        $startChanged = !in_array($submittedStart, $currentStartVariants, true);
+        $endChanged = !in_array($submittedEnd, $currentEndVariants, true);
+
+        if ($session->is_active && ($startChanged || $endChanged)) {
+            return back()->withErrors([
+                'start_at' => 'Tidak dapat mengubah waktu sesi yang sedang aktif.',
+                'end_at' => 'Tidak dapat mengubah waktu sesi yang sedang aktif.',
+            ]);
+        }
+
         $request->validate([
             'course_id' => 'required|exists:mata_kuliah,id',
             'meeting_number' => [

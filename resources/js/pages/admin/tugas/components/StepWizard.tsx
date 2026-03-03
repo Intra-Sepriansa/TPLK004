@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle2, ChevronRight } from 'lucide-react';
 
 interface Step {
     id: number;
@@ -16,88 +16,42 @@ export const StepWizard: React.FC<{ steps: Step[]; currentStep: number }> = ({
     currentStep
 }) => {
     return (
-        <div className="bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl 
-            border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 mb-6 overflow-x-auto shadow-xl">
+        <div className="mb-6 rounded-[2rem] border border-white/10 bg-black/70 p-4 shadow-xl backdrop-blur-xl sm:p-5">
+            <div className="overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max snap-x snap-mandatory items-center gap-2.5 px-1">
+                    {steps.map((step, index) => {
+                        const Icon = step.icon;
+                        const isActive = currentStep === step.id;
+                        const isCompleted = step.id < currentStep;
 
-            <div className="flex items-center justify-between min-w-[600px]">
-                {steps.map((step, index) => {
-                    const Icon = step.icon;
-                    const isActive = currentStep === step.id;
-                    const isCompleted = step.id < currentStep;
-
-                    return (
-                        <React.Fragment key={step.id}>
-                            <motion.div
-                                className="flex flex-col items-center gap-3 flex-1"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                            >
+                        return (
+                            <React.Fragment key={step.id}>
                                 <motion.div
-                                    className={`
-                                        relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300
-                                        ${isActive
-                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/50'
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    whileHover={{ scale: 1.03, y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    aria-current={isActive ? 'step' : undefined}
+                                    className={`inline-flex h-14 w-[220px] shrink-0 snap-start items-center gap-3 rounded-full border px-5 text-left text-sm font-semibold transition-all sm:w-[230px] sm:px-6 sm:text-[1.05rem] ${
+                                        isActive
+                                            ? 'border-white/35 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-pink-500 text-white shadow-[0_12px_30px_rgba(192,38,211,0.35)]'
                                             : isCompleted
-                                                ? 'bg-emerald-500'
-                                                : 'bg-neutral-200 dark:bg-neutral-700'
-                                        }
-                                    `}
-                                    whileHover={{ scale: 1.1 }}
-                                    animate={isActive ? {
-                                        boxShadow: [
-                                            '0 0 20px rgba(99, 102, 241, 0.5)',
-                                            '0 0 40px rgba(99, 102, 241, 0.8)',
-                                            '0 0 20px rgba(99, 102, 241, 0.5)',
-                                        ]
-                                    } : {}}
-                                    transition={{ duration: 2, repeat: Infinity }}
+                                                ? 'border-white/20 bg-neutral-900/95 text-slate-200'
+                                                : 'border-white/15 bg-neutral-900/90 text-slate-400'
+                                    }`}
                                 >
-                                    {isCompleted ? (
-                                        <CheckCircle className="w-8 h-8 text-white" />
-                                    ) : (
-                                        <Icon className="w-8 h-8 text-white" />
-                                    )}
-
-                                    {!isCompleted && !isActive && (
-                                        <div className="absolute -top-1 -right-1 w-6 h-6 
-                                            bg-white rounded-full flex items-center justify-center 
-                                            text-xs font-bold text-neutral-900">
-                                            {step.id}
-                                        </div>
-                                    )}
+                                    {isCompleted ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <Icon className="h-4 w-4 shrink-0" />}
+                                    <span className="whitespace-nowrap">{step.title}</span>
                                 </motion.div>
 
-                                <div className="text-center">
-                                    <div className={`
-                                        text-sm font-semibold transition-colors
-                                        ${isActive ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400'}
-                                    `}>
-                                        {step.title}
-                                    </div>
-                                    <div className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                        {step.description}
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {index < steps.length - 1 && (
-                                <div className="flex-1 h-0.5 mx-2 md:mx-4 relative">
-                                    <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-700" />
-                                    <motion.div
-                                        className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600"
-                                        initial={{ scaleX: 0 }}
-                                        animate={{
-                                            scaleX: parseInt(step.id.toString()) < currentStep ? 1 : 0
-                                        }}
-                                        transition={{ duration: 0.5 }}
-                                        style={{ transformOrigin: 'left' }}
-                                    />
-                                </div>
-                            )}
-                        </React.Fragment>
-                    );
-                })}
+                                {index < steps.length - 1 && (
+                                    <ChevronRight className="h-4 w-4 shrink-0 text-slate-500" />
+                                )}
+                            </React.Fragment>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

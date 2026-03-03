@@ -1657,7 +1657,7 @@ function AiAttendanceSection({
                             disabled={maintenanceMode}
                         >
                             {maintenanceMode ? (
-                                <Lock className="h-4 w-4 animate-pulse" />
+                                <Lock className="h-4 w-4" />
                             ) : (
                                 <Camera className="h-4 w-4" />
                             )}
@@ -2023,7 +2023,6 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
     const circleRef = useRef<L.Circle | null>(null);
-    const pulseCircleRef = useRef<L.Circle | null>(null);
     const initialCenterRef = useRef<[number, number]>([
         geofence.lat,
         geofence.lng,
@@ -2098,14 +2097,6 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
             fillOpacity: 0.18,
             weight: 2,
         }).addTo(map);
-        pulseCircleRef.current = L.circle(center, {
-            radius: initialRadiusRef.current,
-            color: '#10b981',
-            fillColor: '#10b981',
-            fillOpacity: 0.12,
-            weight: 1,
-            className: 'geofence-pulse',
-        }).addTo(map);
 
         markerRef.current.on('dragend', () => {
             const position = markerRef.current?.getLatLng();
@@ -2131,13 +2122,12 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
             mapInstanceRef.current = null;
             markerRef.current = null;
             circleRef.current = null;
-            pulseCircleRef.current = null;
         };
     }, [form]);
 
     useEffect(() => {
         if (!mapReady || !mapInstanceRef.current) return;
-        if (!markerRef.current || !circleRef.current || !pulseCircleRef.current) {
+        if (!markerRef.current || !circleRef.current) {
             return;
         }
 
@@ -2147,15 +2137,13 @@ function GeofenceSection({ geofence }: { geofence: SettingsData['geofence'] }) {
         ];
         markerRef.current.setLatLng(position);
         circleRef.current.setLatLng(position);
-        pulseCircleRef.current.setLatLng(position);
         mapInstanceRef.current.panTo(position, { animate: true });
     }, [form.data.geofence_lat, form.data.geofence_lng, mapReady]);
 
     useEffect(() => {
         if (!mapReady) return;
-        if (!circleRef.current || !pulseCircleRef.current) return;
+        if (!circleRef.current) return;
         circleRef.current.setRadius(form.data.geofence_radius_m);
-        pulseCircleRef.current.setRadius(form.data.geofence_radius_m);
     }, [form.data.geofence_radius_m, mapReady]);
 
     return (
@@ -3473,7 +3461,7 @@ function OverviewSection({
                                 </p>
                             </div>
                             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-semibold text-emerald-100">
-                                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                                <span className="h-2 w-2 rounded-full bg-emerald-400" />
                                 {activeSession ? 'Live' : 'Idle'}
                             </span>
                         </div>
@@ -3524,7 +3512,7 @@ function OverviewSection({
                                         <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-emerald-200" />
                                     </div>
                                     <div className="mt-3 flex items-center gap-2 text-xs text-white/60">
-                                        <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-300" />
+                                        <span className="h-2 w-2 rounded-full bg-emerald-300" />
                                         Ditolak: {activeStats?.rejected ?? 0}
                                     </div>
                                 </div>
@@ -3537,7 +3525,7 @@ function OverviewSection({
                                         <div className="h-full w-[60%] rounded-full bg-gradient-to-r from-sky-400 to-emerald-200" />
                                     </div>
                                     <div className="mt-3 flex items-center gap-2 text-xs text-white/60">
-                                        <span className="h-2 w-2 animate-pulse rounded-full bg-sky-300" />
+                                        <span className="h-2 w-2 rounded-full bg-sky-300" />
                                         Perlu verifikasi
                                     </div>
                                 </div>
@@ -3546,7 +3534,7 @@ function OverviewSection({
                             <div className="relative mx-auto aspect-square w-40 rounded-2xl border border-white/15 bg-white/5 p-3">
                                 <div className="absolute inset-3 rounded-xl bg-[linear-gradient(90deg,rgba(255,255,255,0.15)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[length:12px_12px]" />
                                 <div className="absolute inset-3 rounded-xl border border-white/20" />
-                                <div className="absolute left-1/2 top-0 h-10 w-20 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-300/60 to-transparent blur-sm animate-scan-line" />
+                                <div className="absolute left-1/2 top-0 h-10 w-20 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-300/60 to-transparent blur-sm" />
                                 <div className="absolute bottom-3 left-3 rounded-lg bg-white/15 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/70">
                                     Token aktif
                                 </div>
@@ -3872,7 +3860,7 @@ function OverviewSection({
 
                         <div className="mt-6 flex items-center justify-center">
                             <div className="relative flex h-36 w-36 items-center justify-center rounded-full border border-emerald-400/60 bg-emerald-500/10">
-                                <div className="absolute h-24 w-24 rounded-full border border-emerald-400/60 bg-emerald-500/15 animate-pulse-soft" />
+                                <div className="absolute h-24 w-24 rounded-full border border-emerald-400/60 bg-emerald-500/15" />
                                 <div className="absolute h-14 w-14 rounded-full border border-emerald-400/60 bg-emerald-500/30" />
                                 <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/40">
                                     <MapPin className="h-5 w-5" />

@@ -290,12 +290,12 @@ export default function VerifikasiSelfie({
                             </motion.p>
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex justify-center w-full md:w-auto md:justify-end gap-3 mt-4 md:mt-0">
                             <button
                                 onClick={() =>
                                     router.visit('/admin/verifikasi-selfie')
                                 }
-                                className="flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 font-medium text-white backdrop-blur-md transition-all hover:bg-white/20"
+                                className="flex shrink-0 w-full sm:w-auto justify-center items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-2.5 font-medium text-white backdrop-blur-md transition-all hover:bg-white/20"
                             >
                                 <RefreshCw className="h-4 w-4" />
                                 <span>Refresh Data</span>
@@ -912,11 +912,11 @@ function StatCard({
                         {Icon && <Icon className="h-4 w-4 sm:h-7 sm:w-7" />}
                     </motion.div>
                 )}
-                <div>
-                    <p className="text-[10px] sm:text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                <div className="flex flex-col items-center sm:items-start">
+                    <p className="text-[10px] sm:text-sm font-medium text-neutral-500 dark:text-neutral-400 text-center sm:text-left">
                         {label}
                     </p>
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 w-full">
                         <motion.p
                             className="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-white"
                             initial={{ scale: 0 }}

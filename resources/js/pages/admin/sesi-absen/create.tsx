@@ -290,22 +290,7 @@ export default function CreateSesiAbsen({ courses }: PageProps) {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 1 }}
-                    />
-                    <motion.div
-                        className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
-                        animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: 2 }}
-                    />
-
+                                                            
                     <div className="relative">
                         <div className="flex flex-wrap items-center justify-between gap-6">
                             <div className="flex items-center gap-5">

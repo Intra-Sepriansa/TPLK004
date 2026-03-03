@@ -238,10 +238,10 @@ export default function TugasCreateForm({
     });
 
     const stepLabels = [
-        { id: 1, title: 'Informasi Dasar' },
-        { id: 2, title: 'Detail & Deskripsi' },
-        { id: 3, title: 'Lampiran & Resources' },
-        { id: 4, title: 'Automasi & Pengaturan' },
+        { id: 1, title: 'Informasi Dasar', icon: FileText },
+        { id: 2, title: 'Detail & Deskripsi', icon: Calendar },
+        { id: 3, title: 'Lampiran & Resources', icon: Upload },
+        { id: 4, title: 'Automasi & Pengaturan', icon: Zap },
     ];
 
     const selectedCourse = useMemo(
@@ -841,24 +841,40 @@ export default function TugasCreateForm({
                 </motion.div>
             )}
 
-            <div className="rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-                    {stepLabels.map((step) => (
-                        <motion.button
-                            key={step.id}
-                            type="button"
-                            onClick={() => setCurrentStep(step.id)}
-                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
-                            className={`rounded-2xl border p-3 text-left transition-all ${
-                                currentStep === step.id
-                                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/30'
-                                    : 'border-neutral-200 bg-white/80 dark:border-neutral-700 dark:bg-neutral-800/60'
-                            }`}
-                        >
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Step {step.id}</p>
-                            <p className="font-semibold text-neutral-900 dark:text-white">{step.title}</p>
-                        </motion.button>
-                    ))}
+            <div className="rounded-[2rem] border border-white/10 bg-black/70 p-4 shadow-xl backdrop-blur-xl sm:p-5">
+                <div className="overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="flex w-max snap-x snap-mandatory items-center gap-2.5 px-1">
+                        {stepLabels.map((step, index) => {
+                            const StepIcon = step.icon;
+                            const isActive = currentStep === step.id;
+                            const isDone = currentStep > step.id;
+
+                            return (
+                                <div key={step.id} className="flex shrink-0 snap-start items-center gap-2.5">
+                                    <motion.button
+                                        type="button"
+                                        onClick={() => setCurrentStep(step.id)}
+                                        whileHover={{ scale: 1.04, y: -2 }}
+                                        whileTap={{ scale: 0.97 }}
+                                        className={`inline-flex h-14 w-[230px] items-center gap-3 rounded-full border px-5 text-left text-sm font-semibold transition-all sm:w-[240px] sm:px-6 sm:text-[1.05rem] ${
+                                            isActive
+                                                ? 'border-white/35 bg-gradient-to-r from-fuchsia-500 via-purple-500 to-pink-500 text-white shadow-[0_12px_30px_rgba(192,38,211,0.35)]'
+                                                : isDone
+                                                    ? 'border-white/20 bg-neutral-900/95 text-slate-200'
+                                                    : 'border-white/15 bg-neutral-900/90 text-slate-400 hover:border-white/25 hover:text-slate-300'
+                                        }`}
+                                    >
+                                        {isDone ? <CheckCircle className="h-4 w-4 shrink-0" /> : <StepIcon className="h-4 w-4 shrink-0" />}
+                                        <span className="whitespace-nowrap">{step.title}</span>
+                                    </motion.button>
+
+                                    {index < stepLabels.length - 1 && (
+                                        <ChevronRight className="h-4 w-4 shrink-0 text-slate-500" />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 
