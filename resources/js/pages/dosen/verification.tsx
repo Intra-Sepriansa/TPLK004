@@ -247,13 +247,7 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                                             <p className="hidden sm:block text-[10px] text-neutral-400 mt-0.5">{card.sub}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-auto w-full pt-2">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }} animate={{ width: '70%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );
@@ -314,11 +308,7 @@ export default function VerificationPage({ verifications, stats }: PageProps) {
                                     transition={{ delay: idx * 0.05 }}
                                     className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl shadow-xl">
 
-                                    {/* Status Accent */}
-                                    <div className={cn("h-1.5",
-                                        v.status === 'pending' ? 'bg-gradient-to-r from-amber-400 to-orange-500' :
-                                            v.status === 'approved' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
-                                                'bg-gradient-to-r from-red-400 to-rose-500')} />
+
 
                                     <div className="p-5 space-y-4">
                                         {/* Student Info */}

@@ -290,14 +290,51 @@ export default function CourseDetail({
                 {/* ═══════ ENHANCED HEADER ═══════ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-[2.5rem] p-5 md:p-6 text-white shadow-2xl isolate">
                     <div className="absolute inset-0 bg-neutral-900 z-0" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90" />
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                            filter: ['hue-rotate(0deg)', 'hue-rotate(15deg)', 'hue-rotate(0deg)'],
+                        }}
+                        transition={{
+                            duration: 18,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                        style={{
+                            backgroundSize: '200% 200%',
+                        }}
+                    />
 
                     {/* Complex Floating Orbs & Light Effects */}
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 mix-blend-overlay" />
                     <div className="absolute -top-40 -right-40 w-96 h-96 bg-pink-500/40 rounded-full blur-[100px] mix-blend-screen" />
                     <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600/40 rounded-full blur-[100px] mix-blend-screen" />
 
-
+                    {[...Array(5)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute rounded-full bg-white/10 blur-xl mix-blend-overlay"
+                            style={{
+                                width: Math.random() * 100 + 50,
+                                height: Math.random() * 100 + 50,
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                            }}
+                            animate={{
+                                y: [0, Math.random() * -100, 0],
+                                x: [0, Math.random() * 50 - 25, 0],
+                                opacity: [0.3, 0.6, 0.3],
+                                scale: [1, 1.2, 1],
+                            }}
+                            transition={{
+                                duration: Math.random() * 10 + 10,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: Math.random() * 5,
+                            }}
+                        />
+                    ))}
 
                     <div className="relative z-10">
                         {/* ═══ BACK BUTTON ═══ */}
@@ -310,16 +347,16 @@ export default function CourseDetail({
                             </Button>
                         </motion.div>
 
-                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-                            <div className="flex items-start gap-6">
+                        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 w-full">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
                                     whileHover={{ scale: 1.1, rotate: 5 }}
-                                    className="relative flex h-24 w-24 shrink-0 items-center justify-center overflow-visible"
+                                    className="relative flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center overflow-visible"
                                 >
-                                    <img src={getCourseIcon(course.nama)} alt="Course Icon" className="h-20 w-20 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]" />
+                                    <img src={getCourseIcon(course.nama)} alt="Course Icon" className="h-16 w-16 sm:h-20 sm:w-20 object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]" />
                                 </motion.div>
-                                <div className="space-y-2">
-                                    <div className="flex flex-wrap items-center gap-2">
+                                <div className="space-y-3 sm:space-y-2">
+                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                                         <Badge className="bg-indigo-500/30 text-indigo-100 hover:bg-indigo-500/40 border-indigo-400/30 backdrop-blur-md px-3 py-1 text-xs uppercase tracking-wider font-bold shadow-lg">
                                             {course.kode}
                                         </Badge>
@@ -333,29 +370,29 @@ export default function CourseDetail({
                                     <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow-sm">
                                         {course.nama}
                                     </h1>
-                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-indigo-50 font-medium">
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
-                                            <Users className="h-4 w-4 text-pink-300" />
+                                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 sm:gap-x-6 gap-y-2 text-xs sm:text-sm text-indigo-50 font-medium">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
+                                            <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-pink-300" />
                                             <span>{stats.totalStudents} Mahasiswa</span>
                                         </div>
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
-                                            <Calendar className="h-4 w-4 text-blue-300" />
+                                        <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
+                                            <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-300" />
                                             <span>{stats.totalSessions} Sesi ({stats.activeSessions} Aktif)</span>
                                         </div>
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
-                                            <TrendingUp className="h-4 w-4 text-emerald-300" />
+                                        <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/5 backdrop-blur border border-white/10">
+                                            <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-300" />
                                             <span className={stats.attendanceRate >= 80 ? "text-emerald-300" : "text-amber-300"}>{stats.attendanceRate}% Kehadiran</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-3">
+                            <div className="flex flex-wrap items-center justify-center lg:justify-end gap-2 sm:gap-3 w-full lg:w-auto">
                                 <motion.button
                                     whileHover={{ scale: 1.05, y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleCreateSession}
-                                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 border border-emerald-400 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                    className="flex items-center gap-2 flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 border border-emerald-400 backdrop-blur-xl text-xs sm:text-sm font-bold shadow-lg transition-all"
                                 >
                                     <Plus className="h-4 w-4" />
                                     <span>Buat Sesi</span>
@@ -365,31 +402,35 @@ export default function CourseDetail({
                                     whileHover={{ scale: 1.05, y: -2 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => handleExport('pdf')}
-                                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                    className="flex items-center gap-2 flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-xs sm:text-sm font-bold shadow-lg transition-all"
                                 >
                                     <Download className="h-4 w-4" />
                                     <span>Export</span>
                                 </motion.button>
 
-                                <motion.button
-                                    whileHover={{ scale: 1.05, y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => router.visit('/dosen/notifications/create')}
-                                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
-                                    title="Kirim Pengumuman"
-                                >
-                                    <Bell className="h-4 w-4" />
-                                </motion.button>
+                                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto mt-2 sm:mt-0">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => router.visit('/dosen/notifications/create')}
+                                        className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                        title="Kirim Pengumuman"
+                                    >
+                                        <Bell className="h-4 w-4" />
+                                        <span className="sm:hidden text-xs">Pengumuman</span>
+                                    </motion.button>
 
-                                <motion.button
-                                    whileHover={{ scale: 1.05, y: -2 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => router.visit('/dosen/settings')}
-                                    className="flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
-                                    title="Pengaturan"
-                                >
-                                    <Settings className="h-4 w-4" />
-                                </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05, y: -2 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => router.visit('/dosen/settings')}
+                                        className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2.5 sm:py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-bold shadow-lg transition-all"
+                                        title="Pengaturan"
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                        <span className="sm:hidden text-xs">Pengaturan</span>
+                                    </motion.button>
+                                </div>
                             </div>
                         </div>
                     </div>

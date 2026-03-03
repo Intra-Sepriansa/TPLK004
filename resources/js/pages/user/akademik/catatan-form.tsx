@@ -40,6 +40,7 @@ import { HexColorPicker } from "react-colorful";
 // Assuming catastrophic Icon missing, let's use Lucide's Note icon
 import {
     Book as NoteIcon,
+    ChevronRight,
     Type,
     ChevronDown,
     Palette,
@@ -717,6 +718,62 @@ export default function CatatanForm({ note, courses = [], templates = [], initia
 
                 {/* MAIN EDITOR AREA */}
                 <div className={`${isFocusMode ? 'max-w-4xl mx-auto py-12' : 'max-w-5xl mx-auto p-6 mt-6'}`}>
+                    {!isFocusMode && !isEditing && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-4 rounded-3xl border border-white/40 bg-white/40 p-4 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40 sm:p-5"
+                        >
+                            <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                                <div className="flex w-max min-w-full items-center gap-2 sm:justify-center">
+                                    {[
+                                        { id: 1, label: 'Informasi Dasar', icon: FileText },
+                                        { id: 2, label: 'Editor Catatan', icon: NoteIcon },
+                                    ].map((s, index) => {
+                                        const StepIcon = s.icon;
+                                        const step1Complete = Boolean(data.course_id && data.meeting_number);
+                                        const step2Complete = Boolean(data.title.trim() && data.content.trim());
+                                        const completedByStep: Record<number, boolean> = {
+                                            1: step1Complete,
+                                            2: step2Complete,
+                                        };
+                                        const maxUnlockedStep = step1Complete ? 2 : 1;
+                                        const isActive = currentStep === s.id;
+                                        const isDone = s.id < currentStep && completedByStep[s.id];
+                                        const canOpen = s.id === 1 || s.id <= maxUnlockedStep || s.id <= currentStep;
+
+                                        return (
+                                            <div key={s.id} className="flex shrink-0 items-center gap-2">
+                                                <motion.button
+                                                    whileHover={{ scale: 1.03 }}
+                                                    whileTap={{ scale: 0.97 }}
+                                                    onClick={() => {
+                                                        if (!canOpen) {
+                                                            window.alert('Lengkapi langkah sebelumnya dulu.');
+                                                            return;
+                                                        }
+                                                        setCurrentStep(s.id);
+                                                    }}
+                                                    className={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-semibold transition-all sm:px-4 sm:py-2.5 sm:text-sm ${
+                                                        isActive
+                                                            ? 'border-indigo-400 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
+                                                            : isDone
+                                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                                                : 'border-slate-200/70 bg-white/70 text-slate-500 dark:border-slate-700 dark:bg-neutral-800/40'
+                                                    } ${canOpen ? 'cursor-pointer' : 'cursor-not-allowed opacity-45'}`}
+                                                >
+                                                    {isDone ? <Check className="h-4 w-4" /> : <StepIcon className="h-4 w-4" />}
+                                                    <span className="whitespace-nowrap">{s.label}</span>
+                                                </motion.button>
+                                                {index < 1 && <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6">
 
                         {/* Step 1: Meta Data */}

@@ -126,7 +126,15 @@ export default function CreateSession({ dosen, courses, request_course_id }: Pag
                     <div className="absolute inset-0 bg-neutral-900 z-0" />
 
                     {/* Animated Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90" />
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-fuchsia-600 z-0 opacity-90"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                            filter: ['hue-rotate(0deg)', 'hue-rotate(15deg)', 'hue-rotate(0deg)'],
+                        }}
+                        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
 
                     {/* Grain Noise & Hover Orbs */}
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
@@ -134,7 +142,23 @@ export default function CreateSession({ dosen, courses, request_course_id }: Pag
                     <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/40 rounded-full blur-[100px] mix-blend-screen" />
 
                     {/* Floating Orbs (Subtle Movement) */}
-
+                    {[...Array(3)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute rounded-full border border-white/20 bg-white/5 blur-sm mix-blend-overlay"
+                            style={{
+                                width: Math.random() * 150 + 50,
+                                height: Math.random() * 150 + 50,
+                                left: `${Math.random() * 80 + 10}%`,
+                                top: `${Math.random() * 80 + 10}%`,
+                            }}
+                            animate={{
+                                y: [0, Math.random() * -50, 0],
+                                scale: [1, 1.1, 1],
+                            }}
+                            transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "easeInOut" }}
+                        />
+                    ))}
 
                     <div className="relative z-10">
                         <motion.button

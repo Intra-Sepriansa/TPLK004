@@ -25,6 +25,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import {
     AlertCircle,
     Camera,
+    ChevronRight,
     CheckCircle2,
     Loader2,
     MapPin,
@@ -35,6 +36,7 @@ import {
     Sparkles,
     Wifi,
     Zap,
+    type LucideIcon,
 } from 'lucide-react';
 import {
     type ChangeEvent,
@@ -146,7 +148,7 @@ function StepIndicator({
     steps,
     currentStep,
 }: {
-    steps: { key: string; label: string; done: boolean }[];
+    steps: { key: string; label: string; done: boolean; icon: LucideIcon }[];
     currentStep: number;
 }) {
     return (
@@ -154,79 +156,41 @@ function StepIndicator({
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="mx-auto grid w-full max-w-3xl grid-cols-4 gap-x-2 px-1 sm:gap-x-4 sm:px-2 lg:gap-x-6"
+            className="mx-auto w-full max-w-4xl overflow-hidden"
         >
-            {steps.map((step, index) => (
-                <motion.div
-                    key={step.key}
-                    variants={itemVariants}
-                    className="relative min-w-0"
-                >
-                    <motion.div
-                        whileHover={{ scale: 1.1, rotate: 10 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={cn(
-                            'mx-auto flex h-10 w-10 items-center justify-center rounded-xl border-2 shadow-lg transition-all duration-300 sm:h-12 sm:w-12 sm:rounded-2xl',
-                            step.done
-                                ? 'border-emerald-500 bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-emerald-500/30'
-                                : index === currentStep
-                                  ? 'animate-pulse border-indigo-500 bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-indigo-500/30'
-                                  : 'border-white/20 bg-white/20 text-neutral-400 backdrop-blur-sm dark:bg-neutral-800/50',
-                        )}
-                    >
-                        {step.done ? (
+            <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex w-max min-w-full items-center gap-2 px-1 sm:justify-center">
+                    {steps.map((step, index) => {
+                        const StepIcon = step.icon;
+                        const isActive = index === currentStep && !step.done;
+
+                        return (
                             <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{
-                                    type: 'spring',
-                                    stiffness: 300,
-                                    damping: 20,
-                                }}
+                                key={step.key}
+                                variants={itemVariants}
+                                className="flex shrink-0 items-center gap-2"
                             >
-                                <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6" />
-                            </motion.div>
-                        ) : (
-                            <span className="text-sm font-bold sm:text-base">
-                                {index + 1}
-                            </span>
-                        )}
-                    </motion.div>
-
-                    {index < steps.length - 1 && (
-                        <motion.div
-                            className="pointer-events-none absolute top-5 right-[-50%] left-[calc(50%+1.3rem)] h-0.5 sm:top-6 sm:left-[calc(50%+1.55rem)]"
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ delay: 0.2 + index * 0.1 }}
-                        >
-                            <div className="absolute inset-0 rounded-full bg-white/20 dark:bg-neutral-700" />
-                            {step.done && (
                                 <motion.div
-                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600"
-                                    initial={{ scaleX: 0 }}
-                                    animate={{ scaleX: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                />
-                            )}
-                        </motion.div>
-                    )}
-
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: index * 0.05 + 0.2 }}
-                        className={cn(
-                            'mt-2 min-h-[1.8rem] px-1 text-center text-[11px] leading-tight font-semibold whitespace-nowrap transition-colors sm:mt-2.5 sm:min-h-[2rem] sm:text-sm',
-                            step.done || index === currentStep
-                                ? 'text-neutral-900 dark:text-white'
-                                : 'text-neutral-500 dark:text-neutral-400',
-                        )}
-                    >
-                        {step.label}
-                    </motion.p>
-                </motion.div>
-            ))}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    className={cn(
+                                        'flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-semibold transition-all sm:px-4 sm:py-2.5 sm:text-sm',
+                                        step.done
+                                            ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                            : isActive
+                                                ? 'border-indigo-400 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
+                                                : 'border-white/20 bg-white/20 text-neutral-500 backdrop-blur-sm dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-300',
+                                    )}
+                                >
+                                    {step.done ? <CheckCircle2 className="h-4 w-4" /> : <StepIcon className="h-4 w-4" />}
+                                    <span className="whitespace-nowrap">{step.label}</span>
+                                </motion.div>
+                                {index < steps.length - 1 && <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />}
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            </div>
         </motion.div>
     );
 }
@@ -854,10 +818,10 @@ export default function UserAbsensi() {
     const step3Locked = submitSuccess || !tokenDone || !selfieDone;
 
     const flowSteps = [
-        { key: 'scan', label: 'Scan QR', done: tokenDone },
-        { key: 'selfie', label: 'Selfie', done: selfieDone },
-        { key: 'location', label: 'Lokasi', done: locationDone },
-        { key: 'submit', label: 'Kirim', done: submitSuccess },
+        { key: 'scan', label: 'Scan QR', done: tokenDone, icon: QrCode },
+        { key: 'selfie', label: 'Selfie', done: selfieDone, icon: Camera },
+        { key: 'location', label: 'Lokasi', done: locationDone, icon: MapPin },
+        { key: 'submit', label: 'Kirim', done: submitSuccess, icon: Zap },
     ];
 
     const currentStep = submitSuccess

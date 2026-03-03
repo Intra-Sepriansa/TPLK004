@@ -1,13 +1,13 @@
 import DosenLayout from '@/layouts/dosen-layout';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Download, FileText, Printer, X, Check, TrendingUp, Award, CheckCircle, Clock, Calendar, Copy, ChevronDown, Search, BarChart3, MessageSquare, BookOpen, XCircle, RefreshCw, Plus, Trash2, ArrowUpDown, Target, Calculator, Eye, Sparkles, AlertTriangle, Trophy, Users, Star, Activity, MapPin, Camera, Edit3, Zap, Hash, ChevronLeft, ChevronRight, Info, ThumbsUp, ThumbsDown, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Printer, X, Check, TrendingUp, Award, CheckCircle, Clock, Calendar, Copy, ChevronDown, Search, BarChart3, MessageSquare, XCircle, RefreshCw, Plus, Trash2, ArrowUpDown, Target, Calculator, Eye, Sparkles, AlertTriangle, Trophy, Users, Star, Activity, MapPin, Camera, Edit3, Zap, Hash, ChevronLeft, ChevronRight, Info, ThumbsUp, ThumbsDown, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, LabelList } from 'recharts';
-import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 import TotalIcon from '@/assets/admin/dashboard/total-icon.png';
 import HadirIcon from '@/assets/admin/rekap-kehadiran/hadir.png';
 import TerlambatIcon from '@/assets/admin/analytics/terlambat.png';
@@ -53,6 +53,13 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
   const [hCard, setHCard] = useState<string | null>(null); const [selfieM, setSelfieM] = useState<string | null>(null);
   const [page, setPage] = useState(1); const perPage = 8;
   const [imgError, setImgError] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel'>('pdf');
+  const [exportScope, setExportScope] = useState<'summary' | 'full'>('full');
+  const [includeTimeline, setIncludeTimeline] = useState(true);
+  const [includeNotes, setIncludeNotes] = useState(true);
+  const [pdfDisposition, setPdfDisposition] = useState<'download' | 'inline'>('download');
+  const [busyAction, setBusyAction] = useState<'pdf' | 'excel' | 'print' | null>(null);
+  const [deleteNoteId, setDeleteNoteId] = useState<number | null>(null);
   const ef = useForm({ log_id: 0, status: '', reason: '' });
   const nf = useForm({ mahasiswa_id: student.id, content: '', title: '' });
   const sb = gd.status_breakdown; const pb = gd.points_breakdown;
@@ -73,14 +80,51 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
   const oE = useCallback((r: AttRec) => { setSel(r); ef.setData({ log_id: r.id, status: r.status, reason: '' }); setEM(true); }, []);
   const sS = useCallback(() => { ef.post('/dosen/grading/detail/update-status', { onSuccess: () => { setEM(false); ef.reset(); } }); }, []);
   const addN = useCallback(() => { nf.post('/dosen/grading/detail/add-note', { onSuccess: () => { setNM(false); nf.setData({ mahasiswa_id: student.id, content: '', title: '' }); } }); }, [student.id]);
-  const delN = useCallback((id: number) => { if (confirm('Yakin hapus catatan?')) router.delete('/dosen/grading/detail/note/' + id); }, []);
+  const delN = useCallback((id: number) => { setDeleteNoteId(id); }, []);
+  const handleConfirmDeleteNote = useCallback(() => {
+    if (!deleteNoteId) return;
+    router.delete('/dosen/grading/detail/note/' + deleteNoteId, {
+      onSuccess: () => setDeleteNoteId(null),
+    });
+  }, [deleteNoteId]);
+  const openExternal = useCallback((url: string) => {
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!win) {
+      window.location.href = url;
+    }
+  }, []);
+  const runExport = useCallback((format?: 'pdf' | 'excel') => {
+    const targetFormat = format ?? exportFormat;
+    setBusyAction(targetFormat);
+    const params = new URLSearchParams({
+      format: targetFormat,
+      scope: exportScope,
+      include_timeline: includeTimeline ? '1' : '0',
+      include_notes: includeNotes ? '1' : '0',
+      disposition: targetFormat === 'pdf' ? pdfDisposition : 'download',
+    });
+    openExternal(`/dosen/grading/detail/${student.id}/export?${params.toString()}`);
+    setTimeout(() => setBusyAction(null), 800);
+    setExM(false);
+  }, [exportFormat, exportScope, includeTimeline, includeNotes, openExternal, pdfDisposition, student.id]);
+  const runPrint = useCallback(() => {
+    setBusyAction('print');
+    const params = new URLSearchParams({
+      scope: exportScope,
+      include_timeline: includeTimeline ? '1' : '0',
+      include_notes: includeNotes ? '1' : '0',
+      auto: '1',
+    });
+    openExternal(`/dosen/grading/detail/${student.id}/print?${params.toString()}`);
+    setTimeout(() => setBusyAction(null), 800);
+  }, [exportScope, includeTimeline, includeNotes, openExternal, student.id]);
 
   const cards = [
-    { k: 't', l: 'Total Pertemuan', v: gd.total_sessions, s: 'Sesi Terlaksana', I: TotalIcon, f: 'from-blue-400', t2: 'to-cyan-600', sh: 'shadow-blue-500/30', glow: 'bg-blue-500', isImage: true },
-    { k: 'h', l: 'Hadir', v: sb.present, s: 'Kehadiran Penuh', I: HadirIcon, f: 'from-emerald-400', t2: 'to-teal-600', sh: 'shadow-emerald-500/30', glow: 'bg-emerald-500', isImage: true },
-    { k: 'l', l: 'Terlambat', v: sb.late, s: 'Datang Terlambat', I: TerlambatIcon, f: 'from-amber-400', t2: 'to-orange-600', sh: 'shadow-amber-500/30', glow: 'bg-amber-500', isImage: true },
-    { k: 'p', l: 'Rata-rata Poin', v: gd.average_points, s: 'Poin Per Sesi', I: RataRataIcon, f: 'from-purple-400', t2: 'to-pink-600', sh: 'shadow-purple-500/30', glow: 'bg-purple-500', isImage: true },
-  ];
+    { k: 't', l: 'Total Pertemuan', v: gd.total_sessions, s: 'Sesi Terlaksana', imgSrc: TotalIcon, glow: 'bg-blue-500' },
+    { k: 'h', l: 'Hadir', v: sb.present, s: 'Kehadiran Penuh', imgSrc: HadirIcon, glow: 'bg-emerald-500' },
+    { k: 'l', l: 'Terlambat', v: sb.late, s: 'Datang Terlambat', imgSrc: TerlambatIcon, glow: 'bg-amber-500' },
+    { k: 'p', l: 'Rata-rata Poin', v: gd.average_points, s: 'Poin Per Sesi', imgSrc: RataRataIcon, glow: 'bg-purple-500' },
+  ] as const;
   const tbs: { k: string; l: string; I: any }[] = [{ k: 'timeline', l: 'Timeline', I: Calendar }, { k: 'stats', l: 'Statistik', I: BarChart3 }, { k: 'riwayat', l: 'Riwayat', I: FileText }, { k: 'catatan', l: 'Catatan', I: MessageSquare }, { k: 'perbandingan', l: 'Perbandingan', I: TrendingUp }];
   const diff = gd.attendance_rate - ca.average_attendance_rate;
   const diffPts = gd.average_points - ca.average_points;
@@ -88,16 +132,16 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
 
   return (
     <DosenLayout dosen={dosen}><Head title={'Detail - ' + student.nama} />
-      <motion.div initial="hidden" animate="visible" variants={cV} className="p-4 md:p-6 space-y-6">
+      <motion.div initial="hidden" animate="visible" variants={cV} className="space-y-6 overflow-x-hidden p-4 md:p-6">
 
         {/* ═══ HEADER ═══ */}
-        <motion.div variants={iV} className="relative overflow-hidden rounded-3xl p-6 md:p-8 text-white shadow-2xl">
+        <motion.div variants={iV} className="relative overflow-hidden rounded-3xl p-4 text-white shadow-2xl sm:p-6 md:p-8">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="relative">
-            <div className="flex items-center gap-2 mb-6">
+            <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-6">
               {/* ═══ BACK BUTTON ═══ */}
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
                 <Button variant="ghost" onClick={() => router.visit('/dosen/grading')} className="group text-white hover:bg-white/20 hover:text-white transition-all duration-300">
@@ -109,23 +153,34 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
               </motion.div>
               <div className="hidden md:flex items-center gap-1 text-sm text-white/60"><span>Grading</span><ChevronDown className="h-3 w-3 rotate-[-90deg]" /><span className="text-white/90">Detail</span></div>
             </div>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-5">
-                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 text-3xl font-bold shadow-xl overflow-hidden">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3 sm:gap-5">
+                <motion.div whileHover={{ scale: 1.1, rotate: 5 }} className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/30 bg-white/20 text-2xl font-bold shadow-xl backdrop-blur-xl sm:h-20 sm:w-20 sm:text-3xl">
                   {student.foto && !imgError ? <img src={student.foto} alt="" className="h-full w-full rounded-2xl object-cover" onError={() => setImgError(true)} /> : ini(student.nama)}
                 </motion.div>
-                <div><h1 className="text-2xl md:text-3xl font-bold">{student.nama}</h1><div className="flex items-center gap-2 mt-1"><span className="font-mono text-sm text-indigo-100">{student.nim}</span><motion.button whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} onClick={cpN} className="p-1 rounded-md hover:bg-white/20">{cp ? <Check className="h-3 w-3 text-emerald-300" /> : <Copy className="h-3 w-3 text-white/60" />}</motion.button></div><p className="text-sm text-indigo-100 mt-1">{course.nama} ({course.sks} SKS) - {student.prodi}</p></div>
+                <div className="min-w-0">
+                  <h1 className="truncate text-xl font-bold sm:text-2xl md:text-3xl">{student.nama}</h1>
+                  <div className="mt-1 flex items-center gap-2"><span className="font-mono text-xs text-indigo-100 sm:text-sm">{student.nim}</span><motion.button whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} onClick={cpN} className="rounded-md p-1 hover:bg-white/20">{cp ? <Check className="h-3 w-3 text-emerald-300" /> : <Copy className="h-3 w-3 text-white/60" />}</motion.button></div>
+                  <p className="mt-1 text-xs text-indigo-100 sm:text-sm">{course.nama} ({course.sks} SKS) - {student.prodi}</p>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10"><div className="p-2 bg-emerald-500/20 rounded-lg"><CheckCircle className="h-5 w-5" /></div><div><p className="text-xs text-indigo-100">Kehadiran</p><p className="text-xl font-bold">{gd.attended_sessions}/{gd.total_sessions}</p></div></motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10"><div className="p-2 bg-blue-500/20 rounded-lg"><TrendingUp className="h-5 w-5" /></div><div><p className="text-xs text-indigo-100">Persentase</p><p className="text-xl font-bold">{gd.attendance_rate}%</p></div></motion.div>
-                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-5 py-3 shadow-lg border border-white/10"><div className={`px-4 py-2 rounded-xl text-white text-2xl font-bold shadow-lg ${gCol(gd.grade_letter)}`}>{gd.grade_letter}</div></motion.div>
+              <div className="grid w-full grid-cols-2 gap-2 sm:gap-3 md:w-auto">
+                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-3 py-2 shadow-lg backdrop-blur-xl sm:gap-3 sm:px-5 sm:py-3"><div className="rounded-lg bg-emerald-500/20 p-1.5 sm:p-2"><CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" /></div><div><p className="text-[10px] text-indigo-100 sm:text-xs">Kehadiran</p><p className="text-base font-bold sm:text-xl">{gd.attended_sessions}/{gd.total_sessions}</p></div></motion.div>
+                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/20 px-3 py-2 shadow-lg backdrop-blur-xl sm:gap-3 sm:px-5 sm:py-3"><div className="rounded-lg bg-blue-500/20 p-1.5 sm:p-2"><TrendingUp className="h-4 w-4 sm:h-5 sm:w-5" /></div><div><p className="text-[10px] text-indigo-100 sm:text-xs">Persentase</p><p className="text-base font-bold sm:text-xl">{gd.attendance_rate}%</p></div></motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.7, type: 'spring' }}
+                  className="col-span-2 flex items-center justify-center"
+                >
+                  <div className={`rounded-xl px-4 py-1.5 text-xl font-bold text-white shadow-lg sm:text-2xl ${gCol(gd.grade_letter)}`}>{gd.grade_letter}</div>
+                </motion.div>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3 mt-6 pt-5 border-t border-white/10">
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setExM(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30"><Download className="h-4 w-4" /> Export</motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30"><Printer className="h-4 w-4" /> Print</motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => router.reload()} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30"><RefreshCw className="h-4 w-4" /> Refresh</motion.button>
+            <div className="mt-5 flex flex-wrap gap-2 border-t border-white/10 pt-4 sm:mt-6 sm:gap-3 sm:pt-5">
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setExM(true)} className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2 text-xs font-semibold shadow-lg backdrop-blur-md hover:bg-white/30 sm:px-5 sm:py-2.5 sm:text-sm"><Download className="h-4 w-4" /> Export</motion.button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={runPrint} disabled={busyAction === 'print'} className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2 text-xs font-semibold shadow-lg backdrop-blur-md hover:bg-white/30 disabled:opacity-60 sm:px-5 sm:py-2.5 sm:text-sm"><Printer className={`h-4 w-4 ${busyAction === 'print' ? 'animate-spin' : ''}`} /> {busyAction === 'print' ? 'Preparing...' : 'Print'}</motion.button>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => router.reload()} className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2 text-xs font-semibold shadow-lg backdrop-blur-md hover:bg-white/30 sm:px-5 sm:py-2.5 sm:text-sm"><RefreshCw className="h-4 w-4" /> Refresh</motion.button>
             </div>
           </div>
         </motion.div>
@@ -135,20 +190,27 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
           {cards.map(c => <motion.div key={c.k} variants={cardV} whileHover="hover" onHoverStart={() => setHCard(c.k)} onHoverEnd={() => setHCard(null)} className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5">
             <motion.div animate={{ scale: hCard === c.k ? 1.5 : 1, opacity: hCard === c.k ? 0.4 : 0.2 }} className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${c.glow} blur-3xl transition-all duration-500`} />
             <div className="relative flex items-center gap-3">
-              <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${c.f} ${c.t2} text-white shadow-lg ${c.sh}`}>
-                {c.isImage ? <img src={c.I as string} alt="" className="h-6 w-6 object-contain drop-shadow-md" /> : <c.I className="h-6 w-6" />}
-              </motion.div>
+              <motion.img
+                whileHover={{ scale: 1.1, rotate: 8 }}
+                src={c.imgSrc}
+                alt={c.l}
+                className="h-12 w-12 shrink-0 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
+              />
               <div><p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{c.l}</p><p className="text-xl font-bold text-neutral-900 dark:text-white mt-0.5">{c.v}</p><p className="text-[10px] text-neutral-400 dark:text-neutral-500">{c.s}</p></div>
             </div>
           </motion.div>)}
         </motion.div>
 
         {/* ═══ TAB NAVIGATION ═══ */}
-        <motion.div variants={iV} className="flex p-1 gap-1 bg-neutral-100/50 dark:bg-neutral-900/50 rounded-2xl backdrop-blur-md w-fit border border-white/10 overflow-x-auto">
-          {tbs.map(t => <motion.button key={t.k} layout onClick={() => { setTab(t.k); setPage(1); }} className={`relative px-4 md:px-6 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${tab === t.k ? 'text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>
-            {tab === t.k && <motion.div layoutId="gradeTab" className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm" transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
-            <span className="relative z-10 flex items-center gap-2"><t.I className="h-4 w-4" />{t.l}</span>
-          </motion.button>)}
+        <motion.div variants={iV} className="w-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-100/50 backdrop-blur-md dark:bg-neutral-900/50">
+          <div className="max-w-full overflow-x-auto p-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="inline-flex min-w-max gap-1">
+              {tbs.map(t => <motion.button key={t.k} layout onClick={() => { setTab(t.k); setPage(1); }} className={`relative shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold transition-all md:px-6 ${tab === t.k ? 'text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'}`}>
+                {tab === t.k && <motion.div layoutId="gradeTab" className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm" transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                <span className="relative z-10 flex items-center gap-2"><t.I className="h-4 w-4" />{t.l}</span>
+              </motion.button>)}
+            </div>
+          </div>
         </motion.div>
 
         {/* ═══ TAB CONTENT — No nested AnimatePresence ═══ */}
@@ -532,13 +594,162 @@ export default function GradingDetail({ dosen, student, course, gradeData: gd, a
         </ModalW>
 
         {/* Export Modal */}
-        <ModalW show={exM} onClose={() => setExM(false)} title="Export Laporan" maxW="max-w-sm">
-          <div className="space-y-3">
-            <p className="text-sm text-neutral-500 mb-4">Pilih format export laporan mahasiswa ini.</p>
-            <motion.button whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => { window.open(`/dosen/grading/detail/${student.id}/export?format=pdf`, '_blank'); setExM(false); }} className="w-full flex items-center gap-3 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all hover:shadow-md"><div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-400 to-rose-600 flex items-center justify-center text-white"><FileText className="h-5 w-5" /></div><div className="text-left"><p className="font-bold text-sm text-neutral-900 dark:text-white">PDF Report</p><p className="text-xs text-neutral-500">Laporan lengkap format PDF</p></div></motion.button>
-            <motion.button whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.98 }} onClick={() => { window.open(`/dosen/grading/detail/${student.id}/export?format=excel`, '_blank'); setExM(false); }} className="w-full flex items-center gap-3 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all hover:shadow-md"><div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white"><Download className="h-5 w-5" /></div><div className="text-left"><p className="font-bold text-sm text-neutral-900 dark:text-white">Excel Spreadsheet</p><p className="text-xs text-neutral-500">Data kehadiran format XLSX</p></div></motion.button>
+        <ModalW show={exM} onClose={() => setExM(false)} title="Export & Print Center" maxW="max-w-xl">
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 dark:border-indigo-900/40 dark:bg-indigo-950/20">
+              <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">Laporan Mahasiswa</p>
+              <p className="text-xs text-indigo-700/90 dark:text-indigo-300/80">
+                Pilih format output, atur cakupan data, lalu export atau print dari satu panel.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setExportFormat('pdf')}
+                className={`rounded-2xl border p-4 text-left transition-all ${
+                  exportFormat === 'pdf'
+                    ? 'border-rose-400 bg-rose-50 dark:border-rose-600 dark:bg-rose-950/20'
+                    : 'border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800'
+                }`}
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <FileText className={`h-5 w-5 ${exportFormat === 'pdf' ? 'text-rose-600 dark:text-rose-300' : 'text-neutral-400'}`} />
+                  <p className="text-sm font-bold text-neutral-900 dark:text-white">PDF Report</p>
+                </div>
+                <p className="text-xs text-neutral-500">Format dokumen siap share atau print.</p>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setExportFormat('excel')}
+                className={`rounded-2xl border p-4 text-left transition-all ${
+                  exportFormat === 'excel'
+                    ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/20'
+                    : 'border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800'
+                }`}
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <Download className={`h-5 w-5 ${exportFormat === 'excel' ? 'text-emerald-600 dark:text-emerald-300' : 'text-neutral-400'}`} />
+                  <p className="text-sm font-bold text-neutral-900 dark:text-white">Excel Spreadsheet</p>
+                </div>
+                <p className="text-xs text-neutral-500">Data terstruktur untuk analisis lanjutan.</p>
+              </motion.button>
+            </div>
+
+            <div className="space-y-2 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900/60">
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Cakupan Data</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setExportScope('full')}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    exportScope === 'full'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                  }`}
+                >
+                  Full Report
+                </button>
+                <button
+                  onClick={() => setExportScope('summary')}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    exportScope === 'summary'
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                  }`}
+                >
+                  Summary Only
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setIncludeTimeline(v => !v)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    includeTimeline
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                  }`}
+                >
+                  Timeline {includeTimeline ? 'On' : 'Off'}
+                </button>
+                <button
+                  onClick={() => setIncludeNotes(v => !v)}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                    includeNotes
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                  }`}
+                >
+                  Catatan {includeNotes ? 'On' : 'Off'}
+                </button>
+              </div>
+            </div>
+
+            {exportFormat === 'pdf' && (
+              <div className="space-y-2 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Mode PDF</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setPdfDisposition('download')}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                      pdfDisposition === 'download'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={() => setPdfDisposition('inline')}
+                    className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
+                      pdfDisposition === 'inline'
+                        ? 'bg-rose-600 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    Open in Tab
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={runPrint}
+                disabled={busyAction === 'print'}
+                className="flex-1 rounded-xl"
+              >
+                <Printer className={`mr-2 h-4 w-4 ${busyAction === 'print' ? 'animate-spin' : ''}`} />
+                {busyAction === 'print' ? 'Preparing Print...' : 'Print View'}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => runExport()}
+                disabled={busyAction === 'pdf' || busyAction === 'excel'}
+                className="flex-1 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+              >
+                <Download className={`mr-2 h-4 w-4 ${busyAction === 'pdf' || busyAction === 'excel' ? 'animate-spin' : ''}`} />
+                {busyAction === 'pdf' || busyAction === 'excel' ? 'Exporting...' : `Export ${exportFormat.toUpperCase()}`}
+              </Button>
+            </div>
           </div>
         </ModalW>
+
+        <ConfirmDialog
+          open={deleteNoteId !== null}
+          onOpenChange={(open) => !open && setDeleteNoteId(null)}
+          onConfirm={handleConfirmDeleteNote}
+          title="Hapus Catatan"
+          message="Yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan."
+          variant="danger"
+          confirmText="Ya, Hapus"
+          cancelText="Batal"
+        />
 
         {/* Selfie Modal */}
         <AnimatePresence>{selfieM && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setSelfieM(null)}>

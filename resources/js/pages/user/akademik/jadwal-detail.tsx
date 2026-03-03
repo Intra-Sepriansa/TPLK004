@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Calendar,
@@ -163,6 +164,7 @@ export default function JadwalDetail({
     const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; noteId: number | null }>({ open: false, noteId: null });
 
     const noteForm = useForm({
         content: '',
@@ -212,9 +214,15 @@ export default function JadwalDetail({
 
     // Delete note
     const deleteNote = (noteId: number) => {
-        if (confirm('Hapus catatan ini?')) {
-            router.delete(`/user/schedule/${course.id}/notes/${noteId}`, { preserveScroll: true });
-        }
+        setDeleteDialog({ open: true, noteId });
+    };
+
+    const handleConfirmDeleteNote = () => {
+        if (!deleteDialog.noteId) return;
+        router.delete(`/user/schedule/${course.id}/notes/${deleteDialog.noteId}`, {
+            preserveScroll: true,
+            onSuccess: () => setDeleteDialog({ open: false, noteId: null }),
+        });
     };
 
     // Get status color
@@ -976,6 +984,17 @@ export default function JadwalDetail({
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={deleteDialog.open}
+                    onOpenChange={(open) => setDeleteDialog({ open, noteId: open ? deleteDialog.noteId : null })}
+                    onConfirm={handleConfirmDeleteNote}
+                    title="Hapus Catatan"
+                    message="Yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan."
+                    variant="danger"
+                    confirmText="Ya, Hapus"
+                    cancelText="Batal"
+                />
             </motion.div>
         </StudentLayout>
     );

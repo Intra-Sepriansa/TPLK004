@@ -2,23 +2,194 @@
 
 namespace App\Http\Controllers\Dosen;
 
+use App\Exports\GradingDetailExport;
 use App\Http\Controllers\Controller;
+use App\Models\AcademicNote;
 use App\Models\AttendanceLog;
 use App\Models\AttendanceSession;
 use App\Models\Mahasiswa;
 use App\Models\MataKuliah;
 use App\Services\GradingService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GradingDetailController extends Controller
 {
     public function __construct(
         private GradingService $gradingService
-    ) {}
+    ) {
+    }
 
     public function show(int $mahasiswaId)
+    {
+        $payload = $this->buildDetailPayload($mahasiswaId);
+
+        return Inertia::render('dosen/grading-detail', [
+            'dosen' => $payload['dosen'],
+            'student' => $payload['student'],
+            'course' => $payload['course'],
+            'gradeData' => $payload['gradeData'],
+            'attendanceRecords' => $payload['attendanceRecords'],
+            'classAverage' => $payload['classAverage'],
+            'dosenNotes' => $payload['dosenNotes'],
+        ]);
+    }
+
+    public function export(Request $request, int $mahasiswaId)
+    {
+        $request->validate([
+            'format' => 'nullable|in:pdf,excel,xlsx',
+            'scope' => 'nullable|in:summary,full',
+            'include_notes' => 'nullable|boolean',
+            'include_timeline' => 'nullable|boolean',
+            'disposition' => 'nullable|in:download,inline',
+        ]);
+
+        $format = $request->string('format')->lower()->value() ?: 'pdf';
+        if ($format === 'xlsx') {
+            $format = 'excel';
+        }
+
+        $scope = $request->string('scope')->lower()->value() ?: 'full';
+        $includeNotes = $request->boolean('include_notes', true);
+        $includeTimeline = $request->boolean('include_timeline', true);
+        $disposition = $request->string('disposition')->lower()->value() ?: 'download';
+
+        $payload = $this->buildDetailPayload($mahasiswaId);
+        $payload = $this->filterPayloadByScope($payload, $scope, $includeTimeline, $includeNotes);
+
+        $nim = preg_replace('/[^A-Za-z0-9\-]/', '-', (string) ($payload['student']['nim'] ?? 'mahasiswa'));
+        $filename = sprintf('grading-detail-%s-%s', $nim ?: 'mahasiswa', now()->format('Ymd-His'));
+
+        if ($format === 'excel') {
+            return Excel::download(
+                new GradingDetailExport($payload, $scope, $includeTimeline, $includeNotes),
+                $filename . '.xlsx'
+            );
+        }
+
+        $generatedAt = now()->format('d M Y H:i:s');
+        $pdf = Pdf::loadView('pdf.grading-detail-report', [
+            'dosen' => $payload['dosen'],
+            'student' => $payload['student'],
+            'course' => $payload['course'],
+            'gradeData' => $payload['gradeData'],
+            'attendanceRecords' => $payload['attendanceRecords'],
+            'classAverage' => $payload['classAverage'],
+            'dosenNotes' => $payload['dosenNotes'],
+            'generatedAt' => $generatedAt,
+            'scope' => $scope,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        if ($disposition === 'inline') {
+            return $pdf->stream($filename . '.pdf');
+        }
+
+        return $pdf->download($filename . '.pdf');
+    }
+
+    public function printView(Request $request, int $mahasiswaId)
+    {
+        $request->validate([
+            'scope' => 'nullable|in:summary,full',
+            'include_notes' => 'nullable|boolean',
+            'include_timeline' => 'nullable|boolean',
+            'auto' => 'nullable|boolean',
+        ]);
+
+        $scope = $request->string('scope')->lower()->value() ?: 'full';
+        $includeNotes = $request->boolean('include_notes', true);
+        $includeTimeline = $request->boolean('include_timeline', true);
+
+        $payload = $this->buildDetailPayload($mahasiswaId);
+        $payload = $this->filterPayloadByScope($payload, $scope, $includeTimeline, $includeNotes);
+
+        return response()->view('print.grading-detail', [
+            'dosen' => $payload['dosen'],
+            'student' => $payload['student'],
+            'course' => $payload['course'],
+            'gradeData' => $payload['gradeData'],
+            'attendanceRecords' => $payload['attendanceRecords'],
+            'classAverage' => $payload['classAverage'],
+            'dosenNotes' => $payload['dosenNotes'],
+            'generatedAt' => now()->format('d M Y H:i:s'),
+            'scope' => $scope,
+        ]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $dosen = Auth::guard('dosen')->user();
+
+        $validated = $request->validate([
+            'log_id' => 'required|exists:attendance_logs,id',
+            'status' => 'required|in:present,late,permit,sick,rejected,absent',
+            'reason' => 'required|string|min:10|max:500',
+        ]);
+
+        $log = AttendanceLog::with('session.course')->findOrFail($validated['log_id']);
+
+        if (!$log->session->course || $log->session->course->dosen_id !== $dosen->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
+        }
+
+        $this->gradingService->overrideAttendance(
+            $validated['log_id'],
+            $validated['status'],
+            $dosen->id,
+            $validated['reason']
+        );
+
+        return back()->with('success', 'Status kehadiran berhasil diubah.');
+    }
+
+    public function addNote(Request $request)
+    {
+        $request->validate([
+            'mahasiswa_id' => 'required|exists:mahasiswa,id',
+            'content' => 'required|string|min:3|max:2000',
+            'title' => 'nullable|string|max:255',
+        ]);
+
+        AcademicNote::create([
+            'mahasiswa_id' => $request->integer('mahasiswa_id'),
+            'title' => $request->string('title')->value() ?: 'Catatan Dosen',
+            'content' => $request->string('content')->value(),
+        ]);
+
+        return back()->with('success', 'Catatan berhasil ditambahkan.');
+    }
+
+    public function deleteNote(int $noteId)
+    {
+        AcademicNote::findOrFail($noteId)->delete();
+
+        return back()->with('success', 'Catatan berhasil dihapus.');
+    }
+
+    private function filterPayloadByScope(
+        array $payload,
+        string $scope,
+        bool $includeTimeline,
+        bool $includeNotes,
+    ): array {
+        if ($scope === 'summary' || !$includeTimeline) {
+            $payload['attendanceRecords'] = [];
+        }
+
+        if (!$includeNotes) {
+            $payload['dosenNotes'] = [];
+        }
+
+        return $payload;
+    }
+
+    private function buildDetailPayload(int $mahasiswaId): array
     {
         $dosen = Auth::guard('dosen')->user();
         $course = MataKuliah::where('dosen_id', $dosen->id)->first();
@@ -28,16 +199,12 @@ class GradingDetailController extends Controller
         }
 
         $student = Mahasiswa::findOrFail($mahasiswaId);
-
-        // Calculate student grade
         $gradeData = $this->gradingService->calculateStudentGrade($mahasiswaId, $course->id);
 
-        // Get all sessions
         $sessions = AttendanceSession::where('course_id', $course->id)
             ->orderBy('meeting_number', 'asc')
             ->get();
 
-        // Get detailed attendance records with full info
         $logs = AttendanceLog::where('mahasiswa_id', $mahasiswaId)
             ->whereIn('attendance_session_id', $sessions->pluck('id'))
             ->get()
@@ -81,7 +248,6 @@ class GradingDetailController extends Controller
             ];
         }
 
-        // Calculate status breakdown
         $statusBreakdown = [
             'present' => 0,
             'late' => 0,
@@ -90,20 +256,19 @@ class GradingDetailController extends Controller
             'absent' => 0,
             'rejected' => 0,
         ];
+
         foreach ($attendanceRecords as $record) {
             if (isset($statusBreakdown[$record['status']])) {
                 $statusBreakdown[$record['status']]++;
             }
         }
 
-        // Calculate points breakdown
         $presentPoints = $statusBreakdown['present'] * 100;
         $latePoints = $statusBreakdown['late'] * 75;
         $permitPoints = ($statusBreakdown['permit'] + $statusBreakdown['sick']) * 50;
         $totalPoints = $presentPoints + $latePoints + $permitPoints;
         $maxPossiblePoints = count($attendanceRecords) * 100;
 
-        // Calculate class average for comparison
         $classGrades = $this->gradingService->calculateClassGrades($course->id);
         $classAverage = [
             'average_attendance_rate' => $classGrades['summary']['average_attendance_rate'] ?? 0,
@@ -112,22 +277,23 @@ class GradingDetailController extends Controller
             'total_students' => $classGrades['summary']['total_students'] ?? 0,
         ];
 
-        // Calculate average points and find mode grade
         if (!empty($classGrades['grades'])) {
             $totalAvgPoints = 0;
             $gradeCounts = [];
+
             foreach ($classGrades['grades'] as $g) {
                 $totalAvgPoints += $g['average_points'];
                 $gradeCounts[$g['grade_letter']] = ($gradeCounts[$g['grade_letter']] ?? 0) + 1;
             }
+
             $classAverage['average_points'] = round($totalAvgPoints / count($classGrades['grades']), 2);
+
             if (!empty($gradeCounts)) {
                 arsort($gradeCounts);
                 $classAverage['mode_grade'] = array_key_first($gradeCounts);
             }
         }
 
-        // Calculate rank in class
         $rankInClass = 1;
         $totalStudents = count($classGrades['grades']);
         foreach ($classGrades['grades'] as $g) {
@@ -137,12 +303,10 @@ class GradingDetailController extends Controller
             $rankInClass++;
         }
 
-        // Get dosen notes for this student (using a simple approach with session cache)
-        // We'll store notes in the session or use AcademicNote model
-        $dosenNotes = \App\Models\AcademicNote::where('mahasiswa_id', $mahasiswaId)
+        $dosenNotes = AcademicNote::where('mahasiswa_id', $mahasiswaId)
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(fn($note) => [
+            ->map(fn ($note) => [
                 'id' => $note->id,
                 'content' => $note->content,
                 'title' => $note->title,
@@ -151,9 +315,11 @@ class GradingDetailController extends Controller
                 'updated_at' => $note->updated_at?->format('d M Y H:i'),
                 'is_important' => false,
                 'is_visible_to_student' => true,
-            ]);
+            ])
+            ->values()
+            ->toArray();
 
-        return Inertia::render('dosen/grading-detail', [
+        return [
             'dosen' => [
                 'id' => $dosen->id,
                 'nama' => $dosen->nama,
@@ -176,7 +342,7 @@ class GradingDetailController extends Controller
             'course' => [
                 'id' => $course->id,
                 'nama' => $course->nama,
-                'kode' => 'MK-' . str_pad($course->id, 3, '0', STR_PAD_LEFT),
+                'kode' => $course->kode ?? ('MK-' . str_pad((string) $course->id, 3, '0', STR_PAD_LEFT)),
                 'sks' => $course->sks,
                 'semester' => 'Ganjil 2024/2025',
                 'tahun_ajaran' => '2024/2025',
@@ -189,7 +355,7 @@ class GradingDetailController extends Controller
                 'attendance_grade' => $gradeData['attendance_grade'],
                 'grade_letter' => $gradeData['grade_letter'],
                 'can_take_uas' => $gradeData['can_take_uas'],
-                'sessions_needed_for_uas' => max(0, 3 - collect($attendanceRecords)->filter(fn($r) => in_array($r['status'], ['absent', 'rejected']))->count()),
+                'sessions_needed_for_uas' => max(0, 3 - collect($attendanceRecords)->filter(fn ($r) => in_array($r['status'], ['absent', 'rejected'], true))->count()),
                 'rank_in_class' => $rankInClass,
                 'total_students' => $totalStudents,
                 'percentile' => $totalStudents > 0 ? round((1 - ($rankInClass - 1) / $totalStudents) * 100, 1) : 0,
@@ -206,62 +372,6 @@ class GradingDetailController extends Controller
             'attendanceRecords' => $attendanceRecords,
             'classAverage' => $classAverage,
             'dosenNotes' => $dosenNotes,
-        ]);
-    }
-
-    public function updateStatus(Request $request)
-    {
-        $dosen = Auth::guard('dosen')->user();
-
-        $validated = $request->validate([
-            'log_id' => 'required|exists:attendance_logs,id',
-            'status' => 'required|in:present,late,permit,sick,rejected,absent',
-            'reason' => 'required|string|min:10|max:500',
-        ]);
-
-        $log = AttendanceLog::with('session.course')->findOrFail($validated['log_id']);
-
-        // Verify dosen has access
-        if (!$log->session->course || $log->session->course->dosen_id !== $dosen->id) {
-            abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
-        }
-
-        $this->gradingService->overrideAttendance(
-            $validated['log_id'],
-            $validated['status'],
-            $dosen->id,
-            $validated['reason']
-        );
-
-        return back()->with('success', 'Status kehadiran berhasil diubah.');
-    }
-
-    public function addNote(Request $request)
-    {
-        $dosen = Auth::guard('dosen')->user();
-
-        $validated = $request->validate([
-            'mahasiswa_id' => 'required|exists:mahasiswa,id',
-            'content' => 'required|string|min:3|max:2000',
-            'title' => 'nullable|string|max:255',
-        ]);
-
-        $note = \App\Models\AcademicNote::create([
-            'mahasiswa_id' => $validated['mahasiswa_id'],
-            'title' => $validated['title'] ?? 'Catatan Dosen',
-            'content' => $validated['content'],
-        ]);
-
-        return back()->with('success', 'Catatan berhasil ditambahkan.');
-    }
-
-    public function deleteNote(int $noteId)
-    {
-        $dosen = Auth::guard('dosen')->user();
-
-        $note = \App\Models\AcademicNote::findOrFail($noteId);
-        $note->delete();
-
-        return back()->with('success', 'Catatan berhasil dihapus.');
+        ];
     }
 }

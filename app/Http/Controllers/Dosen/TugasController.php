@@ -11,6 +11,7 @@ use App\Models\TugasSubmission;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -186,7 +187,7 @@ class TugasController extends Controller
         }
 
         // Get diskusi
-        $diskusi = TugasDiskusi::with('replyTo')
+        $diskusiRaw = TugasDiskusi::with('replyTo')
             ->where('tugas_id', $tugas->id)
             ->where(function ($q) use ($dosen) {
                 $q->where('visibility', 'public')
@@ -201,13 +202,28 @@ class TugasController extends Controller
             })
             ->orderBy('is_pinned', 'desc')
             ->orderBy('created_at', 'asc')
-            ->get()
-            ->map(fn($d) => [
+            ->get();
+
+        $mahasiswaNimById = Mahasiswa::whereIn(
+            'id',
+            $diskusiRaw->where('sender_type', 'mahasiswa')->pluck('sender_id')->unique()->values()
+        )->pluck('nim', 'id');
+
+        $diskusi = $diskusiRaw->map(fn($d) => [
                 'id' => $d->id,
                 'sender_type' => $d->sender_type,
                 'sender_name' => $d->sender_name,
+                'sender_nim' => $d->sender_type === 'mahasiswa' ? $mahasiswaNimById->get($d->sender_id) : null,
                 'sender_avatar' => $d->sender_avatar,
                 'pesan' => $d->pesan,
+                'lampiran_url' => $d->lampiran_url
+                    ? (str_starts_with($d->lampiran_url, 'http')
+                        ? $d->lampiran_url
+                        : (str_starts_with($d->lampiran_url, '/storage/')
+                            ? $d->lampiran_url
+                            : Storage::url($d->lampiran_url)))
+                    : null,
+                'lampiran_nama' => $d->lampiran_nama,
                 'visibility' => $d->visibility,
                 'recipient_name' => $d->recipient_name,
                 'is_pinned' => $d->is_pinned,
@@ -217,6 +233,7 @@ class TugasController extends Controller
                     'pesan' => $d->replyTo->pesan,
                 ] : null,
                 'is_me' => $d->sender_id === $dosen->id && $d->sender_type === 'dosen',
+                'created_at_iso' => $d->created_at->toIso8601String(),
                 'created_at' => $d->created_at->format('d M Y H:i'),
                 'time_ago' => $d->created_at->diffForHumans(),
             ]);
@@ -300,18 +317,35 @@ class TugasController extends Controller
         $dosen = Auth::guard('dosen')->user();
 
         $request->validate([
-            'pesan' => 'required|string|max:2000',
+            'pesan' => 'nullable|string|max:2000',
+            'lampiran' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:10240',
             'visibility' => 'required|in:public,private',
             'recipient_type' => 'nullable|in:mahasiswa,admin',
             'recipient_id' => 'nullable|integer',
             'reply_to_id' => 'nullable|exists:tugas_diskusi,id',
         ]);
 
+        $pesan = trim((string) $request->input('pesan', ''));
+        $lampiranPath = null;
+        $lampiranNama = null;
+
+        if ($request->hasFile('lampiran')) {
+            $file = $request->file('lampiran');
+            $lampiranPath = $file->store('tugas-diskusi', 'public');
+            $lampiranNama = $file->getClientOriginalName();
+        }
+
+        if ($pesan === '' && !$lampiranPath) {
+            return back()->withErrors(['pesan' => 'Isi pesan atau pilih gambar terlebih dahulu.']);
+        }
+
         TugasDiskusi::create([
             'tugas_id' => $tuga->id,
             'sender_type' => 'dosen',
             'sender_id' => $dosen->id,
-            'pesan' => $request->pesan,
+            'pesan' => $pesan,
+            'lampiran_url' => $lampiranPath,
+            'lampiran_nama' => $lampiranNama,
             'visibility' => $request->visibility,
             'recipient_type' => $request->recipient_type,
             'recipient_id' => $request->recipient_id,

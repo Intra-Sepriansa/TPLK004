@@ -125,7 +125,7 @@ export default function AcademicNotes({ notes, courses, filters }: Props) {
 
     // Sort and filter notes
     const sortedAndFilteredNotes = useMemo(() => {
-        let filtered = [...notes];
+        const filtered = [...notes];
 
         // Sort
         filtered.sort((a, b) => {

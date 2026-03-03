@@ -367,21 +367,7 @@ export default function Analytics({ stats, attendanceTrend, deviceDistribution, 
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Decorative Progress Bar */}
-                                    <div className="mt-auto w-full pt-2 sm:pt-4">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div
-                                                className={`h-full bg-gradient-to-r ${colorConfig.from} ${colorConfig.to} rounded-full`}
-                                                initial={{ width: 0 }}
-                                                animate={{
-                                                    width: stat.value.includes('%')
-                                                        ? stat.value
-                                                        : stat.value === '0' || stat.value === '0.0' ? '0%' : '70%'
-                                                }}
-                                                transition={{ duration: 1.5, delay: 0.5 + (i * 0.1), ease: "easeOut" }}
-                                            />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );

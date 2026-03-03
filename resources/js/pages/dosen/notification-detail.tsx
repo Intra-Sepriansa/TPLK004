@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
 import DosenLayout from '@/layouts/dosen-layout';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
     Send, ArrowLeft, ArrowRight, Save, Eye, Target, Bell, Clock,
     AlertTriangle, Award, Info, CheckCircle, Search, Users, Calendar,
-    Loader2, AlertCircle, X, FileText, Zap, Mail
+    Loader2, AlertCircle, X, FileText, Zap, Mail, ChevronRight
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import NotifIcon from '@/assets/admin/notification-center/icon-notifikasi.png';
@@ -171,83 +171,116 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
     return (
         <DosenLayout>
             <Head title="Buat Notifikasi" />
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-6 space-y-6">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-4 p-4 sm:space-y-6 sm:p-6 lg:p-8">
 
                 {/* ═══════ HEADER ═══════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-4 text-white shadow-2xl sm:p-6 md:p-8">
+                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }} style={{ backgroundSize: '200% 200%' }} />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-5">
-                                <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/notifications')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30">
-                                    <ArrowLeft className="h-6 w-6 text-white" />
-                                </motion.button>
-                                <motion.div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={NotifIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
+                        <motion.button
+                            whileHover={{ scale: 1.02, x: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.visit('/dosen/notifications')}
+                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali
+                        </motion.button>
+
+                        <div className="flex flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
+                            <div className="flex w-full flex-col items-center gap-5 text-center sm:flex-row sm:gap-6 sm:text-left lg:w-auto">
+                                <motion.div
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={NotifIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
-                                <div>
-                                    <p className="text-sm text-indigo-100 font-medium tracking-wide">Buat Notifikasi Baru</p>
-                                    <h1 className="text-3xl font-bold text-white">Kirim Pemberitahuan</h1>
-                                    <p className="mt-1 text-indigo-100 max-w-lg">Buat dan kirim notifikasi ke mahasiswa</p>
+                                <div className="mt-1 flex-1 sm:mt-0">
+                                    <p className="text-sm font-medium tracking-wide text-indigo-100">Buat Notifikasi Baru</p>
+                                    <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">Kirim Pemberitahuan</h1>
+                                    <p className="mt-2 text-sm leading-relaxed text-indigo-100 sm:text-base">Buat dan kirim notifikasi ke mahasiswa</p>
                                 </div>
                             </div>
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }} className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
-                                <div className="p-2 bg-indigo-500/20 rounded-lg"><Target className="h-6 w-6 text-white" /></div>
-                                <div>
-                                    <p className="text-xs text-indigo-100">Progress</p>
-                                    <p className="text-2xl font-bold text-white">{currentStep}/5</p>
-                                </div>
-                            </motion.div>
-                        </div>
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10">
-                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={handleSaveDraft} disabled={isSaving} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg disabled:opacity-50">
-                                <Save className="h-4 w-4" /> Simpan Draft
-                            </motion.button>
-                            <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowPreview(!showPreview)} className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
-                                <Eye className="h-4 w-4" /> Preview
-                            </motion.button>
-                            {isDraft && (
-                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 backdrop-blur-md border border-amber-400/30">
-                                    <AlertCircle className="h-4 w-4 text-amber-200" /><span className="text-sm text-amber-100">Draft tersimpan</span>
+
+                            <div className="mt-2 flex w-full flex-col items-center gap-3 lg:mt-0 lg:w-auto lg:items-end">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6, type: 'spring' }}
+                                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-6 py-3 shadow-lg backdrop-blur-xl"
+                                >
+                                    <div className="rounded-lg bg-indigo-500/20 p-2"><Target className="h-6 w-6 text-white" /></div>
+                                    <div>
+                                        <p className="text-xs text-indigo-100">Progress</p>
+                                        <p className="text-2xl font-bold text-white">{currentStep}/5</p>
+                                    </div>
                                 </motion.div>
-                            )}
-                        </motion.div>
+
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex flex-wrap justify-center gap-2">
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={handleSaveDraft} disabled={isSaving} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg disabled:opacity-50">
+                                        <Save className="h-4 w-4" /> Simpan Draft
+                                    </motion.button>
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowPreview(!showPreview)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg">
+                                        <Eye className="h-4 w-4" /> Preview
+                                    </motion.button>
+                                </motion.div>
+                            </div>
+                        </div>
+
+                        {isDraft && (
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-5 inline-flex items-center gap-2 rounded-xl border border-amber-400/30 bg-amber-500/20 px-4 py-2 backdrop-blur-md">
+                                <AlertCircle className="h-4 w-4 text-amber-200" />
+                                <span className="text-sm text-amber-100">Draft tersimpan</span>
+                            </motion.div>
+                        )}
                     </div>
                 </motion.div>
 
                 {/* ═══════ PROGRESS STEPPER ═══════ */}
-                <motion.div variants={itemVariants} className={cardClass}>
-                    <div className="flex items-start justify-between min-w-[750px] w-full px-2">
-                        {STEPS.map((step, idx) => (
-                            <div key={step.id} className="flex items-center shrink-0 flex-1">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => canNavigateToStep(step.id) && setCurrentStep(step.id)}
-                                    disabled={!canNavigateToStep(step.id)}
-                                    className={`relative flex flex-col items-center gap-3 shrink-0 ${!canNavigateToStep(step.id) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                                >
-                                    <div className="relative">
-                                        <motion.div animate={{ scale: currentStep === step.id ? 1.1 : 1, backgroundColor: completedSteps.has(step.id) ? 'rgb(34,197,94)' : currentStep === step.id ? 'rgb(99,102,241)' : 'rgba(115, 115, 115, 0.2)' }} className={`flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg border border-white/5 ${completedSteps.has(step.id) ? 'shadow-emerald-500/30' : currentStep === step.id ? 'shadow-indigo-500/30' : ''}`}>
-                                            {completedSteps.has(step.id) ? <CheckCircle className="h-8 w-8 text-white" /> : <step.icon className={`h-8 w-8 ${currentStep === step.id ? 'text-white' : 'text-neutral-500 dark:text-neutral-400'}`} />}
-                                        </motion.div>
+                <motion.div variants={itemVariants} className={`${cardClass} overflow-hidden`}>
+                    <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <div className="flex w-max min-w-full items-center gap-2 sm:justify-center">
+                            {STEPS.map((step, idx) => {
+                                const StepIcon = step.icon;
+                                const isActive = currentStep === step.id;
+                                const isDone = step.id < currentStep && completedSteps.has(step.id);
+                                const canOpen = canNavigateToStep(step.id);
+
+                                return (
+                                    <div key={step.id} className="flex shrink-0 items-center gap-2">
+                                        <motion.button
+                                            whileHover={{ scale: canOpen ? 1.05 : 1 }}
+                                            whileTap={{ scale: canOpen ? 0.95 : 1 }}
+                                            onClick={() => canOpen && setCurrentStep(step.id)}
+                                            disabled={!canOpen}
+                                            className={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-medium transition-all sm:px-4 sm:py-2.5 sm:text-sm ${
+                                                isActive
+                                                    ? 'border-indigo-400 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                                                    : isDone
+                                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                                        : 'border-slate-200/50 bg-white/60 text-slate-500 dark:border-slate-700 dark:bg-neutral-800/40 dark:text-slate-300'
+                                            } ${!canOpen ? 'cursor-not-allowed opacity-50' : ''}`}
+                                        >
+                                            {isDone ? (
+                                                <CheckCircle className="h-4 w-4" />
+                                            ) : (
+                                                <StepIcon className="h-4 w-4" />
+                                            )}
+                                            <span className="whitespace-nowrap">{step.title}</span>
+                                        </motion.button>
+                                        {idx < STEPS.length - 1 && (
+                                            <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />
+                                        )}
                                     </div>
-                                    <div className="text-center w-28">
-                                        <p className={`text-sm font-bold leading-tight ${currentStep === step.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-neutral-600 dark:text-neutral-400'}`}>{step.title}</p>
-                                        <p className="text-xs text-neutral-500 mt-1 line-clamp-2">{step.description}</p>
-                                    </div>
-                                </motion.button>
-                                {idx < STEPS.length - 1 && (
-                                    <div className="flex-1 h-1 min-w-[40px] relative shrink mx-4">
-                                        <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full" />
-                                        <motion.div initial={{ width: '0%' }} animate={{ width: completedSteps.has(step.id) ? '100%' : '0%' }} transition={{ duration: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                                );
+                            })}
+                        </div>
                     </div>
                     <div className="mt-6 w-full px-2">
                         <div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400 mb-2">
@@ -261,27 +294,40 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                 </motion.div>
 
                 {/* ═══════ WIZARD STEPS ═══════ */}
-                <AnimatePresence mode="wait">
+                <>
                     {/* STEP 1: Tipe & Template */}
                     {currentStep === 1 && (
-                        <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="grid gap-6 lg:grid-cols-3">
-                            <div className="lg:col-span-2 space-y-6">
-                                <motion.div variants={itemVariants} className={`${cardClass} !p-8`}>
+                        <div className="grid gap-6 lg:grid-cols-3">
+                            <div className="min-w-0 lg:col-span-2 space-y-6">
+                                <motion.div className={`${cardClass} !p-8`}>
                                     <div className="flex items-center gap-3 mb-6">
                                         <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-600 text-white shadow-lg shadow-blue-500/30"><Bell className="h-6 w-6" /></motion.div>
                                         <div><h3 className="font-bold text-neutral-900 dark:text-white">Tipe Notifikasi</h3><p className="text-sm text-neutral-500">Pilih tipe dan template</p></div>
                                     </div>
                                     <div className="space-y-6">
                                         <div>
-                                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">Tipe Notifikasi *</label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {NOTIF_TYPES.map(type => (
-                                                    <motion.button key={type.value} type="button" whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }} onClick={() => updateForm('type', type.value)} className={`relative overflow-hidden rounded-2xl p-4 text-center transition-all ${formData.type === type.value ? 'ring-4 ring-indigo-500/50' : 'ring-1 ring-neutral-200 dark:ring-neutral-800'}`}>
-                                                        <div className={`flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-gradient-to-br ${type.color} text-white shadow-lg mb-2`}><type.icon className="h-6 w-6" /></div>
-                                                        <p className="text-sm font-bold text-neutral-900 dark:text-white">{type.label}</p>
-                                                        <p className="text-xs text-neutral-500 mt-1">{type.desc}</p>
-                                                    </motion.button>
-                                                ))}
+                                            <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Tipe Notifikasi *</label>
+                                            <div className="w-full max-w-full overflow-hidden sm:overflow-visible">
+                                                <div className="w-full snap-x snap-mandatory overflow-x-auto px-1 pb-3 pt-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
+                                                    <div className="inline-flex min-w-max items-stretch gap-1.5 pr-1 sm:grid sm:w-full sm:min-w-0 sm:grid-cols-3 sm:gap-3 sm:pr-0">
+                                                        {NOTIF_TYPES.map(type => (
+                                                            <motion.button
+                                                                key={type.value}
+                                                                type="button"
+                                                                whileHover={{ scale: 1.02 }}
+                                                                whileTap={{ scale: 0.98 }}
+                                                                onClick={() => updateForm('type', type.value)}
+                                                                className={`relative h-[92px] w-[104px] shrink-0 snap-start overflow-hidden rounded-lg p-2 text-center transition-all sm:h-auto sm:w-auto sm:rounded-2xl sm:p-4 ${formData.type === type.value ? 'border border-indigo-400/70 bg-indigo-50/40 dark:bg-indigo-900/20 sm:ring-4 sm:ring-indigo-500/50' : 'border border-neutral-200 dark:border-neutral-800'}`}
+                                                            >
+                                                                <div className={`mx-auto mb-1 flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br ${type.color} text-white shadow-lg sm:mb-2 sm:h-11 sm:w-11 sm:rounded-xl`}>
+                                                                    <type.icon className="h-4 w-4 sm:h-6 sm:w-6" />
+                                                                </div>
+                                                                <p className="text-[10px] font-semibold text-neutral-900 dark:text-white sm:text-xs">{type.label}</p>
+                                                                <p className="text-[9px] text-neutral-500 sm:text-[10px]">{type.desc}</p>
+                                                            </motion.button>
+                                                        ))}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div>
@@ -311,7 +357,7 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                 </motion.div>
                             </div>
                             <div className="lg:col-span-1">
-                                <motion.div variants={itemVariants} className={`sticky top-6 ${cardClass}`}>
+                                <motion.div className={`sticky top-6 ${cardClass}`}>
                                     <div className="flex items-center gap-2 mb-4"><Eye className="h-5 w-5 text-indigo-600" /><h4 className="font-bold text-neutral-900 dark:text-white">Preview</h4></div>
                                     <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50">
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeColor(formData.type)}`}>{getTypeLabel(formData.type)}</span>
@@ -321,42 +367,71 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                     </div>
                                 </motion.div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* STEP 2: Konten */}
                     {currentStep === 2 && (
-                        <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="grid gap-6 lg:grid-cols-3">
-                            <div className="lg:col-span-2">
-                                <motion.div variants={itemVariants} className={`${cardClass} !p-8`}>
+                        <div className="grid gap-6 lg:grid-cols-3">
+                            <div className="min-w-0 lg:col-span-2">
+                                <motion.div className={`${cardClass} !p-8`}>
                                     <div className="flex items-center gap-3 mb-6">
                                         <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-400 to-violet-600 text-white shadow-lg shadow-purple-500/30"><FileText className="h-6 w-6" /></motion.div>
                                         <div><h3 className="font-bold text-neutral-900 dark:text-white">Konten Notifikasi</h3><p className="text-sm text-neutral-500">Tulis judul dan pesan</p></div>
                                     </div>
                                     <div className="space-y-5">
-                                        <div>
-                                            <div className="flex justify-between mb-2"><label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Judul *</label><span className={`text-xs ${formData.title.length > 100 ? 'text-red-500' : 'text-neutral-400'}`}>{formData.title.length}/100</span></div>
-                                            <input type="text" value={formData.title} onChange={e => updateForm('title', e.target.value)} maxLength={100} placeholder="Masukkan judul notifikasi..." className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                                        <div className="rounded-2xl border border-indigo-200/60 bg-indigo-50/40 p-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Content Builder</p>
+                                            <p className="mt-1 text-xs text-indigo-600/90 dark:text-indigo-300/80">Tulis judul singkat, isi pesan jelas, lalu tambahkan CTA bila diperlukan.</p>
                                         </div>
+
                                         <div>
-                                            <div className="flex justify-between mb-2"><label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Pesan *</label><span className={`text-xs ${formData.message.length > 1000 ? 'text-red-500' : 'text-neutral-400'}`}>{formData.message.length}/1000</span></div>
-                                            <textarea value={formData.message} onChange={e => updateForm('message', e.target.value)} maxLength={1000} rows={8} placeholder="Tulis pesan notifikasi..." className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none" />
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Judul *</label>
+                                                <span className={`text-xs ${formData.title.length > 100 ? 'text-red-500' : 'text-neutral-400'}`}>{formData.title.length}/100</span>
+                                            </div>
+                                            <input type="text" value={formData.title} onChange={e => updateForm('title', e.target.value)} maxLength={100} placeholder="Contoh: Pengumuman UTS Algoritma" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:border-transparent focus:ring-2 focus:ring-indigo-500" />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+
+                                        <div>
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Pesan *</label>
+                                                <span className={`text-xs ${formData.message.length > 1000 ? 'text-red-500' : 'text-neutral-400'}`}>{formData.message.length}/1000</span>
+                                            </div>
+                                            <textarea value={formData.message} onChange={e => updateForm('message', e.target.value)} maxLength={1000} rows={9} placeholder="Tulis detail notifikasi di sini..." className="w-full resize-none rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:border-transparent focus:ring-2 focus:ring-indigo-500" />
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {[
+                                                    'Harap dibaca dengan seksama.',
+                                                    'Deadline: [isi tanggal].',
+                                                    'Hubungi dosen bila ada pertanyaan.',
+                                                ].map((snippet) => (
+                                                    <button
+                                                        key={snippet}
+                                                        type="button"
+                                                        onClick={() => updateForm('message', `${formData.message}${formData.message ? '\n' : ''}${snippet}`)}
+                                                        className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:border-indigo-400 hover:text-indigo-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300"
+                                                    >
+                                                        + {snippet}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid gap-4 md:grid-cols-2">
                                             <div>
-                                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Action URL (Opsional)</label>
-                                                <input type="url" value={formData.action_url} onChange={e => updateForm('action_url', e.target.value)} placeholder="https://..." className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                                                <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Action URL (Opsional)</label>
+                                                <input type="url" value={formData.action_url} onChange={e => updateForm('action_url', e.target.value)} placeholder="https://..." className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:border-transparent focus:ring-2 focus:ring-indigo-500" />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Action Label (Opsional)</label>
-                                                <input type="text" value={formData.action_label} onChange={e => updateForm('action_label', e.target.value)} placeholder="Lihat Detail" className="w-full px-4 py-3 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent" />
+                                                <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Action Label (Opsional)</label>
+                                                <input type="text" value={formData.action_label} onChange={e => updateForm('action_label', e.target.value)} placeholder="Lihat Detail" className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm dark:border-neutral-700 dark:bg-black dark:text-white focus:border-transparent focus:ring-2 focus:ring-indigo-500" />
                                             </div>
                                         </div>
                                     </div>
                                 </motion.div>
                             </div>
                             <div className="lg:col-span-1">
-                                <motion.div variants={itemVariants} className={`sticky top-6 ${cardClass}`}>
+                                <motion.div className={`sticky top-6 ${cardClass}`}>
                                     <div className="flex items-center gap-2 mb-4"><Eye className="h-5 w-5 text-indigo-600" /><h4 className="font-bold text-neutral-900 dark:text-white">Preview</h4></div>
                                     <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50 space-y-2">
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeColor(formData.type)}`}>{getTypeLabel(formData.type)}</span>
@@ -366,60 +441,87 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                     </div>
                                 </motion.div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* STEP 3: Target Penerima */}
                     {currentStep === 3 && (
-                        <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="grid gap-6 lg:grid-cols-3">
-                            <div className="lg:col-span-2">
-                                <motion.div variants={itemVariants} className={`${cardClass} !p-8`}>
+                        <div className="grid gap-3 lg:grid-cols-3 lg:gap-5">
+                            <div className="min-w-0 lg:col-span-2">
+                                <motion.div className={`${cardClass} !p-3 sm:!p-5`}>
                                     <div className="flex items-center gap-3 mb-6">
                                         <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"><Users className="h-6 w-6" /></motion.div>
                                         <div><h3 className="font-bold text-neutral-900 dark:text-white">Target Penerima</h3><p className="text-sm text-neutral-500">Pilih siapa yang menerima</p></div>
                                     </div>
                                     <div className="space-y-6">
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {[
-                                                { value: 'all' as const, label: 'Semua Mahasiswa', icon: Users, desc: `${mahasiswa.length} mahasiswa` },
-                                                { value: 'course' as const, label: 'Per Mata Kuliah', icon: FileText, desc: `${courses.length} mata kuliah` },
-                                                { value: 'custom' as const, label: 'Pilih Manual', icon: Target, desc: 'Pilih spesifik' },
-                                            ].map(opt => (
-                                                <motion.button key={opt.value} type="button" whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }} onClick={() => updateForm('target_type', opt.value)} className={`rounded-2xl p-4 text-center transition-all ${formData.target_type === opt.value ? 'ring-4 ring-indigo-500/50 bg-indigo-50 dark:bg-indigo-900/20' : 'ring-1 ring-neutral-200 dark:ring-neutral-800'}`}>
-                                                    <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg mb-2"><opt.icon className="h-5 w-5" /></div>
-                                                    <p className="text-sm font-bold text-neutral-900 dark:text-white">{opt.label}</p>
-                                                    <p className="text-xs text-neutral-500 mt-1">{opt.desc}</p>
-                                                </motion.button>
-                                            ))}
+                                        <div>
+                                            <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Mode Target *</label>
+                                            <div className="w-full max-w-full overflow-x-hidden overflow-y-visible sm:overflow-visible">
+                                                <div className="mt-1 w-full snap-x snap-mandatory overflow-x-auto px-2 pb-3 pt-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mt-0 sm:overflow-visible sm:px-0 sm:pb-0 sm:pt-0">
+                                                    <div className="inline-flex min-w-max items-stretch gap-2 pr-1 sm:grid sm:w-full sm:min-w-0 sm:grid-cols-3 sm:gap-3 sm:pr-0">
+                                                        {[
+                                                            { value: 'all' as const, label: 'Semua Mahasiswa', icon: Users, desc: `${mahasiswa.length} mahasiswa` },
+                                                            { value: 'course' as const, label: 'Per Mata Kuliah', icon: FileText, desc: `${courses.length} mata kuliah` },
+                                                            { value: 'custom' as const, label: 'Pilih Manual', icon: Target, desc: 'Pilih spesifik' },
+                                                        ].map(opt => (
+                                                            <motion.button
+                                                                key={opt.value}
+                                                                type="button"
+                                                                whileHover={{ scale: 1.03, y: -3 }}
+                                                                whileTap={{ scale: 0.97 }}
+                                                                onClick={() => updateForm('target_type', opt.value)}
+                                                                className={`flex h-[136px] w-[128px] shrink-0 snap-start flex-col items-center rounded-xl p-2.5 text-center transition-all sm:h-auto sm:w-auto sm:rounded-2xl sm:p-4 ${formData.target_type === opt.value ? 'ring-4 ring-indigo-500/50 bg-indigo-50 dark:bg-indigo-900/20' : 'ring-1 ring-neutral-200 dark:ring-neutral-800'}`}
+                                                            >
+                                                                <div className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg sm:mb-2 sm:h-10 sm:w-10 sm:rounded-xl">
+                                                                    <opt.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                                </div>
+                                                                <p className="line-clamp-2 min-h-[2rem] text-sm font-bold leading-tight text-neutral-900 dark:text-white sm:min-h-0 sm:text-sm">{opt.label}</p>
+                                                                <p className="mt-auto pt-1 text-[11px] leading-tight text-neutral-500 sm:text-xs">{opt.desc}</p>
+                                                            </motion.button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         {formData.target_type === 'course' && (
                                             <div className="space-y-3">
                                                 <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">Pilih Mata Kuliah</label>
-                                                {courses.map(c => (
-                                                    <motion.label key={c.id} whileHover={{ scale: 1.01 }} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${formData.course_ids.includes(c.id) ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-indigo-500/50' : 'bg-neutral-50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>
-                                                        <input type="checkbox" checked={formData.course_ids.includes(c.id)} onChange={() => updateForm('course_ids', formData.course_ids.includes(c.id) ? formData.course_ids.filter(id => id !== c.id) : [...formData.course_ids, c.id])} className="rounded border-neutral-300 text-indigo-600" />
-                                                        <div className="flex-1"><p className="text-sm font-semibold text-neutral-900 dark:text-white">{c.nama}</p><p className="text-xs text-neutral-500">{c.mahasiswa_count} mahasiswa</p></div>
-                                                    </motion.label>
-                                                ))}
+                                                <div className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-neutral-200 p-2 dark:border-neutral-800">
+                                                    {courses.map(c => (
+                                                        <motion.label key={c.id} whileHover={{ scale: 1.01 }} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${formData.course_ids.includes(c.id) ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-2 ring-indigo-500/50' : 'bg-neutral-50 dark:bg-neutral-900/50 hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>
+                                                            <input type="checkbox" checked={formData.course_ids.includes(c.id)} onChange={() => updateForm('course_ids', formData.course_ids.includes(c.id) ? formData.course_ids.filter(id => id !== c.id) : [...formData.course_ids, c.id])} className="rounded border-neutral-300 text-indigo-600" />
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{c.nama}</p>
+                                                                <p className="text-xs text-neutral-500">{c.mahasiswa_count} mahasiswa</p>
+                                                            </div>
+                                                        </motion.label>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
                                         {formData.target_type === 'custom' && (
                                             <div className="space-y-3">
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                                                    <input type="text" value={searchMhs} onChange={e => setSearchMhs(e.target.value)} placeholder="Cari mahasiswa..." className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm dark:border-neutral-700 dark:bg-black dark:text-white" />
+                                                    <input type="text" value={searchMhs} onChange={e => setSearchMhs(e.target.value)} placeholder="Cari mahasiswa..." className="w-full rounded-xl border border-neutral-300 bg-white py-3 pl-10 pr-4 text-sm dark:border-neutral-700 dark:bg-black dark:text-white" />
                                                 </div>
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-sm text-neutral-500">{formData.mahasiswa_ids.length} dipilih</span>
                                                     <button type="button" onClick={() => updateForm('mahasiswa_ids', formData.mahasiswa_ids.length === mahasiswa.length ? [] : mahasiswa.map(m => m.id))} className="text-xs font-semibold text-indigo-600 hover:underline">{formData.mahasiswa_ids.length === mahasiswa.length ? 'Hapus Semua' : 'Pilih Semua'}</button>
                                                 </div>
-                                                <div className="max-h-64 overflow-y-auto space-y-1">
+                                                <div className="max-h-64 overflow-y-auto space-y-1 rounded-xl border border-neutral-200 p-2 dark:border-neutral-800">
                                                     {filteredMhs.map(m => (
                                                         <label key={m.id} className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all ${formData.mahasiswa_ids.includes(m.id) ? 'bg-indigo-50 dark:bg-indigo-900/20' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}>
                                                             <input type="checkbox" checked={formData.mahasiswa_ids.includes(m.id)} onChange={() => updateForm('mahasiswa_ids', formData.mahasiswa_ids.includes(m.id) ? formData.mahasiswa_ids.filter(id => id !== m.id) : [...formData.mahasiswa_ids, m.id])} className="rounded border-neutral-300 text-indigo-600" />
-                                                            <div><p className="text-sm font-semibold text-neutral-900 dark:text-white">{m.nama}</p><p className="text-xs text-neutral-400">{m.nim} · {m.kelas}</p></div>
+                                                            <div className="min-w-0">
+                                                                <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{m.nama}</p>
+                                                                <p className="text-xs text-neutral-400">{m.nim} · {m.kelas}</p>
+                                                            </div>
                                                         </label>
                                                     ))}
+                                                    {filteredMhs.length === 0 && (
+                                                        <div className="py-6 text-center text-sm text-neutral-500">Mahasiswa tidak ditemukan</div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
@@ -427,22 +529,29 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                 </motion.div>
                             </div>
                             <div className="lg:col-span-1">
-                                <motion.div variants={itemVariants} className={`sticky top-6 ${cardClass}`}>
+                                <motion.div className={`${cardClass} !p-4 sm:!p-5 lg:sticky lg:top-6`}>
                                     <div className="flex items-center gap-2 mb-4"><Users className="h-5 w-5 text-emerald-600" /><h4 className="font-bold text-neutral-900 dark:text-white">Target</h4></div>
-                                    <div className="text-center py-6">
-                                        <p className="text-4xl font-bold text-indigo-600 dark:text-indigo-400">{totalRecipients}</p>
-                                        <p className="text-sm text-neutral-500 mt-1">Total Penerima</p>
+                                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3 text-center dark:border-neutral-800 dark:bg-neutral-900/50">
+                                        <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 sm:text-4xl">{totalRecipients}</p>
+                                        <p className="mt-1 text-sm text-neutral-500">Total Penerima</p>
+                                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+                                            {formData.target_type === 'all'
+                                                ? 'Semua mahasiswa aktif'
+                                                : formData.target_type === 'course'
+                                                    ? 'Berdasarkan mata kuliah terpilih'
+                                                    : 'Berdasarkan mahasiswa pilihan'}
+                                        </p>
                                     </div>
                                 </motion.div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* STEP 4: Jadwal */}
                     {currentStep === 4 && (
-                        <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="grid gap-6 lg:grid-cols-3">
+                        <div className="grid gap-6 lg:grid-cols-3">
                             <div className="lg:col-span-2">
-                                <motion.div variants={itemVariants} className={`${cardClass} !p-8`}>
+                                <motion.div className={`${cardClass} !p-8`}>
                                     <div className="flex items-center gap-3 mb-6">
                                         <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 text-white shadow-lg shadow-amber-500/30"><Calendar className="h-6 w-6" /></motion.div>
                                         <div><h3 className="font-bold text-neutral-900 dark:text-white">Jadwal Pengiriman</h3><p className="text-sm text-neutral-500">Atur waktu pengiriman</p></div>
@@ -502,7 +611,7 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                 </motion.div>
                             </div>
                             <div className="lg:col-span-1">
-                                <motion.div variants={itemVariants} className={`sticky top-6 ${cardClass}`}>
+                                <motion.div className={`sticky top-6 ${cardClass}`}>
                                     <div className="flex items-center gap-2 mb-4"><Calendar className="h-5 w-5 text-amber-600" /><h4 className="font-bold text-neutral-900 dark:text-white">Jadwal</h4></div>
                                     <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50 space-y-2">
                                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">{formData.send_now ? '⚡ Kirim Sekarang' : '🕐 Dijadwalkan'}</p>
@@ -511,13 +620,13 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                     </div>
                                 </motion.div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
 
                     {/* STEP 5: Review & Kirim */}
                     {currentStep === 5 && (
-                        <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="space-y-6">
-                            <motion.div variants={itemVariants} className={`${cardClass} !p-8`}>
+                        <div className="space-y-6">
+                            <motion.div className={`${cardClass} !p-8`}>
                                 <div className="flex items-center gap-3 mb-6">
                                     <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg shadow-emerald-500/30"><CheckCircle className="h-6 w-6" /></motion.div>
                                     <div><h3 className="font-bold text-neutral-900 dark:text-white">Review & Kirim</h3><p className="text-sm text-neutral-500">Periksa sebelum mengirim</p></div>
@@ -569,26 +678,64 @@ export default function NotificationDetail({ dosen, courses, mahasiswa, template
                                     </label>
                                 </div>
                             </motion.div>
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
+                </>
 
                 {/* ═══════ NAVIGATION ═══════ */}
-                <motion.div variants={itemVariants} className={`flex items-center justify-between ${cardClass}`}>
-                    <motion.button whileHover={{ scale: 1.05, x: -5 }} whileTap={{ scale: 0.95 }} onClick={handlePrevStep} disabled={currentStep === 1} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold disabled:opacity-50">
-                        <ArrowLeft className="h-5 w-5" /> Sebelumnya
-                    </motion.button>
-                    <div className="flex gap-3">
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleSaveDraft} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold">
-                            <Save className="h-5 w-5" /> Simpan Draft
+                <motion.div variants={itemVariants} className={`${cardClass} overflow-hidden`}>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <motion.button
+                            whileHover={{ scale: 1.05, x: -5 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handlePrevStep}
+                            disabled={currentStep === 1}
+                            className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-100 px-2 py-2 text-[11px] font-semibold text-neutral-600 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm dark:bg-neutral-800 dark:text-neutral-400"
+                        >
+                            <ArrowLeft className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+                            <span className="truncate">Sebelumnya</span>
                         </motion.button>
+
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleSaveDraft}
+                            className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-100 px-2 py-2 text-[11px] font-semibold text-amber-700 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm dark:bg-amber-900/30 dark:text-amber-400"
+                        >
+                            <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                            <span className="truncate">Simpan Draft</span>
+                        </motion.button>
+
                         {currentStep < 5 ? (
-                            <motion.button whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }} onClick={handleNextStep} disabled={!validateStep(currentStep)} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg shadow-indigo-500/30 disabled:opacity-50">
-                                Selanjutnya <ArrowRight className="h-5 w-5" />
+                            <motion.button
+                                whileHover={{ scale: 1.05, x: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleNextStep}
+                                disabled={!validateStep(currentStep)}
+                                className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-2 py-2 text-[11px] font-semibold text-white shadow-lg shadow-indigo-500/30 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+                            >
+                                <span className="truncate">Selanjutnya</span>
+                                <ArrowRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                             </motion.button>
                         ) : (
-                            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleSend} disabled={sending || !allStepsValid || !confirmChecks.content || !confirmChecks.target} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow-lg shadow-emerald-500/30 disabled:opacity-50">
-                                {sending ? <><Loader2 className="h-5 w-5 animate-spin" /> Mengirim...</> : <><Send className="h-5 w-5" /> Kirim Notifikasi</>}
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleSend}
+                                disabled={sending || !allStepsValid || !confirmChecks.content || !confirmChecks.target}
+                                className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-2 py-2 text-[11px] font-semibold text-white shadow-lg shadow-emerald-500/30 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"
+                            >
+                                {sending ? (
+                                    <>
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin sm:h-5 sm:w-5" />
+                                        <span className="truncate">Mengirim...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+                                        <span className="truncate">Kirim Notifikasi</span>
+                                    </>
+                                )}
                             </motion.button>
                         )}
                     </div>

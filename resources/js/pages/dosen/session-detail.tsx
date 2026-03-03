@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import React from 'react';
-import SesiAbsenIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
+import SessionIcon from '@/assets/dosen/template/template.png';
 
 interface Template { id: number; name: string; description: string | null; category: string; course_id: number | null; tags: string[] | null; duration_minutes: number; qr_refresh_interval: number; allow_late_minutes: number; grace_period_minutes: number; default_days: number[] | null; require_selfie: boolean; selfie_verification_level: string; require_location: boolean; location_radius_meters: number; anti_spoofing: boolean; max_attempts: number; auto_activate: boolean; auto_activate_time: string | null; auto_deactivate: boolean; auto_deactivate_time: string | null; send_reminder: boolean; reminder_minutes_before: number; is_active: boolean; is_draft: boolean; is_favorite: boolean; course?: { id: number; nama: string; sks?: number }; }
 interface Props { dosen: { id: number; nama: string }; template?: Template; courses: Array<{ id: number; nama: string; sks: number }>; mode: 'create' | 'edit'; }
@@ -36,12 +36,12 @@ function Card({ icon: Icon, gradient, title, desc, children }: { icon: any; grad
 }
 
 function NavBar({ step, total, onPrev, onNext, onDraft, onSubmit, submitting, canNext }: { step: number; total: number; onPrev: () => void; onNext: () => void; onDraft: () => void; onSubmit: () => void; submitting: boolean; canNext: boolean }) {
-    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center justify-between rounded-3xl border border-white/20 bg-white/50 p-5 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-        <motion.button whileHover={{ scale: 1.05, x: -5 }} whileTap={{ scale: 0.95 }} onClick={onPrev} disabled={step === 1} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold disabled:opacity-50"><ArrowLeft className="h-5 w-5" />Sebelumnya</motion.button>
-        <div className="flex gap-3">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onDraft} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-semibold"><Save className="h-4 w-4" />Draft</motion.button>
-            {step < total ? (<motion.button whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }} onClick={onNext} disabled={!canNext} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg shadow-indigo-500/30 disabled:opacity-50">Selanjutnya<ArrowRight className="h-5 w-5" /></motion.button>
-            ) : (<motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onSubmit} disabled={submitting || !canNext} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow-lg shadow-emerald-500/30 disabled:opacity-50">{submitting ? <><Loader2 className="h-5 w-5 animate-spin" />Menyimpan...</> : <><CheckCircle className="h-5 w-5" />Simpan Template</>}</motion.button>)}
+    return (<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-3xl border border-white/20 bg-white/50 p-4 shadow-lg backdrop-blur-xl sm:p-5 dark:border-neutral-800 dark:bg-neutral-900/50">
+        <div className="flex w-full min-w-0 flex-nowrap items-center gap-1.5 sm:gap-2.5">
+            <motion.button whileHover={{ scale: 1.05, x: -5 }} whileTap={{ scale: 0.95 }} onClick={onPrev} disabled={step === 1} className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-neutral-100 px-2 py-2 text-[11px] font-semibold text-neutral-600 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm dark:bg-neutral-800 dark:text-neutral-400"><ArrowLeft className="h-3.5 w-3.5 sm:h-5 sm:w-5" /><span className="truncate">Sebelumnya</span></motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onDraft} className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-amber-100 px-2 py-2 text-[11px] font-semibold text-amber-700 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm dark:bg-amber-900/30 dark:text-amber-400"><Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" /><span className="truncate">Draft</span></motion.button>
+            {step < total ? (<motion.button whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }} onClick={onNext} disabled={!canNext} className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-2 py-2 text-[11px] font-semibold text-white shadow-lg shadow-indigo-500/30 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm"><span className="truncate">Selanjutnya</span><ArrowRight className="h-3.5 w-3.5 sm:h-5 sm:w-5" /></motion.button>
+            ) : (<motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onSubmit} disabled={submitting || !canNext} className="flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-2 py-2 text-[11px] font-semibold text-white shadow-lg shadow-emerald-500/30 disabled:opacity-50 sm:h-auto sm:flex-none sm:gap-2 sm:px-5 sm:py-2.5 sm:text-sm">{submitting ? <><Loader2 className="h-3.5 w-3.5 animate-spin sm:h-5 sm:w-5" /><span className="truncate">Menyimpan</span></> : <><CheckCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5" /><span className="truncate">Simpan</span></>}</motion.button>)}
         </div>
     </motion.div>);
 }
@@ -76,6 +76,8 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
 
     const catGrad = CATS.find(c => c.v === f.category)?.c || 'from-blue-400 to-cyan-600';
     const catLabel = CATS.find(c => c.v === f.category)?.l || 'Regular';
+    const catIndex = Math.max(0, CATS.findIndex(c => c.v === f.category));
+    const catProgress = ((catIndex + 1) / CATS.length) * 100;
     const courseName = courses.find(c => c.id === f.course_id)?.nama || 'Semua';
 
     return (
@@ -89,12 +91,19 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-<div className="relative">
+                    <div className="relative">
+                        <motion.button
+                            whileHover={{ scale: 1.02, x: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.visit('/dosen/session-templates')}
+                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali
+                        </motion.button>
+
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
-                                <motion.button whileHover={{ scale: 1.1, x: -5 }} whileTap={{ scale: 0.95 }} onClick={() => router.visit('/dosen/session-templates')} className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xl border border-white/30 shrink-0">
-                                    <ArrowLeft className="h-6 w-6" />
-                                </motion.button>
                                 <motion.div
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
                                     whileHover={{ scale: 1.05, rotate: 5 }}
@@ -102,7 +111,7 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
                                 >
-                                    <img src={SesiAbsenIcon} alt="Sesi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img src={SessionIcon} alt="Template" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
                                 </motion.div>
                                 <div className="flex-1 mt-1 sm:mt-0">
                                     <motion.p className="text-sm text-indigo-100 font-medium tracking-wide"
@@ -127,19 +136,19 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                 </motion.div>
 
                 {/* ═══ STEPPER ═══ */}
-                <motion.div variants={iV} className="rounded-3xl border border-white/20 bg-white/50 p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
-                    <div className="flex items-center justify-between">
+                <motion.div variants={iV} className="rounded-2xl sm:rounded-3xl border border-white/20 bg-white/50 p-4 sm:p-6 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50">
+                    <div className="flex items-center justify-start sm:justify-between gap-4 sm:gap-0 overflow-x-auto pb-4 pt-2 px-1 snap-x hide-scrollbar">
                         {steps.map((s, i) => (<React.Fragment key={s.id}>
-                            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { if (s.id <= step || (s.id > 1 && valid(s.id - 1))) setStep(s.id); }} className={`relative flex flex-col items-center gap-3 ${s.id > step + 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { if (s.id <= step || (s.id > 1 && valid(s.id - 1))) setStep(s.id); }} className={`snap-start shrink-0 relative flex flex-col items-center gap-2 sm:gap-3 ${s.id > step + 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}>
                                 <div className="relative">
-                                    <motion.div animate={{ scale: step === s.id ? 1.1 : 1 }} className={`flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg ${s.id < step ? 'bg-emerald-500 shadow-emerald-500/30' : step === s.id ? 'bg-indigo-500 shadow-indigo-500/30' : 'bg-neutral-300 dark:bg-neutral-700'}`}>
-                                        {s.id < step ? <CheckCircle className="h-7 w-7 text-white" /> : <s.icon className={`h-7 w-7 ${step === s.id ? 'text-white' : 'text-neutral-500'}`} />}
+                                    <motion.div animate={{ scale: step === s.id ? 1.1 : 1 }} className={`flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl shadow-lg ${s.id < step ? 'bg-emerald-500 shadow-emerald-500/30' : step === s.id ? 'bg-indigo-500 shadow-indigo-500/30' : 'bg-neutral-300 dark:bg-neutral-700'}`}>
+                                        {s.id < step ? <CheckCircle className="h-5 w-5 sm:h-7 sm:w-7 text-white" /> : <s.icon className={`h-5 w-5 sm:h-7 sm:w-7 ${step === s.id ? 'text-white' : 'text-neutral-500'}`} />}
                                     </motion.div>
-                                    <motion.div animate={{ scale: step === s.id ? 1 : 0.8, opacity: step === s.id ? 1 : 0.6 }} className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-xs font-bold shadow-lg">{s.id}</motion.div>
+                                    <motion.div animate={{ scale: step === s.id ? 1 : 0.8, opacity: step === s.id ? 1 : 0.6 }} className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-[10px] sm:text-xs font-bold shadow-lg">{s.id}</motion.div>
                                 </div>
-                                <div className="text-center max-w-[100px]"><p className={`text-xs font-bold ${step === s.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-neutral-500'}`}>{s.t}</p><p className="text-[10px] text-neutral-400 mt-0.5 hidden md:block">{s.d}</p></div>
+                                <div className="text-center w-20 sm:w-auto sm:max-w-[100px]"><p className={`text-[11px] sm:text-xs font-bold leading-tight ${step === s.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-neutral-500'}`}>{s.t}</p><p className="text-[10px] text-neutral-400 mt-0.5 hidden md:block">{s.d}</p></div>
                             </motion.button>
-                            {i < steps.length - 1 && (<div className="flex-1 h-1 mx-2 relative"><div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full" /><motion.div initial={{ width: '0%' }} animate={{ width: s.id < step ? '100%' : '0%' }} transition={{ duration: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" /></div>)}
+                            {i < steps.length - 1 && (<div className="w-6 sm:w-auto sm:flex-1 h-1 mx-1 sm:mx-2 relative shrink-0"><div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full" /><motion.div initial={{ width: '0%' }} animate={{ width: s.id < step ? '100%' : '0%' }} transition={{ duration: 0.5 }} className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" /></div>)}
                         </React.Fragment>))}
                     </div>
                     <div className="mt-6"><div className="flex justify-between text-sm text-neutral-600 dark:text-neutral-400 mb-2"><span>Progress</span><span className="font-bold">{Math.round((step / T) * 100)}%</span></div><div className="h-3 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden"><motion.div initial={{ width: '0%' }} animate={{ width: `${(step / T) * 100}%` }} transition={{ duration: 0.5 }} className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full" /></div></div>
@@ -148,12 +157,26 @@ export default function SessionDetail({ dosen, template, courses, mode }: Props)
                 {/* ═══ STEP CONTENT ═══ */}
                 <AnimatePresence mode="wait">
                     {step === 1 && (<motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="grid gap-6 lg:grid-cols-3">
-                        <div className="lg:col-span-2">
+                        <div className="min-w-0 lg:col-span-2">
                             <Card icon={FileText} gradient="from-blue-400 to-cyan-600" title="Informasi Dasar" desc="Nama, kategori, dan deskripsi template">
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Nama Template *</label><Input placeholder="Contoh: Template Kuliah Regular" value={f.name} onChange={e => up('name', e.target.value)} className="border-2" /><p className="text-xs text-neutral-500 mt-1">Minimal 3 karakter</p></div>
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Deskripsi</label><Textarea placeholder="Jelaskan kegunaan template ini..." value={f.description} onChange={e => up('description', e.target.value)} rows={3} className="border-2" /><p className="text-xs text-neutral-500 mt-1">{f.description.length}/500</p></div>
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Kategori *</label>
-                                    <div className="grid grid-cols-5 gap-3">{CATS.map(c => (<motion.button key={c.v} type="button" whileHover={{ scale: 1.05, y: -5 }} whileTap={{ scale: 0.95 }} onClick={() => up('category', c.v)} className={`relative overflow-hidden rounded-2xl p-4 text-center transition-all ${f.category === c.v ? 'ring-4 ring-indigo-500/50' : 'ring-1 ring-neutral-200 dark:ring-neutral-800'}`}><div className={`flex h-12 w-12 mx-auto items-center justify-center rounded-xl bg-gradient-to-br ${c.c} text-white shadow-lg mb-2`}><FileText className="h-6 w-6" /></div><p className="text-xs font-semibold text-neutral-900 dark:text-white">{c.l}</p><p className="text-[10px] text-neutral-500">{c.d}</p></motion.button>))}</div>
+                                    <div className="flex overflow-x-auto pb-4 pt-1 px-1 gap-2.5 sm:gap-3 snap-x hide-scrollbar sm:grid sm:grid-cols-5 sm:pb-0">{CATS.map(c => (<motion.button key={c.v} type="button" whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.95 }} onClick={() => up('category', c.v)} className={`snap-start shrink-0 w-24 sm:w-auto relative overflow-hidden rounded-xl p-3 text-center transition-all shadow-sm ${f.category === c.v ? 'ring-2 ring-indigo-500 bg-indigo-50/30' : 'ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white/50'}`}><div className={`flex h-10 w-10 mx-auto items-center justify-center rounded-lg bg-gradient-to-br ${c.c} text-white shadow-md mb-2`}><FileText className="h-5 w-5" /></div><p className="text-[11px] sm:text-xs font-semibold text-neutral-900 dark:text-white leading-tight">{c.l}</p><p className="text-[9px] sm:text-[10px] text-neutral-500 mt-0.5">{c.d}</p></motion.button>))}</div>
+                                    <div className="mt-1 sm:hidden">
+                                        <div className="mb-1 flex items-center justify-between text-[10px] text-neutral-500 dark:text-neutral-400">
+                                            <span>Progress Kategori</span>
+                                            <span className="font-semibold">{catIndex + 1}/{CATS.length}</span>
+                                        </div>
+                                        <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                                            <motion.div
+                                                initial={{ width: '0%' }}
+                                                animate={{ width: `${catProgress}%` }}
+                                                transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                                                className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div><label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Mata Kuliah (Opsional)</label>
                                     <select value={f.course_id ?? ''} onChange={e => up('course_id', e.target.value ? parseInt(e.target.value) : null)} className="w-full rounded-xl border-2 border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-2.5 text-sm text-neutral-900 dark:text-white"><option value="">Semua Mata Kuliah</option>{courses.map(c => (<option key={c.id} value={c.id}>{c.nama} - {c.sks} SKS</option>))}</select>

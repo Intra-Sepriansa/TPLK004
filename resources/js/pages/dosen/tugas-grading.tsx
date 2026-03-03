@@ -81,7 +81,7 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
     const filteredSubmissions = useMemo(() => {
-        let filtered = submissions.filter(s => {
+        const filtered = submissions.filter(s => {
             const matchSearch = s.mahasiswa.nama.toLowerCase().includes(searchQuery.toLowerCase()) || s.mahasiswa.nim.includes(searchQuery);
             const matchStatus = filterStatus === 'all' || (filterStatus === 'graded' && s.status === 'graded') || (filterStatus === 'pending' && s.status !== 'graded') || (filterStatus === 'late' && s.is_late);
             return matchSearch && matchStatus;
@@ -140,7 +140,10 @@ export default function DosenTugasGrading({ tugas, submissions, stats }: Props) 
             <motion.div className="space-y-6 p-6" variants={containerVariants} initial="hidden" animate="visible">
                 {/* ═══ HEADER ═══ */}
                 <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
+                    {[0, 1, 2].map(i => (
+                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10" animate={{ scale: [1, 2.5], opacity: [0.4, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }} />
+                    ))}
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="relative z-10">

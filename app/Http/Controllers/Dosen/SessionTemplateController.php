@@ -98,6 +98,17 @@ class SessionTemplateController extends Controller
             'is_draft' => 'boolean',
         ]);
 
+        $validated['course_id'] = $this->resolveCourseId(
+            isset($validated['course_id']) ? (int) $validated['course_id'] : null,
+            $dosen->id,
+        );
+
+        if (!$validated['course_id']) {
+            return back()
+                ->withErrors(['course_id' => 'Pilih mata kuliah terlebih dahulu sebelum menyimpan template.'])
+                ->withInput();
+        }
+
         $validated['dosen_id'] = $dosen->id;
         $validated['default_start_time'] = '08:00';
         $validated['default_end_time'] = '10:00';
@@ -139,6 +150,16 @@ class SessionTemplateController extends Controller
             'is_draft' => 'boolean',
         ]);
 
+        $validated['course_id'] = isset($validated['course_id']) && $validated['course_id']
+            ? $this->resolveCourseId((int) $validated['course_id'], $dosen->id)
+            : ($template->course_id ?: $this->resolveCourseId(null, $dosen->id));
+
+        if (!$validated['course_id']) {
+            return back()
+                ->withErrors(['course_id' => 'Pilih mata kuliah terlebih dahulu sebelum menyimpan template.'])
+                ->withInput();
+        }
+
         $template->update($validated);
 
         return redirect()->route('dosen.session-templates')->with('success', 'Template berhasil diperbarui.');
@@ -149,6 +170,7 @@ class SessionTemplateController extends Controller
         $dosen = Auth::guard('dosen')->user();
 
         $data = $request->all();
+        $requestedCourseId = $request->filled('course_id') ? (int) $request->input('course_id') : null;
         $data['dosen_id'] = $dosen->id;
         $data['is_draft'] = true;
         $data['default_start_time'] = '08:00';
@@ -157,9 +179,17 @@ class SessionTemplateController extends Controller
         if ($request->id) {
             $template = SessionTemplate::where('id', $request->id)->where('dosen_id', $dosen->id)->first();
             if ($template) {
+                $data['course_id'] = $this->resolveCourseId($requestedCourseId, $dosen->id) ?: $template->course_id;
+                if (!$data['course_id']) {
+                    return back()->withErrors(['course_id' => 'Mata kuliah tidak ditemukan untuk akun dosen ini.']);
+                }
                 $template->update($data);
             }
         } else {
+            $data['course_id'] = $this->resolveCourseId($requestedCourseId, $dosen->id);
+            if (!$data['course_id']) {
+                return back()->withErrors(['course_id' => 'Mata kuliah tidak ditemukan untuk akun dosen ini.']);
+            }
             SessionTemplate::create(array_merge($data, ['name' => $data['name'] ?? 'Draft Template']));
         }
 
@@ -367,5 +397,18 @@ class SessionTemplateController extends Controller
         $template->update(['is_active' => !$template->is_active]);
 
         return back()->with('success', $template->is_active ? 'Template diaktifkan.' : 'Template dinonaktifkan.');
+    }
+
+    private function resolveCourseId(?int $courseId, int $dosenId): ?int
+    {
+        if ($courseId !== null) {
+            return MataKuliah::where('id', $courseId)
+                ->where('dosen_id', $dosenId)
+                ->value('id');
+        }
+
+        return MataKuliah::where('dosen_id', $dosenId)
+            ->orderBy('id')
+            ->value('id');
     }
 }

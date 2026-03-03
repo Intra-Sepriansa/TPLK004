@@ -106,6 +106,11 @@ const managementNavItems: NavItem[] = [
         icon: ClipboardList,
     },
     {
+        title: 'Tugas Kelompok',
+        href: '/admin/tugas-kelompok',
+        icon: Users,
+    },
+    {
         title: 'Uang Kas',
         href: '/admin/kas',
         icon: Wallet,

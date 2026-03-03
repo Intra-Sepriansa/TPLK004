@@ -9,7 +9,7 @@ import {
     FileText, Plus, Edit, Trash2, Calendar, Clock, Play, X,
     Copy, Search, Filter, Zap, CheckCircle, RefreshCw,
     Download, Eye, Star, Loader2, Save, Layout,
-    TrendingUp, LayoutTemplate, Sparkles, AlertTriangle,
+    TrendingUp, LayoutTemplate, Sparkles,
 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion';
@@ -19,6 +19,7 @@ import TotalTemplateIcon from '@/assets/dosen/template/total-template.png';
 import TemplateAktifIcon from '@/assets/dosen/template/template-aktif.png';
 import AutoActivateIcon from '@/assets/dosen/template/Auto-Activate.png';
 import DurasiIcon from '@/assets/admin/fraud-detection/pending.png';
+import DeleteIconImage from '@/assets/matkul/image.png';
 
 // ═══ INTERFACES ═══
 
@@ -274,10 +275,26 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* 3 Pulse Rings */}
+                    {[0, 1, 2].map(i => (
+                        <motion.div
+                            key={i}
+                            className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeOut', delay: i }}
+                        />
+                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -363,13 +380,7 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                         <p className="hidden sm:block text-xs text-neutral-400 mt-1">{card.sub}</p>
                                     </div>
                                 </div>
-                                <div className="mt-auto w-full pt-2 sm:pt-4">
-                                    <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                        <motion.div className={`h-full bg-gradient-to-r ${card.from} ${card.to} rounded-full`}
-                                            initial={{ width: 0 }} animate={{ width: '70%' }}
-                                            transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
-                                    </div>
-                                </div>
+
                             </div>
                         </motion.div>
                     ))}
@@ -434,7 +445,7 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                 {
                     filteredTemplates.length === 0 ? (
                         <motion.div variants={itemVariants} className="rounded-3xl border border-white/20 bg-white/50 p-12 shadow-lg backdrop-blur-xl dark:border-neutral-800 dark:bg-neutral-900/50 text-center">
-                            <div>
+                            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
                                 <FileText className="h-16 w-16 mx-auto mb-4 text-neutral-300" />
                             </motion.div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
@@ -557,7 +568,9 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                 {/* Modal Header */}
                                 <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white">
                                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-
+                                    {[0, 1, 2].map(i => (
+                                        <motion.div key={i} className="absolute right-10 top-1/2 -translate-y-1/2 h-20 w-20 rounded-full border border-white/10" animate={{ scale: [1, 2], opacity: [0.3, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut', delay: i * 0.8 }} />
+                                    ))}
                                     <div className="relative flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
@@ -727,14 +740,14 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
             <AnimatePresence>
                 {
                     showDeleteConfirm && deleteTarget && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowDeleteConfirm(false)}>
-                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-sm rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl overflow-hidden">
-                                <div className="relative overflow-hidden bg-gradient-to-br from-red-600 via-rose-600 to-pink-500 p-6 text-white">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4" onClick={() => setShowDeleteConfirm(false)}>
+                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-sm overflow-hidden rounded-3xl border border-white/40 bg-[#050709] text-white shadow-[0_25px_70px_rgba(0,0,0,0.75)]">
+                                <div className="relative overflow-hidden bg-gradient-to-br from-neutral-950 via-black to-neutral-900 p-6 text-white">
                                     <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
                                     <div className="relative flex items-center gap-3">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30">
-                                            <AlertTriangle className="h-6 w-6" />
-                                        </div>
+                                        <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 1.2, repeat: Infinity }} className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-400/30 bg-red-500/15 backdrop-blur-xl">
+                                            <img src={DeleteIconImage} alt="Hapus" className="h-9 w-9 object-contain" />
+                                        </motion.div>
                                         <div>
                                             <h3 className="text-lg font-bold">Hapus Template</h3>
                                             <p className="text-sm text-white/80">Tindakan ini tidak dapat dibatalkan</p>
@@ -742,16 +755,22 @@ export default function SessionTemplates({ dosen, templates, stats, courses }: P
                                     </div>
                                 </div>
                                 <div className="p-6 space-y-4">
-                                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                                        Yakin ingin menghapus template <strong className="text-neutral-900 dark:text-white">"{deleteTarget.name}"</strong>? Template yang sudah dihapus tidak dapat dikembalikan.
+                                    <p className="text-sm text-neutral-300">
+                                        Yakin ingin menghapus template <strong className="text-white">"{deleteTarget.name}"</strong>? Template yang sudah dihapus tidak dapat dikembalikan.
                                     </p>
+                                    <div className="rounded-2xl border border-red-400/30 bg-red-500/12 px-4 py-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-red-200">Konfirmasi Aksi</p>
+                                        <p className="mt-1 text-sm leading-relaxed text-red-100/90">
+                                            Aksi ini permanen. Data yang dihapus tidak dapat dipulihkan.
+                                        </p>
+                                    </div>
                                     <div className="flex gap-3">
                                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleDelete}
-                                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold shadow-lg shadow-red-500/30">
+                                            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white font-semibold shadow-[0_14px_30px_rgba(225,29,72,0.35)] transition-all hover:from-rose-500 hover:via-red-500 hover:to-rose-600">
                                             <Trash2 className="h-5 w-5" /> Ya, Hapus
                                         </motion.button>
                                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowDeleteConfirm(false)}
-                                            className="px-6 py-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 font-semibold">
+                                            className="px-6 py-3 rounded-xl border border-white/20 bg-white/5 text-white font-semibold hover:bg-white/10">
                                             Batal
                                         </motion.button>
                                     </div>

@@ -269,6 +269,15 @@ class SesiAbsenController extends Controller
         $session->load(['course', 'logs.mahasiswa']);
 
         $attendanceLogs = $session->logs->sortBy('scanned_at')->values()->map(function ($log, $index) {
+            $statusLabel = match ($log->status) {
+                'present' => 'Hadir',
+                'late' => 'Terlambat',
+                'permit' => 'Izin',
+                'sick' => 'Sakit',
+                'rejected' => 'Ditolak',
+                default => 'Absen',
+            };
+
             return [
                 'no' => $index + 1,
                 'nama' => $log->mahasiswa->nama ?? '-',
@@ -278,7 +287,7 @@ class SesiAbsenController extends Controller
                 'kelas' => $log->mahasiswa->kelas ?? '-',
                 'jenis_reguler' => $log->mahasiswa->jenis_reguler ?? 'Reguler A',
                 'semester' => $log->mahasiswa->semester ?? '5',
-                'status' => ucfirst($log->status),
+                'status' => $statusLabel,
                 'waktu' => $log->scanned_at?->format('H:i:s') ?? '-',
             ];
         });

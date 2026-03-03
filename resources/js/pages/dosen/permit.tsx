@@ -158,41 +158,51 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
             <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 md:p-6 space-y-5">
 
                 {/* ════════════════ HEADER ════════════════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 md:p-10 lg:p-12 text-white shadow-2xl min-h-[160px] md:min-h-[180px]">
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 text-white shadow-2xl min-h-[170px] sm:min-h-[190px] md:min-h-[200px]">
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     {/* Decorative orbs */}
-                    <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-                    <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-pink-400/10 blur-3xl" />
-                    <div className="absolute top-1/2 left-1/3 h-48 w-48 rounded-full bg-indigo-300/10 blur-3xl" />
+                    <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-3xl sm:h-72 sm:w-72" />
+                    <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-pink-400/10 blur-3xl sm:h-72 sm:w-72" />
+                    <div className="absolute left-1/3 top-1/2 hidden h-48 w-48 rounded-full bg-indigo-300/10 blur-3xl sm:block" />
                     {/* Animated pulse rings */}
-{/* Grid pattern overlay */}
+                    {/* Grid pattern overlay */}
                     <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                    <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
-                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
+                    <div className="relative z-10 flex flex-col gap-5 sm:gap-6 md:flex-row md:items-center md:justify-between">
+                        <div className="flex w-full items-start gap-4 sm:items-center sm:gap-5">
+                            <motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20 md:h-24 md:w-24">
                                 <img src={PersetujuanIzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                             </motion.div>
-                            <div className="space-y-1.5">
-                                <p className="text-xs md:text-sm text-indigo-200 font-semibold tracking-widest uppercase">Manajemen Perizinan</p>
-                                <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">Persetujuan Izin</h1>
-                                <p className="text-sm md:text-base text-indigo-100/80 max-w-xl leading-relaxed">Kelola permohonan izin mahasiswa dengan sistem verifikasi AI terintegrasi</p>
+                            <div className="space-y-1 sm:space-y-1.5">
+                                <p className="text-[10px] font-semibold tracking-[0.2em] text-indigo-200 uppercase sm:text-xs md:text-sm md:tracking-widest">Manajemen Perizinan</p>
+                                <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl md:text-3xl lg:text-4xl">Persetujuan Izin</h1>
+                                <p className="max-w-xl text-xs leading-relaxed text-indigo-100/80 sm:text-sm md:text-base">Kelola permohonan izin mahasiswa dengan sistem verifikasi AI terintegrasi</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }} className="flex items-center gap-4 rounded-2xl bg-white/15 backdrop-blur-xl px-6 py-4 border border-white/20 shadow-lg">
-                                <div className="p-2.5 rounded-xl bg-white/15 backdrop-blur-sm"><Sparkles className="h-5 w-5" /></div>
-                                <div>
-                                    <p className="text-[10px] text-indigo-200 uppercase tracking-wider font-semibold">AI Accuracy</p>
-                                    <p className="text-2xl font-extrabold tracking-tight">94<span className="text-base font-bold text-indigo-200">%</span></p>
+                        <div className="flex w-full flex-nowrap items-center gap-2 sm:gap-3 md:w-auto">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.5, type: 'spring' }}
+                                className="flex h-11 flex-1 items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/15 px-3 shadow-lg backdrop-blur-xl sm:h-12 sm:px-4 md:flex-none md:justify-start"
+                            >
+                                <div className="rounded-lg bg-white/15 p-1.5 backdrop-blur-sm">
+                                    <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 </div>
+                                <p className="text-[10px] font-semibold tracking-wide text-indigo-200">AI Accuracy</p>
+                                <p className="text-sm font-extrabold tracking-tight sm:text-base">94<span className="text-[10px] font-bold text-indigo-200 sm:text-xs">%</span></p>
                             </motion.div>
-                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7, type: 'spring' }} className="flex items-center gap-4 rounded-2xl bg-white/15 backdrop-blur-xl px-6 py-4 border border-white/20 shadow-lg">
-                                <div className="p-2.5 rounded-xl bg-white/15 backdrop-blur-sm"><Activity className="h-5 w-5" /></div>
-                                <div>
-                                    <p className="text-[10px] text-indigo-200 uppercase tracking-wider font-semibold">Response</p>
-                                    <p className="text-2xl font-extrabold tracking-tight">{stats.avg_response_time}<span className="text-base font-bold text-indigo-200">h</span></p>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.7, type: 'spring' }}
+                                className="flex h-11 flex-1 items-center justify-between gap-2 rounded-xl border border-white/20 bg-white/15 px-3 shadow-lg backdrop-blur-xl sm:h-12 sm:px-4 md:flex-none md:justify-start"
+                            >
+                                <div className="rounded-lg bg-white/15 p-1.5 backdrop-blur-sm">
+                                    <Activity className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 </div>
+                                <p className="text-[10px] font-semibold tracking-wide text-indigo-200">Response</p>
+                                <p className="text-sm font-extrabold tracking-tight sm:text-base">{stats.avg_response_time}<span className="text-[10px] font-bold text-indigo-200 sm:text-xs">h</span></p>
                             </motion.div>
                         </div>
                     </div>
@@ -280,8 +290,7 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                                         {col.items.map(p => (
                                             <motion.div key={p.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.01, y: -2 }}
                                                 className="rounded-xl border border-white/60 dark:border-neutral-700/60 bg-white dark:bg-neutral-900 p-0 shadow-sm hover:shadow-xl transition-all cursor-pointer overflow-hidden" onClick={() => router.visit(`/dosen/permits/${p.id}`)}>
-                                                {/* Card Top Color Accent */}
-                                                <div className={cn("h-1", p.status === 'pending' ? 'bg-gradient-to-r from-amber-400 to-orange-500' : p.status === 'approved' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : 'bg-gradient-to-r from-red-400 to-rose-500')} />
+
                                                 <div className="p-4">
                                                     {/* Student Info */}
                                                     <div className="flex items-center gap-3 mb-3">
@@ -293,7 +302,7 @@ export default function PermitPage({ permits: initialPermits, sessions, stats, f
                                                             <p className="font-bold text-sm truncate text-neutral-900 dark:text-white">{p.mahasiswa.nama}</p>
                                                             <p className="text-[11px] text-neutral-500 font-medium">{p.mahasiswa.nim}</p>
                                                         </div>
-                                                        {p.is_urgent && <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20"><AlertTriangle className="h-4 w-4 text-red-500" /></motion.div>}
+                                                        {p.is_urgent && <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/20"><AlertTriangle className="h-4 w-4 text-red-500" /></div>}
                                                     </div>
 
                                                     {/* Meta Info Row */}

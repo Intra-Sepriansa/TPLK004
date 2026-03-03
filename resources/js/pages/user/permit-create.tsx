@@ -11,6 +11,7 @@ import {
     ArrowLeft,
     ArrowRight,
     Calendar,
+    ChevronRight,
     Check,
     CheckCircle,
     ClipboardList,
@@ -127,6 +128,12 @@ export default function PermitCreate({ availableSessions }: Props) {
     );
     const canProceedToStep3 = data.reason.trim().length >= 20;
     const canSubmit = data.attachment !== null;
+    const completedByStep: Record<number, boolean> = {
+        1: canProceedToStep2,
+        2: canProceedToStep3,
+        3: canSubmit,
+    };
+    const maxUnlockedStep = canProceedToStep2 ? (canProceedToStep3 ? 3 : 2) : 1;
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
@@ -214,70 +221,46 @@ export default function PermitCreate({ availableSessions }: Props) {
                     transition={{ delay: 0.2 }}
                     className="rounded-3xl border border-white/20 bg-white/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
                 >
-                    <div className="flex items-center justify-between">
-                        {steps.map((step, index) => {
-                            const StepIcon = step.icon;
-                            const isActive = currentStep === step.number;
-                            const isCompleted = currentStep > step.number;
+                    <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <div className="flex w-max min-w-full items-center gap-2 sm:justify-center">
+                            {steps.map((step, index) => {
+                                const StepIcon = step.icon;
+                                const isActive = currentStep === step.number;
+                                const isCompleted = step.number < currentStep && completedByStep[step.number];
+                                const canOpen = step.number <= maxUnlockedStep || step.number <= currentStep;
 
-                            return (
-                                <div key={step.number} className="flex flex-1 items-center">
-                                    <div className="flex flex-1 flex-col items-center">
-                                        <motion.div
-                                            initial={false}
-                                            animate={{ scale: isActive ? 1.08 : 1 }}
+                                return (
+                                    <div key={step.number} className="flex shrink-0 items-center gap-2">
+                                        <motion.button
+                                            whileHover={{ scale: 1.03 }}
+                                            whileTap={{ scale: 0.97 }}
+                                            onClick={() => {
+                                                if (!canOpen) {
+                                                    window.alert('Lengkapi langkah sebelumnya dulu.');
+                                                    return;
+                                                }
+                                                setCurrentStep(step.number);
+                                            }}
                                             className={cn(
-                                                'relative flex h-12 w-12 items-center justify-center rounded-full transition-all sm:h-16 sm:w-16',
-                                                isCompleted && 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30',
+                                                'flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-semibold transition-all sm:px-4 sm:py-2.5 sm:text-sm',
                                                 isActive &&
-                                                    'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30',
+                                                    'border-indigo-400 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25',
+                                                isCompleted &&
+                                                    'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300',
                                                 !isActive &&
                                                     !isCompleted &&
-                                                    'bg-neutral-300 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400',
+                                                    'border-slate-200/70 bg-white/70 text-slate-500 dark:border-slate-700 dark:bg-neutral-800/40',
+                                                canOpen ? 'cursor-pointer' : 'cursor-not-allowed opacity-45',
                                             )}
                                         >
-                                            {isCompleted ? (
-                                                <Check className="h-6 w-6 sm:h-7 sm:w-7" />
-                                            ) : (
-                                                <StepIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                                            )}
-                                            {isActive && (
-                                                <motion.div
-                                                    className="absolute inset-0 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                                                    animate={{ scale: [1, 1.3, 1], opacity: [0.45, 0, 0.45] }}
-                                                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                                                />
-                                            )}
-                                        </motion.div>
-
-                                        <div className="mt-3 text-center">
-                                            <p
-                                                className={cn(
-                                                    'text-xs font-semibold transition-colors sm:text-sm',
-                                                    isActive && 'text-indigo-600 dark:text-indigo-400',
-                                                    isCompleted && 'text-emerald-600 dark:text-emerald-400',
-                                                    !isActive && !isCompleted && 'text-neutral-500 dark:text-neutral-400',
-                                                )}
-                                            >
-                                                {step.title}
-                                            </p>
-                                            <p className="mt-0.5 hidden text-[10px] text-neutral-400 sm:block">{step.description}</p>
-                                        </div>
+                                            {isCompleted ? <Check className="h-4 w-4" /> : <StepIcon className="h-4 w-4" />}
+                                            <span className="whitespace-nowrap">{step.title}</span>
+                                        </motion.button>
+                                        {index < steps.length - 1 && <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />}
                                     </div>
-
-                                    {index < steps.length - 1 && (
-                                        <div className="mx-2 mb-8 h-1 flex-1 sm:mx-4">
-                                            <div
-                                                className={cn(
-                                                    'h-full rounded-full transition-colors',
-                                                    currentStep > step.number ? 'bg-emerald-500' : 'bg-neutral-300 dark:bg-neutral-700',
-                                                )}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
                 </motion.div>
 

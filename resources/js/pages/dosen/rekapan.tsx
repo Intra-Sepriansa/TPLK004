@@ -252,8 +252,8 @@ export default function DosenRekapan({
     // ─── Derived ─────────────────────────────────────────
     const sortedLogs = useMemo(() => {
         return [...attendanceLogs].sort((a, b) => {
-            let aV: string = (a[sortField] ?? '').toString().toLowerCase();
-            let bV: string = (b[sortField] ?? '').toString().toLowerCase();
+            const aV: string = (a[sortField] ?? '').toString().toLowerCase();
+            const bV: string = (b[sortField] ?? '').toString().toLowerCase();
             if (aV < bV) return sortDir === 'asc' ? -1 : 1;
             if (aV > bV) return sortDir === 'asc' ? 1 : -1;
             return 0;
@@ -310,7 +310,7 @@ export default function DosenRekapan({
 
                     {/* Floating Pulses */}
 
-<div className="relative">
+                    <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div whileHover={{ scale: 1.1, rotate: 10 }} transition={{ type: 'spring', stiffness: 300 }}
@@ -533,7 +533,7 @@ export default function DosenRekapan({
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-16 px-4">
                             <div>
                                 <ClipboardList className="h-24 w-24 text-neutral-300 dark:text-neutral-700 mb-4" />
-                            </motion.div>
+                            </div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Pilih Filter Terlebih Dahulu</h3>
                             <p className="text-neutral-500 dark:text-neutral-400 text-center max-w-md">Pilih mata kuliah dan pertemuan di atas untuk menampilkan data kehadiran mahasiswa.</p>
                         </motion.div>
@@ -542,7 +542,7 @@ export default function DosenRekapan({
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center py-16 px-4">
                             <div>
                                 <FileSearch className="h-24 w-24 text-neutral-300 dark:text-neutral-700 mb-4" />
-                            </motion.div>
+                            </div>
                             <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">Tidak Ada Data Kehadiran</h3>
                             <p className="text-neutral-500 dark:text-neutral-400 text-center max-w-md mb-6">
                                 {searchQuery || statusFilter !== 'all'

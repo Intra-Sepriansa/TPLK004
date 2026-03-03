@@ -8,13 +8,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import {
-    ArrowLeft, Clock, CheckCircle, XCircle, AlertTriangle, Timer, Sparkles,
-    Paperclip, Check, X, BookOpen, Calendar, Shield,
+    ArrowLeft, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles,
+    Paperclip, Check, X, Calendar, Shield,
     ExternalLink, Activity, Heart, FileText, Mail, Phone,
     TrendingUp, Eye, Info, MessageSquare, Send,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
+import PersetujuanIzinIcon from '@/assets/dosen/izin-sakit/persetujuan-izin.png';
+import CourseInfoIcon from '@/assets/admin/sesi-absen/course-icon.png';
+import DateInfoIcon from '@/assets/admin/sesi-absen/hari-icon.png';
+import DurationInfoIcon from '@/assets/admin/sesi-absen/rata-rata-icon.png';
+import SubmittedInfoIcon from '@/assets/admin/sesi-absen/sesi-icon.png';
 
 /* ═══════════════════════════════════════════════════ */
 /*                     TYPES                          */
@@ -149,81 +154,107 @@ export default function PermitDetail({ permit }: Props) {
                 {/* ═══════════════════════════════════════════════════ */}
                 {/*         HERO CARD — Student + Status               */}
                 {/* ═══════════════════════════════════════════════════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl border border-white/10 bg-white dark:bg-neutral-950 shadow-2xl">
-                    {/* Gradient Banner */}
-                    <div className="relative h-40 md:h-52 overflow-hidden">
-                        <div className={`absolute inset-0 bg-gradient-to-br ${sc.color}`} />
-                        {/* Decorative */}
-                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 75%, white 1px, transparent 1px), radial-gradient(circle at 75% 25%, white 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-                        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-                        <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl border border-white/20 p-5 text-white shadow-2xl sm:p-6 md:p-8">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
+                    <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+                    <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                        {/* Status badge on banner */}
-                        <div className="absolute top-5 right-5 flex items-center gap-2">
-                            <div className={cn("flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-xl border border-white/20 bg-white/15 text-white font-bold text-sm")}>
-                                <sc.icon className="h-4 w-4" />
-                                {sc.label}
-                            </div>
-                            {permit.is_urgent && (
-                                <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl backdrop-blur-xl bg-red-500/30 border border-red-400/30 text-white text-xs font-bold">
-                                    <AlertTriangle className="h-4 w-4" /> Urgent
+                    <div className="relative z-10 space-y-5">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                            <div className="flex items-start gap-4 sm:items-center sm:gap-5">
+                                <motion.div
+                                    whileHover={{ scale: 1.05, rotate: 4 }}
+                                    className="relative flex h-16 w-16 shrink-0 items-center justify-center sm:h-20 sm:w-20"
+                                >
+                                    <img
+                                        src={PersetujuanIzinIcon}
+                                        alt="Permit Detail"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.45)]"
+                                    />
+                                </motion.div>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-semibold tracking-[0.2em] text-indigo-100 uppercase">Permit Detail</p>
+                                    <h1 className="truncate text-xl font-extrabold tracking-tight sm:text-2xl md:text-3xl">{permit.mahasiswa.nama}</h1>
+                                    <p className="mt-1 text-sm font-medium text-indigo-100/90">{permit.mahasiswa.nim}</p>
                                 </div>
-                            )}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur-xl sm:text-sm">
+                                    <sc.icon className="h-4 w-4" />
+                                    {sc.label}
+                                </span>
+                                <Badge className="border border-white/20 bg-white/15 text-white text-xs font-bold backdrop-blur-xl sm:text-sm">
+                                    <tc.icon className="mr-1 h-3 w-3" />
+                                    {tc.label}
+                                </Badge>
+                                {permit.is_urgent && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-red-300/40 bg-red-500/30 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-xl sm:text-sm">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        Urgent
+                                    </span>
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Profile Section */}
-                    <div className="relative px-6 md:px-8 pb-6">
-                        <div className="flex flex-col md:flex-row md:items-end gap-5 -mt-14 md:-mt-16">
-                            {/* Avatar */}
-                            <motion.div className="relative group flex-shrink-0" whileHover={{ scale: 1.03 }}>
-                                <div className={`absolute -inset-1.5 rounded-full bg-gradient-to-r ${sc.color} opacity-60 blur-sm`} />
-                                <div className="relative h-28 w-28 md:h-32 md:w-32 rounded-full overflow-hidden border-4 border-white dark:border-neutral-950 shadow-2xl">
-                                    <Avatar className="h-full w-full">
-                                        <AvatarImage src={permit.mahasiswa.avatar} className="object-cover" />
-                                        <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-3xl font-bold">{permit.mahasiswa.nama[0]}</AvatarFallback>
-                                    </Avatar>
+                        <div className="rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-xl sm:p-5">
+                            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                                    <motion.div className="relative shrink-0" whileHover={{ scale: 1.03 }}>
+                                        <div className="absolute -inset-1 rounded-full bg-white/30 blur-sm" />
+                                        <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-white/70 shadow-xl sm:h-16 sm:w-16">
+                                            <Avatar className="h-full w-full">
+                                                <AvatarImage src={permit.mahasiswa.avatar} className="object-cover" />
+                                                <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-xl font-bold text-white">
+                                                    {permit.mahasiswa.nama[0]}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </div>
+                                    </motion.div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-white sm:text-base">Kontak Mahasiswa</p>
+                                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                                            {permit.mahasiswa.email && (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-indigo-50 sm:text-xs">
+                                                    <Mail className="h-3 w-3" />
+                                                    <span className="truncate">{permit.mahasiswa.email}</span>
+                                                </span>
+                                            )}
+                                            {permit.mahasiswa.phone && (
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-indigo-50 sm:text-xs">
+                                                    <Phone className="h-3 w-3" />
+                                                    <span className="truncate">{permit.mahasiswa.phone}</span>
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </motion.div>
 
-                            {/* Student Info */}
-                            <div className="flex-1 min-w-0 pb-1">
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">{permit.mahasiswa.nama}</h1>
-                                    <Badge className={cn("text-xs font-bold border-0", tc.color)}><tc.icon className="h-3 w-3 mr-1" />{tc.label}</Badge>
-                                </div>
-                                <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium mt-1">{permit.mahasiswa.nim}</p>
-                                <div className="flex flex-wrap items-center gap-2 mt-3">
-                                    {permit.mahasiswa.email && (
-                                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                                            <Mail className="h-3 w-3" />{permit.mahasiswa.email}
-                                        </span>
-                                    )}
-                                    {permit.mahasiswa.phone && (
-                                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                                            <Phone className="h-3 w-3" />{permit.mahasiswa.phone}
-                                        </span>
-                                    )}
-                                </div>
+                                {permit.status === 'pending' && (
+                                    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+                                            <Button
+                                                className="w-full border border-white/20 bg-white/15 px-6 text-white backdrop-blur-xl hover:bg-white/25 sm:w-auto"
+                                                onClick={doApprove}
+                                                disabled={processingId === permit.id}
+                                            >
+                                                <Check className="mr-2 h-4 w-4" /> Setujui
+                                            </Button>
+                                        </motion.div>
+                                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full border-red-300/40 bg-red-500/20 px-6 text-white hover:bg-red-500/30 sm:w-auto"
+                                                onClick={() => setIsRejectOpen(true)}
+                                                disabled={processingId === permit.id}
+                                            >
+                                                <X className="mr-2 h-4 w-4" /> Tolak
+                                            </Button>
+                                        </motion.div>
+                                    </div>
+                                )}
                             </div>
-
-                            {/* Quick Actions */}
-                            {permit.status === 'pending' && (
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                                        <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 px-6"
-                                            onClick={doApprove} disabled={processingId === permit.id}>
-                                            <Check className="h-4 w-4 mr-2" /> Setujui
-                                        </Button>
-                                    </motion.div>
-                                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                                        <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800/30 dark:hover:bg-red-900/20 px-6"
-                                            onClick={() => setIsRejectOpen(true)} disabled={processingId === permit.id}>
-                                            <X className="h-4 w-4 mr-2" /> Tolak
-                                        </Button>
-                                    </motion.div>
-                                </div>
-                            )}
                         </div>
                     </div>
                 </motion.div>
@@ -233,20 +264,58 @@ export default function PermitDetail({ permit }: Props) {
                 {/* ═══════════════════════════════════════════════════ */}
                 <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
-                        { icon: BookOpen, label: 'Mata Kuliah', val: permit.session.mata_kuliah, color: 'from-blue-500 to-indigo-600', glow: 'bg-blue-500' },
-                        { icon: Calendar, label: 'Tanggal', val: permit.session.tanggal_display, color: 'from-purple-500 to-violet-600', glow: 'bg-purple-500' },
-                        { icon: Timer, label: 'Durasi', val: `${permit.duration} Hari`, color: 'from-amber-500 to-orange-600', glow: 'bg-amber-500' },
-                        { icon: Clock, label: 'Diajukan', val: permit.created_at, color: 'from-emerald-500 to-teal-600', glow: 'bg-emerald-500' },
+                        {
+                            iconSrc: CourseInfoIcon,
+                            label: 'Mata Kuliah',
+                            val: permit.session.mata_kuliah,
+                            cardClass: 'border-white/20 bg-white/40 dark:border-white/5 dark:bg-neutral-900/40',
+                            overlayClass: 'from-blue-500/12 to-transparent',
+                            valueClass: 'text-blue-700 dark:text-blue-300',
+                            glow: 'bg-blue-500',
+                        },
+                        {
+                            iconSrc: DateInfoIcon,
+                            label: 'Tanggal',
+                            val: permit.session.tanggal_display,
+                            cardClass: 'border-white/20 bg-white/40 dark:border-white/5 dark:bg-neutral-900/40',
+                            overlayClass: 'from-violet-500/12 to-transparent',
+                            valueClass: 'text-violet-700 dark:text-violet-300',
+                            glow: 'bg-purple-500',
+                        },
+                        {
+                            iconSrc: DurationInfoIcon,
+                            label: 'Durasi',
+                            val: `${permit.duration} Hari`,
+                            cardClass: 'border-white/20 bg-white/40 dark:border-white/5 dark:bg-neutral-900/40',
+                            overlayClass: 'from-amber-500/12 to-transparent',
+                            valueClass: 'text-amber-700 dark:text-amber-300',
+                            glow: 'bg-amber-500',
+                        },
+                        {
+                            iconSrc: SubmittedInfoIcon,
+                            label: 'Diajukan',
+                            val: permit.created_at,
+                            cardClass: 'border-white/20 bg-white/40 dark:border-white/5 dark:bg-neutral-900/40',
+                            overlayClass: 'from-cyan-500/12 to-transparent',
+                            valueClass: 'text-cyan-700 dark:text-cyan-300',
+                            glow: 'bg-cyan-500',
+                        },
                     ].map((info, i) => (
                         <motion.div key={i} variants={itemVariants} whileHover={{ y: -3 }}
-                            className="group relative overflow-hidden rounded-2xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl p-5 shadow-lg hover:shadow-xl transition-all">
+                            className={cn(
+                                'group relative overflow-hidden rounded-2xl border backdrop-blur-xl p-5 shadow-lg hover:shadow-xl transition-all',
+                                info.cardClass,
+                            )}>
+                            <div className={cn('absolute inset-0 bg-gradient-to-br opacity-70', info.overlayClass)} />
                             <div className={`absolute -top-4 -right-4 h-20 w-20 rounded-full ${info.glow} blur-2xl opacity-10`} />
                             <div className="relative">
-                                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${info.color} text-white shadow-lg mb-3`}>
-                                    <info.icon className="h-5 w-5" />
-                                </div>
+                                <img
+                                    src={info.iconSrc}
+                                    alt={info.label}
+                                    className="mb-3 h-11 w-11 object-contain drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
+                                />
                                 <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1">{info.label}</p>
-                                <p className="font-bold text-sm text-neutral-900 dark:text-white leading-tight">{info.val}</p>
+                                <p className={cn('font-bold text-sm leading-tight', info.valueClass)}>{info.val}</p>
                             </div>
                         </motion.div>
                     ))}

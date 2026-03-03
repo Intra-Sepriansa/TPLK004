@@ -2,7 +2,6 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
 import axios from 'axios';
-import { MotionConfig } from 'framer-motion';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -48,9 +47,7 @@ createInertiaApp({
 
         root.render(
             <StrictMode>
-                <MotionConfig reducedMotion="always">
-                    <App {...props} />
-                </MotionConfig>
+                <App {...props} />
             </StrictMode>,
         );
     },

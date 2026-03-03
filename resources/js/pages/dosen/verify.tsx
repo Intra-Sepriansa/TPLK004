@@ -381,13 +381,7 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                                             <p className="hidden sm:block text-[10px] text-neutral-400 mt-0.5">{card.sub}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-auto w-full pt-2">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }} animate={{ width: '70%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );
@@ -432,7 +426,9 @@ export default function DosenVerify({ dosen, verifications, stats }: PageProps) 
                 <motion.div variants={containerVariants}>
                     {filtered.length === 0 ? (
                         <motion.div variants={itemVariants} className="text-center py-16 rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl">
-                            <CheckCircle className="h-16 w-16 mx-auto mb-4 text-emerald-300" />
+                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>
+                                <CheckCircle className="h-16 w-16 mx-auto mb-4 text-emerald-300" />
+                            </motion.div>
                             <p className="text-lg font-semibold text-neutral-500">Tidak ada data verifikasi</p>
                             <p className="text-sm text-neutral-400 mt-1">Belum ada selfie yang sesuai filter</p>
                         </motion.div>

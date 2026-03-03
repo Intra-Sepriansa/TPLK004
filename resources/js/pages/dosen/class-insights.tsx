@@ -243,7 +243,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* 3 PULSE RINGS (Animated) */}
-<div className="relative">
+                    <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
                                 <motion.div
@@ -264,23 +264,31 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>Analisis kehadiran per kelas untuk {dosen.nama}</motion.p>
                                 </div>
                             </div>
-                            <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+                            <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto mt-4 lg:mt-0">
                                 {selectedCourse && (
                                     <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: 'spring' }}
-                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10">
+                                        className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-lg border border-white/10 w-full sm:w-auto justify-center">
                                         <div className="p-2 bg-indigo-500/20 rounded-lg"><TrendingUp className="h-6 w-6 text-white" /></div>
-                                        <div>
+                                        <div className="text-left">
                                             <p className="text-xs text-indigo-100">Rata-rata Kehadiran</p>
                                             <div className="text-2xl font-bold text-white flex items-center gap-1"><AnimatedCounter value={selectedCourse.average_attendance_rate} />%</div>
                                         </div>
                                     </motion.div>
                                 )}
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                                    className="flex flex-wrap justify-center gap-2">
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={handleRefresh} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><RefreshCw className="h-4 w-4" />Refresh</motion.button>
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowExportModal(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><Download className="h-4 w-4" />Export</motion.button>
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowCompareModal(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><GitCompare className="h-4 w-4" />Bandingkan</motion.button>
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowAIInsights(true)} className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/30 transition-all"><Sparkles className="h-4 w-4" />AI Insights</motion.button>
+                                    className="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full">
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleRefresh} className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/10 transition-all">
+                                        <RefreshCw className="h-4 w-4" /> <span className="hidden sm:inline">Refresh</span>
+                                    </motion.button>
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowExportModal(true)} className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/10 transition-all">
+                                        <Download className="h-4 w-4" /> <span className="hidden sm:inline">Export</span>
+                                    </motion.button>
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowCompareModal(true)} className="flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/10 transition-all">
+                                        <GitCompare className="h-4 w-4" /> <span className="hidden sm:inline">Bandingkan</span>
+                                    </motion.button>
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowAIInsights(true)} className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-500/25 transition-all">
+                                        <Sparkles className="h-4 w-4" /> <span className="hidden sm:inline">AI Insights</span>
+                                    </motion.button>
                                 </motion.div>
                             </div>
                         </div>
@@ -558,7 +566,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                         <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-5xl rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
                             <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shrink-0">
                                 <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-<div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><GitCompare className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">Bandingkan Kelas</h3><p className="text-sm text-white/80">Analisis komparatif antar mata kuliah</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowCompareModal(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
+                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><motion.div whileHover={{ scale: 1.1, rotate: 10 }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><GitCompare className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">Bandingkan Kelas</h3><p className="text-sm text-white/80">Analisis komparatif antar mata kuliah</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowCompareModal(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
                             </div>
                             <div className="p-6 space-y-6 overflow-y-auto flex-1">
                                 <div className="grid grid-cols-2 gap-4">
@@ -594,7 +602,7 @@ export default function ClassInsights({ dosen, courses, selectedCourse, stats }:
                         <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }} onClick={e => e.stopPropagation()} className="w-full max-w-4xl rounded-3xl border border-white/20 bg-white dark:bg-neutral-950 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
                             <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-500 p-6 text-white shrink-0">
                                 <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><Sparkles className="h-7 w-7" /></motion.div><div><h3 className="text-xl font-bold">AI Insights</h3><p className="text-sm text-white/80">Analisis cerdas & rekomendasi</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowAIInsights(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
+                                <div className="relative flex items-center justify-between"><div className="flex items-center gap-4"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><Sparkles className="h-7 w-7" /></div><div><h3 className="text-xl font-bold">AI Insights</h3><p className="text-sm text-white/80">Analisis cerdas & rekomendasi</p></div></div><motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={() => setShowAIInsights(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur hover:bg-white/30"><X className="h-5 w-5" /></motion.button></div>
                             </div>
                             <div className="p-6 space-y-4 overflow-y-auto flex-1">
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-blue-200/50 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/20 p-5 flex gap-4">

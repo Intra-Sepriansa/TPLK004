@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { cn } from '@/lib/utils';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
@@ -75,6 +76,11 @@ const cardVariants = {
 export default function NotificationCenter({ notifications, stats, filters, mahasiswaCount, dosenCount }: NotificationCenterProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; mode: 'single' | 'bulk'; id: number | null }>({
+    open: false,
+    mode: 'single',
+    id: null,
+  });
   const [typeFilter, setTypeFilter] = useState(filters.type);
   const [statusFilter, setStatusFilter] = useState(filters.status);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -96,11 +102,26 @@ export default function NotificationCenter({ notifications, stats, filters, maha
 
   const handleBulkDelete = () => {
     if (selectedIds.length === 0) return;
-    if (confirm(`Hapus ${selectedIds.length} notifikasi?`)) {
+    setDeleteDialog({ open: true, mode: 'bulk', id: null });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteDialog.mode === 'bulk') {
+      if (selectedIds.length === 0) return;
       router.post('/admin/notification-center/bulk-delete', { ids: selectedIds }, {
-        onSuccess: () => setSelectedIds([])
+        onSuccess: () => {
+          setSelectedIds([]);
+          setDeleteDialog({ open: false, mode: 'single', id: null });
+        },
       });
+      return;
     }
+
+    if (!deleteDialog.id) return;
+
+    router.delete(`/admin/notification-center/${deleteDialog.id}`, {
+      onSuccess: () => setDeleteDialog({ open: false, mode: 'single', id: null }),
+    });
   };
 
   const getTypeIcon = (type: string) => {
@@ -722,11 +743,13 @@ export default function NotificationCenter({ notifications, stats, filters, maha
                           <motion.button
                             whileHover={{ scale: 1.15 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => {
-                              if (confirm('Hapus notifikasi ini?')) {
-                                router.delete(`/admin/notification-center/${notification.id}`);
-                              }
-                            }}
+                            onClick={() =>
+                              setDeleteDialog({
+                                open: true,
+                                mode: 'single',
+                                id: notification.id,
+                              })
+                            }
                             className="p-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/50 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all shadow-sm"
                             title="Hapus notifikasi"
                           >
@@ -788,6 +811,28 @@ export default function NotificationCenter({ notifications, stats, filters, maha
             ))}
           </div>
         )}
+
+        <ConfirmDialog
+          open={deleteDialog.open}
+          onOpenChange={(open) =>
+            setDeleteDialog((prev) => ({
+              ...prev,
+              open,
+              id: open ? prev.id : null,
+              mode: open ? prev.mode : 'single',
+            }))
+          }
+          onConfirm={handleConfirmDelete}
+          title={deleteDialog.mode === 'bulk' ? 'Hapus Notifikasi Terpilih' : 'Hapus Notifikasi'}
+          message={
+            deleteDialog.mode === 'bulk'
+              ? `Yakin ingin menghapus ${selectedIds.length} notifikasi? Tindakan ini tidak dapat dibatalkan.`
+              : 'Yakin ingin menghapus notifikasi ini? Tindakan ini tidak dapat dibatalkan.'
+          }
+          variant="danger"
+          confirmText={deleteDialog.mode === 'bulk' ? 'Ya, Hapus Semua' : 'Ya, Hapus'}
+          cancelText="Batal"
+        />
       </motion.div>
     </AppLayout >
   );

@@ -30,6 +30,7 @@ import {
     Bell,
     Settings,
     HelpCircle,
+    Users2,
 } from 'lucide-react';
 
 const dosenNavItems: NavItem[] = [
@@ -57,6 +58,11 @@ const dosenNavItems: NavItem[] = [
         title: 'Informasi Tugas',
         href: '/dosen/tugas',
         icon: ClipboardList,
+    },
+    {
+        title: 'Tugas Kelompok',
+        href: '/dosen/tugas-kelompok',
+        icon: Users2,
     },
     {
         title: 'Persetujuan Izin',

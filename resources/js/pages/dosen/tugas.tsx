@@ -64,7 +64,7 @@ const modalVariants = { hidden: { opacity: 0, scale: 0.95, y: 20 }, visible: { o
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
     const [display, setDisplay] = useState(0);
     useEffect(() => {
-        let start = 0; const end = value; const duration = 1200; const startTime = Date.now();
+        const start = 0; const end = value; const duration = 1200; const startTime = Date.now();
         const timer = setInterval(() => {
             const elapsed = Date.now() - startTime; const progress = Math.min(elapsed / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);
@@ -209,7 +209,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                 </motion.div>
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                                     className="flex flex-wrap justify-center gap-2">
-                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => setShowCreate(true)}
+                                    <motion.button whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.25)' }} whileTap={{ scale: 0.98 }} onClick={() => router.visit('/dosen/tugas/create')}
                                         className="flex items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:bg-white/30">
                                         <Plus className="h-4 w-4" /> Tambah Tugas
                                     </motion.button>
@@ -262,13 +262,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                                             <p className="hidden sm:block text-[10px] text-neutral-400 mt-0.5">{card.sub}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-auto w-full pt-2">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }} animate={{ width: card.suffix === '%' ? `${card.value}%` : '70%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );
@@ -341,10 +335,10 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                     <div className="p-4">
                         {filteredList.length === 0 ? (
                             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-16">
-                                <div className="mx-auto w-20 h-20 mb-6 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full"><FileText className="h-10 w-10 text-white" /></motion.div>
+                                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="mx-auto w-20 h-20 mb-6 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full"><FileText className="h-10 w-10 text-white" /></motion.div>
                                 <p className="text-xl font-semibold text-slate-700 dark:text-slate-300">Belum ada tugas</p>
                                 <p className="text-sm text-slate-500 mt-2">Klik "Tambah Tugas" untuk memulai</p>
-                                <Button onClick={() => setShowCreate(true)} className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"><Plus className="mr-2 h-4 w-4" /> Tambah Tugas</Button>
+                                <Button onClick={() => router.visit('/dosen/tugas/create')} className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"><Plus className="mr-2 h-4 w-4" /> Tambah Tugas</Button>
                             </motion.div>
                         ) : viewMode === 'kanban' ? (
                             /* ── KANBAN VIEW ── */
@@ -386,7 +380,7 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredList.map((t, i) => (
                                     <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} whileHover={{ scale: 1.02, y: -4 }} onClick={() => navigateDetail(t)} className="relative rounded-2xl border border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-neutral-800/50 overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all">
-
+                                        <div className={cn('h-1.5 bg-gradient-to-r', t.is_overdue ? 'from-red-500 to-rose-500' : t.prioritas === 'tinggi' ? 'from-orange-500 to-red-500' : t.completion_rate >= 80 ? 'from-emerald-500 to-green-500' : 'from-indigo-500 to-purple-500')} />
                                         <div className="p-4">
                                             <div className="flex items-center gap-2 mb-3 flex-wrap">{getJenisBadge(t.jenis)}{getPriorityBadge(t.prioritas)}{getStatusBadge(t.status)}{t.is_overdue && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"><AlertTriangle className="h-3 w-3" />Overdue</span>}</div>
                                             <h3 className="font-bold text-base text-slate-900 dark:text-white line-clamp-1">{t.judul}</h3>
@@ -502,11 +496,11 @@ export default function DosenTugas({ tugasList, courses, stats, filters }: Props
                         <motion.div variants={modalVariants} className="relative w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
                             {/* Modal Header */}
                             <div className="relative overflow-hidden p-6 text-white flex-shrink-0">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                                <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }} style={{ backgroundSize: '200% 200%' }} />
                                 <div className="relative z-10">
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><ClipboardList className="h-7 w-7" /></motion.div>
+                                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30"><ClipboardList className="h-7 w-7" /></motion.div>
                                             <div><h2 className="text-xl font-bold">{detailTugas.judul}</h2><p className="text-white/70 text-sm mt-1">{detailTugas.course.nama}</p></div>
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => setShowDetail(false)} className="text-white hover:bg-white/20"><X className="h-5 w-5" /></Button>

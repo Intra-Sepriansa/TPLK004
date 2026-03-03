@@ -178,35 +178,50 @@ export default function Permits({ permits, sessions, stats, filters }: Props) {
                     <div className="relative z-10">
                         <div className="flex items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
-                                    <img src={IzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
-                                </div>
+                                <motion.div
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center"
+                                    initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                >
+                                    <img src={IzinIcon} alt="Izin" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                </motion.div>
                                 <div>
-                                    <p className="text-sm text-gray-400 font-medium">Persetujuan</p>
-                                    <h1 className="text-3xl font-bold flex items-center gap-2">
+                                    <motion.p className="text-sm text-gray-400 font-medium tracking-wide"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+                                        Persetujuan
+                                    </motion.p>
+                                    <motion.h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2"
+                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                                         Izin & Sakit
                                         <Sparkles className="h-6 w-6 animate-spin" style={{ animationDuration: '3s' }} />
-                                    </h1>
+                                    </motion.h1>
                                 </div>
                             </div>
-                            <Select
-                                value={filters.session_id || 'all'}
-                                onValueChange={(v) => router.get('/dosen/permits', { ...filters, session_id: v === 'all' ? null : v }, { preserveState: true })}
-                            >
-                                <SelectTrigger className="w-[220px] bg-white/10 border-white/20 text-white backdrop-blur-sm hover:bg-white/15">
-                                    <SelectValue placeholder="Filter Sesi" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Sesi</SelectItem>
-                                    {sessions.map((s) => (
-                                        <SelectItem key={s.id} value={String(s.id)}>
-                                            {s.mata_kuliah} - {s.tanggal}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring' }}>
+                                <Select
+                                    value={filters.session_id || 'all'}
+                                    onValueChange={(v) => router.get('/dosen/permits', { ...filters, session_id: v === 'all' ? null : v }, { preserveState: true })}
+                                >
+                                    <SelectTrigger className="w-[220px] bg-white/10 border-white/20 text-white backdrop-blur-sm hover:bg-white/15">
+                                        <SelectValue placeholder="Filter Sesi" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Semua Sesi</SelectItem>
+                                        {sessions.map((s) => (
+                                            <SelectItem key={s.id} value={String(s.id)}>
+                                                {s.mata_kuliah} - {s.tanggal}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </motion.div>
                         </div>
-                        <p className="mt-4 text-gray-400">Kelola pengajuan izin dan sakit mahasiswa</p>
+                        <motion.p className="mt-4 text-gray-400"
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                            Kelola pengajuan izin dan sakit mahasiswa
+                        </motion.p>
 
                         {/* Quick Stats in Header */}
                         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -73,7 +73,7 @@ content = content.replace(targetContainer, newContainer);
 const parts = content.split('</div>');
 if (parts.length > 2) {
     // The last `</div>` before the final `);` is the main wrapper closing.
-    parts[parts.length - 2] = parts[parts.length - 2].replace(/\n        $/, '\n        </motion.div>');
+    parts[parts.length - 2] = parts[parts.length - 2].replace(/\n {8}$/, '\n        </motion.div>');
     content = parts.join('</div>');
     // But since `</div>` is split, the join will restore them. 
     // Actually, just a simple replace at the end will do:

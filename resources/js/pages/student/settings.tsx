@@ -12,6 +12,7 @@ import {
     Save,
     Settings as SettingsIcon,
     Shield,
+    Sparkles,
     type LucideIcon,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -472,6 +473,63 @@ export default function StudentSettings() {
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Floating icons - Smooth Animation */}
+                    {[SettingsIcon, Bell, Palette, Shield, Lock].map((Icon, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute text-white/20"
+                            initial={{ y: 0 }}
+                            animate={{
+                                y: [0, -20, 0],
+                                x: [0, Math.sin(i) * 10, 0],
+                                rotate: [0, 360],
+                            }}
+                            transition={{
+                                duration: 4 + i,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: i * 0.2,
+                            }}
+                            style={{
+                                left: `${15 + i * 18}%`,
+                                top: `${20 + (i % 2) * 40}%`,
+                            }}
+                        >
+                            <Icon className="h-8 w-8" />
+                        </motion.div>
+                    ))}
+
+                    {/* Large floating icon in background */}
+                    <motion.div
+                        className="absolute right-8 top-1/2 -translate-y-1/2 text-white/10"
+                        animate={{
+                            rotateY: [0, 360],
+                            scale: [1, 1.1, 1],
+                        }}
+                        transition={{
+                            duration: 8,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                    >
+                        <SettingsIcon className="h-32 w-32" strokeWidth={1} />
+                    </motion.div>
+
+                    <motion.div
+                        className="absolute left-8 bottom-8 text-white/10"
+                        animate={{
+                            rotateY: [360, 0],
+                            scale: [1, 1.15, 1],
+                        }}
+                        transition={{
+                            duration: 10,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                    >
+                        <Sparkles className="h-24 w-24" strokeWidth={1} />
+                    </motion.div>
 
                     <div className="relative">
                         <motion.button

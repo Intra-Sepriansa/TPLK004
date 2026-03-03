@@ -8,7 +8,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import {
     FileText, Plus, Clock, CheckCircle, XCircle, Upload, Trash2, Eye, X,
     HeartPulse, Calendar, AlertTriangle, BarChart3, Send, Sparkles, FileCheck, Star,
-    ArrowLeft, ArrowRight, ClipboardList, Stethoscope, MessageSquare, Wand2, Bot
+    ArrowLeft, ArrowRight, ClipboardList, Stethoscope, MessageSquare, Wand2, Bot, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
@@ -171,6 +171,15 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
         reason: '',
         attachment: null as File | null,
     });
+    const step1Complete = Boolean(data.attendance_session_id && data.type);
+    const step2Complete = data.reason.trim().length >= 20;
+    const step3Complete = Boolean(data.attachment);
+    const completedByStep: Record<number, boolean> = {
+        1: step1Complete,
+        2: step2Complete,
+        3: step3Complete,
+    };
+    const maxUnlockedStep = step1Complete ? (step2Complete ? 3 : 2) : 1;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -206,6 +215,15 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
     };
 
     const nextStep = () => {
+        const currentStepValid =
+            (formStep === 1 && step1Complete) ||
+            (formStep === 2 && step2Complete);
+
+        if (!currentStepValid) {
+            window.alert('Lengkapi langkah ini dulu sebelum lanjut.');
+            return;
+        }
+
         if (formStep < 3) setFormStep(formStep + 1);
     };
 
@@ -956,96 +974,47 @@ export default function Permit({ permits, availableSessions, stats, filters }: P
                                 </motion.button>
                             </div>
 
-                            {/* Ultra Advanced Progress Steps */}
-                            <div className="relative mb-10 px-6">
-                                <div className="flex items-center justify-between">
-                                    {[
-                                        { step: 1, label: 'Pilih Sesi', icon: Calendar },
-                                        { step: 2, label: 'Alasan', icon: FileText },
-                                        { step: 3, label: 'Lampiran', icon: Upload }
-                                    ].map((item, index) => (
-                                        <div key={item.step} className="flex items-center flex-1">
-                                            <div className="relative flex flex-col items-center">
-                                                {/* Step Circle with Advanced Animations */}
-                                                <motion.div
-                                                    animate={{
-                                                        scale: formStep === item.step ? [1, 1.15, 1] : 1,
-                                                        boxShadow: formStep === item.step
-                                                            ? ['0 0 0 0 rgba(20, 184, 166, 0)', '0 0 0 15px rgba(20, 184, 166, 0.1)', '0 0 0 0 rgba(20, 184, 166, 0)']
-                                                            : '0 0 0 0 rgba(20, 184, 166, 0)',
-                                                    }}
-                                                    transition={{
-                                                        scale: { duration: 0.3 },
-                                                        boxShadow: { duration: 2, repeat: formStep === item.step ? Infinity : 0 }
-                                                    }}
-                                                    className={`relative z-10 flex items-center justify-center w-14 h-14 rounded-2xl font-bold text-lg transition-all duration-500 ${formStep >= item.step
-                                                        ? 'bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-500 text-white shadow-xl shadow-teal-500/30'
-                                                        : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-400 dark:text-neutral-600'
-                                                        }`}
-                                                >
-                                                    <AnimatePresence mode="wait">
-                                                        {formStep > item.step ? (
-                                                            <motion.div
-                                                                key="check"
-                                                                initial={{ scale: 0, rotate: -180 }}
-                                                                animate={{ scale: 1, rotate: 0 }}
-                                                                exit={{ scale: 0, rotate: 180 }}
-                                                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                                            >
-                                                                <CheckCircle className="h-6 w-6" />
-                                                            </motion.div>
-                                                        ) : (
-                                                            <motion.div
-                                                                key="icon"
-                                                                initial={{ scale: 0, rotate: -180 }}
-                                                                animate={{ scale: 1, rotate: 0 }}
-                                                                exit={{ scale: 0, rotate: 180 }}
-                                                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                                            >
-                                                                <item.icon className="h-6 w-6" />
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
+                            {/* Stepper */}
+                            <div className="mb-8 px-2 sm:px-4">
+                                <div className="w-full overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                                    <div className="flex w-max min-w-full items-center gap-2 sm:justify-center">
+                                        {[
+                                            { step: 1, label: 'Pilih Sesi', icon: Calendar },
+                                            { step: 2, label: 'Alasan', icon: FileText },
+                                            { step: 3, label: 'Lampiran', icon: Upload },
+                                        ].map((item, index) => {
+                                            const isActive = formStep === item.step;
+                                            const isDone = item.step < formStep && completedByStep[item.step];
+                                            const canOpen = item.step <= maxUnlockedStep || item.step <= formStep;
 
-                                                    {/* Pulse Ring for Active Step */}
-                                                    {formStep === item.step && (
-                                                        <motion.div
-                                                            initial={{ scale: 1, opacity: 0.5 }}
-                                                            animate={{ scale: 1.5, opacity: 0 }}
-                                                            transition={{ duration: 1.5, repeat: Infinity }}
-                                                            className="absolute inset-0 rounded-2xl bg-teal-400"
-                                                        />
-                                                    )}
-                                                </motion.div>
-
-                                                {/* Step Label */}
-                                                <motion.p
-                                                    animate={{
-                                                        color: formStep >= item.step ? '#14b8a6' : '#94a3b8',
-                                                        fontWeight: formStep === item.step ? 700 : 500,
-                                                    }}
-                                                    className="mt-3 text-xs text-center whitespace-nowrap"
-                                                >
-                                                    {item.label}
-                                                </motion.p>
-                                            </div>
-
-                                            {/* Connecting Line */}
-                                            {index < 2 && (
-                                                <div className="relative flex-1 h-1 mx-3 mt-[-30px]">
-                                                    <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 rounded-full" />
-                                                    <motion.div
-                                                        initial={{ width: '0%' }}
-                                                        animate={{
-                                                            width: formStep > item.step ? '100%' : '0%',
+                                            return (
+                                                <div key={item.step} className="flex shrink-0 items-center gap-2">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.03 }}
+                                                        whileTap={{ scale: 0.97 }}
+                                                        onClick={() => {
+                                                            if (!canOpen) {
+                                                                window.alert('Lengkapi langkah sebelumnya dulu.');
+                                                                return;
+                                                            }
+                                                            setFormStep(item.step);
                                                         }}
-                                                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                                                        className="absolute inset-0 bg-gradient-to-r from-teal-400 via-cyan-500 to-blue-500 rounded-full"
-                                                    />
+                                                        className={`flex items-center gap-2 rounded-2xl border px-3 py-2 text-xs font-semibold transition-all sm:px-4 sm:py-2.5 sm:text-sm ${
+                                                            isActive
+                                                                ? 'border-cyan-400 bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-cyan-500/25'
+                                                                : isDone
+                                                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300'
+                                                                    : 'border-slate-200/70 bg-white/70 text-slate-500 dark:border-slate-700 dark:bg-neutral-800/40'
+                                                        } ${canOpen ? 'cursor-pointer' : 'cursor-not-allowed opacity-45'}`}
+                                                    >
+                                                        {isDone ? <CheckCircle className="h-4 w-4" /> : <item.icon className="h-4 w-4" />}
+                                                        <span className="whitespace-nowrap">{item.label}</span>
+                                                    </motion.button>
+                                                    {index < 2 && <ChevronRight className="h-4 w-4 text-slate-300 dark:text-slate-600" />}
                                                 </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
 

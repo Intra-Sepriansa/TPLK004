@@ -145,6 +145,23 @@ function getDifficultyLabel(value: number): string {
     return 'Lanjutan';
 }
 
+const formatText = (text: string) => {
+    if (!text) return text;
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={index} className="font-bold text-neutral-900 dark:text-white">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('*') && part.endsWith('*')) {
+            return <em key={index} className="italic text-neutral-800 dark:text-neutral-200">{part.slice(1, -1)}</em>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+            return <code key={index} className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400">{part.slice(1, -1)}</code>;
+        }
+        return part;
+    });
+};
+
 export default function StudentDocs({ guides, stats, categories }: Props) {
     const [query, setQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -238,28 +255,28 @@ export default function StudentDocs({ guides, stats, categories }: Props) {
 
         const sections = Array.isArray(data.sections)
             ? data.sections
-                  .map((section, index) => {
-                      if (typeof section !== 'object' || section === null) return null;
+                .map((section, index) => {
+                    if (typeof section !== 'object' || section === null) return null;
 
-                      const parsedSection = section as {
-                          id?: unknown;
-                          title?: unknown;
-                          content?: unknown;
-                      };
+                    const parsedSection = section as {
+                        id?: unknown;
+                        title?: unknown;
+                        content?: unknown;
+                    };
 
-                      const title = typeof parsedSection.title === 'string' ? parsedSection.title : `Section ${index + 1}`;
-                      const content = typeof parsedSection.content === 'string' ? parsedSection.content : '';
+                    const title = typeof parsedSection.title === 'string' ? parsedSection.title : `Section ${index + 1}`;
+                    const content = typeof parsedSection.content === 'string' ? parsedSection.content : '';
 
-                      return {
-                          id:
-                              typeof parsedSection.id === 'string'
-                                  ? parsedSection.id
-                                  : `offline-section-${index + 1}`,
-                          title,
-                          content,
-                      };
-                  })
-                  .filter((section): section is OfflineViewerGuideSection => section !== null)
+                    return {
+                        id:
+                            typeof parsedSection.id === 'string'
+                                ? parsedSection.id
+                                : `offline-section-${index + 1}`,
+                        title,
+                        content,
+                    };
+                })
+                .filter((section): section is OfflineViewerGuideSection => section !== null)
             : [];
 
         return {
@@ -1073,7 +1090,7 @@ export default function StudentDocs({ guides, stats, categories }: Props) {
                                                 .split('\n')
                                                 .filter(Boolean)
                                                 .map((paragraph, paragraphIndex) => (
-                                                    <p key={`${section.id}-offline-${paragraphIndex}`}>{paragraph}</p>
+                                                    <p key={`${section.id}-offline-${paragraphIndex}`}>{formatText(paragraph)}</p>
                                                 ))}
                                         </div>
                                     </div>

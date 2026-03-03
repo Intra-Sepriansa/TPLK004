@@ -1,22 +1,26 @@
 import { Head, router } from '@inertiajs/react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ChangeEvent } from 'react';
 import DosenLayout from '@/layouts/dosen-layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ArrowLeft, Award, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap, Clock, User, Edit3, CheckCircle, AlertTriangle, FileText, Users } from 'lucide-react';
+import { ArrowLeft, Award, Calendar, CornerDownRight, MessageSquare, Pin, Reply, Send, Trash2, X, Sparkles, Zap, Clock, Lock, User, Edit3, CheckCircle, AlertTriangle, FileText, Users, Plus, Smile, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import TugasIcon from '@/assets/admin/informasi-tugas/informasi-tugas.png';
 
 type Diskusi = {
     id: number; sender_type: string; sender_name: string; sender_avatar: string | null;
+    sender_nim?: string | null;
+    lampiran_url?: string | null;
+    lampiran_nama?: string | null;
     pesan: string; visibility: string; recipient_name: string | null; is_pinned: boolean;
     reply_to_id: number | null; reply_to?: { sender_name: string; pesan: string } | null;
     is_me: boolean;
+    created_at_iso?: string | null;
     created_at: string; time_ago: string;
 };
 type Tugas = {
@@ -75,16 +79,66 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
     const [message, setMessage] = useState('');
     const [visibility, setVisibility] = useState('public');
     const [replyTo, setReplyTo] = useState<Diskusi | null>(null);
+    const [attachmentImage, setAttachmentImage] = useState<File | null>(null);
+    const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
     const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null }>({ open: false, id: null });
     const chatEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [diskusi]);
 
+    useEffect(() => {
+        return () => {
+            if (attachmentPreview) {
+                URL.revokeObjectURL(attachmentPreview);
+            }
+        };
+    }, [attachmentPreview]);
+
+    const clearAttachment = () => {
+        if (attachmentPreview) {
+            URL.revokeObjectURL(attachmentPreview);
+        }
+        setAttachmentPreview(null);
+        setAttachmentImage(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handlePickAttachment = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) return;
+
+        if (attachmentPreview) {
+            URL.revokeObjectURL(attachmentPreview);
+        }
+        setAttachmentImage(file);
+        setAttachmentPreview(URL.createObjectURL(file));
+    };
+
     const sendMessage = () => {
-        if (!message.trim()) return;
-        router.post(`/dosen/tugas/${tugas.id}/message`, { pesan: message, visibility, reply_to_id: replyTo?.id || null }, {
-            onSuccess: () => { setMessage(''); setReplyTo(null); },
+        const trimmedMessage = message.trim();
+        if (!trimmedMessage && !attachmentImage) return;
+
+        const payload = new FormData();
+        payload.append('pesan', trimmedMessage);
+        payload.append('visibility', visibility);
+        if (replyTo?.id) {
+            payload.append('reply_to_id', String(replyTo.id));
+        }
+        if (attachmentImage) {
+            payload.append('lampiran', attachmentImage);
+        }
+
+        router.post(`/dosen/tugas/${tugas.id}/message`, payload, {
+            onSuccess: () => {
+                setMessage('');
+                setReplyTo(null);
+                clearAttachment();
+            },
             preserveScroll: true,
         });
     };
@@ -163,20 +217,20 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                         </div>
 
                         {/* Summary stats in header */}
-                        <motion.div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                        <motion.div className="mt-4 grid grid-cols-2 gap-2 sm:mt-6 sm:gap-3 md:grid-cols-4 md:gap-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                             {[
                                 { label: 'Sisa Waktu', value: tugas.is_overdue ? 'Lewat' : `${tugas.days_until_deadline} Hari`, sub: tugas.is_overdue ? 'Deadline terlewati' : 'Hingga deadline', icon: Clock },
                                 { label: 'Total Diskusi', value: diskusi.length.toString(), sub: 'Pesan diskusi', icon: MessageSquare },
                                 { label: 'Jenis Tugas', value: tugas.jenis, sub: 'Tipe assignment', icon: FileText },
                                 { label: 'Deadline', value: tugas.deadline_display?.split(',')[0] || '-', sub: tugas.deadline_display?.split(',')[1] || '', icon: Calendar },
                             ].map((s, i) => (
-                                <motion.div key={i} className="rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl p-4" whileHover={{ scale: 1.03, y: -2 }}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-medium text-white/70">{s.label}</span>
-                                        <div className="p-1.5 rounded-lg bg-white/20"><s.icon className="h-3.5 w-3.5 text-white" /></div>
+                                <motion.div key={i} className="rounded-xl border border-white/20 bg-white/10 p-2.5 backdrop-blur-xl sm:rounded-2xl sm:p-4" whileHover={{ scale: 1.03, y: -2 }}>
+                                    <div className="mb-1.5 flex items-center justify-between sm:mb-2">
+                                        <span className="text-[10px] font-medium text-white/75 sm:text-xs">{s.label}</span>
+                                        <div className="rounded-lg bg-white/20 p-1 sm:p-1.5"><s.icon className="h-3 w-3 text-white sm:h-3.5 sm:w-3.5" /></div>
                                     </div>
-                                    <p className="text-lg font-bold capitalize text-white sm:text-xl">{s.value}</p>
-                                    <p className="text-xs text-white/50 mt-0.5">{s.sub}</p>
+                                    <p className="text-sm font-bold capitalize leading-tight text-white sm:text-lg md:text-xl">{s.value}</p>
+                                    <p className="mt-0.5 text-[10px] leading-tight text-white/60 sm:text-xs sm:leading-normal">{s.sub}</p>
                                 </motion.div>
                             ))}
                         </motion.div>
@@ -298,10 +352,12 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                 {diskusi.map((d, index) => {
                                     const replyTarget = d.reply_to_id ? diskusi.find(x => x.id === d.reply_to_id) : null;
                                     const isMe = d.is_me;
-                                    const chatTime = formatChatTime(d.created_at);
-                                    const currentDayKey = getChatDayKey(d.created_at);
-                                    const previousDayKey = index > 0 ? getChatDayKey(diskusi[index - 1].created_at) : null;
+                                    const createdAtValue = d.created_at_iso ?? d.created_at;
+                                    const chatTime = formatChatTime(createdAtValue);
+                                    const currentDayKey = getChatDayKey(createdAtValue);
+                                    const previousDayKey = index > 0 ? getChatDayKey(diskusi[index - 1].created_at_iso ?? diskusi[index - 1].created_at) : null;
                                     const showDaySeparator = index === 0 || currentDayKey !== previousDayKey;
+                                    const senderMeta = d.sender_nim || (d.sender_type === 'dosen' ? null : d.sender_type.toUpperCase());
                                     return (
                                         <motion.div
                                             key={d.id}
@@ -314,14 +370,14 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                             {showDaySeparator && (
                                                 <div className="flex w-full justify-center py-1">
                                                     <span className="rounded-full border border-white/20 bg-white/60 px-3 py-1 text-[11px] font-semibold text-slate-600 shadow-sm backdrop-blur-md dark:border-neutral-700/60 dark:bg-neutral-800/60 dark:text-slate-300">
-                                                        {getChatDayLabel(d.created_at)}
+                                                        {getChatDayLabel(createdAtValue)}
                                                     </span>
                                                 </div>
                                             )}
 
                                             {/* Reply indicator */}
                                             {replyTarget && (
-                                                <motion.div className={cn("w-full max-w-[96%] rounded-xl border border-white/30 bg-white/50 p-2 text-xs backdrop-blur-sm dark:border-neutral-700/50 dark:bg-neutral-800/50 sm:max-w-[85%] md:max-w-[70%]", isMe ? "text-right" : "text-left")} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                                                <motion.div className={cn("w-full max-w-[84%] rounded-xl border border-white/30 bg-white/50 p-2 text-xs backdrop-blur-sm dark:border-neutral-700/50 dark:bg-neutral-800/50 sm:max-w-[78%] md:max-w-[70%]", isMe ? "mr-9 text-right sm:mr-12" : "ml-9 text-left sm:ml-12")} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                                                     <div className={cn("flex items-center gap-2", isMe ? "justify-end" : "justify-start")}>
                                                         <CornerDownRight className="h-3.5 w-3.5 text-purple-500 flex-shrink-0" />
                                                         <span className="font-semibold text-purple-600 dark:text-purple-400">Balas {replyTarget.sender_name}:</span>
@@ -330,61 +386,94 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                                                 </motion.div>
                                             )}
 
-                                            <div className={cn("flex w-fit max-w-[94%] items-center gap-2 px-1 text-xs sm:max-w-[82%] md:max-w-[68%]", isMe ? "justify-end" : "justify-start")}>
-                                                <span className="font-semibold text-slate-700 dark:text-slate-200">{d.sender_name}</span>
-                                                {!isMe && <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize font-medium border-slate-200/50 dark:border-neutral-700/50">{d.sender_type}</Badge>}
-                                                {d.visibility === 'private' && <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[10px] px-1.5 py-0 font-semibold shadow-lg">🔒 Private</Badge>}
-                                            </div>
-
-                                            {/* Message Card */}
-                                            <motion.div
-                                                className={cn(
-                                                    "relative w-fit max-w-[94%] overflow-hidden rounded-2xl border backdrop-blur-md transition-all duration-300 sm:max-w-[82%] md:max-w-[68%]",
-                                                    d.is_pinned ? "bg-amber-50/80 dark:bg-amber-900/30 border-amber-300/30 dark:border-amber-700/30 shadow-lg shadow-amber-500/10" :
-                                                        isMe ? "bg-gradient-to-br from-indigo-600 to-violet-700 border-indigo-500/30 shadow-lg shadow-indigo-500/20" :
-                                                            "bg-white/60 dark:bg-neutral-800/60 border-white/30 dark:border-neutral-700/30 hover:shadow-lg"
-                                                )}
-                                                whileHover={{ scale: 1.01, y: -2 }}
-                                            >
-                                                {d.is_pinned && (
-                                                    <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-bl-xl flex items-center gap-1 z-10">
-                                                        <Pin className="h-3 w-3" /> Pinned
-                                                    </div>
-                                                )}
-
-                                                <div className={cn("flex gap-3 p-3 sm:gap-4 sm:p-5", isMe ? "flex-row-reverse" : "")}>
-                                                    <motion.div whileHover={{ scale: 1.1, rotate: 5 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
-                                                        <Avatar className="h-8 w-8 flex-shrink-0 shadow-lg ring-2 ring-white/20 dark:ring-neutral-700/50 sm:h-10 sm:w-10">
-                                                            <AvatarFallback className={cn("text-sm font-bold", isMe ? "bg-white/20 text-white" : getSenderStyle(d.sender_type))}>
+                                            <div className={cn("flex w-full items-end gap-2", isMe ? "justify-end" : "justify-start")}>
+                                                {!isMe && (
+                                                    <motion.div whileHover={{ scale: 1.08 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+                                                        <Avatar className="h-7 w-7 flex-shrink-0 shadow-md ring-2 ring-white/30 dark:ring-neutral-700/60 sm:h-10 sm:w-10">
+                                                            {d.sender_avatar && <AvatarImage src={d.sender_avatar} alt={d.sender_name} className="object-cover" />}
+                                                            <AvatarFallback className={cn("text-sm font-bold", getSenderStyle(d.sender_type))}>
                                                                 {d.sender_name.charAt(0)}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                     </motion.div>
+                                                )}
 
-                                                    <div className={cn("min-w-0", isMe ? "text-right" : "text-left")}>
-                                                        <p className={cn("mb-2 text-sm leading-relaxed whitespace-pre-wrap break-words", isMe ? "text-white/95" : "text-slate-700 dark:text-slate-300")}>{d.pesan}</p>
-
-                                                        <div className={cn("mt-2 flex items-center justify-end border-t border-white/20 pt-2 text-[10px]", isMe ? "text-indigo-100/90" : "text-slate-500 dark:border-neutral-700/50 dark:text-slate-400")}>
-                                                            <span>{chatTime}</span>
+                                                {/* Message Card */}
+                                                <motion.div
+                                                    className={cn(
+                                                        "relative w-fit max-w-[84%] overflow-hidden rounded-2xl border px-2.5 py-2 backdrop-blur-md transition-all duration-300 sm:max-w-[78%] sm:px-4 sm:py-3 md:max-w-[70%]",
+                                                        isMe ? "rounded-br-md bg-gradient-to-br from-indigo-600 to-violet-700 border-indigo-500/30 shadow-lg shadow-indigo-500/20" : "rounded-bl-md bg-white/85 border-white/40 shadow-md dark:bg-neutral-800/85 dark:border-neutral-700/50",
+                                                        d.is_pinned ? "ring-2 ring-amber-400/40" : ""
+                                                    )}
+                                                    whileHover={{ scale: 1.01, y: -1 }}
+                                                >
+                                                    {d.is_pinned && (
+                                                        <div className="absolute right-0 top-0 z-10 flex items-center gap-1 rounded-bl-xl bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-1 text-[10px] font-semibold text-white">
+                                                            <Pin className="h-3 w-3" /> Pinned
                                                         </div>
+                                                    )}
 
+                                                    <div className={cn("mb-1 flex items-center gap-1 pr-10 text-[10px] sm:gap-1.5 sm:pr-14 sm:text-[11px]", isMe ? "justify-end text-indigo-100/90" : "justify-start text-slate-500 dark:text-slate-400")}>
+                                                        <span className={cn("font-semibold sm:font-bold", isMe ? "text-white" : "text-slate-900 dark:text-slate-100")}>{d.sender_name}</span>
+                                                        {senderMeta && (
+                                                            <>
+                                                                {d.sender_type !== 'dosen' && <span>•</span>}
+                                                                <span>{senderMeta}</span>
+                                                            </>
+                                                        )}
+                                                        {d.visibility === 'private' && <span className={cn("ml-1 rounded px-1.5 py-0.5 text-[9px] font-semibold", isMe ? "bg-white/15 text-white" : "bg-orange-500/15 text-orange-700 dark:text-orange-300")}>PRIVATE</span>}
                                                     </div>
-                                                </div>
-                                            </motion.div>
 
-                                            <div className={cn("flex w-full max-w-[96%] flex-wrap gap-1 sm:max-w-[85%] md:max-w-[70%]", isMe ? "justify-end" : "justify-start")}>
+                                                    {d.lampiran_url && (
+                                                        <a
+                                                            href={d.lampiran_url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="mb-2 block overflow-hidden rounded-xl border border-white/20"
+                                                        >
+                                                            <img
+                                                                src={d.lampiran_url}
+                                                                alt={d.lampiran_nama ?? 'Lampiran gambar'}
+                                                                className="max-h-72 w-full object-cover"
+                                                                loading="lazy"
+                                                            />
+                                                        </a>
+                                                    )}
+
+                                                    {d.pesan?.trim() && (
+                                                        <p className={cn("mb-1 text-[13px] leading-relaxed whitespace-pre-wrap break-words sm:text-sm", isMe ? "text-white/95" : "text-slate-700 dark:text-slate-300")}>{d.pesan}</p>
+                                                    )}
+
+                                                    <div className={cn("flex items-center justify-end text-[10px]", isMe ? "text-indigo-100/90" : "text-slate-500 dark:text-slate-400")}>
+                                                        <span>{chatTime}</span>
+                                                    </div>
+                                                </motion.div>
+
+                                                {isMe && (
+                                                    <motion.div whileHover={{ scale: 1.08 }} transition={{ type: 'spring', stiffness: 400, damping: 25 }}>
+                                                        <Avatar className="h-7 w-7 flex-shrink-0 shadow-md ring-2 ring-white/30 dark:ring-neutral-700/60 sm:h-10 sm:w-10">
+                                                            {d.sender_avatar && <AvatarImage src={d.sender_avatar} alt={d.sender_name} className="object-cover" />}
+                                                            <AvatarFallback className="bg-white/20 text-sm font-bold text-white">
+                                                                {d.sender_name.charAt(0)}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    </motion.div>
+                                                )}
+                                            </div>
+
+                                            <div className={cn("flex w-full max-w-[84%] flex-wrap gap-1 sm:max-w-[78%] md:max-w-[70%]", isMe ? "justify-end pr-9 sm:pr-12" : "justify-start pl-9 sm:pl-12")}>
                                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                    <Button variant="ghost" size="sm" onClick={() => handleReply(d)} className="h-7 px-2 text-xs font-medium text-purple-600 hover:bg-purple-100/50 dark:text-purple-400 dark:hover:bg-purple-900/30">
+                                                    <Button variant="ghost" size="sm" onClick={() => handleReply(d)} className="h-6 px-1.5 text-[11px] font-medium text-purple-600 hover:bg-purple-100/50 dark:text-purple-400 dark:hover:bg-purple-900/30 sm:h-7 sm:px-2 sm:text-xs">
                                                         <Reply className="mr-1 h-3 w-3" /> Balas
                                                     </Button>
                                                 </motion.div>
                                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                    <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-7 px-2 text-xs font-medium text-amber-600 hover:bg-amber-100/50 dark:text-amber-400 dark:hover:bg-amber-900/30">
+                                                    <Button variant="ghost" size="sm" onClick={() => togglePin(d.id)} className="h-6 px-1.5 text-[11px] font-medium text-amber-600 hover:bg-amber-100/50 dark:text-amber-400 dark:hover:bg-amber-900/30 sm:h-7 sm:px-2 sm:text-xs">
                                                         <Pin className="mr-1 h-3 w-3" /> {d.is_pinned ? 'Unpin' : 'Pin'}
                                                     </Button>
                                                 </motion.div>
                                                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                                    <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(d.id)} className="h-7 px-2 text-xs font-medium text-red-600 hover:bg-red-100/50 dark:text-red-400 dark:hover:bg-red-900/30">
+                                                    <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(d.id)} className="h-6 px-1.5 text-[11px] font-medium text-red-600 hover:bg-red-100/50 dark:text-red-400 dark:hover:bg-red-900/30 sm:h-7 sm:px-2 sm:text-xs">
                                                         <Trash2 className="mr-1 h-3 w-3" /> Hapus
                                                     </Button>
                                                 </motion.div>
@@ -418,36 +507,95 @@ export default function DosenTugasDetail({ tugas, diskusi }: Props) {
                     </AnimatePresence>
 
                     {/* Input Area */}
-                    <div className="relative border-t border-white/10 p-4 sm:p-6">
-                        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                    <div className="relative border-t border-white/10 bg-black/20 p-3 backdrop-blur-sm sm:p-4">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handlePickAttachment}
+                        />
+
+                        <div className="mb-2 flex justify-center sm:justify-start">
                             <Select value={visibility} onValueChange={setVisibility}>
-                                <SelectTrigger className="w-full rounded-xl border border-white/30 bg-white/60 backdrop-blur-sm transition-all duration-300 hover:border-purple-400 dark:border-neutral-700/50 dark:bg-neutral-800/60 sm:w-40">
+                                <SelectTrigger className="h-8 w-[132px] rounded-full border border-white/20 bg-white/10 text-xs font-semibold text-slate-200 backdrop-blur-sm transition-all duration-300 hover:border-purple-400 dark:border-neutral-700/60 dark:bg-neutral-800/50">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="public"><span className="flex items-center gap-2"><Users className="h-3.5 w-3.5" /> Public</span></SelectItem>
-                                    <SelectItem value="private"><span className="flex items-center gap-2">🔒 Private</span></SelectItem>
+                                    <SelectItem value="private"><span className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" /> Private</span></SelectItem>
                                 </SelectContent>
                             </Select>
-                            <span className="self-start text-xs text-slate-500 sm:self-center">{visibility === 'public' ? '🌐 Semua orang bisa melihat' : '🔒 Hanya penerima yang bisa melihat'}</span>
                         </div>
-                        <div className="flex gap-3">
-                            <Textarea
-                                ref={inputRef}
-                                placeholder={replyTo ? `Balas ke ${replyTo.sender_name}...` : "Tulis pesan diskusi..."}
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                rows={3}
-                                className="flex-1 bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm border border-white/30 dark:border-neutral-700/50 rounded-xl focus:ring-4 focus:ring-purple-500/20 focus:border-purple-400 transition-all duration-300 resize-none"
-                                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                            />
+
+                        {attachmentPreview && (
+                            <div className="mb-3 flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-2 backdrop-blur-md dark:border-neutral-700/60 dark:bg-neutral-800/50">
+                                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/20">
+                                    <img src={attachmentPreview} alt={attachmentImage?.name || 'Preview gambar'} className="h-full w-full object-cover" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-slate-100">
+                                        <ImageIcon className="h-4 w-4 shrink-0 text-emerald-400" />
+                                        <span className="truncate">{attachmentImage?.name ?? 'Gambar terpilih'}</span>
+                                    </p>
+                                    <p className="text-xs text-slate-400">Tambahkan teks sebagai caption lalu kirim.</p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={clearAttachment}
+                                    className="h-8 w-8 shrink-0 rounded-full text-slate-300 hover:bg-white/15 hover:text-slate-100 dark:hover:bg-neutral-700/60"
+                                    title="Hapus gambar"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-2 rounded-[30px] border border-white/10 bg-black/30 p-2 shadow-inner shadow-black/30">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="h-11 w-11 shrink-0 rounded-full border border-white/20 bg-white/10 text-slate-200 hover:bg-white/20 dark:border-neutral-700/60 dark:bg-neutral-800/50"
+                                title="Lampiran"
+                            >
+                                <Plus className="h-6 w-6" />
+                            </Button>
+
+                            <div className="flex h-11 flex-1 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 backdrop-blur-md dark:border-neutral-700/60 dark:bg-neutral-800/50">
+                                <Textarea
+                                    ref={inputRef}
+                                    placeholder={replyTo ? `Balas ke ${replyTo.sender_name}...` : "Tulis pesan diskusi..."}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    rows={1}
+                                    className="h-6 min-h-6 max-h-20 flex-1 resize-none border-0 bg-transparent p-0 text-sm text-slate-100 placeholder:text-slate-400 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 shrink-0 rounded-full text-slate-300 hover:bg-white/15 hover:text-slate-100 dark:hover:bg-neutral-700/60"
+                                    title="Emoji"
+                                >
+                                    <Smile className="h-5 w-5" />
+                                </Button>
+                            </div>
+
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="shrink-0">
-                                <Button onClick={sendMessage} disabled={!message.trim()} className="h-full px-4 sm:px-6 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <Button
+                                    onClick={sendMessage}
+                                    disabled={!message.trim() && !attachmentImage}
+                                    className="h-11 w-11 rounded-full bg-emerald-500 p-0 text-white shadow-lg shadow-emerald-500/30 transition-all duration-300 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
                                     <Send className="h-5 w-5" />
                                 </Button>
                             </motion.div>
                         </div>
-                        <p className="text-xs text-slate-500 mt-3 flex items-center gap-2"><Sparkles className="h-3 w-3" /> Tekan Enter untuk kirim, Shift+Enter untuk baris baru</p>
                     </div>
                 </motion.div>
 

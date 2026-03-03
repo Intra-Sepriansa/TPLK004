@@ -131,10 +131,21 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
 
                 {/* ═══════ HEADER ═══════ */}
                 <motion.div variants={headerVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    {/* Animated Gradient Background */}
+                    <motion.div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                        style={{ backgroundSize: '200% 200%' }} />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+                    {/* Pulse Rings */}
+                    {[0, 1, 2].map(i => (
+                        <motion.div key={i} className="absolute right-16 top-1/2 -translate-y-1/2 h-32 w-32 rounded-full border-2 border-white/10"
+                            animate={{ scale: [1, 2.5], opacity: [0.4, 0] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeOut", delay: i }} />
+                    ))}
 
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -252,8 +263,10 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                 <motion.div variants={itemVariants}
                     className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
                     {/* Background decorative elements */}
-                    <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-violet-500/20 blur-3xl opacity-10" />
-                    <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl opacity-06" />
+                    <motion.div animate={{ scale: [1, 1.15, 1], opacity: [0.06, 0.12, 0.06] }} transition={{ duration: 6, repeat: Infinity }}
+                        className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-violet-500/20 blur-3xl" />
+                    <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.04, 0.08, 0.04] }} transition={{ duration: 8, repeat: Infinity, delay: 2 }}
+                        className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl" />
 
                     <div className="flex items-center justify-between mb-6 relative z-10">
                         <div className="flex items-center gap-3">
@@ -308,10 +321,10 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                             </motion.div>
                                             {/* Badge */}
                                             {(action.badge ?? 0) > 0 && (
-                                                <div
+                                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}
                                                     className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-white text-[10px] font-bold shadow-lg ring-2 ring-white dark:ring-neutral-800">
                                                     {action.badge}
-                                                </div>
+                                                </motion.div>
                                             )}
                                         </div>
 
@@ -341,16 +354,17 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                 {todaySchedule.length > 0 && (
                     <motion.div variants={itemVariants}
                         className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                        <div
-                            className="absolute top-0 right-0 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl opacity-15" />
+                        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }} transition={{ duration: 4, repeat: Infinity }}
+                            className="absolute top-0 right-0 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl" />
                         <div className="flex items-center gap-2 mb-4 relative z-10">
-                            <div>
+                            <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}>
                                 <Calendar className="h-5 w-5 text-indigo-600" />
-                            </div>
+                            </motion.div>
                             <h2 className="font-semibold text-neutral-900 dark:text-white">Jadwal Hari Ini</h2>
-                            <span className="ml-auto px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-medium">
+                            <motion.span className="ml-auto px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-medium"
+                                animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
                                 {todaySchedule.length} kelas
-                            </span>
+                            </motion.span>
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 relative z-10">
                             {todaySchedule.map((s, i) => (
@@ -382,8 +396,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {/* Active Sessions */}
                     <motion.div variants={cardVariants}
                         className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                        <div
-                            className="absolute top-0 right-0 w-32 h-32 rounded-full bg-emerald-500/20 blur-3xl opacity-12" />
+                        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }} transition={{ duration: 4, repeat: Infinity }}
+                            className="absolute top-0 right-0 w-32 h-32 rounded-full bg-emerald-500/20 blur-3xl" />
                         <div className="flex items-center justify-between mb-4 relative z-10">
                             <div className="flex items-center gap-2">
                                 <motion.div whileHover={{ rotate: [0, -15, 15, 0], scale: 1.2 }} transition={{ duration: 0.5 }}
@@ -403,9 +417,9 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         </div>
                         {activeSessions.length === 0 ? (
                             <div className="text-center py-8 text-neutral-500 relative z-10">
-                                <div>
+                                <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }}>
                                     <Calendar className="h-12 w-12 mx-auto mb-3 text-neutral-300" />
-                                </div>
+                                </motion.div>
                                 <p className="font-medium">Tidak ada sesi aktif</p>
                                 <p className="text-xs mt-1">Buat sesi baru untuk memulai</p>
                             </div>
@@ -417,7 +431,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         whileHover={{ x: 8, scale: 1.03, boxShadow: "0 10px 25px -5px rgba(16,185,129,0.3)" }}
                                         onClick={() => { setSelectedSession(session); setShowSessionModal(true); }}
                                         className="flex items-center gap-4 p-4 rounded-xl bg-white/80 hover:bg-white border border-emerald-200/50 dark:bg-neutral-800/60 dark:border-emerald-800/50 cursor-pointer relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent" />
+                                        <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/10 to-transparent"
+                                            animate={{ x: ['-100%', '100%'] }} transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }} />
                                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold shadow-lg relative z-10">
                                             {session.meeting_number}
                                         </div>
@@ -426,9 +441,9 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                             <p className="text-sm text-neutral-600 dark:text-neutral-400">{session.course}</p>
                                         </div>
                                         <div className="text-right relative z-10">
-                                            <p className="text-sm font-bold text-emerald-600">
+                                            <motion.p className="text-sm font-bold text-emerald-600" animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
                                                 {session.attendance_count} hadir
-                                            </p>
+                                            </motion.p>
                                             <p className="text-xs text-neutral-500">{session.start_at} - {session.end_at}</p>
                                         </div>
                                         <ChevronRight className="h-5 w-5 text-neutral-400 relative z-10" />
@@ -441,17 +456,17 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {/* Pending Verifications */}
                     <motion.div variants={cardVariants}
                         className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                        <div
-                            className="absolute top-0 right-0 w-32 h-32 rounded-full bg-amber-500/20 blur-3xl opacity-12" />
+                        <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }} transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                            className="absolute top-0 right-0 w-32 h-32 rounded-full bg-amber-500/20 blur-3xl" />
                         <div className="flex items-center justify-between mb-4 relative z-10">
                             <div className="flex items-center gap-2">
                                 <motion.div whileHover={{ rotate: [0, -15, 15, 0], scale: 1.2 }} transition={{ duration: 0.5 }}
                                     className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-lg relative">
                                     {stats.pendingCount > 0 && (
-                                        <div
+                                        <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }}
                                             className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-rose-500 text-white text-xs font-bold flex items-center justify-center">
                                             {stats.pendingCount}
-                                        </div>
+                                        </motion.div>
                                     )}
                                     <AlertCircle className="h-5 w-5" />
                                 </motion.div>
@@ -468,9 +483,9 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                         </div>
                         {pendingVerifications.length === 0 ? (
                             <div className="text-center py-8 text-neutral-500 relative z-10">
-                                <div>
+                                <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 3, repeat: Infinity }}>
                                     <CheckCircle2 className="h-12 w-12 mx-auto mb-3 text-emerald-400" />
-                                </div>
+                                </motion.div>
                                 <p className="font-medium">Semua sudah diverifikasi</p>
                                 <p className="text-xs mt-1">Kerja bagus! 🎉</p>
                             </div>
@@ -482,7 +497,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                         whileHover={{ x: 8, scale: 1.03, boxShadow: "0 10px 25px -5px rgba(245,158,11,0.3)" }}
                                         onClick={() => { setSelectedVerification(v); setShowVerifyModal(true); }}
                                         className="flex items-center gap-3 p-4 rounded-xl bg-white/80 hover:bg-white border border-amber-200/50 dark:bg-neutral-800/60 dark:border-amber-800/50 cursor-pointer relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent" />
+                                        <motion.div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/10 to-transparent"
+                                            animate={{ x: ['-100%', '100%'] }} transition={{ duration: 2, repeat: Infinity, ease: "linear", repeatDelay: 3 }} />
                                         <div className="relative z-10">
                                             {v.selfie_url ? (
                                                 <img src={v.selfie_url} alt="" className="h-14 w-14 rounded-xl object-cover ring-2 ring-amber-300 shadow-lg" />
@@ -498,8 +514,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                             <p className="text-xs text-neutral-500">{v.course}</p>
                                         </div>
                                         <div className="text-right relative z-10">
-                                            <div
-                                                className="px-2 py-1 rounded-full bg-amber-500 text-white text-xs font-medium mb-1">Pending</div>
+                                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}
+                                                className="px-2 py-1 rounded-full bg-amber-500 text-white text-xs font-medium mb-1">Pending</motion.div>
                                             <p className="text-xs text-neutral-500">{v.scanned_at}</p>
                                         </div>
                                     </motion.div>
@@ -515,8 +531,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {monthlyTrend.length > 0 && (
                         <motion.div variants={cardVariants}
                             className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                            <div
-                                className="absolute top-0 right-0 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl opacity-10" />
+                            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.15, 0.08] }} transition={{ duration: 5, repeat: Infinity }}
+                                className="absolute top-0 right-0 w-40 h-40 rounded-full bg-indigo-500/20 blur-3xl" />
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div whileHover={{ rotate: [0, -15, 15, 0], scale: 1.2 }} transition={{ duration: 0.5 }}
@@ -556,8 +572,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                     {courseStats.length > 0 && (
                         <motion.div variants={cardVariants}
                             className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                            <div
-                                className="absolute top-0 right-0 w-40 h-40 rounded-full bg-purple-500/20 blur-3xl opacity-10" />
+                            <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.08, 0.15, 0.08] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+                                className="absolute top-0 right-0 w-40 h-40 rounded-full bg-purple-500/20 blur-3xl" />
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="flex items-center gap-2">
                                     <motion.div whileHover={{ rotate: [0, -15, 15, 0], scale: 1.2 }} transition={{ duration: 0.5 }}
@@ -597,8 +613,8 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                 {/* ═══════ RECENT ACTIVITY ═══════ */}
                 <motion.div variants={cardVariants}
                     className="rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl dark:border-white/5 relative overflow-hidden">
-                    <div
-                        className="absolute top-0 right-0 w-40 h-40 rounded-full bg-slate-500/20 blur-3xl opacity-07" />
+                    <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.1, 0.05] }} transition={{ duration: 5, repeat: Infinity }}
+                        className="absolute top-0 right-0 w-40 h-40 rounded-full bg-slate-500/20 blur-3xl" />
                     <div className="flex items-center justify-between mb-4 relative z-10">
                         <div className="flex items-center gap-2">
                             <motion.div whileHover={{ rotate: [0, -15, 15, 0], scale: 1.2 }} transition={{ duration: 0.5 }}
@@ -610,14 +626,14 @@ export default function DosenDashboard({ dosen, stats, pendingVerifications, act
                                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Real-time updates</p>
                             </div>
                         </div>
-                        <div
+                        <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 2, repeat: Infinity }}
                             className="h-2 w-2 rounded-full bg-emerald-500" />
                     </div>
                     {recentActivity.length === 0 ? (
                         <div className="text-center py-12 text-neutral-500 relative z-10">
-                            <div>
+                            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }}>
                                 <Clock className="h-12 w-12 mx-auto mb-3 text-neutral-300" />
-                            </div>
+                            </motion.div>
                             <p className="font-medium">Belum ada aktivitas</p>
                         </div>
                     ) : (

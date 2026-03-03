@@ -12,13 +12,24 @@ class Tugas extends Model
 
     protected $fillable = [
         'course_id',
+        'template_id',
+        'is_template',
         'judul',
         'deskripsi',
         'instruksi',
+        'learning_objectives',
         'jenis',
         'deadline',
         'prioritas',
         'status',
+        'schedule_type',
+        'publish_at',
+        'recurring_pattern',
+        'collaboration_type',
+        'collaboration_settings',
+        'estimated_hours',
+        'ai_generated',
+        'bobot_nilai',
         'lampiran_url',
         'lampiran_nama',
         'created_by_type',
@@ -31,6 +42,14 @@ class Tugas extends Model
     protected $casts = [
         'deadline' => 'datetime',
         'edited_at' => 'datetime',
+        'publish_at' => 'datetime',
+        'recurring_pattern' => 'array',
+        'collaboration_settings' => 'array',
+        'learning_objectives' => 'array',
+        'is_template' => 'boolean',
+        'ai_generated' => 'boolean',
+        'estimated_hours' => 'integer',
+        'bobot_nilai' => 'decimal:2',
     ];
 
     public function course(): BelongsTo
@@ -51,6 +70,26 @@ class Tugas extends Model
     public function submissions(): HasMany
     {
         return $this->hasMany(TugasSubmission::class, 'tugas_id');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TugasAttachment::class, 'tugas_id');
+    }
+
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(TugasReminder::class, 'tugas_id');
+    }
+
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(TugasDependency::class, 'tugas_id');
+    }
+
+    public function prerequisiteFor(): HasMany
+    {
+        return $this->hasMany(TugasDependency::class, 'depends_on_tugas_id');
     }
 
     public function creator()

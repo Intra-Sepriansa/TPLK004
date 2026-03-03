@@ -200,13 +200,7 @@ export default function DosenCourses({ dosen, courses, stats }: PageProps) {
                                             <p className="hidden sm:block text-[10px] text-neutral-400 mt-0.5">{card.sub}</p>
                                         </div>
                                     </div>
-                                    <div className="mt-auto w-full pt-2">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }} animate={{ width: card.suffix === '%' ? `${card.value}%` : '70%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: 'easeOut' }} />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );

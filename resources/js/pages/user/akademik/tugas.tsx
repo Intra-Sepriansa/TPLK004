@@ -1295,7 +1295,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                 whileTap={{ scale: 0.95 }}
                             >
                                 <Button
-                                    onClick={() => setShowForm(true)}
+                                    onClick={() => router.visit('/user/akademik/tugas/create')}
                                     className="flex items-center gap-2 px-6 py-3 h-auto rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xl border-2 border-white/40 shadow-lg transition-all text-white"
                                 >
                                     <Plus className="h-5 w-5" />
@@ -2523,7 +2523,7 @@ export default function AcademicTasks({ tasks, courses, stats, filters }: Props)
                                                 ))}
                                             </div>
                                         ) : (
-                                            <EmptyState onAddTask={() => setShowForm(true)} />
+                                            <EmptyState onAddTask={() => router.visit('/user/akademik/tugas/create')} />
                                         )}
                                     </TabsContent>
                                 </Tabs>

@@ -145,6 +145,23 @@ function getSectionTone(type: SectionType): string {
     return 'border-white/20 bg-white/60 dark:border-white/10 dark:bg-neutral-900/60';
 }
 
+const formatText = (text: string) => {
+    if (!text) return text;
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={index} className="font-bold text-neutral-900 dark:text-white">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('*') && part.endsWith('*')) {
+            return <em key={index} className="italic text-neutral-800 dark:text-neutral-200">{part.slice(1, -1)}</em>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+            return <code key={index} className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400">{part.slice(1, -1)}</code>;
+        }
+        return part;
+    });
+};
+
 export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
     const [activeSectionId, setActiveSectionId] = useState(guide.sections[0]?.id ?? '');
     const [completedSections, setCompletedSections] = useState<string[]>(() =>
@@ -850,7 +867,7 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                                             .split('\n')
                                             .filter(Boolean)
                                             .map((paragraph, idx) => (
-                                                <p key={`${activeSection.id}-p-${idx}`}>{paragraph}</p>
+                                                <p key={`${activeSection.id}-p-${idx}`}>{formatText(paragraph)}</p>
                                             ))}
                                     </div>
 
@@ -862,10 +879,10 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                                                     className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
                                                 >
                                                     <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                                                        Langkah {index + 1}: {step.title}
+                                                        Langkah {index + 1}: {formatText(step.title)}
                                                     </p>
                                                     <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
-                                                        {step.description}
+                                                        {formatText(step.description)}
                                                     </p>
                                                 </div>
                                             ))}
@@ -879,8 +896,8 @@ export default function StudentDocsDetail({ guide, relatedGuides }: Props) {
                                                     key={`${activeSection.id}-faq-${index}`}
                                                     className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
                                                 >
-                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">Q: {faq.question}</p>
-                                                    <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">A: {faq.answer}</p>
+                                                    <p className="text-sm font-semibold text-neutral-900 dark:text-white">Q: {formatText(faq.question)}</p>
+                                                    <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">A: {formatText(faq.answer)}</p>
                                                 </div>
                                             ))}
                                         </div>

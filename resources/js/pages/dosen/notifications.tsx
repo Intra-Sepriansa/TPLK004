@@ -338,19 +338,28 @@ export default function Notifications({
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="space-y-6 p-6"
+                className="space-y-4 p-4 sm:space-y-6 sm:p-6 lg:p-8"
             >
                 {/* HEADER SECTION */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{
+                            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                        }}
+                        transition={{
+                            duration: 15,
+                            repeat: Infinity,
+                            ease: 'linear',
+                        }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-
 
                     <div className="relative">
                         <div className="flex flex-col items-center justify-between gap-6 lg:flex-row lg:items-start">
@@ -380,7 +389,7 @@ export default function Notifications({
                                         className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
                                     />
                                 </motion.div>
-                                <div className="mt-1 flex-1 sm:mt-0">
+                                <div className="mt-1 flex-1 text-center sm:mt-0">
                                     <motion.p
                                         className="text-sm font-medium tracking-wide text-indigo-100"
                                         initial={{ opacity: 0, x: -10 }}
@@ -390,7 +399,7 @@ export default function Notifications({
                                         Pemberitahuan
                                     </motion.p>
                                     <motion.h1
-                                        className="mt-1 flex items-center justify-center gap-3 text-2xl font-bold text-white sm:justify-start sm:text-3xl"
+                                        className="mt-1 flex items-center justify-center gap-2.5 text-2xl font-bold text-white sm:gap-3 sm:text-3xl"
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.4 }}
@@ -410,7 +419,7 @@ export default function Notifications({
                                         )}
                                     </motion.h1>
                                     <motion.p
-                                        className="mt-2 max-w-lg text-sm leading-relaxed text-indigo-100 sm:text-base"
+                                        className="mx-auto mt-1.5 max-w-xl text-sm leading-relaxed text-indigo-100 sm:mt-2 sm:text-base"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.5 }}
@@ -421,12 +430,12 @@ export default function Notifications({
                                 </div>
                             </div>
 
-                            <div className="mt-2 flex w-full flex-col items-center gap-3 lg:mt-0 lg:w-auto lg:items-end">
+                            <div className="mt-2 flex w-full max-w-[290px] flex-col items-center gap-3 lg:mt-0 lg:w-auto lg:max-w-none lg:items-end">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.6, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-6 py-3 shadow-lg backdrop-blur-xl"
+                                    className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-4 py-2.5 shadow-lg backdrop-blur-xl lg:w-auto lg:px-6 lg:py-3"
                                 >
                                     <div className="rounded-lg bg-indigo-500/20 p-2">
                                         <Send className="h-6 w-6 text-white" />
@@ -447,7 +456,7 @@ export default function Notifications({
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="flex flex-wrap justify-center gap-2"
+                                    className="flex w-full flex-wrap justify-center gap-2 lg:w-auto lg:justify-end"
                                 >
                                     <motion.button
                                         whileHover={{
@@ -461,7 +470,7 @@ export default function Notifications({
                                                 '/dosen/notifications/create',
                                             )
                                         }
-                                        className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
+                                        className="flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
                                     >
                                         <Plus className="h-4 w-4" /> Buat
                                         Notifikasi
@@ -475,7 +484,7 @@ export default function Notifications({
                                             }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={handleMarkAllAsRead}
-                                            className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
+                                            className="flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
                                         >
                                             <CheckCircle className="h-4 w-4" />{' '}
                                             Tandai Dibaca
@@ -489,7 +498,7 @@ export default function Notifications({
                                         }}
                                         whileTap={{ scale: 0.98 }}
                                         onClick={handleRefresh}
-                                        className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
+                                        className="flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md"
                                     >
                                         <RefreshCw className="h-4 w-4" />{' '}
                                         Refresh
@@ -553,6 +562,14 @@ export default function Notifications({
                                 <div className="relative flex flex-col items-center gap-2 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
                                     <motion.div
                                         whileHover={{ scale: 1.1, rotate: 10 }}
+                                        animate={{
+                                            scale: c.float ? [1, 1.1, 1] : 1,
+                                        }}
+                                        transition={{
+                                            duration: 1,
+                                            repeat: c.float ? Infinity : 0,
+                                            repeatDelay: 2,
+                                        }}
                                         className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-14 sm:w-14"
                                     >
                                         <img
@@ -830,7 +847,19 @@ export default function Notifications({
                                                 )}
                                                 {!notif.read_at &&
                                                     activeTab === 'inbox' && (
-                                                        <span
+                                                        <motion.span
+                                                            animate={{
+                                                                scale: [
+                                                                    1, 1.3, 1,
+                                                                ],
+                                                                opacity: [
+                                                                    1, 0.7, 1,
+                                                                ],
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                            }}
                                                             className="flex h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/50"
                                                         />
                                                     )}
@@ -850,7 +879,17 @@ export default function Notifications({
                                                     className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700"
                                                 >
                                                     Baca selengkapnya{' '}
-                                                    <span>→</span>
+                                                    <motion.span
+                                                        animate={{
+                                                            x: [0, 3, 0],
+                                                        }}
+                                                        transition={{
+                                                            duration: 1.5,
+                                                            repeat: Infinity,
+                                                        }}
+                                                    >
+                                                        →
+                                                    </motion.span>
                                                 </motion.span>
                                             </div>
                                         </div>
@@ -880,11 +919,19 @@ export default function Notifications({
                                 animate={{ opacity: 1 }}
                                 className="p-16 text-center"
                             >
-                                <div className="mb-6">
+                                <motion.div
+                                    animate={{ y: [0, -15, 0] }}
+                                    transition={{
+                                        duration: 3,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    }}
+                                    className="mb-6"
+                                >
                                     <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-neutral-100 to-neutral-200 dark:from-neutral-800 dark:to-neutral-900">
                                         <Bell className="h-12 w-12 text-neutral-400" />
                                     </div>
-                                </div>
+                                </motion.div>
                                 <h3 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-white">
                                     Tidak ada notifikasi
                                 </h3>
@@ -918,8 +965,8 @@ export default function Notifications({
                                     })
                                 }
                                 className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-all ${activeNotifications.current_page === page
-                                    ? 'border border-transparent bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30'
-                                    : 'border border-white/20 bg-white/50 text-neutral-600 backdrop-blur-md hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800'
+                                        ? 'border border-transparent bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/30'
+                                        : 'border border-white/20 bg-white/50 text-neutral-600 backdrop-blur-md hover:bg-white dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800'
                                     }`}
                             >
                                 {page}

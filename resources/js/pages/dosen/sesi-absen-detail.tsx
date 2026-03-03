@@ -202,10 +202,16 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
         <DosenLayout>
             <Head title={`Sesi: ${s.title}`} />
 
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="p-4 md:p-6 space-y-6">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="space-y-6 p-4 md:p-6">
                 {/* ═══════ HEADER ═══════ */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8">
+                    {/* Animated Gradient Background */}
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
@@ -216,13 +222,13 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                             <ArrowLeft className="h-4 w-4" /> Kembali ke Sesi Absensi
                         </Link>
 
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-5">
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
                                 <motion.div
                                     className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24 items-center justify-center">
                                     <img src={SesiAbsenIcon} alt="Header Icon" className="absolute inset-0 h-full w-full object-contain drop-shadow-2xl" />
                                 </motion.div>
-                                <div>
+                                <div className="min-w-0">
                                     <div className="flex items-center gap-3">
                                         <p className="text-sm text-indigo-100 font-medium tracking-wide">Sesi Absensi</p>
                                         <motion.span
@@ -234,64 +240,34 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                                         </motion.span>
                                     </div>
                                     <h1 className="text-3xl font-bold text-white">{s.title}</h1>
-                                    <p className="mt-1 text-indigo-100">
+                                    <p className="mt-1 text-sm text-indigo-100 sm:text-base">
                                         {s.course_name} • Pertemuan {s.meeting_number} • {s.day_display}, {s.date_display} • {s.time_range}
                                     </p>
                                 </div>
-                            </div>
-
-                            {/* Quick Stats Badges */}
-                            <div className="flex items-center gap-3">
-                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/20 hover:shadow-emerald-500/10 transition-all dark:border-white/5"
-                                >
-                                    <div className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
-                                        <img src={HadirIcon} alt="Hadir" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <p className="text-[10px] sm:text-xs font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5">Hadir</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">{stats.present}</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                                <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, type: 'spring' }}
-                                    className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-xl px-6 py-3 shadow-xl border border-white/20 hover:shadow-amber-500/10 transition-all dark:border-white/5"
-                                >
-                                    <div className="relative flex shrink-0 h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
-                                        <img src={TerlambatDetailIcon} alt="Pending" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)]" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <p className="text-[10px] sm:text-xs font-medium leading-tight text-neutral-500 dark:text-neutral-400 mb-0.5">Pending</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-xl sm:text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight leading-none">{stats.pending}</span>
-                                        </div>
-                                    </div>
-                                </motion.div>
                             </div>
                         </div>
 
                         {/* Action Buttons */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                            className="flex flex-wrap gap-3 mt-8 pt-6 border-t border-white/10"
+                            className="mt-6 grid grid-cols-1 gap-2 border-t border-white/10 pt-5 sm:mt-8 sm:flex sm:flex-wrap sm:gap-3 sm:pt-6"
                         >
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleRefresh}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} /> Refresh QR
                             </motion.button>
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setActiveTab('insights')}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <BrainCircuit className="h-4 w-4" /> AI Insight
                             </motion.button>
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExport}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <Download className="h-4 w-4" /> Export
                             </motion.button>
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSendReminder} disabled={sendingReminder}
-                                className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg disabled:opacity-50"
+                                className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/20 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/30 disabled:opacity-50 sm:w-auto sm:justify-start sm:px-5"
                             >
                                 <Bell className={`h-4 w-4 ${sendingReminder ? 'animate-bounce' : ''}`} /> {sendingReminder ? 'Mengirim...' : 'Send Reminder'}
                             </motion.button>
@@ -342,17 +318,7 @@ export default function SesiAbsenDetail({ session: s, logs, stats, aiPredictions
                                             <p className="text-[10px] text-neutral-400 mt-0.5 sm:mt-1">{card.sub}</p>
                                         </div>
                                     </div>
-                                    {/* Progress bar */}
-                                    <div className="mt-auto w-full pt-2 sm:pt-4">
-                                        <div className="h-1.5 w-full bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden">
-                                            <motion.div
-                                                className={`h-full bg-gradient-to-r ${cc.from} ${cc.to} rounded-full`}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: card.sub.includes('%') ? card.sub : '100%' }}
-                                                transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: "easeOut" }}
-                                            />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         );

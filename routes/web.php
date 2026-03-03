@@ -243,6 +243,19 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/tugas/{tuga}/message', [\App\Http\Controllers\Admin\TugasController::class, 'sendMessage'])->name('admin.tugas.message');
     Route::patch('admin/tugas/diskusi/{diskusi}/pin', [\App\Http\Controllers\Admin\TugasController::class, 'togglePin'])->name('admin.tugas.diskusi.pin');
     Route::delete('admin/tugas/diskusi/{diskusi}', [\App\Http\Controllers\Admin\TugasController::class, 'deleteMessage'])->name('admin.tugas.diskusi.delete');
+
+    // Tugas Kelompok (Group Assignments)
+    Route::get('admin/tugas-kelompok', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'index'])->name('admin.tugas-kelompok');
+    Route::get('admin/tugas-kelompok/create', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'create'])->name('admin.tugas-kelompok.create');
+    Route::post('admin/tugas-kelompok', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'store'])->name('admin.tugas-kelompok.store');
+    Route::get('admin/tugas-kelompok/{id}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'show'])->name('admin.tugas-kelompok.show');
+    Route::delete('admin/tugas-kelompok/{id}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'destroy'])->name('admin.tugas-kelompok.destroy');
+    Route::post('admin/tugas-kelompok/{id}/random-groups', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'formRandomGroups'])->name('admin.tugas-kelompok.random-groups');
+    Route::post('admin/tugas-kelompok/{id}/assign-student', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'assignStudentToGroup'])->name('admin.tugas-kelompok.assign-student');
+    Route::post('admin/tugas-kelompok/{id}/create-group', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'createGroup'])->name('admin.tugas-kelompok.create-group');
+    Route::post('admin/tugas-kelompok/{id}/toggle-lock', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'toggleLock'])->name('admin.tugas-kelompok.toggle-lock');
+    Route::post('admin/tugas-kelompok/{id}/grade', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'gradeSubmission'])->name('admin.tugas-kelompok.grade');
+    Route::post('admin/tugas-kelompok/{id}/resolve-conflict/{reportId}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'resolveConflict'])->name('admin.tugas-kelompok.resolve-conflict');
     
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
@@ -277,6 +290,20 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/tugas/{tuga}', [\App\Http\Controllers\User\TugasController::class, 'show'])->name('user.tugas.show');
     Route::post('user/tugas/{tuga}/message', [\App\Http\Controllers\User\TugasController::class, 'sendMessage'])->name('user.tugas.message');
     
+    // User Tugas Kelompok (Group Assignments)
+    Route::get('user/akademik/tugas-kelompok', [\App\Http\Controllers\User\TugasKelompokController::class, 'index'])->name('user.tugas-kelompok');
+    Route::get('user/akademik/tugas-kelompok/{id}', [\App\Http\Controllers\User\TugasKelompokController::class, 'show'])->name('user.tugas-kelompok.show');
+    Route::post('user/akademik/tugas-kelompok/{id}/create-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'createGroup'])->name('user.tugas-kelompok.create-group');
+    Route::post('user/akademik/tugas-kelompok/{id}/join-group/{groupId}', [\App\Http\Controllers\User\TugasKelompokController::class, 'joinGroup'])->name('user.tugas-kelompok.join-group');
+    Route::post('user/akademik/tugas-kelompok/{id}/leave-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'leaveGroup'])->name('user.tugas-kelompok.leave-group');
+    Route::post('user/akademik/tugas-kelompok/{id}/message', [\App\Http\Controllers\User\TugasKelompokController::class, 'sendMessage'])->name('user.tugas-kelompok.message');
+    Route::post('user/akademik/tugas-kelompok/{id}/upload', [\App\Http\Controllers\User\TugasKelompokController::class, 'uploadFile'])->name('user.tugas-kelompok.upload');
+    Route::post('user/akademik/tugas-kelompok/{id}/task', [\App\Http\Controllers\User\TugasKelompokController::class, 'createTask'])->name('user.tugas-kelompok.task');
+    Route::patch('user/akademik/tugas-kelompok/{id}/task/{taskId}', [\App\Http\Controllers\User\TugasKelompokController::class, 'updateTaskStatus'])->name('user.tugas-kelompok.task-status');
+    Route::post('user/akademik/tugas-kelompok/{id}/submit', [\App\Http\Controllers\User\TugasKelompokController::class, 'submitWork'])->name('user.tugas-kelompok.submit');
+    Route::post('user/akademik/tugas-kelompok/{id}/peer-evaluation', [\App\Http\Controllers\User\TugasKelompokController::class, 'submitPeerEvaluation'])->name('user.tugas-kelompok.peer-eval');
+    Route::post('user/akademik/tugas-kelompok/{id}/conflict', [\App\Http\Controllers\User\TugasKelompokController::class, 'reportConflict'])->name('user.tugas-kelompok.conflict');
+
     // User Permit (Izin/Sakit)
     Route::get('user/permit', [\App\Http\Controllers\User\PermitController::class, 'index'])->name('user.permit');
     Route::get('user/permit/create', [\App\Http\Controllers\User\PermitController::class, 'create'])->name('user.permit.create');
@@ -329,6 +356,21 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     
     // Akademik - Tugas
     Route::get('user/akademik/tugas', [\App\Http\Controllers\User\AcademicTaskController::class, 'index'])->name('user.akademik.tugas');
+    Route::get('user/akademik/tugas/create', [\App\Http\Controllers\User\TugasCreateController::class, 'index'])->name('user.akademik.tugas.create');
+    Route::post('user/akademik/tugas/create', [\App\Http\Controllers\User\TugasCreateController::class, 'store'])->name('user.akademik.tugas.create.store');
+    Route::post('user/akademik/tugas/create/bulk', [\App\Http\Controllers\User\TugasCreateController::class, 'bulkStore'])->name('user.akademik.tugas.create.bulk-store');
+    Route::post('user/akademik/tugas/create/bulk/preview', [\App\Http\Controllers\User\TugasCreateController::class, 'bulkPreview'])->name('user.akademik.tugas.create.bulk-preview');
+    Route::post('user/akademik/tugas/create/bulk/import', [\App\Http\Controllers\User\TugasCreateController::class, 'bulkImport'])->name('user.akademik.tugas.create.bulk-import');
+    Route::get('user/akademik/tugas/create/bulk/template', [\App\Http\Controllers\User\TugasCreateController::class, 'downloadTemplate'])->name('user.akademik.tugas.create.bulk-template');
+    Route::post('user/akademik/tugas/create/upload', [\App\Http\Controllers\User\TugasCreateController::class, 'uploadAttachment'])->name('user.akademik.tugas.create.upload');
+    Route::post('user/akademik/tugas/create/ai/suggest-title', [\App\Http\Controllers\User\TugasCreateController::class, 'suggestTitle'])->name('user.akademik.tugas.create.ai.suggest-title');
+    Route::post('user/akademik/tugas/create/ai/generate-description', [\App\Http\Controllers\User\TugasCreateController::class, 'generateDescription'])->name('user.akademik.tugas.create.ai.generate-description');
+    Route::post('user/akademik/tugas/create/ai/predict-deadline', [\App\Http\Controllers\User\TugasCreateController::class, 'predictDeadline'])->name('user.akademik.tugas.create.ai.predict-deadline');
+    Route::get('user/akademik/tugas/create/templates', [\App\Http\Controllers\User\TugasCreateController::class, 'templates'])->name('user.akademik.tugas.create.templates.index');
+    Route::post('user/akademik/tugas/create/templates', [\App\Http\Controllers\User\TugasCreateController::class, 'saveTemplate'])->name('user.akademik.tugas.create.templates.store');
+    Route::post('user/akademik/tugas/create/templates/{id}/apply', [\App\Http\Controllers\User\TugasCreateController::class, 'applyTemplate'])->name('user.akademik.tugas.create.templates.apply');
+    Route::patch('user/akademik/tugas/create/templates/{id}/favorite', [\App\Http\Controllers\User\TugasCreateController::class, 'toggleTemplateFavorite'])->name('user.akademik.tugas.create.templates.favorite');
+    Route::delete('user/akademik/tugas/create/templates/{id}', [\App\Http\Controllers\User\TugasCreateController::class, 'deleteTemplate'])->name('user.akademik.tugas.create.templates.destroy');
     Route::post('user/akademik/tugas', [\App\Http\Controllers\User\AcademicTaskController::class, 'store'])->name('user.akademik.tugas.store');
     Route::patch('user/akademik/tugas/{id}', [\App\Http\Controllers\User\AcademicTaskController::class, 'update'])->name('user.akademik.tugas.update');
     Route::delete('user/akademik/tugas/{id}', [\App\Http\Controllers\User\AcademicTaskController::class, 'destroy'])->name('user.akademik.tugas.destroy');

@@ -855,3 +855,5 @@
 [class~='bg-gradient-to-r'][class~='h-px'] {
     display: none !important;
 }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }

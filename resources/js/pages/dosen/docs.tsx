@@ -1,43 +1,70 @@
-/**
- * Dosen Enhanced Documentation Page
- * Dark theme dengan advanced cards, search, dan progress tracking
- * Menggunakan emerald-teal-cyan color scheme untuk konsistensi dengan tema dosen
- */
-
-import { useState, useEffect } from 'react';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import AnalyticsLateIcon from '@/assets/admin/analytics/terlambat.png';
+import DashboardHadirIcon from '@/assets/admin/dashboard/hadir-icon.png';
+import InformationTaskIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import LeaderboardIcon from '@/assets/admin/leaderboard/icon-leaderboard.png';
+import LeaderboardAverageIcon from '@/assets/admin/leaderboard/rata-rata.png';
+import DosenLayout from '@/layouts/dosen-layout';
+import DocumentationIcon from '@/assets/admin/panduan/panduan.png';
+import {
+    getAllOfflineGuidesFromCache,
+    getOfflineGuideFromCache,
+    migrateLegacyOfflineDocsCache,
+    type OfflineGuideCacheRecord,
+    removeOfflineGuideFromCache,
+    saveOfflineGuideToCache,
+} from '@/lib/offline-docs-cache';
+import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import {
-    Book,
-    Clock,
-    CheckCircle,
-    TrendingUp,
-    Home,
-    Users,
-    FileText,
-    BarChart3,
-    ClipboardList,
-    FileCheck,
-    GraduationCap,
-    Award,
-    Settings,
-    Bell,
-    Calendar,
+    ArrowLeft,
     BookOpen,
-    type LucideIcon
+    Bookmark,
+    BookmarkCheck,
+    ChevronRight,
+    Clock3,
+    Download,
+    Filter,
+    Flame,
+    LifeBuoy,
+    Search,
+    Trash2,
+    Trophy,
+    WifiOff,
+    X,
 } from 'lucide-react';
-import DosenLayout from '@/layouts/dosen-layout';
-import InteractiveSearch from '@/components/ui/interactive-search';
-import ProgressIndicator, { LinearProgressBar } from '@/components/ui/progress-indicator';
-import { SkeletonGrid } from '@/components/ui/skeleton-loader';
-import EmptyState from '@/components/ui/empty-state';
-import { staggerContainerVariants, staggerItemVariants } from '@/lib/animations';
-import type { GuideSummary } from '@/types/documentation';
-import { getGuides, getProgressStats } from '@/lib/documentation-api';
-import TotalGuidesIcon from '@/assets/admin/panduan/panduan.png';
-import CompletedIcon from '@/assets/admin/notification-center/scheduled.png';
-import InProgressIcon from '@/assets/admin/bulk-import/berhasil.png';
-import OverallProgressIcon from '@/assets/admin/informasi-tugas/total-tugas.png';
+import { useEffect, useMemo, useState } from 'react';
+
+type CategoryKey = 'beginner' | 'intermediate' | 'advanced' | 'reference' | string;
+
+interface GuideSummary {
+    id: string;
+    menuKey: string;
+    title: string;
+    description: string;
+    icon: string;
+    category: CategoryKey;
+    slug?: string;
+    difficulty?: number;
+    tags?: string[];
+    estimatedTime: number;
+    sectionCount?: number;
+    quizCount?: number;
+    progress: number;
+    isCompleted: boolean;
+    lastReadAt?: string | null;
+}
 
 interface DocumentationStats {
     totalGuides: number;
@@ -46,483 +73,1042 @@ interface DocumentationStats {
     overallProgress: number;
 }
 
-// Icon mapping untuk setiap guide berdasarkan icon name dari backend
-const iconMap: Record<string, LucideIcon> = {
-    'Home': Home,
-    'Users': Users,
-    'FileText': FileText,
-    'BarChart3': BarChart3,
-    'ClipboardList': ClipboardList,
-    'FileCheck': FileCheck,
-    'GraduationCap': GraduationCap,
-    'Award': Award,
-    'Settings': Settings,
-    'Bell': Bell,
-    'Calendar': Calendar,
-    'Book': Book,
-    'BookOpen': BookOpen,
+interface Props {
+    guides: GuideSummary[];
+    stats: DocumentationStats;
+    categories: string[];
+}
+
+interface OfflineDownload {
+    guide_id: string;
+    title: string | null;
+    version: string | null;
+    size_kb: number | null;
+    downloaded_at: string | null;
+    updated_at: string | null;
+}
+
+interface OfflineViewerGuideSection {
+    id: string;
+    title: string;
+    content: string;
+}
+
+interface OfflineViewerGuide {
+    id: string;
+    title: string;
+    description?: string;
+    estimatedReadTime?: number;
+    sections: OfflineViewerGuideSection[];
+}
+
+const categoryConfig: Record<
+    string,
+    {
+        label: string;
+        cardGradient: string;
+        badge: string;
+        iconAsset: string;
+    }
+> = {
+    beginner: {
+        label: 'Pemula',
+        cardGradient: 'from-emerald-400 to-teal-600',
+        badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+        iconAsset: DashboardHadirIcon,
+    },
+    intermediate: {
+        label: 'Menengah',
+        cardGradient: 'from-blue-400 to-indigo-600',
+        badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+        iconAsset: LeaderboardAverageIcon,
+    },
+    advanced: {
+        label: 'Lanjutan',
+        cardGradient: 'from-purple-400 to-pink-600',
+        badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+        iconAsset: LeaderboardIcon,
+    },
+    reference: {
+        label: 'Referensi',
+        cardGradient: 'from-amber-400 to-orange-600',
+        badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+        iconAsset: InformationTaskIcon,
+    },
 };
 
-export default function DosenDocs() {
-    const [guides, setGuides] = useState<GuideSummary[]>([]);
-    const [filteredGuides, setFilteredGuides] = useState<GuideSummary[]>([]);
-    const [stats, setStats] = useState<DocumentationStats>({
-        totalGuides: 0,
-        completedGuides: 0,
-        inProgressGuides: 0,
-        overallProgress: 0,
+function getDifficultyLabel(value: number): string {
+    if (value <= 1) return 'Sangat Mudah';
+    if (value === 2) return 'Mudah';
+    if (value === 3) return 'Menengah';
+    if (value === 4) return 'Sulit';
+    return 'Lanjutan';
+}
+
+const formatText = (text: string) => {
+    if (!text) return text;
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={index} className="font-bold text-neutral-900 dark:text-white">{part.slice(2, -2)}</strong>;
+        }
+        if (part.startsWith('*') && part.endsWith('*')) {
+            return <em key={index} className="italic text-neutral-800 dark:text-neutral-200">{part.slice(1, -1)}</em>;
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+            return <code key={index} className="rounded-md bg-neutral-100 px-1.5 py-0.5 font-mono text-xs text-indigo-600 dark:bg-neutral-800 dark:text-indigo-400">{part.slice(1, -1)}</code>;
+        }
+        return part;
     });
-    const [isLoading, setIsLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState<string>('all');
-    const [searchQuery, setSearchQuery] = useState('');
+};
+
+export default function DosenDocs({ guides, stats, categories }: Props) {
+    const [query, setQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [selectedDifficulty, setSelectedDifficulty] = useState('all');
+    const [sortBy, setSortBy] = useState<'popular' | 'recent' | 'difficulty' | 'title'>('popular');
+    const [bookmarks, setBookmarks] = useState<string[]>([]);
+    const [offlineDownloads, setOfflineDownloads] = useState<OfflineDownload[]>([]);
+    const [offlineCacheRecords, setOfflineCacheRecords] = useState<OfflineGuideCacheRecord[]>([]);
+    const [offlineViewerGuide, setOfflineViewerGuide] = useState<OfflineViewerGuide | null>(null);
+    const [offlineViewerLoadingGuideId, setOfflineViewerLoadingGuideId] = useState<string | null>(null);
+    const [isOnline, setIsOnline] = useState<boolean>(
+        typeof window === 'undefined' ? true : window.navigator.onLine,
+    );
+    const [bookmarkLoadingGuideId, setBookmarkLoadingGuideId] = useState<string | null>(null);
+    const [offlineLoadingGuideId, setOfflineLoadingGuideId] = useState<string | null>(null);
+
+    const getCsrfToken = () =>
+        document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
     useEffect(() => {
-        loadDocumentation();
+        const syncConnectionState = () => {
+            setIsOnline(window.navigator.onLine);
+        };
+
+        window.addEventListener('online', syncConnectionState);
+        window.addEventListener('offline', syncConnectionState);
+
+        void (async () => {
+            await migrateLegacyOfflineDocsCache();
+            await Promise.all([loadBookmarks(), loadOfflineDownloads(), loadOfflineCacheIndex()]);
+        })();
+
+        return () => {
+            window.removeEventListener('online', syncConnectionState);
+            window.removeEventListener('offline', syncConnectionState);
+        };
     }, []);
 
-    useEffect(() => {
-        filterGuides();
-    }, [guides, selectedCategory, searchQuery]);
-
-    const loadDocumentation = async () => {
+    const loadBookmarks = async () => {
         try {
-            setIsLoading(true);
-            const [guidesData, statsData] = await Promise.all([
-                getGuides('dosen'),
-                getProgressStats('dosen'),
-            ]);
-            setGuides(guidesData);
-            setStats(statsData);
-        } catch (error) {
-            console.error('Failed to load documentation:', error);
-        } finally {
-            setIsLoading(false);
+            const response = await fetch('/api/docs/bookmarks', {
+                headers: { Accept: 'application/json' },
+            });
+            const payload = await response.json();
+
+            if (!response.ok || !payload?.success) return;
+
+            const guideIds = (payload.data ?? []).map((item: { guide_id: string }) => item.guide_id);
+            setBookmarks(guideIds);
+        } catch {
+            // Ignore transient fetch errors, keep UI usable.
         }
     };
 
-    const filterGuides = () => {
-        let filtered = guides;
+    const loadOfflineDownloads = async () => {
+        try {
+            const response = await fetch('/api/docs/offline-downloads', {
+                headers: { Accept: 'application/json' },
+            });
+            const payload = await response.json();
+
+            if (!response.ok || !payload?.success) return;
+
+            setOfflineDownloads(payload.data ?? []);
+        } catch {
+            // Ignore transient fetch errors, keep UI usable.
+        }
+    };
+
+    const loadOfflineCacheIndex = async () => {
+        try {
+            const cachedGuides = await getAllOfflineGuidesFromCache();
+            setOfflineCacheRecords(cachedGuides);
+        } catch {
+            // Ignore local cache read errors.
+        }
+    };
+
+    const toOfflineViewerGuide = (payload: unknown): OfflineViewerGuide | null => {
+        if (typeof payload !== 'object' || payload === null) return null;
+
+        const data = payload as {
+            id?: unknown;
+            title?: unknown;
+            description?: unknown;
+            estimatedReadTime?: unknown;
+            sections?: unknown;
+        };
+
+        if (typeof data.id !== 'string' || typeof data.title !== 'string') return null;
+
+        const sections = Array.isArray(data.sections)
+            ? data.sections
+                .map((section, index) => {
+                    if (typeof section !== 'object' || section === null) return null;
+
+                    const parsedSection = section as {
+                        id?: unknown;
+                        title?: unknown;
+                        content?: unknown;
+                    };
+
+                    const title = typeof parsedSection.title === 'string' ? parsedSection.title : `Section ${index + 1}`;
+                    const content = typeof parsedSection.content === 'string' ? parsedSection.content : '';
+
+                    return {
+                        id:
+                            typeof parsedSection.id === 'string'
+                                ? parsedSection.id
+                                : `offline-section-${index + 1}`,
+                        title,
+                        content,
+                    };
+                })
+                .filter((section): section is OfflineViewerGuideSection => section !== null)
+            : [];
+
+        return {
+            id: data.id,
+            title: data.title,
+            description: typeof data.description === 'string' ? data.description : undefined,
+            estimatedReadTime:
+                typeof data.estimatedReadTime === 'number'
+                    ? data.estimatedReadTime
+                    : undefined,
+            sections,
+        };
+    };
+
+    const openGuideFromOfflineCache = async (guideId: string) => {
+        setOfflineViewerLoadingGuideId(guideId);
+        try {
+            const cached = await getOfflineGuideFromCache(guideId);
+            const parsed = toOfflineViewerGuide(cached?.payload ?? null);
+            if (!parsed) return;
+            setOfflineViewerGuide(parsed);
+        } finally {
+            setOfflineViewerLoadingGuideId(null);
+        }
+    };
+
+    const suggestions = useMemo(() => {
+        if (query.trim().length < 2) return [];
+
+        const lowerQuery = query.toLowerCase();
+        return guides
+            .filter((guide) => {
+                const searchable = [guide.title, guide.description, ...(guide.tags ?? [])]
+                    .join(' ')
+                    .toLowerCase();
+                return searchable.includes(lowerQuery);
+            })
+            .slice(0, 5)
+            .map((guide) => guide.title);
+    }, [guides, query]);
+
+    const filteredGuides = useMemo(() => {
+        let results = [...guides];
 
         if (selectedCategory !== 'all') {
-            filtered = filtered.filter(g => g.category === selectedCategory);
+            results = results.filter((guide) => guide.category === selectedCategory);
         }
 
-        if (searchQuery) {
-            filtered = filtered.filter(
-                g =>
-                    g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    g.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    g.category.toLowerCase().includes(searchQuery.toLowerCase())
+        if (selectedDifficulty !== 'all') {
+            results = results.filter((guide) => String(guide.difficulty ?? 1) === selectedDifficulty);
+        }
+
+        if (query.trim()) {
+            const lowerQuery = query.toLowerCase();
+            results = results.filter((guide) => {
+                const searchable = [guide.title, guide.description, ...(guide.tags ?? [])]
+                    .join(' ')
+                    .toLowerCase();
+                return searchable.includes(lowerQuery);
+            });
+        }
+
+        if (sortBy === 'recent') {
+            results.sort((a, b) => (b.lastReadAt ?? '').localeCompare(a.lastReadAt ?? ''));
+        } else if (sortBy === 'difficulty') {
+            results.sort((a, b) => (b.difficulty ?? 1) - (a.difficulty ?? 1));
+        } else if (sortBy === 'title') {
+            results.sort((a, b) => a.title.localeCompare(b.title));
+        } else {
+            results.sort((a, b) => b.progress - a.progress);
+        }
+
+        return results;
+    }, [guides, selectedCategory, selectedDifficulty, query, sortBy]);
+
+    const learningPath = useMemo(() => {
+        const steps = [...guides]
+            .sort((a, b) => (a.difficulty ?? 1) - (b.difficulty ?? 1))
+            .slice(0, 6);
+
+        return steps.map((guide, index) => {
+            const previous = steps[index - 1];
+            const unlocked = index === 0 || Boolean(previous?.isCompleted);
+
+            return {
+                ...guide,
+                unlocked,
+            };
+        });
+    }, [guides]);
+
+    const learningPathProgress = learningPath.length
+        ? Math.round((learningPath.filter((step) => step.isCompleted).length / learningPath.length) * 100)
+        : 0;
+
+    const offlineGuideIds = useMemo(
+        () => new Set([...offlineDownloads.map((item) => item.guide_id), ...offlineCacheRecords.map((item) => item.guideId)]),
+        [offlineDownloads, offlineCacheRecords],
+    );
+
+    const offlineEntries = useMemo(() => {
+        const items = new Map<
+            string,
+            {
+                guide_id: string;
+                title: string | null;
+                size_kb: number | null;
+            }
+        >();
+
+        offlineDownloads.forEach((item) => {
+            items.set(item.guide_id, {
+                guide_id: item.guide_id,
+                title: item.title,
+                size_kb: item.size_kb,
+            });
+        });
+
+        offlineCacheRecords.forEach((item) => {
+            if (items.has(item.guideId)) return;
+            items.set(item.guideId, {
+                guide_id: item.guideId,
+                title: item.title,
+                size_kb: item.sizeKb,
+            });
+        });
+
+        return Array.from(items.values());
+    }, [offlineDownloads, offlineCacheRecords]);
+
+    const toggleBookmark = async (guideId: string) => {
+        setBookmarkLoadingGuideId(guideId);
+
+        try {
+            const response = await fetch(`/api/docs/bookmarks/${guideId}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+            });
+            const payload = await response.json();
+
+            if (!response.ok || !payload?.success) return;
+
+            const bookmarked = Boolean(payload?.data?.bookmarked);
+            setBookmarks((prev) =>
+                bookmarked
+                    ? Array.from(new Set([...prev, guideId]))
+                    : prev.filter((id) => id !== guideId),
             );
+        } finally {
+            setBookmarkLoadingGuideId(null);
         }
-
-        setFilteredGuides(filtered);
     };
 
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
+    const downloadGuideOffline = async (guide: GuideSummary) => {
+        setOfflineLoadingGuideId(guide.id);
+
+        try {
+            const guideResponse = await fetch(`/api/docs/guides/${guide.id}`, {
+                headers: { Accept: 'application/json' },
+            });
+            const guidePayload = await guideResponse.json();
+
+            if (!guideResponse.ok || !guidePayload?.success) return;
+
+            const sizeKb = Math.max(1, Math.ceil(JSON.stringify(guidePayload.data).length / 1024));
+            await saveOfflineGuideToCache({
+                guideId: guide.id,
+                payload: guidePayload.data,
+                title: guide.title,
+                version: 'v2',
+                sizeKb,
+            });
+
+            await fetch(`/api/docs/offline-downloads/${guide.id}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+                body: JSON.stringify({
+                    title: guide.title,
+                    version: 'v2',
+                    size_kb: sizeKb,
+                }),
+            });
+
+            await Promise.all([loadOfflineDownloads(), loadOfflineCacheIndex()]);
+        } finally {
+            setOfflineLoadingGuideId(null);
+        }
     };
 
-    const handleGuideClick = (guideId: string) => {
-        router.visit(`/dosen/docs/${guideId}`);
+    const removeGuideOffline = async (guideId: string) => {
+        setOfflineLoadingGuideId(guideId);
+
+        try {
+            await removeOfflineGuideFromCache(guideId);
+
+            await fetch(`/api/docs/offline-downloads/${guideId}`, {
+                method: 'DELETE',
+                headers: {
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                },
+            });
+
+            await Promise.all([loadOfflineDownloads(), loadOfflineCacheIndex()]);
+        } finally {
+            setOfflineLoadingGuideId(null);
+        }
     };
-
-    const categories = ['all', ...Array.from(new Set(guides.map(g => g.category)))];
-
-    if (isLoading) {
-        return (
-            <DosenLayout>
-                <Head title="Documentation" />
-                <div className="space-y-6 p-6">
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-8 text-white shadow-2xl">
-                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-                        <div className="relative">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur shadow-lg">
-                                    <Book className="h-10 w-10" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-white/90 font-medium">Dokumentasi</p>
-                                    <h1 className="text-3xl font-bold">Loading...</h1>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <SkeletonGrid count={6} columns={3} />
-                </div>
-            </DosenLayout>
-        );
-    }
 
     return (
         <DosenLayout>
-            <Head title="Documentation" />
+            <Head title="Documentation Hub" />
 
-            <div className="space-y-6 p-6">
-                {/* ═══════ HEADER — Matching Notification Center Style ═══════ */}
+            <div className="space-y-6 p-4 md:space-y-8 md:p-6 lg:p-8">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    transition={{ duration: 0.6, type: 'spring', stiffness: 100 }}
+                    className="relative overflow-hidden rounded-3xl p-5 text-white shadow-2xl sm:p-6 md:p-8"
                 >
-                    {/* Animated Gradient Background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-600" />
+                    <motion.div
+                        className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"
+                        animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                        style={{ backgroundSize: '200% 200%' }}
+                    />
 
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-30" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-30" />
                     <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
-                    {/* Pulsating Rings */}
-
-
                     <div className="relative">
-                        <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
-                            <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 text-center sm:text-left w-full lg:w-auto">
+                        <motion.button
+                            whileHover={{ scale: 1.02, x: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.visit('/dosen/dashboard')}
+                            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-white/90 transition-colors hover:text-white"
+                        >
+                            
+                        </motion.button>
+
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
                                 <motion.div
-                                    className="relative flex shrink-0 h-20 w-20 sm:h-24 sm:w-24"
-                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    className="relative flex h-20 w-20 shrink-0 sm:h-24 sm:w-24"
                                     initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                     transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
                                 >
-                                    <img src={TotalGuidesIcon} alt="Dokumentasi" className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]" />
+                                    <img
+                                        src={DocumentationIcon}
+                                        alt="Documentation"
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)]"
+                                    />
                                 </motion.div>
-                                <div className="flex-1 mt-1 sm:mt-0">
-                                    <motion.p className="text-sm text-white/90 font-medium tracking-wide flex items-center gap-2 justify-center sm:justify-start"
-                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-                                        <BookOpen className="h-4 w-4" /> Dokumentasi
+
+                                <div className="flex-1">
+                                    <motion.p
+                                        className="text-sm font-medium tracking-wide text-indigo-100"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        Pusat Pembelajaran
                                     </motion.p>
-                                    <motion.h1 className="text-2xl sm:text-3xl font-bold text-white mt-1"
-                                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>Documentation Hub</motion.h1>
-                                    <motion.p className="mt-2 text-white/90 text-sm leading-relaxed"
-                                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-                                        Learn everything about the platform
+                                    <motion.h1
+                                        className="mt-1 text-2xl font-bold sm:text-3xl"
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        Documentation Hub
+                                    </motion.h1>
+                                    <motion.p
+                                        className="mt-2 max-w-xl text-sm leading-relaxed text-indigo-100 sm:text-base"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        Panduan lengkap dan tutorial untuk memaksimalkan penggunaan sistem mahasiswa.
                                     </motion.p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </motion.div>
 
-                {/* Stats Cards - Notification Style */}
-                <motion.div
-                    variants={staggerContainerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 mb-8"
-                >
-                    {/* Total Guides Card */}
-                    <motion.div
-                        variants={staggerItemVariants}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-purple-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 dark:from-purple-500/10 dark:to-indigo-500/10" />
-                        <motion.div
-                            animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
                             <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
-                            >
-                                <img src={TotalGuidesIcon} alt="Total" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Total Guides</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalGuides}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">semua dokumentasi</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Completed Card */}
-                    <motion.div
-                        variants={staggerItemVariants}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-orange-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 dark:from-orange-500/10 dark:to-red-500/10" />
-                        <motion.div
-                            animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
-                            >
-                                <img src={CompletedIcon} alt="Completed" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Completed</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completedGuides}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">telah diselesaikan</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* In Progress Card */}
-                    <motion.div
-                        variants={staggerItemVariants}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-emerald-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10" />
-                        <motion.div
-                            animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
-                            >
-                                <img src={InProgressIcon} alt="In Progress" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">In Progress</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.inProgressGuides}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">sedang dibaca</p>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Overall Progress Card */}
-                    <motion.div
-                        variants={staggerItemVariants}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-blue-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10" />
-                        <motion.div
-                            animate={{ scale: 1.5, opacity: 0.2 }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center shrink-0"
-                            >
-                                <img src={OverallProgressIcon} alt="Overall Progress" className="absolute inset-0 h-full w-full object-contain drop-shadow-xl" />
-                            </motion.div>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-1">Overall Progress</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.overallProgress}%</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">total kemajuan</p>
-                            </div>
-                        </div>
-                    </motion.div>
-                </motion.div>
-
-                {/* Overall Progress */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-8"
-                >
-                    <div className={`rounded-3xl p-6 transition-all duration-300 border backdrop-blur-xl ${stats.overallProgress === 100
-                        ? 'bg-white/40 dark:bg-neutral-900/40 border-emerald-500/50 shadow-xl shadow-emerald-500/20'
-                        : 'bg-white/40 dark:bg-neutral-900/40 border-white/20 dark:border-white/5 shadow-xl'
-                        }`}>
-                        <div className="flex items-center gap-6">
-                            <ProgressIndicator
-                                value={stats.overallProgress}
-                                size="lg"
-                                label="Overall Progress"
-                                celebrateOnComplete
-                            />
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white font-display">
-                                        Your Learning Journey
-                                    </h3>
-                                    {stats.overallProgress === 100 && (
-                                        <motion.div
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{ type: 'spring', stiffness: 200 }}
-                                            className="flex items-center gap-2 px-3 py-1 bg-emerald-500 text-white rounded-full text-sm font-bold shadow-lg"
-                                        >
-                                            <CheckCircle className="w-4 h-4" />
-                                            All Complete!
-                                        </motion.div>
-                                    )}
-                                </div>
-                                <p className={`mb-4 flex items-center gap-2 ${stats.overallProgress === 100 ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {stats.overallProgress === 100
-                                        ? (
-                                            <>
-                                                <Award className="h-5 w-5" />
-                                                Congratulations! You have completed all documentation guides!
-                                            </>
-                                        )
-                                        : `You've completed ${stats.completedGuides} out of ${stats.totalGuides} guides`
-                                    }
-                                </p>
-                                <LinearProgressBar
-                                    value={stats.overallProgress}
-                                    height="md"
-                                    gradient
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Search and Filters */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-8"
-                >
-                    <InteractiveSearch
-                        placeholder="Search documentation..."
-                        onSearch={handleSearch}
-                        className="mb-6"
-                    />
-
-                    {/* Category Filters */}
-                    <div className="flex flex-wrap gap-3">
-                        {categories.map((category, index) => (
-                            <motion.button
-                                key={category}
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.4 + index * 0.05 }}
-                                onClick={() => setSelectedCategory(category)}
-                                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${selectedCategory === category
-                                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30'
-                                    : 'bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-md'
-                                    }`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                transition={{ delay: 0.5 }}
+                                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/20 px-4 py-3 shadow-lg backdrop-blur-xl sm:w-auto sm:px-6"
                             >
-                                {category === 'all' ? 'All Guides' : category}
-                            </motion.button>
-                        ))}
+                                <div className="rounded-lg bg-indigo-500/20 p-2">
+                                    <img
+                                        src={DocumentationIcon}
+                                        alt="Documentation"
+                                        className="h-6 w-6 object-contain"
+                                    />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-indigo-100">Progress Belajar</p>
+                                    <p className="text-2xl font-bold text-white">
+                                        <AnimatedCounter value={stats.overallProgress} suffix="%" />
+                                    </p>
+                                </div>
+                            </motion.div>
+                        </div>
                     </div>
                 </motion.div>
 
-                {/* Documentation Cards */}
-                {filteredGuides.length > 0 ? (
-                    <motion.div
-                        variants={staggerContainerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                    >
-                        {filteredGuides.map((guide, index) => {
-                            // Get the icon component from the map
-                            const IconComponent = guide.icon && typeof guide.icon === 'string'
-                                ? iconMap[guide.icon] || Book
-                                : Book;
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+                    {[
+                        {
+                            label: 'Total Materi',
+                            value: stats.totalGuides,
+                            iconAsset: DocumentationIcon,
+                            color: 'from-indigo-400 to-purple-600',
+                        },
+                        {
+                            label: 'Selesai',
+                            value: stats.completedGuides,
+                            iconAsset: DashboardHadirIcon,
+                            color: 'from-emerald-400 to-teal-600',
+                        },
+                        {
+                            label: 'Dipelajari',
+                            value: stats.inProgressGuides,
+                            iconAsset: LeaderboardAverageIcon,
+                            color: 'from-amber-400 to-orange-600',
+                        },
+                        {
+                            label: 'Progress',
+                            value: stats.overallProgress,
+                            suffix: '%',
+                            iconAsset: AnalyticsLateIcon,
+                            color: 'from-amber-400 to-orange-600',
+                        },
+                    ].map((item, index) => (
+                        <motion.div
+                            key={item.label}
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{ delay: 0.1 + index * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
+                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                            className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-5 dark:border-white/5 dark:bg-neutral-900/40"
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-[0.07]`} />
+                            <div className="relative flex items-center gap-3">
+                                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                                    <img
+                                        src={item.iconAsset}
+                                        alt={item.label}
+                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.45)]"
+                                    />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 sm:text-sm">{item.label}</p>
+                                    <p className="text-xl font-bold text-neutral-900 dark:text-white sm:text-2xl">
+                                        <AnimatedCounter value={item.value} suffix={item.suffix ?? ''} />
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
 
-                            return (
-                                <motion.div
-                                    key={guide.id}
-                                    variants={staggerItemVariants}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleGuideClick(guide.id)}
-                                    className="cursor-pointer"
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40"
+                >
+                    <div className="mb-4 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                            <Filter className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Cari Dokumentasi</h2>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">Pencarian cepat berdasarkan judul, tag, dan kategori</p>
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                        <Input
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            placeholder="Cari dokumentasi, tutorial, atau panduan..."
+                            className="h-11 rounded-xl border-white/20 bg-white/70 pl-10 dark:border-white/10 dark:bg-neutral-900/60"
+                        />
+                    </div>
+
+                    {suggestions.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {suggestions.map((suggestion) => (
+                                <button
+                                    key={suggestion}
+                                    onClick={() => setQuery(suggestion)}
+                                    className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
                                 >
-                                    <div className="h-full bg-white/40 dark:bg-neutral-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl p-6 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-xl dark:hover:shadow-emerald-500/20 transition-all duration-300 relative overflow-hidden group">
-                                        {/* Background Glow Effect */}
-                                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 dark:from-emerald-500/10 dark:to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    {suggestion}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
-                                        {/* Content */}
-                                        <div className="relative z-10">
-                                            {/* Header */}
-                                            <div className="flex items-start justify-between mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-lg">
-                                                        <IconComponent className="w-6 h-6 text-white" />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">
-                                                            {guide.title}
-                                                        </h3>
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
-                                                            {guide.category}
-                                                        </span>
-                                                    </div>
+                    <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                            <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
+                                <SelectValue placeholder="Kategori" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua Kategori</SelectItem>
+                                {categories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                        {categoryConfig[category]?.label ?? category}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                            <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
+                                <SelectValue placeholder="Tingkat" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Semua Tingkat</SelectItem>
+                                {[1, 2, 3, 4, 5].map((level) => (
+                                    <SelectItem key={level} value={String(level)}>
+                                        {getDifficultyLabel(level)}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+                            <SelectTrigger className="h-10 rounded-xl border-white/20 bg-white/70 dark:border-white/10 dark:bg-neutral-900/60">
+                                <SelectValue placeholder="Urutkan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="popular">Progress Tertinggi</SelectItem>
+                                <SelectItem value="recent">Terakhir Diakses</SelectItem>
+                                <SelectItem value="difficulty">Tingkat Kesulitan</SelectItem>
+                                <SelectItem value="title">Judul A-Z</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </motion.div>
+
+                <div className="grid grid-cols-1 gap-4 xl:grid-cols-3 xl:gap-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 }}
+                        className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 xl:col-span-2 dark:border-white/5 dark:bg-neutral-900/40"
+                    >
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Daftar Dokumentasi</h2>
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">{filteredGuides.length} materi tersedia</p>
+                            </div>
+                            <div className="rounded-lg border border-white/20 bg-white/60 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-300">
+                                Bookmark: {bookmarks.length}
+                            </div>
+                        </div>
+
+                        {filteredGuides.length === 0 ? (
+                            <div className="rounded-2xl border border-dashed border-white/20 bg-white/40 p-8 text-center dark:border-white/10 dark:bg-neutral-900/40">
+                                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Tidak ada dokumentasi yang cocok.</p>
+                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Coba ubah kata kunci atau filter.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                {filteredGuides.map((guide, index) => {
+                                    const category = categoryConfig[guide.category] ?? {
+                                        label: guide.category,
+                                        cardGradient: 'from-indigo-400 to-purple-600',
+                                        badge: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+                                        iconAsset: DocumentationIcon,
+                                    };
+                                    const isBookmarked = bookmarks.includes(guide.id);
+
+                                    return (
+                                        <motion.div
+                                            key={guide.id}
+                                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            transition={{ delay: 0.05 * index, type: 'spring', stiffness: 300, damping: 20 }}
+                                            whileHover={{ scale: 1.04, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                                            onClick={() => {
+                                                if (!isOnline) {
+                                                    if (offlineGuideIds.has(guide.id)) {
+                                                        void openGuideFromOfflineCache(guide.id);
+                                                    }
+                                                    return;
+                                                }
+                                                router.visit(`/dosen/docs/${guide.id}`);
+                                            }}
+                                            className="group cursor-pointer rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl transition-all dark:border-white/5 dark:bg-neutral-900/40"
+                                        >
+                                            <div className="mb-4 flex items-start justify-between gap-2">
+                                                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
+                                                    <img
+                                                        src={category.iconAsset}
+                                                        alt={category.label}
+                                                        className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.45)]"
+                                                    />
                                                 </div>
-                                                {guide.progress >= 100 && (
-                                                    <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+
+                                                <div className="flex items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        disabled={bookmarkLoadingGuideId === guide.id}
+                                                        className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-amber-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            void toggleBookmark(guide.id);
+                                                        }}
+                                                        aria-label={isBookmarked ? 'Hapus bookmark' : 'Tambah bookmark'}
+                                                    >
+                                                        {isBookmarked ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+                                                    </button>
+
+                                                    {offlineGuideIds.has(guide.id) ? (
+                                                        <button
+                                                            type="button"
+                                                            disabled={offlineLoadingGuideId === guide.id}
+                                                            className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                void removeGuideOffline(guide.id);
+                                                            }}
+                                                            aria-label="Hapus offline"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            disabled={offlineLoadingGuideId === guide.id}
+                                                            className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white/70 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                                                            onClick={(event) => {
+                                                                event.stopPropagation();
+                                                                void downloadGuideOffline(guide);
+                                                            }}
+                                                            aria-label="Download offline"
+                                                        >
+                                                            <Download className="h-4 w-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                <span className={cn('rounded-lg px-2.5 py-1 text-[10px] font-semibold sm:text-xs', category.badge)}>
+                                                    {category.label}
+                                                </span>
+                                                <span className="rounded-lg bg-neutral-100 px-2.5 py-1 text-[10px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300 sm:text-xs">
+                                                    Lv.{guide.difficulty ?? 1}
+                                                </span>
+                                            </div>
+
+                                            <h3 className="line-clamp-2 text-base font-bold text-neutral-900 dark:text-white">{guide.title}</h3>
+                                            <p className="mt-1 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">{guide.description}</p>
+
+                                            <div className="mt-4 space-y-2">
+                                                <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                                    <span>Progress</span>
+                                                    <span>{guide.progress}%</span>
+                                                </div>
+                                                <Progress
+                                                    value={guide.progress}
+                                                    className="h-2 bg-neutral-200/80 dark:bg-neutral-700"
+                                                    indicatorClassName="bg-gradient-to-r from-indigo-500 to-purple-600"
+                                                />
+                                            </div>
+
+                                            <div className="mt-4 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Clock3 className="h-3.5 w-3.5" /> {guide.estimatedTime} menit
+                                                </span>
+                                                <span className="inline-flex items-center gap-1">
+                                                    <BookOpen className="h-3.5 w-3.5" /> {guide.sectionCount ?? 0} section
+                                                </span>
+                                            </div>
+
+                                            <div className="mt-3 inline-flex items-center text-sm font-semibold text-indigo-600 transition group-hover:translate-x-1 dark:text-indigo-400">
+                                                {isOnline ? (
+                                                    <>
+                                                        Buka detail <ChevronRight className="ml-1 h-4 w-4" />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Mode offline aktif <WifiOff className="ml-1 h-4 w-4" />
+                                                    </>
                                                 )}
                                             </div>
 
-                                            {/* Description */}
-                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
-                                                {guide.description}
-                                            </p>
-
-                                            {/* Progress Bar */}
-                                            {guide.progress > 0 && (
-                                                <div className="mb-4">
-                                                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
-                                                        <span>Progress</span>
-                                                        <span>{guide.progress}%</span>
-                                                    </div>
-                                                    <div className="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden shadow-inner">
-                                                        <motion.div
-                                                            initial={{ width: 0 }}
-                                                            animate={{ width: `${guide.progress}%` }}
-                                                            transition={{ duration: 1, delay: index * 0.05 }}
-                                                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full shadow-sm"
-                                                        />
-                                                    </div>
-                                                </div>
+                                            {!isOnline && offlineGuideIds.has(guide.id) && (
+                                                <button
+                                                    type="button"
+                                                    disabled={offlineViewerLoadingGuideId === guide.id}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        void openGuideFromOfflineCache(guide.id);
+                                                    }}
+                                                    className="mt-2 inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-indigo-800 dark:bg-indigo-950/30 dark:text-indigo-300"
+                                                >
+                                                    <Download className="h-3.5 w-3.5" />
+                                                    Buka dari cache offline
+                                                </button>
                                             )}
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </motion.div>
 
-                                            {/* Footer */}
-                                            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                                    <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                                                    <span>{guide.estimatedReadTime || 10} min</span>
-                                                </div>
-                                                <div className={`text-xs font-semibold transition-colors flex items-center gap-1 ${guide.progress >= 100
-                                                    ? 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
-                                                    : 'text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300'
-                                                    }`}>
-                                                    {guide.progress >= 100 ? (
-                                                        <>
-                                                            <CheckCircle className="h-3.5 w-3.5" />
-                                                            Completed
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            Start Learning
-                                                        </>
-                                                    )} →
-                                                </div>
-                                            </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="space-y-4"
+                    >
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-amber-600 text-white shadow-lg">
+                                    <Flame className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Streak Belajar</h3>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Konsistensi mingguan</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="rounded-2xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/10 dark:bg-neutral-900/60">
+                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={stats.completedGuides} />
+                                    </p>
+                                    <p className="text-xs text-neutral-500">Guide selesai</p>
+                                </div>
+                                <div className="rounded-2xl border border-white/20 bg-white/60 p-3 text-center dark:border-white/10 dark:bg-neutral-900/60">
+                                    <p className="text-2xl font-bold text-neutral-900 dark:text-white">
+                                        <AnimatedCounter value={stats.overallProgress} suffix="%" />
+                                    </p>
+                                    <p className="text-xs text-neutral-500">Progress total</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 text-white shadow-lg">
+                                    <Trophy className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Learning Path</h3>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">Rute belajar bertahap</p>
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <div className="mb-1 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+                                    <span>Progress Path</span>
+                                    <span>{learningPathProgress}%</span>
+                                </div>
+                                <Progress
+                                    value={learningPathProgress}
+                                    className="h-2 bg-neutral-200/80 dark:bg-neutral-700"
+                                    indicatorClassName="bg-gradient-to-r from-indigo-500 to-purple-600"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                {learningPath.map((step) => (
+                                    <button
+                                        key={step.id}
+                                        onClick={() => step.unlocked && router.visit(`/dosen/docs/${step.id}`)}
+                                        disabled={!step.unlocked}
+                                        className={cn(
+                                            'w-full rounded-xl border p-3 text-left transition',
+                                            step.unlocked
+                                                ? 'border-white/20 bg-white/60 hover:bg-white/80 dark:border-white/10 dark:bg-neutral-900/60 dark:hover:bg-neutral-900'
+                                                : 'cursor-not-allowed border-white/10 bg-white/40 opacity-60 dark:border-white/5 dark:bg-neutral-900/40',
+                                        )}
+                                    >
+                                        <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">{step.title}</p>
+                                        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                                            {step.isCompleted ? 'Selesai' : step.unlocked ? 'Siap dipelajari' : 'Terkunci'}
+                                        </p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-3xl border border-white/20 bg-white/40 p-4 shadow-xl backdrop-blur-xl sm:p-6 dark:border-white/5 dark:bg-neutral-900/40">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white shadow-lg">
+                                    <Download className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">Mode Offline</h3>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                                        {offlineEntries.length} dokumen tersimpan
+                                    </p>
+                                </div>
+                            </div>
+
+                            {offlineEntries.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-white/20 bg-white/60 p-3 text-xs text-neutral-500 dark:border-white/10 dark:bg-neutral-900/60 dark:text-neutral-400">
+                                    Belum ada dokumentasi offline. Gunakan ikon download di kartu dokumentasi.
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {offlineEntries.slice(0, 5).map((item) => (
+                                        <button
+                                            key={item.guide_id}
+                                            type="button"
+                                            onClick={() => void openGuideFromOfflineCache(item.guide_id)}
+                                            disabled={offlineViewerLoadingGuideId === item.guide_id}
+                                            className="rounded-xl border border-white/20 bg-white/70 p-3 dark:border-white/10 dark:bg-neutral-900/70"
+                                        >
+                                            <p className="line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-white">
+                                                {item.title ?? item.guide_id}
+                                            </p>
+                                            <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                                                {item.size_kb ? `${item.size_kb} KB` : 'Ukuran tidak tersedia'}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <Button
+                            onClick={() => router.visit('/dosen/help')}
+                            variant="outline"
+                            className="w-full rounded-2xl border-white/20 bg-white/40 py-5 text-neutral-700 hover:bg-white/70 dark:border-white/10 dark:bg-neutral-900/40 dark:text-neutral-200 dark:hover:bg-neutral-900"
+                        >
+                            <LifeBuoy className="h-4 w-4" /> Butuh bantuan tambahan?
+                        </Button>
+                    </motion.div>
+                </div>
+            </div>
+
+            {offlineViewerGuide && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+                    onClick={() => setOfflineViewerGuide(null)}
+                >
+                    <motion.div
+                        initial={{ y: 80, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 80, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+                        onClick={(event) => event.stopPropagation()}
+                        className="relative h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-white/20 bg-white/95 p-5 shadow-2xl backdrop-blur-xl sm:h-auto sm:max-h-[85vh] sm:max-w-3xl sm:rounded-3xl sm:p-6 dark:border-white/10 dark:bg-neutral-900/95"
+                    >
+                        <div className="mb-4 flex items-start justify-between gap-4">
+                            <div>
+                                <p className="inline-flex items-center gap-2 rounded-lg bg-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300">
+                                    <WifiOff className="h-3.5 w-3.5" /> Dibuka dari cache offline
+                                </p>
+                                <h3 className="mt-2 text-xl font-bold text-neutral-900 dark:text-white">
+                                    {offlineViewerGuide.title}
+                                </h3>
+                                {offlineViewerGuide.description && (
+                                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                                        {offlineViewerGuide.description}
+                                    </p>
+                                )}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setOfflineViewerGuide(null)}
+                                className="rounded-lg border border-white/20 bg-white/70 p-2 text-neutral-500 transition hover:bg-white dark:border-white/10 dark:bg-neutral-800 dark:text-neutral-300"
+                                aria-label="Tutup offline viewer"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            {offlineViewerGuide.sections.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-white/20 bg-white/60 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-neutral-800/60 dark:text-neutral-300">
+                                    Konten section tidak tersedia di cache offline.
+                                </div>
+                            ) : (
+                                offlineViewerGuide.sections.map((section, index) => (
+                                    <div
+                                        key={section.id}
+                                        className="rounded-2xl border border-white/20 bg-white/70 p-4 dark:border-white/10 dark:bg-neutral-800/70"
+                                    >
+                                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                                            {index + 1}. {section.title}
+                                        </p>
+                                        <div className="mt-2 space-y-2 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">
+                                            {section.content
+                                                .split('\n')
+                                                .filter(Boolean)
+                                                .map((paragraph, paragraphIndex) => (
+                                                    <p key={`${section.id}-offline-${paragraphIndex}`}>{formatText(paragraph)}</p>
+                                                ))}
                                         </div>
                                     </div>
-                                </motion.div>
-                            )
-                        })}
+                                ))
+                            )}
+                        </div>
+
+                        <div className="mt-5 flex justify-end">
+                            <Button
+                                type="button"
+                                onClick={() => setOfflineViewerGuide(null)}
+                                className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                            >
+                                Tutup
+                            </Button>
+                        </div>
                     </motion.div>
-                ) : (
-                    <EmptyState
-                        title="No guides found"
-                        description="Try adjusting your search or filters"
-                        icon="search"
-                        action={{
-                            label: 'Clear Filters',
-                            onClick: () => {
-                                setSearchQuery('');
-                                setSelectedCategory('all');
-                            },
-                        }}
-                    />
-                )}
-            </div>
+                </motion.div>
+            )}
         </DosenLayout>
     );
 }

@@ -153,7 +153,7 @@ export default function DosenProfile() {
                         <div className="absolute -left-10 bottom-0 h-40 w-40 rounded-full bg-pink-400/20 blur-3xl" />
                         <div className="absolute right-1/3 top-1/3 h-32 w-32 rounded-full bg-indigo-300/15 blur-3xl" />
                         {/* Animated orbs */}
-{/* Action buttons on banner */}
+                        {/* Action buttons on banner */}
                         <div className="absolute top-4 right-4 flex items-center gap-2">
                             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                                 className="p-2.5 rounded-xl bg-black/20 backdrop-blur-xl border border-white/10 text-white hover:bg-black/30 transition-colors">
@@ -213,7 +213,7 @@ export default function DosenProfile() {
                                     <h1 className="text-2xl md:text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">{dosen.nama}</h1>
                                     <div>
                                         <Sparkles className="h-5 w-5 text-amber-500" />
-                                    </motion.div>
+                                    </div>
                                 </div>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">@{dosen.nidn}</p>
                                 <p className="text-sm text-neutral-600 dark:text-neutral-300">Dosen Pengajar Tetap</p>

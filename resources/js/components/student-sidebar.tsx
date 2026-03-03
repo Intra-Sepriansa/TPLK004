@@ -37,6 +37,7 @@ import {
     HelpCircle,
     CalendarDays,
     Shield,
+    Users,
 } from 'lucide-react';
 
 const studentNavItems: NavItem[] = [
@@ -74,6 +75,11 @@ const studentNavItems: NavItem[] = [
         title: 'Informasi Tugas',
         href: '/user/tugas',
         icon: ClipboardList,
+    },
+    {
+        title: 'Tugas Kelompok',
+        href: '/user/akademik/tugas-kelompok',
+        icon: Users,
     },
     {
         title: 'Izin/Sakit',
@@ -190,6 +196,11 @@ export function StudentSidebar() {
             title: 'Informasi Tugas',
             href: '/user/tugas',
             icon: ClipboardList,
+        },
+        {
+            title: 'Tugas Kelompok',
+            href: '/user/akademik/tugas-kelompok',
+            icon: Users,
         },
         {
             title: 'Izin/Sakit',

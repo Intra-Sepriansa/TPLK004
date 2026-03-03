@@ -67,6 +67,21 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     // Tugas
     Route::get('/tugas', [\App\Http\Controllers\Dosen\TugasController::class, 'index'])->name('tugas');
     Route::post('/tugas', [\App\Http\Controllers\Dosen\TugasController::class, 'store'])->name('tugas.store');
+    Route::get('/tugas/create', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'index'])->name('tugas.create');
+    Route::post('/tugas/create', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'store'])->name('tugas.create.store');
+    Route::post('/tugas/create/bulk', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'bulkStore'])->name('tugas.create.bulk-store');
+    Route::post('/tugas/create/bulk/preview', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'bulkPreview'])->name('tugas.create.bulk-preview');
+    Route::post('/tugas/create/bulk/import', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'bulkImport'])->name('tugas.create.bulk-import');
+    Route::get('/tugas/create/bulk/template', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'downloadTemplate'])->name('tugas.create.bulk-template');
+    Route::post('/tugas/create/upload', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'uploadAttachment'])->name('tugas.create.upload');
+    Route::post('/tugas/create/ai/suggest-title', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'suggestTitle'])->name('tugas.create.ai.suggest-title');
+    Route::post('/tugas/create/ai/generate-description', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'generateDescription'])->name('tugas.create.ai.generate-description');
+    Route::post('/tugas/create/ai/predict-deadline', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'predictDeadline'])->name('tugas.create.ai.predict-deadline');
+    Route::get('/tugas/create/templates', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'templates'])->name('tugas.create.templates.index');
+    Route::post('/tugas/create/templates', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'saveTemplate'])->name('tugas.create.templates.store');
+    Route::post('/tugas/create/templates/{id}/apply', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'applyTemplate'])->name('tugas.create.templates.apply');
+    Route::patch('/tugas/create/templates/{id}/favorite', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'toggleTemplateFavorite'])->name('tugas.create.templates.favorite');
+    Route::delete('/tugas/create/templates/{id}', [\App\Http\Controllers\Dosen\TugasCreateController::class, 'deleteTemplate'])->name('tugas.create.templates.destroy');
     Route::get('/tugas/{tuga}', [\App\Http\Controllers\Dosen\TugasController::class, 'show'])->name('tugas.show');
     Route::patch('/tugas/{tuga}', [\App\Http\Controllers\Dosen\TugasController::class, 'update'])->name('tugas.update');
     Route::delete('/tugas/{tuga}', [\App\Http\Controllers\Dosen\TugasController::class, 'destroy'])->name('tugas.destroy');
@@ -96,6 +111,8 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     
     // Grading Detail (Individual Student)
     Route::get('/grading/detail/{mahasiswaId}', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'show'])->name('grading.detail');
+    Route::get('/grading/detail/{mahasiswaId}/export', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'export'])->name('grading.detail.export');
+    Route::get('/grading/detail/{mahasiswaId}/print', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'printView'])->name('grading.detail.print');
     Route::post('/grading/detail/update-status', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'updateStatus'])->name('grading.detail.update-status');
     Route::post('/grading/detail/add-note', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'addNote'])->name('grading.detail.add-note');
     Route::delete('/grading/detail/note/{noteId}', [\App\Http\Controllers\Dosen\GradingDetailController::class, 'deleteNote'])->name('grading.detail.delete-note');
@@ -132,11 +149,12 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     
     // Settings Page (Inertia)
     Route::get('/settings', [\App\Http\Controllers\Dosen\SettingsController::class, 'page'])->name('settings');
-    Route::get('/docs', function (\App\Services\DocumentationService $docsService) {
+    Route::get('/docs', function (\App\Services\DocumentationService $documentationService) {
         $dosen = auth()->guard('dosen')->user();
+        abort_if(!$dosen, 403);
         
-        $guides = $docsService->getGuidesWithProgress($dosen, 'dosen');
-        $stats = $docsService->getStats($dosen, 'dosen');
+        $guides = $documentationService->getGuidesWithProgress($dosen, 'dosen')->values();
+        $stats = $documentationService->getStats($dosen, 'dosen');
         
         return inertia('dosen/docs', [
             'dosen' => [
@@ -146,19 +164,44 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
                 'email' => $dosen->email,
             ],
             'guides' => $guides,
-            'stats' => $stats
+            'stats' => $stats,
+            'categories' => $guides->pluck('category')->unique()->values(),
         ]);
     })->name('docs');
-    Route::get('/docs/{guideId}', function ($guideId) {
+    
+    Route::get('/docs/{guideId}', function (\App\Services\DocumentationService $documentationService, string $guideId) {
         $dosen = auth()->guard('dosen')->user();
+        abort_if(!$dosen, 403);
+
+        $guide = $documentationService->getGuide($guideId, 'dosen');
+        abort_if(!$guide, 404);
+
+        $progress = $documentationService->getGuideProgress($dosen, $guideId);
+        $completedSections = $progress?->completed_sections ?? [];
+
+        $guideWithProgress = array_merge($guide, [
+            'progress' => [
+                'completed_sections' => $completedSections,
+                'is_completed' => $progress?->is_completed ?? false,
+                'completion_percentage' => $progress?->getCompletionPercentage() ?? 0,
+            ],
+        ]);
+
+        $relatedGuides = $documentationService
+            ->getGuidesWithProgress($dosen, 'dosen')
+            ->filter(fn ($item) => $item['id'] !== $guideId && $item['category'] === ($guide['category'] ?? null))
+            ->take(4)
+            ->values();
+
         return inertia('dosen/docs-detail', [
-            'guideId' => $guideId,
+            'guide' => $guideWithProgress,
+            'relatedGuides' => $relatedGuides,
             'dosen' => [
                 'id' => $dosen->id,
                 'nama' => $dosen->nama,
                 'nidn' => $dosen->nidn,
                 'email' => $dosen->email,
-            ]
+            ],
         ]);
     })->name('docs.detail');
     
@@ -171,4 +214,17 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::post('/help/faq/{id}/helpful', [\App\Http\Controllers\Dosen\HelpController::class, 'markFaqHelpful']);
     Route::post('/help/faq/{id}/not-helpful', [\App\Http\Controllers\Dosen\HelpController::class, 'markFaqNotHelpful']);
     Route::get('/help/search', [\App\Http\Controllers\Dosen\HelpController::class, 'search']);
+    
+    // Tugas Kelompok (Group Assignments)
+    Route::get('/tugas-kelompok', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'index'])->name('tugas-kelompok');
+    Route::get('/tugas-kelompok/create', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'create'])->name('tugas-kelompok.create');
+    Route::post('/tugas-kelompok', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'store'])->name('tugas-kelompok.store');
+    Route::get('/tugas-kelompok/{id}', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'show'])->name('tugas-kelompok.show');
+    Route::delete('/tugas-kelompok/{id}', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'destroy'])->name('tugas-kelompok.destroy');
+    Route::post('/tugas-kelompok/{id}/random-groups', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'formRandomGroups'])->name('tugas-kelompok.random-groups');
+    Route::post('/tugas-kelompok/{id}/assign-student', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'assignStudentToGroup'])->name('tugas-kelompok.assign-student');
+    Route::post('/tugas-kelompok/{id}/create-group', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'createGroup'])->name('tugas-kelompok.create-group');
+    Route::patch('/tugas-kelompok/{id}/toggle-lock', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'toggleLock'])->name('tugas-kelompok.toggle-lock');
+    Route::post('/tugas-kelompok/{id}/grade', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'gradeSubmission'])->name('tugas-kelompok.grade');
+    Route::post('/tugas-kelompok/{id}/conflicts/{reportId}/resolve', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'resolveConflict'])->name('tugas-kelompok.resolve-conflict');
 });
