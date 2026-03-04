@@ -2,7 +2,8 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
 import axios from 'axios';
-import { StrictMode, type ComponentType } from 'react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/useTheme';
 
@@ -22,11 +23,6 @@ if (csrfMeta) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfMeta;
 }
 
-const pages = import.meta.glob('./pages/**/*.tsx', { eager: true }) as Record<
-    string,
-    { default: ComponentType }
->;
-
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -41,15 +37,11 @@ axios.interceptors.response.use(
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => {
-        const page = pages[`./pages/${name}.tsx`];
-
-        if (!page) {
-            throw new Error(`Inertia page not found: ${name}`);
-        }
-
-        return page;
-    },
+    resolve: (name) =>
+        resolvePageComponent(
+            `./pages/${name}.tsx`,
+            import.meta.glob('./pages/**/*.tsx'),
+        ),
     setup({ el, App, props }) {
         const root = createRoot(el);
 
@@ -64,15 +56,19 @@ createInertiaApp({
     },
 });
 
-if (!import.meta.env.PROD && 'serviceWorker' in navigator) {
-    // Cleanup old service workers in local development (prevents stale CSRF/session page cache).
+const isLocalhost =
+    typeof window !== 'undefined' &&
+    ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+
+if (isLocalhost && 'serviceWorker' in navigator) {
+    // Always clean up service workers on local env to avoid stale built assets.
     navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => registration.unregister());
     });
 }
 
-// Register Service Worker only in production to avoid stale cache/session issues on localhost.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// Register Service Worker only in real production (not localhost).
+if (import.meta.env.PROD && !isLocalhost && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
             .register('/sw.js')

@@ -10,8 +10,6 @@ import {
 import { useState } from 'react';
 import KasIcon from '@/assets/admin/kas/kas.png';
 import SaldoAktifIcon from '@/assets/admin/kas/saldo-aktif.png';
-import PemasukanIcon from '@/assets/admin/kas/pemasukan.png';
-import PengeluaranIcon from '@/assets/admin/kas/pengeluaran.png';
 import StatusIcon from '@/assets/admin/kas/status.png';
 
 
@@ -443,7 +441,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                 {/* Summary Cards - Advanced Glassmorphism */}
                 <motion.div
                     variants={containerVariants}
-                    className="grid grid-cols-2 gap-4 md:gap-6 md:grid-cols-4"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6"
                 >
                     {/* Balance Card */}
                     <motion.div
@@ -477,82 +475,6 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                 <div className="mt-1">
                                     <span className="text-2xl font-bold text-neutral-900 dark:text-white">
                                         {formatCurrency(summary.total_balance)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Income Card */}
-                    <motion.div
-                        variants={cardVariants}
-                        whileHover="hover"
-                        onHoverStart={() => setHoveredCard('income')}
-                        onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-violet-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10" />
-                        <motion.div
-                            animate={{
-                                scale: hoveredCard === 'income' ? 1.5 : 1,
-                                opacity: hoveredCard === 'income' ? 0.4 : 0.2,
-                            }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center"
-                            >
-                                <img
-                                    src={PemasukanIcon}
-                                    alt="Total Masuk"
-                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
-                                />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Masuk</p>
-                                <div className="mt-1">
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                        {formatCurrency(summary.total_income)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Expense Card */}
-                    <motion.div
-                        variants={cardVariants}
-                        whileHover="hover"
-                        onHoverStart={() => setHoveredCard('expense')}
-                        onHoverEnd={() => setHoveredCard(null)}
-                        className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 dark:bg-neutral-900/40 p-6 shadow-xl backdrop-blur-xl transition-all hover:shadow-red-500/10 dark:border-white/5"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10" />
-                        <motion.div
-                            animate={{
-                                scale: hoveredCard === 'expense' ? 1.5 : 1,
-                                opacity: hoveredCard === 'expense' ? 0.4 : 0.2,
-                            }}
-                            className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-red-500 blur-3xl transition-all duration-500"
-                        />
-                        <div className="relative flex items-center gap-4">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 10 }}
-                                className="relative flex h-14 w-14 items-center justify-center"
-                            >
-                                <img
-                                    src={PengeluaranIcon}
-                                    alt="Total Keluar"
-                                    className="absolute inset-0 h-full w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.35)]"
-                                />
-                            </motion.div>
-                            <div>
-                                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Keluar</p>
-                                <div className="mt-1">
-                                    <span className="text-2xl font-bold text-neutral-900 dark:text-white">
-                                        {formatCurrency(summary.total_expense)}
                                     </span>
                                 </div>
                             </div>
@@ -750,8 +672,8 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                             <table className="w-full border-collapse min-w-max">
                                                 <thead>
                                                     <tr className="bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-black">
-                                                        <th className="sticky left-0 z-20 bg-neutral-50 dark:bg-neutral-950 px-3 py-3 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase w-10 border-r border-neutral-200 dark:border-neutral-800 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">No</th>
-                                                        <th className="sticky left-[40px] z-20 bg-neutral-50 dark:bg-neutral-950 px-4 py-3 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase min-w-[200px] border-r border-neutral-200 dark:border-neutral-800 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">Mahasiswa</th>
+                                                        <th className="px-3 py-3 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase w-10 border-r border-neutral-200 dark:border-neutral-800">No</th>
+                                                        <th className="px-4 py-3 text-left text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase min-w-[200px] border-r border-neutral-200 dark:border-neutral-800">Mahasiswa</th>
                                                         {monthDates.map(date => {
                                                             const { day, date: dateStr } = formatShortDate(date);
                                                             const stats = getColumnStats(date);
@@ -791,8 +713,8 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                                                 transition={{ delay: Math.min(index * 0.015, 0.4) }}
                                                                 className="hover:bg-emerald-50/50 dark:hover:bg-emerald-500/[0.03] transition-colors group"
                                                             >
-                                                                <td className="sticky left-0 z-10 bg-white/95 dark:bg-neutral-950/95 px-4 py-3 text-xs text-neutral-400 font-medium border-r border-neutral-200 dark:border-neutral-800 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-500/[0.05] transition-colors shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)] backdrop-blur-md">{index + 1}</td>
-                                                                <td className="sticky left-[48px] z-10 bg-white/95 dark:bg-neutral-950/95 px-5 py-3 border-r border-neutral-200 dark:border-neutral-800 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-500/[0.05] transition-colors shadow-[4px_0_12px_-4px_rgba(0,0,0,0.1)] backdrop-blur-md">
+                                                                <td className="px-4 py-3 text-xs text-neutral-400 font-medium border-r border-neutral-200 dark:border-neutral-800 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-500/[0.05] transition-colors">{index + 1}</td>
+                                                                <td className="px-5 py-3 border-r border-neutral-200 dark:border-neutral-800 group-hover:bg-emerald-50/50 dark:group-hover:bg-emerald-500/[0.05] transition-colors">
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700 flex items-center justify-center text-[10px] font-bold text-neutral-600 dark:text-neutral-400">
                                                                             {m.nama.substring(0, 2).toUpperCase()}
@@ -854,7 +776,7 @@ export default function AdminKas({ mahasiswaList, summary, ledger, pertemuanDate
                                                 {filteredMahasiswaList.length > 0 && (
                                                     <tfoot>
                                                         <tr className="bg-gradient-to-r from-neutral-100 to-neutral-50 dark:from-neutral-900 dark:to-neutral-950 border-t-2 border-neutral-200 dark:border-neutral-700">
-                                                            <td colSpan={2} className="sticky left-0 z-10 bg-neutral-100 dark:bg-neutral-900 px-4 py-3 text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase border-r border-neutral-200 dark:border-neutral-800 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+                                                            <td colSpan={2} className="bg-neutral-100 dark:bg-neutral-900 px-4 py-3 text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase border-r border-neutral-200 dark:border-neutral-800">
                                                                 <div className="flex items-center gap-2">
                                                                     <Target className="h-4 w-4 text-emerald-500" />
                                                                     TOTAL LUNAS (Verified)

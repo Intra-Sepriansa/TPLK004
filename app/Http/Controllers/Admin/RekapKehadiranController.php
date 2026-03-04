@@ -81,6 +81,251 @@ class RekapKehadiranController extends Controller
         ]);
     }
     
+    public function show($id)
+    {
+        $mahasiswa = Mahasiswa::findOrFail($id);
+        
+        // --- Basic attendance stats ---
+        $allLogs = AttendanceLog::where('mahasiswa_id', $id)
+            ->with(['session.course.dosen', 'selfieVerification'])
+            ->orderByDesc('scanned_at')
+            ->get();
+        
+        $totalSessions = AttendanceSession::count();
+        $presentCount = $allLogs->where('status', 'present')->count();
+        $lateCount = $allLogs->where('status', 'late')->count();
+        $rejectedCount = $allLogs->where('status', 'rejected')->count();
+        $totalAttendance = $presentCount + $lateCount;
+        $attendanceRate = $totalSessions > 0 ? round(($totalAttendance / $totalSessions) * 100, 1) : 0;
+        
+        // --- Status determination ---
+        $status = 'at_risk';
+        if ($attendanceRate >= 90) $status = 'excellent';
+        elseif ($attendanceRate >= 75) $status = 'good';
+        elseif ($attendanceRate >= 60) $status = 'warning';
+        
+        // --- Rank in class ---
+        $classStudents = Mahasiswa::where('kelas', $mahasiswa->kelas)->pluck('id');
+        $rankData = [];
+        foreach ($classStudents as $sid) {
+            $sAttendance = AttendanceLog::where('mahasiswa_id', $sid)
+                ->whereIn('status', ['present', 'late'])
+                ->count();
+            $rankData[$sid] = $sAttendance;
+        }
+        arsort($rankData);
+        $rank = array_search($id, array_keys($rankData)) + 1;
+        
+        // --- Punctuality score ---
+        $onTimeLogs = $allLogs->whereIn('status', ['present', 'late']);
+        $punctualityScore = $onTimeLogs->count() > 0
+            ? round(($presentCount / $onTimeLogs->count()) * 100)
+            : 0;
+        
+        // --- Streaks ---
+        $sessions = AttendanceSession::orderBy('start_at')->get();
+        $currentStreak = 0;
+        $longestStreak = 0;
+        $tempStreak = 0;
+        foreach ($sessions as $session) {
+            $hasAttendance = AttendanceLog::where('mahasiswa_id', $id)
+                ->where('attendance_session_id', $session->id)
+                ->whereIn('status', ['present', 'late'])
+                ->exists();
+            if ($hasAttendance) {
+                $tempStreak++;
+                $longestStreak = max($longestStreak, $tempStreak);
+            } else {
+                $tempStreak = 0;
+            }
+        }
+        $currentStreak = $tempStreak;
+        
+        // --- Daily trend (last 30 days) ---
+        $thirtyDaysAgo = now()->subDays(30)->toDateString();
+        $today = now()->toDateString();
+        $dailyCounts = AttendanceLog::where('mahasiswa_id', $id)
+            ->selectRaw('DATE(scanned_at) as date, status, COUNT(*) as total')
+            ->whereBetween(DB::raw('DATE(scanned_at)'), [$thirtyDaysAgo, $today])
+            ->groupBy('date', 'status')
+            ->orderBy('date')
+            ->get();
+        
+        $trendLabels = [];
+        $trendPresent = [];
+        $trendLate = [];
+        $trendRejected = [];
+        $start = \Carbon\Carbon::parse($thirtyDaysAgo);
+        $end = \Carbon\Carbon::parse($today);
+        while ($start <= $end) {
+            $dateKey = $start->toDateString();
+            $trendLabels[] = $start->format('d/m');
+            $dayData = $dailyCounts->where('date', $dateKey);
+            $trendPresent[] = (int) ($dayData->where('status', 'present')->first()?->total ?? 0);
+            $trendLate[] = (int) ($dayData->where('status', 'late')->first()?->total ?? 0);
+            $trendRejected[] = (int) ($dayData->where('status', 'rejected')->first()?->total ?? 0);
+            $start->addDay();
+        }
+        
+        $dailyTrend = [
+            'labels' => $trendLabels,
+            'datasets' => [
+                ['label' => 'Hadir', 'data' => $trendPresent, 'color' => '#10b981'],
+                ['label' => 'Terlambat', 'data' => $trendLate, 'color' => '#f59e0b'],
+                ['label' => 'Ditolak', 'data' => $trendRejected, 'color' => '#ef4444'],
+            ],
+        ];
+        
+        // --- Per-course breakdown ---
+        $courses = MataKuliah::with('dosen')->get();
+        $courseBreakdown = [];
+        foreach ($courses as $course) {
+            $courseSessions = AttendanceSession::where('course_id', $course->id)->count();
+            if ($courseSessions === 0) continue;
+            
+            $coursePresent = AttendanceLog::where('mahasiswa_id', $id)
+                ->whereHas('session', fn($q) => $q->where('course_id', $course->id))
+                ->where('status', 'present')->count();
+            $courseLate = AttendanceLog::where('mahasiswa_id', $id)
+                ->whereHas('session', fn($q) => $q->where('course_id', $course->id))
+                ->where('status', 'late')->count();
+            $courseRejected = AttendanceLog::where('mahasiswa_id', $id)
+                ->whereHas('session', fn($q) => $q->where('course_id', $course->id))
+                ->where('status', 'rejected')->count();
+            $courseTotal = $coursePresent + $courseLate;
+            
+            $courseBreakdown[] = [
+                'id' => $course->id,
+                'nama' => $course->nama,
+                'dosen' => $course->dosen?->nama ?? '-',
+                'total_sessions' => $courseSessions,
+                'present' => $coursePresent,
+                'late' => $courseLate,
+                'rejected' => $courseRejected,
+                'rate' => $courseSessions > 0 ? round(($courseTotal / $courseSessions) * 100, 1) : 0,
+            ];
+        }
+        
+        // --- Hourly distribution ---
+        $hourlyCounts = AttendanceLog::where('mahasiswa_id', $id)
+            ->selectRaw('HOUR(scanned_at) as hour, COUNT(*) as total')
+            ->groupBy('hour')
+            ->orderBy('hour')
+            ->pluck('total', 'hour');
+        
+        $hourlyLabels = [];
+        $hourlyValues = [];
+        for ($h = 6; $h <= 22; $h++) {
+            $hourlyLabels[] = sprintf('%02d:00', $h);
+            $hourlyValues[] = (int) ($hourlyCounts[$h] ?? 0);
+        }
+        
+        // --- Day of week distribution ---
+        $dayOfWeekCounts = AttendanceLog::where('mahasiswa_id', $id)
+            ->whereIn('status', ['present', 'late'])
+            ->selectRaw('DAYOFWEEK(scanned_at) as dow, COUNT(*) as total')
+            ->groupBy('dow')
+            ->pluck('total', 'dow');
+        
+        $dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+        $dayOfWeekData = [];
+        for ($d = 1; $d <= 7; $d++) {
+            $dayOfWeekData[] = [
+                'day' => $dayNames[$d - 1],
+                'count' => (int) ($dayOfWeekCounts[$d] ?? 0),
+            ];
+        }
+        
+        // --- Calendar heatmap data (last 3 months) ---
+        $threeMonthsAgo = now()->subMonths(3)->startOfMonth()->toDateString();
+        $calendarLogs = AttendanceLog::where('mahasiswa_id', $id)
+            ->whereBetween(DB::raw('DATE(scanned_at)'), [$threeMonthsAgo, $today])
+            ->selectRaw('DATE(scanned_at) as date, status')
+            ->get()
+            ->groupBy('date')
+            ->map(function ($logs) {
+                if ($logs->where('status', 'present')->count() > 0) return 'present';
+                if ($logs->where('status', 'late')->count() > 0) return 'late';
+                if ($logs->where('status', 'rejected')->count() > 0) return 'rejected';
+                return 'absent';
+            });
+        
+        // --- Warning & appreciation history ---
+        $warnings = AttendanceWarning::where('mahasiswa_id', $id)
+            ->orderByDesc('created_at')
+            ->get();
+        
+        // --- Paginated attendance logs ---
+        $attendanceLogs = AttendanceLog::where('mahasiswa_id', $id)
+            ->with(['session.course.dosen', 'selfieVerification'])
+            ->latest('scanned_at')
+            ->paginate(15)
+            ->withQueryString();
+        
+        // --- Class average for comparison ---
+        $classAvgRate = 0;
+        if ($classStudents->count() > 0 && $totalSessions > 0) {
+            $classTotalAttendance = AttendanceLog::whereIn('mahasiswa_id', $classStudents)
+                ->whereIn('status', ['present', 'late'])
+                ->count();
+            $classAvgRate = round(($classTotalAttendance / ($classStudents->count() * $totalSessions)) * 100, 1);
+        }
+        
+        // --- Average arrival offset (minutes early/late based on session start) ---
+        $avgArrivalMinutes = 0;
+        $arrivalOffsets = [];
+        foreach ($onTimeLogs as $log) {
+            if ($log->session && $log->session->start_at && $log->scanned_at) {
+                $offset = $log->session->start_at->diffInMinutes($log->scanned_at, false);
+                $arrivalOffsets[] = $offset;
+            }
+        }
+        if (count($arrivalOffsets) > 0) {
+            $avgArrivalMinutes = round(array_sum($arrivalOffsets) / count($arrivalOffsets), 1);
+        }
+        
+        return Inertia::render('admin/rekap-kehadiran-detail', [
+            'student' => [
+                'id' => $mahasiswa->id,
+                'nama' => $mahasiswa->nama,
+                'nim' => $mahasiswa->nim,
+                'kelas' => $mahasiswa->kelas ?? '-',
+                'email' => $mahasiswa->email ?? '-',
+                'phone' => $mahasiswa->phone,
+                'avatar' => $mahasiswa->avatar_url,
+                'prodi' => $mahasiswa->prodi ?? 'Teknik Informatika',
+                'semester' => $mahasiswa->semester ?? 1,
+                'total_attendance' => $totalAttendance,
+                'attendance_rate' => $attendanceRate,
+                'rank_in_class' => $rank,
+                'total_students_in_class' => $classStudents->count(),
+                'status' => $status,
+            ],
+            'stats' => [
+                'total_sessions' => $totalSessions,
+                'present' => $presentCount,
+                'late' => $lateCount,
+                'rejected' => $rejectedCount,
+                'attendance_rate' => $attendanceRate,
+                'punctuality_score' => $punctualityScore,
+                'current_streak' => $currentStreak,
+                'longest_streak' => $longestStreak,
+                'avg_arrival_minutes' => $avgArrivalMinutes,
+                'class_avg_rate' => $classAvgRate,
+            ],
+            'dailyTrend' => $dailyTrend,
+            'courseBreakdown' => $courseBreakdown,
+            'hourlyDistribution' => [
+                'labels' => $hourlyLabels,
+                'values' => $hourlyValues,
+            ],
+            'dayOfWeekData' => $dayOfWeekData,
+            'calendarHeatmap' => $calendarLogs,
+            'warnings' => $warnings,
+            'attendanceLogs' => $attendanceLogs,
+        ]);
+    }
+    
     public function exportPdf(Request $request)
     {
         $dateFrom = $request->get('date_from', now()->startOfMonth()->toDateString());

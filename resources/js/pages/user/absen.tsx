@@ -1701,57 +1701,63 @@ export default function UserAbsensi() {
 
                         {!step2Locked && selfieRequired && (
                             <>
-                                <div className="mx-auto flex aspect-[4/3] w-full max-w-md items-center justify-center overflow-hidden rounded-2xl border-2 border-amber-200/50 bg-gradient-to-br from-neutral-50 to-amber-50/30 shadow-lg sm:mx-0 md:aspect-video dark:border-amber-800/50 dark:from-neutral-900 dark:to-amber-950/20">
-                                    {selfieActive ? (
-                                        <video
-                                            ref={selfieVideoRef}
-                                            className="h-full w-full object-cover"
-                                            autoPlay
-                                            playsInline
-                                            muted
-                                        />
-                                    ) : previewUrl ? (
-                                        <img
-                                            src={previewUrl}
-                                            alt="Preview selfie"
-                                            className="h-full w-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="relative flex flex-col items-center justify-center text-neutral-400">
-                                            <Camera className="relative z-10 mb-4 h-16 w-16 text-amber-500/50" />
-                                            <span className="relative z-10 rounded-full border border-amber-100 bg-amber-50 px-4 py-1.5 text-sm font-semibold text-amber-600 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                                Aktifkan kamera untuk selfie
-                                            </span>
-                                            <span className="relative z-10 mt-3 text-xs text-neutral-400">
-                                                Pastikan wajah terlihat jelas
-                                            </span>
-                                        </div>
-                                    )}
-                                    {selfieActive && (
-                                        <div className="absolute top-4 left-4 flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                                            <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
-                                            Kamera Aktif
-                                        </div>
-                                    )}
+                                <div className="mx-auto w-full max-w-md">
+                                    <div className="relative aspect-square overflow-hidden rounded-2xl border-2 border-amber-200/50 bg-gradient-to-br from-neutral-50 to-amber-50/30 shadow-lg dark:border-amber-800/50 dark:from-neutral-900 dark:to-amber-950/20">
+                                        {selfieActive ? (
+                                            <video
+                                                ref={selfieVideoRef}
+                                                className="h-full w-full object-cover object-center"
+                                                autoPlay
+                                                playsInline
+                                                muted
+                                            />
+                                        ) : previewUrl ? (
+                                            <img
+                                                src={previewUrl}
+                                                alt="Preview selfie"
+                                                className="h-full w-full object-cover object-center"
+                                            />
+                                        ) : (
+                                            <div className="relative flex h-full flex-col items-center justify-center text-neutral-400">
+                                                <Camera className="relative z-10 mb-4 h-16 w-16 text-amber-500/50" />
+                                                <span className="relative z-10 rounded-full border border-amber-100 bg-amber-50 px-4 py-1.5 text-sm font-semibold text-amber-600 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                                                    Aktifkan kamera untuk selfie
+                                                </span>
+                                                <span className="relative z-10 mt-3 text-xs text-neutral-400">
+                                                    Pastikan wajah terlihat jelas
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <AnimatePresence>
-                                    {selfieStatus && (
+                                    {(selfieActive || selfieStatus) && (
                                         <motion.div
                                             initial={{ opacity: 0, y: -10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -10 }}
-                                            className="mt-3 flex items-center justify-center gap-2 sm:justify-start"
+                                            className="mt-3 flex items-center justify-center gap-2"
                                         >
-                                            <Zap className="h-4 w-4 text-amber-500" />
-                                            <p className="text-xs font-medium text-amber-700 sm:text-sm dark:text-amber-400">
-                                                {selfieStatus}
-                                            </p>
+                                            {selfieActive && (
+                                                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
+                                                    <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+                                                    Kamera Aktif
+                                                </span>
+                                            )}
+                                            {selfieStatus && (
+                                                <>
+                                                    <Zap className="h-4 w-4 text-amber-500" />
+                                                    <p className="text-xs font-medium text-amber-700 sm:text-sm dark:text-amber-400">
+                                                        {selfieStatus}
+                                                    </p>
+                                                </>
+                                            )}
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
 
-                                <div className="relative z-10 mt-5 flex w-full flex-col flex-wrap gap-2 sm:w-auto sm:flex-row sm:gap-3">
+                                <div className="relative z-10 mt-5 flex w-full flex-col flex-wrap items-center justify-center gap-2 sm:flex-row sm:gap-3">
                                     <motion.div
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}

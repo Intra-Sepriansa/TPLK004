@@ -83,6 +83,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
+    Route::get('admin/rekap-kehadiran/{mahasiswa}', [RekapKehadiranController::class, 'show'])->name('admin.rekap-kehadiran.show');
     Route::post('admin/attendance/warning', [RekapKehadiranController::class, 'storeWarning'])->name('admin.attendance.warning.store');
 });
 
@@ -184,6 +185,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     
     // Admin Kas Voting
     Route::get('admin/kas-voting', [\App\Http\Controllers\Admin\KasVotingController::class, 'index'])->name('admin.kas-voting');
+    Route::get('admin/kas-voting/{voting}', [\App\Http\Controllers\Admin\KasVotingController::class, 'show'])->name('admin.kas-voting.show');
     Route::post('admin/kas-voting/{voting}/approve', [\App\Http\Controllers\Admin\KasVotingController::class, 'approve'])->name('admin.kas-voting.approve');
     Route::post('admin/kas-voting/{voting}/reject', [\App\Http\Controllers\Admin\KasVotingController::class, 'reject'])->name('admin.kas-voting.reject');
     Route::post('admin/kas-voting/{voting}/close', [\App\Http\Controllers\Admin\KasVotingController::class, 'close'])->name('admin.kas-voting.close');
