@@ -13,6 +13,7 @@ import {
     Clock,
     Download,
     Eye,
+    FileText,
     Filter,
     FolderOpen,
     Lock,
@@ -327,12 +328,12 @@ export default function AdminTugasKelompokDetail({
                 filterStatus === 'all'
                     ? true
                     : filterStatus === 'submitted'
-                      ? group.has_submission
-                      : filterStatus === 'unsubmitted'
-                        ? !group.has_submission
-                        : filterStatus === 'late'
-                          ? group.is_late
-                          : group.has_submission && (group.grade === null || group.grade === undefined);
+                        ? group.has_submission
+                        : filterStatus === 'unsubmitted'
+                            ? !group.has_submission
+                            : filterStatus === 'late'
+                                ? group.is_late
+                                : group.has_submission && (group.grade === null || group.grade === undefined);
 
             if (!statusMatch) return false;
 
@@ -1238,19 +1239,19 @@ export default function AdminTugasKelompokDetail({
                                                         !group.has_submission
                                                             ? 'bg-slate-100 text-slate-500 dark:bg-neutral-800 dark:text-slate-400'
                                                             : group.grade !== null && group.grade !== undefined
-                                                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
-                                                              : group.is_late
-                                                                ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300'
-                                                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
+                                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
+                                                                : group.is_late
+                                                                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300'
+                                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/35 dark:text-blue-300',
                                                     )}
                                                 >
                                                     {!group.has_submission
                                                         ? 'Belum Submit'
                                                         : group.grade !== null && group.grade !== undefined
-                                                          ? `Nilai: ${group.grade}`
-                                                          : group.is_late
-                                                            ? 'Late Submit'
-                                                            : 'Belum Dinilai'}
+                                                            ? `Nilai: ${group.grade}`
+                                                            : group.is_late
+                                                                ? 'Late Submit'
+                                                                : 'Belum Dinilai'}
                                                 </span>
 
                                                 <div className="flex gap-1">
@@ -1588,10 +1589,10 @@ export default function AdminTugasKelompokDetail({
                                                             group.progress >= 80
                                                                 ? 'bg-emerald-500'
                                                                 : group.progress >= 60
-                                                                  ? 'bg-blue-500'
-                                                                  : group.progress >= 40
-                                                                    ? 'bg-amber-500'
-                                                                    : 'bg-rose-500',
+                                                                    ? 'bg-blue-500'
+                                                                    : group.progress >= 40
+                                                                        ? 'bg-amber-500'
+                                                                        : 'bg-rose-500',
                                                         )}
                                                         style={{ width: `${group.progress}%` }}
                                                     />
@@ -1718,8 +1719,8 @@ export default function AdminTugasKelompokDetail({
                                                                     report.status === 'resolved'
                                                                         ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-300'
                                                                         : report.status === 'in_review'
-                                                                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300'
-                                                                          : 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300',
+                                                                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/35 dark:text-amber-300'
+                                                                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/35 dark:text-rose-300',
                                                                 )}
                                                             >
                                                                 {report.status}
@@ -2101,6 +2102,15 @@ export default function AdminTugasKelompokDetail({
                                 </Button>
                                 <Button onClick={handlePrintReport} className="w-full justify-start rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20">
                                     <Printer className="mr-2 h-4 w-4" /> Export PDF (Print)
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        window.open(`/admin/tugas-kelompok/${assignment.id}/export-pdf`, '_blank');
+                                        setExportDialogOpen(false);
+                                    }}
+                                    className="w-full justify-start rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-white hover:bg-emerald-500/30"
+                                >
+                                    <FileText className="mr-2 h-4 w-4" /> Export PDF (Laporan Resmi)
                                 </Button>
                                 <Button variant="outline" onClick={() => setExportDialogOpen(false)} className="w-full rounded-xl border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
                                     Tutup

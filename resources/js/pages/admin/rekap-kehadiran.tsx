@@ -2,23 +2,17 @@ import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    FileBarChart,
     Download,
     Users,
     Clock,
     CheckCircle,
     XCircle,
-    Filter,
     TrendingUp,
     RefreshCw,
-    Calendar,
     BookOpen,
     Award,
     AlertTriangle,
-    BarChart3,
-    Search,
     ChevronDown,
-    ArrowDownRight,
     Zap,
     MessageSquareWarning,
     PartyPopper,
@@ -48,7 +42,7 @@ interface AttendanceLog {
     id: number;
     status: string;
     scanned_at: string;
-    mahasiswa: { nama: string; nim: string; kelas?: string } | null;
+    mahasiswa: { id?: number; nama: string; nim: string; kelas?: string } | null;
     session: { meeting_number: number; course: { nama: string; dosen?: { nama: string } } } | null;
     selfie_verification?: { status: string; selfie_path?: string } | null;
     lat?: number;
@@ -114,7 +108,7 @@ interface Course {
 interface PageProps {
     attendanceLogs: {
         data: AttendanceLog[];
-        links: any[];
+        links: { url: string | null; label: string; active: boolean }[];
         current_page: number;
         last_page: number;
         total: number;
@@ -189,8 +183,6 @@ export default function AdminRekapKehadiran({
     const [courseId, setCourseId] = useState(filters.course_id);
     const [status, setStatus] = useState(filters.status);
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-    const [selectedLog, setSelectedLog] = useState<AttendanceLog | null>(null);
-    const [showDetailModal, setShowDetailModal] = useState(false);
 
     // Warning System State
     const [showWarningModal, setShowWarningModal] = useState(false);
@@ -780,6 +772,15 @@ export default function AdminRekapKehadiran({
                                     <motion.div
                                         key={student.id}
                                         whileHover={{ scale: 1.02, x: 5 }}
+                                        onClick={() => router.visit(`/admin/rekap-kehadiran/${student.id}`)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                router.visit(`/admin/rekap-kehadiran/${student.id}`);
+                                            }
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
                                         className="flex items-center gap-3 p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all cursor-pointer border border-white/10 hover:border-white/30 group"
                                     >
                                         <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shadow-lg ${i === 0 ? 'bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-900 border border-yellow-200' :
@@ -829,10 +830,19 @@ export default function AdminRekapKehadiran({
                                 </div>
                             </div>
                             <div className="p-2 space-y-1">
-                                {lowAttendance.map((student, index) => (
+                                {lowAttendance.map((student) => (
                                     <motion.div
                                         key={student.id}
                                         whileHover={{ scale: 1.02, x: 5 }}
+                                        onClick={() => router.visit(`/admin/rekap-kehadiran/${student.id}`)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                router.visit(`/admin/rekap-kehadiran/${student.id}`);
+                                            }
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
                                         className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/60 dark:hover:bg-neutral-800/50 transition-all cursor-pointer border border-transparent hover:border-neutral-200 dark:hover:border-neutral-700"
                                     >
                                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-600">
@@ -909,8 +919,9 @@ export default function AdminRekapKehadiran({
                                             transition={{ delay: index * 0.05 }}
                                             className="group hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors cursor-pointer"
                                             onClick={() => {
-                                                setSelectedLog(log);
-                                                setShowDetailModal(true);
+                                                if (log.mahasiswa?.id) {
+                                                    router.visit(`/admin/rekap-kehadiran/${log.mahasiswa.id}`);
+                                                }
                                             }}
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -991,154 +1002,6 @@ export default function AdminRekapKehadiran({
                     )}
                 </motion.div>
             </motion.div>
-
-            {/* ═══════ DETAIL MODAL ═══════ */}
-            <AnimatePresence>
-                {showDetailModal && selectedLog && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowDetailModal(false)}
-                            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-                        />
-
-                        {/* Modal Container */}
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                                className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl overflow-hidden pointer-events-auto border border-white/20 dark:border-neutral-800"
-                            >
-                                {/* Modal Header with Gradient */}
-                                <div className="relative h-32 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 flex items-start justify-between overflow-hidden">
-                                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-
-                                    <div className="relative z-10 flex items-center gap-4">
-                                        <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-2xl font-bold text-white shadow-xl">
-                                            {selectedLog.mahasiswa?.nama.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white">{selectedLog.mahasiswa?.nama}</h3>
-                                            <p className="text-blue-100">{selectedLog.mahasiswa?.nim}</p>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => setShowDetailModal(false)}
-                                        className="relative z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors backdrop-blur-md"
-                                    >
-                                        <XCircle className="h-6 w-6" />
-                                    </button>
-                                </div>
-
-                                {/* Modal Body */}
-                                <div className="p-6 space-y-6">
-                                    {/* Status Badge & Time */}
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            {getStatusBadge(selectedLog.status)}
-                                            <span className="text-sm text-neutral-500 font-medium">
-                                                {selectedLog.scanned_at}
-                                            </span>
-                                        </div>
-                                        {selectedLog.selfie_verification && (
-                                            <div className="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
-                                                Selfie Verification: {selectedLog.selfie_verification.status}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Info Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* Course Info */}
-                                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 space-y-3">
-                                            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-                                                <BookOpen className="h-5 w-5" />
-                                                <span className="text-xs font-bold uppercase tracking-wider">Mata Kuliah</span>
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-neutral-900 dark:text-white text-lg">
-                                                    {selectedLog.session?.course.nama}
-                                                </p>
-                                                <p className="text-sm text-neutral-500">
-                                                    Kelas {selectedLog.mahasiswa?.kelas || '-'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        {/* Session Info */}
-                                        <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 space-y-3">
-                                            <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
-                                                <Calendar className="h-5 w-5" />
-                                                <span className="text-xs font-bold uppercase tracking-wider">Sesi Pertemuan</span>
-                                            </div>
-                                            <div>
-                                                <p className="font-bold text-neutral-900 dark:text-white text-lg">
-                                                    Pertemuan ke-{selectedLog.session?.meeting_number}
-                                                </p>
-                                                <p className="text-sm text-neutral-500">
-                                                    {selectedLog.session?.course.dosen?.nama}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Selfie Preview (if available) - Assuming path might be available in future */}
-                                    <div className="rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800 relative bg-neutral-900 aspect-video flex items-center justify-center group">
-                                        {selectedLog.selfie_verification?.selfie_path ? (
-                                            <>
-                                                <img
-                                                    src={`/storage/${selectedLog.selfie_verification.selfie_path}`}
-                                                    alt="Attendance Evidence"
-                                                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
-                                                    <p className="text-white font-bold flex items-center gap-2">
-                                                        <Search className="h-4 w-4" /> Bukti Kehadiran
-                                                    </p>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center space-y-2">
-                                                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto backdrop-blur-sm">
-                                                    <Users className="h-8 w-8 text-white/50" />
-                                                </div>
-                                                <p className="text-neutral-400 text-sm">Tidak ada bukti foto</p>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Footer Details */}
-                                    <div className="grid grid-cols-3 gap-2 text-center text-xs text-neutral-500 pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                        <div>
-                                            <p className="uppercase tracking-wider font-bold mb-1">ID Log</p>
-                                            <p className="font-mono bg-neutral-100 dark:bg-neutral-800 py-1 rounded-md">#{selectedLog.id}</p>
-                                        </div>
-                                        <div>
-                                            <p className="uppercase tracking-wider font-bold mb-1">Jarak</p>
-                                            <p className="font-mono bg-neutral-100 dark:bg-neutral-800 py-1 rounded-md">
-                                                {selectedLog.distance ? `${selectedLog.distance.toFixed(1)}m` : '-'}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="uppercase tracking-wider font-bold mb-1">Perangkat</p>
-                                            <p className="font-mono bg-neutral-100 dark:bg-neutral-800 py-1 rounded-md truncate px-2">
-                                                {selectedLog.device_info || 'Mobile App'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </>
-                )}
-            </AnimatePresence>
 
             {/* ═══════ WARNING MODAL ═══════ */}
             <AnimatePresence>

@@ -227,4 +227,5 @@ Route::middleware(['auth:dosen'])->prefix('dosen')->name('dosen.')->group(functi
     Route::patch('/tugas-kelompok/{id}/toggle-lock', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'toggleLock'])->name('tugas-kelompok.toggle-lock');
     Route::post('/tugas-kelompok/{id}/grade', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'gradeSubmission'])->name('tugas-kelompok.grade');
     Route::post('/tugas-kelompok/{id}/conflicts/{reportId}/resolve', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'resolveConflict'])->name('tugas-kelompok.resolve-conflict');
+    Route::get('/tugas-kelompok/{id}/group/{groupId}/progress', [\App\Http\Controllers\Dosen\TugasKelompokController::class, 'groupProgress'])->name('tugas-kelompok.group-progress');
 });

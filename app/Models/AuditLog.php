@@ -12,6 +12,17 @@ class AuditLog extends Model
         'message',
         'mahasiswa_id',
         'attendance_session_id',
+        'severity',
+        'status',
+        'security_score',
+        'threat_level',
+        'device_info',
+        'network_info',
+    ];
+
+    protected $casts = [
+        'device_info' => 'array',
+        'network_info' => 'array',
     ];
 
     public function mahasiswa(): BelongsTo
@@ -22,5 +33,10 @@ class AuditLog extends Model
     public function session(): BelongsTo
     {
         return $this->belongsTo(AttendanceSession::class, 'attendance_session_id');
+    }
+
+    public function auditActions()
+    {
+        return $this->hasMany(AuditAction::class);
     }
 }

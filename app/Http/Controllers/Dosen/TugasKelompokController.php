@@ -414,6 +414,157 @@ class TugasKelompokController extends Controller
     }
 
     /**
+     * Show detailed progress of a single group
+     */
+    public function groupProgress(int $id, int $groupId)
+    {
+        $dosen = auth()->guard('dosen')->user();
+        $assignment = GroupAssignment::where('dosen_id', $dosen->id)->with('course')->findOrFail($id);
+        $group = GaGroup::where('assignment_id', $assignment->id)
+            ->with(['members.student', 'tasks.assignees', 'files.uploader', 'submission', 'conflictReports.reporter'])
+            ->findOrFail($groupId);
+
+        // ═══ MEMBER CONTRIBUTIONS (per-member activity breakdown) ═══
+        $memberContributions = $this->analyticsService->getMemberContributions($group);
+        $members = $group->members->map(function ($m) use ($group, $memberContributions) {
+            $msgCount = $group->messages()->where('sender_id', $m->student_id)->count();
+            $fileCount = $group->files()->where('uploader_id', $m->student_id)->count();
+            $tasksCompleted = $group->tasks()
+                ->where('status', 'completed')
+                ->whereHas('assignees', fn ($q) => $q->where('mahasiswa_id', $m->student_id))
+                ->count();
+            $tasksAssigned = $group->tasks()
+                ->whereHas('assignees', fn ($q) => $q->where('mahasiswa_id', $m->student_id))
+                ->count();
+
+            return [
+                'id' => $m->student_id,
+                'nama' => $m->student->nama ?? 'Unknown',
+                'nim' => $m->student->nim ?? '',
+                'kelas' => $m->student->kelas ?? null,
+                'is_leader' => $m->is_leader,
+                'joined_at' => $m->created_at?->format('d M Y H:i'),
+                'contribution_points' => $memberContributions[$m->student_id] ?? 0,
+                'message_count' => $msgCount,
+                'file_count' => $fileCount,
+                'tasks_completed' => $tasksCompleted,
+                'tasks_assigned' => $tasksAssigned,
+            ];
+        });
+
+        // ═══ TASKS ═══
+        $tasks = $group->tasks->map(fn ($t) => [
+            'id' => $t->id,
+            'title' => $t->title,
+            'description' => $t->description,
+            'status' => $t->status,
+            'deadline' => $t->deadline?->toISOString(),
+            'deadline_display' => $t->deadline?->format('d M Y H:i'),
+            'assignees' => $t->assignees->map(fn ($a) => ['id' => $a->id, 'nama' => $a->nama]),
+            'created_at' => $t->created_at?->format('d M Y H:i'),
+        ]);
+
+        $taskStats = [
+            'total' => $group->tasks->count(),
+            'completed' => $group->tasks->where('status', 'completed')->count(),
+            'in_progress' => $group->tasks->where('status', 'in_progress')->count(),
+            'pending' => $group->tasks->where('status', 'pending')->count(),
+        ];
+
+        // ═══ COMMUNICATION STATS ═══
+        $totalMessages = $group->messages()->count();
+        $msgDistribution = $group->members->map(function ($m) use ($group) {
+            $count = $group->messages()->where('sender_id', $m->student_id)->count();
+            return ['student_id' => $m->student_id, 'nama' => $m->student->nama ?? 'Unknown', 'count' => $count];
+        })->sortByDesc('count')->values();
+
+        // ═══ FILES ═══
+        $files = $group->files->map(fn ($f) => [
+            'id' => $f->id,
+            'original_name' => $f->original_name,
+            'file_type' => $f->file_type ?? null,
+            'file_size_formatted' => $f->file_size_formatted ?? null,
+            'uploader_name' => $f->uploader->nama ?? 'Unknown',
+            'file_path' => $f->file_path,
+            'created_at' => $f->created_at?->format('d M Y H:i'),
+        ]);
+
+        // ═══ ACTIVITY TIMELINE (for this group) ═══
+        $activityLogs = \App\Models\GaActivityLog::where('group_id', $group->id)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($log) => [
+                'id' => $log->id,
+                'type' => $log->activity_type,
+                'user_name' => $log->user->nama ?? 'Unknown',
+                'metadata' => $log->activity_metadata,
+                'points' => $log->points ?? 0,
+                'created_at' => $log->created_at->diffForHumans(),
+                'created_at_full' => $log->created_at->format('d M Y H:i'),
+            ]);
+
+        // ═══ SUBMISSION ═══
+        $submission = $group->submission ? [
+            'submitted_at' => $group->submission->submitted_at?->format('d M Y H:i'),
+            'is_late' => $group->submission->is_late,
+            'late_duration' => $group->submission->late_duration_minutes ?? 0,
+            'grade' => $group->submission->grade,
+            'grading_notes' => $group->submission->grading_notes,
+            'graded_at' => $group->submission->graded_at?->format('d M Y H:i'),
+        ] : null;
+
+        // ═══ CONFLICT REPORTS ═══
+        $conflictReports = ($group->conflictReports ?? collect())->map(fn ($cr) => [
+            'id' => $cr->id,
+            'reporter_name' => $cr->reporter->nama ?? 'Unknown',
+            'description' => $cr->description,
+            'status' => $cr->status,
+            'resolution_notes' => $cr->resolution_notes ?? null,
+            'created_at' => $cr->created_at?->format('d M Y H:i'),
+        ]);
+
+        // ═══ LAST ACTIVITY ═══
+        $lastActivity = \App\Models\GaActivityLog::where('group_id', $group->id)
+            ->orderByDesc('created_at')
+            ->first();
+
+        return Inertia::render('dosen/tugas-kelompok-group-progress', [
+            'assignment' => [
+                'id' => $assignment->id,
+                'title' => $assignment->title,
+                'course' => ['id' => $assignment->course->id, 'nama' => $assignment->course->nama],
+                'formation_mode' => $assignment->formation_mode,
+                'grading_mode' => $assignment->grading_mode,
+                'submission_deadline' => $assignment->submission_deadline?->toISOString(),
+                'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
+                'is_locked' => $assignment->is_locked,
+            ],
+            'group' => [
+                'id' => $group->id,
+                'name' => $group->name,
+                'slot_number' => $group->slot_number,
+                'leader_id' => $group->leader_id,
+                'progress' => $group->progress,
+            ],
+            'members' => $members->values(),
+            'tasks' => $tasks->values(),
+            'taskStats' => $taskStats,
+            'communicationStats' => [
+                'total_messages' => $totalMessages,
+                'distribution' => $msgDistribution,
+            ],
+            'files' => $files->values(),
+            'activityLogs' => $activityLogs->values(),
+            'submission' => $submission,
+            'conflictReports' => $conflictReports->values(),
+            'lastActivity' => $lastActivity ? $lastActivity->created_at->diffForHumans() : null,
+            'dosen' => ['id' => $dosen->id, 'nama' => $dosen->nama],
+        ]);
+    }
+
+    /**
      * Delete a group assignment
      */
     public function destroy(int $id)

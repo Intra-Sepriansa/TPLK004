@@ -15,6 +15,7 @@ use App\Models\Dosen;
 use App\Services\GroupFormationService;
 use App\Services\GroupGradingService;
 use App\Services\GroupAnalyticsService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -169,11 +170,12 @@ class TugasKelompokController extends Controller
             'random_group_size' => 'nullable|integer|min:2|max:20',
             'self_form_group_count' => 'nullable|integer|min:1|max:100',
             'self_form_group_size' => 'nullable|integer|min:2|max:20',
-            'manual_groups' => 'nullable|array|min:1',
-            'manual_groups.*.name' => 'required_with:manual_groups|string|max:100',
-            'manual_groups.*.leader_id' => 'required_with:manual_groups|integer|exists:mahasiswa,id',
-            'manual_groups.*.member_ids' => 'required_with:manual_groups|array|min:1',
+            'manual_groups' => 'nullable|array',
+            'manual_groups.*.name' => 'nullable|string|max:100',
+            'manual_groups.*.leader_id' => 'nullable|integer|exists:mahasiswa,id',
+            'manual_groups.*.member_ids' => 'nullable|array|min:1',
             'manual_groups.*.member_ids.*' => 'integer|exists:mahasiswa,id',
+            'return_to_workflow' => 'nullable|boolean',
         ]);
 
         $randomGroupCount = (int) ($validated['random_group_count'] ?? 0);
@@ -213,12 +215,24 @@ class TugasKelompokController extends Controller
 
         $enrolledStudentIds = $this->resolveEligibleStudentIdsForCourse($course);
 
-        if ($validated['formation_mode'] === 'manual' && $manualGroups->isNotEmpty()) {
+        if ($validated['formation_mode'] === 'manual') {
+            if ($manualGroups->isEmpty()) {
+                return back()->withErrors([
+                    'manual_groups' => 'Mode manual membutuhkan minimal 1 kelompok.',
+                ])->withInput();
+            }
+
             $usedStudentIds = collect();
             $groupNames = collect();
 
             foreach ($manualGroups as $index => $groupPayload) {
                 $groupName = trim((string) ($groupPayload['name'] ?? ''));
+                if ($groupName === '') {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.name" => "Nama kelompok ke-" . ($index + 1) . ' wajib diisi.',
+                    ])->withInput();
+                }
+
                 if ($groupNames->contains($groupName)) {
                     return back()->withErrors([
                         "manual_groups.{$index}.name" => "Nama kelompok '{$groupName}' duplikat. Gunakan nama lain.",
@@ -231,6 +245,12 @@ class TugasKelompokController extends Controller
                     ->unique()
                     ->values();
                 $leaderId = (int) ($groupPayload['leader_id'] ?? 0);
+
+                if ($leaderId <= 0) {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.leader_id" => "Ketua untuk {$groupName} wajib dipilih.",
+                    ])->withInput();
+                }
 
                 if (!$memberIds->contains($leaderId)) {
                     $memberIds->push($leaderId);
@@ -529,5 +549,186 @@ class TugasKelompokController extends Controller
         $assignment->delete();
         return redirect()->route('admin.tugas-kelompok')
             ->with('success', 'Tugas kelompok berhasil dihapus.');
+    }
+
+    /**
+     * Export advanced PDF report for admin group assignment detail
+     */
+    public function exportPdf(int $id)
+    {
+        $assignment = GroupAssignment::query()
+            ->with([
+                'course',
+                'dosen',
+                'groups.members.student',
+                'groups.tasks',
+                'groups.files',
+                'groups.messages',
+                'groups.activityLogs',
+                'groups.submission',
+                'groups.conflictReports.reporter',
+            ])
+            ->findOrFail($id);
+
+        $groups = $assignment->groups;
+        $totalStudents = $groups->sum(fn ($g) => $g->members->count());
+
+        // Per-group summaries
+        $groupSummaries = $groups->map(function ($group) {
+            $members = $group->members->sortByDesc(fn ($m) => (bool) $m->is_leader)->values();
+            $tasks = $group->tasks;
+            $taskTotal = $tasks->count();
+            $taskCompleted = $tasks->where('status', 'completed')->count();
+            $taskInProgress = $tasks->where('status', 'in_progress')->count();
+            $taskPending = $tasks->where('status', 'pending')->count();
+            $progress = $taskTotal > 0 ? round(($taskCompleted / $taskTotal) * 100, 1) : 0;
+
+            $submission = $group->submission;
+
+            return [
+                'id' => $group->id,
+                'name' => $group->name,
+                'member_count' => $members->count(),
+                'members' => $members->map(fn ($m) => [
+                    'nama' => $m->student->nama ?? 'Unknown',
+                    'nim' => $m->student->nim ?? '-',
+                    'is_leader' => (bool) $m->is_leader,
+                ])->values()->all(),
+                'task_total' => $taskTotal,
+                'task_completed' => $taskCompleted,
+                'task_in_progress' => $taskInProgress,
+                'task_pending' => $taskPending,
+                'progress' => $progress,
+                'message_count' => $group->messages->count(),
+                'file_count' => $group->files->count(),
+                'has_submission' => $submission !== null,
+                'grade' => $submission?->grade,
+                'is_late' => (bool) ($submission?->is_late ?? false),
+            ];
+        })->sortBy('name')->values();
+
+        // Submission & grading stats
+        $submittedCount = $groupSummaries->where('has_submission', true)->count();
+        $gradedGroups = $groupSummaries->filter(fn ($g) => $g['has_submission'] && $g['grade'] !== null);
+        $gradedCount = $gradedGroups->count();
+        $averageGrade = $gradedCount > 0 ? round($gradedGroups->avg('grade'), 1) : 0;
+        $lateCount = $groupSummaries->where('is_late', true)->count();
+        $submissionRate = $groups->count() > 0 ? round(($submittedCount / $groups->count()) * 100, 1) : 0;
+
+        // Grade distribution
+        $gradeDistribution = ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0];
+        $gradedGroups->each(function ($g) use (&$gradeDistribution) {
+            $score = (float) $g['grade'];
+            if ($score >= 85) $gradeDistribution['A']++;
+            elseif ($score >= 75) $gradeDistribution['B']++;
+            elseif ($score >= 60) $gradeDistribution['C']++;
+            elseif ($score >= 45) $gradeDistribution['D']++;
+            else $gradeDistribution['E']++;
+        });
+
+        // Contribution leaderboard (top 10 across all groups)
+        $contributionLeaderboard = $groups->flatMap(function ($group) {
+            $pointsByUser = $group->activityLogs->groupBy('user_id')->map(fn ($logs) => $logs->sum('points'));
+            return $group->members->map(function ($member) use ($pointsByUser, $group) {
+                return [
+                    'nama' => $member->student->nama ?? 'Unknown',
+                    'nim' => $member->student->nim ?? '-',
+                    'group_name' => $group->name,
+                    'points' => $pointsByUser[$member->student_id] ?? 0,
+                ];
+            });
+        })->sortByDesc('points')->take(10)->values();
+
+        $maxContribPoints = $contributionLeaderboard->max('points') ?: 1;
+
+        // Risk groups
+        $riskGroups = $groupSummaries->filter(function ($g) {
+            return (!$g['has_submission'] && $g['progress'] < 60)
+                || ($g['has_submission'] && ($g['grade'] ?? 0) < 65)
+                || $g['is_late'];
+        })->values();
+
+        // Engagement score
+        $totalMessages = $groupSummaries->sum('message_count');
+        $totalFiles = $groupSummaries->sum('file_count');
+        $totalCompletedTasks = $groupSummaries->sum('task_completed');
+        $studentBase = max(1, $totalStudents);
+        $engagementScore = max(0, min(100, (int) round(
+            (($totalMessages + $totalFiles * 2 + $totalCompletedTasks * 3) / ($studentBase * 10)) * 100
+        )));
+
+        // Conflict summary
+        $allConflicts = $groups->flatMap(fn ($g) => $g->conflictReports);
+        $conflictOpen = $allConflicts->where('status', 'open')->count();
+        $conflictInReview = $allConflicts->where('status', 'in_review')->count();
+        $conflictResolved = $allConflicts->where('status', 'resolved')->count();
+        $conflictList = $allConflicts->sortByDesc('created_at')->values();
+
+        // Weekly activity timeline
+        $allActivityLogs = $groups->flatMap(fn ($g) => $g->activityLogs);
+        $weeklyActivity = collect();
+        for ($i = 6; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            $dateStr = $day->format('Y-m-d');
+            $count = $allActivityLogs->filter(fn ($log) => $log->created_at && $log->created_at->format('Y-m-d') === $dateStr)->count();
+            $weeklyActivity->push([
+                'label' => $day->translatedFormat('D'),
+                'date' => $day->format('d/m'),
+                'count' => $count,
+            ]);
+        }
+        $maxWeeklyCount = max(1, $weeklyActivity->max('count'));
+        $weeklyActivity = $weeklyActivity->map(fn ($d) => array_merge($d, [
+            'percent' => (int) round(($d['count'] / $maxWeeklyCount) * 100),
+        ]))->all();
+
+        // Deadline insights
+        $formationDeadline = $assignment->formation_deadline?->format('d M Y H:i') ?? '-';
+        $submissionDeadline = $assignment->submission_deadline?->format('d M Y H:i') ?? '-';
+        $submissionDaysLeft = null;
+        if ($assignment->submission_deadline) {
+            $submissionDaysLeft = (int) now()->diffInDays($assignment->submission_deadline, false);
+        }
+
+        $now = now();
+        $tanggalCetak = $now->translatedFormat('d F Y');
+        $generatedAt = $now->format('H:i:s');
+
+        $logoUnpam = public_path('images/logo-unpam.png');
+        $logoSasmita = public_path('images/logo-sasmita.png');
+
+        $pdf = Pdf::loadView('pdf.admin-tugas-kelompok-detail', compact(
+            'assignment',
+            'groupSummaries',
+            'totalStudents',
+            'submittedCount',
+            'gradedCount',
+            'averageGrade',
+            'lateCount',
+            'submissionRate',
+            'gradeDistribution',
+            'contributionLeaderboard',
+            'maxContribPoints',
+            'riskGroups',
+            'engagementScore',
+            'conflictOpen',
+            'conflictInReview',
+            'conflictResolved',
+            'conflictList',
+            'weeklyActivity',
+            'formationDeadline',
+            'submissionDeadline',
+            'submissionDaysLeft',
+            'tanggalCetak',
+            'generatedAt',
+            'logoUnpam',
+            'logoSasmita',
+        ));
+
+        $pdf->setPaper('A4', 'portrait');
+
+        $filename = 'Rekap-Tugas-Kelompok-' . str_replace(' ', '-', $assignment->title) . '-' . $now->format('Ymd') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

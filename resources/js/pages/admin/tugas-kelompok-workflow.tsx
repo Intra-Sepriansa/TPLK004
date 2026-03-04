@@ -78,6 +78,7 @@ type WorkflowForm = {
     self_form_group_count: number;
     self_form_group_size: number;
     manual_groups: ManualGroup[];
+    return_to_workflow: boolean;
 };
 
 const containerVariants = {
@@ -175,6 +176,7 @@ export default function AdminTugasKelompokWorkflow({ courses, dosens, courseStud
         self_form_group_count: 2,
         self_form_group_size: 4,
         manual_groups: [],
+        return_to_workflow: true,
     });
 
     const selectedCourse = useMemo(
@@ -465,6 +467,7 @@ export default function AdminTugasKelompokWorkflow({ courses, dosens, courseStud
         setLocalError('');
         transform((payload: WorkflowForm) => ({
             ...payload,
+            return_to_workflow: true,
             dosen_id: Number(payload.dosen_id),
             course_id: Number(payload.course_id),
             min_members: Number(payload.min_members),
@@ -495,7 +498,7 @@ export default function AdminTugasKelompokWorkflow({ courses, dosens, courseStud
                           leader_id: Number(group.leader_id),
                           member_ids: group.member_ids.map((id: string) => Number(id)),
                       }))
-                    : [],
+                    : null,
         }));
 
         post('/admin/tugas-kelompok', {

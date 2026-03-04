@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Advanced Audit & Rekap
     Route::get('admin/audit', [AuditController::class, 'index'])->name('admin.audit');
     Route::get('admin/audit/{id}', [AuditController::class, 'show'])->name('admin.audit.show');
+    Route::post('admin/audit/{id}/action', [AuditController::class, 'executeAction'])->name('admin.audit.action');
     Route::get('admin/audit/pdf', [AuditController::class, 'exportPdf'])->name('admin.audit.pdf');
     Route::get('admin/rekap-kehadiran', [RekapKehadiranController::class, 'index'])->name('admin.rekap-kehadiran');
     Route::get('admin/rekap-kehadiran/pdf', [RekapKehadiranController::class, 'exportPdf'])->name('admin.rekap-kehadiran.pdf');
@@ -264,6 +265,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     Route::post('admin/tugas-kelompok/{id}/toggle-lock', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'toggleLock'])->name('admin.tugas-kelompok.toggle-lock');
     Route::post('admin/tugas-kelompok/{id}/grade', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'gradeSubmission'])->name('admin.tugas-kelompok.grade');
     Route::post('admin/tugas-kelompok/{id}/resolve-conflict/{reportId}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'resolveConflict'])->name('admin.tugas-kelompok.resolve-conflict');
+    Route::get('admin/tugas-kelompok/{id}/export-pdf', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'exportPdf'])->name('admin.tugas-kelompok.export-pdf');
     
     Route::post('mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
     Route::get('mahasiswa/export.csv', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
@@ -301,6 +303,7 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     // User Tugas Kelompok (Group Assignments)
     Route::get('user/akademik/tugas-kelompok', [\App\Http\Controllers\User\TugasKelompokController::class, 'index'])->name('user.tugas-kelompok');
     Route::get('user/akademik/tugas-kelompok/{id}', [\App\Http\Controllers\User\TugasKelompokController::class, 'show'])->name('user.tugas-kelompok.show');
+    Route::get('user/akademik/tugas-kelompok/{id}/export-pdf', [\App\Http\Controllers\User\TugasKelompokController::class, 'exportPdf'])->name('user.tugas-kelompok.export-pdf');
     Route::post('user/akademik/tugas-kelompok/{id}/create-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'createGroup'])->name('user.tugas-kelompok.create-group');
     Route::post('user/akademik/tugas-kelompok/{id}/join-group/{groupId}', [\App\Http\Controllers\User\TugasKelompokController::class, 'joinGroup'])->name('user.tugas-kelompok.join-group');
     Route::post('user/akademik/tugas-kelompok/{id}/join-slot/{slotNumber}', [\App\Http\Controllers\User\TugasKelompokController::class, 'joinGroupSlot'])->name('user.tugas-kelompok.join-slot');
@@ -315,6 +318,9 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::post('user/akademik/tugas-kelompok/{id}/submit', [\App\Http\Controllers\User\TugasKelompokController::class, 'submitWork'])->name('user.tugas-kelompok.submit');
     Route::post('user/akademik/tugas-kelompok/{id}/peer-evaluation', [\App\Http\Controllers\User\TugasKelompokController::class, 'submitPeerEvaluation'])->name('user.tugas-kelompok.peer-eval');
     Route::post('user/akademik/tugas-kelompok/{id}/conflict', [\App\Http\Controllers\User\TugasKelompokController::class, 'reportConflict'])->name('user.tugas-kelompok.conflict');
+    Route::post('user/akademik/tugas-kelompok/{id}/invite', [\App\Http\Controllers\User\TugasKelompokController::class, 'invite'])->name('user.tugas-kelompok.invite');
+    Route::post('user/akademik/tugas-kelompok/{id}/invitation/{invitationId}/respond', [\App\Http\Controllers\User\TugasKelompokController::class, 'respondInvitation'])->name('user.tugas-kelompok.invitation.respond');
+    Route::post('user/akademik/tugas-kelompok/{id}/rename-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'renameGroup'])->name('user.tugas-kelompok.rename-group');
 
     // User Permit (Izin/Sakit)
     Route::get('user/permit', [\App\Http\Controllers\User\PermitController::class, 'index'])->name('user.permit');

@@ -235,7 +235,7 @@ export default function AdminProfile() {
                 {/* ═══════ HEADER — Matching Uang Kas Style ═══════ */}
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl p-8 text-white shadow-2xl"
+                    className="relative overflow-hidden rounded-3xl p-5 sm:p-8 text-white shadow-2xl"
                 >
                     {/* Animated Gradient Background */}
                     <motion.div
@@ -258,13 +258,13 @@ export default function AdminProfile() {
                     <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 
                     {/* Floating Animations (Pulses) */}
-                                        
-                    <div className="relative">
-                        <div className="flex flex-wrap items-center justify-between gap-6">
-                            <div className="flex items-center gap-6">
+
+                    <div className="relative z-10">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 w-full sm:w-auto">
                                 <motion.button
                                     onClick={() => setShowProfileCard(true)}
-                                    className="group relative h-24 w-24 overflow-hidden rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
+                                    className="group shrink-0 relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-2xl bg-white/20 backdrop-blur-xl border border-white/30 shadow-lg"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
@@ -273,36 +273,39 @@ export default function AdminProfile() {
                                         <Sparkles className="h-8 w-8 text-white" />
                                     </div>
                                 </motion.button>
-                                <div>
-                                    <div className="flex items-center gap-3">
-                                        <h1 className="text-3xl font-bold text-white">{auth.user.name}</h1>
-                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-100 border border-emerald-500/30 backdrop-blur-md">
+                                <div className="flex flex-col items-center sm:items-start min-w-0 w-full">
+                                    <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-3 w-full">
+                                        <h1 className="text-2xl sm:text-3xl font-bold text-white text-center sm:text-left break-words w-full sm:w-auto px-1 sm:px-0">
+                                            {auth.user.name}
+                                        </h1>
+                                        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[10px] sm:text-xs font-bold text-emerald-100 border border-emerald-500/30 backdrop-blur-md">
                                             <CheckCircle2 className="h-3 w-3" />
                                             Verified
                                         </span>
                                     </div>
-                                    <p className="mt-1 text-indigo-100 flex items-center gap-2">
-                                        <Mail className="h-4 w-4" /> {auth.user.email}
+                                    <p className="mt-1.5 sm:mt-1 text-indigo-100 flex flex-wrap items-center justify-center sm:justify-start gap-2 w-full text-center sm:text-left text-xs sm:text-base break-all sm:break-normal px-2 sm:px-0">
+                                        <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                                        <span className="truncate w-full sm:w-auto">{auth.user.email}</span>
                                     </p>
-                                    <div className="flex items-center gap-4 mt-3">
-                                        <div className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1 backdrop-blur-sm">
-                                            <Shield className="h-3.5 w-3.5 text-indigo-200" />
-                                            <span className="text-xs font-medium">Administrator</span>
+                                    <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2 sm:gap-4 mt-3 w-full">
+                                        <div className="flex items-center gap-1 sm:gap-2 rounded-lg bg-white/10 px-2 sm:px-3 py-1 backdrop-blur-sm shrink-0">
+                                            <Shield className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-indigo-200" />
+                                            <span className="text-[10px] sm:text-xs font-medium">Administrator</span>
                                         </div>
-                                        <div className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1 backdrop-blur-sm">
-                                            <TrendingUp className="h-3.5 w-3.5 text-indigo-200" />
-                                            <span className="text-xs font-medium">Full Access</span>
+                                        <div className="flex items-center gap-1 sm:gap-2 rounded-lg bg-white/10 px-2 sm:px-3 py-1 backdrop-blur-sm shrink-0">
+                                            <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-indigo-200" />
+                                            <span className="text-[10px] sm:text-xs font-medium">Full Access</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-3">
+                            <div className="flex w-full sm:w-auto mt-2 sm:mt-0 px-2 sm:px-0">
                                 <motion.button
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => setShowProfileCard(true)}
-                                    className="flex items-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
+                                    className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/30 border border-white/20 shadow-lg"
                                 >
                                     <LayoutDashboard className="h-4 w-4" />
                                     Lihat Kartu
@@ -315,38 +318,40 @@ export default function AdminProfile() {
                 {/* Styled Tabs */}
                 <motion.div
                     variants={itemVariants}
-                    className="flex p-1 rounded-2xl border border-white/20 bg-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/50 shadow-lg w-full max-w-fit mx-auto"
+                    className="flex p-1 rounded-2xl border border-white/20 bg-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/50 shadow-lg w-full md:max-w-fit mx-auto overflow-x-auto hide-scrollbar"
                 >
-                    {tabs.map(tab => {
-                        const Icon = tab.icon;
-                        const isActive = activeTab === tab.key;
-                        return (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                onMouseEnter={() => setHoveredTab(tab.key)}
-                                onMouseLeave={() => setHoveredTab(null)}
-                                className={cn(
-                                    "relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300",
-                                    isActive
-                                        ? "text-white shadow-md bg-gradient-to-r from-blue-600 to-indigo-600"
-                                        : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
-                                )}
-                            >
-                                <Icon className={cn("h-4 w-4", isActive && "animate-pulse")} />
-                                <span className="relative z-10">{tab.label}</span>
-                                {!isActive && hoveredTab === tab.key && (
-                                    <motion.div
-                                        layoutId="hoverTab"
-                                        className="absolute inset-0 rounded-xl bg-neutral-200/50 dark:bg-neutral-800/50"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                    />
-                                )}
-                            </button>
-                        );
-                    })}
+                    <div className="flex w-max min-w-full sm:w-auto sm:min-w-0 justify-between sm:justify-start">
+                        {tabs.map(tab => {
+                            const Icon = tab.icon;
+                            const isActive = activeTab === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key)}
+                                    onMouseEnter={() => setHoveredTab(tab.key)}
+                                    onMouseLeave={() => setHoveredTab(null)}
+                                    className={cn(
+                                        "relative flex flex-1 sm:flex-none items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 rounded-xl text-[11px] sm:text-sm font-semibold transition-all duration-300",
+                                        isActive
+                                            ? "text-white shadow-md bg-gradient-to-r from-blue-600 to-indigo-600"
+                                            : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                                    )}
+                                >
+                                    <Icon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0", isActive && "animate-pulse")} />
+                                    <span className="relative z-10 whitespace-nowrap">{tab.label}</span>
+                                    {!isActive && hoveredTab === tab.key && (
+                                        <motion.div
+                                            layoutId="hoverTab"
+                                            className="absolute inset-0 rounded-xl bg-neutral-200/50 dark:bg-neutral-800/50"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                        />
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </motion.div>
 
                 {/* Content Area */}

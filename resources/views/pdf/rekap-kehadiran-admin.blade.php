@@ -75,6 +75,9 @@
                 @if($selectedCourse)
                     <br>Mata Kuliah: {{ $selectedCourse->nama }}
                 @endif
+                @if(isset($student))
+                    <br>Mahasiswa: {{ $student['nama'] }} ({{ $student['nim'] }}) @if(!empty($student['kelas'])) • Kelas {{ $student['kelas'] }} @endif
+                @endif
             </div>
         </div>
 

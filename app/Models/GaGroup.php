@@ -21,6 +21,7 @@ class GaGroup extends Model
     public function activityLogs(): HasMany { return $this->hasMany(GaActivityLog::class, 'group_id'); }
     public function submission(): HasOne { return $this->hasOne(GaSubmission::class, 'group_id'); }
     public function conflictReports(): HasMany { return $this->hasMany(GaConflictReport::class, 'group_id'); }
+    public function invitations(): HasMany { return $this->hasMany(GaInvitation::class, 'group_id'); }
 
     public function getMemberCountAttribute(): int { return $this->members()->count(); }
 

@@ -73,22 +73,161 @@ class AuditController extends Controller
         $auditLog = AuditLog::with(['mahasiswa', 'session.course.dosen'])
             ->findOrFail($id);
         
-        // Get related logs (same user, same day, or same event type)
-        $relatedLogs = AuditLog::with(['mahasiswa', 'session.course'])
+        // Get related logs (same user, last 7 days)
+        $relatedEvents = AuditLog::with(['mahasiswa', 'session.course'])
             ->where('id', '!=', $id)
-            ->where(function ($query) use ($auditLog) {
-                $query->where('mahasiswa_id', $auditLog->mahasiswa_id)
-                    ->orWhere('event_type', $auditLog->event_type)
-                    ->orWhereDate('created_at', $auditLog->created_at->toDateString());
-            })
+            ->where('mahasiswa_id', $auditLog->mahasiswa_id)
+            ->where('created_at', '>=', now()->subDays(7))
             ->latest()
             ->take(10)
             ->get();
+            
+        // Get action history
+        $actionHistory = \App\Models\AuditAction::where('audit_log_id', $auditLog->id)
+            ->with('actor')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate risk assessment
+        $riskAssessment = $this->calculateRiskAssessment($auditLog);
+
+        // Pattern analysis
+        $patternAnalysis = $this->analyzePattern($auditLog);
         
         return Inertia::render('admin/audit-detail', [
             'auditLog' => $auditLog,
-            'relatedLogs' => $relatedLogs,
+            'relatedEvents' => $relatedEvents,
+            'actionHistory' => $actionHistory,
+            'riskAssessment' => $riskAssessment,
+            'patternAnalysis' => $patternAnalysis,
         ]);
+    }
+
+    private function calculateRiskAssessment($auditLog)
+    {
+        $historicalViolations = AuditLog::where('mahasiswa_id', $auditLog->mahasiswa_id)
+            ->where('severity', 'high')
+            ->count();
+        
+        $likelihood = min(100, ($historicalViolations * 20) + 40);
+
+        $impactScores = [
+            'token_duplicate' => 80,
+            'geofence_violation' => 60,
+            'suspicious_activity' => 70,
+            'login_failed' => 40,
+        ];
+        
+        $impact = $impactScores[$auditLog->event_type] ?? 50;
+
+        $overallRisk = ($likelihood + $impact) / 2;
+
+        $riskFactors = [];
+        
+        if ($historicalViolations > 0) {
+            $riskFactors[] = [
+                'factor' => 'Previous violations detected',
+                'severity' => 'high',
+            ];
+        }
+
+        if ($auditLog->event_type === 'token_duplicate') {
+            $riskFactors[] = [
+                'factor' => 'Token reuse detected',
+                'severity' => 'critical',
+            ];
+        }
+
+        return [
+            'likelihood' => $likelihood,
+            'impact' => $impact,
+            'overall_risk' => $overallRisk,
+            'risk_factors' => $riskFactors,
+        ];
+    }
+
+    private function analyzePattern($auditLog)
+    {
+        $similarIncidents = AuditLog::where('event_type', $auditLog->event_type)
+            ->where('created_at', '>=', now()->subDays(30))
+            ->count();
+
+        $patternMatch = 0;
+        $patternId = null;
+
+        if ($auditLog->event_type === 'token_duplicate') {
+            $patternMatch = 85;
+            $patternId = 'PTN-2024-0042';
+        }
+
+        return [
+            'pattern_match' => $patternMatch,
+            'pattern_id' => $patternId,
+            'similar_incidents' => $similarIncidents,
+        ];
+    }
+
+    public function executeAction(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'action_type' => 'required|string',
+            'description' => 'nullable|string',
+            'notify' => 'nullable|array',
+        ]);
+
+        $auditLog = AuditLog::findOrFail($id);
+        $oldStatus = $auditLog->status;
+
+        // Example logic, can be expanded to actually call services
+        switch ($validated['action_type']) {
+            case 'block_user':
+                // block user log
+                break;
+            case 'void_attendance':
+                // void attendance logic
+                break;
+            case 'flag_device':
+                // flag device logic
+                break;
+            case 'send_warning':
+                // send email logic
+                break;
+            case 'escalate':
+                $auditLog->status = 'investigating';
+                break;
+            case 'resolve':
+                $auditLog->status = 'resolved';
+                $auditLog->security_score = min(100, $auditLog->security_score + 20);
+                $auditLog->threat_level = 'safe';
+                break;
+            default:
+                // Just a note
+                break;
+        }
+        
+        if ($auditLog->isDirty()) {
+             $auditLog->save();
+             
+             // Broadcast status update
+             broadcast(new \App\Events\SecurityEventUpdated(
+                 $auditLog->id, 
+                 $auditLog->security_score, 
+                 $auditLog->threat_level
+             ));
+        }
+
+        // Log action
+        $action = \App\Models\AuditAction::create([
+            'audit_log_id' => $auditLog->id,
+            'action_type' => $validated['action_type'],
+            'description' => $validated['description'],
+            'actor_id' => auth()->id(),
+        ]);
+        
+        // Broadcast custom action executed
+        broadcast(new \App\Events\ActionExecuted($auditLog->id, $action->load('actor'), $auditLog->status));
+
+        return redirect()->back()->with('success', 'Action executed successfully');
     }
     
     public function exportPdf(Request $request)

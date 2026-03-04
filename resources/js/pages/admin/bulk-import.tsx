@@ -70,6 +70,13 @@ export default function BulkImport({ logs, stats, templates }: Props) {
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const typeLabelMap: Record<string, string> = {
+        mahasiswa: 'Mahasiswa',
+        dosen: 'Dosen',
+        mata_kuliah: 'Mata Kuliah',
+        jadwal: 'Jadwal',
+    };
+
     const form = useForm({
         file: null as File | null,
         type: 'mahasiswa',
@@ -127,11 +134,17 @@ export default function BulkImport({ logs, stats, templates }: Props) {
     const getTypeIcon = (type: string) => {
         switch (type) {
             case 'mahasiswa': return <Users className="h-5 w-5" />;
+            case 'dosen': return <Users className="h-5 w-5" />;
             case 'mata_kuliah': return <BookOpen className="h-5 w-5" />;
             case 'jadwal': return <Calendar className="h-5 w-5" />;
             default: return <FileSpreadsheet className="h-5 w-5" />;
         }
     };
+
+    const importTypeOptions = Object.keys(activeTemplates).map((type) => ({
+        value: type,
+        label: typeLabelMap[type] || type.replace('_', ' '),
+    }));
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -446,14 +459,22 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                             <div className="p-8 space-y-6">
                                 <div>
                                     <label className="text-sm font-medium text-gray-300 mb-2 block">Tipe Data</label>
-                                    <select
-                                        value={selectedType}
-                                        onChange={(e) => setSelectedType(e.target.value)}
-                                        className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none"
-                                    >
-                                        <option value="mahasiswa">👤 Mahasiswa</option>
-                                        <option value="mata_kuliah">📚 Mata Kuliah</option>
-                                    </select>
+                                    <div className="relative">
+                                        <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-indigo-400">
+                                            {getTypeIcon(selectedType)}
+                                        </div>
+                                        <select
+                                            value={selectedType}
+                                            onChange={(e) => setSelectedType(e.target.value)}
+                                            className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pr-4 pl-11 text-sm text-white focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all outline-none"
+                                        >
+                                            {importTypeOptions.map((option) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div className="border-2 border-dashed border-white/10 rounded-2xl p-10 text-center hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all bg-black/20 group cursor-pointer relative">
@@ -572,19 +593,19 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                         whileHover={{ scale: 1.02, x: 5 }}
                                         className="p-4 border border-white/10 rounded-2xl bg-white/5 hover:bg-white/10 hover:border-indigo-500/30 transition-all group"
                                     >
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-3">
+                                        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="flex min-w-0 items-center gap-3">
                                                 <div className="p-2 rounded-lg bg-white/5 group-hover:bg-indigo-500/20 transition-colors">
                                                     {getTypeIcon(type)}
                                                 </div>
-                                                <span className="font-medium text-white capitalize">{type.replace('_', ' ')}</span>
+                                                <span className="truncate font-medium text-white capitalize">{typeLabelMap[type] || type.replace('_', ' ')}</span>
                                             </div>
-                                            <div className="flex gap-2">
+                                            <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:flex sm:gap-2">
                                                 <motion.button
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     onClick={() => window.location.href = `/admin/bulk-import/template/${type}`}
-                                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 hover:text-white text-xs font-bold transition-all border border-emerald-500/20"
+                                                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/20 px-3 py-2 text-xs font-bold text-emerald-300 transition-all hover:bg-emerald-500/30 hover:text-white"
                                                 >
                                                     <FileSpreadsheet className="h-3.5 w-3.5" />
                                                     CSV
@@ -593,14 +614,14 @@ export default function BulkImport({ logs, stats, templates }: Props) {
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     onClick={() => handleDownloadPdfTemplate(type)}
-                                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 hover:text-white text-xs font-bold transition-all border border-red-500/20"
+                                                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/20 bg-red-500/20 px-3 py-2 text-xs font-bold text-red-300 transition-all hover:bg-red-500/30 hover:text-white"
                                                 >
                                                     <Printer className="h-3.5 w-3.5" />
                                                     PDF
                                                 </motion.button>
                                             </div>
                                         </div>
-                                        <div className="text-xs pl-12 border-t border-white/5 pt-2 mt-2">
+                                        <div className="mt-2 border-t border-white/5 pt-2 pl-0 text-xs sm:pl-12">
                                             <p className="font-medium text-gray-500 mb-1">Kolom Wajib:</p>
                                             <p className="text-gray-400 font-mono text-[10px] leading-relaxed">{template.columns.join(', ')}</p>
                                         </div>

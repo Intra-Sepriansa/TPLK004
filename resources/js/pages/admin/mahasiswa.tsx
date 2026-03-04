@@ -767,48 +767,51 @@ export default function AdminMahasiswa({
                                 ))}
                             </select>
                         </div>
-                        <div className="flex items-end md:col-span-2 lg:col-span-1">
+                        <div className="md:col-span-2 lg:col-span-1" />
+                    </div>
+                    <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                             <motion.button
                                 onClick={handleFilter}
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-600 hover:to-purple-700"
+                                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 px-3 py-2.5 text-xs font-semibold whitespace-nowrap text-white shadow-lg shadow-indigo-500/20 transition-all hover:from-indigo-600 hover:to-purple-700 sm:gap-2 sm:px-5 sm:text-sm"
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
                             >
                                 <RefreshCw className="h-4 w-4" />
                                 Filter
                             </motion.button>
+                            <motion.button
+                                onClick={() =>
+                                    router.visit('/admin/mahasiswa/create')
+                                }
+                                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-3 py-2.5 text-xs font-semibold whitespace-nowrap text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-600 hover:to-teal-700 sm:gap-2 sm:px-5 sm:text-sm"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                            >
+                                <Plus className="h-4 w-4" />
+                                Tambah Mahasiswa
+                            </motion.button>
                         </div>
-                    </div>
-                    <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:flex-wrap">
-                        <motion.button
-                            onClick={() =>
-                                router.visit('/admin/mahasiswa/create')
-                            }
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:from-emerald-600 hover:to-teal-700 sm:w-auto sm:justify-start"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Plus className="h-4 w-4" />
-                            Tambah Mahasiswa
-                        </motion.button>
-                        <motion.a
-                            href="/mahasiswa/export.csv"
-                            className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-neutral-600 transition-all hover:bg-neutral-100 sm:w-auto sm:justify-start dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Download className="h-4 w-4" />
-                            Export CSV
-                        </motion.a>
-                        <motion.button
-                            onClick={handleExportPdf}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white/60 px-5 py-2.5 text-sm font-medium text-neutral-600 transition-all hover:bg-neutral-100 sm:w-auto sm:justify-start dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Download className="h-4 w-4" />
-                            Export PDF
-                        </motion.button>
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                            <motion.a
+                                href="/mahasiswa/export.csv"
+                                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-xs font-medium whitespace-nowrap text-neutral-600 transition-all hover:bg-neutral-100 sm:gap-2 sm:px-5 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                            >
+                                <Download className="h-4 w-4" />
+                                Export CSV
+                            </motion.a>
+                            <motion.button
+                                onClick={handleExportPdf}
+                                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white/60 px-3 py-2.5 text-xs font-medium whitespace-nowrap text-neutral-600 transition-all hover:bg-neutral-100 sm:gap-2 sm:px-5 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-300 dark:hover:bg-neutral-700/60"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                            >
+                                <Download className="h-4 w-4" />
+                                Export PDF
+                            </motion.button>
+                        </div>
                     </div>
                 </motion.div>
 

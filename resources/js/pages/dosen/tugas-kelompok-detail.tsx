@@ -211,18 +211,18 @@ export default function DosenTugasKelompokDetail({ assignment, groups, analytics
                 <motion.div variants={iV}>
                     <div className="w-full overflow-hidden rounded-2xl border border-white/10 bg-neutral-100/50 backdrop-blur-md dark:bg-neutral-900/50">
                         <div className="max-w-full overflow-x-auto p-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                        <div className="inline-flex min-w-max gap-1">
-                        {tabs.map(tab => {
-                            const TabIcon = tab.icon;
-                            return (
-                                <motion.button key={tab.key} layout onClick={() => setActiveTab(tab.key as any)}
-                                    className={cn('relative shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-colors', activeTab === tab.key ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300')}>
-                                    {activeTab === tab.key && <motion.div layoutId="activeTabGK" className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm" transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
-                                    <span className="relative z-10 flex items-center gap-2"><TabIcon className="h-4 w-4" />{tab.label}{tab.count !== null && <span className="bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs">{tab.count}</span>}</span>
-                                </motion.button>
-                            );
-                        })}
-                        </div>
+                            <div className="inline-flex min-w-max gap-1">
+                                {tabs.map(tab => {
+                                    const TabIcon = tab.icon;
+                                    return (
+                                        <motion.button key={tab.key} layout onClick={() => setActiveTab(tab.key as any)}
+                                            className={cn('relative shrink-0 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-colors', activeTab === tab.key ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300')}>
+                                            {activeTab === tab.key && <motion.div layoutId="activeTabGK" className="absolute inset-0 bg-white dark:bg-neutral-800 rounded-xl shadow-sm" transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }} />}
+                                            <span className="relative z-10 flex items-center gap-2"><TabIcon className="h-4 w-4" />{tab.label}{tab.count !== null && <span className="bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs">{tab.count}</span>}</span>
+                                        </motion.button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -274,12 +274,18 @@ export default function DosenTugasKelompokDetail({ assignment, groups, analytics
                                                 {g.has_submission ? (
                                                     g.grade !== null ? <span className="text-xs font-bold text-emerald-600">Nilai: {g.grade}</span> : <span className="text-xs text-blue-600">Sudah submit</span>
                                                 ) : <span className="text-xs text-slate-400">Belum submit</span>}
-                                                {g.has_submission && g.grade === null && (
-                                                    <Button size="sm" onClick={() => { gradeForm.setData('group_id', g.id); setGradeModal({ open: true, group: g }); }}
-                                                        className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-xs h-7">
-                                                        <Award className="mr-1 h-3 w-3" /> Nilai
+                                                <div className="flex items-center gap-1.5">
+                                                    <Button size="sm" onClick={() => router.visit(`/dosen/tugas-kelompok/${assignment.id}/group/${g.id}/progress`)}
+                                                        className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs h-7">
+                                                        <Eye className="mr-1 h-3 w-3" /> Progress
                                                     </Button>
-                                                )}
+                                                    {g.has_submission && g.grade === null && (
+                                                        <Button size="sm" onClick={() => { gradeForm.setData('group_id', g.id); setGradeModal({ open: true, group: g }); }}
+                                                            className="bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-xs h-7">
+                                                            <Award className="mr-1 h-3 w-3" /> Nilai
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </motion.div>
