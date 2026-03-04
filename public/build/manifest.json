@@ -1,0 +1,680 @@
+{
+  "node_modules/leaflet/dist/images/layers-2x.png": {
+    "file": "assets/layers-2x-Bpkbi35X.png",
+    "src": "node_modules/leaflet/dist/images/layers-2x.png"
+  },
+  "node_modules/leaflet/dist/images/layers.png": {
+    "file": "assets/layers-BWBAp2CZ.png",
+    "src": "node_modules/leaflet/dist/images/layers.png"
+  },
+  "node_modules/leaflet/dist/images/marker-icon-2x.png": {
+    "file": "assets/marker-icon-2x-_ZA0WGCc.png",
+    "src": "node_modules/leaflet/dist/images/marker-icon-2x.png"
+  },
+  "node_modules/leaflet/dist/images/marker-icon.png": {
+    "file": "assets/marker-icon-hN30_KVU.png",
+    "src": "node_modules/leaflet/dist/images/marker-icon.png"
+  },
+  "node_modules/leaflet/dist/images/marker-shadow.png": {
+    "file": "assets/marker-shadow-f7SaPCxT.png",
+    "src": "node_modules/leaflet/dist/images/marker-shadow.png"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BC0o230N.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.tsx": {
+    "file": "assets/app-ucQMJgGx.js",
+    "name": "app",
+    "src": "resources/js/app.tsx",
+    "isEntry": true,
+    "css": [
+      "assets/app-Cf9J8I3V.css",
+      "assets/app-BC0o230N.css"
+    ],
+    "assets": [
+      "assets/activity-icon-BIyNa52u.png",
+      "assets/hari-ChJ-m6zB.png",
+      "assets/minggu-nqeoR92Y.png",
+      "assets/sesi-aktif-icon-DS1C5nrF.png",
+      "assets/scan-icon-DLdO6IZ6.png",
+      "assets/hadir-icon-CitCvrWI.png",
+      "assets/analytics-R-vGl-TO.png",
+      "assets/total-mahasiswa-CMQSsqiB.png",
+      "assets/kehadiran-yNiss2VA.png",
+      "assets/terlambat-CdMlQ6vZ.png",
+      "assets/fraud-BTbvaHri.png",
+      "assets/audit-icon-DA79QtSZ.png",
+      "assets/total-event-sHUXvkGK.png",
+      "assets/token-duplikat-BajaO8f7.png",
+      "assets/pelanggaran-zona-DvoGW0aG.png",
+      "assets/expired-PCT12q12.png",
+      "assets/bulk-import-D14kuX2O.png",
+      "assets/berhasil-DO0ZJ4PB.png",
+      "assets/gagal-BWM8d0vq.png",
+      "assets/total-record-DpWYwRFT.png",
+      "assets/total-import-B06adGyK.png",
+      "assets/fraud-c8eueJOY.png",
+      "assets/total-CMdCBiAg.png",
+      "assets/pending-KPC3piyt.png",
+      "assets/overdue-wODIAI3h.png",
+      "assets/confirmed-CrwWLHUX.png",
+      "assets/help-DhfCZVEu.png",
+      "assets/jadwal-ClrhhwRK.png",
+      "assets/image-CMjU_KSV.png",
+      "assets/voting-D5yPSluo.png",
+      "assets/total-CFrmM5LX.png",
+      "assets/icon-coting-BFk7Uazw.png",
+      "assets/disetujui-B9rPjGeR.png",
+      "assets/ditolak-CWA3Dzq3.png",
+      "assets/kas-BLOCvV-0.png",
+      "assets/saldo-aktif-Bhj7q9YF.png",
+      "assets/pemasukan-DmTY99pB.png",
+      "assets/pengeluaran-BsqzKzOT.png",
+      "assets/status-BsqzLgZx.png",
+      "assets/total-icon-Ehu-1dOy.png",
+      "assets/kehadiran-DBgc5Vwb.png",
+      "assets/rata-rata-MiLqp-dn.png",
+      "assets/icon-leaderboard-D1tfqsRd.png",
+      "assets/perempuan-BoKjcxZ5.png",
+      "assets/laki-BFTVYaiC.png",
+      "assets/icon-mahasiswa-B3LhQmEo.png",
+      "assets/hadir-icon-DnLQD50F.png",
+      "assets/total-YrOMJ_7K.png",
+      "assets/fakultas-DVyfmYAq.png",
+      "assets/icon-notifikasi-Df6FFTxV.png",
+      "assets/total-CTmXIvqp.png",
+      "assets/unread-C8xE6oMA.png",
+      "assets/scheduled-Dw20eu40.png",
+      "assets/recipients-CJfZEgD8.png",
+      "assets/panduan-BGK3HcKg.png",
+      "assets/pengaturan-jOuW784R.png",
+      "assets/perangkat-icon-6ZL0e89X.png",
+      "assets/total-scan-BlHbTaYv.png",
+      "assets/os-B--J3tbd.png",
+      "assets/perangkat-DIVh7NDx.png",
+      "assets/lainnya-Drf8D8bY.png",
+      "assets/pending-BM_cZQr6.png",
+      "assets/qr-icon-v70tuuKc.png",
+      "assets/token-aktif-icon-CXFOZcbv.png",
+      "assets/rekapan-DoOgo_Fl.png",
+      "assets/total-scan-CnDqkqXl.png",
+      "assets/hadir-CCBu9syo.png",
+      "assets/terlambat-B-gZS9cU.png",
+      "assets/ditolak-K8vxtU46.png",
+      "assets/course-icon-CI-MwEu6.png",
+      "assets/edit-sesi-icon-yttjiZtG.png",
+      "assets/sesi-icon-DUFdswjW.png",
+      "assets/sesi-baru-icon-Du2rRruI.png",
+      "assets/informasi-tugas-9upUJ5is.png",
+      "assets/draft-ByUMUB0q.png",
+      "assets/total-tugas-CfyuubAS.png",
+      "assets/verifikasi-selfie-Bvl2NUXF.png",
+      "assets/total-selfie-L3K_bLj1.png",
+      "assets/disetujui-CuDqhJN7.png",
+      "assets/ditolak-DzaCYdVI.png",
+      "assets/icon-zona-BhzgOFf5.png",
+      "assets/pelanggaran-DXtuzSDi.png",
+      "assets/hari-BD94eYwL.png",
+      "assets/minggu-ICE9SN2X.png",
+      "assets/jarak-wH-wACs6.png",
+      "assets/dashboard-icon-BceA24nw.png",
+      "assets/terlambat-icon-B4uh4aa1.png",
+      "assets/selfie-icon-B85qexBN.png",
+      "assets/marker-icon-2x-_ZA0WGCc.png",
+      "assets/marker-icon-hN30_KVU.png",
+      "assets/marker-shadow-f7SaPCxT.png",
+      "assets/stat-total-course-DLilzyPC.png",
+      "assets/stat-total-students-C325hs9U.png",
+      "assets/stat-total-sessions-zATv8Gf7.png",
+      "assets/stat-attendance-rate-BxdIkypP.png",
+      "assets/course-icon-CBnp7N6R.png",
+      "assets/basis-data-BW6Le56D.png",
+      "assets/mata-kuliah-D6Bx9EJv.png",
+      "assets/terlambat-BknL-Z5n.png",
+      "assets/persetujuan-izin-DX6_KTL2.png",
+      "assets/sesi-absen-lx1jq86H.png",
+      "assets/rata-rata-WKRd1mkV.png",
+      "assets/template-C290DBSa.png",
+      "assets/template-aktif-CULDcTaq.png",
+      "assets/Auto-Activate-ouiaKWJ_.png",
+      "assets/rata2-durasi-D-1PFGhC.png",
+      "assets/pencapaian-MeW4wYrX.png",
+      "assets/akademik-PgYuuT6U.png",
+      "assets/uas-CWUS-pQb.png",
+      "assets/kelas-per-minggu-Ba1Ts_Uz.png",
+      "assets/kelas-hari-ini-CESZupET.png",
+      "assets/total-sks-DyuwuMd7.png",
+      "assets/uts-BTW-4QQN.png",
+      "assets/uas-CXm1LWIm.png",
+      "assets/streak-Bgv8u1hK.png",
+      "assets/riwayat-nD4irm1p.png",
+      "assets/approval-DFQjP7A4.png",
+      "assets/analytics-CnkJ4-qH.png",
+      "assets/rekapan_evaluasi-XbEXPWP-.png",
+      "assets/layers-BWBAp2CZ.png",
+      "assets/layers-2x-Bpkbi35X.png"
+    ]
+  },
+  "resources/js/assets/admin/activity-log/activity-icon.png": {
+    "file": "assets/activity-icon-BIyNa52u.png",
+    "src": "resources/js/assets/admin/activity-log/activity-icon.png"
+  },
+  "resources/js/assets/admin/activity-log/hari.png": {
+    "file": "assets/hari-ChJ-m6zB.png",
+    "src": "resources/js/assets/admin/activity-log/hari.png"
+  },
+  "resources/js/assets/admin/activity-log/minggu.png": {
+    "file": "assets/minggu-nqeoR92Y.png",
+    "src": "resources/js/assets/admin/activity-log/minggu.png"
+  },
+  "resources/js/assets/admin/activity-log/total-activity.png": {
+    "file": "assets/activity-icon-BIyNa52u.png",
+    "src": "resources/js/assets/admin/activity-log/activity-icon.png"
+  },
+  "resources/js/assets/admin/analytics/analytics.png": {
+    "file": "assets/analytics-R-vGl-TO.png",
+    "src": "resources/js/assets/admin/analytics/analytics.png"
+  },
+  "resources/js/assets/admin/analytics/fraud.png": {
+    "file": "assets/fraud-BTbvaHri.png",
+    "src": "resources/js/assets/admin/analytics/fraud.png"
+  },
+  "resources/js/assets/admin/analytics/kehadiran.png": {
+    "file": "assets/kehadiran-yNiss2VA.png",
+    "src": "resources/js/assets/admin/analytics/kehadiran.png"
+  },
+  "resources/js/assets/admin/analytics/terlambat.png": {
+    "file": "assets/terlambat-CdMlQ6vZ.png",
+    "src": "resources/js/assets/admin/analytics/terlambat.png"
+  },
+  "resources/js/assets/admin/analytics/total-mahasiswa.png": {
+    "file": "assets/total-mahasiswa-CMQSsqiB.png",
+    "src": "resources/js/assets/admin/analytics/total-mahasiswa.png"
+  },
+  "resources/js/assets/admin/audit/audit-icon.png": {
+    "file": "assets/audit-icon-DA79QtSZ.png",
+    "src": "resources/js/assets/admin/audit/audit-icon.png"
+  },
+  "resources/js/assets/admin/audit/expired.png": {
+    "file": "assets/expired-PCT12q12.png",
+    "src": "resources/js/assets/admin/audit/expired.png"
+  },
+  "resources/js/assets/admin/audit/pelanggaran-zona.png": {
+    "file": "assets/pelanggaran-zona-DvoGW0aG.png",
+    "src": "resources/js/assets/admin/audit/pelanggaran-zona.png"
+  },
+  "resources/js/assets/admin/audit/token-duplikat.png": {
+    "file": "assets/token-duplikat-BajaO8f7.png",
+    "src": "resources/js/assets/admin/audit/token-duplikat.png"
+  },
+  "resources/js/assets/admin/audit/total-event.png": {
+    "file": "assets/total-event-sHUXvkGK.png",
+    "src": "resources/js/assets/admin/audit/total-event.png"
+  },
+  "resources/js/assets/admin/bulk-import/berhasil.png": {
+    "file": "assets/berhasil-DO0ZJ4PB.png",
+    "src": "resources/js/assets/admin/bulk-import/berhasil.png"
+  },
+  "resources/js/assets/admin/bulk-import/bulk-import.png": {
+    "file": "assets/bulk-import-D14kuX2O.png",
+    "src": "resources/js/assets/admin/bulk-import/bulk-import.png"
+  },
+  "resources/js/assets/admin/bulk-import/gagal.png": {
+    "file": "assets/gagal-BWM8d0vq.png",
+    "src": "resources/js/assets/admin/bulk-import/gagal.png"
+  },
+  "resources/js/assets/admin/bulk-import/total-import.png": {
+    "file": "assets/total-import-B06adGyK.png",
+    "src": "resources/js/assets/admin/bulk-import/total-import.png"
+  },
+  "resources/js/assets/admin/bulk-import/total-record.png": {
+    "file": "assets/total-record-DpWYwRFT.png",
+    "src": "resources/js/assets/admin/bulk-import/total-record.png"
+  },
+  "resources/js/assets/admin/dashboard/dashboard-icon.png": {
+    "file": "assets/dashboard-icon-BceA24nw.png",
+    "src": "resources/js/assets/admin/dashboard/dashboard-icon.png"
+  },
+  "resources/js/assets/admin/dashboard/hadir-icon.png": {
+    "file": "assets/hadir-icon-DnLQD50F.png",
+    "src": "resources/js/assets/admin/dashboard/hadir-icon.png"
+  },
+  "resources/js/assets/admin/dashboard/selfie-icon.png": {
+    "file": "assets/selfie-icon-B85qexBN.png",
+    "src": "resources/js/assets/admin/dashboard/selfie-icon.png"
+  },
+  "resources/js/assets/admin/dashboard/terlambat-icon.png": {
+    "file": "assets/terlambat-icon-B4uh4aa1.png",
+    "src": "resources/js/assets/admin/dashboard/terlambat-icon.png"
+  },
+  "resources/js/assets/admin/dashboard/total-icon.png": {
+    "file": "assets/total-icon-Ehu-1dOy.png",
+    "src": "resources/js/assets/admin/dashboard/total-icon.png"
+  },
+  "resources/js/assets/admin/fraud-detection/confirmed.png": {
+    "file": "assets/confirmed-CrwWLHUX.png",
+    "src": "resources/js/assets/admin/fraud-detection/confirmed.png"
+  },
+  "resources/js/assets/admin/fraud-detection/critical.png": {
+    "file": "assets/overdue-wODIAI3h.png",
+    "src": "resources/js/assets/admin/fraud-detection/critical.png"
+  },
+  "resources/js/assets/admin/fraud-detection/fraud.png": {
+    "file": "assets/fraud-c8eueJOY.png",
+    "src": "resources/js/assets/admin/fraud-detection/fraud.png"
+  },
+  "resources/js/assets/admin/fraud-detection/pending.png": {
+    "file": "assets/pending-KPC3piyt.png",
+    "src": "resources/js/assets/admin/fraud-detection/pending.png"
+  },
+  "resources/js/assets/admin/fraud-detection/total.png": {
+    "file": "assets/total-CMdCBiAg.png",
+    "src": "resources/js/assets/admin/fraud-detection/total.png"
+  },
+  "resources/js/assets/admin/help-center/help.png": {
+    "file": "assets/help-DhfCZVEu.png",
+    "src": "resources/js/assets/admin/help-center/help.png"
+  },
+  "resources/js/assets/admin/informasi-tugas/draft.png": {
+    "file": "assets/draft-ByUMUB0q.png",
+    "src": "resources/js/assets/admin/informasi-tugas/draft.png"
+  },
+  "resources/js/assets/admin/informasi-tugas/informasi-tugas.png": {
+    "file": "assets/informasi-tugas-9upUJ5is.png",
+    "src": "resources/js/assets/admin/informasi-tugas/informasi-tugas.png"
+  },
+  "resources/js/assets/admin/informasi-tugas/overdue.png": {
+    "file": "assets/overdue-wODIAI3h.png",
+    "src": "resources/js/assets/admin/fraud-detection/critical.png"
+  },
+  "resources/js/assets/admin/informasi-tugas/publised.png": {
+    "file": "assets/berhasil-DO0ZJ4PB.png",
+    "src": "resources/js/assets/admin/bulk-import/berhasil.png"
+  },
+  "resources/js/assets/admin/informasi-tugas/total-tugas.png": {
+    "file": "assets/total-tugas-CfyuubAS.png",
+    "src": "resources/js/assets/admin/informasi-tugas/total-tugas.png"
+  },
+  "resources/js/assets/admin/jadwal/jadwal.png": {
+    "file": "assets/jadwal-ClrhhwRK.png",
+    "src": "resources/js/assets/admin/jadwal/jadwal.png"
+  },
+  "resources/js/assets/admin/kas/kas.png": {
+    "file": "assets/kas-BLOCvV-0.png",
+    "src": "resources/js/assets/admin/kas/kas.png"
+  },
+  "resources/js/assets/admin/kas/pemasukan.png": {
+    "file": "assets/pemasukan-DmTY99pB.png",
+    "src": "resources/js/assets/admin/kas/pemasukan.png"
+  },
+  "resources/js/assets/admin/kas/pengeluaran.png": {
+    "file": "assets/pengeluaran-BsqzKzOT.png",
+    "src": "resources/js/assets/admin/kas/pengeluaran.png"
+  },
+  "resources/js/assets/admin/kas/saldo-aktif.png": {
+    "file": "assets/saldo-aktif-Bhj7q9YF.png",
+    "src": "resources/js/assets/admin/kas/saldo-aktif.png"
+  },
+  "resources/js/assets/admin/kas/status.png": {
+    "file": "assets/status-BsqzLgZx.png",
+    "src": "resources/js/assets/admin/kas/status.png"
+  },
+  "resources/js/assets/admin/leaderboard/icon-leaderboard.png": {
+    "file": "assets/icon-leaderboard-D1tfqsRd.png",
+    "src": "resources/js/assets/admin/leaderboard/icon-leaderboard.png"
+  },
+  "resources/js/assets/admin/leaderboard/kehadiran.png": {
+    "file": "assets/kehadiran-DBgc5Vwb.png",
+    "src": "resources/js/assets/admin/leaderboard/kehadiran.png"
+  },
+  "resources/js/assets/admin/leaderboard/rata-rata.png": {
+    "file": "assets/rata-rata-MiLqp-dn.png",
+    "src": "resources/js/assets/admin/leaderboard/rata-rata.png"
+  },
+  "resources/js/assets/admin/leaderboard/total-mahasiswa.png": {
+    "file": "assets/total-icon-Ehu-1dOy.png",
+    "src": "resources/js/assets/admin/dashboard/total-icon.png"
+  },
+  "resources/js/assets/admin/live-monitor/hadir-icon.png": {
+    "file": "assets/hadir-icon-CitCvrWI.png",
+    "src": "resources/js/assets/admin/live-monitor/hadir-icon.png"
+  },
+  "resources/js/assets/admin/live-monitor/live-monitor-icon.png": {
+    "file": "assets/sesi-aktif-icon-DS1C5nrF.png",
+    "src": "resources/js/assets/admin/live-monitor/live-monitor-icon.png"
+  },
+  "resources/js/assets/admin/live-monitor/scan-icon.png": {
+    "file": "assets/scan-icon-DLdO6IZ6.png",
+    "src": "resources/js/assets/admin/live-monitor/scan-icon.png"
+  },
+  "resources/js/assets/admin/live-monitor/sesi-aktif-icon.png": {
+    "file": "assets/sesi-aktif-icon-DS1C5nrF.png",
+    "src": "resources/js/assets/admin/live-monitor/live-monitor-icon.png"
+  },
+  "resources/js/assets/admin/mahasiswa/fakultas.png": {
+    "file": "assets/fakultas-DVyfmYAq.png",
+    "src": "resources/js/assets/admin/mahasiswa/fakultas.png"
+  },
+  "resources/js/assets/admin/mahasiswa/icon-mahasiswa.png": {
+    "file": "assets/icon-mahasiswa-B3LhQmEo.png",
+    "src": "resources/js/assets/admin/mahasiswa/icon-mahasiswa.png"
+  },
+  "resources/js/assets/admin/mahasiswa/laki.png": {
+    "file": "assets/laki-BFTVYaiC.png",
+    "src": "resources/js/assets/admin/mahasiswa/laki.png"
+  },
+  "resources/js/assets/admin/mahasiswa/mahasiswa-aktif.png": {
+    "file": "assets/hadir-icon-DnLQD50F.png",
+    "src": "resources/js/assets/admin/dashboard/hadir-icon.png"
+  },
+  "resources/js/assets/admin/mahasiswa/perempuan.png": {
+    "file": "assets/perempuan-BoKjcxZ5.png",
+    "src": "resources/js/assets/admin/mahasiswa/perempuan.png"
+  },
+  "resources/js/assets/admin/mahasiswa/total-mahasiswa.png": {
+    "file": "assets/total-icon-Ehu-1dOy.png",
+    "src": "resources/js/assets/admin/dashboard/total-icon.png"
+  },
+  "resources/js/assets/admin/mahasiswa/total.png": {
+    "file": "assets/total-YrOMJ_7K.png",
+    "src": "resources/js/assets/admin/mahasiswa/total.png"
+  },
+  "resources/js/assets/admin/notification-center/icon-notifikasi.png": {
+    "file": "assets/icon-notifikasi-Df6FFTxV.png",
+    "src": "resources/js/assets/admin/notification-center/icon-notifikasi.png"
+  },
+  "resources/js/assets/admin/notification-center/recipients.png": {
+    "file": "assets/recipients-CJfZEgD8.png",
+    "src": "resources/js/assets/admin/notification-center/recipients.png"
+  },
+  "resources/js/assets/admin/notification-center/scheduled.png": {
+    "file": "assets/scheduled-Dw20eu40.png",
+    "src": "resources/js/assets/admin/notification-center/scheduled.png"
+  },
+  "resources/js/assets/admin/notification-center/total.png": {
+    "file": "assets/total-CTmXIvqp.png",
+    "src": "resources/js/assets/admin/notification-center/total.png"
+  },
+  "resources/js/assets/admin/notification-center/unread.png": {
+    "file": "assets/unread-C8xE6oMA.png",
+    "src": "resources/js/assets/admin/notification-center/unread.png"
+  },
+  "resources/js/assets/admin/panduan/panduan.png": {
+    "file": "assets/panduan-BGK3HcKg.png",
+    "src": "resources/js/assets/admin/panduan/panduan.png"
+  },
+  "resources/js/assets/admin/pengaturan/pengaturan.png": {
+    "file": "assets/pengaturan-jOuW784R.png",
+    "src": "resources/js/assets/admin/pengaturan/pengaturan.png"
+  },
+  "resources/js/assets/admin/perangkat/lainnya.png": {
+    "file": "assets/lainnya-Drf8D8bY.png",
+    "src": "resources/js/assets/admin/perangkat/lainnya.png"
+  },
+  "resources/js/assets/admin/perangkat/os.png": {
+    "file": "assets/os-B--J3tbd.png",
+    "src": "resources/js/assets/admin/perangkat/os.png"
+  },
+  "resources/js/assets/admin/perangkat/perangkat-icon.png": {
+    "file": "assets/perangkat-icon-6ZL0e89X.png",
+    "src": "resources/js/assets/admin/perangkat/perangkat-icon.png"
+  },
+  "resources/js/assets/admin/perangkat/perangkat.png": {
+    "file": "assets/perangkat-DIVh7NDx.png",
+    "src": "resources/js/assets/admin/perangkat/perangkat.png"
+  },
+  "resources/js/assets/admin/perangkat/total-scan.png": {
+    "file": "assets/total-scan-BlHbTaYv.png",
+    "src": "resources/js/assets/admin/perangkat/total-scan.png"
+  },
+  "resources/js/assets/admin/qr-builder/hari-icon.png": {
+    "file": "assets/pending-BM_cZQr6.png",
+    "src": "resources/js/assets/admin/qr-builder/hari-icon.png"
+  },
+  "resources/js/assets/admin/qr-builder/qr-icon.png": {
+    "file": "assets/qr-icon-v70tuuKc.png",
+    "src": "resources/js/assets/admin/qr-builder/qr-icon.png"
+  },
+  "resources/js/assets/admin/qr-builder/token-aktif-icon.png": {
+    "file": "assets/token-aktif-icon-CXFOZcbv.png",
+    "src": "resources/js/assets/admin/qr-builder/token-aktif-icon.png"
+  },
+  "resources/js/assets/admin/qr-builder/token-icon.png": {
+    "file": "assets/qr-icon-v70tuuKc.png",
+    "src": "resources/js/assets/admin/qr-builder/qr-icon.png"
+  },
+  "resources/js/assets/admin/rekap-kehadiran/ditolak.png": {
+    "file": "assets/ditolak-K8vxtU46.png",
+    "src": "resources/js/assets/admin/rekap-kehadiran/ditolak.png"
+  },
+  "resources/js/assets/admin/rekap-kehadiran/hadir.png": {
+    "file": "assets/hadir-CCBu9syo.png",
+    "src": "resources/js/assets/admin/rekap-kehadiran/hadir.png"
+  },
+  "resources/js/assets/admin/rekap-kehadiran/rekapan.png": {
+    "file": "assets/rekapan-DoOgo_Fl.png",
+    "src": "resources/js/assets/admin/rekap-kehadiran/rekapan.png"
+  },
+  "resources/js/assets/admin/rekap-kehadiran/terlambat.png": {
+    "file": "assets/terlambat-B-gZS9cU.png",
+    "src": "resources/js/assets/admin/rekap-kehadiran/terlambat.png"
+  },
+  "resources/js/assets/admin/rekap-kehadiran/total-scan.png": {
+    "file": "assets/total-scan-CnDqkqXl.png",
+    "src": "resources/js/assets/admin/rekap-kehadiran/total-scan.png"
+  },
+  "resources/js/assets/admin/sesi-absen/course-icon.png": {
+    "file": "assets/course-icon-CI-MwEu6.png",
+    "src": "resources/js/assets/admin/sesi-absen/course-icon.png"
+  },
+  "resources/js/assets/admin/sesi-absen/edit-sesi-icon.png": {
+    "file": "assets/edit-sesi-icon-yttjiZtG.png",
+    "src": "resources/js/assets/admin/sesi-absen/edit-sesi-icon.png"
+  },
+  "resources/js/assets/admin/sesi-absen/hari-icon.png": {
+    "file": "assets/pending-BM_cZQr6.png",
+    "src": "resources/js/assets/admin/qr-builder/hari-icon.png"
+  },
+  "resources/js/assets/admin/sesi-absen/rata-rata-icon.png": {
+    "file": "assets/total-icon-Ehu-1dOy.png",
+    "src": "resources/js/assets/admin/dashboard/total-icon.png"
+  },
+  "resources/js/assets/admin/sesi-absen/sesi-baru-icon.png": {
+    "file": "assets/sesi-baru-icon-Du2rRruI.png",
+    "src": "resources/js/assets/admin/sesi-absen/sesi-baru-icon.png"
+  },
+  "resources/js/assets/admin/sesi-absen/sesi-icon.png": {
+    "file": "assets/sesi-icon-DUFdswjW.png",
+    "src": "resources/js/assets/admin/sesi-absen/sesi-icon.png"
+  },
+  "resources/js/assets/admin/verifikasi-selfie/disetujui.png": {
+    "file": "assets/disetujui-CuDqhJN7.png",
+    "src": "resources/js/assets/admin/verifikasi-selfie/disetujui.png"
+  },
+  "resources/js/assets/admin/verifikasi-selfie/ditolak.png": {
+    "file": "assets/ditolak-DzaCYdVI.png",
+    "src": "resources/js/assets/admin/verifikasi-selfie/ditolak.png"
+  },
+  "resources/js/assets/admin/verifikasi-selfie/pending.png": {
+    "file": "assets/pending-BM_cZQr6.png",
+    "src": "resources/js/assets/admin/qr-builder/hari-icon.png"
+  },
+  "resources/js/assets/admin/verifikasi-selfie/total-selfie.png": {
+    "file": "assets/total-selfie-L3K_bLj1.png",
+    "src": "resources/js/assets/admin/verifikasi-selfie/total-selfie.png"
+  },
+  "resources/js/assets/admin/verifikasi-selfie/verifikasi-selfie.png": {
+    "file": "assets/verifikasi-selfie-Bvl2NUXF.png",
+    "src": "resources/js/assets/admin/verifikasi-selfie/verifikasi-selfie.png"
+  },
+  "resources/js/assets/admin/voting-kas/disetujui.png": {
+    "file": "assets/disetujui-B9rPjGeR.png",
+    "src": "resources/js/assets/admin/voting-kas/disetujui.png"
+  },
+  "resources/js/assets/admin/voting-kas/ditolak.png": {
+    "file": "assets/ditolak-CWA3Dzq3.png",
+    "src": "resources/js/assets/admin/voting-kas/ditolak.png"
+  },
+  "resources/js/assets/admin/voting-kas/icon-coting.png": {
+    "file": "assets/icon-coting-BFk7Uazw.png",
+    "src": "resources/js/assets/admin/voting-kas/icon-coting.png"
+  },
+  "resources/js/assets/admin/voting-kas/total.png": {
+    "file": "assets/total-CFrmM5LX.png",
+    "src": "resources/js/assets/admin/voting-kas/total.png"
+  },
+  "resources/js/assets/admin/voting-kas/voting.png": {
+    "file": "assets/voting-D5yPSluo.png",
+    "src": "resources/js/assets/admin/voting-kas/voting.png"
+  },
+  "resources/js/assets/admin/zona/hari.png": {
+    "file": "assets/hari-BD94eYwL.png",
+    "src": "resources/js/assets/admin/zona/hari.png"
+  },
+  "resources/js/assets/admin/zona/icon-zona.png": {
+    "file": "assets/icon-zona-BhzgOFf5.png",
+    "src": "resources/js/assets/admin/zona/icon-zona.png"
+  },
+  "resources/js/assets/admin/zona/jarak.png": {
+    "file": "assets/jarak-wH-wACs6.png",
+    "src": "resources/js/assets/admin/zona/jarak.png"
+  },
+  "resources/js/assets/admin/zona/minggu.png": {
+    "file": "assets/minggu-ICE9SN2X.png",
+    "src": "resources/js/assets/admin/zona/minggu.png"
+  },
+  "resources/js/assets/admin/zona/pelanggaran.png": {
+    "file": "assets/pelanggaran-DXtuzSDi.png",
+    "src": "resources/js/assets/admin/zona/pelanggaran.png"
+  },
+  "resources/js/assets/dosen/dashboard/course-icon.png": {
+    "file": "assets/course-icon-CBnp7N6R.png",
+    "src": "resources/js/assets/dosen/dashboard/course-icon.png"
+  },
+  "resources/js/assets/dosen/dashboard/dashboard-icon.png": {
+    "file": "assets/dashboard-icon-BceA24nw.png",
+    "src": "resources/js/assets/admin/dashboard/dashboard-icon.png"
+  },
+  "resources/js/assets/dosen/dashboard/stat-attendance-rate.png": {
+    "file": "assets/stat-attendance-rate-BxdIkypP.png",
+    "src": "resources/js/assets/dosen/dashboard/stat-attendance-rate.png"
+  },
+  "resources/js/assets/dosen/dashboard/stat-total-course.png": {
+    "file": "assets/stat-total-course-DLilzyPC.png",
+    "src": "resources/js/assets/dosen/dashboard/stat-total-course.png"
+  },
+  "resources/js/assets/dosen/dashboard/stat-total-sessions.png": {
+    "file": "assets/stat-total-sessions-zATv8Gf7.png",
+    "src": "resources/js/assets/dosen/dashboard/stat-total-sessions.png"
+  },
+  "resources/js/assets/dosen/dashboard/stat-total-students.png": {
+    "file": "assets/stat-total-students-C325hs9U.png",
+    "src": "resources/js/assets/dosen/dashboard/stat-total-students.png"
+  },
+  "resources/js/assets/dosen/izin-sakit/persetujuan-izin.png": {
+    "file": "assets/persetujuan-izin-DX6_KTL2.png",
+    "src": "resources/js/assets/dosen/izin-sakit/persetujuan-izin.png"
+  },
+  "resources/js/assets/dosen/matakuliah/mata-kuliah.png": {
+    "file": "assets/mata-kuliah-D6Bx9EJv.png",
+    "src": "resources/js/assets/dosen/matakuliah/mata-kuliah.png"
+  },
+  "resources/js/assets/dosen/sesi-absen/rata-rata.png": {
+    "file": "assets/rata-rata-WKRd1mkV.png",
+    "src": "resources/js/assets/dosen/sesi-absen/rata-rata.png"
+  },
+  "resources/js/assets/dosen/sesi-absen/sesi-absen.png": {
+    "file": "assets/sesi-absen-lx1jq86H.png",
+    "src": "resources/js/assets/dosen/sesi-absen/sesi-absen.png"
+  },
+  "resources/js/assets/dosen/sesi-absen/terlambat.png": {
+    "file": "assets/terlambat-BknL-Z5n.png",
+    "src": "resources/js/assets/dosen/sesi-absen/terlambat.png"
+  },
+  "resources/js/assets/dosen/template/Auto-Activate.png": {
+    "file": "assets/Auto-Activate-ouiaKWJ_.png",
+    "src": "resources/js/assets/dosen/template/Auto-Activate.png"
+  },
+  "resources/js/assets/dosen/template/rata2-durasi.png": {
+    "file": "assets/rata2-durasi-D-1PFGhC.png",
+    "src": "resources/js/assets/dosen/template/rata2-durasi.png"
+  },
+  "resources/js/assets/dosen/template/template-aktif.png": {
+    "file": "assets/template-aktif-CULDcTaq.png",
+    "src": "resources/js/assets/dosen/template/template-aktif.png"
+  },
+  "resources/js/assets/dosen/template/template.png": {
+    "file": "assets/template-C290DBSa.png",
+    "src": "resources/js/assets/dosen/template/template.png"
+  },
+  "resources/js/assets/dosen/template/total-template.png": {
+    "file": "assets/template-C290DBSa.png",
+    "src": "resources/js/assets/dosen/template/template.png"
+  },
+  "resources/js/assets/mahasiswa/akademik/akademik.png": {
+    "file": "assets/akademik-PgYuuT6U.png",
+    "src": "resources/js/assets/mahasiswa/akademik/akademik.png"
+  },
+  "resources/js/assets/mahasiswa/akademik/uas.png": {
+    "file": "assets/uas-CXm1LWIm.png",
+    "src": "resources/js/assets/mahasiswa/akademik/uas.png"
+  },
+  "resources/js/assets/mahasiswa/akademik/uts.png": {
+    "file": "assets/uts-BTW-4QQN.png",
+    "src": "resources/js/assets/mahasiswa/akademik/uts.png"
+  },
+  "resources/js/assets/mahasiswa/analitik/analytics.png": {
+    "file": "assets/analytics-CnkJ4-qH.png",
+    "src": "resources/js/assets/mahasiswa/analitik/analytics.png"
+  },
+  "resources/js/assets/mahasiswa/dashboard/streak.png": {
+    "file": "assets/streak-Bgv8u1hK.png",
+    "src": "resources/js/assets/mahasiswa/dashboard/streak.png"
+  },
+  "resources/js/assets/mahasiswa/jadwal-kuliah/kelas-hari-ini.png": {
+    "file": "assets/kelas-hari-ini-CESZupET.png",
+    "src": "resources/js/assets/mahasiswa/jadwal-kuliah/kelas-hari-ini.png"
+  },
+  "resources/js/assets/mahasiswa/jadwal-kuliah/kelas-per-minggu.png": {
+    "file": "assets/kelas-per-minggu-Ba1Ts_Uz.png",
+    "src": "resources/js/assets/mahasiswa/jadwal-kuliah/kelas-per-minggu.png"
+  },
+  "resources/js/assets/mahasiswa/jadwal-kuliah/total-sks.png": {
+    "file": "assets/total-sks-DyuwuMd7.png",
+    "src": "resources/js/assets/mahasiswa/jadwal-kuliah/total-sks.png"
+  },
+  "resources/js/assets/mahasiswa/jadwal-kuliah/uas.png": {
+    "file": "assets/uas-CWUS-pQb.png",
+    "src": "resources/js/assets/mahasiswa/jadwal-kuliah/uas.png"
+  },
+  "resources/js/assets/mahasiswa/pencapaian/pencapaian.png": {
+    "file": "assets/pencapaian-MeW4wYrX.png",
+    "src": "resources/js/assets/mahasiswa/pencapaian/pencapaian.png"
+  },
+  "resources/js/assets/mahasiswa/rekapan/rekapan&evaluasi.png": {
+    "file": "assets/rekapan_evaluasi-XbEXPWP-.png",
+    "src": "resources/js/assets/mahasiswa/rekapan/rekapan&evaluasi.png"
+  },
+  "resources/js/assets/mahasiswa/riwayat/riwayat.png": {
+    "file": "assets/riwayat-nD4irm1p.png",
+    "src": "resources/js/assets/mahasiswa/riwayat/riwayat.png"
+  },
+  "resources/js/assets/mahasiswa/voting/approval.png": {
+    "file": "assets/approval-DFQjP7A4.png",
+    "src": "resources/js/assets/mahasiswa/voting/approval.png"
+  },
+  "resources/js/assets/matkul/basis-data.png": {
+    "file": "assets/basis-data-BW6Le56D.png",
+    "src": "resources/js/assets/matkul/basis-data.png"
+  },
+  "resources/js/assets/matkul/image.png": {
+    "file": "assets/image-CMjU_KSV.png",
+    "src": "resources/js/assets/matkul/image.png"
+  }
+}
