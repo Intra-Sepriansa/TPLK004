@@ -5,8 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\GroupAssignment;
 use App\Models\GaGroup;
+use App\Models\GaGroupMember;
 use App\Models\GaSubmission;
 use App\Models\GaConflictReport;
+use App\Models\Mahasiswa;
+use App\Models\MahasiswaCourse;
+use App\Models\MataKuliah;
+use App\Models\Dosen;
 use App\Services\GroupFormationService;
 use App\Services\GroupGradingService;
 use App\Services\GroupAnalyticsService;
@@ -49,6 +54,10 @@ class TugasKelompokController extends Controller
                 'description' => $a->description,
                 'formation_mode' => $a->formation_mode,
                 'grading_mode' => $a->grading_mode,
+                'random_group_count' => $a->random_group_count,
+                'random_group_size' => $a->random_group_size,
+                'self_form_group_count' => $a->self_form_group_count,
+                'self_form_group_size' => $a->self_form_group_size,
                 'course' => ['id' => $a->course->id, 'nama' => $a->course->nama],
                 'dosen' => $a->dosen ? ['id' => $a->dosen->id, 'nama' => $a->dosen->nama] : null,
                 'min_members' => $a->min_members,
@@ -102,6 +111,40 @@ class TugasKelompokController extends Controller
     }
 
     /**
+     * New workflow page for connected Admin-Dosen-Mahasiswa flow.
+     */
+    public function createWorkflow()
+    {
+        $courses = MataKuliah::orderBy('nama')->get(['id', 'nama', 'dosen_id']);
+        $dosens = Dosen::orderBy('nama')->get(['id', 'nama']);
+
+        $courseStudents = [];
+        foreach ($courses as $course) {
+            $studentIds = $this->resolveEligibleStudentIdsForCourse($course);
+            $courseStudents[(string) $course->id] = Mahasiswa::whereIn('id', $studentIds)
+                ->orderBy('nama')
+                ->get(['id', 'nama', 'nim'])
+                ->map(fn ($s) => [
+                    'id' => $s->id,
+                    'nama' => $s->nama,
+                    'nim' => $s->nim,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return Inertia::render('admin/tugas-kelompok-workflow', [
+            'courses' => $courses->map(fn ($c) => [
+                'id' => $c->id,
+                'nama' => $c->nama,
+                'dosen_id' => $c->dosen_id,
+            ])->values(),
+            'dosens' => $dosens,
+            'courseStudents' => $courseStudents,
+        ]);
+    }
+
+    /**
      * Store new group assignment
      */
     public function store(Request $request)
@@ -122,17 +165,198 @@ class TugasKelompokController extends Controller
             'peer_evaluation_weight' => 'nullable|numeric|min:0|max:1',
             'contribution_threshold' => 'nullable|numeric|min:0|max:1',
             'allow_resubmission' => 'boolean',
+            'random_group_count' => 'nullable|integer|min:1|max:100',
+            'random_group_size' => 'nullable|integer|min:2|max:20',
+            'self_form_group_count' => 'nullable|integer|min:1|max:100',
+            'self_form_group_size' => 'nullable|integer|min:2|max:20',
+            'manual_groups' => 'nullable|array|min:1',
+            'manual_groups.*.name' => 'required_with:manual_groups|string|max:100',
+            'manual_groups.*.leader_id' => 'required_with:manual_groups|integer|exists:mahasiswa,id',
+            'manual_groups.*.member_ids' => 'required_with:manual_groups|array|min:1',
+            'manual_groups.*.member_ids.*' => 'integer|exists:mahasiswa,id',
         ]);
 
-        $assignment = GroupAssignment::create($validated);
+        $randomGroupCount = (int) ($validated['random_group_count'] ?? 0);
+        $randomGroupSize = (int) ($validated['random_group_size'] ?? 0);
+        $selfFormGroupCount = (int) ($validated['self_form_group_count'] ?? ($validated['random_group_count'] ?? 0));
+        $selfFormGroupSize = (int) ($validated['self_form_group_size'] ?? ($validated['random_group_size'] ?? 0));
+        $manualGroups = collect($validated['manual_groups'] ?? [])->values();
+
+        if ($validated['formation_mode'] === 'random' && $randomGroupSize > 0) {
+            if ($randomGroupSize < (int) $validated['min_members'] || $randomGroupSize > (int) $validated['max_members']) {
+                return back()->withErrors([
+                    'random_group_size' => "Anggota per kelompok random harus {$validated['min_members']} - {$validated['max_members']}.",
+                ])->withInput();
+            }
+        }
+
+        if ($validated['formation_mode'] === 'self-form') {
+            if ($selfFormGroupCount < 1) {
+                return back()->withErrors([
+                    'self_form_group_count' => 'Jumlah kelompok untuk mode self-form minimal 1.',
+                ])->withInput();
+            }
+
+            if ($selfFormGroupSize < 2 || $selfFormGroupSize > 20) {
+                return back()->withErrors([
+                    'self_form_group_size' => 'Anggota per kelompok self-form harus antara 2 - 20.',
+                ])->withInput();
+            }
+        }
+
+        $course = MataKuliah::findOrFail($validated['course_id']);
+        if ($course->dosen_id && (int) $validated['dosen_id'] !== (int) $course->dosen_id) {
+            return back()->withErrors([
+                'dosen_id' => 'Dosen harus sesuai dengan pengampu mata kuliah terpilih.',
+            ])->withInput();
+        }
+
+        $enrolledStudentIds = $this->resolveEligibleStudentIdsForCourse($course);
+
+        if ($validated['formation_mode'] === 'manual' && $manualGroups->isNotEmpty()) {
+            $usedStudentIds = collect();
+            $groupNames = collect();
+
+            foreach ($manualGroups as $index => $groupPayload) {
+                $groupName = trim((string) ($groupPayload['name'] ?? ''));
+                if ($groupNames->contains($groupName)) {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.name" => "Nama kelompok '{$groupName}' duplikat. Gunakan nama lain.",
+                    ])->withInput();
+                }
+                $groupNames->push($groupName);
+
+                $memberIds = collect($groupPayload['member_ids'] ?? [])
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->values();
+                $leaderId = (int) ($groupPayload['leader_id'] ?? 0);
+
+                if (!$memberIds->contains($leaderId)) {
+                    $memberIds->push($leaderId);
+                }
+
+                if ($memberIds->count() < (int) $validated['min_members'] || $memberIds->count() > (int) $validated['max_members']) {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.member_ids" => "Jumlah anggota untuk {$groupPayload['name']} harus antara {$validated['min_members']} - {$validated['max_members']}.",
+                    ])->withInput();
+                }
+
+                $outsideCourse = $memberIds->diff($enrolledStudentIds);
+                if ($outsideCourse->isNotEmpty()) {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.member_ids" => "Ada anggota {$groupPayload['name']} yang tidak terdaftar di mata kuliah terpilih.",
+                    ])->withInput();
+                }
+
+                $duplicatedAcrossGroups = $memberIds->intersect($usedStudentIds);
+                if ($duplicatedAcrossGroups->isNotEmpty()) {
+                    return back()->withErrors([
+                        "manual_groups.{$index}.member_ids" => "Ada anggota {$groupPayload['name']} yang sudah dipakai di kelompok lain.",
+                    ])->withInput();
+                }
+
+                $usedStudentIds = $usedStudentIds->merge($memberIds);
+            }
+        }
+
+        $assignment = GroupAssignment::create([
+            'dosen_id' => $validated['dosen_id'],
+            'course_id' => $validated['course_id'],
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'formation_mode' => $validated['formation_mode'],
+            'grading_mode' => $validated['grading_mode'],
+            'min_members' => (int) $validated['min_members'],
+            'max_members' => $validated['formation_mode'] === 'self-form' && $selfFormGroupSize > 0
+                ? $selfFormGroupSize
+                : (int) $validated['max_members'],
+            'formation_deadline' => $validated['formation_deadline'] ?? null,
+            'submission_deadline' => $validated['submission_deadline'] ?? null,
+            'max_file_size_mb' => (int) ($validated['max_file_size_mb'] ?? 25),
+            'features' => $validated['features'] ?? [],
+            'peer_evaluation_weight' => $validated['peer_evaluation_weight'] ?? null,
+            'contribution_threshold' => $validated['contribution_threshold'] ?? 0.30,
+            'allow_resubmission' => (bool) ($validated['allow_resubmission'] ?? false),
+            'random_group_count' => $validated['formation_mode'] === 'random' && $randomGroupCount > 0
+                ? $randomGroupCount
+                : null,
+            'random_group_size' => $validated['formation_mode'] === 'random' && $randomGroupSize > 0
+                ? $randomGroupSize
+                : null,
+            'self_form_group_count' => $validated['formation_mode'] === 'self-form' && $selfFormGroupCount > 0
+                ? $selfFormGroupCount
+                : null,
+            'self_form_group_size' => $validated['formation_mode'] === 'self-form' && $selfFormGroupSize > 0
+                ? $selfFormGroupSize
+                : null,
+        ]);
 
         if ($assignment->formation_mode === 'random') {
-            $this->formationService->formRandomGroups($assignment);
+            $this->formationService->formRandomGroupsAdvanced(
+                $assignment,
+                $randomGroupCount > 0 ? $randomGroupCount : null,
+                $randomGroupSize > 0 ? $randomGroupSize : null
+            );
+            $this->formationService->lockGroups($assignment);
+        }
+
+        if ($assignment->formation_mode === 'manual' && $manualGroups->isNotEmpty()) {
+            foreach ($manualGroups as $groupPayload) {
+                $memberIds = collect($groupPayload['member_ids'] ?? [])
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->values();
+
+                $leaderId = (int) $groupPayload['leader_id'];
+                if (!$memberIds->contains($leaderId)) {
+                    $memberIds->push($leaderId);
+                }
+
+                $group = GaGroup::create([
+                    'assignment_id' => $assignment->id,
+                    'name' => $groupPayload['name'],
+                    'leader_id' => $leaderId,
+                ]);
+
+                foreach ($memberIds as $memberId) {
+                    GaGroupMember::create([
+                        'group_id' => $group->id,
+                        'student_id' => $memberId,
+                        'is_leader' => $memberId === $leaderId,
+                    ]);
+                }
+            }
+
+            $assignment->groups()->update(['is_locked' => true]);
             $assignment->update(['is_locked' => true]);
+        }
+
+        if ($request->boolean('return_to_workflow')) {
+            return redirect()->route('admin.tugas-kelompok.workflow')
+                ->with('success', "Tugas kelompok berhasil dibuat (ID: {$assignment->id}).");
         }
 
         return redirect()->route('admin.tugas-kelompok.show', $assignment->id)
             ->with('success', 'Tugas kelompok berhasil dibuat!');
+    }
+
+    /**
+     * Resolve course students with fallback when course mapping data is still incomplete.
+     */
+    private function resolveEligibleStudentIdsForCourse(MataKuliah $course)
+    {
+        $enrolled = MahasiswaCourse::where('name', $course->nama)
+            ->pluck('mahasiswa_id')
+            ->unique()
+            ->values();
+
+        $totalMahasiswa = Mahasiswa::count();
+        if ($enrolled->count() <= 2 && $totalMahasiswa >= 10) {
+            return Mahasiswa::query()->pluck('id')->values();
+        }
+
+        return $enrolled;
     }
 
     /**
@@ -164,6 +388,10 @@ class TugasKelompokController extends Controller
                 'grading_mode' => $assignment->grading_mode,
                 'min_members' => $assignment->min_members,
                 'max_members' => $assignment->max_members,
+                'random_group_count' => $assignment->random_group_count,
+                'random_group_size' => $assignment->random_group_size,
+                'self_form_group_count' => $assignment->self_form_group_count,
+                'self_form_group_size' => $assignment->self_form_group_size,
                 'formation_deadline_display' => $assignment->formation_deadline?->format('d M Y H:i'),
                 'submission_deadline_display' => $assignment->submission_deadline?->format('d M Y H:i'),
                 'is_locked' => $assignment->is_locked,

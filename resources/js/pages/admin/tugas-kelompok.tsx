@@ -98,7 +98,7 @@ export default function AdminTugasKelompok({ assignments, stats, courses, filter
                             <p className="mt-1 text-purple-100 text-sm">Kelola semua tugas kelompok mahasiswa</p>
                         </div>
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                            <Button onClick={() => router.visit('/admin/tugas-kelompok/create')}
+                            <Button onClick={() => router.visit('/admin/tugas-kelompok/workflow')}
                                 className="bg-white/20 backdrop-blur-md text-white border border-white/30 hover:bg-white/30 rounded-xl">
                                 <Plus className="mr-2 h-4 w-4" /> Buat Tugas Kelompok
                             </Button>
@@ -163,8 +163,20 @@ export default function AdminTugasKelompok({ assignments, stats, courses, filter
                     ) : assignments.map(a => {
                         const progress = a.total_groups > 0 ? Math.round((a.submitted_groups / a.total_groups) * 100) : 0;
                         return (
-                            <motion.div key={a.id} whileHover={{ y: -2 }} className="rounded-3xl border border-white/20 bg-white/40 p-5 shadow-xl backdrop-blur-xl cursor-pointer dark:border-white/5 dark:bg-neutral-900/40"
-                                onClick={() => router.visit(`/admin/tugas-kelompok/${a.id}`)}>
+                            <motion.div
+                                key={a.id}
+                                whileHover={{ y: -2 }}
+                                className="w-full cursor-pointer rounded-3xl border border-white/20 bg-white/40 p-5 text-left shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-neutral-900/40"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => router.visit(`/admin/tugas-kelompok/${a.id}`)}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        router.visit(`/admin/tugas-kelompok/${a.id}`);
+                                    }
+                                }}
+                            >
                                 <div className="flex items-center gap-4">
                                     <div className="relative flex h-12 w-12 shrink-0 items-center justify-center">
                                         <img
@@ -192,7 +204,18 @@ export default function AdminTugasKelompok({ assignments, stats, courses, filter
                                             </div>
                                             <p className="text-[10px] text-slate-500 mt-0.5">{progress}% submit</p>
                                         </div>
-                                        <ChevronRight className="h-5 w-5 text-slate-300" />
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="rounded-lg"
+                                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                                e.stopPropagation();
+                                                router.visit(`/admin/tugas-kelompok/${a.id}`);
+                                            }}
+                                        >
+                                            Lihat Detail
+                                            <ChevronRight className="ml-2 h-4 w-4 text-slate-400" />
+                                        </Button>
                                     </div>
                                 </div>
                             </motion.div>

@@ -7,7 +7,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     assetsInclude: ['**/*.glb'],
     server: {
-        host: '127.0.0.1',
+        host: 'localhost',
         port: 5173,
         strictPort: true,
         cors: {
@@ -15,7 +15,7 @@ export default defineConfig({
             credentials: true,
         },
         hmr: {
-            host: '127.0.0.1',
+            host: 'localhost',
             port: 5173,
             clientPort: 5173,
         },

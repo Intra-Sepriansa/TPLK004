@@ -252,6 +252,7 @@ Route::middleware(['auth:web,dosen'])->group(function () {
     // Tugas Kelompok (Group Assignments)
     Route::get('admin/tugas-kelompok', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'index'])->name('admin.tugas-kelompok');
     Route::get('admin/tugas-kelompok/create', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'create'])->name('admin.tugas-kelompok.create');
+    Route::get('admin/tugas-kelompok/workflow', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'createWorkflow'])->name('admin.tugas-kelompok.workflow');
     Route::post('admin/tugas-kelompok', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'store'])->name('admin.tugas-kelompok.store');
     Route::get('admin/tugas-kelompok/{id}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'show'])->name('admin.tugas-kelompok.show');
     Route::delete('admin/tugas-kelompok/{id}', [\App\Http\Controllers\Admin\TugasKelompokController::class, 'destroy'])->name('admin.tugas-kelompok.destroy');
@@ -300,6 +301,10 @@ Route::middleware(['auth:mahasiswa'])->group(function () {
     Route::get('user/akademik/tugas-kelompok/{id}', [\App\Http\Controllers\User\TugasKelompokController::class, 'show'])->name('user.tugas-kelompok.show');
     Route::post('user/akademik/tugas-kelompok/{id}/create-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'createGroup'])->name('user.tugas-kelompok.create-group');
     Route::post('user/akademik/tugas-kelompok/{id}/join-group/{groupId}', [\App\Http\Controllers\User\TugasKelompokController::class, 'joinGroup'])->name('user.tugas-kelompok.join-group');
+    Route::post('user/akademik/tugas-kelompok/{id}/join-slot/{slotNumber}', [\App\Http\Controllers\User\TugasKelompokController::class, 'joinGroupSlot'])->name('user.tugas-kelompok.join-slot');
+    Route::post('user/akademik/tugas-kelompok/{id}/leader/add-member', [\App\Http\Controllers\User\TugasKelompokController::class, 'leaderAddMember'])->name('user.tugas-kelompok.leader.add-member');
+    Route::post('user/akademik/tugas-kelompok/{id}/leader/remove-member', [\App\Http\Controllers\User\TugasKelompokController::class, 'leaderRemoveMember'])->name('user.tugas-kelompok.leader.remove-member');
+    Route::post('user/akademik/tugas-kelompok/{id}/leader/set-leader', [\App\Http\Controllers\User\TugasKelompokController::class, 'leaderSetLeader'])->name('user.tugas-kelompok.leader.set-leader');
     Route::post('user/akademik/tugas-kelompok/{id}/leave-group', [\App\Http\Controllers\User\TugasKelompokController::class, 'leaveGroup'])->name('user.tugas-kelompok.leave-group');
     Route::post('user/akademik/tugas-kelompok/{id}/message', [\App\Http\Controllers\User\TugasKelompokController::class, 'sendMessage'])->name('user.tugas-kelompok.message');
     Route::post('user/akademik/tugas-kelompok/{id}/upload', [\App\Http\Controllers\User\TugasKelompokController::class, 'uploadFile'])->name('user.tugas-kelompok.upload');

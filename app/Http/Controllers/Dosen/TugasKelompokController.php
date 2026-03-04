@@ -52,6 +52,10 @@ class TugasKelompokController extends Controller
                 'description' => $a->description,
                 'formation_mode' => $a->formation_mode,
                 'grading_mode' => $a->grading_mode,
+                'random_group_count' => $a->random_group_count,
+                'random_group_size' => $a->random_group_size,
+                'self_form_group_count' => $a->self_form_group_count,
+                'self_form_group_size' => $a->self_form_group_size,
                 'course' => ['id' => $a->course->id, 'nama' => $a->course->nama],
                 'min_members' => $a->min_members,
                 'max_members' => $a->max_members,
@@ -136,16 +140,78 @@ class TugasKelompokController extends Controller
             'peer_evaluation_weight' => 'nullable|numeric|min:0|max:1',
             'contribution_threshold' => 'nullable|numeric|min:0|max:1',
             'allow_resubmission' => 'boolean',
+            'random_group_count' => 'nullable|integer|min:1|max:100',
+            'random_group_size' => 'nullable|integer|min:2|max:20',
+            'self_form_group_count' => 'nullable|integer|min:1|max:100',
+            'self_form_group_size' => 'nullable|integer|min:2|max:20',
         ]);
 
+        $randomGroupCount = (int) ($validated['random_group_count'] ?? 0);
+        $randomGroupSize = (int) ($validated['random_group_size'] ?? 0);
+        $selfFormGroupCount = (int) ($validated['self_form_group_count'] ?? 0);
+        $selfFormGroupSize = (int) ($validated['self_form_group_size'] ?? 0);
+
+        if ($validated['formation_mode'] === 'random' && $randomGroupSize > 0) {
+            if ($randomGroupSize < (int) $validated['min_members'] || $randomGroupSize > (int) $validated['max_members']) {
+                return back()->withErrors([
+                    'random_group_size' => "Anggota per kelompok random harus {$validated['min_members']} - {$validated['max_members']}.",
+                ])->withInput();
+            }
+        }
+
+        if ($validated['formation_mode'] === 'self-form') {
+            if ($selfFormGroupCount < 1) {
+                return back()->withErrors([
+                    'self_form_group_count' => 'Jumlah kelompok self-form minimal 1.',
+                ])->withInput();
+            }
+
+            if ($selfFormGroupSize < 2 || $selfFormGroupSize > 20) {
+                return back()->withErrors([
+                    'self_form_group_size' => 'Anggota per kelompok self-form harus antara 2 - 20.',
+                ])->withInput();
+            }
+        }
+
         $assignment = GroupAssignment::create([
-            ...$validated,
             'dosen_id' => $dosen->id,
+            'course_id' => (int) $validated['course_id'],
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'formation_mode' => $validated['formation_mode'],
+            'grading_mode' => $validated['grading_mode'],
+            'min_members' => (int) $validated['min_members'],
+            'max_members' => $validated['formation_mode'] === 'self-form' && $selfFormGroupSize > 0
+                ? $selfFormGroupSize
+                : (int) $validated['max_members'],
+            'formation_deadline' => $validated['formation_deadline'] ?? null,
+            'submission_deadline' => $validated['submission_deadline'] ?? null,
+            'max_file_size_mb' => (int) ($validated['max_file_size_mb'] ?? 25),
+            'features' => $validated['features'] ?? [],
+            'peer_evaluation_weight' => $validated['peer_evaluation_weight'] ?? null,
+            'contribution_threshold' => $validated['contribution_threshold'] ?? 0.30,
+            'allow_resubmission' => (bool) ($validated['allow_resubmission'] ?? false),
+            'random_group_count' => $validated['formation_mode'] === 'random' && $randomGroupCount > 0
+                ? $randomGroupCount
+                : null,
+            'random_group_size' => $validated['formation_mode'] === 'random' && $randomGroupSize > 0
+                ? $randomGroupSize
+                : null,
+            'self_form_group_count' => $validated['formation_mode'] === 'self-form' && $selfFormGroupCount > 0
+                ? $selfFormGroupCount
+                : null,
+            'self_form_group_size' => $validated['formation_mode'] === 'self-form' && $selfFormGroupSize > 0
+                ? $selfFormGroupSize
+                : null,
         ]);
 
         // If formation mode is random, auto-create groups
         if ($assignment->formation_mode === 'random') {
-            $this->formationService->formRandomGroups($assignment);
+            $this->formationService->formRandomGroupsAdvanced(
+                $assignment,
+                $randomGroupCount > 0 ? $randomGroupCount : null,
+                $randomGroupSize > 0 ? $randomGroupSize : null
+            );
             $assignment->update(['is_locked' => true]);
         }
 
@@ -184,6 +250,10 @@ class TugasKelompokController extends Controller
                 'grading_mode' => $assignment->grading_mode,
                 'min_members' => $assignment->min_members,
                 'max_members' => $assignment->max_members,
+                'random_group_count' => $assignment->random_group_count,
+                'random_group_size' => $assignment->random_group_size,
+                'self_form_group_count' => $assignment->self_form_group_count,
+                'self_form_group_size' => $assignment->self_form_group_size,
                 'formation_deadline' => $assignment->formation_deadline?->toISOString(),
                 'formation_deadline_display' => $assignment->formation_deadline?->format('d M Y H:i'),
                 'submission_deadline' => $assignment->submission_deadline?->toISOString(),

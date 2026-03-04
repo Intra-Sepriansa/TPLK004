@@ -43,7 +43,12 @@ export default function AdminTugasKelompokCreate({ courses, dosens }: Props) {
         min_members: 2, max_members: 5,
         formation_deadline: '', submission_deadline: '',
         max_file_size_mb: 25, peer_evaluation_weight: 0.30, contribution_threshold: 0.30,
-        allow_resubmission: false, features: [] as string[],
+        allow_resubmission: false,
+        random_group_count: 2,
+        random_group_size: 4,
+        self_form_group_count: 2,
+        self_form_group_size: 4,
+        features: [] as string[],
     });
 
     const handleSubmit = () => post('/admin/tugas-kelompok', { preserveScroll: true });
@@ -158,6 +163,60 @@ export default function AdminTugasKelompokCreate({ courses, dosens }: Props) {
                                 <div><Label>Min. Anggota per Kelompok</Label><Input type="number" min={2} max={20} value={data.min_members} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('min_members', parseInt(e.target.value))} className="mt-1" /></div>
                                 <div><Label>Maks. Anggota per Kelompok</Label><Input type="number" min={2} max={20} value={data.max_members} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('max_members', parseInt(e.target.value))} className="mt-1" /></div>
                             </div>
+
+                            {data.formation_mode === 'random' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Jumlah Kelompok Random</Label>
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            max={100}
+                                            value={data.random_group_count}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('random_group_count', parseInt(e.target.value || '1'))}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>Anggota per Kelompok Random</Label>
+                                        <Input
+                                            type="number"
+                                            min={data.min_members}
+                                            max={data.max_members}
+                                            value={data.random_group_size}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('random_group_size', parseInt(e.target.value || String(data.max_members)))}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {data.formation_mode === 'self-form' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Jumlah Slot Kelompok</Label>
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            max={100}
+                                            value={data.self_form_group_count}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('self_form_group_count', parseInt(e.target.value || '1'))}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>Anggota per Slot</Label>
+                                        <Input
+                                            type="number"
+                                            min={data.min_members}
+                                            max={data.max_members}
+                                            value={data.self_form_group_size}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setData('self_form_group_size', parseInt(e.target.value || String(data.max_members)))}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
                     )}
 
@@ -203,6 +262,18 @@ export default function AdminTugasKelompokCreate({ courses, dosens }: Props) {
                                     <div><span className="text-slate-500">Mode Kelompok:</span> <span className="font-medium text-slate-900 dark:text-white capitalize">{data.formation_mode}</span></div>
                                     <div><span className="text-slate-500">Mode Penilaian:</span> <span className="font-medium text-slate-900 dark:text-white capitalize">{data.grading_mode}</span></div>
                                     <div><span className="text-slate-500">Anggota:</span> <span className="font-medium text-slate-900 dark:text-white">{data.min_members}-{data.max_members}</span></div>
+                                    {data.formation_mode === 'random' && (
+                                        <>
+                                            <div><span className="text-slate-500">Jumlah Kelompok Random:</span> <span className="font-medium text-slate-900 dark:text-white">{data.random_group_count}</span></div>
+                                            <div><span className="text-slate-500">Anggota Random:</span> <span className="font-medium text-slate-900 dark:text-white">{data.random_group_size}</span></div>
+                                        </>
+                                    )}
+                                    {data.formation_mode === 'self-form' && (
+                                        <>
+                                            <div><span className="text-slate-500">Jumlah Slot:</span> <span className="font-medium text-slate-900 dark:text-white">{data.self_form_group_count}</span></div>
+                                            <div><span className="text-slate-500">Anggota per Slot:</span> <span className="font-medium text-slate-900 dark:text-white">{data.self_form_group_size}</span></div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

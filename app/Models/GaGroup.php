@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GaGroup extends Model
 {
-    protected $fillable = ['assignment_id', 'name', 'leader_id', 'is_locked'];
-    protected $casts = ['is_locked' => 'boolean'];
+    protected $fillable = ['assignment_id', 'name', 'leader_id', 'slot_number', 'is_locked'];
+    protected $casts = ['slot_number' => 'integer', 'is_locked' => 'boolean'];
 
     public function assignment(): BelongsTo { return $this->belongsTo(GroupAssignment::class, 'assignment_id'); }
     public function leader(): BelongsTo { return $this->belongsTo(Mahasiswa::class, 'leader_id'); }

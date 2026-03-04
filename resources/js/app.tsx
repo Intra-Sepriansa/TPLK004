@@ -2,8 +2,7 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';
 import axios from 'axios';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { StrictMode } from 'react';
+import { StrictMode, type ComponentType } from 'react';
 import { createRoot } from 'react-dom/client';
 import { initializeTheme } from './hooks/useTheme';
 
@@ -23,6 +22,11 @@ if (csrfMeta) {
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfMeta;
 }
 
+const pages = import.meta.glob('./pages/**/*.tsx', { eager: true }) as Record<
+    string,
+    { default: ComponentType }
+>;
+
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -37,11 +41,15 @@ axios.interceptors.response.use(
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) =>
-        resolvePageComponent(
-            `./pages/${name}.tsx`,
-            import.meta.glob('./pages/**/*.tsx'),
-        ),
+    resolve: (name) => {
+        const page = pages[`./pages/${name}.tsx`];
+
+        if (!page) {
+            throw new Error(`Inertia page not found: ${name}`);
+        }
+
+        return page;
+    },
     setup({ el, App, props }) {
         const root = createRoot(el);
 

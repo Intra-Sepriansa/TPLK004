@@ -10,6 +10,7 @@ use App\Models\GaSubmission;
 use App\Models\GaPeerEvaluation;
 use App\Models\GaConflictReport;
 use App\Models\Mahasiswa;
+use App\Models\MahasiswaCourse;
 use App\Services\GroupFormationService;
 use App\Services\GroupCollaborationService;
 use App\Services\GroupAnalyticsService;
@@ -92,21 +93,76 @@ class TugasKelompokController extends Controller
             ->with(['members.student', 'tasks.assignees', 'files.uploader', 'submission', 'conflictReports'])
             ->first();
 
+        $selfFormGroupCount = (int) ($assignment->self_form_group_count ?? 0);
+        $selfFormGroupSize = (int) ($assignment->self_form_group_size ?? $assignment->max_members);
+
         // Get available groups to join (self-form mode, not locked)
         $availableGroups = collect();
         if (!$myGroup && $assignment->formation_mode === 'self-form' && !$assignment->is_locked) {
-            $availableGroups = GaGroup::where('assignment_id', $assignment->id)
-                ->withCount('members')
-                ->having('members_count', '<', $assignment->max_members)
-                ->with('members.student')
-                ->get()
-                ->map(fn ($g) => [
-                    'id' => $g->id,
-                    'name' => $g->name,
-                    'member_count' => $g->members_count,
-                    'max_members' => $assignment->max_members,
-                    'leader' => $g->members->first(fn ($m) => $m->is_leader)?->student ?? ['nama' => 'Unknown'],
-                ]);
+            if ($selfFormGroupCount > 0) {
+                $groupsBySlot = GaGroup::where('assignment_id', $assignment->id)
+                    ->withCount('members')
+                    ->with('members.student')
+                    ->get()
+                    ->filter(fn ($group) => (int) $group->slot_number > 0)
+                    ->keyBy(fn ($group) => (int) $group->slot_number);
+
+                for ($slot = 1; $slot <= $selfFormGroupCount; $slot++) {
+                    /** @var GaGroup|null $group */
+                    $group = $groupsBySlot->get($slot);
+                    $memberCount = (int) ($group?->members_count ?? 0);
+                    if ($memberCount >= $selfFormGroupSize) {
+                        continue;
+                    }
+
+                    $availableGroups->push([
+                        'id' => $group?->id,
+                        'slot_number' => $slot,
+                        'name' => $group?->name ?? "Kelompok {$slot}",
+                        'member_count' => $memberCount,
+                        'max_members' => $selfFormGroupSize,
+                        'leader' => $group
+                            ? ($group->members->first(fn ($m) => $m->is_leader)?->student ?? ['nama' => '-'])
+                            : ['nama' => '-'],
+                        'is_open' => true,
+                    ]);
+                }
+            } else {
+                $availableGroups = GaGroup::where('assignment_id', $assignment->id)
+                    ->withCount('members')
+                    ->having('members_count', '<', $assignment->max_members)
+                    ->with('members.student')
+                    ->get()
+                    ->map(fn ($g) => [
+                        'id' => $g->id,
+                        'slot_number' => $g->slot_number,
+                        'name' => $g->name,
+                        'member_count' => $g->members_count,
+                        'max_members' => $assignment->max_members,
+                        'leader' => $g->members->first(fn ($m) => $m->is_leader)?->student ?? ['nama' => 'Unknown'],
+                        'is_open' => true,
+                    ]);
+            }
+        }
+
+        $leaderTools = [
+            'can_manage' => false,
+            'unassigned_students' => [],
+        ];
+
+        if ($myGroup && (int) $myGroup->leader_id === (int) $mahasiswa->id && $assignment->formation_mode === 'self-form' && !$assignment->is_locked) {
+            $leaderTools['can_manage'] = true;
+            $leaderTools['unassigned_students'] = $this->formationService
+                ->getUnassignedStudents($assignment)
+                ->where('id', '!=', $mahasiswa->id)
+                ->sortBy('nama')
+                ->values()
+                ->map(fn ($student) => [
+                    'id' => $student->id,
+                    'nama' => $student->nama,
+                    'nim' => $student->nim,
+                ])
+                ->all();
         }
 
         // Get messages if in a group
@@ -151,6 +207,8 @@ class TugasKelompokController extends Controller
                 'grading_mode' => $assignment->grading_mode,
                 'min_members' => $assignment->min_members,
                 'max_members' => $assignment->max_members,
+                'self_form_group_count' => $assignment->self_form_group_count,
+                'self_form_group_size' => $assignment->self_form_group_size,
                 'formation_deadline' => $assignment->formation_deadline?->toISOString(),
                 'formation_deadline_display' => $assignment->formation_deadline?->format('d M Y H:i'),
                 'submission_deadline' => $assignment->submission_deadline?->toISOString(),
@@ -164,6 +222,7 @@ class TugasKelompokController extends Controller
                 'id' => $myGroup->id,
                 'name' => $myGroup->name,
                 'leader_id' => $myGroup->leader_id,
+                'slot_number' => $myGroup->slot_number,
                 'members' => $myGroup->members->map(fn ($m) => [
                     'id' => $m->student_id,
                     'nama' => $m->student->nama ?? 'Unknown',
@@ -211,6 +270,12 @@ class TugasKelompokController extends Controller
                 'reactions' => $m->reactions->groupBy('emoji')->map(fn ($r) => ['count' => $r->count(), 'users' => $r->pluck('user.nama')]),
             ])->values(),
             'availableGroups' => $availableGroups,
+            'selfFormConfig' => [
+                'enabled' => $assignment->formation_mode === 'self-form',
+                'group_count' => $selfFormGroupCount,
+                'group_size' => $selfFormGroupSize,
+            ],
+            'leaderTools' => $leaderTools,
             'peerEvalCompleted' => $peerEvalCompleted,
             'myGrade' => $myGrade,
             'mahasiswa' => ['id' => $mahasiswa->id, 'nama' => $mahasiswa->nama],
@@ -227,7 +292,35 @@ class TugasKelompokController extends Controller
         $validated = $request->validate(['name' => 'required|string|max:100']);
 
         try {
-            $this->formationService->createSelfFormGroup($assignment, $mahasiswa, $validated['name']);
+            $group = $this->formationService->createSelfFormGroup($assignment, $mahasiswa, $validated['name']);
+
+            $configuredSlotCount = (int) ($assignment->self_form_group_count ?? 0);
+            if ($assignment->formation_mode === 'self-form' && $configuredSlotCount > 0) {
+                $usedSlots = GaGroup::where('assignment_id', $assignment->id)
+                    ->whereNotNull('slot_number')
+                    ->pluck('slot_number')
+                    ->map(fn ($slot) => (int) $slot)
+                    ->all();
+
+                $availableSlot = null;
+                for ($slot = 1; $slot <= $configuredSlotCount; $slot++) {
+                    if (!in_array($slot, $usedSlots, true)) {
+                        $availableSlot = $slot;
+                        break;
+                    }
+                }
+
+                if (!$availableSlot) {
+                    $group->delete();
+                    return back()->with('error', 'Seluruh slot kelompok sudah terisi.');
+                }
+
+                $group->update([
+                    'slot_number' => $availableSlot,
+                    'name' => "Kelompok {$availableSlot}",
+                ]);
+            }
+
             return back()->with('success', 'Kelompok berhasil dibuat!');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -245,6 +338,131 @@ class TugasKelompokController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function joinGroupSlot(int $id, int $slotNumber)
+    {
+        $mahasiswa = $this->getMahasiswa();
+        $assignment = GroupAssignment::with('course')->findOrFail($id);
+
+        if ($assignment->formation_mode !== 'self-form') {
+            return back()->with('error', 'Fitur pilih slot hanya tersedia pada mode self-form.');
+        }
+
+        if ($assignment->is_locked) {
+            return back()->with('error', 'Formasi kelompok sudah dikunci.');
+        }
+
+        $maxSlot = (int) ($assignment->self_form_group_count ?? 0);
+        if ($maxSlot < 1 || $slotNumber < 1 || $slotNumber > $maxSlot) {
+            return back()->with('error', 'Slot kelompok tidak valid.');
+        }
+
+        $group = GaGroup::where('assignment_id', $assignment->id)
+            ->where('slot_number', $slotNumber)
+            ->first();
+
+        try {
+            if (!$group) {
+                $group = $this->formationService->createSelfFormGroup($assignment, $mahasiswa, "Kelompok {$slotNumber}");
+                $group->update([
+                    'slot_number' => $slotNumber,
+                    'name' => "Kelompok {$slotNumber}",
+                ]);
+
+                return back()->with('success', "Kelompok {$slotNumber} berhasil dibuat dan Anda menjadi ketua.");
+            }
+
+            $this->formationService->joinGroup($group, $mahasiswa);
+            return back()->with('success', "Berhasil bergabung ke Kelompok {$slotNumber}.");
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function leaderAddMember(Request $request, int $id)
+    {
+        $mahasiswa = $this->getMahasiswa();
+        $assignment = GroupAssignment::with('course')->findOrFail($id);
+        $group = $this->getMyGroup($id, $mahasiswa);
+        $this->assertSelfFormLeader($assignment, $group, $mahasiswa);
+
+        $validated = $request->validate([
+            'student_id' => 'required|integer|exists:mahasiswa,id',
+        ]);
+
+        $targetStudentId = (int) $validated['student_id'];
+        $isEnrolled = $this->isStudentEligibleForAssignmentCourse($assignment, $targetStudentId);
+
+        if (!$isEnrolled) {
+            return back()->with('error', 'Mahasiswa tidak terdaftar pada mata kuliah ini.');
+        }
+
+        try {
+            $this->formationService->manualAssignStudent($group, $targetStudentId, false);
+            return back()->with('success', 'Anggota berhasil ditambahkan oleh ketua.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function leaderRemoveMember(Request $request, int $id)
+    {
+        $mahasiswa = $this->getMahasiswa();
+        $assignment = GroupAssignment::findOrFail($id);
+        $group = $this->getMyGroup($id, $mahasiswa);
+        $this->assertSelfFormLeader($assignment, $group, $mahasiswa);
+
+        $validated = $request->validate([
+            'student_id' => 'required|integer|exists:mahasiswa,id',
+        ]);
+
+        $studentId = (int) $validated['student_id'];
+        if ($studentId === (int) $mahasiswa->id) {
+            return back()->with('error', 'Ketua tidak bisa menghapus dirinya sendiri.');
+        }
+
+        $member = GaGroupMember::where('group_id', $group->id)
+            ->where('student_id', $studentId)
+            ->first();
+
+        if (!$member) {
+            return back()->with('error', 'Mahasiswa tidak berada dalam kelompok ini.');
+        }
+
+        if ($member->is_leader) {
+            return back()->with('error', 'Pindahkan ketua terlebih dahulu sebelum menghapus anggota ini.');
+        }
+
+        $member->delete();
+        return back()->with('success', 'Anggota berhasil dikeluarkan dari kelompok.');
+    }
+
+    public function leaderSetLeader(Request $request, int $id)
+    {
+        $mahasiswa = $this->getMahasiswa();
+        $assignment = GroupAssignment::findOrFail($id);
+        $group = $this->getMyGroup($id, $mahasiswa);
+        $this->assertSelfFormLeader($assignment, $group, $mahasiswa);
+
+        $validated = $request->validate([
+            'student_id' => 'required|integer|exists:mahasiswa,id',
+        ]);
+
+        $newLeaderId = (int) $validated['student_id'];
+        $member = GaGroupMember::where('group_id', $group->id)
+            ->where('student_id', $newLeaderId)
+            ->first();
+
+        if (!$member) {
+            return back()->with('error', 'Mahasiswa harus menjadi anggota kelompok sebelum dijadikan ketua.');
+        }
+
+        GaGroupMember::where('group_id', $group->id)->update(['is_leader' => false]);
+        $member->update(['is_leader' => true]);
+        $group->update(['leader_id' => $newLeaderId]);
+
+        return back()->with('success', 'Ketua kelompok berhasil diperbarui.');
     }
 
     public function leaveGroup(int $id)
@@ -413,6 +631,13 @@ class TugasKelompokController extends Controller
 
     // ═══════ HELPERS ═══════
 
+    private function assertSelfFormLeader(GroupAssignment $assignment, GaGroup $group, Mahasiswa $mahasiswa): void
+    {
+        abort_if($assignment->formation_mode !== 'self-form', 403, 'Aksi ini hanya berlaku pada mode self-form.');
+        abort_if($assignment->is_locked, 403, 'Formasi kelompok sudah dikunci.');
+        abort_if((int) $group->leader_id !== (int) $mahasiswa->id, 403, 'Hanya ketua kelompok yang bisa melakukan aksi ini.');
+    }
+
     private function getMahasiswa(): Mahasiswa
     {
         $user = auth()->user();
@@ -428,5 +653,21 @@ class TugasKelompokController extends Controller
             ->first();
         abort_if(!$group, 404, 'Anda belum tergabung dalam kelompok.');
         return $group;
+    }
+
+    private function isStudentEligibleForAssignmentCourse(GroupAssignment $assignment, int $studentId): bool
+    {
+        $courseName = $assignment->course->nama;
+        $enrolledIds = MahasiswaCourse::where('name', $courseName)
+            ->pluck('mahasiswa_id')
+            ->unique()
+            ->values();
+
+        // Fallback saat sinkronisasi mahasiswa_courses per matkul belum lengkap.
+        if ($enrolledIds->count() <= 2 && Mahasiswa::count() >= 10) {
+            return Mahasiswa::whereKey($studentId)->exists();
+        }
+
+        return $enrolledIds->contains($studentId);
     }
 }
